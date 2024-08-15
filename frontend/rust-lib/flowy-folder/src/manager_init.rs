@@ -57,13 +57,7 @@ impl FolderManager {
         if is_exist {
           event!(Level::INFO, "Init folder from local disk");
           self
-            .make_folder(
-              uid,
-              &workspace_id,
-              collab_db,
-              DataSource::Disk,
-              folder_notifier,
-            )
+            .make_folder(uid, &workspace_id, collab_db, None, folder_notifier)
             .await?
         } else if create_if_not_exist {
           // 2. if the folder doesn't exist and create_if_not_exist is true, create a default folder
@@ -85,7 +79,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              DataSource::DocStateV1(doc_state),
+              Some(DataSource::DocStateV1(doc_state)),
               folder_notifier.clone(),
             )
             .await?
@@ -95,13 +89,7 @@ impl FolderManager {
         if doc_state.is_empty() {
           event!(Level::ERROR, "remote folder data is empty, open from local");
           self
-            .make_folder(
-              uid,
-              &workspace_id,
-              collab_db,
-              DataSource::Disk,
-              folder_notifier,
-            )
+            .make_folder(uid, &workspace_id, collab_db, None, folder_notifier)
             .await?
         } else {
           event!(Level::INFO, "Restore folder from remote data");
@@ -110,7 +98,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              DataSource::DocStateV1(doc_state),
+              Some(DataSource::DocStateV1(doc_state)),
               folder_notifier.clone(),
             )
             .await?

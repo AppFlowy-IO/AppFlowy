@@ -5,7 +5,9 @@ use anyhow::Context;
 use collab::core::collab::DataSource;
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+};
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, instrument, trace};
@@ -166,6 +168,8 @@ impl UserManager {
       },
       Err(err) => {
         if err.is_record_not_found() {
+          let doc_state =
+            KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
           info!("User awareness not found, creating new");
           Self::collab_for_user_awareness(
             &weak_builder,
@@ -173,7 +177,7 @@ impl UserManager {
             session.user_id,
             &object_id,
             collab_db,
-            DataSource::Disk,
+            doc_state,
             None,
           )?
         } else {

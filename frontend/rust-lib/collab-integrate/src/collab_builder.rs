@@ -6,6 +6,7 @@ use crate::CollabKVDB;
 use anyhow::Error;
 use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::core::collab::DataSource;
+use collab::core::collab_plugin::CollabPersistence;
 use collab::preclude::{Collab, CollabBuilder};
 use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabase};
 use collab_document::blocks::DocumentData;
@@ -23,12 +24,14 @@ use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 }
 
 pub use crate::plugin_provider::CollabCloudPluginProvider;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use tokio::sync::RwLock;
 
 use lib_infra::{if_native, if_wasm};
-use tracing::{instrument, trace};
+use tracing::{error, instrument, trace, warn};
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
@@ -233,8 +236,7 @@ impl AppFlowyCollabBuilder {
     collab_db: &Weak<CollabKVDB>,
     collab_doc_state: DataSource,
   ) -> Result<Collab, Error> {
-    let mut collab = CollabBuilder::new(object.uid, &object.object_id)
-      .with_doc_state(collab_doc_state)
+    let collab = CollabBuilder::new(object.uid, &object.object_id, collab_doc_state)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
 
@@ -247,7 +249,6 @@ impl AppFlowyCollabBuilder {
       persistence_config.clone(),
       None,
     );
-    db_plugin.load_collab(&mut collab);
     collab.add_plugin(Box::new(db_plugin));
 
     Ok(collab)
@@ -327,5 +328,41 @@ impl CollabBuilderConfig {
   pub fn auto_initialize(mut self, auto_initialize: bool) -> Self {
     self.auto_initialize = auto_initialize;
     self
+  }
+}
+
+pub struct KVDBCollabPersistenceImpl {
+  pub db: Weak<CollabKVDB>,
+  pub uid: i64,
+}
+
+impl KVDBCollabPersistenceImpl {
+  pub fn new(db: Weak<CollabKVDB>, uid: i64) -> Self {
+    Self { db, uid }
+  }
+
+  pub fn into_data_source(self) -> DataSource {
+    DataSource::Disk(Some(Box::new(self)))
+  }
+}
+
+impl CollabPersistence for KVDBCollabPersistenceImpl {
+  fn load_collab(&self, collab: &mut Collab) {
+    if let Some(collab_db) = self.db.upgrade() {
+      let object_id = collab.object_id().to_string();
+      let rocksdb_read = collab_db.read_txn();
+
+      if rocksdb_read.is_exist(self.uid, &object_id) {
+        let mut txn = collab.transact_mut();
+        if let Err(err) = rocksdb_read.load_doc_with_txn(self.uid, &object_id, &mut txn) {
+          error!("🔴 load doc:{} failed: {}", object_id, err);
+        }
+        drop(rocksdb_read);
+        txn.commit();
+        drop(txn);
+      }
+    } else {
+      warn!("collab_db is dropped");
+    }
   }
 }

@@ -27,7 +27,9 @@ use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
   Workspace,
 };
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+};
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
@@ -148,7 +150,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-    doc_state: DataSource,
+    data_source: Option<DataSource>,
     folder_notifier: T,
   ) -> Result<Arc<RwLock<Folder>>, FlowyError> {
     let folder_notifier = folder_notifier.into();
@@ -157,6 +159,9 @@ impl FolderManager {
       .sync_enable(true)
       .auto_initialize(true);
 
+    let data_source = data_source
+      .unwrap_or_else(|| KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
+
     let object_id = workspace_id;
     let collab_object =
       self
@@ -164,7 +169,7 @@ impl FolderManager {
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
     let result = self.collab_builder.create_folder(
       collab_object,
-      doc_state,
+      data_source,
       collab_db,
       config,
       folder_notifier,
@@ -202,9 +207,11 @@ impl FolderManager {
       self
         .collab_builder
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
+
+    let doc_state = KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
     let folder = self.collab_builder.create_folder(
       collab_object,
-      DataSource::Disk,
+      doc_state,
       collab_db,
       CollabBuilderConfig::default().sync_enable(true),
       notifier,

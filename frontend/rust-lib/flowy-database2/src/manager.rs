@@ -19,7 +19,9 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
@@ -107,7 +109,8 @@ impl DatabaseManager {
 
     let workspace_id = self.user.workspace_id()?;
     let workspace_database_object_id = self.user.workspace_database_object_id()?;
-    let mut workspace_database_doc_state = DataSource::Disk;
+    let mut workspace_database_doc_state =
+      KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
@@ -124,9 +127,7 @@ impl DatabaseManager {
           Some(doc_state) => {
             workspace_database_doc_state = DataSource::DocStateV1(doc_state);
           },
-          None => {
-            workspace_database_doc_state = DataSource::Disk;
-          },
+          None => {},
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
@@ -643,7 +644,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> Result<DataSource, DatabaseError> {
+  ) -> Result<Option<DataSource>, DatabaseError> {
     let workspace_id = self.user.workspace_id().unwrap();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
@@ -655,8 +656,8 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
           .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
           .await?;
         match doc_state {
-          None => Ok(DataSource::Disk),
-          Some(doc_state) => Ok(DataSource::DocStateV1(doc_state)),
+          None => Ok(None),
+          Some(doc_state) => Ok(Some(DataSource::DocStateV1(doc_state))),
         }
       },
     }

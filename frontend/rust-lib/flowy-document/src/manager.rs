@@ -24,7 +24,9 @@ use tracing::{event, instrument};
 use crate::document::{
   subscribe_document_changed, subscribe_document_snapshot_state, subscribe_document_sync_state,
 };
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::storage::{CreatedUpload, StorageService};
@@ -82,8 +84,9 @@ impl DocumentManager {
 
   /// Get the encoded collab of the document.
   pub fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
-    let doc_state = DataSource::Disk;
     let uid = self.user_service.user_id()?;
+    let doc_state =
+      KVDBCollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
     let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
     let encoded_collab = collab
       .try_read()
@@ -203,8 +206,10 @@ impl DocumentManager {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
     }
+    let uid = self.user_service.user_id()?;
 
-    let mut doc_state = DataSource::Disk;
+    let mut doc_state =
+      KVDBCollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
     // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
@@ -224,7 +229,6 @@ impl DocumentManager {
       }
     }
 
-    let uid = self.user_service.user_id()?;
     event!(
       tracing::Level::DEBUG,
       "Initialize document: {}, workspace_id: {:?}",
