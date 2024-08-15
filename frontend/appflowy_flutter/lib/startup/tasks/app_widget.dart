@@ -190,9 +190,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
               if (view != null) {
                 final view = action.arguments?[ActionArgumentKeys.view];
                 final rowId = action.arguments?[ActionArgumentKeys.rowId];
-                AppGlobals.rootNavKey.currentContext?.pushView(view, {
-                  PluginArgumentKeys.rowId: rowId,
-                });
+                AppGlobals.rootNavKey.currentContext?.pushView(
+                  view,
+                  arguments: {
+                    PluginArgumentKeys.rowId: rowId,
+                  },
+                );
               }
             }
           });

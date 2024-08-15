@@ -1327,6 +1327,7 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
+      "openRowDocument": "Open document",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
