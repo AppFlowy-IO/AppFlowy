@@ -794,7 +794,6 @@
         "priceInfo": "gratuit pour toujours"
       },
       "proPlan": {
-        "title": "Pro",
         "description": "Pour les petites équipes pour gérer les projets et les bases de connaissance",
         "priceInfo": "par utilisateur et par mois\nfacturé annuellement\n\n{} facturé mensuellement"
       },
@@ -1709,8 +1708,7 @@
     "codeBlock": {
       "language": {
         "label": "Langue",
-        "placeholder": "Choisir la langue",
-        "auto": "Auto"
+        "placeholder": "Choisir la langue"
       },
       "copyTooltip": "Copier le contenu du bloc de code",
       "searchLanguageHint": "Rechercher une langue",
