@@ -76,9 +76,8 @@ pub(crate) fn subscribe_folder_snapshot_state_changed(
   user: Weak<dyn FolderUser>,
 ) {
   af_spawn(async move {
-    if let Some(lock) = weak_mutex_folder.upgrade() {
-      let folder = lock.read().await;
-      let mut state_stream = folder.subscribe_snapshot_state();
+    if let Some(folder) = weak_mutex_folder.upgrade() {
+      let mut state_stream = folder.read().await.subscribe_snapshot_state();
 
       while let Some(snapshot_state) = state_stream.next().await {
         if let Some(user) = user.upgrade() {

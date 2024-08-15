@@ -436,6 +436,9 @@ impl FolderManager {
     if let Some(lock) = self.mutex_folder.load_full() {
       let folder = lock.read().await;
       if let Some(view) = folder.get_view(view_id) {
+        // Drop the folder lock explicitly to avoid deadlock when following calls contains 'self'
+        drop(folder);
+
         let handler = self.get_handler(&view.layout)?;
         handler.close_view(view_id).await?;
       }
@@ -1344,6 +1347,8 @@ impl FolderManager {
   pub(crate) async fn delete_my_trash(&self) {
     if let Some(lock) = self.mutex_folder.load_full() {
       let deleted_trash = lock.read().await.get_my_trash_info();
+      drop(lock);
+
       for trash in deleted_trash {
         let _ = self.delete_trash(&trash.id).await;
       }
@@ -1359,10 +1364,14 @@ impl FolderManager {
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn delete_trash(&self, view_id: &str) -> FlowyResult<()> {
     if let Some(lock) = self.mutex_folder.load_full() {
-      let mut folder = lock.write().await;
-      let view = folder.get_view(view_id);
-      folder.delete_trash_view_ids(vec![view_id.to_string()]);
-      folder.delete_views(vec![view_id]);
+      let view = {
+        let mut folder = lock.write().await;
+        let view = folder.get_view(view_id);
+        folder.delete_trash_view_ids(vec![view_id.to_string()]);
+        folder.delete_views(vec![view_id]);
+        view
+      };
+
       if let Some(view) = view {
         if let Ok(handler) = self.get_handler(&view.layout) {
           handler.delete_view(view_id).await?;
