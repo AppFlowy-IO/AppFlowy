@@ -681,15 +681,9 @@ pub(crate) async fn update_group_handler(
   let view_id = params.view_id.clone();
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
   let group_changeset = GroupChangeset::from(params);
-  let (tx, rx) = oneshot::channel();
-  af_spawn(async move {
-    let result = database_editor
-      .update_group(&view_id, vec![group_changeset])
-      .await;
-    let _ = tx.send(result);
-  });
-
-  let _ = rx.await?;
+  database_editor
+    .update_group(&view_id, vec![group_changeset])
+    .await?;
   Ok(())
 }
 

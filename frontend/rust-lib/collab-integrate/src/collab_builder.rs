@@ -145,18 +145,18 @@ impl AppFlowyCollabBuilder {
   #[allow(clippy::too_many_arguments)]
   #[instrument(
     level = "trace",
-    skip(self, doc_state, collab_db, builder_config, data)
+    skip(self, data_source, collab_db, builder_config, data)
   )]
   pub fn create_document(
     &self,
     object: CollabObject,
-    doc_state: DataSource,
+    data_source: DataSource,
     collab_db: Weak<CollabKVDB>,
     builder_config: CollabBuilderConfig,
     data: Option<DocumentData>,
   ) -> Result<Arc<RwLock<Document>>, Error> {
     assert_eq!(object.collab_type, CollabType::Document);
-    let collab = self.build_collab(&object, &collab_db, doc_state)?;
+    let collab = self.build_collab(&object, &collab_db, data_source)?;
     let document = Document::open_with(collab, data)?;
     let document = Arc::new(RwLock::new(document));
     self.finalize(object, builder_config, collab_db, document)
@@ -234,9 +234,9 @@ impl AppFlowyCollabBuilder {
     &self,
     object: &CollabObject,
     collab_db: &Weak<CollabKVDB>,
-    collab_doc_state: DataSource,
+    data_source: DataSource,
   ) -> Result<Collab, Error> {
-    let collab = CollabBuilder::new(object.uid, &object.object_id, collab_doc_state)
+    let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
 

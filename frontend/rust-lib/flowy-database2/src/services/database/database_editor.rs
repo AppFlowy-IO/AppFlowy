@@ -5,7 +5,7 @@ use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{
-  DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
+  DatabaseViewChanged, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
@@ -381,8 +381,17 @@ impl DatabaseEditor {
     old_field: Field,
   ) -> FlowyResult<()> {
     let view_editors = self.database_views.editors().await;
-    let mut database = self.database.write().await;
-    update_field_type_option_fn(&mut database, &view_editors, type_option_data, old_field).await?;
+    {
+      let mut database = self.database.write().await;
+      update_field_type_option_fn(&mut database, type_option_data, &old_field).await?;
+      drop(database);
+    }
+
+    for view_editor in view_editors {
+      view_editor
+        .v_did_update_field_type_option(&old_field)
+        .await?;
+    }
     Ok(())
   }
 
@@ -940,13 +949,12 @@ impl DatabaseEditor {
 
     // Update the field's type option
     let view_editors = self.database_views.editors().await;
-    update_field_type_option_fn(
-      &mut database,
-      &view_editors,
-      type_option.to_type_option_data(),
-      field.clone(),
-    )
-    .await?;
+    update_field_type_option_fn(&mut database, type_option.to_type_option_data(), &field).await?;
+    drop(database);
+
+    for view_editor in view_editors {
+      view_editor.v_did_update_field_type_option(&field).await?;
+    }
 
     // Insert the options into the cell
     self
@@ -981,13 +989,14 @@ impl DatabaseEditor {
     }
 
     let view_editors = self.database_views.editors().await;
-    update_field_type_option_fn(
-      &mut database,
-      &view_editors,
-      type_option.to_type_option_data(),
-      field.clone(),
-    )
-    .await?;
+    update_field_type_option_fn(&mut database, type_option.to_type_option_data(), &field).await?;
+
+    // Drop the database write lock ASAP
+    drop(database);
+
+    for view_editor in view_editors {
+      view_editor.v_did_update_field_type_option(&field).await?;
+    }
 
     self
       .update_cell_with_changeset(view_id, &row_id, field_id, BoxAny::new(cell_changeset))
@@ -1411,10 +1420,20 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .await
       .values()
       .cloned()
-      .collect();
-    let mut database = self.database.write().await;
-    let _ =
-      update_field_type_option_fn(&mut *database, &view_editors, type_option_data, old_field).await;
+      .collect::<Vec<_>>();
+
+    //
+    {
+      let mut database = self.database.write().await;
+      let _ = update_field_type_option_fn(&mut *database, type_option_data, &old_field).await;
+      drop(database);
+    }
+
+    for view_editor in view_editors {
+      view_editor
+        .v_did_update_field_type_option(&old_field)
+        .await?;
+    }
     Ok(())
   }
 
@@ -1728,15 +1747,14 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub async fn update_field_type_option_fn(
   database: &mut Database,
-  view_editors: &Vec<Arc<DatabaseViewEditor>>,
   type_option_data: TypeOptionData,
-  old_field: Field,
+  old_field: &Field,
 ) -> FlowyResult<()> {
   if type_option_data.is_empty() {
     warn!("Update type option with empty data");
     return Ok(());
   }
-  let field_type = FieldType::from(old_field.field_type);
+  let field_type = FieldType::from(old_field.field_type.clone());
   database.update_field(&old_field.id, |update| {
     if old_field.is_primary {
       warn!("Cannot update primary field type");
@@ -1754,12 +1772,6 @@ pub async fn update_field_type_option_fn(
   });
 
   let _ = notify_did_update_database_field(database, &old_field.id);
-  for view_editor in view_editors {
-    view_editor
-      .v_did_update_field_type_option(&old_field)
-      .await?;
-  }
-
   Ok(())
 }
 

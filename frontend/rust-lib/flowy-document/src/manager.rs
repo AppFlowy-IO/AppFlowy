@@ -168,7 +168,7 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    doc_state: DataSource,
+    data_source: DataSource,
     sync_enable: bool,
   ) -> FlowyResult<Arc<RwLock<Document>>> {
     let db = self.user_service.collab_db(uid)?;
@@ -179,7 +179,7 @@ impl DocumentManager {
         .collab_object(&workspace_id, uid, doc_id, CollabType::Document)?;
     let document = self.collab_builder.create_document(
       collab_object,
-      doc_state,
+      data_source,
       db,
       CollabBuilderConfig::default().sync_enable(sync_enable),
       None,
