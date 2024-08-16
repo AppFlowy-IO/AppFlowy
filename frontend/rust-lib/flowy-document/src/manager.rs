@@ -187,7 +187,8 @@ impl DocumentManager {
     Ok(document)
   }
 
-  pub fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<RwLock<Document>>> {
+  /// Return a document instance if the document is already opened.
+  pub async fn editable_document(&self, doc_id: &str) -> FlowyResult<Arc<RwLock<Document>>> {
     if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
       return Ok(doc);
     }
@@ -195,6 +196,7 @@ impl DocumentManager {
     if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
+
     Err(FlowyError::internal().with_context("Call open document first"))
   }
 
@@ -202,12 +204,12 @@ impl DocumentManager {
   /// If the document does not exist in local disk, try get the doc state from the cloud.
   /// If the document exists, open the document and cache it
   #[tracing::instrument(level = "info", skip(self), err)]
-  async fn create_document_instance(&self, doc_id: &str) -> FlowyResult<Arc<RwLock<Document>>> {
-    if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
-      return Ok(doc);
-    }
+  async fn create_document_instance(
+    &self,
+    doc_id: &str,
+    enable_sync: bool,
+  ) -> FlowyResult<Arc<RwLock<Document>>> {
     let uid = self.user_service.user_id()?;
-
     let mut doc_state =
       KVDBCollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
@@ -235,17 +237,19 @@ impl DocumentManager {
       doc_id,
       self.user_service.workspace_id()
     );
-    let result = self.collab_for_document(uid, doc_id, doc_state, true);
-
+    let result = self.collab_for_document(uid, doc_id, doc_state, enable_sync);
     match result {
       Ok(document) => {
-        {
-          let mut lock = document.write().await;
-          subscribe_document_changed(doc_id, &mut lock);
-          subscribe_document_snapshot_state(&lock);
-          subscribe_document_sync_state(&lock);
+        // Only push the document to the cache if the sync is enabled.
+        if enable_sync {
+          {
+            let mut lock = document.write().await;
+            subscribe_document_changed(doc_id, &mut lock);
+            subscribe_document_snapshot_state(&lock);
+            subscribe_document_sync_state(&lock);
+          }
+          self.documents.insert(doc_id.to_string(), document.clone());
         }
-        self.documents.insert(doc_id.to_string(), document.clone());
         Ok(document)
       },
       Err(err) => {
@@ -260,44 +264,43 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let document = self.get_document(doc_id)?;
+    let document = self.get_document(doc_id).await?;
     let document = document.read().await;
     document.get_document_data().map_err(internal_error)
   }
   pub async fn get_document_text(&self, doc_id: &str) -> FlowyResult<String> {
-    let document = self.get_document(doc_id)?;
+    let document = self.get_document(doc_id).await?;
     let document = document.read().await;
     let text = convert_document_to_plain_text(&document)?;
     Ok(text)
   }
 
-  //async fn get_document(&self, doc_id: &str) -> FlowyResult<Document> {
-  //  let mut doc_state = DataSource::Disk;
-  //  if !self.is_doc_exist(doc_id).await? {
-  //    doc_state = DataSource::DocStateV1(
-  //      self
-  //        .cloud_service
-  //        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-  //        .await?,
-  //    );
-  //  }
-  //  let uid = self.user_service.user_id()?;
-  //  match self.collab_for_document(uid, doc_id, doc_state, false) {
-  //    Ok(document) => document
-  //      .read()
-  //      .await
-  //      .get_document_data()
-  //      .map_err(internal_error),
-  //    Err(err) => Err(internal_error(err)),
-  //  }
-  //}
+  /// Return a document instance.
+  /// The returned document might or might not be able to sync with the cloud.
+  async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<RwLock<Document>>> {
+    if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
+      return Ok(doc);
+    }
+
+    if let Some(doc) = self.restore_document_from_removing(doc_id) {
+      return Ok(doc);
+    }
+
+    let document = self.create_document_instance(doc_id, false).await?;
+    Ok(document)
+  }
 
   pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
     if let Some(mutex_document) = self.restore_document_from_removing(doc_id) {
       let lock = mutex_document.read().await;
       lock.start_init_sync();
     }
-    let _ = self.create_document_instance(doc_id).await?;
+
+    if self.documents.contains_key(doc_id) {
+      return Ok(());
+    }
+
+    let _ = self.create_document_instance(doc_id, true).await?;
     Ok(())
   }
 
@@ -345,7 +348,7 @@ impl DocumentManager {
   ) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
     let device_id = self.user_service.device_id()?;
-    if let Ok(doc) = self.get_document(doc_id) {
+    if let Ok(doc) = self.editable_document(doc_id).await {
       let mut doc = doc.write().await;
       let user = DocumentAwarenessUser { uid, device_id };
       let selection = state.selection.map(|s| s.into());

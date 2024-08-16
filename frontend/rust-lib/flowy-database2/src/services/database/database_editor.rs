@@ -456,6 +456,8 @@ impl DatabaseEditor {
 
     let value =
       database.duplicate_field(view_id, field_id, |field| format!("{} (copy)", field.name));
+    drop(database);
+
     if let Some((index, duplicated_field)) = value {
       let _ = self
         .notify_did_insert_database_field(duplicated_field.clone(), index)
@@ -545,11 +547,16 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let result = database.create_row_in_view(&view_editor.view_id, collab_params);
+    let result = database
+      .create_row_in_view(&view_editor.view_id, collab_params)
+      .map(|(index, order)| {
+        let row_detail = database.get_row_detail(&order.id);
+        (index, row_detail)
+      });
+    drop(database);
 
-    if let Some((index, row_order)) = result {
-      tracing::trace!("created row: {:?} at {}", row_order, index);
-      let row_detail = database.get_row_detail(&row_order.id);
+    if let Some((index, row_detail)) = result {
+      tracing::trace!("created row: {:?} at {}", row_detail, index);
       if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
           view.v_did_create_row(&row_detail, index).await;

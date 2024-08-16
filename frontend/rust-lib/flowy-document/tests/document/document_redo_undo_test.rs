@@ -23,7 +23,7 @@ async fn undo_redo_test() {
 
   // open a document
   test.open_document(&doc_id).await.unwrap();
-  let document = test.get_document(&doc_id).unwrap();
+  let document = test.editable_document(&doc_id).await.unwrap();
   let mut document = document.write().await;
   let page_block = document.get_block(&data.page_id).unwrap();
   let page_id = page_block.id;

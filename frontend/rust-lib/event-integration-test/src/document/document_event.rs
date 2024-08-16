@@ -42,7 +42,8 @@ impl DocumentEventTest {
       .event_test
       .appflowy_core
       .document_manager
-      .get_document(doc_id)
+      .editable_document(doc_id)
+      .await
       .unwrap();
     let guard = doc.read().await;
     guard.encode_collab().unwrap()
