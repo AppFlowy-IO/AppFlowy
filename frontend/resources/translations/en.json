@@ -1471,7 +1471,7 @@
         "image": "Image",
         "bulletedList": "Bulleted List",
         "numberedList": "Numbered List",
-        "checkbox": "Checkbox",
+        "todoList": "To-do List",
         "doc": "Doc",
         "linkedDoc": "Link to page",
         "grid": "Grid",
