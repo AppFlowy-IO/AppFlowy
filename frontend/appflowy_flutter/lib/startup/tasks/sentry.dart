@@ -20,8 +20,8 @@ class InitSentryTask extends LaunchTask {
     await SentryFlutter.init(
       (options) {
         options.dsn = dsn;
-        options.tracesSampleRate = 1.0;
-        options.profilesSampleRate = 1.0;
+        options.tracesSampleRate = 0.1;
+        options.profilesSampleRate = 0.1;
       },
     );
   }
