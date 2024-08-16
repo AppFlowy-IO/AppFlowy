@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "9d3e854"
-      resolved-ref: "9d3e854f11fd9d732535ce5f5b1c8f41517479a1"
+      ref: "8e17d14"
+      resolved-ref: "8e17d1447eea0b57ff92e31dbe88796ce759fb37"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "3.1.0"
+    version: "3.2.0"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
@@ -839,7 +839,7 @@ packages:
     source: hosted
     version: "0.6.5"
   flutter_svg:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_svg
       sha256: d39e7f95621fc84376bc0f7d504f05c3a41488c562f4a8ad410569127507402c
@@ -1122,14 +1122,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
-  intl_utils:
-    dependency: transitive
-    description:
-      name: intl_utils
-      sha256: c2b1f5c72c25512cbeef5ab015c008fc50fe7e04813ba5541c25272300484bf4
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.8.7"
   io:
     dependency: transitive
     description:
@@ -1155,7 +1147,7 @@ packages:
     source: hosted
     version: "0.7.0"
   isolates:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: isolates
       sha256: ce89e4141b27b877326d3715be2dceac7a7ba89f3229785816d2d318a75ddf28
@@ -1275,7 +1267,7 @@ packages:
     source: hosted
     version: "0.1.5"
   logger:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: logger
       sha256: "697d067c60c20999686a0add96cf6aba723b3aa1f83ecf806a8097231529ec32"
@@ -1514,14 +1506,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.11.1"
-  pdf_widget_wrapper:
-    dependency: transitive
-    description:
-      name: pdf_widget_wrapper
-      sha256: c930860d987213a3d58c7ec3b7ecf8085c3897f773e8dc23da9cae60a5d6d0f5
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1642,14 +1626,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  printing:
-    dependency: transitive
-    description:
-      name: printing
-      sha256: cc4b256a5a89d5345488e3318897b595867f5181b8c5ed6fc63bfa5f2044aec3
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.13.1"
   process:
     dependency: transitive
     description:
