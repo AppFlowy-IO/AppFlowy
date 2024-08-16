@@ -38,7 +38,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_bloc.freezed.dart';
 
-bool enableDocumentInternalLog = true;
+bool enableDocumentInternalLog = false;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
