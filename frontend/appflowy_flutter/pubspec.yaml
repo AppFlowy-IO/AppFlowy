@@ -77,7 +77,6 @@ dependencies:
   linked_scroll_controller: ^0.2.0
   hotkey_manager: ^0.1.7
   fixnum: ^1.1.0
-  flutter_svg: ^2.0.7
   protobuf: ^3.1.0
   collection: ^1.17.1
   bloc: ^8.1.2
@@ -133,10 +132,8 @@ dependencies:
   auto_size_text_field: ^2.2.3
   reorderable_tabbar: ^1.0.6
   shimmer: ^3.0.0
-  isolates: ^3.0.3+8
   markdown_widget: ^2.3.2+6
   markdown:
-  logger: ^2.4.0
 
   # Desktop Drop uses Cross File (XFile) data type
   desktop_drop: ^0.4.4
@@ -193,7 +190,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "9d3e854"
+      ref: "8e17d14"
 
   appflowy_editor_plugins:
     git:
