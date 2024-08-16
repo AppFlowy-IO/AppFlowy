@@ -52,7 +52,10 @@ impl FolderManager {
       FolderInitDataSource::LocalDisk {
         create_if_not_exist,
       } => {
-        let is_exist = self.is_workspace_exist_in_local(uid, &workspace_id).await;
+        let is_exist = self
+          .user
+          .is_folder_exist_on_disk(uid, &workspace_id)
+          .unwrap_or(false);
         // 1. if the folder exists, open it from local disk
         if is_exist {
           event!(Level::INFO, "Init folder from local disk");
@@ -144,15 +147,6 @@ impl FolderManager {
     );
 
     Ok(())
-  }
-
-  async fn is_workspace_exist_in_local(&self, uid: i64, workspace_id: &str) -> bool {
-    if let Ok(weak_collab) = self.user.collab_db(uid) {
-      if let Some(collab_db) = weak_collab.upgrade() {
-        return collab_db.is_exist(uid, workspace_id).await.unwrap_or(false);
-      }
-    }
-    false
   }
 
   async fn create_default_folder(

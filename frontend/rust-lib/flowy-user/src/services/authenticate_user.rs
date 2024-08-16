@@ -5,6 +5,8 @@ use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
 use arc_swap::ArcSwapOption;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -106,6 +108,12 @@ impl AuthenticateUser {
     info!("Close db for user: {}", session.user_id);
     self.database.close(session.user_id)?;
     Ok(())
+  }
+
+  pub fn is_collab_on_disk(&self, uid: i64, object_id: &str) -> FlowyResult<bool> {
+    let collab_db = self.database.get_collab_db(uid)?;
+    let read_txn = collab_db.read_txn();
+    Ok(read_txn.is_exist(uid, &object_id))
   }
 
   pub fn set_session(&self, session: Option<Arc<Session>>) -> Result<(), FlowyError> {

@@ -12,7 +12,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use dashmap::try_result::TryResult;
 use tokio::sync::RwLock;
-use tracing::{ error, info, instrument, trace};
+use tracing::{error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -148,7 +148,9 @@ impl UserManager {
         old_user_awareness.read().await.close(); // Ensure that old awareness is closed
       }
 
-      let is_exist_on_disk = self.is_awareness_on_disk(session, &object_id)?;
+      let is_exist_on_disk = self
+        .authenticate_user
+        .is_collab_on_disk(session.user_id, &object_id)?;
       if authenticator.is_local() || is_exist_on_disk {
         trace!(
           "Initializing new user awareness from disk:{}, {:?}",
@@ -193,17 +195,6 @@ impl UserManager {
     }
 
     Ok(())
-  }
-
-  fn is_awareness_on_disk(&self, session: &Session, object_id: &str) -> FlowyResult<bool> {
-    let collab_db = self
-      .authenticate_user
-      .get_collab_db(session.user_id)
-      .ok()
-      .and_then(|db| db.upgrade())
-      .ok_or_else(|| FlowyError::new(ErrorCode::Internal, format!("Failed to get collab db")))?;
-    let read_txn = collab_db.read_txn();
-    Ok(read_txn.is_exist(session.user_id, &object_id))
   }
 
   /// Initialize UserAwareness from server.

@@ -308,7 +308,7 @@ pub enum ErrorCode {
   #[error("Invalid Request")]
   InvalidRequest = 106,
 
-  #[error("Un progress")]
+  #[error("In progress")]
   // when client receives InProgress, it should retry
   InProgress = 107,
 }

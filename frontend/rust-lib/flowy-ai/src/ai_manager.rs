@@ -67,7 +67,8 @@ impl AIManager {
   }
 
   pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
-    self.local_ai_controller.refresh().await?;
+    // Ignore following error
+    let _ = self.local_ai_controller.refresh().await;
     Ok(())
   }
 

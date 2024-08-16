@@ -11,7 +11,7 @@ use flowy_database2::DatabaseManager;
 use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
@@ -109,6 +109,10 @@ impl FolderUser for FolderUserImpl {
 
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
     self.upgrade_user()?.get_collab_db(uid)
+  }
+
+  fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &str) -> FlowyResult<bool> {
+    self.upgrade_user()?.is_collab_on_disk(uid, workspace_id)
   }
 }
 

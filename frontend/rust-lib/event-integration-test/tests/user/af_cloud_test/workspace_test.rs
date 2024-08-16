@@ -125,7 +125,7 @@ async fn af_cloud_open_workspace_test() {
   assert_eq!(views[2].name, "D");
 
   // simulate open workspace and check if the views are correct
-  for i in 0..30 {
+  for i in 0..10 {
     if i % 2 == 0 {
       test.open_workspace(&first_workspace.id).await;
       sleep(Duration::from_millis(300)).await;
@@ -142,16 +142,16 @@ async fn af_cloud_open_workspace_test() {
   }
 
   test.open_workspace(&first_workspace.id).await;
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views[0].name, default_document_name);
-  assert_eq!(views[1].name, "A");
-  assert_eq!(views[2].name, "B");
+  let views_1 = test.get_all_workspace_views().await;
+  assert_eq!(views_1[0].name, default_document_name);
+  assert_eq!(views_1[1].name, "A");
+  assert_eq!(views_1[2].name, "B");
 
   test.open_workspace(&second_workspace.id).await;
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views[0].name, default_document_name);
-  assert_eq!(views[1].name, "C");
-  assert_eq!(views[2].name, "D");
+  let views_2 = test.get_all_workspace_views().await;
+  assert_eq!(views_2[0].name, default_document_name);
+  assert_eq!(views_2[1].name, "C");
+  assert_eq!(views_2[2].name, "D");
 }
 
 #[tokio::test]

@@ -51,6 +51,8 @@ pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+
+  fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &str) -> FlowyResult<bool>;
 }
 
 pub struct FolderManager {
@@ -226,21 +228,12 @@ impl FolderManager {
   pub async fn initialize_with_workspace_id(&self, user_id: i64) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
     let object_id = &workspace_id;
-    let folder_doc_state = self
-      .cloud_service
-      .get_folder_doc_state(&workspace_id, user_id, CollabType::Folder, object_id)
-      .await?;
-    if let Err(err) = self
-      .initialize(
-        user_id,
-        &workspace_id,
-        FolderInitDataSource::Cloud(folder_doc_state),
-      )
-      .await
-    {
-      // If failed to open folder with remote data, open from local disk. After open from the local
-      // disk. the data will be synced to the remote server.
-      error!("initialize folder with error {:?}, fallback local", err);
+
+    let is_exist = self
+      .user
+      .is_folder_exist_on_disk(user_id, &workspace_id)
+      .unwrap_or(false);
+    if is_exist {
       self
         .initialize(
           user_id,
@@ -250,7 +243,34 @@ impl FolderManager {
           },
         )
         .await?;
+    } else {
+      let folder_doc_state = self
+        .cloud_service
+        .get_folder_doc_state(&workspace_id, user_id, CollabType::Folder, object_id)
+        .await?;
+      if let Err(err) = self
+        .initialize(
+          user_id,
+          &workspace_id,
+          FolderInitDataSource::Cloud(folder_doc_state),
+        )
+        .await
+      {
+        // If failed to open folder with remote data, open from local disk. After open from the local
+        // disk. the data will be synced to the remote server.
+        error!("initialize folder with error {:?}, fallback local", err);
+        self
+          .initialize(
+            user_id,
+            &workspace_id,
+            FolderInitDataSource::LocalDisk {
+              create_if_not_exist: false,
+            },
+          )
+          .await?;
+      }
     }
+
     Ok(())
   }
 
