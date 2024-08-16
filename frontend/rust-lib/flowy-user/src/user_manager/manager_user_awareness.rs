@@ -7,7 +7,6 @@ use collab_entity::CollabType;
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
 };
-use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use dashmap::try_result::TryResult;
 use tokio::sync::RwLock;

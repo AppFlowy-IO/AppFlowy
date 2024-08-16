@@ -699,6 +699,8 @@ impl DatabaseEditor {
 
     // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
     let row_detail = database.get_row_detail(row_id);
+    drop(database);
+
     if let Some(row_detail) = row_detail {
       for view in self.database_views.editors().await {
         view.v_did_update_row_meta(row_id, &row_detail).await;
