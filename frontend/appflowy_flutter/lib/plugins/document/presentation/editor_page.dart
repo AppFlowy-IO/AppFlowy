@@ -410,6 +410,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
+
     return [
       aiWriterSlashMenuItem,
       textSlashMenuItem,
@@ -422,6 +423,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       todoListSlashMenuItem,
       dividerSlashMenuItem,
       quoteSlashMenuItem,
+      tableSlashMenuItem,
       referencedDocSlashMenuItem,
       gridSlashMenuItem(documentBloc),
       referencedGridSlashMenuItem,

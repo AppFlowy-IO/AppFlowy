@@ -134,7 +134,7 @@ final todoListSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['checkbox', 'todo', 'list'],
+  keywords: ['checkbox', 'todo', 'list', 'to-do', 'task'],
   handler: (editorState, _, __) {
     insertCheckboxAfterSelection(editorState);
   },
@@ -149,7 +149,7 @@ final quoteSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['quote', 'refer'],
+  keywords: ['quote', 'refer', 'blockquote', 'citation'],
   handler: (editorState, _, __) {
     insertQuoteAfterSelection(editorState);
   },
@@ -164,7 +164,7 @@ final dividerSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['divider', 'line', 'h'],
+  keywords: ['divider', 'separator', 'line', 'break', 'horizontal line'],
   handler: (editorState, _, __) {
     final selection = editorState.selection;
     if (selection == null || !selection.isCollapsed) {
@@ -392,7 +392,7 @@ SelectionMenuItem toggleListSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['collapsed list', 'toggle list', 'list'],
+  keywords: ['collapsed list', 'toggle list', 'list', 'dropdown'],
   nodeBuilder: (editorState, _) => toggleListBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
@@ -406,7 +406,7 @@ SelectionMenuItem emojiSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['emoji'],
+  keywords: ['emoji', 'reaction', 'emoticon'],
   handler: (editorState, menuService, context) {
     final container = Overlay.of(context);
     menuService.dismiss();
@@ -436,6 +436,56 @@ SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem.node(
   replace: (_, node) => false,
 );
 
+// table menu item
+SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_table.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_simple_table_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['table', 'rows', 'columns', 'data'],
+  handler: (editorState, _, __) async {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+
+    final currentNode = editorState.getNodeAtPath(selection.end.path);
+    if (currentNode == null) {
+      return;
+    }
+
+    final tableNode = TableNode.fromList([
+      ['', ''],
+      ['', ''],
+    ]);
+
+    final transaction = editorState.transaction;
+    final delta = currentNode.delta;
+    if (delta != null && delta.isEmpty) {
+      transaction
+        ..insertNode(selection.end.path, tableNode.node)
+        ..deleteNode(currentNode);
+      transaction.afterSelection = Selection.collapsed(
+        Position(
+          path: selection.end.path + [0, 0],
+        ),
+      );
+    } else {
+      transaction.insertNode(selection.end.path.next, tableNode.node);
+      transaction.afterSelection = Selection.collapsed(
+        Position(
+          path: selection.end.path.next + [0, 0],
+        ),
+      );
+    }
+
+    await editorState.apply(transaction);
+  },
+);
+
 // date or reminder menu item
 SelectionMenuItem dateOrReminderSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
@@ -445,7 +495,7 @@ SelectionMenuItem dateOrReminderSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['insert date', 'date', 'time', 'reminder'],
+  keywords: ['insert date', 'date', 'time', 'reminder', 'schedule'],
   handler: (editorState, menuService, context) =>
       insertDateReference(editorState),
 );
@@ -484,7 +534,7 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload'],
+  keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload', 'attachment'],
   handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
 );
 
