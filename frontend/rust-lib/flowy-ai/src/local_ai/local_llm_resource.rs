@@ -372,9 +372,9 @@ impl LocalAIResourceController {
           }
         });
         match download_model(
-          &url,
+          url,
           &model_dir,
-          &file_name,
+          file_name,
           Some(progress),
           Some(download_task.cancel_token.clone()),
         )

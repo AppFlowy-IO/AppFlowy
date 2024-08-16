@@ -14,7 +14,7 @@ pub async fn edit_field_type_option<T: TypeOption>(
   let field = editor
     .get_field(field_id)
     .await
-    .ok_or_else(|| FlowyError::field_record_not_found())?;
+    .ok_or_else(FlowyError::field_record_not_found)?;
   let field_type = FieldType::from(field.field_type);
   let get_type_option = field.get_type_option::<T>(field_type);
 

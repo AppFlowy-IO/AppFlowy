@@ -1,17 +1,3 @@
-use futures_core::ready;
-use nanoid::nanoid;
-use pin_project::pin_project;
-use std::sync::Arc;
-use std::{
-  collections::HashMap,
-  fmt,
-  fmt::{Debug, Display},
-  future::Future,
-  hash::Hash,
-  pin::Pin,
-  task::{Context, Poll},
-};
-
 use crate::dispatcher::AFConcurrent;
 use crate::prelude::{AFBoxFuture, AFStateMap};
 use crate::service::AFPluginHandler;
@@ -24,13 +10,27 @@ use crate::{
     Service, ServiceRequest, ServiceResponse,
   },
 };
+use futures_core::ready;
+use nanoid::nanoid;
+use pin_project::pin_project;
+use std::rc::Rc;
+use std::sync::Arc;
+use std::{
+  collections::HashMap,
+  fmt,
+  fmt::{Debug, Display},
+  future::Future,
+  hash::Hash,
+  pin::Pin,
+  task::{Context, Poll},
+};
 
-pub type AFPluginMap = Arc<HashMap<AFPluginEvent, Arc<AFPlugin>>>;
+pub type AFPluginMap = Rc<HashMap<AFPluginEvent, Rc<AFPlugin>>>;
 pub(crate) fn plugin_map_or_crash(plugins: Vec<AFPlugin>) -> AFPluginMap {
-  let mut plugin_map: HashMap<AFPluginEvent, Arc<AFPlugin>> = HashMap::new();
+  let mut plugin_map: HashMap<AFPluginEvent, Rc<AFPlugin>> = HashMap::new();
   plugins.into_iter().for_each(|m| {
     let events = m.events();
-    let plugins = Arc::new(m);
+    let plugins = Rc::new(m);
     events.into_iter().for_each(|e| {
       if plugin_map.contains_key(&e) {
         let plugin_name = plugin_map.get(&e).map(|p| &p.name);
@@ -39,7 +39,7 @@ pub(crate) fn plugin_map_or_crash(plugins: Vec<AFPlugin>) -> AFPluginMap {
       plugin_map.insert(e, plugins.clone());
     });
   });
-  Arc::new(plugin_map)
+  Rc::new(plugin_map)
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
@@ -66,7 +66,7 @@ pub struct AFPlugin {
   /// Contains a list of factories that are used to generate the services used to handle the passed-in
   /// `ServiceRequest`.
   ///
-  event_service_factory: Arc<
+  event_service_factory: Rc<
     HashMap<AFPluginEvent, BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>>,
   >,
 }
@@ -76,7 +76,7 @@ impl std::default::Default for AFPlugin {
     Self {
       name: "".to_owned(),
       states: Default::default(),
-      event_service_factory: Arc::new(HashMap::new()),
+      event_service_factory: Rc::new(HashMap::new()),
     }
   }
 }
@@ -112,7 +112,7 @@ impl AFPlugin {
     if self.event_service_factory.contains_key(&event) {
       panic!("Register duplicate Event: {:?}", &event);
     } else {
-      Arc::get_mut(&mut self.event_service_factory)
+      Rc::get_mut(&mut self.event_service_factory)
         .unwrap()
         .insert(event, factory(AFPluginHandlerService::new(handler)));
     }
@@ -184,7 +184,7 @@ impl AFPluginServiceFactory<AFPluginRequest> for AFPlugin {
 }
 
 pub struct AFPluginService {
-  services: Arc<
+  services: Rc<
     HashMap<AFPluginEvent, BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>>,
   >,
   states: AFStateMap,

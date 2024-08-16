@@ -102,7 +102,7 @@ impl CellDataCacheKey {
     }
     hasher.write(field_rev.id.as_bytes());
     hasher.write_u8(decoded_field_type as u8);
-    map_hash(&cell, &mut hasher);
+    map_hash(cell, &mut hasher);
     Self(hasher.finish())
   }
 }
@@ -121,7 +121,7 @@ fn any_hash<H: Hasher>(any: &Any, hasher: &mut H) {
         any_hash(v, hasher);
       }
     },
-    Any::Map(v) => map_hash(&v, hasher),
+    Any::Map(v) => map_hash(v, hasher),
   }
 }
 

@@ -74,7 +74,7 @@ impl GroupContextDelegate for GroupControllerDelegateImpl {
 
   async fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Vec<RowSingleCellData> {
     let delegate = self.delegate.clone();
-    get_cells_for_field(delegate, &view_id, &field_id).await
+    get_cells_for_field(delegate, view_id, field_id).await
   }
 
   async fn save_configuration(
