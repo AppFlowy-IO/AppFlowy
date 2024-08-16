@@ -9,7 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/imag
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:cross_file/cross_file.dart';
@@ -23,6 +23,7 @@ extension PasteFromImage on EditorState {
     'png',
     'jpeg',
     'gif',
+    'webp',
   ];
 
   Future<void> dropImages(
@@ -66,13 +67,20 @@ extension PasteFromImage on EditorState {
     Uint8List imageBytes,
     String documentId,
   ) async {
-    if (!supportedImageFormats.contains(format)) {
-      return false;
-    }
-
     final context = document.root.context;
 
     if (context == null) {
+      return false;
+    }
+
+    if (!supportedImageFormats.contains(format)) {
+      Log.info('unsupported format: $format');
+      if (PlatformExtension.isMobile) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.document_imageBlock_error_invalidImageFormat.tr(),
+        );
+      }
       return false;
     }
 
@@ -105,9 +113,9 @@ extension PasteFromImage on EditorState {
         final errorMessage = result.$2;
 
         if (errorMessage != null && context.mounted) {
-          showSnackBarMessage(
+          showToastNotification(
             context,
-            errorMessage,
+            message: errorMessage,
           );
           return false;
         }
@@ -124,9 +132,9 @@ extension PasteFromImage on EditorState {
     } catch (e) {
       Log.error('cannot copy image file', e);
       if (context.mounted) {
-        showSnackBarMessage(
+        showToastNotification(
           context,
-          LocaleKeys.document_imageBlock_error_invalidImage.tr(),
+          message: LocaleKeys.document_imageBlock_error_invalidImage.tr(),
         );
       }
     }
