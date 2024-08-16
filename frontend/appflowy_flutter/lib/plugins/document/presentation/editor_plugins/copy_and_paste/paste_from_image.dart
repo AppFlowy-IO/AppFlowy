@@ -65,8 +65,9 @@ extension PasteFromImage on EditorState {
   Future<bool> pasteImage(
     String format,
     Uint8List imageBytes,
-    String documentId,
-  ) async {
+    String documentId, {
+    Selection? selection,
+  }) async {
     final context = document.root.context;
 
     if (context == null) {
@@ -124,7 +125,7 @@ extension PasteFromImage on EditorState {
       }
 
       if (path != null) {
-        await insertImageNode(path);
+        await insertImageNode(path, selection: selection);
       }
 
       await File(copyToPath).delete();
@@ -140,5 +141,47 @@ extension PasteFromImage on EditorState {
     }
 
     return false;
+  }
+
+  Future<void> insertImageNode(
+    String src, {
+    Selection? selection,
+  }) async {
+    selection ??= this.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final node = getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return;
+    }
+    final transaction = this.transaction;
+    // if the current node is empty paragraph, replace it with image node
+    if (node.type == ParagraphBlockKeys.type &&
+        (node.delta?.isEmpty ?? false)) {
+      transaction
+        ..insertNode(
+          node.path,
+          imageNode(
+            url: src,
+          ),
+        )
+        ..deleteNode(node);
+    } else {
+      transaction.insertNode(
+        node.path.next,
+        imageNode(
+          url: src,
+        ),
+      );
+    }
+
+    transaction.afterSelection = Selection.collapsed(
+      Position(
+        path: node.path.next,
+      ),
+    );
+
+    return apply(transaction);
   }
 }
