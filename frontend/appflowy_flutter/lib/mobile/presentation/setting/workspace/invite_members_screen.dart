@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -15,6 +17,8 @@ import 'package:string_validator/string_validator.dart';
 import 'package:toastification/toastification.dart';
 
 import 'member_list.dart';
+
+ValueNotifier<int> mobileLeaveWorkspaceNotifier = ValueNotifier(0);
 
 class InviteMembersScreen extends StatelessWidget {
   const InviteMembersScreen({
@@ -83,23 +87,23 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _buildInviteMemberArea(context),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 16.0,
+                  if (state.myRole.isOwner) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _buildInviteMemberArea(context),
                     ),
-                    child: FlowyDivider(),
-                  ),
-                  if (state.members.isNotEmpty)
+                    const VSpace(16),
+                    const FlowyDivider(),
+                  ],
+                  if (state.members.isNotEmpty) ...[
                     MobileMemberList(
                       members: state.members,
                       userProfile: userProfile,
                       myRole: state.myRole,
                     ),
+                  ],
+                  const VSpace(24),
+                  if (state.myRole.isMember) const _LeaveWorkspaceButton(),
                 ],
               );
             },
@@ -253,5 +257,66 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
         .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
     // clear the email field after inviting
     emailController.clear();
+  }
+}
+
+class _LeaveWorkspaceButton extends StatelessWidget {
+  const _LeaveWorkspaceButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outline,
+              width: 0.5,
+            ),
+          ),
+        ),
+        onPressed: () => _leaveWorkspace(context),
+        child: FlowyText(
+          LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
+          fontSize: 14.0,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  void _leaveWorkspace(BuildContext context) {
+    showFlowyCupertinoConfirmDialog(
+      title: LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
+      leftButton: FlowyText(
+        LocaleKeys.button_cancel.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFF007AFF),
+      ),
+      rightButton: FlowyText(
+        LocaleKeys.button_confirm.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFFFE0220),
+      ),
+      onRightButtonPressed: (buttonContext) async {
+        // try to use popUntil with a specific route name but failed
+        // so use pop twice as a workaround
+        Navigator.of(buttonContext).pop();
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+
+        mobileLeaveWorkspaceNotifier.value =
+            mobileLeaveWorkspaceNotifier.value + 1;
+      },
+    );
   }
 }

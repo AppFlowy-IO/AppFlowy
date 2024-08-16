@@ -98,12 +98,13 @@ Future<T?> showFlowyCupertinoConfirmDialog<T>({
 }) {
   return showDialog(
     context: context ?? AppGlobals.context,
+    barrierColor: Colors.black.withOpacity(0.25),
     builder: (context) => CupertinoAlertDialog(
       title: FlowyText.medium(
         title,
-        fontSize: 18,
+        fontSize: 16,
         maxLines: 10,
-        lineHeight: 1.3,
+        figmaLineHeight: 22.0,
       ),
       actions: [
         CupertinoDialogAction(
