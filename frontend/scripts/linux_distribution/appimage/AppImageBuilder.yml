@@ -14,7 +14,7 @@ AppDir:
     id: io.appflowy.AppFlowy
     name: AppFlowy
     icon: appflowy.svg
-    version: [CHANGE_THIS]
+    version: Appflowy-dev
     exec: AppFlowy
     exec_args: $@
   apt:
@@ -22,20 +22,20 @@ AppDir:
       - amd64
     allow_unauthenticated: true
     sources:
-      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy main restricted
-      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
-      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy universe
-      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates universe
-      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy multiverse
-      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ noble main restricted
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ noble-updates main restricted
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ noble universe
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ noble-updates universe
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ noble multiverse
+      - sourceline: deb http://id.archive.ubuntu.com/ubuntu/ noble-updates multiverse
       - sourceline:
-          deb http://id.archive.ubuntu.com/ubuntu/ jammy-backports main restricted
+          deb http://id.archive.ubuntu.com/ubuntu/ noble-backports main restricted
           universe multiverse
-      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security main restricted
-      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security universe
-      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security multiverse
+      - sourceline: deb http://security.ubuntu.com/ubuntu noble-security main restricted
+      - sourceline: deb http://security.ubuntu.com/ubuntu noble-security universe
+      - sourceline: deb http://security.ubuntu.com/ubuntu noble-security multiverse
       - sourceline:
-          deb https://ppa.launchpadcontent.net/touchegg/stable/ubuntu/ jammy
+          deb https://ppa.launchpadcontent.net/touchegg/stable/ubuntu/ noble
           main
       - sourceline:
           deb https://packagecloud.io/slacktechnologies/slack/debian/ jessie
