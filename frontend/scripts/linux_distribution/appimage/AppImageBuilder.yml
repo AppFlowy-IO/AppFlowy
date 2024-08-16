@@ -14,7 +14,7 @@ AppDir:
     id: io.appflowy.AppFlowy
     name: AppFlowy
     icon: appflowy.svg
-    version: Appflowy-dev
+    version: [CHANGE_THIS]
     exec: AppFlowy
     exec_args: $@
   apt:
