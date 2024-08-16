@@ -4,6 +4,7 @@ use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use arc_swap::ArcSwapOption;
 use collab_user::core::UserAwareness;
+use dashmap::DashMap;
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -15,7 +16,7 @@ use flowy_user_pub::workspace_service::UserWorkspaceService;
 use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
-use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
+use std::sync::atomic::{ AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::{Mutex, RwLock};
 use tokio_stream::StreamExt;
@@ -49,7 +50,7 @@ use super::manager_user_workspace::save_user_workspace;
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
-  pub(crate) user_awareness: ArcSwapOption<RwLock<UserAwareness>>,
+  pub(crate) user_awareness: Arc<ArcSwapOption<RwLock<UserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
@@ -57,7 +58,7 @@ pub struct UserManager {
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
-  pub(crate) is_loading_awareness: Arc<AtomicBool>,
+  pub(crate) is_loading_awareness: Arc<DashMap<String, bool>>,
 }
 
 impl UserManager {
@@ -83,7 +84,7 @@ impl UserManager {
       authenticate_user,
       refresh_user_profile_since,
       user_workspace_service,
-      is_loading_awareness: Arc::new(AtomicBool::new(false)),
+      is_loading_awareness: Arc::new(Default::default()),
     });
 
     let weak_user_manager = Arc::downgrade(&user_manager);
@@ -267,8 +268,10 @@ impl UserManager {
       }
       self.authenticate_user.vacuum_database_if_need();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
-      // Init the user awareness
-      self.initialize_user_awareness(&session).await;
+      // Init the user awareness. here we ignore the error
+      let _ = self
+        .initial_user_awareness(&session, &user.authenticator)
+        .await;
 
       user_status_callback
         .did_init(
@@ -338,7 +341,9 @@ impl UserManager {
       .save_auth_data(&response, &authenticator, &session)
       .await?;
 
-    let _ = self.initialize_user_awareness(&session).await;
+    let _ = self
+      .initial_user_awareness(&session, &user_profile.authenticator)
+      .await;
     self
       .user_status_callback
       .read()
@@ -426,7 +431,9 @@ impl UserManager {
     self
       .save_auth_data(&response, authenticator, &new_session)
       .await?;
-    let _ = self.try_initial_user_awareness(&new_session).await;
+    let _ = self
+      .initial_user_awareness(&new_session, &new_user_profile.authenticator)
+      .await;
     self
       .user_status_callback
       .read()

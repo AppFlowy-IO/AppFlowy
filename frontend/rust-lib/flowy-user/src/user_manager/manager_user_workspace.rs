@@ -179,8 +179,11 @@ impl UserManager {
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
 
+    let uid = self.user_id()?;
+    let user_profile = self.get_user_profile_from_disk(uid).await?;
+
     if let Err(err) = self
-      .try_initial_user_awareness(self.get_session()?.as_ref())
+      .initial_user_awareness(self.get_session()?.as_ref(), &user_profile.authenticator)
       .await
     {
       error!(
@@ -189,7 +192,6 @@ impl UserManager {
       );
     }
 
-    let uid = self.user_id()?;
     if let Err(err) = self
       .user_status_callback
       .read()

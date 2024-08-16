@@ -1424,7 +1424,6 @@ impl FolderManager {
 
     // Import data from file path if available
     if let Some(file_path) = import_data.file_path {
-      // TODO(Lucas): return the collab
       handler
         .import_from_file_path(&view_id, &import_data.name, file_path)
         .await?;
