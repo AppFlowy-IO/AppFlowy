@@ -23,10 +23,6 @@ class WorkspaceSettingGroup extends StatelessWidget {
             context.push(InviteMembersScreen.routeName);
           },
         ),
-        MobileSettingItem(
-          name: LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
-          onTap: () {},
-        ),
       ],
     );
   }

@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
-import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -13,6 +12,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:toastification/toastification.dart';
+
+import 'member_list.dart';
 
 class InviteMembersScreen extends StatelessWidget {
   const InviteMembersScreen({
@@ -64,10 +66,10 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
       future: userProfile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const SizedBox.shrink();
         }
         if (snapshot.hasError || snapshot.data == null) {
-          return const Center(child: Text('Error'));
+          return _buildError(context);
         }
 
         final userProfile = snapshot.data!;
@@ -78,14 +80,27 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           child: BlocConsumer<WorkspaceMemberBloc, WorkspaceMemberState>(
             listener: _onListener,
             builder: (context, state) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (state.myRole.isOwner) _buildInviteMemberArea(context),
-                  ],
-                ),
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildInviteMemberArea(context),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 16.0,
+                    ),
+                    child: FlowyDivider(),
+                  ),
+                  if (state.members.isNotEmpty)
+                    MobileMemberList(
+                      members: state.members,
+                      userProfile: userProfile,
+                      myRole: state.myRole,
+                    ),
+                ],
               );
             },
           ),
@@ -119,6 +134,35 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     );
   }
 
+  Widget _buildError(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 48.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyText.medium(
+              LocaleKeys.settings_appearance_members_workspaceMembersError.tr(),
+              fontSize: 18.0,
+              textAlign: TextAlign.center,
+            ),
+            const VSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys
+                  .settings_appearance_members_workspaceMembersErrorDescription
+                  .tr(),
+              fontSize: 17.0,
+              maxLines: 10,
+              textAlign: TextAlign.center,
+              lineHeight: 1.3,
+              color: Theme.of(context).hintColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _onListener(BuildContext context, WorkspaceMemberState state) {
     final actionResult = state.actionResult;
     if (actionResult == null) {
@@ -143,7 +187,11 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
               ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
               : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
-          showToastNotification(context, message: message);
+          showToastNotification(
+            context,
+            type: ToastificationType.error,
+            message: message,
+          );
         },
       );
     } else if (actionType == WorkspaceMemberActionType.invite) {
@@ -162,7 +210,31 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
                   .tr()
               : LocaleKeys.settings_appearance_members_failedToInviteMember
                   .tr();
-          showToastNotification(context, message: message);
+          showToastNotification(
+            context,
+            type: ToastificationType.error,
+            message: message,
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.remove) {
+      result.fold(
+        (s) {
+          showToastNotification(
+            context,
+            message: LocaleKeys
+                .settings_appearance_members_removeFromWorkspaceSuccess
+                .tr(),
+          );
+        },
+        (f) {
+          showToastNotification(
+            context,
+            type: ToastificationType.error,
+            message: LocaleKeys
+                .settings_appearance_members_removeFromWorkspaceFailed
+                .tr(),
+          );
         },
       );
     }

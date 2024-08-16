@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -13,6 +11,7 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -354,9 +353,6 @@ class _MToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // only support success type
-    assert(type == ToastificationType.success);
-
     return Container(
       alignment: Alignment.bottomCenter,
       padding: const EdgeInsets.only(bottom: 100),
@@ -369,16 +365,19 @@ class _MToast extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const FlowySvg(
-              FlowySvgs.success_s,
-              blendMode: null,
-            ),
-            const HSpace(8.0),
+            if (type == ToastificationType.success) ...[
+              const FlowySvg(
+                FlowySvgs.success_s,
+                blendMode: null,
+              ),
+              const HSpace(8.0),
+            ],
             FlowyText.regular(
               message,
               fontSize: 16.0,
               figmaLineHeight: 18.0,
               color: Colors.white,
+              maxLines: 3,
             ),
           ],
         ),
