@@ -267,7 +267,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
 }
 
 class _LeaveWorkspaceButton extends StatelessWidget {
-  const _LeaveWorkspaceButton({super.key});
+  const _LeaveWorkspaceButton();
 
   @override
   Widget build(BuildContext context) {
