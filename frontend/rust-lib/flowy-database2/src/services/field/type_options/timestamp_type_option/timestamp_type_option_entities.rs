@@ -45,7 +45,7 @@ impl From<(FieldType, TimestampCellData)> for TimestampCellDataWrapper {
 impl From<TimestampCellDataWrapper> for Cell {
   fn from(wrapper: TimestampCellDataWrapper) -> Self {
     let (field_type, data) = (wrapper.field_type, wrapper.data);
-    let timestamp_string = data.timestamp.unwrap_or_default();
+    let timestamp_string = data.timestamp.unwrap_or_default().to_string();
 
     let mut cell = new_cell_builder(field_type);
     cell.insert(CELL_DATA.into(), timestamp_string.into());
