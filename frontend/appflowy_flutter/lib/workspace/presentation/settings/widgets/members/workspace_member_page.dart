@@ -50,7 +50,7 @@ class WorkspaceMembersPage extends StatelessWidget {
                 const SettingsCategorySpacer(),
               ],
               if (state.members.isNotEmpty)
-                _MemberList(
+                MemberList(
                   members: state.members,
                   userProfile: userProfile,
                   myRole: state.myRole,
@@ -328,8 +328,8 @@ class _InviteMemberState extends State<_InviteMember> {
   }
 }
 
-class _MemberList extends StatelessWidget {
-  const _MemberList({
+class MemberList extends StatelessWidget {
+  const MemberList({
     required this.members,
     required this.myRole,
     required this.userProfile,
