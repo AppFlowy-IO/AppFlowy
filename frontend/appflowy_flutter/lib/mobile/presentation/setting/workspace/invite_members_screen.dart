@@ -85,25 +85,31 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             listener: _onListener,
             builder: (context, state) {
               return Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.myRole.isOwner) ...[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: _buildInviteMemberArea(context),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (state.myRole.isOwner) ...[
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: _buildInviteMemberArea(context),
+                          ),
+                          const VSpace(16),
+                        ],
+                        if (state.members.isNotEmpty) ...[
+                          const VSpace(8),
+                          MobileMemberList(
+                            members: state.members,
+                            userProfile: userProfile,
+                            myRole: state.myRole,
+                          ),
+                        ],
+                      ],
                     ),
-                    const VSpace(16),
-                    const FlowyDivider(),
-                  ],
-                  if (state.members.isNotEmpty) ...[
-                    MobileMemberList(
-                      members: state.members,
-                      userProfile: userProfile,
-                      myRole: state.myRole,
-                    ),
-                  ],
-                  const VSpace(24),
+                  ),
                   if (state.myRole.isMember) const _LeaveWorkspaceButton(),
+                  const VSpace(48),
                 ],
               );
             },
@@ -271,11 +277,11 @@ class _LeaveWorkspaceButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+          foregroundColor: Theme.of(context).colorScheme.error,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),
             side: BorderSide(
-              color: Theme.of(context).colorScheme.outline,
+              color: Theme.of(context).colorScheme.error,
               width: 0.5,
             ),
           ),
@@ -284,6 +290,7 @@ class _LeaveWorkspaceButton extends StatelessWidget {
         child: FlowyText(
           LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
           fontSize: 14.0,
+          color: Theme.of(context).colorScheme.error,
           fontWeight: FontWeight.w500,
         ),
       ),

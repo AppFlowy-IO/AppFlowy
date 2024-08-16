@@ -36,17 +36,16 @@ class MobileMemberList extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16.0),
         ),
         children: [
-          if (myRole.isOwner)
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: FlowyText.semibold(
-                LocaleKeys.settings_appearance_members_label.tr(),
-                fontSize: 16.0,
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
             ),
+            child: FlowyText.semibold(
+              LocaleKeys.settings_appearance_members_label.tr(),
+              fontSize: 16.0,
+            ),
+          ),
           ...members.map(
             (member) => _MemberItem(
               member: member,
