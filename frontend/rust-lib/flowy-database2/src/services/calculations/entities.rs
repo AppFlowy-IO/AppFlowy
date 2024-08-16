@@ -11,7 +11,7 @@ pub struct Calculation {
   pub field_id: String,
   #[serde(default, rename = "ty")]
   pub calculation_type: i64,
-  #[serde(default)]
+  #[serde(default, rename = "calculation_value")]
   pub value: String,
 }
 

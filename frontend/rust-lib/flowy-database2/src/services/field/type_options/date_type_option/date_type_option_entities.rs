@@ -57,8 +57,6 @@ impl TypeOptionCellData for DateCellData {
 
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
-    let a = cell.get_as::<String>(CELL_DATA);
-
     let timestamp = cell
       .get_as::<String>(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
