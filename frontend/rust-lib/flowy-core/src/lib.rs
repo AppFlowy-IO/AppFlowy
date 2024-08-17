@@ -2,7 +2,8 @@
 
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use std::sync::{Arc, Weak};
+use std::rc::Rc;
+use std::sync::{Arc, Mutex, Weak};
 use std::time::Duration;
 use sysinfo::System;
 use tokio::sync::RwLock;
@@ -320,3 +321,13 @@ impl ServerUser for ServerUserImpl {
     self.upgrade_user()?.workspace_id()
   }
 }
+
+pub struct MutexAppFlowyCore(pub Rc<Mutex<AppFlowyCore>>);
+
+impl MutexAppFlowyCore {
+  pub fn new(appflowy_core: AppFlowyCore) -> Self {
+    Self(Rc::new(Mutex::new(appflowy_core)))
+  }
+}
+unsafe impl Sync for MutexAppFlowyCore {}
+unsafe impl Send for MutexAppFlowyCore {}
