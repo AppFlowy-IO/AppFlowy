@@ -76,6 +76,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
         image.$1,
         image.$2!,
         documentId,
+        selection: selection,
       );
       if (result) {
         Log.info('Pasted image');
