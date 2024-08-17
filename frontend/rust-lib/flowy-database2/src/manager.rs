@@ -123,11 +123,10 @@ impl DatabaseManager {
         )
         .await
       {
-        Ok(value) => match value {
-          Some(encode_collab) => {
+        Ok(value) => {
+          if let Some(encode_collab) = value {
             workspace_database_doc_state = DataSource::from(encode_collab);
-          },
-          None => {},
+          }
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
@@ -507,9 +506,9 @@ impl DatabaseManager {
 
   fn workspace_database(&self) -> FlowyResult<Arc<RwLock<WorkspaceDatabase>>> {
     self
-        .workspace_database
-        .load_full()
-        .ok_or_else(|| FlowyError::internal().with_context("Workspace database not initialized"))
+      .workspace_database
+      .load_full()
+      .ok_or_else(|| FlowyError::internal().with_context("Workspace database not initialized"))
   }
 
   #[instrument(level = "debug", skip_all)]

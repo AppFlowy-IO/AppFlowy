@@ -771,13 +771,10 @@ impl UserManager {
       .database
       .get_collab_db(old_user.session.user_id)?;
 
-    match authenticator {
-      Authenticator::AppFlowyCloud => {
-        self
-          .migration_anon_user_on_appflowy_cloud_sign_up(old_user, &old_collab_db)
-          .await?;
-      },
-      _ => {},
+    if authenticator == &Authenticator::AppFlowyCloud {
+      self
+        .migration_anon_user_on_appflowy_cloud_sign_up(old_user, &old_collab_db)
+        .await?;
     }
 
     // Save the old user workspace setting.

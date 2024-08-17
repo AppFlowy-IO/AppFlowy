@@ -800,6 +800,8 @@ impl FolderManager {
     let view = folder
       .get_view(&params.view_id)
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+    drop(folder);
+
     let parent_view_id = params
       .parent_view_id
       .clone()
@@ -1070,11 +1072,11 @@ impl FolderManager {
         },
         Some(lock) => lock,
       };
-      let view = lock.read().await.get_view(view_id).ok_or_else(|| {
+      let read_guard = lock.read().await;
+      read_guard.get_view(view_id).ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("Can't find the view with ID: {}", view_id))
-      })?;
-      view
+      })?
     };
 
     if view.layout == ViewLayout::Chat {
