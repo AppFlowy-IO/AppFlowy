@@ -26,6 +26,7 @@ class MobileViewPage extends StatefulWidget {
     required this.viewLayout,
     this.title,
     this.arguments,
+    this.showMoreButton = true,
   });
 
   /// view id
@@ -33,6 +34,7 @@ class MobileViewPage extends StatefulWidget {
   final ViewLayoutPB viewLayout;
   final String? title;
   final Map<String, dynamic>? arguments;
+  final bool showMoreButton;
 
   @override
   State<MobileViewPage> createState() => _MobileViewPageState();
@@ -215,13 +217,19 @@ class _MobileViewPageState extends State<MobileViewPage> {
       ]);
     }
 
-    actions.addAll([
-      MobileViewPageMoreButton(
-        view: view,
-        isImmersiveMode: isImmersiveMode,
-        appBarOpacity: _appBarOpacity,
-      ),
-    ]);
+    if (widget.showMoreButton) {
+      actions.addAll([
+        MobileViewPageMoreButton(
+          view: view,
+          isImmersiveMode: isImmersiveMode,
+          appBarOpacity: _appBarOpacity,
+        ),
+      ]);
+    } else {
+      actions.addAll([
+        const HSpace(18.0),
+      ]);
+    }
 
     return actions;
   }

@@ -493,9 +493,17 @@ GoRoute _mobileEditorScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileDocumentScreen.viewId]!;
       final title = state.uri.queryParameters[MobileDocumentScreen.viewTitle];
+      final showMoreButton = bool.tryParse(
+        state.uri.queryParameters[MobileDocumentScreen.viewShowMoreButton] ??
+            'true',
+      );
 
       return MaterialExtendedPage(
-        child: MobileDocumentScreen(id: id, title: title),
+        child: MobileDocumentScreen(
+          id: id,
+          title: title,
+          showMoreButton: showMoreButton ?? true,
+        ),
       );
     },
   );

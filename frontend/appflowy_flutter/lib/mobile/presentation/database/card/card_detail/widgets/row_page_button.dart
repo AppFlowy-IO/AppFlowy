@@ -89,6 +89,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
       await context.pushView(
         view!,
         addInRecent: false,
+        showMoreButton: false,
       );
     }
   }
