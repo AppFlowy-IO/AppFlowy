@@ -10,7 +10,7 @@ use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
-
+use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use serde_json::Value;
@@ -25,8 +25,8 @@ use flowy_ai_pub::cloud::{
   RepeatedChatMessage, StreamAnswer, StreamComplete,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
-  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
+  DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -357,33 +357,33 @@ impl FolderCloudService for ServerProvider {
 
 #[async_trait]
 impl DatabaseCloudService for ServerProvider {
-  async fn get_database_object_doc_state(
+  async fn get_database_encode_collab(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<Vec<u8>>, Error> {
+  ) -> Result<Option<EncodedCollab>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
     let database_id = object_id.to_string();
     server
       .database_service()
-      .get_database_object_doc_state(&database_id, collab_type, &workspace_id)
+      .get_database_encode_collab(&database_id, collab_type, &workspace_id)
       .await
   }
 
-  async fn batch_get_database_object_doc_state(
+  async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<CollabDocStateByOid, Error> {
+  ) -> Result<EncodeCollabByOid, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
 
     server
       .database_service()
-      .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
+      .batch_get_database_encode_collab(object_ids, object_ty, &workspace_id)
       .await
   }
 

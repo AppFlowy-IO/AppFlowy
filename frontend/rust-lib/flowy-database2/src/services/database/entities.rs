@@ -64,3 +64,14 @@ pub struct CreateDatabaseViewParams {
   pub view_id: String,
   pub layout_type: DatabaseLayout,
 }
+
+pub enum DatabaseRowState {
+  Initialized,
+  Uninitialized,
+}
+
+impl DatabaseRowState {
+  pub fn is_initialized(&self) -> bool {
+    matches!(self, DatabaseRowState::Initialized)
+  }
+}

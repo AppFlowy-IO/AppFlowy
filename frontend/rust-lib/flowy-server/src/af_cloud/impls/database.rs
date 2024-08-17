@@ -5,7 +5,6 @@ use client_api::entity::ai_dto::{
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
-use collab::core::collab::DataSource;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 use serde_json::{Map, Value};
@@ -13,8 +12,8 @@ use std::sync::Arc;
 use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
-  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
+  DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
@@ -34,12 +33,12 @@ where
   T: AFServer,
 {
   #[instrument(level = "debug", skip_all)]
-  async fn get_database_object_doc_state(
+  async fn get_database_encode_collab(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<Vec<u8>>, Error> {
+  ) -> Result<Option<EncodedCollab>, Error> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -55,7 +54,7 @@ where
           &cloned_user,
           format!("get database object: {}:{}", object_id, collab_type),
         )?;
-        Ok(Some(data.encode_collab.doc_state.to_vec()))
+        Ok(Some(data.encode_collab))
       },
       Err(err) => {
         if err.code == RecordNotFound {
@@ -68,12 +67,12 @@ where
   }
 
   #[instrument(level = "debug", skip_all)]
-  async fn batch_get_database_object_doc_state(
+  async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<CollabDocStateByOid, Error> {
+  ) -> Result<EncodeCollabByOid, Error> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let cloned_user = self.user.clone();
@@ -91,7 +90,7 @@ where
         .flat_map(|(object_id, result)| match result {
           Success { encode_collab_v1 } => {
             match EncodedCollab::decode_from_bytes(&encode_collab_v1) {
-              Ok(encode) => Some((object_id, DataSource::DocStateV1(encode.doc_state.to_vec()))),
+              Ok(encode) => Some((object_id, encode)),
               Err(err) => {
                 error!("Failed to decode collab: {}", err);
                 None
@@ -103,7 +102,7 @@ where
             None
           },
         })
-        .collect::<CollabDocStateByOid>(),
+        .collect::<EncodeCollabByOid>(),
     )
   }
 

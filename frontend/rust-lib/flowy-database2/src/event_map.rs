@@ -35,6 +35,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          // Row
          .event(DatabaseEvent::CreateRow, create_row_handler)
          .event(DatabaseEvent::GetRow, get_row_handler)
+         .event(DatabaseEvent::InitRow, init_row_handler)
          .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
          .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
          .event(DatabaseEvent::DeleteRows, delete_rows_handler)
@@ -377,4 +378,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "TranslateRowPB")]
   TranslateRow = 175,
+
+  #[event(input = "RowIdPB")]
+  InitRow = 176,
 }

@@ -4,6 +4,7 @@ use crate::services::calculations::Calculation;
 use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
+use crate::services::database::DatabaseRowState;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
@@ -19,6 +20,7 @@ use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
+use crate::DatabaseUser;
 use async_trait::async_trait;
 use collab_database::database::Database;
 use collab_database::fields::{Field, TypeOptionData};
@@ -26,6 +28,9 @@ use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{
   DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
 };
+use collab_entity::CollabType;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use dashmap::DashMap;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;
@@ -34,22 +39,27 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{event, instrument, warn};
+use tracing::{event, instrument, trace, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
-  database: Arc<RwLock<Database>>,
+  pub(crate) database: Arc<RwLock<Database>>,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
   #[allow(dead_code)]
   /// Used to send notification to the frontend.
   notification_sender: Arc<DebounceNotificationSender>,
+  user: Arc<dyn DatabaseUser>,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
+  rows_state: Arc<DashMap<RowId, DatabaseRowState>>,
 }
 
 impl DatabaseEditor {
   pub async fn new(
+    user: Arc<dyn DatabaseUser>,
     database: Arc<RwLock<Database>>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> FlowyResult<Self> {
     let notification_sender = Arc::new(DebounceNotificationSender::new(200));
     let cell_cache = AnyTypeCache::<u64>::new();
@@ -80,11 +90,29 @@ impl DatabaseEditor {
       .await?,
     );
 
+    let collab_object = collab_builder.collab_object(
+      &user.workspace_id()?,
+      user.user_id()?,
+      &database_id,
+      CollabType::Database,
+    )?;
+
+    let database = collab_builder.finalize(
+      collab_object,
+      CollabBuilderConfig::default(),
+      database.clone(),
+    )?;
+    trace!("{} database start init sync", database_id);
+    database.read().await.start_init_sync();
+
     Ok(Self {
+      user,
       database,
       cell_cache,
       database_views,
       notification_sender,
+      collab_builder,
+      rows_state: Arc::new(Default::default()),
     })
   }
 
@@ -98,12 +126,13 @@ impl DatabaseEditor {
       .read()
       .await
       .get_database_rows()
+      .await
       .into_iter()
       .map(|entry| entry.id)
       .collect()
   }
 
-  pub async fn num_views(&self) -> usize {
+  pub async fn num_of_opening_views(&self) -> usize {
     self.database_views.num_editors().await
   }
 
@@ -482,16 +511,12 @@ impl DatabaseEditor {
 
       let params = database
         .duplicate_row(row_id)
+        .await
         .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
 
-      let (index, row_order) = database
-        .create_row_in_view(view_id, params)
-        .ok_or_else(|| {
-          FlowyError::internal().with_context("error while inserting duplicated row")
-        })?;
-
+      let (index, row_order) = database.create_row_in_view(view_id, params);
       tracing::trace!("duplicated row: {:?} at {}", row_order, index);
-      let row_detail = database.get_row_detail(&row_order.id);
+      let row_detail = database.get_row_detail(&row_order.id).await;
 
       (row_detail, index)
     };
@@ -513,7 +538,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
 
-    let row_detail = database.get_row_detail(&from_row_id).ok_or_else(|| {
+    let row_detail = database.get_row_detail(&from_row_id).await.ok_or_else(|| {
       let msg = format!("Cannot find row {}", from_row_id);
       FlowyError::internal().with_context(msg)
     })?;
@@ -547,22 +572,16 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let result = database
-      .create_row_in_view(&view_editor.view_id, collab_params)
-      .map(|(index, order)| {
-        let row_detail = database.get_row_detail(&order.id);
-        (index, row_detail)
-      });
-    drop(database);
+    let (index, order_id) = database.create_row_in_view(&view_editor.view_id, collab_params);
+    let row_detail = database.get_row_detail(&order_id.id).await;
+    drop(database); // Explicitly release the lock here
 
-    if let Some((index, row_detail)) = result {
-      tracing::trace!("created row: {:?} at {}", row_detail, index);
-      if let Some(row_detail) = row_detail {
-        for view in self.database_views.editors().await {
-          view.v_did_create_row(&row_detail, index).await;
-        }
-        return Ok(Some(row_detail));
+    if let Some(row_detail) = row_detail {
+      trace!("created row: {:?} at {}", row_detail, index);
+      for view in self.database_views.editors().await {
+        view.v_did_create_row(&row_detail, index).await;
       }
+      return Ok(Some(row_detail));
     }
 
     Ok(None)
@@ -649,16 +668,67 @@ impl DatabaseEditor {
   pub async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
     let database = self.database.read().await;
     if database.contains_row(view_id, row_id) {
-      Some(database.get_row(row_id))
+      Some(database.get_row(row_id).await)
     } else {
       None
     }
   }
 
+  pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<()> {
+    if self
+      .rows_state
+      .get(&row_id)
+      .map(|state| state.is_initialized())
+      .unwrap_or(false)
+    {
+      return Ok(());
+    }
+
+    let database_row = self
+      .database
+      .read()
+      .await
+      .get_row_collab(row_id)
+      .ok_or_else(|| {
+        FlowyError::record_not_found()
+          .with_context(format!("The row:{} in database not found", row_id))
+      })?;
+
+    if !database_row
+      .read()
+      .await
+      .collab
+      .get_state()
+      .is_uninitialized()
+    {
+      return Ok(());
+    }
+
+    let collab_object = self.collab_builder.collab_object(
+      &self.user.workspace_id()?,
+      self.user.user_id()?,
+      &row_id,
+      CollabType::DatabaseRow,
+    )?;
+
+    let database_row =
+      self
+        .collab_builder
+        .finalize(collab_object, CollabBuilderConfig::default(), database_row)?;
+
+    trace!("{} database row start init sync", row_id);
+    database_row.read().await.start_init_sync();
+    self
+      .rows_state
+      .insert(row_id.clone(), DatabaseRowState::Initialized);
+
+    Ok(())
+  }
+
   pub async fn get_row_meta(&self, view_id: &str, row_id: &RowId) -> Option<RowMetaPB> {
     let database = self.database.read().await;
     if database.contains_row(view_id, row_id) {
-      let row_meta = database.get_row_meta(row_id)?;
+      let row_meta = database.get_row_meta(row_id).await?;
       let row_document_id = database.get_row_document_id(row_id)?;
       Some(RowMetaPB {
         id: row_id.clone().into_inner(),
@@ -676,7 +746,7 @@ impl DatabaseEditor {
   pub async fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
     let database = self.database.read().await;
     if database.contains_row(view_id, row_id) {
-      database.get_row_detail(row_id)
+      database.get_row_detail(row_id).await
     } else {
       warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
       None
@@ -684,7 +754,7 @@ impl DatabaseEditor {
   }
 
   pub async fn delete_rows(&self, row_ids: &[RowId]) {
-    let rows = self.database.write().await.remove_rows(row_ids);
+    let rows = self.database.write().await.remove_rows(row_ids).await;
 
     for row in rows {
       tracing::trace!("Did delete row:{:?}", row);
@@ -697,15 +767,17 @@ impl DatabaseEditor {
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn update_row_meta(&self, row_id: &RowId, changeset: UpdateRowMetaParams) {
     let mut database = self.database.write().await;
-    database.update_row_meta(row_id, |meta_update| {
-      meta_update
-        .insert_cover_if_not_none(changeset.cover_url)
-        .insert_icon_if_not_none(changeset.icon_url)
-        .update_is_document_empty_if_not_none(changeset.is_document_empty);
-    });
+    database
+      .update_row_meta(row_id, |meta_update| {
+        meta_update
+          .insert_cover_if_not_none(changeset.cover_url)
+          .insert_icon_if_not_none(changeset.icon_url)
+          .update_is_document_empty_if_not_none(changeset.is_document_empty);
+      })
+      .await;
 
     // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
-    let row_detail = database.get_row_detail(row_id);
+    let row_detail = database.get_row_detail(row_id).await;
     drop(database);
 
     if let Some(row_detail) = row_detail {
@@ -732,7 +804,7 @@ impl DatabaseEditor {
     // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
     match field_type {
       FieldType::LastEditedTime | FieldType::CreatedTime => {
-        let row = database.get_row(row_id);
+        let row = database.get_row(row_id).await;
         let wrapped_cell_data = if field_type.is_created_time() {
           TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.created_at)))
         } else {
@@ -740,7 +812,7 @@ impl DatabaseEditor {
         };
         Some(Cell::from(wrapped_cell_data))
       },
-      _ => database.get_cell(field_id, row_id).cell,
+      _ => database.get_cell(field_id, row_id).await.cell,
     }
   }
 
@@ -768,6 +840,7 @@ impl DatabaseEditor {
       match field_type {
         FieldType::LastEditedTime | FieldType::CreatedTime => database
           .get_rows_for_view(view_id)
+          .await
           .into_iter()
           .map(|row| {
             let data = if field_type.is_created_time() {
@@ -781,7 +854,7 @@ impl DatabaseEditor {
             }
           })
           .collect(),
-        _ => database.get_cells_for_field(view_id, field_id),
+        _ => database.get_cells_for_field(view_id, field_id).await,
       }
     } else {
       vec![]
@@ -805,7 +878,7 @@ impl DatabaseEditor {
           Err(FlowyError::internal().with_context(msg))
         },
       }?;
-      (field, database.get_cell(field_id, row_id).cell)
+      (field, database.get_cell(field_id, row_id).await.cell)
     };
 
     let new_cell =
@@ -820,7 +893,8 @@ impl DatabaseEditor {
       .await
       .update_row(row_detail.row.id.clone(), |row_update| {
         row_update.set_last_modified(timestamp());
-      });
+      })
+      .await;
 
     let editor = self.database_views.get_view_editor(view_id).await;
     if let Ok(editor) = editor {
@@ -849,7 +923,8 @@ impl DatabaseEditor {
         row_update.update_cells(|cell_update| {
           cell_update.insert(field_id, new_cell);
         });
-      });
+      })
+      .await;
 
     self
       .did_update_row(view_id, row_id, field_id, old_row)
@@ -870,7 +945,8 @@ impl DatabaseEditor {
         row_update.update_cells(|cell_update| {
           cell_update.clear(field_id);
         });
-      });
+      })
+      .await;
 
     self
       .did_update_row(view_id, &row_id, field_id, old_row)
@@ -1115,7 +1191,8 @@ impl DatabaseEditor {
           .await
           .update_row(row_detail.row.id, |row| {
             row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
-          });
+          })
+          .await;
       },
     }
 
@@ -1257,6 +1334,7 @@ impl DatabaseEditor {
     let database_guard = database.read().await;
     let csv = CSVExport
       .export_database(&database_guard, style)
+      .await
       .map_err(internal_error)?;
     Ok(csv)
   }
@@ -1324,26 +1402,26 @@ impl DatabaseEditor {
       .ok_or(FlowyError::internal())?;
 
     let row_data = {
-      let mut rows = database.get_database_rows();
+      let mut rows = database.get_database_rows().await;
       if let Some(row_ids) = row_ids {
         rows.retain(|row| row_ids.contains(&row.id));
       }
-      rows
-        .iter()
-        .map(|row| {
-          let title = database
-            .get_cell(&primary_field.id, &row.id)
-            .cell
-            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
-            .and_then(|cell_data| cell_data.unbox_or_none())
-            .unwrap_or_else(|| StringCellData("".to_string()));
+      let mut row_data = vec![];
+      for row in rows {
+        let title = database
+          .get_cell(&primary_field.id, &row.id)
+          .await
+          .cell
+          .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
+          .and_then(|cell_data| cell_data.unbox_or_none())
+          .unwrap_or_else(|| StringCellData("".to_string()));
 
-          RelatedRowDataPB {
-            row_id: row.id.to_string(),
-            name: title.0,
-          }
+        row_data.push(RelatedRowDataPB {
+          row_id: row.id.to_string(),
+          name: title.0,
         })
-        .collect::<Vec<_>>()
+      }
+      row_data
     };
 
     Ok(row_data)
@@ -1457,7 +1535,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {
     let database = self.database.read().await;
     let index = database.index_of_row(view_id, row_id);
-    let row_detail = database.get_row_detail(row_id);
+    let row_detail = database.get_row_detail(row_id).await;
     match (index, row_detail) {
       (Some(index), Some(row_detail)) => Some((index, Arc::new(row_detail))),
       _ => None,
@@ -1476,15 +1554,13 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
     for chunk in row_orders.chunks(10) {
       let chunk = chunk.to_vec();
-      let rows = {
-        let orders = database.get_rows_from_row_orders(&chunk);
-        orders
-          .into_iter()
-          .flat_map(|row| database.get_row_detail(&row.id))
-          .collect::<Vec<RowDetail>>()
-      };
+      let orders = database.get_rows_from_row_orders(&chunk).await;
+      for order in orders {
+        if let Some(row_details) = database.get_row_detail(&order.id).await {
+          all_rows.push(row_details);
+        }
+      }
 
-      all_rows.extend(rows);
       tokio::task::yield_now().await;
     }
 
@@ -1492,7 +1568,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row> {
-    self.database.write().await.remove_row(row_id)
+    self.database.write().await.remove_row(row_id).await
   }
 
   async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>> {
@@ -1500,12 +1576,13 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .database
       .read()
       .await
-      .get_cells_for_field(view_id, field_id);
+      .get_cells_for_field(view_id, field_id)
+      .await;
     cells.into_iter().map(Arc::new).collect()
   }
 
   async fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Arc<RowCell> {
-    let cell = self.database.read().await.get_cell(field_id, row_id);
+    let cell = self.database.read().await.get_cell(field_id, row_id).await;
     cell.into()
   }
 

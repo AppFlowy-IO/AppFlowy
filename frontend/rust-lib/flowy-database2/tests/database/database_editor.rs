@@ -76,7 +76,7 @@ impl DatabaseEditorTest {
   pub async fn new(sdk: EventIntegrationTest, test: ViewTest) -> Self {
     let editor = sdk
       .database_manager
-      .get_database_with_view_id(&test.child_view.id)
+      .get_database_editor_with_view_id(&test.child_view.id)
       .await
       .unwrap();
     let fields = editor
@@ -284,7 +284,7 @@ impl DatabaseEditorTest {
     self
       .sdk
       .database_manager
-      .get_database(database_id.into())
+      .get_database_editor(database_id)
       .await
       .ok()
   }

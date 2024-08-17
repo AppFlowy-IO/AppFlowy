@@ -159,7 +159,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, data_source)?;
     let document = Document::open_with(collab, data)?;
     let document = Arc::new(RwLock::new(document));
-    self.finalize(object, builder_config, collab_db, document)
+    self.finalize(object, builder_config, document)
   }
 
   #[allow(clippy::too_many_arguments)]
@@ -180,7 +180,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
     let folder = Arc::new(RwLock::new(folder));
-    self.finalize(object, builder_config, collab_db, folder)
+    self.finalize(object, builder_config, folder)
   }
 
   #[allow(clippy::too_many_arguments)]
@@ -200,7 +200,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let user_awareness = UserAwareness::open(collab, notifier);
     let user_awareness = Arc::new(RwLock::new(user_awareness));
-    self.finalize(object, builder_config, collab_db, user_awareness)
+    self.finalize(object, builder_config, user_awareness)
   }
 
   #[allow(clippy::too_many_arguments)]
@@ -208,7 +208,7 @@ impl AppFlowyCollabBuilder {
     level = "trace",
     skip(self, object, doc_state, collab_db, builder_config, collab_service)
   )]
-  pub fn create_workspace(
+  pub fn create_workspace_database(
     &self,
     object: CollabObject,
     doc_state: DataSource,
@@ -217,17 +217,10 @@ impl AppFlowyCollabBuilder {
     collab_service: impl DatabaseCollabService,
   ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
     assert_eq!(object.collab_type, CollabType::WorkspaceDatabase);
-    let persistence_config = CollabPersistenceConfig::default();
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
-    let workspace = WorkspaceDatabase::open(
-      object.uid,
-      collab,
-      collab_db.clone(),
-      persistence_config,
-      collab_service,
-    );
+    let workspace = WorkspaceDatabase::open(object.uid, collab, collab_db.clone(), collab_service);
     let workspace = Arc::new(RwLock::new(workspace));
-    self.finalize(object, builder_config, collab_db, workspace)
+    self.finalize(object, builder_config, workspace)
   }
 
   pub fn build_collab(
@@ -247,7 +240,6 @@ impl AppFlowyCollabBuilder {
       object.collab_type.clone(),
       collab_db.clone(),
       persistence_config.clone(),
-      None,
     );
     collab.add_plugin(Box::new(db_plugin));
 
@@ -258,7 +250,6 @@ impl AppFlowyCollabBuilder {
     &self,
     object: CollabObject,
     build_config: CollabBuilderConfig,
-    _collab_db: Weak<CollabKVDB>,
     collab: Arc<RwLock<T>>,
   ) -> Result<Arc<RwLock<T>>, Error>
   where

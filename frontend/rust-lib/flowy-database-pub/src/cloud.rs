@@ -1,12 +1,12 @@
 use anyhow::Error;
 pub use client_api::entity::ai_dto::{TranslateItem, TranslateRowResponse};
-use collab::core::collab::DataSource;
+use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
-pub type CollabDocStateByOid = HashMap<String, DataSource>;
+pub type EncodeCollabByOid = HashMap<String, EncodedCollab>;
 pub type SummaryRowContent = HashMap<String, String>;
 pub type TranslateRowContent = Vec<TranslateItem>;
 
@@ -40,19 +40,19 @@ pub trait DatabaseAIService: Send + Sync {
 ///
 #[async_trait]
 pub trait DatabaseCloudService: Send + Sync {
-  async fn get_database_object_doc_state(
+  async fn get_database_encode_collab(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<Vec<u8>>, Error>;
+  ) -> Result<Option<EncodedCollab>, Error>;
 
-  async fn batch_get_database_object_doc_state(
+  async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<CollabDocStateByOid, Error>;
+  ) -> Result<EncodeCollabByOid, Error>;
 
   async fn get_database_collab_object_snapshots(
     &self,
