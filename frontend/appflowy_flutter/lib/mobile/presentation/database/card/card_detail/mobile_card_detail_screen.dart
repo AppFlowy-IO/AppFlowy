@@ -367,6 +367,7 @@ class MobileRowDetailPageContentState
                           if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
                           ],
+                          const VSpace(8.0),
                           OpenRowPageButton(
                             documentId: rowController.rowMeta.documentId,
                           ),

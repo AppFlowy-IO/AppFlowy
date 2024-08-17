@@ -39,7 +39,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: double.infinity,
-        minHeight: GridSize.headerHeight,
+        maxHeight: GridSize.buttonHeight,
       ),
       child: TextButton.icon(
         style: Theme.of(context).textButtonTheme.style?.copyWith(
@@ -54,7 +54,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
               alignment: AlignmentDirectional.centerStart,
               splashFactory: NoSplash.splashFactory,
               padding: const WidgetStatePropertyAll(
-                EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+                EdgeInsets.symmetric(horizontal: 6),
               ),
             ),
         label: FlowyText.medium(
