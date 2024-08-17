@@ -255,6 +255,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     if (!isEmail(email)) {
       return showToastNotification(
         context,
+        type: ToastificationType.error,
         message: LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
       );
     }
