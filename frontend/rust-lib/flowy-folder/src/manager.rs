@@ -616,6 +616,8 @@ impl FolderManager {
       if let Some(view) = folder.get_view(view_id) {
         Self::unfavorite_view_and_decendants(view.clone(), &mut folder);
         folder.add_trash_view_ids(vec![view_id.to_string()]);
+        drop(folder);
+
         // notify the parent view that the view is moved to trash
         send_notification(view_id, FolderNotification::DidMoveViewToTrash)
           .payload(DeletedViewPB {
@@ -800,6 +802,8 @@ impl FolderManager {
     let view = folder
       .get_view(&params.view_id)
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can't duplicate the view"))?;
+
+    // Explicitly drop the folder lock to avoid deadlock when following calls contains 'self'
     drop(folder);
 
     let parent_view_id = params
@@ -1008,7 +1012,9 @@ impl FolderManager {
     let view_id = {
       let lock = self.mutex_folder.load_full()?;
       let folder = lock.read().await;
-      folder.get_current_view()?
+      let view = folder.get_current_view()?;
+      drop(folder);
+      view
     };
     self.get_view_pb(&view_id).await.ok()
   }
@@ -1376,6 +1382,8 @@ impl FolderManager {
   pub(crate) async fn delete_my_trash(&self) {
     if let Some(lock) = self.mutex_folder.load_full() {
       let deleted_trash = lock.read().await.get_my_trash_info();
+
+      // Explicitly drop the folder lock to avoid deadlock when following calls contains 'self'
       drop(lock);
 
       for trash in deleted_trash {
