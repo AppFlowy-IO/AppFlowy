@@ -682,7 +682,7 @@ impl DatabaseEditor {
     let collab_object = self.collab_builder.collab_object(
       &self.user.workspace_id()?,
       self.user.user_id()?,
-      &row_id,
+      row_id,
       CollabType::DatabaseRow,
     )?;
 
@@ -1484,7 +1484,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     //
     {
       let mut database = self.database.write().await;
-      let _ = update_field_type_option_fn(&mut *database, type_option_data, &old_field).await;
+      let _ = update_field_type_option_fn(&mut database, type_option_data, &old_field).await;
       drop(database);
     }
 
@@ -1814,7 +1814,7 @@ pub async fn update_field_type_option_fn(
     warn!("Update type option with empty data");
     return Ok(());
   }
-  let field_type = FieldType::from(old_field.field_type.clone());
+  let field_type = FieldType::from(old_field.field_type);
   database.update_field(&old_field.id, |update| {
     if old_field.is_primary {
       warn!("Cannot update primary field type");

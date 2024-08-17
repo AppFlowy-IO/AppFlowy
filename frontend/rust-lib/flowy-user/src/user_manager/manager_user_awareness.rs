@@ -169,12 +169,9 @@ impl UserManager {
         )?;
         info!("User awareness initialized successfully");
         self.user_awareness.store(Some(awareness));
-        self
+        if let Some(mut is_loading) = self
           .is_loading_awareness
-          .get_mut(&object_id)
-          .map(|mut is_loading| {
-            *is_loading = false;
-          });
+          .get_mut(&object_id) { *is_loading = false; }
       } else {
         info!(
           "Initializing new user awareness from server:{}, {:?}",
@@ -216,11 +213,8 @@ impl UserManager {
     // Spawn an async task to fetch or create user awareness
     tokio::spawn(async move {
       let set_is_loading_false = || {
-        is_loading_awareness
-          .get_mut(&object_id)
-          .map(|mut is_loading| {
-            *is_loading = false;
-          });
+        if let Some(mut is_loading) = is_loading_awareness
+          .get_mut(&object_id) { *is_loading = false; }
       };
 
       let create_awareness = if authenticator.is_local() {
@@ -370,10 +364,10 @@ impl UserManager {
             .await?;
         }
 
-        return Err(FlowyError::new(
+        Err(FlowyError::new(
           ErrorCode::InProgress,
           "User awareness is loading",
-        ));
+        ))
       },
       Some(lock) => {
         let mut user_awareness = lock.write().await;

@@ -1,4 +1,3 @@
-
 pub use collab::preclude::Snapshot;
 pub use collab_plugins::local_storage::CollabPersistenceConfig;
 pub use collab_plugins::CollabKVDB;

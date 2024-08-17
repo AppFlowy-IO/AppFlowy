@@ -16,7 +16,7 @@ use flowy_user_pub::workspace_service::UserWorkspaceService;
 use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
-use std::sync::atomic::{ AtomicI64, Ordering};
+use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::{Mutex, RwLock};
 use tokio_stream::StreamExt;

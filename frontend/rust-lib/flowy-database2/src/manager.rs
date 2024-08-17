@@ -193,7 +193,7 @@ impl DatabaseManager {
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     let object = self
       .collab_builder
-      .collab_object(&workspace_id, uid, &object_id, collab_type)?;
+      .collab_object(&workspace_id, uid, object_id, collab_type)?;
     let collab = self.collab_builder.finalize(
       object,
       CollabBuilderConfig::default().sync_enable(true),
@@ -506,12 +506,10 @@ impl DatabaseManager {
   }
 
   fn workspace_database(&self) -> FlowyResult<Arc<RwLock<WorkspaceDatabase>>> {
-    Ok(
-      self
+    self
         .workspace_database
         .load_full()
-        .ok_or_else(|| FlowyError::internal().with_context("Workspace database not initialized"))?,
-    )
+        .ok_or_else(|| FlowyError::internal().with_context("Workspace database not initialized"))
   }
 
   #[instrument(level = "debug", skip_all)]
