@@ -9,6 +9,7 @@ import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
@@ -283,9 +284,18 @@ class _FloatingAIEntry extends StatelessWidget {
   }
 
   BoxDecoration _buildWrapperDecoration(BuildContext context) {
+    final outlineColor = Theme.of(context).colorScheme.outline;
+    final borderColor = Theme.of(context).isLightMode
+        ? outlineColor.withOpacity(0.7)
+        : outlineColor.withOpacity(0.3);
     return BoxDecoration(
       borderRadius: BorderRadius.circular(30),
       color: Theme.of(context).colorScheme.surface,
+      border: Border.fromBorderSide(
+        BorderSide(
+          color: borderColor,
+        ),
+      ),
     );
   }
 
