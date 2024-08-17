@@ -11,17 +11,18 @@ mod init;
 mod notification;
 mod request;
 
+use crate::init::init_appflowy_core;
+use crate::request::invoke_request;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
-use init::*;
 use notification::*;
-use request::*;
 use tauri::Manager;
+
 extern crate dotenv;
 
 fn main() {
   tauri_plugin_deep_link::prepare(DEEP_LINK_SCHEME);
 
-  let flowy_core = init_flowy_core();
+  let flowy_core = init_appflowy_core();
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![invoke_request])
     .manage(flowy_core)

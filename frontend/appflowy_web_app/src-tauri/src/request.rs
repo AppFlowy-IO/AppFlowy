@@ -1,68 +1,45 @@
-use dotenv::dotenv;
-use flowy_core::config::AppFlowyCoreConfig;
-use flowy_core::{AppFlowyCore, MutexAppFlowyCore, DEFAULT_NAME};
-use lib_dispatch::runtime::AFPluginRuntime;
-use std::rc::Rc;
+use crate::init::MutexAppFlowyCore;
+use lib_dispatch::prelude::{
+  AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest, StatusCode,
+};
+use tauri::{AppHandle, Manager, State, Wry};
 
-pub fn read_env() {
-  dotenv().ok();
+#[derive(Clone, Debug, serde::Deserialize)]
+pub struct AFTauriRequest {
+  ty: String,
+  payload: Vec<u8>,
+}
 
-  let env = if cfg!(debug_assertions) {
-    include_str!("../env.development")
-  } else {
-    include_str!("../env.production")
-  };
+impl std::convert::From<AFTauriRequest> for AFPluginRequest {
+  fn from(event: AFTauriRequest) -> Self {
+    AFPluginRequest::new(event.ty).payload(event.payload)
+  }
+}
 
-  for line in env.lines() {
-    if let Some((key, value)) = line.split_once('=') {
-      // Check if the environment variable is not already set in the system
-      let current_value = std::env::var(key).unwrap_or_default();
-      if current_value.is_empty() {
-        std::env::set_var(key, value);
-      }
+#[derive(Clone, serde::Serialize)]
+pub struct AFTauriResponse {
+  code: StatusCode,
+  payload: Vec<u8>,
+}
+
+impl std::convert::From<AFPluginEventResponse> for AFTauriResponse {
+  fn from(response: AFPluginEventResponse) -> Self {
+    Self {
+      code: response.status_code,
+      payload: response.payload.to_vec(),
     }
   }
 }
 
-pub fn init_flowy_core() -> MutexAppFlowyCore {
-  let config_json = include_str!("../tauri.conf.json");
-  let config: tauri_utils::config::Config = serde_json::from_str(config_json).unwrap();
-
-  let app_version = config
-    .package
-    .version
-    .clone()
-    .map(|v| v.to_string())
-    .unwrap_or_else(|| "0.5.8".to_string());
-  let app_version =
-    semver::Version::parse(&app_version).unwrap_or_else(|_| semver::Version::new(0, 5, 8));
-  let mut data_path = tauri::api::path::app_local_data_dir(&config).unwrap();
-  if cfg!(debug_assertions) {
-    data_path.push("data_dev");
-  } else {
-    data_path.push("data");
-  }
-
-  let custom_application_path = data_path.to_str().unwrap().to_string();
-  let application_path = data_path.to_str().unwrap().to_string();
-  let device_id = uuid::Uuid::new_v4().to_string();
-
-  read_env();
-  std::env::set_var("RUST_LOG", "trace");
-
-  let config = AppFlowyCoreConfig::new(
-    app_version,
-    custom_application_path,
-    application_path,
-    device_id,
-    "tauri".to_string(),
-    DEFAULT_NAME.to_string(),
-  )
-  .log_filter("trace", vec!["appflowy_tauri".to_string()]);
-
-  let runtime = Rc::new(AFPluginRuntime::new().unwrap());
-  let cloned_runtime = runtime.clone();
-  runtime.block_on(async move {
-    MutexAppFlowyCore::new(AppFlowyCore::new(config, cloned_runtime, None).await)
-  })
+// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+#[tauri::command]
+pub async fn invoke_request(
+  request: AFTauriRequest,
+  app_handler: AppHandle<Wry>,
+) -> AFTauriResponse {
+  let request: AFPluginRequest = request.into();
+  let state: State<MutexAppFlowyCore> = app_handler.state();
+  let dispatcher = state.0.lock().unwrap().dispatcher();
+  let response = AFPluginDispatcher::sync_send(dispatcher, request);
+  response.into()
 }
