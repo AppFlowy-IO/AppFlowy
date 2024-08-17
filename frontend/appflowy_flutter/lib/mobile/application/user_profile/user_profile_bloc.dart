@@ -12,12 +12,12 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
   UserProfileBloc() : super(const _Initial()) {
     on<UserProfileEvent>((event, emit) async {
       await event.when(
-        started: () async => _initalize(emit),
+        started: () async => _initialize(emit),
       );
     });
   }
 
-  Future<void> _initalize(Emitter<UserProfileState> emit) async {
+  Future<void> _initialize(Emitter<UserProfileState> emit) async {
     emit(const UserProfileState.loading());
 
     final workspaceOrFailure =

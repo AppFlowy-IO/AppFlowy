@@ -1086,6 +1086,8 @@
         "user": "User",
         "role": "Role",
         "removeFromWorkspace": "Remove from Workspace",
+        "removeFromWorkspaceSuccess": "Remove from workspace successfully",
+        "removeFromWorkspaceFailed": "Remove from workspace failed",
         "owner": "Owner",
         "guest": "Guest",
         "member": "Member",
@@ -1110,7 +1112,9 @@
         "removeMember": "Remove Member",
         "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
         "inviteMemberSuccess": "The invitation has been sent successfully",
-        "failedToInviteMember": "Failed to invite member"
+        "failedToInviteMember": "Failed to invite member",
+        "workspaceMembersError": "Oops, something went wrong",
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
       }
     },
     "files": {
@@ -1327,6 +1331,7 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
+      "openRowDocument": "Open as a page",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
@@ -1470,7 +1475,7 @@
         "image": "Image",
         "bulletedList": "Bulleted List",
         "numberedList": "Numbered List",
-        "checkbox": "Checkbox",
+        "todoList": "To-do List",
         "doc": "Doc",
         "linkedDoc": "Link to page",
         "grid": "Grid",

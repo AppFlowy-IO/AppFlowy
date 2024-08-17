@@ -39,11 +39,13 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
           _startListening();
           await _getAllCalculations();
 
-          add(
-            CalculationsEvent.didReceiveFieldUpdate(
-              _fieldController.fieldInfos,
-            ),
-          );
+          if (!isClosed) {
+            add(
+              CalculationsEvent.didReceiveFieldUpdate(
+                _fieldController.fieldInfos,
+              ),
+            );
+          }
         },
         didReceiveFieldUpdate: (fields) async {
           emit(
@@ -130,6 +132,10 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
 
   Future<void> _getAllCalculations() async {
     final calculationsOrFailure = await _calculationsService.getCalculations();
+
+    if (isClosed) {
+      return;
+    }
 
     final RepeatedCalculationsPB? calculations =
         calculationsOrFailure.fold((s) => s, (e) => null);

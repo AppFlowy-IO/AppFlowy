@@ -36,4 +36,11 @@ abstract class Env {
     defaultValue: '',
   )
   static const String internalBuild = _Env.internalBuild;
+
+  @EnviedField(
+    obfuscate: false,
+    varName: 'SENTRY_DSN',
+    defaultValue: '',
+  )
+  static const String sentryDsn = _Env.sentryDsn;
 }
