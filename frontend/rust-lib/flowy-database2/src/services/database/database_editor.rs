@@ -37,7 +37,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{debug, error, event, instrument, trace, warn};
+use tracing::{error, event, instrument, trace, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -1515,28 +1515,30 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
-    let database = self.database.read().await;
     let view_id = view_id.to_string();
-    // offloads the blocking operation to a thread where blocking is acceptable. This prevents
-    // blocking the main asynchronous runtime
-    let row_orders = database.get_row_orders_for_view(&view_id);
+    let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
+    trace!("total row orders: {}", row_orders.len());
 
-    let mut all_rows = vec![];
-
+    let mut row_details_list = vec![];
     // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
-    for chunk in row_orders.chunks(10) {
+    const CHUNK_SIZE: usize = 10;
+    for chunk in row_orders.chunks(CHUNK_SIZE) {
+      let database_read_guard = self.database.read().await;
       let chunk = chunk.to_vec();
-      let orders = database.get_rows_from_row_orders(&chunk).await;
-      for order in orders {
-        if let Some(row_details) = database.get_row_detail(&order.id).await {
-          all_rows.push(row_details);
+      let rows = database_read_guard.get_rows_from_row_orders(&chunk).await;
+      for row in rows {
+        match database_read_guard.get_row_detail(&row.id).await {
+          None => warn!("Failed to get row detail for row: {}", row.id.as_str()),
+          Some(row_details) => {
+            row_details_list.push(row_details);
+          },
         }
       }
-
+      drop(database_read_guard);
       tokio::task::yield_now().await;
     }
-
-    all_rows.into_iter().map(Arc::new).collect()
+    trace!("total row details: {}", row_details_list.len());
+    row_details_list.into_iter().map(Arc::new).collect()
   }
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row> {
