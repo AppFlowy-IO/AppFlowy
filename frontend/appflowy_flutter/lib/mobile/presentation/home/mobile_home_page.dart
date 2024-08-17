@@ -142,12 +142,14 @@ class _MobileHomePageState extends State<MobileHomePage> {
       child: Stack(
         children: [
           _HomePage(userProfile: widget.userProfile),
-          Positioned(
-            bottom: MediaQuery.of(context).padding.bottom + 16,
-            left: 20,
-            right: 20,
-            child: const _FloatingAIEntry(),
-          ),
+          // only show ai chat button for cloud user
+          if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud)
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 16,
+              left: 20,
+              right: 20,
+              child: const _FloatingAIEntry(),
+            ),
         ],
       ),
     );
