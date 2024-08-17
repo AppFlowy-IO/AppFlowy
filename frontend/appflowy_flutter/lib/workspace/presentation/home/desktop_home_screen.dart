@@ -26,6 +26,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -66,6 +67,14 @@ class DesktopHomeScreen extends StatelessWidget {
         if (workspaceSetting == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
+
+        Sentry.configureScope(
+          (scope) => scope.setUser(
+            SentryUser(
+              id: userProfile.id.toString(),
+            ),
+          ),
+        );
 
         return AFFocusManager(
           child: MultiBlocProvider(

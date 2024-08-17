@@ -27,6 +27,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry/sentry.dart';
 import 'package:toastification/toastification.dart';
 
 class MobileHomeScreen extends StatelessWidget {
@@ -64,6 +65,14 @@ class MobileHomeScreen extends StatelessWidget {
         if (workspaceSetting == null || userProfile == null) {
           return const WorkspaceFailedScreen();
         }
+
+        Sentry.configureScope(
+          (scope) => scope.setUser(
+            SentryUser(
+              id: userProfile.id.toString(),
+            ),
+          ),
+        );
 
         return Scaffold(
           body: SafeArea(
