@@ -263,10 +263,12 @@ class FlowyButton extends StatelessWidget {
                 (Platform.isIOS || Platform.isAndroid)
             ? BoxDecoration(
                 border: Border.all(
-                color: borderColor ??
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                width: 1.0,
-              ))
+                  color: borderColor ??
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                  width: 1.0,
+                ),
+                borderRadius: radius,
+              )
             : null);
 
     return Container(
