@@ -167,6 +167,7 @@ impl DatabaseManager {
   }
 
   //FIXME: we need to initialize sync plugin for newly created collabs
+  #[allow(dead_code)]
   fn initialize_plugins<T>(
     &self,
     uid: i64,

@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 use collab_database::rows::RowId;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
-use tracing::error;
+use tracing::{error, trace};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -38,6 +38,12 @@ pub(crate) async fn get_database_data_handler(
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
   let data = database_editor.get_database_data(view_id.as_ref()).await?;
+  trace!(
+    "layout: {:?}, rows: {}, fields: {}",
+    data.layout_type,
+    data.rows.len(),
+    data.fields.len()
+  );
   data_result_ok(data)
 }
 
@@ -394,7 +400,6 @@ pub(crate) async fn get_row_handler(
   data_result_ok(OptionalRowPB { row })
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn init_row_handler(
   data: AFPluginData<RowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,

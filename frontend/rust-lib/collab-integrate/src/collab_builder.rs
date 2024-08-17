@@ -255,6 +255,12 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
+    let mut write_collab = collab.try_write()?;
+    if !write_collab.borrow().get_state().is_uninitialized() {
+      drop(write_collab);
+      return Ok(collab);
+    }
+    trace!("🚀finalize collab:{}", object);
     if build_config.sync_enable {
       let plugin_provider = self.plugin_provider.load_full();
       let provider_type = plugin_provider.provider_type();
@@ -271,10 +277,8 @@ impl AppFlowyCollabBuilder {
           });
 
           // at the moment when we get the lock, the collab object is not yet exposed outside
-          let collab = collab.try_read().unwrap();
-          let collab = collab.borrow();
           for plugin in plugins {
-            collab.add_plugin(plugin);
+            write_collab.borrow().add_plugin(plugin);
           }
         },
         CollabPluginProviderType::Local => {},
@@ -283,11 +287,9 @@ impl AppFlowyCollabBuilder {
 
     if build_config.auto_initialize {
       // at the moment when we get the lock, the collab object is not yet exposed outside
-      let mut collab = collab.try_write().unwrap();
-      let collab = (*collab).borrow_mut();
-      collab.initialize();
+      (*write_collab).borrow_mut().initialize();
     }
-    trace!("collab initialized");
+    drop(write_collab);
     Ok(collab)
   }
 }

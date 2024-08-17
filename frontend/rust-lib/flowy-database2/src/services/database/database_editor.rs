@@ -4,7 +4,6 @@ use crate::services::calculations::Calculation;
 use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::DatabaseRowState;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
@@ -30,7 +29,6 @@ use collab_database::views::{
 };
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use dashmap::DashMap;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;
@@ -39,7 +37,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{event, instrument, trace, warn};
+use tracing::{debug, error, event, instrument, trace, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -51,7 +49,6 @@ pub struct DatabaseEditor {
   notification_sender: Arc<DebounceNotificationSender>,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  rows_state: Arc<DashMap<RowId, DatabaseRowState>>,
 }
 
 impl DatabaseEditor {
@@ -102,8 +99,6 @@ impl DatabaseEditor {
       CollabBuilderConfig::default(),
       database.clone(),
     )?;
-    trace!("{} database start init sync", database_id);
-    database.read().await.start_init_sync();
 
     Ok(Self {
       user,
@@ -112,7 +107,6 @@ impl DatabaseEditor {
       database_views,
       notification_sender,
       collab_builder,
-      rows_state: Arc::new(Default::default()),
     })
   }
 
@@ -675,15 +669,6 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<()> {
-    if self
-      .rows_state
-      .get(&row_id)
-      .map(|state| state.is_initialized())
-      .unwrap_or(false)
-    {
-      return Ok(());
-    }
-
     let database_row = self
       .database
       .read()
@@ -694,16 +679,6 @@ impl DatabaseEditor {
           .with_context(format!("The row:{} in database not found", row_id))
       })?;
 
-    if !database_row
-      .read()
-      .await
-      .collab
-      .get_state()
-      .is_uninitialized()
-    {
-      return Ok(());
-    }
-
     let collab_object = self.collab_builder.collab_object(
       &self.user.workspace_id()?,
       self.user.user_id()?,
@@ -711,16 +686,13 @@ impl DatabaseEditor {
       CollabType::DatabaseRow,
     )?;
 
-    let database_row =
+    if let Err(err) =
       self
         .collab_builder
-        .finalize(collab_object, CollabBuilderConfig::default(), database_row)?;
-
-    trace!("{} database row start init sync", row_id);
-    database_row.read().await.start_init_sync();
-    self
-      .rows_state
-      .insert(row_id.clone(), DatabaseRowState::Initialized);
+        .finalize(collab_object, CollabBuilderConfig::default(), database_row)
+    {
+      error!("Failed to init database row: {}", err);
+    }
 
     Ok(())
   }
