@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/file_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
@@ -39,14 +38,6 @@ Future<(String? path, String? errorMessage)> saveFileToCloudStorage(
   String localFilePath,
   String documentId,
 ) async {
-  final size = localFilePath.fileSize;
-  if (size == null || size > 10 * 1024 * 1024) {
-    // 10MB
-    return (
-      null,
-      LocaleKeys.document_plugins_file_fileTooBigError.tr(),
-    );
-  }
   final documentService = DocumentService();
   Log.debug("Uploading file from local path: $localFilePath");
   final result = await documentService.uploadFile(
