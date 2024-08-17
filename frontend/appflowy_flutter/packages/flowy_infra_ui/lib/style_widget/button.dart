@@ -264,7 +264,7 @@ class FlowyButton extends StatelessWidget {
             ? BoxDecoration(
                 border: Border.all(
                   color: borderColor ??
-                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                      Theme.of(context).colorScheme.outline,
                   width: 1.0,
                 ),
                 borderRadius: radius,

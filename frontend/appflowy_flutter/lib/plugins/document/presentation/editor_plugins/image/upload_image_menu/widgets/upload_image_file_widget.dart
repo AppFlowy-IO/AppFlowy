@@ -24,7 +24,7 @@ class UploadImageFileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = FlowyButton(
+    Widget child = FlowyButton(
       showDefaultBoxDecorationOnMobile: true,
       radius: PlatformExtension.isMobile ? BorderRadius.circular(8.0) : null,
       text: Container(
@@ -38,7 +38,12 @@ class UploadImageFileWidget extends StatelessWidget {
     );
 
     if (PlatformExtension.isDesktopOrWeb) {
-      return FlowyHover(child: child);
+      child = FlowyHover(child: child);
+    } else {
+      child = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: child,
+      );
     }
 
     return child;

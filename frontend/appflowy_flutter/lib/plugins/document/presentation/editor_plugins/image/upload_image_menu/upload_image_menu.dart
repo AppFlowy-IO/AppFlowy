@@ -142,8 +142,10 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           );
         } else {
           child = Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 12.0,
+            ),
             child: child,
           );
         }
