@@ -20,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import 'ai_bubble_button.dart';
+
 final ValueNotifier<int> mobileCreateNewAIChatNotifier = ValueNotifier(0);
 
 class MobileSpaceTab extends StatefulWidget {
@@ -150,7 +152,20 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
         case MobileSpaceTabType.recent:
           return const MobileRecentSpace();
         case MobileSpaceTabType.spaces:
-          return MobileHomeSpace(userProfile: widget.userProfile);
+          return Stack(
+            children: [
+              MobileHomeSpace(userProfile: widget.userProfile),
+              // only show ai chat button for cloud user
+              if (widget.userProfile.authenticator ==
+                  AuthenticatorPB.AppFlowyCloud)
+                Positioned(
+                  bottom: MediaQuery.of(context).padding.bottom + 16,
+                  left: 20,
+                  right: 20,
+                  child: const FloatingAIEntry(),
+                ),
+            ],
+          );
         case MobileSpaceTabType.favorites:
           return MobileFavoriteSpace(userProfile: widget.userProfile);
         default:
