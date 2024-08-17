@@ -4,14 +4,20 @@ import 'package:flutter/material.dart';
 class FlowyDivider extends StatelessWidget {
   const FlowyDivider({
     super.key,
+    this.padding,
   });
+
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
-    return Divider(
-      height: 1.0,
-      thickness: 1.0,
-      color: AFThemeExtension.of(context).borderColor,
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: Divider(
+        height: 1.0,
+        thickness: 1.0,
+        color: AFThemeExtension.of(context).borderColor,
+      ),
     );
   }
 }

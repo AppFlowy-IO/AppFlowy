@@ -410,7 +410,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
-
     return [
       aiWriterSlashMenuItem,
       textSlashMenuItem,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ List<ContextMenuButtonItem> buildMobileFloatingToolbarItems(
       ContextMenuButtonItem(
         label: LocaleKeys.editor_copy.tr(),
         onPressed: () {
-          copyCommand.execute(editorState);
+          customCopyCommand.execute(editorState);
           closeToolbar();
         },
       ),
@@ -34,7 +35,7 @@ List<ContextMenuButtonItem> buildMobileFloatingToolbarItems(
     ContextMenuButtonItem(
       label: LocaleKeys.editor_paste.tr(),
       onPressed: () {
-        pasteCommand.execute(editorState);
+        customPasteCommand.execute(editorState);
         closeToolbar();
       },
     ),
