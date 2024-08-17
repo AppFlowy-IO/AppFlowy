@@ -33,7 +33,7 @@ class CachedRecentService {
   final _listener = RecentViewsListener();
 
   Future<List<SectionViewPB>> recentViews() async {
-    if (_isInitialized) return _recentViews;
+    if (_isInitialized || _completer.isCompleted) return _recentViews;
 
     _isInitialized = true;
 
