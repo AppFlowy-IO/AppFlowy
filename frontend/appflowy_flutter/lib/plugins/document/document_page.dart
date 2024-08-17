@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -26,6 +24,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -42,11 +41,13 @@ class DocumentPage extends StatefulWidget {
     required this.view,
     required this.onDeleted,
     this.initialSelection,
+    this.fixedTitle,
   });
 
   final ViewPB view;
   final VoidCallback onDeleted;
   final Selection? initialSelection;
+  final String? fixedTitle;
 
   @override
   State<DocumentPage> createState() => _DocumentPageState();
@@ -261,6 +262,7 @@ class _DocumentPageState extends State<DocumentPage>
 
     if (PlatformExtension.isMobile) {
       return DocumentImmersiveCover(
+        fixedTitle: widget.fixedTitle,
         view: widget.view,
         userProfilePB: userProfilePB,
       );

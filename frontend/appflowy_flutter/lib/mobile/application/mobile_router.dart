@@ -19,6 +19,7 @@ extension MobileRouter on BuildContext {
     Map<String, dynamic>? arguments,
     bool addInRecent = true,
     bool showMoreButton = true,
+    String? fixedTitle,
   }) async {
     // set the current view before pushing the new view
     getIt<MenuSharedState>().latestOpenView = view;
@@ -28,6 +29,9 @@ extension MobileRouter on BuildContext {
     if (view.layout == ViewLayoutPB.Document) {
       queryParameters[MobileDocumentScreen.viewShowMoreButton] =
           showMoreButton.toString();
+      if (fixedTitle != null) {
+        queryParameters[MobileDocumentScreen.viewFixedTitle] = fixedTitle;
+      }
     }
 
     final uri = Uri(

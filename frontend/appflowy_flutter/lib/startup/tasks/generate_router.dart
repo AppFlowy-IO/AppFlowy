@@ -497,12 +497,15 @@ GoRoute _mobileEditorScreenRoute() {
         state.uri.queryParameters[MobileDocumentScreen.viewShowMoreButton] ??
             'true',
       );
+      final fixedTitle =
+          state.uri.queryParameters[MobileDocumentScreen.viewFixedTitle];
 
       return MaterialExtendedPage(
         child: MobileDocumentScreen(
           id: id,
           title: title,
           showMoreButton: showMoreButton ?? true,
+          fixedTitle: fixedTitle,
         ),
       );
     },

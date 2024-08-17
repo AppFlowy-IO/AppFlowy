@@ -8,17 +8,20 @@ class MobileDocumentScreen extends StatelessWidget {
     required this.id,
     this.title,
     this.showMoreButton = true,
+    this.fixedTitle,
   });
 
   /// view id
   final String id;
   final String? title;
   final bool showMoreButton;
+  final String? fixedTitle;
 
   static const routeName = '/docs';
   static const viewId = 'id';
   static const viewTitle = 'title';
   static const viewShowMoreButton = 'show_more_button';
+  static const viewFixedTitle = 'fixed_title';
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +30,7 @@ class MobileDocumentScreen extends StatelessWidget {
       title: title,
       viewLayout: ViewLayoutPB.Document,
       showMoreButton: showMoreButton,
+      fixedTitle: fixedTitle,
     );
   }
 }

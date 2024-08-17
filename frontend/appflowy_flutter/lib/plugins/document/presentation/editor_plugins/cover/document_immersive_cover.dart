@@ -34,10 +34,12 @@ class DocumentImmersiveCover extends StatefulWidget {
     super.key,
     required this.view,
     required this.userProfilePB,
+    this.fixedTitle,
   });
 
   final ViewPB view;
   final UserProfilePB userProfilePB;
+  final String? fixedTitle;
 
   @override
   State<DocumentImmersiveCover> createState() => _DocumentImmersiveCoverState();
@@ -141,6 +143,18 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         context.read<DocumentPageStyleBloc>().state.fontFamily;
     if (documentFontFamily != null && fontFamily != documentFontFamily) {
       fontFamily = getGoogleFontSafely(documentFontFamily).fontFamily;
+    }
+
+    if (widget.fixedTitle != null) {
+      return FlowyText(
+        widget.fixedTitle!,
+        fontSize: 28.0,
+        fontWeight: FontWeight.w700,
+        fontFamily: fontFamily,
+        color:
+            state.cover.isNone || state.cover.isPresets ? null : Colors.white,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     return AutoSizeTextField(
