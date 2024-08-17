@@ -48,6 +48,7 @@ class _InviteMemberPage extends StatefulWidget {
 class _InviteMemberPageState extends State<_InviteMemberPage> {
   final emailController = TextEditingController();
   late final Future<UserProfilePB?> userProfile;
+  bool exceededLimit = false;
 
   @override
   void initState() {
@@ -131,6 +132,15 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           ),
         ),
         const VSpace(16),
+        if (exceededLimit) ...[
+          FlowyText.regular(
+            LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr(),
+            fontSize: 14.0,
+            maxLines: 3,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const VSpace(16),
+        ],
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -197,6 +207,9 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
               ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
               : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
+          setState(() {
+            exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
+          });
           showToastNotification(
             context,
             type: ToastificationType.error,
@@ -220,6 +233,9 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
                   .tr()
               : LocaleKeys.settings_appearance_members_failedToInviteMember
                   .tr();
+          setState(() {
+            exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
+          });
           showToastNotification(
             context,
             type: ToastificationType.error,
