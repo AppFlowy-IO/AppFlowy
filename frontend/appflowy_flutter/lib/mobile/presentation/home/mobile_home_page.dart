@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/gesture.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
@@ -19,6 +22,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -134,74 +139,16 @@ class _MobileHomePageState extends State<MobileHomePage> {
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
         ),
       ],
-      child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
-        buildWhen: (previous, current) =>
-            previous.currentWorkspace?.workspaceId !=
-            current.currentWorkspace?.workspaceId,
-        listener: (context, state) {
-          getIt<CachedRecentService>().reset();
-          mCurrentWorkspace.value = state.currentWorkspace;
-        },
-        builder: (context, state) {
-          if (state.currentWorkspace == null) {
-            return const SizedBox.shrink();
-          }
-
-          final workspaceId = state.currentWorkspace!.workspaceId;
-
-          return Column(
-            children: [
-              // Header
-              Padding(
-                padding: EdgeInsets.only(
-                  left: HomeSpaceViewSizes.mHorizontalPadding,
-                  right: 8.0,
-                  top: Platform.isAndroid ? 8.0 : 0.0,
-                ),
-                child: MobileHomePageHeader(
-                  userProfile: widget.userProfile,
-                ),
-              ),
-
-              Expanded(
-                child: MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                      create: (_) => SpaceOrderBloc()
-                        ..add(const SpaceOrderEvent.initial()),
-                    ),
-                    BlocProvider(
-                      create: (_) => SidebarSectionsBloc()
-                        ..add(
-                          SidebarSectionsEvent.initial(
-                            widget.userProfile,
-                            workspaceId,
-                          ),
-                        ),
-                    ),
-                    BlocProvider(
-                      create: (_) =>
-                          FavoriteBloc()..add(const FavoriteEvent.initial()),
-                    ),
-                    BlocProvider(
-                      create: (_) => SpaceBloc()
-                        ..add(
-                          SpaceEvent.initial(
-                            widget.userProfile,
-                            workspaceId,
-                            openFirstPage: false,
-                          ),
-                        ),
-                    ),
-                  ],
-                  child: MobileSpaceTab(
-                    userProfile: widget.userProfile,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+      child: Stack(
+        children: [
+          _HomePage(userProfile: widget.userProfile),
+          Positioned(
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+            left: 20,
+            right: 20,
+            child: const _FloatingAIEntry(),
+          ),
+        ],
       ),
     );
   }
@@ -212,5 +159,149 @@ class _MobileHomePageState extends State<MobileHomePage> {
       return;
     }
     await FolderEventSetLatestView(ViewIdPB(value: id)).send();
+  }
+}
+
+class _HomePage extends StatelessWidget {
+  const _HomePage({required this.userProfile});
+
+  final UserProfilePB userProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
+      buildWhen: (previous, current) =>
+          previous.currentWorkspace?.workspaceId !=
+          current.currentWorkspace?.workspaceId,
+      listener: (context, state) {
+        getIt<CachedRecentService>().reset();
+        mCurrentWorkspace.value = state.currentWorkspace;
+      },
+      builder: (context, state) {
+        if (state.currentWorkspace == null) {
+          return const SizedBox.shrink();
+        }
+
+        final workspaceId = state.currentWorkspace!.workspaceId;
+
+        return Column(
+          children: [
+            // Header
+            Padding(
+              padding: EdgeInsets.only(
+                left: HomeSpaceViewSizes.mHorizontalPadding,
+                right: 8.0,
+                top: Platform.isAndroid ? 8.0 : 0.0,
+              ),
+              child: MobileHomePageHeader(
+                userProfile: userProfile,
+              ),
+            ),
+
+            Expanded(
+              child: MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) =>
+                        SpaceOrderBloc()..add(const SpaceOrderEvent.initial()),
+                  ),
+                  BlocProvider(
+                    create: (_) => SidebarSectionsBloc()
+                      ..add(
+                        SidebarSectionsEvent.initial(
+                          userProfile,
+                          workspaceId,
+                        ),
+                      ),
+                  ),
+                  BlocProvider(
+                    create: (_) =>
+                        FavoriteBloc()..add(const FavoriteEvent.initial()),
+                  ),
+                  BlocProvider(
+                    create: (_) => SpaceBloc()
+                      ..add(
+                        SpaceEvent.initial(
+                          userProfile,
+                          workspaceId,
+                          openFirstPage: false,
+                        ),
+                      ),
+                  ),
+                ],
+                child: MobileSpaceTab(
+                  userProfile: userProfile,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// disable ai chat for local model user
+class _FloatingAIEntry extends StatelessWidget {
+  const _FloatingAIEntry();
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedGestureDetector(
+      scaleFactor: 0.99,
+      onTapUp: () => mobileCreateNewAIChatNotifier.value =
+          mobileCreateNewAIChatNotifier.value + 1,
+      child: DecoratedBox(
+        decoration: _buildShadowDecoration(context),
+        child: Container(
+          decoration: _buildWrapperDecoration(context),
+          height: 48,
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 18),
+            child: _buildHintText(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _buildShadowDecoration(BuildContext context) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(30),
+      boxShadow: [
+        BoxShadow(
+          blurRadius: 20,
+          spreadRadius: 1,
+          offset: const Offset(0, 4),
+          color: Colors.black.withOpacity(0.05),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _buildWrapperDecoration(BuildContext context) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(30),
+      color: Theme.of(context).colorScheme.surface,
+    );
+  }
+
+  Widget _buildHintText(BuildContext context) {
+    return Row(
+      children: [
+        FlowySvg(
+          FlowySvgs.toolbar_item_ai_s,
+          size: const Size.square(16.0),
+          color: Theme.of(context).hintColor,
+          opacity: 0.7,
+        ),
+        const HSpace(8),
+        FlowyText(
+          LocaleKeys.chat_inputMessageHint.tr(),
+          color: Theme.of(context).hintColor,
+        ),
+      ],
+    );
   }
 }

@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+final ValueNotifier<int> mobileCreateNewAIChatNotifier = ValueNotifier(0);
+
 class MobileSpaceTab extends StatefulWidget {
   const MobileSpaceTab({
     super.key,
@@ -37,14 +39,16 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   void initState() {
     super.initState();
 
-    mobileCreateNewPageNotifier.addListener(_createNewPage);
+    mobileCreateNewPageNotifier.addListener(_createNewDocument);
+    mobileCreateNewAIChatNotifier.addListener(_createNewAIChat);
   }
 
   @override
   void dispose() {
     tabController?.removeListener(_onTabChange);
     tabController?.dispose();
-    mobileCreateNewPageNotifier.removeListener(_createNewPage);
+    mobileCreateNewPageNotifier.removeListener(_createNewDocument);
+    mobileCreateNewAIChatNotifier.removeListener(_createNewAIChat);
 
     super.dispose();
   }
@@ -150,15 +154,24 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   }
 
   // quick create new page when clicking the add button in navigation bar
-  void _createNewPage() {
+  void _createNewDocument() {
+    _createNewPage(ViewLayoutPB.Document);
+  }
+
+  void _createNewAIChat() {
+    _createNewPage(ViewLayoutPB.Chat);
+  }
+
+  void _createNewPage(ViewLayoutPB layout) {
     if (context.read<SpaceBloc>().state.spaces.isNotEmpty) {
       context.read<SpaceBloc>().add(
             SpaceEvent.createPage(
               name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-              layout: ViewLayoutPB.Document,
+              layout: layout,
             ),
           );
-    } else {
+    } else if (layout == ViewLayoutPB.Document) {
+      // only support create document in section
       context.read<SidebarSectionsBloc>().add(
             SidebarSectionsEvent.createRootViewInSection(
               name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
