@@ -76,7 +76,10 @@ class CachedRecentService {
       (recentViews) {
         return FlowyResult.success(
           RepeatedRecentViewPB(
-            items: recentViews.items.where((e) => !e.item.isSpace),
+            // filter the space view and the orphan view
+            items: recentViews.items.where(
+              (e) => !e.item.isSpace && e.item.id != e.item.parentViewId,
+            ),
           ),
         );
       },
