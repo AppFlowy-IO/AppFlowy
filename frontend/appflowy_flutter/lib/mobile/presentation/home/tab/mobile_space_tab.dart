@@ -6,9 +6,12 @@ import 'package:appflowy/mobile/presentation/home/recent_folder/recent_space.dar
 import 'package:appflowy/mobile/presentation/home/tab/_tab_bar.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/workspace/invite_members_screen.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,6 +41,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     super.initState();
 
     mobileCreateNewPageNotifier.addListener(_createNewPage);
+    mobileLeaveWorkspaceNotifier.addListener(_leaveWorkspace);
   }
 
   @override
@@ -45,6 +49,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     tabController?.removeListener(_onTabChange);
     tabController?.dispose();
     mobileCreateNewPageNotifier.removeListener(_createNewPage);
+    mobileLeaveWorkspaceNotifier.removeListener(_leaveWorkspace);
 
     super.dispose();
   }
@@ -170,5 +175,17 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
             const FolderEvent.expandOrUnExpand(isExpanded: true),
           );
     }
+  }
+
+  void _leaveWorkspace() {
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId;
+    if (workspaceId == null) {
+      Log.error('Workspace ID is null');
+      return;
+    }
+    context
+        .read<UserWorkspaceBloc>()
+        .add(UserWorkspaceEvent.leaveWorkspace(workspaceId));
   }
 }

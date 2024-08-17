@@ -1086,6 +1086,8 @@
         "user": "User",
         "role": "Role",
         "removeFromWorkspace": "Remove from Workspace",
+        "removeFromWorkspaceSuccess": "Remove from workspace successfully",
+        "removeFromWorkspaceFailed": "Remove from workspace failed",
         "owner": "Owner",
         "guest": "Guest",
         "member": "Member",
@@ -1110,7 +1112,9 @@
         "removeMember": "Remove Member",
         "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
         "inviteMemberSuccess": "The invitation has been sent successfully",
-        "failedToInviteMember": "Failed to invite member"
+        "failedToInviteMember": "Failed to invite member",
+        "workspaceMembersError": "Oops, something went wrong",
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
       }
     },
     "files": {
