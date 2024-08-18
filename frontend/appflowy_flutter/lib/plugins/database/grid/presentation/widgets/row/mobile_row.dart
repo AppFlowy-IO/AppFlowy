@@ -81,7 +81,7 @@ class _MobileGridRowState extends State<MobileGridRow> {
 
   @override
   Future<void> dispose() async {
-    _rowController.dispose();
+    await _rowController.dispose();
     super.dispose();
   }
 }

@@ -279,6 +279,7 @@ impl DatabaseManager {
     self.open_database(database_id).await
   }
 
+  #[instrument(level = "trace", skip_all, err)]
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     trace!("open database editor:{}", database_id);
     let lock = self.workspace_database()?;

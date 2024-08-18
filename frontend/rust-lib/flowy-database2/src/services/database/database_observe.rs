@@ -136,7 +136,6 @@ pub(crate) async fn observe_view_change(database_id: &str, database: &Arc<RwLock
   });
 }
 
-#[allow(dead_code)]
 pub(crate) async fn observe_block_event(database_id: &str, database: &Arc<RwLock<Database>>) {
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);

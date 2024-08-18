@@ -121,7 +121,7 @@ impl DatabaseFieldTest {
       } => {
         let field = self.editor.get_field(&field_id).await.unwrap();
 
-        let rows = self.editor.get_rows(&self.view_id()).await.unwrap();
+        let rows = self.editor.get_row_details(&self.view_id()).await.unwrap();
         let row_detail = rows.get(row_index).unwrap();
 
         let cell = row_detail.row.cells.get(&field_id).unwrap().clone();

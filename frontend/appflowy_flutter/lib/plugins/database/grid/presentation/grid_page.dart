@@ -9,7 +9,6 @@ import 'package:appflowy/workspace/application/action_navigation/navigation_acti
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
@@ -154,6 +153,7 @@ class _GridPageState extends State<GridPage> {
             finish: (result) => result.successOrFail.fold(
               (_) => GridShortcuts(
                 child: GridPageContent(
+                  key: ValueKey(widget.view.id),
                   view: widget.view,
                 ),
               ),
@@ -331,33 +331,10 @@ class _GridRowsState extends State<_GridRows> {
     BuildContext context,
     GridState state,
   ) {
-    final children = state.rowInfos.mapIndexed((index, rowInfo) {
-      return _renderRow(
-        context,
-        rowInfo.rowId,
-        isDraggable: state.reorderable,
-        index: index,
-      );
-    }).toList()
-      ..add(const GridRowBottomBar(key: Key('grid_footer')));
-
-    if (showFloatingCalculations) {
-      children.add(
-        const SizedBox(
-          key: Key('calculations_bottom_padding'),
-          height: 36,
-        ),
-      );
-    } else {
-      children.add(
-        GridCalculationsRow(
-          key: const Key('grid_calculations'),
-          viewId: widget.viewId,
-        ),
-      );
-    }
-
-    children.add(const SizedBox(key: Key('footer_padding'), height: 10));
+    // 1. GridRowBottomBar
+    // 2. GridCalculationsRow
+    // 3. Footer Padding
+    final itemCount = state.rowInfos.length + 3;
 
     return Stack(
       children: [
@@ -381,8 +358,37 @@ class _GridRowsState extends State<_GridRows> {
                     .add(GridEvent.moveRow(fromIndex, toIndex));
               }
             },
-            itemCount: children.length,
-            itemBuilder: (context, index) => children[index],
+            itemCount: itemCount,
+            itemBuilder: (context, index) {
+              if (index < state.rowInfos.length) {
+                return _renderRow(
+                  context,
+                  state.rowInfos[index].rowId,
+                  isDraggable: state.reorderable,
+                  index: index,
+                );
+              }
+
+              if (index == state.rowInfos.length) {
+                return const GridRowBottomBar(key: Key('grid_footer'));
+              }
+
+              if (index == state.rowInfos.length + 1) {
+                if (showFloatingCalculations) {
+                  return const SizedBox(
+                    key: Key('calculations_bottom_padding'),
+                    height: 36,
+                  );
+                } else {
+                  return GridCalculationsRow(
+                    key: const Key('grid_calculations'),
+                    viewId: widget.viewId,
+                  );
+                }
+              }
+
+              return const SizedBox(key: Key('footer_padding'), height: 10);
+            },
           ),
         ),
         if (showFloatingCalculations) ...[

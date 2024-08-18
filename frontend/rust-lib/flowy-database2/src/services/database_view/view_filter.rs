@@ -53,11 +53,11 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
   }
 
   async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
-    self.0.get_rows(view_id).await
+    self.0.get_row_details(view_id).await
   }
 
   async fn get_row(&self, view_id: &str, rows_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {
-    self.0.get_row(view_id, rows_id).await
+    self.0.get_row_detail(view_id, rows_id).await
   }
 
   async fn get_all_filters(&self, view_id: &str) -> Vec<Filter> {
