@@ -119,7 +119,7 @@ impl DatabaseEditor {
       .database
       .read()
       .await
-      .get_database_rows()
+      .get_all_row_orders()
       .await
       .into_iter()
       .map(|entry| entry.id)
@@ -681,12 +681,22 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<()> {
+    if self
+      .database
+      .read()
+      .await
+      .get_database_row(row_id)
+      .is_some()
+    {
+      return Ok(());
+    }
+
     debug!("Init database row: {}", row_id);
     let database_row = self
       .database
       .read()
       .await
-      .get_or_init_database_row(row_id)
+      .create_database_row(row_id)
       .ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("The row:{} in database not found", row_id))
@@ -1394,7 +1404,7 @@ impl DatabaseEditor {
       .ok_or(FlowyError::internal())?;
 
     let row_data = {
-      let mut rows = database.get_database_rows().await;
+      let mut rows = database.get_all_rows().await;
       if let Some(row_ids) = row_ids {
         rows.retain(|row| row_ids.contains(&row.id));
       }
