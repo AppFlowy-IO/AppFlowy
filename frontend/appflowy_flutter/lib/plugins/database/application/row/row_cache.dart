@@ -81,6 +81,12 @@ class RowCache {
     _changedNotifier.receive(const ChangedReason.setInitialRows());
   }
 
+  void setRowMeta(RowMetaPB rowMeta) {
+    final rowInfo = buildGridRow(rowMeta);
+    _rowList.add(rowInfo);
+    _changedNotifier.receive(const ChangedReason.didFetchRow());
+  }
+
   void dispose() {
     _rowLifeCycle.onRowDisposed();
     _changedNotifier.dispose();
@@ -215,7 +221,8 @@ class RowCache {
     if (rowInfo == null) {
       _loadRow(rowMeta.id);
     }
-    return _makeCells(rowMeta);
+    final cells = _makeCells(rowMeta);
+    return cells;
   }
 
   Future<void> _loadRow(RowId rowId) async {
@@ -277,6 +284,7 @@ class RowChangesetNotifier extends ChangeNotifier {
       reorderRows: (_) => notifyListeners(),
       reorderSingleRow: (_) => notifyListeners(),
       setInitialRows: (_) => notifyListeners(),
+      didFetchRow: (_) => notifyListeners(),
     );
   }
 }
@@ -305,6 +313,7 @@ class ChangedReason with _$ChangedReason {
   const factory ChangedReason.update(UpdatedIndexMap indexs) = _Update;
   const factory ChangedReason.fieldDidChange() = _FieldDidChange;
   const factory ChangedReason.initial() = InitialListState;
+  const factory ChangedReason.didFetchRow() = _DidFetchRow;
   const factory ChangedReason.reorderRows() = _ReorderRows;
   const factory ChangedReason.reorderSingleRow(
     ReorderSingleRowPB reorderRow,

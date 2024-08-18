@@ -23,8 +23,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowController = rowController,
         super(RowState.initial()) {
-    _rowBackendSvc.initRow(rowId);
-
     _dispatch();
     _startListening();
     _init();
@@ -38,7 +36,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
-    _rowController.dispose();
+    await _rowController.dispose();
     return super.close();
   }
 
@@ -84,7 +82,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   void _init() {
     add(
       RowEvent.didReceiveCells(
-        _rowController.loadData(),
+        _rowController.loadCells(),
         const ChangedReason.setInitialRows(),
       ),
     );

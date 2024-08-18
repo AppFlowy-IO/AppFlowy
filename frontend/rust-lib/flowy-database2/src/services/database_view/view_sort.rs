@@ -61,7 +61,7 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
 
   async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
     let view_id = view_id.to_string();
-    let mut row_details = self.delegate.get_rows(&view_id).await;
+    let mut row_details = self.delegate.get_row_details(&view_id).await;
     self.filter_controller.filter_rows(&mut row_details).await;
     row_details
   }

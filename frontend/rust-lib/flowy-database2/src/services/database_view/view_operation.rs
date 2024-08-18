@@ -53,10 +53,10 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   async fn index_of_row(&self, view_id: &str, row_id: &RowId) -> Option<usize>;
 
   /// Returns the `index` and `RowRevision` with row_id
-  async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)>;
+  async fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)>;
 
   /// Returns all the rows in the view
-  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
+  async fn get_row_details(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row>;
 

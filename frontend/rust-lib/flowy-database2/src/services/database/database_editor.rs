@@ -37,7 +37,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{error, event, instrument, trace, warn};
+use tracing::{debug, error, event, instrument, trace, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -66,7 +66,7 @@ impl DatabaseEditor {
     // observe_view_change(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
     observe_rows_change(&database_id, &database, &notification_sender).await;
-    // observe_block_event(&database_id, &database).await;
+    observe_block_event(&database_id, &database).await;
 
     // Used to cache the view of the database for fast access.
     let editor_by_view_id = Arc::new(RwLock::new(EditorByViewId::default()));
@@ -509,16 +509,28 @@ impl DatabaseEditor {
         .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
 
       let (index, row_order) = database.create_row_in_view(view_id, params);
-      tracing::trace!("duplicated row: {:?} at {}", row_order, index);
+      trace!(
+        "duplicate row: {:?} at index:{}, new row:{:?}",
+        row_id,
+        index,
+        row_order
+      );
       let row_detail = database.get_row_detail(&row_order.id).await;
-
       (row_detail, index)
     };
 
-    if let Some(row_detail) = row_detail {
-      for view in self.database_views.editors().await {
-        view.v_did_create_row(&row_detail, index).await;
-      }
+    match row_detail {
+      None => {
+        error!(
+          "Failed to duplicate row: {:?}. Row is not exist before duplicating",
+          row_id
+        );
+      },
+      Some(row_detail) => {
+        for view in self.database_views.editors().await {
+          view.v_did_create_row(&row_detail, index).await;
+        }
+      },
     }
 
     Ok(())
@@ -654,9 +666,9 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
+  pub async fn get_row_details(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    Ok(view_editor.v_get_rows().await)
+    Ok(view_editor.v_get_row_details().await)
   }
 
   pub async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
@@ -669,11 +681,12 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<()> {
+    debug!("Init database row: {}", row_id);
     let database_row = self
       .database
       .read()
       .await
-      .get_row_collab(row_id)
+      .get_or_init_database_row(row_id)
       .ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("The row:{} in database not found", row_id))
@@ -1143,7 +1156,7 @@ impl DatabaseEditor {
         let to_row = if to_row.is_some() {
           to_row
         } else {
-          let row_details = self.get_rows(view_id).await?;
+          let row_details = self.get_row_details(view_id).await?;
           row_details
             .last()
             .map(|row_detail| row_detail.row.id.clone())
@@ -1275,7 +1288,8 @@ impl DatabaseEditor {
       .v_get_view()
       .await
       .ok_or_else(FlowyError::record_not_found)?;
-    let rows = database_view.v_get_rows().await;
+
+    let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
     let (database_id, fields, is_linked) = {
       let database = self.database.read().await;
       let database_id = database.get_database_id();
@@ -1288,9 +1302,15 @@ impl DatabaseEditor {
       (database_id, fields, is_linked)
     };
 
-    let rows = rows
+    let rows = row_orders
       .into_iter()
-      .map(|row_detail| RowMetaPB::from(row_detail.as_ref()))
+      .map(|row_order| RowMetaPB {
+        id: row_order.id.to_string(),
+        document_id: "".to_string(),
+        icon: None,
+        cover: None,
+        is_document_empty: false,
+      })
       .collect::<Vec<RowMetaPB>>();
     Ok(DatabasePB {
       id: database_id,
@@ -1504,7 +1524,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self.database.read().await.index_of_row(view_id, row_id)
   }
 
-  async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {
+  async fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {
     let database = self.database.read().await;
     let index = database.index_of_row(view_id, row_id);
     let row_detail = database.get_row_detail(row_id).await;
@@ -1514,7 +1534,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     }
   }
 
-  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
+  async fn get_row_details(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
     let view_id = view_id.to_string();
     let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
     trace!("total row orders: {}", row_orders.len());
