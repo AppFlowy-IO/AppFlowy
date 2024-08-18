@@ -1,10 +1,10 @@
+use async_trait::async_trait;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
 use collab_database::rows::{RowDetail, RowId};
 
 use flowy_error::FlowyResult;
-use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::FieldType;
 use crate::services::database_view::DatabaseViewOperation;
@@ -21,7 +21,7 @@ pub async fn new_group_controller(
   filter_controller: Arc<FilterController>,
   grouping_field: Option<Field>,
 ) -> FlowyResult<Option<Box<dyn GroupController>>> {
-  if !delegate.get_layout_for_view(&view_id).is_board() {
+  if !delegate.get_layout_for_view(&view_id).await.is_board() {
     return Ok(None);
   }
 
@@ -61,45 +61,45 @@ pub(crate) struct GroupControllerDelegateImpl {
   filter_controller: Arc<FilterController>,
 }
 
+#[async_trait]
 impl GroupContextDelegate for GroupControllerDelegateImpl {
-  fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>> {
-    let mut settings = self.delegate.get_group_setting(view_id);
-    to_fut(async move {
-      if settings.is_empty() {
-        None
-      } else {
-        Some(Arc::new(settings.remove(0)))
-      }
-    })
+  async fn get_group_setting(&self, view_id: &str) -> Option<Arc<GroupSetting>> {
+    let mut settings = self.delegate.get_group_setting(view_id).await;
+    if settings.is_empty() {
+      None
+    } else {
+      Some(Arc::new(settings.remove(0)))
+    }
   }
 
-  fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Fut<Vec<RowSingleCellData>> {
-    let field_id = field_id.to_owned();
-    let view_id = view_id.to_owned();
+  async fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Vec<RowSingleCellData> {
     let delegate = self.delegate.clone();
-    to_fut(async move { get_cells_for_field(delegate, &view_id, &field_id).await })
+    get_cells_for_field(delegate, view_id, field_id).await
   }
 
-  fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {
-    self.delegate.insert_group_setting(view_id, group_setting);
-    to_fut(async move { Ok(()) })
+  async fn save_configuration(
+    &self,
+    view_id: &str,
+    group_setting: GroupSetting,
+  ) -> FlowyResult<()> {
+    self
+      .delegate
+      .insert_group_setting(view_id, group_setting)
+      .await;
+    Ok(())
   }
 }
 
+#[async_trait]
 impl GroupControllerDelegate for GroupControllerDelegateImpl {
-  fn get_field(&self, field_id: &str) -> Option<Field> {
-    self.delegate.get_field(field_id)
+  async fn get_field(&self, field_id: &str) -> Option<Field> {
+    self.delegate.get_field(field_id).await
   }
 
-  fn get_all_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>> {
-    let view_id = view_id.to_string();
-    let delegate = self.delegate.clone();
-    let filter_controller = self.filter_controller.clone();
-    to_fut(async move {
-      let mut row_details = delegate.get_rows(&view_id).await;
-      filter_controller.filter_rows(&mut row_details).await;
-      row_details
-    })
+  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
+    let mut row_details = self.delegate.get_rows(view_id).await;
+    self.filter_controller.filter_rows(&mut row_details).await;
+    row_details
   }
 }
 
@@ -108,7 +108,7 @@ pub(crate) async fn get_cell_for_row(
   field_id: &str,
   row_id: &RowId,
 ) -> Option<RowSingleCellData> {
-  let field = delegate.get_field(field_id)?;
+  let field = delegate.get_field(field_id).await?;
   let row_cell = delegate.get_cell_in_row(field_id, row_id).await;
   let field_type = FieldType::from(field.field_type);
   let handler = delegate.get_type_option_cell_handler(&field)?;
@@ -131,7 +131,7 @@ pub(crate) async fn get_cells_for_field(
   view_id: &str,
   field_id: &str,
 ) -> Vec<RowSingleCellData> {
-  if let Some(field) = delegate.get_field(field_id) {
+  if let Some(field) = delegate.get_field(field_id).await {
     let field_type = FieldType::from(field.field_type);
     if let Some(handler) = delegate.get_type_option_cell_handler(&field) {
       let cells = delegate.get_cells_for_field(view_id, field_id).await;

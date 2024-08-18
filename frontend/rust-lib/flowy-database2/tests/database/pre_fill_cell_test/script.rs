@@ -106,7 +106,7 @@ impl DatabasePreFillRowCellTest {
         row_index,
         expected_content,
       } => {
-        let field = self.editor.get_field(&field_id).unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
 
         let rows = self.editor.get_rows(&self.view_id).await.unwrap();
         let row_detail = rows.get(row_index).unwrap();

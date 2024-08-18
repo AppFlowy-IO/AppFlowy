@@ -36,9 +36,11 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
   ) -> FlowyResult<()> {
     collab_db.with_write_txn(|write_txn| {
       if let Ok(collab) = load_collab(session.user_id, write_txn, &session.user_workspace.id) {
-        let folder = Folder::open(session.user_id, collab, None)
+        let mut folder = Folder::open(session.user_id, collab, None)
           .map_err(|err| PersistenceError::Internal(err.into()))?;
-        folder.migrate_workspace_to_view();
+        folder
+          .body
+          .migrate_workspace_to_view(&mut folder.collab.transact_mut());
 
         let favorite_view_ids = folder
           .get_favorite_v1()
@@ -51,7 +53,7 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
         }
 
         let encode = folder
-          .encode_collab_v1()
+          .encode_collab()
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc_with(
           session.user_id,

@@ -6,11 +6,11 @@ use collab_entity::CollabType;
 use std::env::temp_dir;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
 use nanoid::nanoid;
-use parking_lot::{Mutex, RwLock};
 use semver::Version;
 use tokio::select;
 use tokio::time::sleep;
@@ -35,10 +35,10 @@ pub mod user_event;
 
 #[derive(Clone)]
 pub struct EventIntegrationTest {
-  pub authenticator: Arc<RwLock<AuthenticatorPB>>,
+  pub authenticator: Arc<AtomicU8>,
   pub appflowy_core: AppFlowyCore,
   #[allow(dead_code)]
-  cleaner: Arc<Mutex<Cleaner>>,
+  cleaner: Arc<Cleaner>,
   pub notification_sender: TestNotificationSender,
 }
 
@@ -57,7 +57,7 @@ impl EventIntegrationTest {
     let clean_path = config.storage_path.clone();
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
-    let authenticator = Arc::new(RwLock::new(AuthenticatorPB::Local));
+    let authenticator = Arc::new(AtomicU8::new(AuthenticatorPB::Local as u8));
     register_notification_sender(notification_sender.clone());
 
     // In case of dropping the runtime that runs the core, we need to forget the dispatcher
@@ -66,7 +66,7 @@ impl EventIntegrationTest {
       appflowy_core: inner,
       authenticator,
       notification_sender,
-      cleaner: Arc::new(Mutex::new(Cleaner::new(PathBuf::from(clean_path)))),
+      cleaner: Arc::new(Cleaner::new(PathBuf::from(clean_path))),
     }
   }
 
@@ -93,7 +93,7 @@ impl EventIntegrationTest {
   }
 
   pub fn skip_clean(&mut self) {
-    self.cleaner.lock().should_clean = false;
+    self.cleaner.should_clean.store(false, Ordering::Release);
   }
 
   pub fn instance_name(&self) -> String {
@@ -154,7 +154,7 @@ pub fn document_data_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -
 }
 
 pub fn document_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> Document {
-  Document::from_doc_state(
+  Document::open_with_options(
     CollabOrigin::Empty,
     DataSource::DocStateV1(doc_state),
     doc_id,
@@ -177,17 +177,16 @@ impl std::ops::Deref for EventIntegrationTest {
   }
 }
 
-#[derive(Clone)]
 pub struct Cleaner {
   dir: PathBuf,
-  should_clean: bool,
+  should_clean: AtomicBool,
 }
 
 impl Cleaner {
   pub fn new(dir: PathBuf) -> Self {
     Self {
       dir,
-      should_clean: true,
+      should_clean: AtomicBool::new(true),
     }
   }
 
@@ -198,7 +197,7 @@ impl Cleaner {
 
 impl Drop for Cleaner {
   fn drop(&mut self) {
-    if self.should_clean {
+    if self.should_clean.load(Ordering::Acquire) {
       Self::cleanup(&self.dir)
     }
   }

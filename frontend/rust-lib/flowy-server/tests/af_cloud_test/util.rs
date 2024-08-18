@@ -8,7 +8,6 @@ use uuid::Uuid;
 
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
-use flowy_server::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 
 use crate::setup_log;
@@ -82,10 +81,10 @@ pub async fn af_cloud_sign_up_param(
 ) -> HashMap<String, String> {
   let mut params = HashMap::new();
   params.insert(
-    USER_SIGN_IN_URL.to_string(),
+    "sign_in_url".to_string(),
     generate_sign_in_url(email, config).await,
   );
-  params.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
+  params.insert("device_id".to_string(), Uuid::new_v4().to_string());
   params
 }
 

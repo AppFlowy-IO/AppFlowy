@@ -7,7 +7,6 @@ import 'package:app_links/app_links.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
-import 'package:appflowy/startup/tasks/supabase_task.dart';
 import 'package:appflowy/user/application/auth/auth_error.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
@@ -21,6 +20,8 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:url_protocol/url_protocol.dart';
+
+const appflowyDeepLinkSchema = 'appflowy-flutter';
 
 class AppFlowyCloudDeepLink {
   AppFlowyCloudDeepLink() {

@@ -7,7 +7,7 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -20,16 +20,14 @@ pub struct SummarizationTypeOption {
 
 impl From<TypeOptionData> for SummarizationTypeOption {
   fn from(value: TypeOptionData) -> Self {
-    let auto_fill = value.get_bool_value("auto_fill").unwrap_or_default();
+    let auto_fill: bool = value.get_as("auto_fill").unwrap_or_default();
     Self { auto_fill }
   }
 }
 
 impl From<SummarizationTypeOption> for TypeOptionData {
   fn from(value: SummarizationTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_bool_value("auto_fill", value.auto_fill)
-      .build()
+    TypeOptionDataBuilder::from([("auto_fill".into(), value.auto_fill.into())])
   }
 }
 

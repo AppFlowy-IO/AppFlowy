@@ -37,6 +37,14 @@ class RowBackendService {
     return DatabaseEventCreateRow(payload).send();
   }
 
+  Future<FlowyResult<void, FlowyError>> initRow(RowId rowId) async {
+    final payload = RowIdPB()
+      ..viewId = viewId
+      ..rowId = rowId;
+
+    return DatabaseEventInitRow(payload).send();
+  }
+
   Future<FlowyResult<RowMetaPB, FlowyError>> createRowBefore(RowId rowId) {
     return createRow(
       viewId: viewId,

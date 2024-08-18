@@ -32,7 +32,7 @@ async fn export_and_then_import_meta_csv_test() {
   let result = test.import(csv_1.clone(), format).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
-  let fields = database.get_fields(&result.view_id, None);
+  let fields = database.get_fields(&result.view_id, None).await;
   let rows = database.get_rows(&result.view_id).await.unwrap();
   assert_eq!(fields[0].field_type, 0);
   assert_eq!(fields[1].field_type, 1);
@@ -111,7 +111,7 @@ async fn history_database_import_test() {
   let result = test.import(csv.to_string(), format).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
-  let fields = database.get_fields(&result.view_id, None);
+  let fields = database.get_fields(&result.view_id, None).await;
   let rows = database.get_rows(&result.view_id).await.unwrap();
   assert_eq!(fields[0].field_type, 0);
   assert_eq!(fields[1].field_type, 1);

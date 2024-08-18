@@ -63,7 +63,6 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
     device_id: deviceId,
     platform: Platform.operatingSystem,
     authenticator_type: env.authenticatorType.value,
-    supabase_config: env.supabaseConfig,
     appflowy_cloud_config: env.appflowyCloudConfig,
     envs: rustEnvs,
   );

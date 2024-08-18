@@ -40,7 +40,6 @@ pub struct DatabaseEncodedCollab {
 /// The handler will be used to handler the folder operation for a specific
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
 /// view, the [ViewLayout] will be used to get the handler.
-///
 #[async_trait]
 pub trait FolderOperationHandler {
   /// Create the view for the workspace of new user.

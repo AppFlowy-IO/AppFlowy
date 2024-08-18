@@ -2,9 +2,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
   FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
 };
-use crate::manager::{
-  get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser, MutexFolder,
-};
+use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser};
 use crate::notification::{send_notification, FolderNotification};
 use collab::core::collab_state::SyncState;
 use collab_folder::{
@@ -13,7 +11,8 @@ use collab_folder::{
 };
 use lib_dispatch::prelude::af_spawn;
 use std::collections::HashSet;
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
+use tokio::sync::RwLock;
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
 use tracing::{event, trace, Level};
@@ -22,10 +21,9 @@ use tracing::{event, trace, Level};
 pub(crate) fn subscribe_folder_view_changed(
   workspace_id: String,
   mut rx: ViewChangeReceiver,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  weak_mutex_folder: Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(user) = user.upgrade() {
@@ -38,7 +36,7 @@ pub(crate) fn subscribe_folder_view_changed(
         }
       }
 
-      if let Some(folder) = weak_mutex_folder.upgrade() {
+      if let Some(lock) = weak_mutex_folder.upgrade() {
         tracing::trace!("Did receive view change: {:?}", value);
         match value {
           ViewChange::DidCreateView { view } => {
@@ -46,7 +44,8 @@ pub(crate) fn subscribe_folder_view_changed(
               view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Create,
             );
-            notify_parent_view_did_change(&workspace_id, folder.clone(), vec![view.parent_view_id]);
+            let folder = lock.read().await;
+            notify_parent_view_did_change(&workspace_id, &folder, vec![view.parent_view_id]);
           },
           ViewChange::DidDeleteView { views } => {
             for view in views {
@@ -62,11 +61,8 @@ pub(crate) fn subscribe_folder_view_changed(
               view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Update,
             );
-            notify_parent_view_did_change(
-              &workspace_id,
-              folder.clone(),
-              vec![view.parent_view_id.clone()],
-            );
+            let folder = lock.read().await;
+            notify_parent_view_did_change(&workspace_id, &folder, vec![view.parent_view_id]);
           },
         };
       }
@@ -76,35 +72,30 @@ pub(crate) fn subscribe_folder_view_changed(
 
 pub(crate) fn subscribe_folder_snapshot_state_changed(
   workspace_id: String,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  weak_mutex_folder: Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
-    if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
-      let stream = mutex_folder
-        .read()
-        .as_ref()
-        .map(|folder| folder.subscribe_snapshot_state());
-      if let Some(mut state_stream) = stream {
-        while let Some(snapshot_state) = state_stream.next().await {
-          if let Some(user) = user.upgrade() {
-            if let Ok(actual_workspace_id) = user.workspace_id() {
-              if actual_workspace_id != workspace_id {
-                // break the loop when the workspace id is not matched.
-                break;
-              }
+    if let Some(folder) = weak_mutex_folder.upgrade() {
+      let mut state_stream = folder.read().await.subscribe_snapshot_state();
+
+      while let Some(snapshot_state) = state_stream.next().await {
+        if let Some(user) = user.upgrade() {
+          if let Ok(actual_workspace_id) = user.workspace_id() {
+            if actual_workspace_id != workspace_id {
+              // break the loop when the workspace id is not matched.
+              break;
             }
           }
-          if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-            tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
-            send_notification(
-              &workspace_id,
-              FolderNotification::DidUpdateFolderSnapshotState,
-            )
-            .payload(FolderSnapshotStatePB { new_snapshot_id })
-            .send();
-          }
+        }
+        if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+          tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
+          send_notification(
+            &workspace_id,
+            FolderNotification::DidUpdateFolderSnapshotState,
+          )
+          .payload(FolderSnapshotStatePB { new_snapshot_id })
+          .send();
         }
       }
     }
@@ -138,10 +129,9 @@ pub(crate) fn subscribe_folder_sync_state_changed(
 pub(crate) fn subscribe_folder_trash_changed(
   workspace_id: String,
   mut rx: SectionChangeReceiver,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  weak_mutex_folder: Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(user) = user.upgrade() {
@@ -153,7 +143,7 @@ pub(crate) fn subscribe_folder_trash_changed(
         }
       }
 
-      if let Some(folder) = weak_mutex_folder.upgrade() {
+      if let Some(lock) = weak_mutex_folder.upgrade() {
         let mut unique_ids = HashSet::new();
         tracing::trace!("Did receive trash change: {:?}", value);
 
@@ -163,20 +153,19 @@ pub(crate) fn subscribe_folder_trash_changed(
               TrashSectionChange::TrashItemAdded { ids } => ids,
               TrashSectionChange::TrashItemRemoved { ids } => ids,
             };
-            if let Some(folder) = folder.read().as_ref() {
-              let views = folder.views.get_views(&ids);
-              for view in views {
-                unique_ids.insert(view.parent_view_id.clone());
-              }
-
-              let repeated_trash: RepeatedTrashPB = folder.get_my_trash_info().into();
-              send_notification("trash", FolderNotification::DidUpdateTrash)
-                .payload(repeated_trash)
-                .send();
+            let folder = lock.read().await;
+            let views = folder.get_views(&ids);
+            for view in views {
+              unique_ids.insert(view.parent_view_id.clone());
             }
 
+            let repeated_trash: RepeatedTrashPB = folder.get_my_trash_info().into();
+            send_notification("trash", FolderNotification::DidUpdateTrash)
+              .payload(repeated_trash)
+              .send();
+
             let parent_view_ids = unique_ids.into_iter().collect();
-            notify_parent_view_did_change(&workspace_id, folder.clone(), parent_view_ids);
+            notify_parent_view_did_change(&workspace_id, &folder, parent_view_ids);
           },
         }
       }
@@ -188,11 +177,9 @@ pub(crate) fn subscribe_folder_trash_changed(
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   workspace_id: &str,
-  folder: Arc<MutexFolder>,
+  folder: &Folder,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
-  let folder = folder.read();
-  let folder = folder.as_ref()?;
   let trash_ids = folder
     .get_all_trash_sections()
     .into_iter()
@@ -210,8 +197,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
-      let parent_view = folder.views.get_view(parent_view_id)?;
-      let mut child_views = folder.views.get_views_belong_to(parent_view_id);
+      let parent_view = folder.get_view(parent_view_id)?;
+      let mut child_views = folder.get_views_belong_to(parent_view_id);
       child_views.retain(|view| !trash_ids.contains(&view.id));
       event!(Level::DEBUG, child_views_count = child_views.len());
 

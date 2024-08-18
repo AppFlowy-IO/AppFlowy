@@ -15,7 +15,6 @@ flowy-database-pub = { workspace = true }
 
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
-parking_lot.workspace = true
 protobuf.workspace = true
 flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",
@@ -29,6 +28,7 @@ tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
+arc-swap.workspace = true
 lib-infra = { workspace = true }
 chrono = { workspace = true, default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"

@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::{Deserialize, Serialize};
 
@@ -34,16 +34,17 @@ impl TypeOptionCellData for URLCellData {
 
 impl From<&Cell> for URLCellData {
   fn from(cell: &Cell) -> Self {
-    let data = cell.get_str_value(CELL_DATA).unwrap_or_default();
-    Self { data }
+    Self {
+      data: cell.get_as(CELL_DATA).unwrap_or_default(),
+    }
   }
 }
 
 impl From<URLCellData> for Cell {
   fn from(data: URLCellData) -> Self {
-    new_cell_builder(FieldType::URL)
-      .insert_str_value(CELL_DATA, data.data)
-      .build()
+    let mut cell = new_cell_builder(FieldType::URL);
+    cell.insert(CELL_DATA.into(), data.data.into());
+    cell
   }
 }
 

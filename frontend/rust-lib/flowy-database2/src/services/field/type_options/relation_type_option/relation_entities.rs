@@ -40,9 +40,9 @@ impl From<&RelationCellData> for Cell {
         .map(|id| Any::String(Arc::from(id.to_string())))
         .collect::<Vec<_>>(),
     ));
-    new_cell_builder(FieldType::Relation)
-      .insert_any(CELL_DATA, data)
-      .build()
+    let mut cell = new_cell_builder(FieldType::Relation);
+    cell.insert(CELL_DATA.into(), data);
+    cell
   }
 }
 

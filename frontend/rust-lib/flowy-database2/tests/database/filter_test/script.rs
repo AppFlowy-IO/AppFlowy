@@ -194,7 +194,7 @@ impl DatabaseFilterTest {
       } => {
         self.subscribe_view_changed().await;
         self.assert_future_changed(changed).await;
-        let field = self.get_first_field(field_type);
+        let field = self.get_first_field(field_type).await;
         let params = FilterChangeset::Insert {
           parent_filter_id,
           data: FilterInner::Data {

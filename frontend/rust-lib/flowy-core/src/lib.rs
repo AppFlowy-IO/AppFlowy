@@ -2,7 +2,6 @@
 
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
-use parking_lot::Mutex;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -302,7 +301,6 @@ impl From<Server> for CollabPluginProviderType {
     match server_type {
       Server::Local => CollabPluginProviderType::Local,
       Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
-      Server::Supabase => CollabPluginProviderType::Supabase,
     }
   }
 }
@@ -323,13 +321,3 @@ impl ServerUser for ServerUserImpl {
     self.upgrade_user()?.workspace_id()
   }
 }
-
-pub struct MutexAppFlowyCore(pub Rc<Mutex<AppFlowyCore>>);
-
-impl MutexAppFlowyCore {
-  pub fn new(appflowy_core: AppFlowyCore) -> Self {
-    Self(Rc::new(Mutex::new(appflowy_core)))
-  }
-}
-unsafe impl Sync for MutexAppFlowyCore {}
-unsafe impl Send for MutexAppFlowyCore {}

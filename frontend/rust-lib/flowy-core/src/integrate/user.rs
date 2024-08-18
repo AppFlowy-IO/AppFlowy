@@ -131,21 +131,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           create_if_not_exist: true,
         },
         Server::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
-        Server::Supabase => {
-          if is_new_user {
-            FolderInitDataSource::LocalDisk {
-              create_if_not_exist: true,
-            }
-          } else {
-            FolderInitDataSource::Cloud(doc_state)
-          }
-        },
       },
       Err(err) => match server_type {
         Server::Local => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },
-        Server::AppFlowyCloud | Server::Supabase => {
+        Server::AppFlowyCloud => {
           return Err(FlowyError::from(err));
         },
       },

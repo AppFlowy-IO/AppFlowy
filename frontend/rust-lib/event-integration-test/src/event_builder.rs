@@ -1,3 +1,4 @@
+use crate::EventIntegrationTest;
 use flowy_user::errors::{internal_error, FlowyError};
 use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
@@ -8,8 +9,6 @@ use std::{
   fmt::{Debug, Display},
   hash::Hash,
 };
-
-use crate::EventIntegrationTest;
 
 #[derive(Clone)]
 pub struct EventBuilder {

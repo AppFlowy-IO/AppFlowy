@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -10,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyResult;
-use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
 use crate::entities::filter_entities::*;
@@ -20,13 +20,14 @@ use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNot
 use crate::services::field::TypeOptionCellExt;
 use crate::services::filter::{Filter, FilterChangeset, FilterInner, FilterResultNotification};
 
+#[async_trait]
 pub trait FilterDelegate: Send + Sync + 'static {
-  fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
-  fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
-  fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
-  fn save_filters(&self, view_id: &str, filters: &[Filter]);
+  async fn get_field(&self, field_id: &str) -> Option<Field>;
+  async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field>;
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
+  async fn get_row(&self, view_id: &str, rows_id: &RowId) -> Option<(usize, Arc<RowDetail>)>;
+  async fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
+  async fn save_filters(&self, view_id: &str, filters: &[Filter]);
 }
 
 pub trait PreFillCellsWithFilter {
@@ -72,7 +73,7 @@ impl FilterController {
 
     let mut need_save = false;
 
-    let mut filters = delegate.get_all_filters(view_id);
+    let mut filters = delegate.get_all_filters(view_id).await;
     let mut filtering_field_ids: HashMap<String, Vec<String>> = HashMap::new();
 
     for filter in filters.iter() {
@@ -93,7 +94,7 @@ impl FilterController {
     }
 
     if need_save {
-      delegate.save_filters(view_id, &filters);
+      delegate.save_filters(view_id, &filters).await;
     }
 
     Self {
@@ -231,7 +232,7 @@ impl FilterController {
       },
     }
 
-    self.delegate.save_filters(&self.view_id, &filters);
+    self.delegate.save_filters(&self.view_id, &filters).await;
 
     self
       .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)

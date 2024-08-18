@@ -18,7 +18,7 @@ async fn created_at_field_test() {
 
   // Get created time of the new row.
   let row_detail = test.get_rows().await.last().cloned().unwrap();
-  let updated_at_field = test.get_first_field(FieldType::CreatedTime);
+  let updated_at_field = test.get_first_field(FieldType::CreatedTime).await;
   let cell = test
     .editor
     .get_cell(&updated_at_field.id, &row_detail.row.id)
@@ -35,7 +35,7 @@ async fn created_at_field_test() {
 async fn update_at_field_test() {
   let mut test = DatabaseRowTest::new().await;
   let row_detail = test.get_rows().await.remove(0);
-  let last_edit_field = test.get_first_field(FieldType::LastEditedTime);
+  let last_edit_field = test.get_first_field(FieldType::LastEditedTime).await;
   let cell = test
     .editor
     .get_cell(&last_edit_field.id, &row_detail.row.id)
@@ -53,7 +53,7 @@ async fn update_at_field_test() {
 
   // Get the updated time of the row.
   let row_detail = test.get_rows().await.remove(0);
-  let last_edit_field = test.get_first_field(FieldType::LastEditedTime);
+  let last_edit_field = test.get_first_field(FieldType::LastEditedTime).await;
   let cell = test
     .editor
     .get_cell(&last_edit_field.id, &row_detail.row.id)

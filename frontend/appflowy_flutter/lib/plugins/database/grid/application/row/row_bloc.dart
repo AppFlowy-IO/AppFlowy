@@ -23,6 +23,8 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowController = rowController,
         super(RowState.initial()) {
+    _rowBackendSvc.initRow(rowId);
+
     _dispatch();
     _startListening();
     _init();
