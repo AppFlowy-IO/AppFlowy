@@ -293,11 +293,9 @@ impl DatabaseViewEditor {
 
     // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
-    if let Some(field_id) = field_id {
-      self
-        .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
-        .await;
-    }
+    self
+      .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
+      .await;
   }
 
   pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
@@ -682,7 +680,6 @@ impl DatabaseViewEditor {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn v_modify_filters(&self, changeset: FilterChangeset) -> FlowyResult<()> {
     let notification = self.filter_controller.apply_changeset(changeset).await;
-
     notify_did_update_filter(notification).await;
 
     let group_controller_read_guard = self.group_controller.read().await;
@@ -1100,7 +1097,7 @@ impl DatabaseViewEditor {
     }
   }
 
-  async fn gen_did_update_row_view_tasks(&self, row_id: RowId, field_id: String) {
+  async fn gen_did_update_row_view_tasks(&self, row_id: RowId, field_id: Option<String>) {
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
@@ -1117,10 +1114,13 @@ impl DatabaseViewEditor {
           .did_receive_row_changed(row_id.clone())
           .await;
       }
+
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
-        calculations_controller
-          .did_receive_cell_changed(field_id)
-          .await;
+        if let Some(field_id) = field_id {
+          calculations_controller
+            .did_receive_cell_changed(field_id)
+            .await;
+        }
       }
     });
   }

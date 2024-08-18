@@ -14,6 +14,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .state(database_manager);
   plugin
          .event(DatabaseEvent::GetDatabase, get_database_data_handler)
+         .event(DatabaseEvent::GetAllRows, get_database_data_handler)
          .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
          .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
          .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
@@ -381,4 +382,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "RowIdPB")]
   InitRow = 176,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedRowMetaPB")]
+  GetAllRows = 177,
 }
