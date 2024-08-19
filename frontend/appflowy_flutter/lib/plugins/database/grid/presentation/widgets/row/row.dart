@@ -188,8 +188,14 @@ class _RowMenuButtonState extends State<RowMenuButton> {
       richTooltipText: widget.isDragEnabled
           ? TextSpan(
               children: [
-                TextSpan(text: '${LocaleKeys.tooltip_dragRow.tr()}\n'),
-                TextSpan(text: LocaleKeys.tooltip_openMenu.tr()),
+                TextSpan(
+                  text: '${LocaleKeys.tooltip_dragRow.tr()}\n',
+                  style: context.tooltipTextStyle(),
+                ),
+                TextSpan(
+                  text: LocaleKeys.tooltip_openMenu.tr(),
+                  style: context.tooltipTextStyle(),
+                ),
               ],
             )
           : null,
