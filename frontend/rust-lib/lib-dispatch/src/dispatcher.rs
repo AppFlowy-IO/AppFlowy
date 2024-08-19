@@ -136,15 +136,18 @@ impl AFPluginDispatcher {
 
     #[cfg(not(feature = "local_set"))]
     {
-      result = dispatch
-        .runtime
-        .spawn(async move {
-          service.call(service_ctx).await.unwrap_or_else(|e| {
-            tracing::error!("Dispatch runtime error: {:?}", e);
-            InternalError::Other(format!("{:?}", e)).as_response()
+      result = Ok(
+        dispatch
+          .runtime
+          .spawn(async move {
+            service.call(service_ctx).await.unwrap_or_else(|e| {
+              tracing::error!("Dispatch runtime error: {:?}", e);
+              InternalError::Other(format!("{:?}", e)).as_response()
+            })
           })
-        })
-        .await;
+          .await
+          .unwrap(),
+      );
     }
 
     result.unwrap_or_else(|e| {
@@ -209,19 +212,16 @@ impl AFPluginDispatcher {
     #[cfg(not(feature = "local_set"))]
     {
       let handle = dispatch.runtime.spawn(async move {
-        service
-          .call(crate::service::service::Service)
-          .await
-          .unwrap_or_else(|e| {
-            tracing::error!("[dispatch]: runtime error: {:?}", e);
-            InternalError::Other(format!("{:?}", e)).as_response()
-          })
+        service.call(service_ctx).await.unwrap_or_else(|e| {
+          tracing::error!("[dispatch]: runtime error: {:?}", e);
+          InternalError::Other(format!("{:?}", e)).as_response()
+        })
       });
 
       let runtime = dispatch.runtime.clone();
       DispatchFuture {
         fut: Box::pin(async move {
-          let result = runtime.run_until(handle).await;
+          let result = runtime.spawn(handle).await.unwrap();
           result.unwrap_or_else(|e| {
             let msg = format!("EVENT_DISPATCH join error: {:?}", e);
             tracing::error!("{}", msg);
