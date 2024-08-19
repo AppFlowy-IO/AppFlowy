@@ -9,6 +9,7 @@ use std::{
   fmt::{Debug, Display},
   hash::Hash,
 };
+use tokio::task::LocalSet;
 
 #[derive(Clone)]
 pub struct EventBuilder {
@@ -47,8 +48,9 @@ impl EventBuilder {
   }
 
   pub async fn async_send(mut self) -> Self {
+    let local_set = LocalSet::new();
     let request = self.get_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request).await;
+    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request, &local_set).await;
     self.context.response = Some(resp);
     self
   }

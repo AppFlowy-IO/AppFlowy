@@ -1,6 +1,7 @@
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::sync::Arc;
+use tokio::task::LocalSet;
 
 pub async fn hello() -> String {
   "say hello".to_string()
@@ -15,11 +16,16 @@ async fn test() {
     vec![AFPlugin::new().event(event, hello)],
   ));
   let request = AFPluginRequest::new(event);
-  let _ = AFPluginDispatcher::async_send_with_callback(dispatch.as_ref(), request, |resp| {
-    Box::pin(async move {
-      dbg!(&resp);
-    })
-  })
+  let _ = AFPluginDispatcher::async_send_with_callback(
+    dispatch.as_ref(),
+    request,
+    |resp| {
+      Box::pin(async move {
+        dbg!(&resp);
+      })
+    },
+    &LocalSet::new(),
+  )
   .await;
 
   std::mem::forget(dispatch);

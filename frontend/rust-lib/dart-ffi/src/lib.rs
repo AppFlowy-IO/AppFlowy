@@ -142,7 +142,11 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
   let (sender, mut task_rx) = mpsc::unbounded_channel::<Task>();
   let handle = std::thread::spawn(move || {
     let local_set = LocalSet::new();
-    let runtime = Builder::new_current_thread().enable_all().build().unwrap();
+    let runtime = Builder::new_current_thread()
+      .enable_io()
+      .enable_time()
+      .build()
+      .unwrap();
     runtime.block_on(async {
       while let Some(task) = task_rx.recv().await {
         let Task {

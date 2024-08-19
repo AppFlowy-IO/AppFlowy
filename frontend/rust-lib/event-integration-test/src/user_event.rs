@@ -9,6 +9,7 @@ use flowy_folder::entities::{RepeatedViewPB, WorkspacePB};
 
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
+use tokio::task::LocalSet;
 use tracing::error;
 use uuid::Uuid;
 
@@ -73,11 +74,12 @@ impl EventIntegrationTest {
     .unwrap();
 
     let request = AFPluginRequest::new(UserEvent::SignUp).payload(payload);
-    let user_profile = AFPluginDispatcher::async_send(&self.appflowy_core.dispatcher(), request)
-      .await
-      .parse::<UserProfilePB, FlowyError>()
-      .unwrap()
-      .unwrap();
+    let user_profile =
+      AFPluginDispatcher::async_send(&self.appflowy_core.dispatcher(), request, &LocalSet::new())
+        .await
+        .parse::<UserProfilePB, FlowyError>()
+        .unwrap()
+        .unwrap();
 
     // let _ = create_default_workspace_if_need(dispatch.clone(), &user_profile.id);
     SignUpContext {
