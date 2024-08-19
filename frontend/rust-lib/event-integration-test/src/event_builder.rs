@@ -3,12 +3,13 @@ use flowy_user::errors::{internal_error, FlowyError};
 use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
 };
-use std::rc::Rc;
+use std::sync::Arc;
 use std::{
   convert::TryFrom,
   fmt::{Debug, Display},
   hash::Hash,
 };
+use tokio::task::LocalSet;
 
 #[derive(Clone)]
 pub struct EventBuilder {
@@ -47,8 +48,9 @@ impl EventBuilder {
   }
 
   pub async fn async_send(mut self) -> Self {
+    let local_set = LocalSet::new();
     let request = self.get_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request).await;
+    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request, &local_set).await;
     self.context.response = Some(resp);
     self
   }
@@ -84,7 +86,7 @@ impl EventBuilder {
       .map(|data| data.into_inner())
   }
 
-  fn dispatch(&self) -> Rc<AFPluginDispatcher> {
+  fn dispatch(&self) -> Arc<AFPluginDispatcher> {
     self.context.sdk.dispatcher()
   }
 

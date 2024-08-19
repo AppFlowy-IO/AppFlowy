@@ -681,14 +681,16 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<()> {
-    if self
-      .database
-      .read()
-      .await
-      .get_database_row(row_id)
-      .is_some()
-    {
-      return Ok(());
+    if let Some(database_row) = self.database.read().await.get_database_row(row_id) {
+      if !database_row
+        .read()
+        .await
+        .collab
+        .get_state()
+        .is_uninitialized()
+      {
+        return Ok(());
+      }
     }
 
     debug!("Init database row: {}", row_id);
@@ -696,7 +698,7 @@ impl DatabaseEditor {
       .database
       .read()
       .await
-      .create_database_row(row_id)
+      .init_database_row(row_id)
       .ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("The row:{} in database not found", row_id))

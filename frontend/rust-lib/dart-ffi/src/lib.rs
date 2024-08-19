@@ -3,9 +3,10 @@
 use allo_isolate::Isolate;
 use lazy_static::lazy_static;
 use semver::Version;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, RwLock};
 use std::{ffi::CStr, os::raw::c_char};
+use tokio::runtime::Builder;
+use tokio::task::LocalSet;
 use tracing::{debug, error, info, trace, warn};
 
 use flowy_core::config::AppFlowyCoreConfig;
@@ -33,34 +34,77 @@ mod notification;
 mod protobuf;
 
 lazy_static! {
-  static ref APPFLOWY_CORE: MutexAppFlowyCore = MutexAppFlowyCore::new();
-  static ref LOG_STREAM_ISOLATE: Mutex<Option<Isolate>> = Mutex::new(None);
+  static ref DART_APPFLOWY_CORE: DartAppFlowyCore = DartAppFlowyCore::new();
+  static ref LOG_STREAM_ISOLATE: RwLock<Option<Isolate>> = RwLock::new(None);
 }
 
-unsafe impl Send for MutexAppFlowyCore {}
-unsafe impl Sync for MutexAppFlowyCore {}
+pub struct Task {
+  dispatcher: Arc<AFPluginDispatcher>,
+  request: AFPluginRequest,
+  port: i64,
+  ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+}
 
-///FIXME: I'm pretty sure that there's a better way to do this
-struct MutexAppFlowyCore(Rc<Mutex<Option<AppFlowyCore>>>);
+unsafe impl Send for Task {}
+unsafe impl Sync for DartAppFlowyCore {}
 
-impl MutexAppFlowyCore {
+struct DartAppFlowyCore {
+  core: Arc<RwLock<Option<AppFlowyCore>>>,
+  handle: RwLock<Option<std::thread::JoinHandle<()>>>,
+  sender: RwLock<Option<mpsc::Sender<Task>>>,
+}
+
+impl DartAppFlowyCore {
   fn new() -> Self {
-    Self(Rc::new(Mutex::new(None)))
+    Self {
+      core: Arc::new(RwLock::new(None)),
+      handle: RwLock::new(None),
+      sender: RwLock::new(None),
+    }
   }
 
-  fn dispatcher(&self) -> Option<Rc<AFPluginDispatcher>> {
-    let binding = self.0.lock().unwrap();
+  fn dispatcher(&self) -> Option<Arc<AFPluginDispatcher>> {
+    let binding = self
+      .core
+      .read()
+      .expect("Failed to acquire read lock for core");
     let core = binding.as_ref();
     core.map(|core| core.event_dispatcher.clone())
+  }
+
+  fn dispatch(
+    &self,
+    request: AFPluginRequest,
+    port: i64,
+    ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+  ) {
+    if let Ok(sender_guard) = self.sender.read() {
+      if let Err(e) = sender_guard.as_ref().unwrap().send(Task {
+        dispatcher: self.dispatcher().unwrap(),
+        request,
+        port,
+        ret,
+      }) {
+        error!("Failed to send task: {}", e);
+      }
+    } else {
+      warn!("Failed to acquire read lock for sender");
+      return;
+    }
   }
 }
 
 #[no_mangle]
 pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
-  // and sent it the `Rust's` result
-  // no need to convert anything :)
-  let c_str = unsafe { CStr::from_ptr(data) };
-  let serde_str = c_str.to_str().unwrap();
+  let c_str = unsafe {
+    if data.is_null() {
+      return -1;
+    }
+    CStr::from_ptr(data)
+  };
+  let serde_str = c_str
+    .to_str()
+    .expect("Failed to convert C string to Rust string");
   let configuration = AppFlowyDartConfiguration::from_str(serde_str);
   configuration.write_env();
 
@@ -85,26 +129,49 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     DEFAULT_NAME.to_string(),
   );
 
-  // Ensure that the database is closed before initialization. Also, verify that the init_sdk function can be called
-  // multiple times (is reentrant). Currently, only the database resource is exclusive.
-  if let Some(core) = &*APPFLOWY_CORE.0.lock().unwrap() {
+  if let Some(core) = &*DART_APPFLOWY_CORE.core.write().unwrap() {
     core.close_db();
   }
 
-  let runtime = Rc::new(AFPluginRuntime::new().unwrap());
-  let cloned_runtime = runtime.clone();
-
   let log_stream = LOG_STREAM_ISOLATE
-    .lock()
+    .write()
     .unwrap()
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
+  let (sender, task_rx) = mpsc::channel::<Task>();
+  let handle = std::thread::spawn(move || {
+    let local_set = LocalSet::new();
+    while let Ok(task) = task_rx.recv() {
+      let Task {
+        dispatcher,
+        request,
+        port,
+        ret,
+      } = task;
 
-  // let isolate = allo_isolate::Isolate::new(port);
-  *APPFLOWY_CORE.0.lock().unwrap() = runtime.block_on(async move {
-    Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await)
-    // isolate.post("".to_string());
+      let resp = AFPluginDispatcher::boxed_async_send_with_callback(
+        dispatcher.as_ref(),
+        request,
+        move |resp: AFPluginEventResponse| {
+          #[cfg(feature = "sync_verbose_log")]
+          trace!("[FFI]: Post data to dart through {} port", port);
+          Box::pin(post_to_flutter(resp, port))
+        },
+        &local_set,
+      );
+
+      if let Some(ret) = ret {
+        let _ = ret.send(resp);
+      }
+    }
   });
+
+  *DART_APPFLOWY_CORE.sender.write().unwrap() = Some(sender);
+  *DART_APPFLOWY_CORE.handle.write().unwrap() = Some(handle);
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let cloned_runtime = runtime.clone();
+  *DART_APPFLOWY_CORE.core.write().unwrap() = runtime
+    .block_on(async move { Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await) });
   0
 }
 
@@ -120,40 +187,13 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     port
   );
 
-  let dispatcher = match APPFLOWY_CORE.dispatcher() {
-    None => {
-      error!("sdk not init yet.");
-      return;
-    },
-    Some(dispatcher) => dispatcher,
-  };
-  AFPluginDispatcher::boxed_async_send_with_callback(
-    dispatcher.as_ref(),
-    request,
-    move |resp: AFPluginEventResponse| {
-      #[cfg(feature = "sync_verbose_log")]
-      trace!("[FFI]: Post data to dart through {} port", port);
-      Box::pin(post_to_flutter(resp, port))
-    },
-  );
+  DART_APPFLOWY_CORE.dispatch(request, port, None);
 }
 
 #[no_mangle]
-pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
-  let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
-  #[cfg(feature = "sync_verbose_log")]
-  trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
+pub extern "C" fn sync_event(_input: *const u8, _len: usize) -> *const u8 {
+  error!("unimplemented sync_event");
 
-  let dispatcher = match APPFLOWY_CORE.dispatcher() {
-    None => {
-      error!("sdk not init yet.");
-      return forget_rust(Vec::default());
-    },
-    Some(dispatcher) => dispatcher,
-  };
-  let _response = AFPluginDispatcher::sync_send(dispatcher, request);
-
-  // FFIResponse {  }
   let response_bytes = vec![];
   let result = extend_front_four_bytes_into_bytes(&response_bytes);
   forget_rust(result)
@@ -161,7 +201,6 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
 
 #[no_mangle]
 pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
-  // Make sure hot reload won't register the notification sender twice
   unregister_all_notification_sender();
   register_notification_sender(DartNotificationSender::new(notification_port));
   0
@@ -169,8 +208,7 @@ pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
 
 #[no_mangle]
 pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
-  *LOG_STREAM_ISOLATE.lock().unwrap() = Some(Isolate::new(port));
-
+  *LOG_STREAM_ISOLATE.write().unwrap() = Some(Isolate::new(port));
   0
 }
 
@@ -181,31 +219,22 @@ pub extern "C" fn link_me_please() {}
 #[inline(always)]
 async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
   let isolate = allo_isolate::Isolate::new(port);
-  #[allow(clippy::blocks_in_conditions)]
-  match isolate
+  if let Ok(_) = isolate
     .catch_unwind(async {
       let ffi_resp = FFIResponse::from(response);
       ffi_resp.into_bytes().unwrap().to_vec()
     })
     .await
   {
-    Ok(_success) => {
-      #[cfg(feature = "sync_verbose_log")]
-      trace!("[FFI]: Post data to dart success");
-    },
-    Err(e) => {
-      if let Some(msg) = e.downcast_ref::<&str>() {
-        error!("[FFI]: {:?}", msg);
-      } else {
-        error!("[FFI]: allo_isolate post panic");
-      }
-    },
+    #[cfg(feature = "sync_verbose_log")]
+    trace!("[FFI]: Post data to dart success");
+  } else {
+    error!("[FFI]: allo_isolate post panic");
   }
 }
 
 #[no_mangle]
 pub extern "C" fn rust_log(level: i64, data: *const c_char) {
-  // Check if the data pointer is not null
   if data.is_null() {
     error!("[flutter error]: null pointer provided to backend_log");
     return;
@@ -213,7 +242,6 @@ pub extern "C" fn rust_log(level: i64, data: *const c_char) {
 
   let log_result = unsafe { CStr::from_ptr(data) }.to_str();
 
-  // Handle potential UTF-8 conversion error
   let log_str = match log_result {
     Ok(str) => str,
     Err(e) => {
@@ -225,29 +253,13 @@ pub extern "C" fn rust_log(level: i64, data: *const c_char) {
     },
   };
 
-  // Simplify logging by determining the log level outside of the match
-  let log_level = match level {
-    0 => "info",
-    1 => "debug",
-    2 => "trace",
-    3 => "warn",
-    4 => "error",
-    _ => {
-      warn!("[flutter error]: Unsupported log level: {}", level);
-      return;
-    },
-  };
-
-  // Log the message at the appropriate level
-  match log_level {
-    "info" => info!("[Flutter]: {}", log_str),
-    "debug" => debug!("[Flutter]: {}", log_str),
-    "trace" => trace!("[Flutter]: {}", log_str),
-    "warn" => warn!("[Flutter]: {}", log_str),
-    "error" => error!("[Flutter]: {}", log_str),
-    _ => {
-      warn!("[flutter error]: Unsupported log level: {}", log_level);
-    },
+  match level {
+    0 => info!("[Flutter]: {}", log_str),
+    1 => debug!("[Flutter]: {}", log_str),
+    2 => trace!("[Flutter]: {}", log_str),
+    3 => warn!("[Flutter]: {}", log_str),
+    4 => error!("[Flutter]: {}", log_str),
+    _ => warn!("[flutter error]: Unsupported log level: {}", level),
   }
 }
 
