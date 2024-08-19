@@ -8,6 +8,7 @@ skip_pub_get=false
 skip_pub_packages_get=false
 verbose=false
 exclude_packages=false
+show_loading=false
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -26,6 +27,10 @@ while [[ $# -gt 0 ]]; do
     ;;
   --exclude-packages)
     exclude_packages=true
+    shift
+    ;;
+  --show-loading)
+    show_loading=true
     shift
     ;;
   *)
@@ -111,11 +116,13 @@ fi
 # Get the PID of the background process
 build_pid=$!
 
-# Start the loading animation
-display_loading $build_pid &
+if [ "$show_loading" = true ]; then
+  # Start the loading animation
+  display_loading $build_pid &
 
-# Get the PID of the loading animation
-loading_pid=$!
+  # Get the PID of the loading animation
+  loading_pid=$!
+fi
 
 # Wait for the build_runner to finish
 wait $build_pid

@@ -33,7 +33,7 @@ class CachedRecentService {
   final _listener = RecentViewsListener();
 
   Future<List<SectionViewPB>> recentViews() async {
-    if (_isInitialized) return _recentViews;
+    if (_isInitialized || _completer.isCompleted) return _recentViews;
 
     _isInitialized = true;
 
@@ -76,7 +76,10 @@ class CachedRecentService {
       (recentViews) {
         return FlowyResult.success(
           RepeatedRecentViewPB(
-            items: recentViews.items.where((e) => !e.item.isSpace),
+            // filter the space view and the orphan view
+            items: recentViews.items.where(
+              (e) => !e.item.isSpace && e.item.id != e.item.parentViewId,
+            ),
           ),
         );
       },

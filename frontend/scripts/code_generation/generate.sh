@@ -64,7 +64,7 @@ cd ..
 cd freezed
 # Allow execution permissions on CI
 chmod +x ./generate_freezed.sh
-./generate_freezed.sh "${args[@]}"
+./generate_freezed.sh "${args[@]}" --show-loading
 
 # Return to the original directory
 cd "$original_dir"

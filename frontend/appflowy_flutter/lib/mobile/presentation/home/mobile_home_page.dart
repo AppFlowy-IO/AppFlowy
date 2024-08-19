@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -14,15 +16,19 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry/sentry.dart';
+import 'package:toastification/toastification.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -103,6 +109,8 @@ class MobileHomePage extends StatefulWidget {
 }
 
 class _MobileHomePageState extends State<MobileHomePage> {
+  Loading? loadingIndicator;
+
   @override
   void initState() {
     super.initState();
@@ -147,10 +155,17 @@ class _MobileHomePageState extends State<MobileHomePage> {
   }
 }
 
-class _HomePage extends StatelessWidget {
+class _HomePage extends StatefulWidget {
   const _HomePage({required this.userProfile});
 
   final UserProfilePB userProfile;
+
+  @override
+  State<_HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<_HomePage> {
+  Loading? loadingIndicator;
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +176,8 @@ class _HomePage extends StatelessWidget {
       listener: (context, state) {
         getIt<CachedRecentService>().reset();
         mCurrentWorkspace.value = state.currentWorkspace;
+
+        _showResultDialog(context, state);
       },
       builder: (context, state) {
         if (state.currentWorkspace == null) {
@@ -170,6 +187,7 @@ class _HomePage extends StatelessWidget {
         final workspaceId = state.currentWorkspace!.workspaceId;
 
         return Column(
+          key: ValueKey('mobile_home_page_$workspaceId'),
           children: [
             // Header
             Padding(
@@ -179,7 +197,7 @@ class _HomePage extends StatelessWidget {
                 top: Platform.isAndroid ? 8.0 : 0.0,
               ),
               child: MobileHomePageHeader(
-                userProfile: userProfile,
+                userProfile: widget.userProfile,
               ),
             ),
 
@@ -194,7 +212,7 @@ class _HomePage extends StatelessWidget {
                     create: (_) => SidebarSectionsBloc()
                       ..add(
                         SidebarSectionsEvent.initial(
-                          userProfile,
+                          widget.userProfile,
                           workspaceId,
                         ),
                       ),
@@ -207,7 +225,7 @@ class _HomePage extends StatelessWidget {
                     create: (_) => SpaceBloc()
                       ..add(
                         SpaceEvent.initial(
-                          userProfile,
+                          widget.userProfile,
                           workspaceId,
                           openFirstPage: false,
                         ),
@@ -215,7 +233,7 @@ class _HomePage extends StatelessWidget {
                   ),
                 ],
                 child: MobileSpaceTab(
-                  userProfile: userProfile,
+                  userProfile: widget.userProfile,
                 ),
               ),
             ),
@@ -223,5 +241,60 @@ class _HomePage extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _showResultDialog(BuildContext context, UserWorkspaceState state) {
+    final actionResult = state.actionResult;
+    if (actionResult == null) {
+      return;
+    }
+
+    final actionType = actionResult.actionType;
+    final result = actionResult.result;
+    final isLoading = actionResult.isLoading;
+
+    if (isLoading) {
+      loadingIndicator ??= Loading(context)..start();
+      return;
+    } else {
+      loadingIndicator?.stop();
+      loadingIndicator = null;
+    }
+
+    if (result == null) {
+      return;
+    }
+
+    result.onFailure((f) {
+      Log.error(
+        '[Workspace] Failed to perform ${actionType.toString()} action: $f',
+      );
+    });
+
+    final String? message;
+    ToastificationType toastType = ToastificationType.success;
+    switch (actionType) {
+      case UserWorkspaceActionType.open:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys.workspace_openSuccess.tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
+          },
+        );
+        break;
+
+      default:
+        message = null;
+        toastType = ToastificationType.error;
+        break;
+    }
+
+    if (message != null) {
+      showToastNotification(context, message: message, type: toastType);
+    }
   }
 }

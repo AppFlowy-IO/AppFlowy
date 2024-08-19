@@ -68,36 +68,34 @@ class _RecentViews extends StatelessWidget {
         ? const Color(0xFFE9E9EC)
         : const Color(0x1AFFFFFF);
     return SlidableAutoCloseBehavior(
-      child: Scrollbar(
-        child: ListView.separated(
-          key: const PageStorageKey('recent_views_page_storage_key'),
-          padding: EdgeInsets.only(
-            bottom: HomeSpaceViewSizes.mVerticalPadding +
-                MediaQuery.of(context).padding.bottom,
-          ),
-          itemBuilder: (context, index) {
-            final sectionView = recentViews[index];
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: borderColor,
-                    width: 0.5,
-                  ),
+      child: ListView.separated(
+        key: const PageStorageKey('recent_views_page_storage_key'),
+        padding: EdgeInsets.only(
+          bottom: HomeSpaceViewSizes.mVerticalPadding +
+              MediaQuery.of(context).padding.bottom,
+        ),
+        itemBuilder: (context, index) {
+          final sectionView = recentViews[index];
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: borderColor,
+                  width: 0.5,
                 ),
               ),
-              child: MobileViewPage(
-                key: ValueKey(sectionView.item.id),
-                view: sectionView.item,
-                timestamp: sectionView.timestamp,
-                type: MobilePageCardType.recent,
-              ),
-            );
-          },
-          separatorBuilder: (context, index) => const HSpace(8),
-          itemCount: recentViews.length,
-        ),
+            ),
+            child: MobileViewPage(
+              key: ValueKey(sectionView.item.id),
+              view: sectionView.item,
+              timestamp: sectionView.timestamp,
+              type: MobilePageCardType.recent,
+            ),
+          );
+        },
+        separatorBuilder: (context, index) => const HSpace(8),
+        itemCount: recentViews.length,
       ),
     );
   }

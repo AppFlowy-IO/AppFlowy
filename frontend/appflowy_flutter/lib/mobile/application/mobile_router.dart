@@ -18,14 +18,25 @@ extension MobileRouter on BuildContext {
     ViewPB view, {
     Map<String, dynamic>? arguments,
     bool addInRecent = true,
+    bool showMoreButton = true,
+    String? fixedTitle,
   }) async {
     // set the current view before pushing the new view
     getIt<MenuSharedState>().latestOpenView = view;
     unawaited(getIt<CachedRecentService>().updateRecentViews([view.id], true));
+    final queryParameters = view.queryParameters(arguments);
+
+    if (view.layout == ViewLayoutPB.Document) {
+      queryParameters[MobileDocumentScreen.viewShowMoreButton] =
+          showMoreButton.toString();
+      if (fixedTitle != null) {
+        queryParameters[MobileDocumentScreen.viewFixedTitle] = fixedTitle;
+      }
+    }
 
     final uri = Uri(
       path: view.routeName,
-      queryParameters: view.queryParameters(arguments),
+      queryParameters: queryParameters,
     ).toString();
     await push(uri);
   }

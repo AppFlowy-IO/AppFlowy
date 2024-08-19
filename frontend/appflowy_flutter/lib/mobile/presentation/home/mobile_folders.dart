@@ -35,6 +35,9 @@ class MobileFolders extends StatelessWidget {
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
             '';
     return BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+      listenWhen: (previous, current) =>
+          previous.currentWorkspace?.workspaceId !=
+          current.currentWorkspace?.workspaceId,
       listener: (context, state) {
         context.read<SidebarSectionsBloc>().add(
               SidebarSectionsEvent.initial(

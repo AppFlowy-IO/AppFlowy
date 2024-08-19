@@ -8,12 +8,22 @@ class Loading {
   BuildContext? loadingContext;
   final BuildContext context;
 
+  bool hasStopped = false;
+
   void start() => unawaited(
         showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
             loadingContext = context;
+
+            if (hasStopped) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(loadingContext!).pop();
+                loadingContext = null;
+              });
+            }
+
             return const SimpleDialog(
               elevation: 0.0,
               backgroundColor:
@@ -33,6 +43,8 @@ class Loading {
       Navigator.of(loadingContext!).pop();
       loadingContext = null;
     }
+
+    hasStopped = true;
   }
 }
 
