@@ -139,30 +139,37 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
   let (sender, task_rx) = mpsc::channel::<Task>();
+  // one thread to handle incoming tasks in the background
   let handle = std::thread::spawn(move || {
-    let local_set = LocalSet::new();
     while let Ok(task) = task_rx.recv() {
-      let Task {
-        dispatcher,
-        request,
-        port,
-        ret,
-      } = task;
+      //FIXME: this should be eventually using a thread pool like the one that tokio creates.
+      //  The catch is that tokio::spawn should bind the future execution to one thread on the pool
+      //  instead of trying to do work stealing.
+      std::thread::spawn(move || {
+        // wrap each task in its own thread
+        let local_set = LocalSet::new();
+        let Task {
+          dispatcher,
+          request,
+          port,
+          ret,
+        } = task;
 
-      let resp = AFPluginDispatcher::boxed_async_send_with_callback(
-        dispatcher.as_ref(),
-        request,
-        move |resp: AFPluginEventResponse| {
-          #[cfg(feature = "sync_verbose_log")]
-          trace!("[FFI]: Post data to dart through {} port", port);
-          Box::pin(post_to_flutter(resp, port))
-        },
-        &local_set,
-      );
+        let resp = AFPluginDispatcher::boxed_async_send_with_callback(
+          dispatcher.as_ref(),
+          request,
+          move |resp: AFPluginEventResponse| {
+            #[cfg(feature = "sync_verbose_log")]
+            trace!("[FFI]: Post data to dart through {} port", port);
+            Box::pin(post_to_flutter(resp, port))
+          },
+          &local_set,
+        );
 
-      if let Some(ret) = ret {
-        let _ = ret.send(resp);
-      }
+        if let Some(ret) = ret {
+          let _ = ret.send(resp);
+        }
+      });
     }
   });
 
