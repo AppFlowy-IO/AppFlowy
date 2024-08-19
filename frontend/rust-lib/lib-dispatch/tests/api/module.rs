@@ -1,7 +1,6 @@
-use std::rc::Rc;
-
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
+use std::sync::Arc;
 
 pub async fn hello() -> String {
   "say hello".to_string()
@@ -10,8 +9,8 @@ pub async fn hello() -> String {
 #[tokio::test]
 async fn test() {
   let event = "1";
-  let runtime = Rc::new(AFPluginRuntime::new().unwrap());
-  let dispatch = Rc::new(AFPluginDispatcher::new(
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let dispatch = Arc::new(AFPluginDispatcher::new(
     runtime,
     vec![AFPlugin::new().event(event, hello)],
   ));

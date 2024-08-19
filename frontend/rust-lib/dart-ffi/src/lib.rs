@@ -6,6 +6,7 @@ use semver::Version;
 use std::rc::Rc;
 use std::sync::{mpsc, Arc, RwLock};
 use std::{ffi::CStr, os::raw::c_char};
+use tokio::task::LocalSet;
 use tracing::{debug, error, info, trace, warn};
 
 use flowy_core::config::AppFlowyCoreConfig;
@@ -33,7 +34,7 @@ mod notification;
 mod protobuf;
 
 lazy_static! {
-  static ref APPFLOWY_CORE: DartAppFlowyCore = DartAppFlowyCore::new();
+  static ref DART_APPFLOWY_CORE: DartAppFlowyCore = DartAppFlowyCore::new();
   static ref LOG_STREAM_ISOLATE: RwLock<Option<Isolate>> = RwLock::new(None);
 }
 
@@ -41,6 +42,7 @@ pub struct Task {
   dispatcher: Arc<AFPluginDispatcher>,
   request: AFPluginRequest,
   port: i64,
+  ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
 }
 
 unsafe impl Send for Task {}
@@ -70,21 +72,24 @@ impl DartAppFlowyCore {
     core.map(|core| core.event_dispatcher.clone())
   }
 
-  fn dispatch(&self, request: AFPluginRequest, port: i64) {
-    if let Some(sender) = self.sender.read().unwrap().as_ref() {
-      if let Some(dispatcher) = self.dispatcher() {
-        if let Err(e) = sender.send(Task {
-          dispatcher,
-          request,
-          port,
-        }) {
-          error!("Failed to send task: {}", e);
-        }
-      } else {
-        error!("No dispatcher available");
+  fn dispatch(
+    &self,
+    request: AFPluginRequest,
+    port: i64,
+    ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+  ) {
+    if let Ok(sender_guard) = self.sender.read() {
+      if let Err(e) = sender_guard.as_ref().unwrap().send(Task {
+        dispatcher: self.dispatcher().unwrap(),
+        request,
+        port,
+        ret,
+      }) {
+        error!("Failed to send task: {}", e);
       }
     } else {
-      error!("Sender not initialized");
+      warn!("Failed to acquire read lock for sender");
+      return;
     }
   }
 }
@@ -124,11 +129,10 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     DEFAULT_NAME.to_string(),
   );
 
-  if let Some(core) = &*APPFLOWY_CORE.core.write().unwrap() {
+  if let Some(core) = &*DART_APPFLOWY_CORE.core.write().unwrap() {
     core.close_db();
   }
 
-  let (tx, rx) = mpsc::channel();
   let log_stream = LOG_STREAM_ISOLATE
     .write()
     .unwrap()
@@ -136,15 +140,15 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
   let (sender, task_rx) = mpsc::channel::<Task>();
   let handle = std::thread::spawn(move || {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-    tx.send(runtime).unwrap();
+    let local_set = LocalSet::new();
     while let Ok(task) = task_rx.recv() {
       let Task {
         dispatcher,
         request,
         port,
+        ret,
       } = task;
-      AFPluginDispatcher::boxed_async_send_with_callback(
+      let resp = AFPluginDispatcher::boxed_async_send_with_callback(
         dispatcher.as_ref(),
         request,
         move |resp: AFPluginEventResponse| {
@@ -152,15 +156,20 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
           trace!("[FFI]: Post data to dart through {} port", port);
           Box::pin(post_to_flutter(resp, port))
         },
+        &local_set,
       );
+
+      if let Some(mut ret) = ret {
+        let _ = ret.send(resp);
+      }
     }
   });
 
-  *APPFLOWY_CORE.sender.write().unwrap() = Some(sender);
-  *APPFLOWY_CORE.handle.write().unwrap() = Some(handle);
-  let runtime = rx.recv().unwrap();
+  *DART_APPFLOWY_CORE.sender.write().unwrap() = Some(sender);
+  *DART_APPFLOWY_CORE.handle.write().unwrap() = Some(handle);
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
-  *APPFLOWY_CORE.core.write().unwrap() = runtime
+  *DART_APPFLOWY_CORE.core.write().unwrap() = runtime
     .block_on(async move { Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await) });
   0
 }
@@ -177,23 +186,13 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     port
   );
 
-  APPFLOWY_CORE.dispatch(request, port);
+  DART_APPFLOWY_CORE.dispatch(request, port, None);
 }
 
 #[no_mangle]
-pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
-  let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
-  #[cfg(feature = "sync_verbose_log")]
-  trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
-  let dispatcher = match APPFLOWY_CORE.dispatcher() {
-    None => {
-      error!("sdk not init yet.");
-      return forget_rust(Vec::default());
-    },
-    Some(dispatcher) => dispatcher,
-  };
+pub extern "C" fn sync_event(_input: *const u8, _len: usize) -> *const u8 {
+  error!("unimplemented sync_event");
 
-  let _response = AFPluginDispatcher::sync_send(dispatcher, request);
   let response_bytes = vec![];
   let result = extend_front_four_bytes_into_bytes(&response_bytes);
   forget_rust(result)

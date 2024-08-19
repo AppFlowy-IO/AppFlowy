@@ -1325,6 +1325,7 @@ dependencies = [
  "flowy-server",
  "flowy-server-pub",
  "flowy-user",
+ "futures",
  "lazy_static",
  "lib-dispatch",
  "lib-log",

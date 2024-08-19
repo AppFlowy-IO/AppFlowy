@@ -7,20 +7,15 @@ use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
 
 pub struct AFPluginRuntime {
-  inner: Runtime,
-  #[cfg(feature = "local_set")]
-  pub(crate) local: tokio::task::LocalSet,
+  pub(crate) inner: Runtime,
 }
-
-unsafe impl Send for AFPluginRuntime {}
-unsafe impl Sync for AFPluginRuntime {}
 
 impl Display for AFPluginRuntime {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     if cfg!(any(target_arch = "wasm32", feature = "local_set")) {
-      write!(f, "Runtime(current_thread)")
+      write!(f, "Runtime(local_set)")
     } else {
-      write!(f, "Runtime(multi_thread)")
+      write!(f, "Runtime")
     }
   }
 }
@@ -28,11 +23,7 @@ impl Display for AFPluginRuntime {
 impl AFPluginRuntime {
   pub fn new() -> io::Result<Self> {
     let inner = default_tokio_runtime()?;
-    Ok(Self {
-      inner,
-      #[cfg(feature = "local_set")]
-      local: tokio::task::LocalSet::new(),
-    })
+    Ok(Self { inner })
   }
 
   #[track_caller]
@@ -44,16 +35,6 @@ impl AFPluginRuntime {
     self.inner.spawn(future)
   }
 
-  #[cfg(feature = "local_set")]
-  #[track_caller]
-  pub fn block_on<F>(&self, f: F) -> F::Output
-  where
-    F: Future,
-  {
-    self.local.block_on(&self.inner, f)
-  }
-
-  #[cfg(not(feature = "local_set"))]
   #[track_caller]
   pub fn block_on<F>(&self, f: F) -> F::Output
   where

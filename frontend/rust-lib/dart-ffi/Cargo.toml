@@ -45,6 +45,7 @@ collab-integrate = { workspace = true }
 flowy-derive.workspace = true
 serde_yaml = "0.9.27"
 flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "dart"] }
+futures = "0.3.26"
 
 [features]
 default = ["dart"]

@@ -5,6 +5,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
+use tokio::task::LocalSet;
 use tracing::event;
 
 use crate::module::AFPluginStateMap;
@@ -119,19 +120,18 @@ impl AFPluginDispatcher {
     let result: Result<AFPluginEventResponse, DispatchError>;
     #[cfg(feature = "local_set")]
     {
-      let handle = dispatch.runtime.local.spawn_local(async move {
+      let local_set = LocalSet::new();
+      let handle = local_set.spawn_local(async move {
         service.call(service_ctx).await.unwrap_or_else(|e| {
           tracing::error!("Dispatch runtime error: {:?}", e);
           InternalError::Other(format!("{:?}", e)).as_response()
         })
       });
 
-      result = dispatch
-        .runtime
-        .local
+      result = local_set
         .run_until(handle)
         .await
-        .map_err(|e| e.to_string().into())
+        .map_err(|e| e.to_string().into());
     }
 
     #[cfg(not(feature = "local_set"))]
@@ -162,6 +162,7 @@ impl AFPluginDispatcher {
     dispatch: &AFPluginDispatcher,
     request: Req,
     callback: Callback,
+    local_set: &LocalSet,
   ) -> DispatchFuture<AFPluginEventResponse>
   where
     Req: Into<AFPluginRequest> + 'static,
@@ -178,15 +179,15 @@ impl AFPluginDispatcher {
 
     #[cfg(feature = "local_set")]
     {
-      let handle = dispatch.runtime.local.spawn_local(async move {
+      let handle = local_set.spawn_local(async move {
         service.call(service_ctx).await.unwrap_or_else(|e| {
           tracing::error!("Dispatch runtime error: {:?}", e);
           InternalError::Other(format!("{:?}", e)).as_response()
         })
       });
 
-      let fut = dispatch.runtime.local.run_until(handle);
-      let result = dispatch.runtime.block_on(fut);
+      let fut = local_set.run_until(handle);
+      let result = local_set.block_on(&dispatch.runtime.inner, fut);
       DispatchFuture {
         fut: Box::pin(async move {
           result.unwrap_or_else(|e| {
