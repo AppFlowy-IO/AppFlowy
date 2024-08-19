@@ -134,75 +134,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
         ),
       ],
-      child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
-        buildWhen: (previous, current) =>
-            previous.currentWorkspace?.workspaceId !=
-            current.currentWorkspace?.workspaceId,
-        listener: (context, state) {
-          getIt<CachedRecentService>().reset();
-          mCurrentWorkspace.value = state.currentWorkspace;
-        },
-        builder: (context, state) {
-          if (state.currentWorkspace == null) {
-            return const SizedBox.shrink();
-          }
-
-          final workspaceId = state.currentWorkspace!.workspaceId;
-
-          return Column(
-            children: [
-              // Header
-              Padding(
-                padding: EdgeInsets.only(
-                  left: HomeSpaceViewSizes.mHorizontalPadding,
-                  right: 8.0,
-                  top: Platform.isAndroid ? 8.0 : 0.0,
-                ),
-                child: MobileHomePageHeader(
-                  userProfile: widget.userProfile,
-                ),
-              ),
-
-              Expanded(
-                child: MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                      create: (_) => SpaceOrderBloc()
-                        ..add(const SpaceOrderEvent.initial()),
-                    ),
-                    BlocProvider(
-                      create: (_) => SidebarSectionsBloc()
-                        ..add(
-                          SidebarSectionsEvent.initial(
-                            widget.userProfile,
-                            workspaceId,
-                          ),
-                        ),
-                    ),
-                    BlocProvider(
-                      create: (_) =>
-                          FavoriteBloc()..add(const FavoriteEvent.initial()),
-                    ),
-                    BlocProvider(
-                      create: (_) => SpaceBloc()
-                        ..add(
-                          SpaceEvent.initial(
-                            widget.userProfile,
-                            workspaceId,
-                            openFirstPage: false,
-                          ),
-                        ),
-                    ),
-                  ],
-                  child: MobileSpaceTab(
-                    userProfile: widget.userProfile,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+      child: _HomePage(userProfile: widget.userProfile),
     );
   }
 
@@ -212,5 +144,84 @@ class _MobileHomePageState extends State<MobileHomePage> {
       return;
     }
     await FolderEventSetLatestView(ViewIdPB(value: id)).send();
+  }
+}
+
+class _HomePage extends StatelessWidget {
+  const _HomePage({required this.userProfile});
+
+  final UserProfilePB userProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
+      buildWhen: (previous, current) =>
+          previous.currentWorkspace?.workspaceId !=
+          current.currentWorkspace?.workspaceId,
+      listener: (context, state) {
+        getIt<CachedRecentService>().reset();
+        mCurrentWorkspace.value = state.currentWorkspace;
+      },
+      builder: (context, state) {
+        if (state.currentWorkspace == null) {
+          return const SizedBox.shrink();
+        }
+
+        final workspaceId = state.currentWorkspace!.workspaceId;
+
+        return Column(
+          children: [
+            // Header
+            Padding(
+              padding: EdgeInsets.only(
+                left: HomeSpaceViewSizes.mHorizontalPadding,
+                right: 8.0,
+                top: Platform.isAndroid ? 8.0 : 0.0,
+              ),
+              child: MobileHomePageHeader(
+                userProfile: userProfile,
+              ),
+            ),
+
+            Expanded(
+              child: MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) =>
+                        SpaceOrderBloc()..add(const SpaceOrderEvent.initial()),
+                  ),
+                  BlocProvider(
+                    create: (_) => SidebarSectionsBloc()
+                      ..add(
+                        SidebarSectionsEvent.initial(
+                          userProfile,
+                          workspaceId,
+                        ),
+                      ),
+                  ),
+                  BlocProvider(
+                    create: (_) =>
+                        FavoriteBloc()..add(const FavoriteEvent.initial()),
+                  ),
+                  BlocProvider(
+                    create: (_) => SpaceBloc()
+                      ..add(
+                        SpaceEvent.initial(
+                          userProfile,
+                          workspaceId,
+                          openFirstPage: false,
+                        ),
+                      ),
+                  ),
+                ],
+                child: MobileSpaceTab(
+                  userProfile: userProfile,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
