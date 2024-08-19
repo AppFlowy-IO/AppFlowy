@@ -48,6 +48,20 @@ pub(crate) async fn get_database_data_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_all_rows_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedRowMetaPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let database_id = manager
+    .get_database_id_with_view_id(view_id.as_ref())
+    .await?;
+  let database_editor = manager.get_database_editor(&database_id).await?;
+  let data = database_editor.get_all_rows(view_id.as_ref()).await?;
+  data_result_ok(data)
+}
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn open_database_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,

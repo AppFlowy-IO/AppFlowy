@@ -43,7 +43,7 @@ use tracing::{debug, error, event, instrument, trace, warn};
 pub struct DatabaseEditor {
   pub(crate) database: Arc<RwLock<Database>>,
   pub cell_cache: CellCache,
-  database_views: Arc<DatabaseViews>,
+  pub(crate) database_views: Arc<DatabaseViews>,
   #[allow(dead_code)]
   /// Used to send notification to the frontend.
   notification_sender: Arc<DebounceNotificationSender>,
@@ -57,7 +57,7 @@ impl DatabaseEditor {
     database: Arc<RwLock<Database>>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-  ) -> FlowyResult<Self> {
+  ) -> FlowyResult<Arc<Self>> {
     let notification_sender = Arc::new(DebounceNotificationSender::new(200));
     let cell_cache = AnyTypeCache::<u64>::new();
     let database_id = database.read().await.get_database_id();
@@ -66,7 +66,6 @@ impl DatabaseEditor {
     // observe_view_change(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
     observe_rows_change(&database_id, &database, &notification_sender).await;
-    observe_block_event(&database_id, &database).await;
 
     // Used to cache the view of the database for fast access.
     let editor_by_view_id = Arc::new(RwLock::new(EditorByViewId::default()));
@@ -99,15 +98,16 @@ impl DatabaseEditor {
       CollabBuilderConfig::default(),
       database.clone(),
     )?;
-
-    Ok(Self {
+    let this = Arc::new(Self {
       user,
       database,
       cell_cache,
       database_views,
       notification_sender,
       collab_builder,
-    })
+    });
+    observe_block_event(&database_id, &this).await;
+    Ok(this)
   }
 
   pub async fn close_view(&self, view_id: &str) {
@@ -1299,7 +1299,7 @@ impl DatabaseEditor {
       .await
       .ok_or_else(FlowyError::record_not_found)?;
 
-    let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
+    let row_details = database_view.v_get_row_details().await;
     let (database_id, fields, is_linked) = {
       let database = self.database.read().await;
       let database_id = database.get_database_id();
@@ -1312,15 +1312,9 @@ impl DatabaseEditor {
       (database_id, fields, is_linked)
     };
 
-    let rows = row_orders
+    let rows = row_details
       .into_iter()
-      .map(|row_order| RowMetaPB {
-        id: row_order.id.to_string(),
-        document_id: "".to_string(),
-        icon: None,
-        cover: None,
-        is_document_empty: false,
-      })
+      .map(|detail| RowMetaPB::from(detail.as_ref()))
       .collect::<Vec<RowMetaPB>>();
     Ok(DatabasePB {
       id: database_id,
@@ -1329,6 +1323,16 @@ impl DatabaseEditor {
       layout_type: view.layout.into(),
       is_linked,
     })
+  }
+
+  pub async fn get_all_rows(&self, view_id: &str) -> FlowyResult<RepeatedRowMetaPB> {
+    let database_view = self.database_views.get_view_editor(view_id).await?;
+    let row_details = database_view.v_get_row_details().await;
+    let rows = row_details
+      .into_iter()
+      .map(|detail| RowMetaPB::from(detail.as_ref()))
+      .collect::<Vec<RowMetaPB>>();
+    Ok(RepeatedRowMetaPB { items: rows })
   }
 
   pub async fn export_csv(&self, style: CSVFormat) -> FlowyResult<String> {

@@ -7,11 +7,11 @@ use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
-use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
-
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
+use tracing::error;
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
@@ -185,8 +185,9 @@ impl FilterController {
               .iter_mut()
               .find_map(|filter| filter.find_filter(&parent_filter_id))
             {
-              // TODO(RS): error handling for inserting filters
-              let _result = parent_filter.insert_filter(new_filter);
+              if let Err(err) = parent_filter.insert_filter(new_filter) {
+                error!("error while inserting filter: {}", err);
+              }
             }
           },
           None => {
@@ -214,7 +215,9 @@ impl FilterController {
           .find_map(|filter| filter.find_filter(&filter_id))
         {
           // TODO(RS): error handling for updating filter data
-          let _result = filter.update_filter_data(data);
+          if let Err(error) = filter.update_filter_data(data) {
+            error!("error while updating filter data: {}", error);
+          }
         }
       },
       FilterChangeset::Delete {

@@ -290,15 +290,14 @@ impl DatabaseManager {
       .await
       .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
 
-    let editor = Arc::new(
-      DatabaseEditor::new(
-        self.user.clone(),
-        database,
-        self.task_scheduler.clone(),
-        self.collab_builder.clone(),
-      )
-      .await?,
-    );
+    let editor = DatabaseEditor::new(
+      self.user.clone(),
+      database,
+      self.task_scheduler.clone(),
+      self.collab_builder.clone(),
+    )
+    .await?;
+
     self
       .editors
       .lock()

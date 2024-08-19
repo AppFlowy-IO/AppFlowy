@@ -49,6 +49,7 @@ csv = "1.1.6"
 strum = "0.25"
 strum_macros = "0.25"
 validator = { workspace = true, features = ["derive"] }
+tokio-util.workspace = true
 
 [dev-dependencies]
 event-integration-test = { path = "../event-integration-test", default-features = false }
