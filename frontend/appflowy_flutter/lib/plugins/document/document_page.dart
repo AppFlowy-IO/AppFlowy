@@ -104,6 +104,7 @@ class _DocumentPageState extends State<DocumentPage>
           BlocProvider.value(value: documentBloc),
         ],
         child: BlocBuilder<DocumentBloc, DocumentState>(
+          buildWhen: _shouldRebuildDocument,
           builder: (context, state) {
             if (state.isLoading) {
               return const Center(child: CircularProgressIndicator.adaptive());
@@ -309,5 +310,32 @@ class _DocumentPageState extends State<DocumentPage>
         );
       }
     }
+  }
+
+  bool _shouldRebuildDocument(DocumentState previous, DocumentState current) {
+    // only rebuild the document page when the below fields are changed
+    // this is to prevent unnecessary rebuilds
+    //
+    // If you confirm the newly added fields should be rebuilt, please update
+    // this function.
+    if (previous.editorState != current.editorState) {
+      return true;
+    }
+
+    if (previous.forceClose != current.forceClose ||
+        previous.isDeleted != current.isDeleted) {
+      return true;
+    }
+
+    if (previous.userProfilePB != current.userProfilePB) {
+      return true;
+    }
+
+    if (previous.isLoading != current.isLoading ||
+        previous.error != current.error) {
+      return true;
+    }
+
+    return false;
   }
 }
