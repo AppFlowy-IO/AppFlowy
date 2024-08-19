@@ -165,8 +165,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
             Box::pin(post_to_flutter(resp, port))
           },
           &local_set,
-        )
-        .await;
+        );
 
         if let Some(ret) = ret {
           let _ = ret.send(resp);

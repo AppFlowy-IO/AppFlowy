@@ -141,7 +141,7 @@ impl AFPluginDispatcher {
   }
 
   #[cfg(feature = "local_set")]
-  pub async fn boxed_async_send_with_callback<Req, Callback>(
+  pub fn boxed_async_send_with_callback<Req, Callback>(
     dispatch: &AFPluginDispatcher,
     request: Req,
     callback: Callback,
@@ -167,7 +167,8 @@ impl AFPluginDispatcher {
       })
     });
 
-    let result = local_set.run_until(handle).await;
+    let fut = local_set.run_until(handle);
+    let result = local_set.block_on(&dispatch.runtime.inner, fut);
     DispatchFuture {
       fut: Box::pin(async move {
         result.unwrap_or_else(|e| {
