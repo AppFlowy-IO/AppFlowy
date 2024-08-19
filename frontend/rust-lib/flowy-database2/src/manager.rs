@@ -15,7 +15,9 @@ use collab_database::workspace_database::{
   DatabaseCollabService, DatabaseMeta, EncodeCollabByOid, WorkspaceDatabase,
 };
 use collab_entity::{CollabType, EncodedCollab};
+use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use collab_plugins::local_storage::rocksdb::rocksdb_plugin::RocksdbDiskPlugin;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
@@ -710,6 +712,15 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     let collab = self
       .collab_builder
       .build_collab(&object, &collab_db, data_source)?;
+    let persistence_config = CollabPersistenceConfig::default();
+    let db_plugin = RocksdbDiskPlugin::new_with_config(
+      object.uid,
+      object.object_id.to_string(),
+      object.collab_type.clone(),
+      collab_db.clone(),
+      persistence_config.clone(),
+    );
+    collab.add_plugin(Box::new(db_plugin));
     Ok(collab)
   }
 }
