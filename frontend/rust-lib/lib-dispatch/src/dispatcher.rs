@@ -126,12 +126,6 @@ impl AFPluginDispatcher {
         InternalError::Other(format!("{:?}", e)).as_response()
       })
     });
-    // let handle = tokio::spawn(async move {
-    //   service.call(service_ctx).await.unwrap_or_else(|e| {
-    //     tracing::error!("Dispatch runtime error: {:?}", e);
-    //     InternalError::Other(format!("{:?}", e)).as_response()
-    //   })
-    // });
 
     let result: Result<AFPluginEventResponse, DispatchError> = local_set
       .run_until(handle)
@@ -147,11 +141,10 @@ impl AFPluginDispatcher {
   }
 
   #[cfg(feature = "local_set")]
-  pub fn boxed_async_send_with_callback<Req, Callback>(
+  pub async fn boxed_async_send_with_callback<Req, Callback>(
     dispatch: &AFPluginDispatcher,
     request: Req,
     callback: Callback,
-    local_set: &tokio::task::LocalSet,
   ) -> DispatchFuture<AFPluginEventResponse>
   where
     Req: Into<AFPluginRequest> + 'static,
@@ -166,15 +159,15 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
-    let handle = local_set.spawn_local(async move {
+    let result = tokio::task::spawn_local(async move {
       service.call(service_ctx).await.unwrap_or_else(|e| {
         tracing::error!("Dispatch runtime error: {:?}", e);
         InternalError::Other(format!("{:?}", e)).as_response()
       })
-    });
+    })
+    .await;
 
-    let fut = local_set.run_until(handle);
-    let result = local_set.block_on(&dispatch.runtime.inner, fut);
+    // let result = local_set.run_until(handle).await;
     DispatchFuture {
       fut: Box::pin(async move {
         result.unwrap_or_else(|e| {

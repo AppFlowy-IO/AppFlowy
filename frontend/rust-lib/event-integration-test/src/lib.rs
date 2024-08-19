@@ -5,7 +5,6 @@ use collab_document::document::Document;
 use collab_entity::CollabType;
 use std::env::temp_dir;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
