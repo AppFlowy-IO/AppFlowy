@@ -1,5 +1,6 @@
 use bytes::Bytes;
 
+use client_api::entity::ai_dto::Document;
 use collab_entity::{CollabType, EncodedCollab};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
@@ -20,12 +21,14 @@ use flowy_folder::view_operation::{
   FolderOperationHandlers, View, ViewData,
 };
 use flowy_folder::ViewLayout;
+use flowy_folder_pub::cloud::gen_view_id;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::data_import::{load_collab_by_object_id, load_collab_by_object_ids};
 use lib_dispatch::prelude::ToBytes;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
@@ -117,6 +120,7 @@ impl FolderUser for FolderUserImpl {
 }
 
 struct DocumentFolderOperation(Arc<DocumentManager>);
+
 #[async_trait]
 impl FolderOperationHandler for DocumentFolderOperation {
   async fn create_workspace_view(
@@ -126,22 +130,80 @@ impl FolderOperationHandler for DocumentFolderOperation {
   ) -> Result<(), FlowyError> {
     let manager = self.0.clone();
     let mut write_guard = workspace_view_builder.write().await;
-    // Create a view named "Getting started" with an icon ⭐️ and the built-in README data.
-    // Don't modify this code unless you know what you are doing.
+
+    // create a default workspace view
+    // please remember to update the folder visual graph if you change it
+    // |-- Getting start
+    // |   |-- Desktop guide
+    // |   |-- Mobile guide
     write_guard
       .with_view_builder(|view_builder| async {
-        let view = view_builder
+        let getting_started_view_uuid = gen_view_id().to_string();
+        let desktop_guide_view_uuid = gen_view_id().to_string();
+        let mobile_guide_view_uuid = gen_view_id().to_string();
+
+        let mut builder = view_builder
+          .with_view_id(getting_started_view_uuid.clone())
           .with_name("Getting started")
-          .with_icon("⭐️")
-          .build();
-        // create a empty document
-        let json_str = include_str!("../../assets/read_me.json");
-        let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+          .with_icon("⭐️");
+
+        builder = builder
+          .with_child_view_builder(|child_view_builder| async {
+            let json_str = include_str!("../../assets/desktop_guide.json");
+            let document_pb: DocumentDataPB =
+              JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+            let view = child_view_builder
+              .with_view_id(desktop_guide_view_uuid.clone())
+              .with_name("Desktop guide")
+              .with_icon("🖥️")
+              .build();
+            manager
+              .create_document(uid, &desktop_guide_view_uuid, Some(document_pb.into()))
+              .await
+              .unwrap();
+            view
+          })
+          .await;
+
+        builder = builder
+          .with_child_view_builder(|child_view_builder| async {
+            let json_str = include_str!("../../assets/mobile_guide.json");
+            let document_pb: DocumentDataPB =
+              JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+            let view = child_view_builder
+              .with_view_id(mobile_guide_view_uuid.clone())
+              .with_name("Mobile guide")
+              .with_icon("📱")
+              .build();
+            manager
+              .create_document(uid, &mobile_guide_view_uuid, Some(document_pb.into()))
+              .await
+              .unwrap();
+            view
+          })
+          .await;
+
+        let getting_started_view = builder.build();
+
+        let getting_started_json_str = include_str!("../../assets/getting_started.json");
+        let mut json: Value = serde_json::from_str(getting_started_json_str).unwrap();
+        let mut replacements = HashMap::new();
+        replacements.insert(
+          "desktop_guide_id".to_string(),
+          desktop_guide_view_uuid.clone(),
+        );
+        replacements.insert(
+          "mobile_guide_id".to_string(),
+          mobile_guide_view_uuid.clone(),
+        );
+        replace_json_placeholders(&mut json, &replacements);
+        let document_pb = JsonToDocumentParser::json_str_to_document(&json.to_string()).unwrap();
         manager
-          .create_document(uid, &view.parent_view.id, Some(document_pb.into()))
+          .create_document(uid, &getting_started_view_uuid, Some(document_pb.into()))
           .await
           .unwrap();
-        view
+
+        getting_started_view
       })
       .await;
     Ok(())
@@ -581,5 +643,33 @@ impl FolderOperationHandler for ChatFolderOperation {
     _path: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support())
+  }
+}
+
+/// Replace the placeholders in the JSON value with the given replacements.
+///
+/// The placeholders are in the format of "<key>", for example "<name>".
+/// The value of the placeholder will be replaced with the value of the key in the replacements map.
+fn replace_json_placeholders(value: &mut Value, replacements: &HashMap<String, String>) {
+  match value {
+    Value::String(s) => {
+      if s.starts_with("<") && s.ends_with(">") {
+        let key = s.trim_start_matches("<").trim_end_matches(">");
+        if let Some(replacement) = replacements.get(key) {
+          *s = replacement.to_string();
+        }
+      }
+    },
+    Value::Array(arr) => {
+      for item in arr {
+        replace_json_placeholders(item, replacements);
+      }
+    },
+    Value::Object(obj) => {
+      for (_, v) in obj {
+        replace_json_placeholders(v, replacements);
+      }
+    },
+    _ => {},
   }
 }

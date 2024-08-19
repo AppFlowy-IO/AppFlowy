@@ -1,0 +1,160 @@
+{
+  "document": {
+    "type": "page",
+    "children": [
+      {
+        "type": "heading",
+        "data": { "level": 2, "delta": [{ "insert": "Welcome to AppFlowy" }] }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "$",
+              "attributes": {
+                "mention": {
+                  "type": "page",
+                  "page_id": "<desktop_guide_id>"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "toggle_list",
+        "children": [
+          {
+            "type": "paragraph",
+            "data": {
+              "delta": [
+                { "insert": " " },
+                {
+                  "insert": "link",
+                  "attributes": { "href": "https://appflowy.io/download" }
+                }
+              ]
+            }
+          }
+        ],
+        "data": {
+          "collapsed": true,
+          "delta": [{ "insert": "Download for macOS, Windows, and Linux" }]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "$",
+              "attributes": {
+                "mention": {
+                  "page_id": "<mobile_guide_id>",
+                  "type": "page"
+                }
+              }
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "$",
+              "attributes": {
+                "mention": {
+                  "page_id": "a8739c21-ed9e-4e05-ad6c-29c467b4129e",
+                  "type": "page"
+                }
+              }
+            },
+            { "insert": "quick start", "attributes": { "code": true } }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "$",
+              "attributes": {
+                "mention": {
+                  "type": "page",
+                  "page_id": "ab48649e-fd09-4864-9751-e6be63675e00"
+                }
+              }
+            },
+            {
+              "insert": "powered by advanced AI models: chat, search, write, and much more ✨"
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "divider" },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "❤️Love AppFlowy and open source? Follow our latest product updates:"
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [
+            {
+              "insert": "Twitter",
+              "attributes": { "href": "https://twitter.com/appflowy" }
+            },
+            { "insert": ": @appflowy" }
+          ]
+        }
+      },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [
+            {
+              "insert": "Reddit",
+              "attributes": { "href": "https://www.reddit.com/r/AppFlowy/" }
+            },
+            { "insert": ": r/appflowy" }
+          ]
+        }
+      },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [
+            {
+              "insert": "Github",
+              "attributes": {
+                "href": "https://github.com/AppFlowy-IO/AppFlowy"
+              }
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } }
+    ]
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "document": {
+    "type": "page",
+    "children": [
+      {
+        "type": "heading",
+        "data": { "level": 3, "delta": [{ "insert": "Adding content" }] }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "+", "attributes": { "code": true } },
+            { "insert": " ", "attributes": { "code": false } },
+            { "insert": "in the toolbar to add a block" }
+          ]
+        }
+      },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [
+            { "insert": "Type " },
+            { "insert": "-[]", "attributes": { "code": true } },
+            { "insert": " to insert a to-do list" }
+          ]
+        }
+      },
+      {
+        "type": "bulleted_list",
+        "data": {
+          "delta": [
+            { "insert": "-", "attributes": { "code": true } },
+            { "insert": " or " },
+            { "insert": "*", "attributes": { "code": true } },
+            { "insert": " for bulleted list" }
+          ]
+        }
+      },
+      {
+        "type": "numbered_list",
+        "data": {
+          "delta": [
+            { "insert": "1.", "attributes": { "code": true } },
+            { "insert": " for numbered list" }
+          ]
+        }
+      },
+      {
+        "type": "toggle_list",
+        "children": [
+          {
+            "type": "paragraph",
+            "data": { "delta": [{ "insert": "Expand or collapse" }] }
+          }
+        ],
+        "data": {
+          "collapsed": true,
+          "delta": [
+            { "insert": ">", "attributes": { "code": true } },
+            { "insert": " for toggle list" }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "heading",
+        "data": { "level": 3, "delta": [{ "insert": "Styling" }] }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            { "insert": "Select text to " },
+            { "insert": "style", "attributes": { "bg_color": "0xff6455a2" } },
+            { "insert": " using the " },
+            {
+              "insert": "toolbar",
+              "attributes": { "italic": true, "bold": true, "underline": true }
+            },
+            { "insert": " menu" }
+          ]
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            { "insert": "More styling can be found in " },
+            { "insert": "Aa", "attributes": { "code": true } }
+          ]
+        }
+      },
+      {
+        "type": "quote",
+        "data": {
+          "delta": [
+            {
+              "insert": "AppFlowy allows you to style your content in a beautiful and simple way"
+            }
+          ]
+        }
+      },
+      {
+        "type": "image",
+        "data": {
+          "align": "left",
+          "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/413dd288%2Dc621%2D4b71%2Dbbbb%2D381659693dc9/6373112791071542923.png",
+          "width": 277.48046875
+        }
+      },
+      { "type": "divider" },
+      {
+        "type": "heading",
+        "data": { "level": 3, "delta": [{ "insert": "Database views" }] }
+      },
+      {
+        "type": "callout",
+        "data": {
+          "icon": "📌",
+          "delta": [
+            {
+              "insert": "Visualize your content in different ways — Kanban, Grid, and Calendar views"
+            }
+          ]
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "Click on a database record (row/card) to open the Card view"
+            }
+          ]
+        }
+      },
+      {
+        "type": "multi_image",
+        "data": {
+          "images": [
+            {
+              "type": 1,
+              "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/413dd288%2Dc621%2D4b71%2Dbbbb%2D381659693dc9/7833309212767979222.png"
+            },
+            {
+              "type": 1,
+              "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/413dd288%2Dc621%2D4b71%2Dbbbb%2D381659693dc9/7218704487138770747.png"
+            }
+          ],
+          "layout": 0
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "In a Grid view, tap on a property name to edit the property.",
+              "attributes": { "bold": false }
+            }
+          ]
+        }
+      },
+      {
+        "type": "image",
+        "data": {
+          "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/413dd288%2Dc621%2D4b71%2Dbbbb%2D381659693dc9/6301648558841990453.png",
+          "align": "left",
+          "width": 286.2109375
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "heading",
+        "data": { "level": 3, "delta": [{ "insert": "Manage pages" }] }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "Swipe left on a page to show the actions: add a subpage and more actions"
+            }
+          ]
+        }
+      },
+      {
+        "type": "image",
+        "data": {
+          "align": "left",
+          "width": 286.33203125,
+          "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/413dd288%2Dc621%2D4b71%2Dbbbb%2D381659693dc9/9699887999141836736.png"
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "paragraph",
+        "data": { "delta": [{ "insert": "More actions include:" }] }
+      },
+      {
+        "type": "bulleted_list",
+        "data": { "delta": [{ "insert": "Add to Favorites " }] }
+      },
+      {
+        "type": "bulleted_list",
+        "data": { "delta": [{ "insert": "Rename" }] }
+      },
+      {
+        "type": "bulleted_list",
+        "data": { "delta": [{ "insert": "Duplicate " }] }
+      },
+      { "type": "bulleted_list", "data": { "delta": [{ "insert": "Delete" }] } }
+    ]
+  }
+}

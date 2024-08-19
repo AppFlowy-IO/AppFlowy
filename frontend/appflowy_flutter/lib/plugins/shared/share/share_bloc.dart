@@ -189,6 +189,7 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             case ShareType.markdown:
             case ShareType.html:
             case ShareType.csv:
+            case ShareType.json:
               File(path).writeAsStringSync(s);
               return FlowyResult.success(type);
             default:
@@ -208,6 +209,7 @@ enum ShareType {
   html,
   text,
   link,
+  json,
 
   // only available in database
   csv;
@@ -222,6 +224,8 @@ enum ShareType {
         return DocumentExportType.html;
       case ShareType.text:
         return DocumentExportType.text;
+      case ShareType.json:
+        return DocumentExportType.json;
       case ShareType.csv:
         throw UnsupportedError('DocumentShareType.csv is not supported');
       case ShareType.link:

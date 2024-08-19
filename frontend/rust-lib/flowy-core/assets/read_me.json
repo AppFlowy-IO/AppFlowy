@@ -7,7 +7,10 @@
     },
     {
       "type": "heading",
-      "data": { "delta": [{ "insert": "Here are the basics" }], "level": 2 }
+      "data": {
+        "delta": [{ "insert": "Here are the basics 12222" }],
+        "level": 2
+      }
     },
     {
       "type": "todo_list",

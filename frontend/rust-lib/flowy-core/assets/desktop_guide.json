@@ -1,0 +1,285 @@
+{
+  "document": {
+    "type": "page",
+    "children": [
+      {
+        "type": "heading",
+        "data": {
+          "level": 1,
+          "delta": [
+            { "insert": "AppFlowy Desktop on macOS, Windows, and Linux" }
+          ]
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "delta": [
+            {
+              "insert": "Download",
+              "attributes": { "href": "https://appflowy.io/download" }
+            },
+            { "insert": " " }
+          ]
+        }
+      },
+      {
+        "type": "heading",
+        "data": { "level": 3, "delta": [{ "insert": "Basics" }] }
+      },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [{ "insert": "Click anywhere and just start typing." }]
+        }
+      },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": false,
+          "delta": [
+            {
+              "insert": "Highlight",
+              "attributes": { "bg_color": "0x4dffeb3b" }
+            },
+            { "insert": " any text, and use the editing menu to " },
+            { "insert": "style", "attributes": { "italic": true } },
+            { "insert": " " },
+            { "insert": "your", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "writing", "attributes": { "underline": true } },
+            { "insert": " " },
+            { "insert": "however", "attributes": { "code": true } },
+            { "insert": " you " },
+            { "insert": "like.", "attributes": { "strikethrough": true } }
+          ]
+        }
+      },
+      {
+        "type": "todo_list",
+        "children": [
+          {
+            "type": "todo_list",
+            "data": {
+              "checked": false,
+              "delta": [
+                { "insert": "Type " },
+                { "insert": "/", "attributes": { "code": true } },
+                { "insert": " followed by " },
+                { "insert": "/bullet", "attributes": { "code": true } },
+                { "insert": " or " },
+                { "insert": "/num", "attributes": { "code": true } },
+                {
+                  "insert": " to create a list. ",
+                  "attributes": { "code": false }
+                }
+              ]
+            }
+          }
+        ],
+        "data": {
+          "checked": false,
+          "delta": [
+            { "insert": "As soon as you type " },
+            {
+              "insert": "/",
+              "attributes": { "code": true, "font_color": "0xff00b5ff" }
+            },
+            { "insert": " a menu will pop up. Select " },
+            {
+              "insert": "different types",
+              "attributes": { "bg_color": "0x4d9c27b0" }
+            },
+            { "insert": " of content blocks you can add." }
+          ]
+        }
+      },
+      {
+        "type": "todo_list",
+        "data": {
+          "checked": true,
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "+ New Page ", "attributes": { "code": true } },
+            { "insert": "button at the top of your sidebar to" },
+            {
+              "insert": " quickly",
+              "attributes": { "font_color": "0xff9c27b0" }
+            },
+            { "insert": " add a new" },
+            { "insert": " page", "attributes": { "font_color": "0xff795548" } },
+            { "insert": "." }
+          ]
+        }
+      },
+      {
+        "type": "todo_list",
+        "children": [
+          {
+            "type": "bulleted_list",
+            "data": { "delta": [{ "insert": "Document" }] }
+          },
+          {
+            "type": "bulleted_list",
+            "data": { "delta": [{ "insert": "Grid" }] }
+          },
+          {
+            "type": "bulleted_list",
+            "data": { "delta": [{ "insert": "Kanban Board" }] }
+          },
+          {
+            "type": "bulleted_list",
+            "data": { "delta": [{ "insert": "Calendar" }] }
+          },
+          {
+            "type": "bulleted_list",
+            "data": { "delta": [{ "insert": "AI Chat" }] }
+          },
+          {
+            "type": "bulleted_list",
+            "data": {
+              "delta": [
+                {
+                  "insert": "or through import",
+                  "attributes": { "code": false }
+                }
+              ]
+            }
+          }
+        ],
+        "data": {
+          "checked": false,
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "+", "attributes": { "code": true } },
+            {
+              "insert": " next to any page title or space name in the sidebar to add a new page/subpage:"
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "divider" },
+      {
+        "type": "heading",
+        "data": {
+          "level": 3,
+          "delta": [
+            { "insert": "Keyboard shortcuts, markdown, and code block" }
+          ]
+        }
+      },
+      {
+        "type": "numbered_list",
+        "data": {
+          "delta": [
+            { "insert": "Keyboard shortcuts " },
+            {
+              "insert": "guide",
+              "attributes": {
+                "href": "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "numbered_list",
+        "data": {
+          "delta": [
+            { "insert": "Markdown " },
+            {
+              "insert": "reference",
+              "attributes": {
+                "href": "https://appflowy.gitbook.io/docs/essential-documentation/markdown"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "numbered_list",
+        "data": {
+          "delta": [
+            { "insert": "Type " },
+            { "insert": "/code", "attributes": { "code": true } },
+            {
+              "insert": " to insert a code block",
+              "attributes": { "code": false }
+            }
+          ]
+        }
+      },
+      {
+        "type": "code",
+        "data": {
+          "language": "rust",
+          "delta": [
+            {
+              "insert": "// This is the main function.\nfn main() {\n    // Print text to the console.\n    println!(\"Hello World!\");\n}"
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "divider" },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "heading",
+        "data": {
+          "align": "center",
+          "level": 3,
+          "delta": [{ "insert": "Spaces" }]
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "align": "center",
+          "delta": [
+            { "insert": "Create multiple spaces to better organize your work" }
+          ]
+        }
+      },
+      {
+        "type": "multi_image",
+        "data": {
+          "layout": 0,
+          "images": [
+            {
+              "type": 1,
+              "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/5ac18333%2D9a0e%2D4ec8%2D929b%2Debf69a9bf35d/4163815631153414665.jpg"
+            },
+            {
+              "type": 1,
+              "url": "https://beta.appflowy.cloud/api/file_storage/c29fafc4-b7c0-4549-8702-71339b0fd9ea/v1/blob/5ac18333%2D9a0e%2D4ec8%2D929b%2Debf69a9bf35d/14046146785345901549.jpg"
+            }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "divider" },
+      { "type": "paragraph", "data": { "delta": [] } },
+      {
+        "type": "heading",
+        "data": { "level": 2, "delta": [{ "insert": "Have a question❓" }] }
+      },
+      {
+        "type": "quote",
+        "data": {
+          "delta": [
+            { "insert": "Click " },
+            { "insert": "?", "attributes": { "code": true } },
+            { "insert": " at the bottom right for help and support." }
+          ]
+        }
+      },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } },
+      { "type": "paragraph", "data": { "delta": [] } }
+    ]
+  }
+}
