@@ -14,7 +14,7 @@ use crate::database::cell_test::script::DatabaseCellTest;
 #[tokio::test]
 async fn grid_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let fields = test.get_fields();
+  let fields = test.get_fields().await;
   let rows = &test.row_details;
 
   let mut scripts = vec![];
@@ -76,7 +76,7 @@ async fn grid_cell_update() {
 #[tokio::test]
 async fn text_cell_data_test() {
   let test = DatabaseCellTest::new().await;
-  let text_field = test.get_first_field(FieldType::RichText);
+  let text_field = test.get_first_field(FieldType::RichText).await;
 
   let cells = test
     .editor
@@ -100,7 +100,7 @@ async fn text_cell_data_test() {
 #[tokio::test]
 async fn url_cell_data_test() {
   let test = DatabaseCellTest::new().await;
-  let url_field = test.get_first_field(FieldType::URL);
+  let url_field = test.get_first_field(FieldType::URL).await;
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &url_field.id)
@@ -122,7 +122,7 @@ async fn url_cell_data_test() {
 #[tokio::test]
 async fn update_updated_at_field_on_other_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let updated_at_field = test.get_first_field(FieldType::LastEditedTime);
+  let updated_at_field = test.get_first_field(FieldType::LastEditedTime).await;
 
   let text_field = test
     .fields
@@ -204,7 +204,7 @@ async fn update_updated_at_field_on_other_cell_update() {
 #[tokio::test]
 async fn time_cell_data_test() {
   let test = DatabaseCellTest::new().await;
-  let time_field = test.get_first_field(FieldType::Time);
+  let time_field = test.get_first_field(FieldType::Time).await;
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &time_field.id)

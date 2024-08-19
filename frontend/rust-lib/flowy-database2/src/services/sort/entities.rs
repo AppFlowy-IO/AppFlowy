@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use anyhow::bail;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::rows::{RowDetail, RowId};
 use collab_database::views::{SortMap, SortMapBuilder};
 
@@ -20,10 +20,13 @@ impl TryFrom<SortMap> for Sort {
   type Error = anyhow::Error;
 
   fn try_from(value: SortMap) -> Result<Self, Self::Error> {
-    match (value.get_str_value(SORT_ID), value.get_str_value(FIELD_ID)) {
+    match (
+      value.get_as::<String>(SORT_ID),
+      value.get_as::<String>(FIELD_ID),
+    ) {
       (Some(id), Some(field_id)) => {
         let condition = value
-          .get_i64_value(SORT_CONDITION)
+          .get_as::<i64>(SORT_CONDITION)
           .map(SortCondition::from)
           .unwrap_or_default();
         Ok(Self {
@@ -41,11 +44,11 @@ impl TryFrom<SortMap> for Sort {
 
 impl From<Sort> for SortMap {
   fn from(data: Sort) -> Self {
-    SortMapBuilder::new()
-      .insert_str_value(SORT_ID, data.id)
-      .insert_str_value(FIELD_ID, data.field_id)
-      .insert_i64_value(SORT_CONDITION, data.condition.value())
-      .build()
+    SortMapBuilder::from([
+      (SORT_ID.into(), data.id.into()),
+      (FIELD_ID.into(), data.field_id.into()),
+      (SORT_CONDITION.into(), data.condition.value().into()),
+    ])
   }
 }
 

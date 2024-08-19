@@ -20,7 +20,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
   final String userEmail;
 
   final BackendAuthService _appFlowyAuthService =
-      BackendAuthService(AuthenticatorPB.Supabase);
+      BackendAuthService(AuthenticatorPB.AppFlowyCloud);
 
   @override
   Future<FlowyResult<UserProfilePB, FlowyError>> signUp({

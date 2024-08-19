@@ -76,16 +76,17 @@ impl DatabaseEditorTest {
   pub async fn new(sdk: EventIntegrationTest, test: ViewTest) -> Self {
     let editor = sdk
       .database_manager
-      .get_database_with_view_id(&test.child_view.id)
+      .get_database_editor_with_view_id(&test.child_view.id)
       .await
       .unwrap();
     let fields = editor
       .get_fields(&test.child_view.id, None)
+      .await
       .into_iter()
       .map(Arc::new)
       .collect();
     let rows = editor
-      .get_rows(&test.child_view.id)
+      .get_row_details(&test.child_view.id)
       .await
       .unwrap()
       .into_iter()
@@ -108,13 +109,14 @@ impl DatabaseEditorTest {
   }
 
   pub async fn get_rows(&self) -> Vec<Arc<RowDetail>> {
-    self.editor.get_rows(&self.view_id).await.unwrap()
+    self.editor.get_row_details(&self.view_id).await.unwrap()
   }
 
-  pub fn get_field(&self, field_id: &str, field_type: FieldType) -> Field {
+  pub async fn get_field(&self, field_id: &str, field_type: FieldType) -> Field {
     self
       .editor
       .get_fields(&self.view_id, None)
+      .await
       .into_iter()
       .filter(|field| {
         let t_field_type = FieldType::from(field.field_type);
@@ -127,10 +129,11 @@ impl DatabaseEditorTest {
 
   /// returns the first `Field` in the build-in test grid.
   /// Not support duplicate `FieldType` in test grid yet.
-  pub fn get_first_field(&self, field_type: FieldType) -> Field {
+  pub async fn get_first_field(&self, field_type: FieldType) -> Field {
     self
       .editor
       .get_fields(&self.view_id, None)
+      .await
       .into_iter()
       .filter(|field| {
         let t_field_type = FieldType::from(field.field_type);
@@ -141,22 +144,22 @@ impl DatabaseEditorTest {
       .unwrap()
   }
 
-  pub fn get_fields(&self) -> Vec<Field> {
-    self.editor.get_fields(&self.view_id, None)
+  pub async fn get_fields(&self) -> Vec<Field> {
+    self.editor.get_fields(&self.view_id, None).await
   }
 
-  pub fn get_multi_select_type_option(&self, field_id: &str) -> Vec<SelectOption> {
+  pub async fn get_multi_select_type_option(&self, field_id: &str) -> Vec<SelectOption> {
     let field_type = FieldType::MultiSelect;
-    let field = self.get_field(field_id, field_type);
+    let field = self.get_field(field_id, field_type).await;
     let type_option = field
       .get_type_option::<MultiSelectTypeOption>(field_type)
       .unwrap();
     type_option.options
   }
 
-  pub fn get_single_select_type_option(&self, field_id: &str) -> Vec<SelectOption> {
+  pub async fn get_single_select_type_option(&self, field_id: &str) -> Vec<SelectOption> {
     let field_type = FieldType::SingleSelect;
-    let field = self.get_field(field_id, field_type);
+    let field = self.get_field(field_id, field_type).await;
     let type_option = field
       .get_type_option::<SingleSelectTypeOption>(field_type)
       .unwrap();
@@ -164,18 +167,18 @@ impl DatabaseEditorTest {
   }
 
   #[allow(dead_code)]
-  pub fn get_checklist_type_option(&self, field_id: &str) -> ChecklistTypeOption {
+  pub async fn get_checklist_type_option(&self, field_id: &str) -> ChecklistTypeOption {
     let field_type = FieldType::Checklist;
-    let field = self.get_field(field_id, field_type);
+    let field = self.get_field(field_id, field_type).await;
     field
       .get_type_option::<ChecklistTypeOption>(field_type)
       .unwrap()
   }
 
   #[allow(dead_code)]
-  pub fn get_checkbox_type_option(&self, field_id: &str) -> CheckboxTypeOption {
+  pub async fn get_checkbox_type_option(&self, field_id: &str) -> CheckboxTypeOption {
     let field_type = FieldType::Checkbox;
-    let field = self.get_field(field_id, field_type);
+    let field = self.get_field(field_id, field_type).await;
     field
       .get_type_option::<CheckboxTypeOption>(field_type)
       .unwrap()
@@ -190,6 +193,7 @@ impl DatabaseEditorTest {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
+      .await
       .into_iter()
       .find(|field| field.id == field_id)
       .unwrap();
@@ -204,6 +208,7 @@ impl DatabaseEditorTest {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
+      .await
       .iter()
       .find(|field| {
         let field_type = FieldType::from(field.field_type);
@@ -225,6 +230,7 @@ impl DatabaseEditorTest {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
+      .await
       .iter()
       .find(|field| {
         let field_type = FieldType::from(field.field_type);
@@ -250,6 +256,7 @@ impl DatabaseEditorTest {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
+      .await
       .iter()
       .find(|field| {
         let field_type = FieldType::from(field.field_type);
@@ -277,7 +284,7 @@ impl DatabaseEditorTest {
     self
       .sdk
       .database_manager
-      .get_database(database_id)
+      .get_database_editor(database_id)
       .await
       .ok()
   }

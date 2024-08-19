@@ -57,7 +57,7 @@ class _DatabaseViewSettingContent extends StatelessWidget {
       builder: (context, state) {
         return Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: GridSize.horizontalHeaderPadding,
+            horizontal: GridSize.horizontalHeaderPadding + 40,
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(

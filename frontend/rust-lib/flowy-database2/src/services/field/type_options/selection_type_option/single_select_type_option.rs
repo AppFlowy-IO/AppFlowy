@@ -8,7 +8,7 @@ use crate::services::field::{
   SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
 };
 use crate::services::sort::SortCondition;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -32,7 +32,7 @@ impl TypeOption for SingleSelectTypeOption {
 impl From<TypeOptionData> for SingleSelectTypeOption {
   fn from(data: TypeOptionData) -> Self {
     data
-      .get_str_value("content")
+      .get_as::<String>("content")
       .map(|s| serde_json::from_str::<SingleSelectTypeOption>(&s).unwrap_or_default())
       .unwrap_or_default()
   }
@@ -41,9 +41,7 @@ impl From<TypeOptionData> for SingleSelectTypeOption {
 impl From<SingleSelectTypeOption> for TypeOptionData {
   fn from(data: SingleSelectTypeOption) -> Self {
     let content = serde_json::to_string(&data).unwrap_or_default();
-    TypeOptionDataBuilder::new()
-      .insert_str_value("content", content)
-      .build()
+    TypeOptionDataBuilder::from([("content".into(), content.into())])
   }
 }
 

@@ -2,10 +2,9 @@
 
 use allo_isolate::Isolate;
 use lazy_static::lazy_static;
-use parking_lot::Mutex;
 use semver::Version;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::{ffi::CStr, os::raw::c_char};
 use tracing::{debug, error, info, trace, warn};
 
@@ -38,6 +37,10 @@ lazy_static! {
   static ref LOG_STREAM_ISOLATE: Mutex<Option<Isolate>> = Mutex::new(None);
 }
 
+unsafe impl Send for MutexAppFlowyCore {}
+unsafe impl Sync for MutexAppFlowyCore {}
+
+///FIXME: I'm pretty sure that there's a better way to do this
 struct MutexAppFlowyCore(Rc<Mutex<Option<AppFlowyCore>>>);
 
 impl MutexAppFlowyCore {
@@ -46,14 +49,11 @@ impl MutexAppFlowyCore {
   }
 
   fn dispatcher(&self) -> Option<Rc<AFPluginDispatcher>> {
-    let binding = self.0.lock();
+    let binding = self.0.lock().unwrap();
     let core = binding.as_ref();
     core.map(|core| core.event_dispatcher.clone())
   }
 }
-
-unsafe impl Sync for MutexAppFlowyCore {}
-unsafe impl Send for MutexAppFlowyCore {}
 
 #[no_mangle]
 pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
@@ -87,7 +87,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
 
   // Ensure that the database is closed before initialization. Also, verify that the init_sdk function can be called
   // multiple times (is reentrant). Currently, only the database resource is exclusive.
-  if let Some(core) = &*APPFLOWY_CORE.0.lock() {
+  if let Some(core) = &*APPFLOWY_CORE.0.lock().unwrap() {
     core.close_db();
   }
 
@@ -96,11 +96,12 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
 
   let log_stream = LOG_STREAM_ISOLATE
     .lock()
+    .unwrap()
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
 
   // let isolate = allo_isolate::Isolate::new(port);
-  *APPFLOWY_CORE.0.lock() = runtime.block_on(async move {
+  *APPFLOWY_CORE.0.lock().unwrap() = runtime.block_on(async move {
     Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await)
     // isolate.post("".to_string());
   });
@@ -168,7 +169,7 @@ pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
 
 #[no_mangle]
 pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
-  *LOG_STREAM_ISOLATE.lock() = Some(Isolate::new(port));
+  *LOG_STREAM_ISOLATE.lock().unwrap() = Some(Isolate::new(port));
 
   0
 }

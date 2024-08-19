@@ -86,9 +86,8 @@ pub fn default_field_settings_by_layout_map() -> HashMap<DatabaseLayout, FieldSe
   let mut map = HashMap::new();
   for layout_ty in DatabaseLayout::iter() {
     let visibility = default_field_visibility(layout_ty);
-    let field_settings = FieldSettingsMapBuilder::new()
-      .insert_i64_value(VISIBILITY, visibility.into())
-      .build();
+    let field_settings =
+      FieldSettingsMapBuilder::from([(VISIBILITY.into(), i64::from(visibility).into())]);
     map.insert(layout_ty, field_settings);
   }
 

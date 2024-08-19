@@ -39,8 +39,7 @@ where
   R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
-  let collab = Collab::new(uid, object_id, "phantom", vec![], false);
-  collab
-    .with_origin_transact_mut(|txn| collab_read_txn.load_doc_with_txn(uid, object_id, txn))
-    .map(|_| collab)
+  let mut collab = Collab::new(uid, object_id, "phantom", vec![], false);
+  collab_read_txn.load_doc_with_txn(uid, object_id, &mut collab.transact_mut())?;
+  Ok(collab)
 }

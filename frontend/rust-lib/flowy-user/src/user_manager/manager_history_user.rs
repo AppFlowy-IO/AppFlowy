@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use tracing::instrument;
 
 use crate::entities::UserProfilePB;
@@ -33,7 +34,7 @@ impl UserManager {
     }
   }
 
-  pub fn set_anon_user(&self, session: Session) {
+  pub fn set_anon_user(&self, session: &Session) {
     let _ = self.store_preferences.set_object(ANON_USER, session);
   }
 
@@ -63,7 +64,7 @@ impl UserManager {
   pub async fn open_anon_user(&self) -> FlowyResult<()> {
     let anon_session = self
       .store_preferences
-      .get_object::<Session>(ANON_USER)
+      .get_object::<Arc<Session>>(ANON_USER)
       .ok_or(FlowyError::new(
         ErrorCode::RecordNotFound,
         "Anon user not found",

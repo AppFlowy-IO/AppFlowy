@@ -13,7 +13,6 @@ tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
-parking_lot.workspace = true
 
 r2d2 = "0.8.10"
 libsqlite3-sys = { version = "0.27.0", features = ["bundled"] }

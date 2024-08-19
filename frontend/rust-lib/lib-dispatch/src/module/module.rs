@@ -1,3 +1,15 @@
+use crate::dispatcher::AFConcurrent;
+use crate::prelude::{AFBoxFuture, AFStateMap};
+use crate::service::AFPluginHandler;
+use crate::{
+  errors::{DispatchError, InternalError},
+  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+  response::{AFPluginEventResponse, AFPluginResponder},
+  service::{
+    factory, AFPluginHandlerService, AFPluginServiceFactory, BoxService, BoxServiceFactory,
+    Service, ServiceRequest, ServiceResponse,
+  },
+};
 use futures_core::ready;
 use nanoid::nanoid;
 use pin_project::pin_project;
@@ -11,19 +23,6 @@ use std::{
   hash::Hash,
   pin::Pin,
   task::{Context, Poll},
-};
-
-use crate::dispatcher::AFConcurrent;
-use crate::prelude::{AFBoxFuture, AFStateMap};
-use crate::service::AFPluginHandler;
-use crate::{
-  errors::{DispatchError, InternalError},
-  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-  response::{AFPluginEventResponse, AFPluginResponder},
-  service::{
-    factory, AFPluginHandlerService, AFPluginServiceFactory, BoxService, BoxServiceFactory,
-    Service, ServiceRequest, ServiceResponse,
-  },
 };
 
 pub type AFPluginMap = Rc<HashMap<AFPluginEvent, Rc<AFPlugin>>>;
