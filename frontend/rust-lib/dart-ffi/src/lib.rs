@@ -155,6 +155,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
           port,
           ret,
         } = task;
+
         let resp = AFPluginDispatcher::boxed_async_send_with_callback(
           dispatcher.as_ref(),
           request,

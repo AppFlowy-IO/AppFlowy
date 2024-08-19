@@ -257,6 +257,7 @@ impl AppFlowyCollabBuilder {
   {
     let mut write_collab = collab.try_write()?;
     if !write_collab.borrow().get_state().is_uninitialized() {
+      warn!("{} is already initialized", object);
       drop(write_collab);
       return Ok(collab);
     }
@@ -285,10 +286,7 @@ impl AppFlowyCollabBuilder {
       }
     }
 
-    if build_config.auto_initialize {
-      // at the moment when we get the lock, the collab object is not yet exposed outside
-      (*write_collab).borrow_mut().initialize();
-    }
+    (*write_collab).borrow_mut().initialize();
     drop(write_collab);
     Ok(collab)
   }
@@ -296,30 +294,17 @@ impl AppFlowyCollabBuilder {
 
 pub struct CollabBuilderConfig {
   pub sync_enable: bool,
-  /// If auto_initialize is false, the collab object will not be initialized automatically.
-  /// You need to call collab.initialize() manually.
-  ///
-  /// Default is true.
-  pub auto_initialize: bool,
 }
 
 impl Default for CollabBuilderConfig {
   fn default() -> Self {
-    Self {
-      sync_enable: true,
-      auto_initialize: true,
-    }
+    Self { sync_enable: true }
   }
 }
 
 impl CollabBuilderConfig {
   pub fn sync_enable(mut self, sync_enable: bool) -> Self {
     self.sync_enable = sync_enable;
-    self
-  }
-
-  pub fn auto_initialize(mut self, auto_initialize: bool) -> Self {
-    self.auto_initialize = auto_initialize;
     self
   }
 }

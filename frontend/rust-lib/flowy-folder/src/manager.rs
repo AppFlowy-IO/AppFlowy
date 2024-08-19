@@ -157,9 +157,7 @@ impl FolderManager {
   ) -> Result<Arc<RwLock<Folder>>, FlowyError> {
     let folder_notifier = folder_notifier.into();
     // only need the check the workspace id when the doc state is not from the disk.
-    let config = CollabBuilderConfig::default()
-      .sync_enable(true)
-      .auto_initialize(true);
+    let config = CollabBuilderConfig::default().sync_enable(true);
 
     let data_source = data_source
       .unwrap_or_else(|| KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());

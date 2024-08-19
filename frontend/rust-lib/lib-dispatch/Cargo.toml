@@ -41,7 +41,7 @@ tokio = { workspace = true, features = ["rt"] }
 futures-util = "0.3.26"
 
 [features]
-default = ["use_protobuf"]
+default = ["local_set", "use_protobuf"]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf = ["protobuf"]
 local_set = []
