@@ -3,7 +3,7 @@ use pin_project::pin_project;
 use std::any::Any;
 use std::future::Future;
 use std::pin::Pin;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::task::{Context, Poll};
 use tracing::event;
 
@@ -70,11 +70,11 @@ where
 
 pub struct AFPluginDispatcher {
   plugins: AFPluginMap,
-  runtime: Rc<AFPluginRuntime>,
+  runtime: Arc<AFPluginRuntime>,
 }
 
 impl AFPluginDispatcher {
-  pub fn new(runtime: Rc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
+  pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
       plugins: plugin_map_or_crash(plugins),
@@ -158,16 +158,6 @@ impl AFPluginDispatcher {
     })
   }
 
-  pub fn box_async_send<Req>(
-    dispatch: &AFPluginDispatcher,
-    request: Req,
-  ) -> DispatchFuture<AFPluginEventResponse>
-  where
-    Req: Into<AFPluginRequest> + 'static,
-  {
-    AFPluginDispatcher::boxed_async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
-  }
-
   pub fn boxed_async_send_with_callback<Req, Callback>(
     dispatch: &AFPluginDispatcher,
     request: Req,
@@ -235,7 +225,7 @@ impl AFPluginDispatcher {
 
   #[cfg(not(target_arch = "wasm32"))]
   pub fn sync_send(
-    dispatch: Rc<AFPluginDispatcher>,
+    dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
   ) -> AFPluginEventResponse {
     futures::executor::block_on(AFPluginDispatcher::async_send_with_callback(
@@ -243,15 +233,6 @@ impl AFPluginDispatcher {
       request,
       |_| Box::pin(async {}),
     ))
-  }
-
-  #[track_caller]
-  pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
-  where
-    F: Future + Send + 'static,
-    <F as Future>::Output: Send + 'static,
-  {
-    self.runtime.spawn(future)
   }
 }
 

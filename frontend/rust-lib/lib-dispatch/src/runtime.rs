@@ -12,6 +12,9 @@ pub struct AFPluginRuntime {
   pub(crate) local: tokio::task::LocalSet,
 }
 
+unsafe impl Send for AFPluginRuntime {}
+unsafe impl Sync for AFPluginRuntime {}
+
 impl Display for AFPluginRuntime {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     if cfg!(any(target_arch = "wasm32", feature = "local_set")) {
