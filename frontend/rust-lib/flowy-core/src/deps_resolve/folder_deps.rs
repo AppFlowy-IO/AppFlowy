@@ -147,6 +147,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
           .with_name("Getting started")
           .with_icon("⭐️");
 
+        // build the desktop guide view
         builder = builder
           .with_child_view_builder(|child_view_builder| async {
             let json_str = include_str!("../../assets/desktop_guide.json");
@@ -165,6 +166,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
           })
           .await;
 
+        // build the mobile guide view
         builder = builder
           .with_child_view_builder(|child_view_builder| async {
             let json_str = include_str!("../../assets/mobile_guide.json");
