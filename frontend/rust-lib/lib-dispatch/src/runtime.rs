@@ -46,21 +46,11 @@ impl AFPluginRuntime {
 
 #[cfg(feature = "local_set")]
 pub fn default_tokio_runtime() -> io::Result<Runtime> {
-  #[cfg(not(target_arch = "wasm32"))]
-  {
-    runtime::Builder::new_multi_thread()
-      .enable_io()
-      .enable_time()
-      .thread_name("dispatch-rt-st")
-      .build()
-  }
-
-  #[cfg(target_arch = "wasm32")]
-  {
-    runtime::Builder::new_current_thread()
-      .thread_name("dispatch-rt-st")
-      .build()
-  }
+  runtime::Builder::new_multi_thread()
+    .enable_io()
+    .enable_time()
+    .thread_name("dispatch-rt-st")
+    .build()
 }
 
 #[cfg(not(feature = "local_set"))]
