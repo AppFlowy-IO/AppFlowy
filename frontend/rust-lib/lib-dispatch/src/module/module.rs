@@ -90,7 +90,7 @@ impl AFPlugin {
     self
   }
 
-  pub fn state<D: AFConcurrent + 'static>(mut self, data: D) -> Self {
+  pub fn state<D: Send + Sync + 'static>(mut self, data: D) -> Self {
     Arc::get_mut(&mut self.states)
       .unwrap()
       .insert(crate::module::AFPluginState::new(data));

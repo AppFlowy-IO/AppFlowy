@@ -17,10 +17,10 @@ use crate::{
 };
 
 #[cfg(feature = "local_set")]
-pub trait AFConcurrent {}
+pub trait AFConcurrent: Send {}
 
 #[cfg(feature = "local_set")]
-impl<T> AFConcurrent for T where T: ?Sized {}
+impl<T> AFConcurrent for T where T: Send + ?Sized {}
 
 #[cfg(not(feature = "local_set"))]
 pub trait AFConcurrent: Send + Sync {}
@@ -47,7 +47,7 @@ pub(crate) fn downcast_owned<T: 'static + Send + Sync>(boxed: AFBox) -> Option<T
 }
 
 #[cfg(feature = "local_set")]
-pub(crate) type AFBox = Box<dyn Any>;
+pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
 
 #[cfg(not(feature = "local_set"))]
 pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
@@ -126,6 +126,12 @@ impl AFPluginDispatcher {
         InternalError::Other(format!("{:?}", e)).as_response()
       })
     });
+    // let handle = tokio::spawn(async move {
+    //   service.call(service_ctx).await.unwrap_or_else(|e| {
+    //     tracing::error!("Dispatch runtime error: {:?}", e);
+    //     InternalError::Other(format!("{:?}", e)).as_response()
+    //   })
+    // });
 
     let result: Result<AFPluginEventResponse, DispatchError> = local_set
       .run_until(handle)

@@ -8,7 +8,7 @@ use std::{
 use derivative::*;
 use futures_core::ready;
 
-use crate::prelude::{AFConcurrent, AFStateMap};
+use crate::prelude::AFStateMap;
 use crate::{
   errors::{DispatchError, InternalError},
   module::AFPluginEvent,
@@ -39,7 +39,7 @@ impl AFPluginEventRequest {
 
   pub fn get_state<T>(&self) -> Option<T>
   where
-    T: AFConcurrent + 'static + Clone,
+    T: Send + Sync + 'static + Clone,
   {
     if let Some(data) = self.states.get::<T>() {
       return Some(data.clone());
