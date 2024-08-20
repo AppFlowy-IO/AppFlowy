@@ -68,6 +68,7 @@ impl EventIntegrationTest {
       authenticator,
       notification_sender,
       cleaner: Arc::new(Cleaner::new(PathBuf::from(clean_path))),
+      #[allow(clippy::arc_with_non_send_sync)]
       local_set: Arc::new(Default::default()),
     }
   }
