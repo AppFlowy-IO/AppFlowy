@@ -58,7 +58,7 @@ impl From<GroupSetting> for GroupSettingMap {
     GroupSettingBuilder::from([
       (GROUP_ID.into(), setting.id.into()),
       (FIELD_ID.into(), setting.field_id.into()),
-      (FIELD_TYPE.into(), setting.field_type.into()),
+      (FIELD_TYPE.into(), Any::BigInt(setting.field_type)),
       (GROUPS.into(), groups),
       (CONTENT.into(), setting.content.into()),
     ])

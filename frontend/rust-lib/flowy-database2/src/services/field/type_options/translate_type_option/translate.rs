@@ -60,7 +60,7 @@ impl From<TranslateTypeOption> for TypeOptionData {
   fn from(value: TranslateTypeOption) -> Self {
     TypeOptionDataBuilder::from([
       ("auto_fill".into(), value.auto_fill.into()),
-      ("language".into(), value.language_type.into()),
+      ("language".into(), Any::BigInt(value.language_type)),
     ])
   }
 }

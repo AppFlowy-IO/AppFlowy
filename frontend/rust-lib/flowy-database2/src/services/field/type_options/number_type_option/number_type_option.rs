@@ -96,8 +96,8 @@ impl From<TypeOptionData> for NumberTypeOption {
 impl From<NumberTypeOption> for TypeOptionData {
   fn from(data: NumberTypeOption) -> Self {
     TypeOptionDataBuilder::from([
-      ("format".into(), data.format.value().into()),
-      ("scale".into(), data.scale.into()),
+      ("format".into(), Any::BigInt(data.format.value())),
+      ("scale".into(), Any::BigInt(data.scale as i64)),
       ("name".into(), data.name.into()),
       ("symbol".into(), data.symbol.into()),
     ])

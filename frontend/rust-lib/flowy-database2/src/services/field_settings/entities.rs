@@ -1,3 +1,4 @@
+use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::views::{DatabaseLayout, FieldSettingsMap, FieldSettingsMapBuilder};
 
@@ -45,12 +46,12 @@ impl From<FieldSettings> for FieldSettingsMap {
     FieldSettingsMapBuilder::from([
       (
         VISIBILITY.into(),
-        i64::from(field_settings.visibility).into(),
+        Any::BigInt(i64::from(field_settings.visibility)),
       ),
-      (WIDTH.into(), field_settings.width.into()),
+      (WIDTH.into(), Any::BigInt(field_settings.width as i64)),
       (
         WRAP_CELL_CONTENT.into(),
-        field_settings.wrap_cell_content.into(),
+        Any::Bool(field_settings.wrap_cell_content),
       ),
     ])
   }

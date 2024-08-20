@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
+use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -55,8 +56,8 @@ impl From<TypeOptionData> for DateTypeOption {
 impl From<DateTypeOption> for TypeOptionData {
   fn from(data: DateTypeOption) -> Self {
     TypeOptionDataBuilder::from([
-      ("date_format".into(), data.date_format.value().into()),
-      ("time_format".into(), data.time_format.value().into()),
+      ("date_format".into(), Any::BigInt(data.date_format.value())),
+      ("time_format".into(), Any::BigInt(data.time_format.value())),
       ("timezone_id".into(), data.timezone_id.into()),
     ])
   }

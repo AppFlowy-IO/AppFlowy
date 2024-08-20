@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
 use anyhow::bail;
+use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::rows::{RowDetail, RowId};
 use collab_database::views::{SortMap, SortMapBuilder};
@@ -47,7 +48,7 @@ impl From<Sort> for SortMap {
     SortMapBuilder::from([
       (SORT_ID.into(), data.id.into()),
       (FIELD_ID.into(), data.field_id.into()),
-      (SORT_CONDITION.into(), data.condition.value().into()),
+      (SORT_CONDITION.into(), Any::BigInt(data.condition.value())),
     ])
   }
 }

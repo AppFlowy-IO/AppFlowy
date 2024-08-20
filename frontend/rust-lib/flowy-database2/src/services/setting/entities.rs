@@ -27,13 +27,16 @@ impl From<LayoutSetting> for CalendarLayoutSetting {
 impl From<CalendarLayoutSetting> for LayoutSetting {
   fn from(setting: CalendarLayoutSetting) -> Self {
     LayoutSettingBuilder::from([
-      ("layout_ty".into(), setting.layout_ty.value().into()),
+      ("layout_ty".into(), Any::BigInt(setting.layout_ty.value())),
       (
         "first_day_of_week".into(),
-        (setting.first_day_of_week as i64).into(),
+        Any::BigInt(setting.first_day_of_week as i64),
       ),
-      ("show_week_numbers".into(), setting.show_week_numbers.into()),
-      ("show_weekends".into(), setting.show_weekends.into()),
+      (
+        "show_week_numbers".into(),
+        Any::Bool(setting.show_week_numbers),
+      ),
+      ("show_weekends".into(), Any::Bool(setting.show_weekends)),
       ("field_id".into(), setting.field_id.into()),
     ])
   }
