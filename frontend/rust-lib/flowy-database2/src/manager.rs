@@ -109,10 +109,11 @@ impl DatabaseManager {
 
     let workspace_id = self.user.workspace_id()?;
     let workspace_database_object_id = self.user.workspace_database_object_id()?;
-    let mut workspace_database_doc_state =
+    let mut workspace_database_data_source =
       KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
-    // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
+    let is_exist_in_disk = self.is_collab_exist(uid, &collab_db, &workspace_database_object_id);
+    // 4.If the workspace database not exist in disk, try to fetch from remote.
+    if !is_exist_in_disk {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
@@ -125,7 +126,7 @@ impl DatabaseManager {
       {
         Ok(value) => {
           if let Some(encode_collab) = value {
-            workspace_database_doc_state = DataSource::from(encode_collab);
+            workspace_database_data_source = DataSource::from(encode_collab);
           }
         },
         Err(err) => {
@@ -140,7 +141,7 @@ impl DatabaseManager {
     // Construct the workspace database.
     event!(
       tracing::Level::INFO,
-      "open aggregate database views object: {}",
+      "create workspace database object: {}",
       &workspace_database_object_id
     );
 
@@ -154,9 +155,10 @@ impl DatabaseManager {
       &workspace_database_object_id,
       CollabType::WorkspaceDatabase,
     )?;
+
     let workspace_database = self.collab_builder.create_workspace_database(
       collab_object,
-      workspace_database_doc_state,
+      workspace_database_data_source,
       collab_db,
       CollabBuilderConfig::default().sync_enable(true),
       collab_builder,

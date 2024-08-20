@@ -31,6 +31,7 @@ collab-plugins = { workspace = true }
 collab-document = { workspace = true }
 collab-entity = { workspace = true }
 collab-folder = { workspace = true }
+collab-database = { workspace = true }
 hex = "0.4.3"
 postgrest = "1.0"
 lib-infra = { workspace = true }

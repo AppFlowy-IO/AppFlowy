@@ -2260,6 +2260,7 @@ dependencies = [
  "chrono",
  "client-api",
  "collab",
+ "collab-database",
  "collab-document",
  "collab-entity",
  "collab-folder",
