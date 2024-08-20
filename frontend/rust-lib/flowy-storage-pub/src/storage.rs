@@ -21,7 +21,7 @@ pub trait StorageService: Send + Sync {
     upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), FlowyError>;
 
-  async fn start_upload(&self, chunks: &ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError>;
+  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError>;
 
   async fn resume_upload(
     &self,
@@ -32,8 +32,9 @@ pub trait StorageService: Send + Sync {
 
   async fn subscribe_file_progress(
     &self,
+    parent_idr: &str,
     file_id: &str,
-  ) -> Result<FileProgressReceiver, FlowyError>;
+  ) -> Result<Option<FileProgressReceiver>, FlowyError>;
 }
 
 pub struct FileProgressReceiver {

@@ -195,7 +195,7 @@ impl StorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  async fn start_upload(&self, _chunks: &ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, _chunks: ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
     todo!()
   }
 
@@ -208,7 +208,11 @@ impl StorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  async fn subscribe_file_progress(&self, _url: &str) -> Result<FileProgressReceiver, FlowyError> {
+  async fn subscribe_file_progress(
+    &self,
+    _parent_idr: &str,
+    _url: &str,
+  ) -> Result<Option<FileProgressReceiver>, FlowyError> {
     todo!()
   }
 }
