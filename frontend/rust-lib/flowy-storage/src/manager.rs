@@ -2,8 +2,8 @@ use crate::file_cache::FileTempStorage;
 use crate::notification::{make_notification, StorageNotification};
 use crate::sqlite_sql::{
   batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
-  select_upload_file, select_upload_parts, update_upload_file_upload_id, UploadFilePartTable,
-  UploadFileTable,
+  is_upload_completed, select_upload_file, select_upload_parts, update_upload_file_completed,
+  update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
 };
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use async_trait::async_trait;
@@ -117,9 +117,13 @@ impl StorageManager {
 
   pub async fn subscribe_file_state(
     &self,
+    parent_dir: &str,
     file_id: &str,
-  ) -> Result<FileProgressReceiver, FlowyError> {
-    self.storage_service.subscribe_file_progress(file_id).await
+  ) -> Result<Option<FileProgressReceiver>, FlowyError> {
+    self
+      .storage_service
+      .subscribe_file_progress(parent_dir, file_id)
+      .await
   }
 
   pub async fn get_file_state(&self, file_id: &str) -> Option<FileUploadState> {
@@ -313,7 +317,7 @@ impl StorageService for StorageServiceImpl {
     }
   }
 
-  async fn start_upload(&self, chunks: &ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
     let file_record = record.downcast_ref::<UploadFileTable>().ok_or_else(|| {
       FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
     })?;
@@ -340,34 +344,16 @@ impl StorageService for StorageServiceImpl {
     file_id: &str,
   ) -> Result<(), FlowyError> {
     // Gathering the upload record and parts from the sqlite database.
-    let record = {
-      let mut conn = self
-        .user_service
-        .sqlite_connection(self.user_service.user_id()?)?;
-      conn.immediate_transaction(|conn| {
-        Ok::<_, FlowyError>(
-          // When resuming an upload, check if the upload_id is empty.
-          // If the upload_id is empty, the upload has likely not been created yet.
-          // If the upload_id is not empty, verify which parts have already been uploaded.
-          select_upload_file(conn, workspace_id, parent_dir, file_id)?.map(|record| {
-            if record.upload_id.is_empty() {
-              (record, vec![])
-            } else {
-              let parts = select_upload_parts(conn, &record.upload_id).unwrap_or_default();
-              (record, parts)
-            }
-          }),
-        )
-      })?
-    };
+    let mut conn = self
+      .user_service
+      .sqlite_connection(self.user_service.user_id()?)?;
 
-    if let Some((upload_file, parts)) = record {
+    if let Some(upload_file) = select_upload_file(&mut conn, workspace_id, parent_dir, file_id)? {
       resume_upload(
         &self.cloud_service,
         &self.user_service,
         &self.temp_storage,
         upload_file,
-        parts,
         self.progress_notifiers.clone(),
       )
       .await?;
@@ -379,18 +365,32 @@ impl StorageService for StorageServiceImpl {
 
   async fn subscribe_file_progress(
     &self,
+    parent_idr: &str,
     file_id: &str,
-  ) -> Result<FileProgressReceiver, FlowyError> {
+  ) -> Result<Option<FileProgressReceiver>, FlowyError> {
     trace!("[File]: subscribe file progress: {}", file_id);
+
+    let is_completed = {
+      let mut conn = self
+        .user_service
+        .sqlite_connection(self.user_service.user_id()?)?;
+      let workspace_id = self.user_service.workspace_id()?;
+      is_upload_completed(&mut conn, &workspace_id, parent_idr, file_id).unwrap_or(false)
+    };
+    if is_completed {
+      return Ok(None);
+    }
+
     let (notifier, receiver) = ProgressNotifier::new();
     let receiver = FileProgressReceiver {
       rx: receiver,
       file_id: file_id.to_string(),
     };
+
     self
       .progress_notifiers
       .insert(file_id.to_string(), notifier);
-    Ok(receiver)
+    Ok(Some(receiver))
   }
 }
 
@@ -420,6 +420,7 @@ async fn create_upload_record(
     chunk_size: chunked_bytes.chunk_size,
     num_chunk: chunked_bytes.offsets.len() as i32,
     created_at: timestamp(),
+    is_finish: false,
   };
   Ok((chunked_bytes, record))
 }
@@ -429,10 +430,29 @@ async fn start_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
-  chunked_bytes: &ChunkedBytes,
+  mut chunked_bytes: ChunkedBytes,
   upload_file: &UploadFileTable,
   progress_notifiers: Arc<DashMap<String, ProgressNotifier>>,
 ) -> FlowyResult<()> {
+  // 4. gather existing completed parts
+  let mut conn = user_service.sqlite_connection(user_service.user_id()?)?;
+  let mut completed_parts = select_upload_parts(&mut conn, &upload_file.upload_id)
+    .unwrap_or_default()
+    .into_iter()
+    .map(|part| CompletedPartRequest {
+      e_tag: part.e_tag,
+      part_number: part.part_num,
+    })
+    .collect::<Vec<_>>();
+
+  let upload_offset = completed_parts.len() as i32;
+  chunked_bytes.set_current_offset(upload_offset);
+
+  info!(
+    "[File] start upload: workspace: {}, parent_dir: {}, file_id: {}, chunk: {}",
+    upload_file.workspace_id, upload_file.parent_dir, upload_file.file_id, chunked_bytes,
+  );
+
   let mut upload_file = upload_file.clone();
   if upload_file.upload_id.is_empty() {
     // 1. create upload
@@ -488,25 +508,10 @@ async fn start_upload(
   let total_parts = chunked_bytes.iter().count();
   let iter = chunked_bytes.iter().enumerate();
 
-  let mut conn = user_service.sqlite_connection(user_service.user_id()?)?;
-
-  // 4. gather existing completed parts
-  let mut completed_parts = select_upload_parts(&mut conn, &upload_file.upload_id)
-    .unwrap_or_default()
-    .into_iter()
-    .map(|part| CompletedPartRequest {
-      e_tag: part.e_tag,
-      part_number: part.part_num,
-    })
-    .collect::<Vec<_>>();
-
-  // when there are any existing parts, skip those parts by setting the current offset.
-  let offset = completed_parts.len();
-
   for (index, chunk_bytes) in iter {
-    let part_number = offset + index + 1;
+    let part_number = upload_offset + index as i32 + 1;
     trace!(
-      "[File] {} uploading part: {}, len:{}KB",
+      "[File] {} uploading {}th part, size:{}KB",
       upload_file.file_id,
       part_number,
       chunk_bytes.len() / 1000,
@@ -584,7 +589,6 @@ async fn resume_upload(
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
   upload_file: UploadFileTable,
-  parts: Vec<UploadFilePartTable>,
   progress_notifiers: Arc<DashMap<String, ProgressNotifier>>,
 ) -> FlowyResult<()> {
   trace!(
@@ -596,14 +600,13 @@ async fn resume_upload(
   );
 
   match ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE as i32).await {
-    Ok(mut chunked_bytes) => {
+    Ok(chunked_bytes) => {
       // When there were any parts already uploaded, skip those parts by setting the current offset.
-      chunked_bytes.set_current_offset(parts.len() as i32);
       start_upload(
         cloud_service,
         user_service,
         temp_storage,
-        &chunked_bytes,
+        chunked_bytes,
         &upload_file,
         progress_notifiers,
       )
@@ -675,7 +678,7 @@ async fn complete_upload(
   progress_notifiers: &Arc<DashMap<String, ProgressNotifier>>,
 ) -> Result<(), FlowyError> {
   trace!(
-    "[File]: completing file upload: {}, part: {}",
+    "[File]: completing file upload: {}, num parts: {}",
     upload_file.file_id,
     parts.len()
   );
@@ -692,7 +695,7 @@ async fn complete_upload(
     Ok(_) => {
       info!("[File] completed upload file: {}", upload_file.file_id);
       if let Some(mut notifier) = progress_notifiers.get_mut(&upload_file.file_id) {
-        trace!("[File]: notify upload finished");
+        info!("[File]: notify upload:{} finished", upload_file.file_id);
         notifier
           .notify(FileUploadState::Finished {
             file_id: upload_file.file_id.clone(),
@@ -700,9 +703,8 @@ async fn complete_upload(
           .await;
       }
 
-      trace!("[File] delete upload record from sqlite");
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
-      delete_upload_file(conn, &upload_file.upload_id)?;
+      update_upload_file_completed(conn, &upload_file.upload_id)?;
       if let Err(err) = temp_storage
         .delete_temp_file(&upload_file.local_file_path)
         .await

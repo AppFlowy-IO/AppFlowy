@@ -164,7 +164,11 @@ impl FileUploader {
         mut retry_count,
       } => {
         let record = BoxAny::new(record);
-        if let Err(err) = self.storage_service.start_upload(&chunks, &record).await {
+        if let Err(err) = self
+          .storage_service
+          .start_upload(chunks.clone(), &record)
+          .await
+        {
           if err.is_file_limit_exceeded() {
             error!("Failed to upload file: {}", err);
             self.disable_storage_write();
