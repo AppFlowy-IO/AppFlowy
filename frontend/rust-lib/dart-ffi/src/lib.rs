@@ -62,6 +62,7 @@ struct DartAppFlowyCore {
 impl DartAppFlowyCore {
   fn new() -> Self {
     Self {
+      #[allow(clippy::arc_with_non_send_sync)]
       core: Arc::new(RwLock::new(None)),
       handle: RwLock::new(None),
       sender: RwLock::new(None),
@@ -94,7 +95,6 @@ impl DartAppFlowyCore {
       }
     } else {
       warn!("Failed to acquire read lock for sender");
-      return;
     }
   }
 }
@@ -207,7 +207,7 @@ impl Future for Runner {
             .await;
 
             if let Some(ret) = ret {
-              let _ = ret.send(resp);
+              let _ = ret.send(resp).await;
             }
           });
         },
@@ -243,19 +243,23 @@ pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
 pub extern "C" fn link_me_please() {}
 
 #[inline(always)]
+#[allow(clippy::blocks_in_conditions)]
 async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
   let isolate = allo_isolate::Isolate::new(port);
-  if let Ok(_) = isolate
+  match isolate
     .catch_unwind(async {
       let ffi_resp = FFIResponse::from(response);
       ffi_resp.into_bytes().unwrap().to_vec()
     })
     .await
   {
-    #[cfg(feature = "sync_verbose_log")]
-    trace!("[FFI]: Post data to dart success");
-  } else {
-    error!("[FFI]: allo_isolate post panic");
+    Ok(_) => {
+      #[cfg(feature = "sync_verbose_log")]
+      trace!("[FFI]: Post data to dart success");
+    },
+    Err(err) => {
+      error!("[FFI]: allo_isolate post failed: {:?}", err);
+    },
   }
 }
 

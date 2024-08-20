@@ -261,6 +261,7 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
+    #[allow(clippy::arc_with_non_send_sync)]
     let event_dispatcher = Arc::new(AFPluginDispatcher::new(
       runtime,
       make_plugins(

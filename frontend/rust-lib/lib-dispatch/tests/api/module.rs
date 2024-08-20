@@ -11,6 +11,7 @@ pub async fn hello() -> String {
 async fn test() {
   let event = "1";
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  #[allow(clippy::arc_with_non_send_sync)]
   let dispatch = Arc::new(AFPluginDispatcher::new(
     runtime,
     vec![AFPlugin::new().event(event, hello)],
