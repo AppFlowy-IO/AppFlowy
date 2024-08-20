@@ -5,7 +5,6 @@ use lazy_static::lazy_static;
 use semver::Version;
 use std::sync::{mpsc, Arc, RwLock};
 use std::{ffi::CStr, os::raw::c_char};
-use tokio::runtime::Builder;
 use tokio::task::LocalSet;
 use tracing::{debug, error, info, trace, warn};
 
@@ -51,7 +50,7 @@ unsafe impl Sync for DartAppFlowyCore {}
 struct DartAppFlowyCore {
   core: Arc<RwLock<Option<AppFlowyCore>>>,
   handle: RwLock<Option<std::thread::JoinHandle<()>>>,
-  sender: RwLock<Option<mpsc::Sender<Task>>>,
+  sender: RwLock<Option<crossbeam_channel::Sender<Task>>>,
 }
 
 impl DartAppFlowyCore {
@@ -138,31 +137,51 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     .unwrap()
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
-  let (sender, task_rx) = mpsc::channel::<Task>();
+  let (sender, task_rx) = crossbeam_channel::unbounded();
+
   let handle = std::thread::spawn(move || {
-    let local_set = LocalSet::new();
-    while let Ok(task) = task_rx.recv() {
-      let Task {
-        dispatcher,
-        request,
-        port,
-        ret,
-      } = task;
+    /**
+     * NOTE:
+     * The number of threads in the thread pool is set to the number of logical CPUs on the machine.
+     * We're not relying on the default thread pool provided by tokio because `tokio::spawn` has
+     * `Send` restriction over the futures it executes (due to work stealing), which we cannot
+     * satisfy.
+     *
+     * For that reason we're building our own thread pool which uses shared channel to distribute
+     * tasks to the threads. This pool is not work stealing, so work may not be distributed evenly
+     * across the threads.
+     */
+    let num_threads = num_cpus::get();
+    tracing::info!("Starting appflowy thread pool with {} threads", num_threads);
+    for core in 0..num_threads {
+      let task_rx = task_rx.clone();
+      std::thread::spawn(move || {
+        let local_set = LocalSet::new();
+        while let Ok(task) = task_rx.recv() {
+          let Task {
+            dispatcher,
+            request,
+            port,
+            ret,
+          } = task;
 
-      let resp = AFPluginDispatcher::boxed_async_send_with_callback(
-        dispatcher.as_ref(),
-        request,
-        move |resp: AFPluginEventResponse| {
-          #[cfg(feature = "sync_verbose_log")]
-          trace!("[FFI]: Post data to dart through {} port", port);
-          Box::pin(post_to_flutter(resp, port))
-        },
-        &local_set,
-      );
+          let resp = AFPluginDispatcher::boxed_async_send_with_callback(
+            dispatcher.as_ref(),
+            request,
+            move |resp: AFPluginEventResponse| {
+              #[cfg(feature = "sync_verbose_log")]
+              trace!("[FFI]: Post data to dart through {} port", port);
+              Box::pin(post_to_flutter(resp, port))
+            },
+            &local_set,
+          );
 
-      if let Some(ret) = ret {
-        let _ = ret.send(resp);
-      }
+          if let Some(ret) = ret {
+            let _ = ret.send(resp);
+          }
+        }
+        tracing::trace!("Closing appflowy core thread {}", core);
+      });
     }
   });
 

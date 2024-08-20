@@ -1197,11 +1197,10 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-channel"
-version = "0.5.8"
+version = "0.5.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a33c2bf77f2df06183c3aa30d1e96c0695a313d4f9c453cc3762a6db39f99200"
+checksum = "33480d6946193aa8033910124896ca395333cae7e2d1113d1fef6c3272217df2"
 dependencies = [
- "cfg-if",
  "crossbeam-utils",
 ]
 
@@ -1313,6 +1312,7 @@ dependencies = [
  "byteorder",
  "bytes",
  "collab-integrate",
+ "crossbeam-channel",
  "crossbeam-utils",
  "flowy-codegen",
  "flowy-config",
@@ -1329,6 +1329,7 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "lib-log",
+ "num_cpus",
  "protobuf",
  "semver",
  "serde",

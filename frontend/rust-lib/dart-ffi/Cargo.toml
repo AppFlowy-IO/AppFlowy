@@ -25,6 +25,8 @@ lazy_static = "1.4.0"
 tracing.workspace = true
 lib-log.workspace = true
 semver = "1.0.22"
+crossbeam-channel = "0.5"
+num_cpus = "1"
 
 # workspace
 lib-dispatch = { workspace = true, features = ["local_set"] }
