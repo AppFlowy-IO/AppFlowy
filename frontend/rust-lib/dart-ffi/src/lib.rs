@@ -47,7 +47,7 @@ pub struct Task {
   dispatcher: Arc<AFPluginDispatcher>,
   request: AFPluginRequest,
   port: i64,
-  ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+  ret: Option<mpsc::Sender<AFPluginEventResponse>>,
 }
 
 unsafe impl Send for Task {}
@@ -81,7 +81,7 @@ impl DartAppFlowyCore {
     &self,
     request: AFPluginRequest,
     port: i64,
-    ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+    ret: Option<mpsc::Sender<AFPluginEventResponse>>,
   ) {
     if let Ok(sender_guard) = self.sender.read() {
       if let Err(e) = sender_guard.as_ref().unwrap().send(Task {

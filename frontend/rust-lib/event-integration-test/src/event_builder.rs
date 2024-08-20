@@ -11,15 +11,17 @@ use std::{
 };
 use tokio::task::LocalSet;
 
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct EventBuilder {
   context: TestContext,
+  local_set: LocalSet,
 }
 
 impl EventBuilder {
   pub fn new(sdk: EventIntegrationTest) -> Self {
     Self {
       context: TestContext::new(sdk),
+      local_set: Default::default(),
     }
   }
 
@@ -48,9 +50,14 @@ impl EventBuilder {
   }
 
   pub async fn async_send(mut self) -> Self {
-    let local_set = LocalSet::new();
     let request = self.get_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request, &local_set).await;
+    let resp = self
+      .local_set
+      .run_until(AFPluginDispatcher::async_send(
+        self.dispatch().as_ref(),
+        request,
+      ))
+      .await;
     self.context.response = Some(resp);
     self
   }

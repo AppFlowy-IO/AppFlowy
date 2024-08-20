@@ -1309,7 +1309,7 @@ impl DatabaseEditor {
         .get_all_field_orders()
         .into_iter()
         .map(FieldIdPB::from)
-        .collect();
+        .collect::<Vec<_>>();
       let is_linked = database.is_inline_view(view_id);
       (database_id, fields, is_linked)
     };
@@ -1318,6 +1318,13 @@ impl DatabaseEditor {
       .into_iter()
       .map(|detail| RowMetaPB::from(detail.as_ref()))
       .collect::<Vec<RowMetaPB>>();
+
+    trace!(
+      "database: {}, num fields: {}, num row: {}",
+      database_id,
+      fields.len(),
+      rows.len()
+    );
     Ok(DatabasePB {
       id: database_id,
       fields,
