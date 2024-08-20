@@ -5,7 +5,6 @@ use collab_document::document::Document;
 use collab_entity::CollabType;
 use std::env::temp_dir;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
@@ -13,6 +12,7 @@ use std::time::Duration;
 use nanoid::nanoid;
 use semver::Version;
 use tokio::select;
+use tokio::task::LocalSet;
 use tokio::time::sleep;
 
 use flowy_core::config::AppFlowyCoreConfig;
@@ -40,6 +40,7 @@ pub struct EventIntegrationTest {
   #[allow(dead_code)]
   cleaner: Arc<Cleaner>,
   pub notification_sender: TestNotificationSender,
+  local_set: Arc<LocalSet>,
 }
 
 impl EventIntegrationTest {
@@ -67,6 +68,7 @@ impl EventIntegrationTest {
       authenticator,
       notification_sender,
       cleaner: Arc::new(Cleaner::new(PathBuf::from(clean_path))),
+      local_set: Arc::new(Default::default()),
     }
   }
 

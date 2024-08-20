@@ -1,11 +1,16 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
 use allo_isolate::Isolate;
+use futures::ready;
 use lazy_static::lazy_static;
 use semver::Version;
-use std::sync::{mpsc, Arc, RwLock};
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::{Arc, RwLock};
+use std::task::{Context, Poll};
 use std::{ffi::CStr, os::raw::c_char};
 use tokio::runtime::Builder;
+use tokio::sync::mpsc;
 use tokio::task::LocalSet;
 use tracing::{debug, error, info, trace, warn};
 
@@ -42,7 +47,7 @@ pub struct Task {
   dispatcher: Arc<AFPluginDispatcher>,
   request: AFPluginRequest,
   port: i64,
-  ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+  ret: Option<mpsc::Sender<AFPluginEventResponse>>,
 }
 
 unsafe impl Send for Task {}
@@ -51,7 +56,7 @@ unsafe impl Sync for DartAppFlowyCore {}
 struct DartAppFlowyCore {
   core: Arc<RwLock<Option<AppFlowyCore>>>,
   handle: RwLock<Option<std::thread::JoinHandle<()>>>,
-  sender: RwLock<Option<mpsc::Sender<Task>>>,
+  sender: RwLock<Option<mpsc::UnboundedSender<Task>>>,
 }
 
 impl DartAppFlowyCore {
@@ -76,7 +81,7 @@ impl DartAppFlowyCore {
     &self,
     request: AFPluginRequest,
     port: i64,
-    ret: Option<mpsc::Sender<DispatchFuture<AFPluginEventResponse>>>,
+    ret: Option<mpsc::Sender<AFPluginEventResponse>>,
   ) {
     if let Ok(sender_guard) = self.sender.read() {
       if let Err(e) = sender_guard.as_ref().unwrap().send(Task {
@@ -138,32 +143,11 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     .unwrap()
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
-  let (sender, task_rx) = mpsc::channel::<Task>();
+  let (sender, task_rx) = mpsc::unbounded_channel::<Task>();
   let handle = std::thread::spawn(move || {
+    let runtime = Builder::new_multi_thread().enable_all().build().unwrap();
     let local_set = LocalSet::new();
-    while let Ok(task) = task_rx.recv() {
-      let Task {
-        dispatcher,
-        request,
-        port,
-        ret,
-      } = task;
-
-      let resp = AFPluginDispatcher::boxed_async_send_with_callback(
-        dispatcher.as_ref(),
-        request,
-        move |resp: AFPluginEventResponse| {
-          #[cfg(feature = "sync_verbose_log")]
-          trace!("[FFI]: Post data to dart through {} port", port);
-          Box::pin(post_to_flutter(resp, port))
-        },
-        &local_set,
-      );
-
-      if let Some(ret) = ret {
-        let _ = ret.send(resp);
-      }
-    }
+    runtime.block_on(local_set.run_until(Runner { rx: task_rx }));
   });
 
   *DART_APPFLOWY_CORE.sender.write().unwrap() = Some(sender);
@@ -188,6 +172,48 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
   );
 
   DART_APPFLOWY_CORE.dispatch(request, port, None);
+}
+
+/// A persistent future that processes [Arbiter] commands.
+struct Runner {
+  rx: mpsc::UnboundedReceiver<Task>,
+}
+
+impl Future for Runner {
+  type Output = ();
+
+  fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+    loop {
+      match ready!(self.rx.poll_recv(cx)) {
+        None => return Poll::Ready(()),
+        Some(task) => {
+          let Task {
+            dispatcher,
+            request,
+            port,
+            ret,
+          } = task;
+
+          tokio::task::spawn_local(async move {
+            let resp = AFPluginDispatcher::boxed_async_send_with_callback(
+              dispatcher.as_ref(),
+              request,
+              move |resp: AFPluginEventResponse| {
+                #[cfg(feature = "sync_verbose_log")]
+                trace!("[FFI]: Post data to dart through {} port", port);
+                Box::pin(post_to_flutter(resp, port))
+              },
+            )
+            .await;
+
+            if let Some(ret) = ret {
+              let _ = ret.send(resp);
+            }
+          });
+        },
+      }
+    }
+  }
 }
 
 #[no_mangle]
