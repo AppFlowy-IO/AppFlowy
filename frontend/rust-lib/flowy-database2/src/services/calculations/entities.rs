@@ -25,7 +25,7 @@ impl From<Calculation> for CalculationMap {
     CalculationMapBuilder::from([
       (CALCULATION_ID.into(), data.id.into()),
       (FIELD_ID.into(), data.field_id.into()),
-      (CALCULATION_TYPE.into(), data.calculation_type.into()),
+      (CALCULATION_TYPE.into(), Any::BigInt(data.calculation_type)),
       (CALCULATION_VALUE.into(), data.value.into()),
     ])
   }

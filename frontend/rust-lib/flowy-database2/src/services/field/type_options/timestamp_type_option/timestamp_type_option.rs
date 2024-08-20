@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
 use chrono::{DateTime, Local, Offset};
+use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -68,10 +69,16 @@ impl From<TypeOptionData> for TimestampTypeOption {
 impl From<TimestampTypeOption> for TypeOptionData {
   fn from(option: TimestampTypeOption) -> Self {
     TypeOptionDataBuilder::from([
-      ("date_format".into(), option.date_format.value().into()),
-      ("time_format".into(), option.time_format.value().into()),
+      (
+        "date_format".into(),
+        Any::BigInt(option.date_format.value()),
+      ),
+      (
+        "time_format".into(),
+        Any::BigInt(option.time_format.value()),
+      ),
       ("include_time".into(), option.include_time.into()),
-      ("field_type".into(), option.field_type.value().into()),
+      ("field_type".into(), Any::BigInt(option.field_type.value())),
     ])
   }
 }

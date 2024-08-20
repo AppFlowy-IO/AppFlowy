@@ -320,7 +320,7 @@ impl<'a> From<&'a Filter> for FilterMap {
   fn from(filter: &'a Filter) -> Self {
     let mut builder = FilterMapBuilder::from([
       (FILTER_ID.into(), filter.id.as_str().into()),
-      (FILTER_TYPE.into(), filter.inner.get_int_repr().into()),
+      (FILTER_TYPE.into(), Any::BigInt(filter.inner.get_int_repr())),
     ]);
 
     builder = match &filter.inner {
@@ -397,8 +397,8 @@ impl<'a> From<&'a Filter> for FilterMap {
         });
 
         builder.insert(FIELD_ID.into(), field_id.as_str().into());
-        builder.insert(FIELD_TYPE.into(), i64::from(field_type).into());
-        builder.insert(FILTER_CONDITION.into(), (condition as i64).into());
+        builder.insert(FIELD_TYPE.into(), Any::BigInt(i64::from(field_type)));
+        builder.insert(FILTER_CONDITION.into(), Any::BigInt(condition as i64));
         builder.insert(FILTER_CONTENT.into(), content.into());
         builder
       },
