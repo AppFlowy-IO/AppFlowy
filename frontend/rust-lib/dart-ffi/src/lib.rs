@@ -143,9 +143,9 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     .unwrap()
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
-  let (sender, mut task_rx) = mpsc::unbounded_channel::<Task>();
+  let (sender, task_rx) = mpsc::unbounded_channel::<Task>();
   let handle = std::thread::spawn(move || {
-    let runtime = Builder::new_current_thread().enable_all().build().unwrap();
+    let runtime = Builder::new_multi_thread().enable_all().build().unwrap();
     let local_set = LocalSet::new();
     runtime.block_on(local_set.run_until(Runner { rx: task_rx }));
   });
