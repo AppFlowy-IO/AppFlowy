@@ -77,7 +77,7 @@ impl From<TimestampTypeOption> for TypeOptionData {
         "time_format".into(),
         Any::BigInt(option.time_format.value()),
       ),
-      ("include_time".into(), option.include_time.into()),
+      ("include_time".into(), Any::Bool(option.include_time)),
       ("field_type".into(), Any::BigInt(option.field_type.value())),
     ])
   }

@@ -32,8 +32,11 @@ impl From<CalendarLayoutSetting> for LayoutSetting {
         "first_day_of_week".into(),
         Any::BigInt(setting.first_day_of_week as i64),
       ),
-      ("show_week_numbers".into(), setting.show_week_numbers.into()),
-      ("show_weekends".into(), setting.show_weekends.into()),
+      (
+        "show_week_numbers".into(),
+        Any::Bool(setting.show_week_numbers),
+      ),
+      ("show_weekends".into(), Any::Bool(setting.show_weekends)),
       ("field_id".into(), setting.field_id.into()),
     ])
   }

@@ -51,7 +51,7 @@ impl From<FieldSettings> for FieldSettingsMap {
       (WIDTH.into(), Any::BigInt(field_settings.width as i64)),
       (
         WRAP_CELL_CONTENT.into(),
-        field_settings.wrap_cell_content.into(),
+        Any::Bool(field_settings.wrap_cell_content),
       ),
     ])
   }
