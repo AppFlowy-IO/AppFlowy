@@ -195,13 +195,15 @@ class _DocumentPageState extends State<DocumentPage>
 
               final isLocalMode = context.read<DocumentBloc>().isLocalMode;
               final List<XFile> imageFiles = [];
-              final List<XFile> otherfiles = [];
+              final List<XFile> otherFiles = [];
+
               for (final file in details.files) {
+                final fileName = file.name.toLowerCase();
                 if (file.mimeType?.startsWith('image/') ??
-                    false || imgExtensionRegex.hasMatch(file.name)) {
+                    false || imgExtensionRegex.hasMatch(fileName)) {
                   imageFiles.add(file);
                 } else {
-                  otherfiles.add(file);
+                  otherFiles.add(file);
                 }
               }
 
@@ -213,7 +215,7 @@ class _DocumentPageState extends State<DocumentPage>
               );
               await editorState!.dropFiles(
                 data.dropTarget!,
-                otherfiles,
+                otherFiles,
                 widget.view.id,
                 isLocalMode,
               );
