@@ -1,7 +1,7 @@
 use collab_database::database::{gen_database_id, gen_row_id, timestamp};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::rows::CreateRowParams;
-use collab_database::views::{
-  CreateDatabaseParams, CreateViewParams, DatabaseLayout, LayoutSettings,
+use collab_database::views::{DatabaseLayout, LayoutSettings,
 };
 
 use crate::entities::FieldType;

@@ -8,9 +8,10 @@ use std::sync::{Arc, Weak};
 use collab::core::collab::DataSource;
 use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
-use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
+use collab_database::views::DatabaseLayout;
 use collab_database::workspace_database::{
   DatabaseCollabService, DatabaseMeta, EncodeCollabByOid, WorkspaceDatabase,
 };

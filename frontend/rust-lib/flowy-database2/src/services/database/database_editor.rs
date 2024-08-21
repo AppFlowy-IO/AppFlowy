@@ -22,11 +22,10 @@ use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
 use async_trait::async_trait;
 use collab_database::database::Database;
+use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{
-  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
-};
+use collab_database::views::{DatabaseLayout, FilterMap, LayoutSetting, OrderObjectPosition};
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};

@@ -1,9 +1,10 @@
 use std::{fs::File, io::prelude::*};
 
 use collab_database::database::{gen_database_id, gen_field_id, gen_row_id, timestamp};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
-use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
+use collab_database::views::{DatabaseLayout};
 
 use collab_entity::EncodedCollab;
 use flowy_error::{FlowyError, FlowyResult};
