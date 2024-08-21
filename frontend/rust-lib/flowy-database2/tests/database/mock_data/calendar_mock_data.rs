@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
+use collab_database::entity::DatabaseView;
+use collab_database::views::{DatabaseLayout, LayoutSetting, LayoutSettings};
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
