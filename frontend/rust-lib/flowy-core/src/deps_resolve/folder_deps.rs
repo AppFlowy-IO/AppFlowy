@@ -373,7 +373,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   }
 
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
-    let delta_bytes = self.0.duplicate_database(view_id).await?;
+    let delta_bytes = self.0.get_database_json_bytes(view_id).await?;
     Ok(Bytes::from(delta_bytes))
   }
 
