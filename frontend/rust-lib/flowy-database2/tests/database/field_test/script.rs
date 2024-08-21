@@ -64,19 +64,19 @@ impl DatabaseFieldTest {
       FieldScript::CreateField { params } => {
         self.field_count += 1;
         let _ = self.editor.create_field_with_type_option(params).await;
-        let fields = self.editor.get_fields(&self.view_id, None);
+        let fields = self.editor.get_fields(&self.view_id, None).await;
         assert_eq!(self.field_count, fields.len());
       },
       FieldScript::UpdateField { changeset: change } => {
         self.editor.update_field(change).await.unwrap();
       },
       FieldScript::DeleteField { field } => {
-        if self.editor.get_field(&field.id).is_some() {
+        if self.editor.get_field(&field.id).await.is_some() {
           self.field_count -= 1;
         }
 
         self.editor.delete_field(&field.id).await.unwrap();
-        let fields = self.editor.get_fields(&self.view_id, None);
+        let fields = self.editor.get_fields(&self.view_id, None).await;
         assert_eq!(self.field_count, fields.len());
       },
       FieldScript::SwitchToField {
@@ -95,7 +95,7 @@ impl DatabaseFieldTest {
         type_option,
       } => {
         //
-        let old_field = self.editor.get_field(&field_id).unwrap();
+        let old_field = self.editor.get_field(&field_id).await.unwrap();
         self
           .editor
           .update_field_type_option(&field_id, type_option, old_field)
@@ -103,13 +103,13 @@ impl DatabaseFieldTest {
           .unwrap();
       },
       FieldScript::AssertFieldCount(count) => {
-        assert_eq!(self.get_fields().len(), count);
+        assert_eq!(self.get_fields().await.len(), count);
       },
       FieldScript::AssertFieldTypeOptionEqual {
         field_index,
         expected_type_option_data,
       } => {
-        let fields = self.get_fields();
+        let fields = self.get_fields().await;
         let field = &fields[field_index];
         let type_option_data = field.get_any_type_option(field.field_type).unwrap();
         assert_eq!(type_option_data, expected_type_option_data);
@@ -119,9 +119,9 @@ impl DatabaseFieldTest {
         row_index,
         expected_content,
       } => {
-        let field = self.editor.get_field(&field_id).unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
 
-        let rows = self.editor.get_rows(&self.view_id()).await.unwrap();
+        let rows = self.editor.get_row_details(&self.view_id()).await.unwrap();
         let row_detail = rows.get(row_index).unwrap();
 
         let cell = row_detail.row.cells.get(&field_id).unwrap().clone();

@@ -1,25 +1,27 @@
+use crate::EventIntegrationTest;
 use flowy_user::errors::{internal_error, FlowyError};
 use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
 };
-use std::rc::Rc;
+use std::sync::Arc;
 use std::{
   convert::TryFrom,
   fmt::{Debug, Display},
   hash::Hash,
 };
+use tokio::task::LocalSet;
 
-use crate::EventIntegrationTest;
-
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct EventBuilder {
   context: TestContext,
+  local_set: LocalSet,
 }
 
 impl EventBuilder {
   pub fn new(sdk: EventIntegrationTest) -> Self {
     Self {
       context: TestContext::new(sdk),
+      local_set: Default::default(),
     }
   }
 
@@ -49,7 +51,13 @@ impl EventBuilder {
 
   pub async fn async_send(mut self) -> Self {
     let request = self.get_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request).await;
+    let resp = self
+      .local_set
+      .run_until(AFPluginDispatcher::async_send(
+        self.dispatch().as_ref(),
+        request,
+      ))
+      .await;
     self.context.response = Some(resp);
     self
   }
@@ -85,7 +93,7 @@ impl EventBuilder {
       .map(|data| data.into_inner())
   }
 
-  fn dispatch(&self) -> Rc<AFPluginDispatcher> {
+  fn dispatch(&self) -> Arc<AFPluginDispatcher> {
     self.context.sdk.dispatcher()
   }
 

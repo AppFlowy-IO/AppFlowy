@@ -1,9 +1,8 @@
-use flowy_core::config::AppFlowyCoreConfig;
-use flowy_core::{AppFlowyCore, MutexAppFlowyCore, DEFAULT_NAME};
-use lib_dispatch::runtime::AFPluginRuntime;
-use std::rc::Rc;
-
 use dotenv::dotenv;
+use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::{AppFlowyCore, DEFAULT_NAME};
+use lib_dispatch::runtime::AFPluginRuntime;
+use std::sync::Mutex;
 
 pub fn read_env() {
   dotenv().ok();
@@ -25,7 +24,7 @@ pub fn read_env() {
   }
 }
 
-pub fn init_flowy_core() -> MutexAppFlowyCore {
+pub(crate) fn init_appflowy_core() -> MutexAppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");
   let config: tauri_utils::config::Config = serde_json::from_str(config_json).unwrap();
 
@@ -61,9 +60,19 @@ pub fn init_flowy_core() -> MutexAppFlowyCore {
   )
   .log_filter("trace", vec!["appflowy_tauri".to_string()]);
 
-  let runtime = Rc::new(AFPluginRuntime::new().unwrap());
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
   runtime.block_on(async move {
     MutexAppFlowyCore::new(AppFlowyCore::new(config, cloned_runtime, None).await)
   })
 }
+
+pub struct MutexAppFlowyCore(pub Arc<Mutex<AppFlowyCore>>);
+
+impl MutexAppFlowyCore {
+  fn new(appflowy_core: AppFlowyCore) -> Self {
+    Self(Arc::new(Mutex::new(appflowy_core)))
+  }
+}
+unsafe impl Sync for MutexAppFlowyCore {}
+unsafe impl Send for MutexAppFlowyCore {}

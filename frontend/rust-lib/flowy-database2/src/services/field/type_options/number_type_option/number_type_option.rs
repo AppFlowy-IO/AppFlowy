@@ -1,14 +1,16 @@
+use collab::preclude::encoding::serde::from_any;
+use collab::preclude::Any;
+use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 use std::default::Default;
 use std::str::FromStr;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::{new_cell_builder, Cell};
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use flowy_error::FlowyResult;
 
@@ -25,10 +27,22 @@ use crate::services::sort::SortCondition;
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NumberTypeOption {
+  #[serde(default, deserialize_with = "number_format_from_i64")]
   pub format: NumberFormat,
+  #[serde(default)]
   pub scale: u32,
+  #[serde(default)]
   pub symbol: String,
+  #[serde(default)]
   pub name: String,
+}
+
+fn number_format_from_i64<'de, D>(deserializer: D) -> Result<NumberFormat, D::Error>
+where
+  D: Deserializer<'de>,
+{
+  let value = i64::deserialize(deserializer)?;
+  Ok(NumberFormat::from(value))
 }
 
 #[derive(Clone, Debug, Default)]
@@ -42,15 +56,15 @@ impl TypeOptionCellData for NumberCellData {
 
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
+    Self(cell.get_as(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<NumberCellData> for Cell {
   fn from(data: NumberCellData) -> Self {
-    new_cell_builder(FieldType::Number)
-      .insert_str_value(CELL_DATA, data.0)
-      .build()
+    let mut cell = new_cell_builder(FieldType::Number);
+    cell.insert(CELL_DATA.into(), data.0.into());
+    cell
   }
 }
 
@@ -75,30 +89,18 @@ impl TypeOption for NumberTypeOption {
 
 impl From<TypeOptionData> for NumberTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let format = data
-      .get_i64_value("format")
-      .map(NumberFormat::from)
-      .unwrap_or_default();
-    let scale = data.get_i64_value("scale").unwrap_or_default() as u32;
-    let symbol = data.get_str_value("symbol").unwrap_or_default();
-    let name = data.get_str_value("name").unwrap_or_default();
-    Self {
-      format,
-      scale,
-      symbol,
-      name,
-    }
+    from_any(&Any::from(data)).unwrap()
   }
 }
 
 impl From<NumberTypeOption> for TypeOptionData {
   fn from(data: NumberTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_i64_value("format", data.format.value())
-      .insert_i64_value("scale", data.scale as i64)
-      .insert_str_value("name", data.name)
-      .insert_str_value("symbol", data.symbol)
-      .build()
+    TypeOptionDataBuilder::from([
+      ("format".into(), Any::BigInt(data.format.value())),
+      ("scale".into(), Any::BigInt(data.scale as i64)),
+      ("name".into(), data.name.into()),
+      ("symbol".into(), data.symbol.into()),
+    ])
   }
 }
 

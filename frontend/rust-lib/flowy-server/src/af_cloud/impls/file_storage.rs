@@ -1,11 +1,9 @@
+use crate::af_cloud::AFServer;
 use client_api::entity::{CompleteUploadRequest, CreateUploadRequest};
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyError;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
-
-use crate::af_cloud::AFServer;
 
 pub struct AFCloudFileStorageServiceImpl<T>(pub T);
 
@@ -20,56 +18,44 @@ impl<T> StorageCloudService for AFCloudFileStorageServiceImpl<T>
 where
   T: AFServer,
 {
-  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
-    let try_get_client = self.0.try_get_client();
-    FutureResult::new(async move {
-      let file_name = format!("{}.{}", object_id.file_id, object_id.ext);
-      let client = try_get_client?;
-      let url = client.get_blob_url(&object_id.workspace_id, &file_name);
-      Ok(url)
+  async fn get_object_url(&self, object_id: ObjectIdentity) -> Result<String, FlowyError> {
+    let file_name = format!("{}.{}", object_id.file_id, object_id.ext);
+    let url = self
+      .0
+      .try_get_client()?
+      .get_blob_url(&object_id.workspace_id, &file_name);
+    Ok(url)
+  }
+
+  async fn put_object(&self, url: String, file: ObjectValue) -> Result<(), FlowyError> {
+    let client = self.0.try_get_client()?;
+    client.put_blob(&url, file.raw, &file.mime).await?;
+    Ok(())
+  }
+
+  async fn delete_object(&self, url: &str) -> Result<(), FlowyError> {
+    self.0.try_get_client()?.delete_blob(url).await?;
+    Ok(())
+  }
+
+  async fn get_object(&self, url: String) -> Result<ObjectValue, FlowyError> {
+    let (mime, raw) = self.0.try_get_client()?.get_blob(&url).await?;
+    Ok(ObjectValue {
+      raw: raw.into(),
+      mime,
     })
   }
 
-  fn put_object(&self, url: String, file: ObjectValue) -> FutureResult<(), FlowyError> {
-    let try_get_client = self.0.try_get_client();
-    let file = file.clone();
-    FutureResult::new(async move {
-      let client = try_get_client?;
-      client.put_blob(&url, file.raw, &file.mime).await?;
-      Ok(())
-    })
-  }
-
-  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError> {
-    let url = url.to_string();
-    let try_get_client = self.0.try_get_client();
-    FutureResult::new(async move {
-      let client = try_get_client?;
-      client.delete_blob(&url).await?;
-      Ok(())
-    })
-  }
-
-  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
-    let try_get_client = self.0.try_get_client();
-    FutureResult::new(async move {
-      let client = try_get_client?;
-      let (mime, raw) = client.get_blob(&url).await?;
-      Ok(ObjectValue {
-        raw: raw.into(),
-        mime,
-      })
-    })
-  }
-
-  fn get_object_url_v1(
+  async fn get_object_url_v1(
     &self,
     workspace_id: &str,
     parent_dir: &str,
     file_id: &str,
-  ) -> FlowyResult<String> {
-    let client = self.0.try_get_client()?;
-    let url = client.get_blob_url_v1(workspace_id, parent_dir, file_id);
+  ) -> Result<String, FlowyError> {
+    let url = self
+      .0
+      .try_get_client()?
+      .get_blob_url_v1(workspace_id, parent_dir, file_id);
     Ok(url)
   }
 

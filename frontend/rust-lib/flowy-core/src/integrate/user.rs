@@ -131,21 +131,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           create_if_not_exist: true,
         },
         Server::AppFlowyCloud => FolderInitDataSource::Cloud(doc_state),
-        Server::Supabase => {
-          if is_new_user {
-            FolderInitDataSource::LocalDisk {
-              create_if_not_exist: true,
-            }
-          } else {
-            FolderInitDataSource::Cloud(doc_state)
-          }
-        },
       },
       Err(err) => match server_type {
         Server::Local => FolderInitDataSource::LocalDisk {
           create_if_not_exist: true,
         },
-        Server::AppFlowyCloud | Server::Supabase => {
+        Server::AppFlowyCloud => {
           return Err(FlowyError::from(err));
         },
       },
@@ -182,13 +173,14 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
-  async fn open_workspace(&self, user_id: i64, _user_workspace: &UserWorkspace) -> FlowyResult<()> {
+  async fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> FlowyResult<()> {
     self
       .folder_manager
       .initialize_with_workspace_id(user_id)
       .await?;
     self.database_manager.initialize(user_id).await?;
     self.document_manager.initialize(user_id).await?;
+    self.ai_manager.initialize(&user_workspace.id).await?;
     Ok(())
   }
 

@@ -22,7 +22,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'setting_appflowy_cloud.dart';
-import 'setting_supabase_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
   const SettingCloud({required this.restartAppFlowy, super.key});
@@ -80,8 +79,6 @@ class SettingCloud extends StatelessWidget {
     switch (cloudType) {
       case AuthenticatorType.local:
         return SettingLocalCloud(restartAppFlowy: restartAppFlowy);
-      case AuthenticatorType.supabase:
-        return SettingSupabaseCloudView(restartAppFlowy: restartAppFlowy);
       case AuthenticatorType.appflowyCloud:
         return AppFlowyCloudViewSetting(restartAppFlowy: restartAppFlowy);
       case AuthenticatorType.appflowyCloudSelfHost:
@@ -112,9 +109,6 @@ class CloudTypeSwitcher extends StatelessWidget {
     // Only show the appflowyCloudDevelop in develop mode
     final values = AuthenticatorType.values.where((element) {
       // Supabase will going to be removed in the future
-      if (element == AuthenticatorType.supabase) {
-        return false;
-      }
 
       return isDevelopMode || element != AuthenticatorType.appflowyCloudDevelop;
     }).toList();
@@ -218,8 +212,6 @@ String titleFromCloudType(AuthenticatorType cloudType) {
   switch (cloudType) {
     case AuthenticatorType.local:
       return LocaleKeys.settings_menu_cloudLocal.tr();
-    case AuthenticatorType.supabase:
-      return LocaleKeys.settings_menu_cloudSupabase.tr();
     case AuthenticatorType.appflowyCloud:
       return LocaleKeys.settings_menu_cloudAppFlowy.tr();
     case AuthenticatorType.appflowyCloudSelfHost:

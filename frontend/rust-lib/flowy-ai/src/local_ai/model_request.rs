@@ -122,7 +122,7 @@ mod test {
   #[tokio::test]
   async fn retrieve_gpt4all_model_test() {
     for url in [
-      "https://gpt4all.io/models/gguf/all-MiniLM-L6-v2-f16.gguf",
+      // "https://gpt4all.io/models/gguf/all-MiniLM-L6-v2-f16.gguf",
       "https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/all-MiniLM-L6-v2-Q3_K_L.gguf?download=true",
       // "https://huggingface.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF/resolve/main/Mistral-7B-Instruct-v0.3.Q4_K_M.gguf?download=true",
     ] {
@@ -134,7 +134,7 @@ mod test {
       let cancel_token = CancellationToken::new();
       let token = cancel_token.clone();
       tokio::spawn(async move {
-        tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs(120)).await;
         token.cancel();
       });
 

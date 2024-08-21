@@ -68,6 +68,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       (event, emit) async {
         await event.when(
           initial: (userProfile, workspaceId, openFirstPage) async {
+            this.openFirstPage = openFirstPage;
+
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
@@ -305,7 +307,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               SpaceEvent.initial(
                 userProfile,
                 workspaceId,
-                openFirstPage: true,
+                openFirstPage: openFirstPage,
               ),
             );
           },
@@ -353,6 +355,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   String? _workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
+  bool openFirstPage = false;
 
   @override
   Future<void> close() async {

@@ -2,6 +2,7 @@ library document_plugin;
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
@@ -118,6 +119,8 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
       }
     });
 
+    final fixedTitle = data?[MobileDocumentScreen.viewFixedTitle];
+
     return BlocProvider<ViewInfoBloc>.value(
       value: bloc,
       child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
@@ -126,6 +129,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           view: view,
           onDeleted: () => context.onDeleted?.call(view, deletedViewIndex),
           initialSelection: initialSelection,
+          fixedTitle: fixedTitle,
         ),
       ),
     );

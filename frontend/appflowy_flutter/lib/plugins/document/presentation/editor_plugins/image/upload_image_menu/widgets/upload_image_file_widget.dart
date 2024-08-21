@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -9,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UploadImageFileWidget extends StatelessWidget {
@@ -25,8 +24,9 @@ class UploadImageFileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = FlowyButton(
+    Widget child = FlowyButton(
       showDefaultBoxDecorationOnMobile: true,
+      radius: PlatformExtension.isMobile ? BorderRadius.circular(8.0) : null,
       text: Container(
         margin: const EdgeInsets.all(4.0),
         alignment: Alignment.center,
@@ -38,7 +38,12 @@ class UploadImageFileWidget extends StatelessWidget {
     );
 
     if (PlatformExtension.isDesktopOrWeb) {
-      return FlowyHover(child: child);
+      child = FlowyHover(child: child);
+    } else {
+      child = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: child,
+      );
     }
 
     return child;

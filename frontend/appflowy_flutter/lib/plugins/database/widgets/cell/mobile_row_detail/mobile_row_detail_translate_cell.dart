@@ -13,42 +13,54 @@ class MobileRowDetailTranslateCellSkin extends IEditableTranslateCellSkin {
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return Column(
-      children: [
-        TextField(
-          readOnly: true,
-          controller: textEditingController,
-          focusNode: focusNode,
-          onEditingComplete: () => focusNode.unfocus(),
-          onSubmitted: (_) => focusNode.unfocus(),
-          style: Theme.of(context).textTheme.bodyMedium,
-          textInputAction: TextInputAction.done,
-          maxLines: null,
-          minLines: 1,
-          decoration: InputDecoration(
-            contentPadding: GridSize.cellContentInsets,
-            border: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            errorBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            isDense: true,
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.fromBorderSide(
+          BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
-        Row(
-          children: [
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TranslateCellAccessory(
-                viewId: bloc.cellController.viewId,
-                fieldId: bloc.cellController.fieldId,
-                rowId: bloc.cellController.rowId,
-              ),
+        borderRadius: const BorderRadius.all(Radius.circular(14)),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 2,
+      ),
+      child: Column(
+        children: [
+          TextField(
+            readOnly: true,
+            controller: textEditingController,
+            focusNode: focusNode,
+            onEditingComplete: () => focusNode.unfocus(),
+            onSubmitted: (_) => focusNode.unfocus(),
+            style: Theme.of(context).textTheme.bodyMedium,
+            textInputAction: TextInputAction.done,
+            maxLines: null,
+            minLines: 1,
+            decoration: InputDecoration(
+              contentPadding: GridSize.cellContentInsets,
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              isDense: true,
             ),
-          ],
-        ),
-      ],
+          ),
+          Row(
+            children: [
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TranslateCellAccessory(
+                  viewId: bloc.cellController.viewId,
+                  fieldId: bloc.cellController.fieldId,
+                  rowId: bloc.cellController.rowId,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

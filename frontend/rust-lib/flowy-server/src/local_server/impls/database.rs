@@ -1,79 +1,36 @@
 use anyhow::Error;
-use collab::preclude::Collab;
-use collab_entity::define::{DATABASE, DATABASE_ROW_DATA, WORKSPACE_DATABASES};
+use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
-use yrs::MapPrelim;
-
-use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
-
+use flowy_database_pub::cloud::{DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid};
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
 
 #[async_trait]
 impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
-  fn get_database_object_doc_state(
+  async fn get_database_encode_collab(
     &self,
-    object_id: &str,
-    collab_type: CollabType,
+    _object_id: &str,
+    _collab_type: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<Option<Vec<u8>>, Error> {
-    let object_id = object_id.to_string();
-    // create the minimal required data for the given collab type
-    FutureResult::new(async move {
-      let data = match collab_type {
-        CollabType::Database => {
-          let collab = Collab::new(1, object_id, collab_type, vec![], false);
-          collab.with_origin_transact_mut(|txn| {
-            collab.insert_map_with_txn(txn, DATABASE);
-          });
-          collab
-            .encode_collab_v1(|_| Ok::<(), Error>(()))?
-            .doc_state
-            .to_vec()
-        },
-        CollabType::WorkspaceDatabase => {
-          let collab = Collab::new(1, object_id, collab_type, vec![], false);
-          collab.with_origin_transact_mut(|txn| {
-            collab.create_array_with_txn::<MapPrelim>(txn, WORKSPACE_DATABASES, vec![]);
-          });
-          collab
-            .encode_collab_v1(|_| Ok::<(), Error>(()))?
-            .doc_state
-            .to_vec()
-        },
-        CollabType::DatabaseRow => {
-          let collab = Collab::new(1, object_id, collab_type, vec![], false);
-          collab.with_origin_transact_mut(|txn| {
-            collab.insert_map_with_txn(txn, DATABASE_ROW_DATA);
-          });
-          collab
-            .encode_collab_v1(|_| Ok::<(), Error>(()))?
-            .doc_state
-            .to_vec()
-        },
-        _ => vec![],
-      };
-
-      Ok(Some(data))
-    })
+  ) -> Result<Option<EncodedCollab>, Error> {
+    Ok(None)
   }
 
-  fn batch_get_database_object_doc_state(
+  async fn batch_get_database_encode_collab(
     &self,
     _object_ids: Vec<String>,
     _object_ty: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<CollabDocStateByOid, Error> {
-    FutureResult::new(async move { Ok(CollabDocStateByOid::default()) })
+  ) -> Result<EncodeCollabByOid, Error> {
+    Ok(EncodeCollabByOid::default())
   }
 
-  fn get_database_collab_object_snapshots(
+  async fn get_database_collab_object_snapshots(
     &self,
     _object_id: &str,
     _limit: usize,
-  ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
-    FutureResult::new(async move { Ok(vec![]) })
+  ) -> Result<Vec<DatabaseSnapshot>, Error> {
+    Ok(vec![])
   }
 }

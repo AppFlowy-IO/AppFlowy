@@ -121,38 +121,36 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
     final type = values[currentTabIndex];
     switch (type) {
       case UploadImageType.local:
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-                constraints: constraints,
-                child: Column(
-                  children: [
-                    UploadImageFileWidget(
-                      allowMultipleImages: widget.allowMultipleImages,
-                      onPickFiles: widget.onSelectedLocalImages,
-                    ),
-                  ],
+        Widget child = UploadImageFileWidget(
+          allowMultipleImages: widget.allowMultipleImages,
+          onPickFiles: widget.onSelectedLocalImages,
+        );
+        if (PlatformExtension.isDesktop) {
+          child = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
                 ),
               ),
+              constraints: constraints,
+              child: child,
             ),
-            // if (widget.limitMaximumImageSize) ...[
-            //   FlowyText(
-            //     LocaleKeys.document_imageBlock_maximumImageSize.tr(),
-            //     fontSize: 10.0,
-            //     color: Theme.of(context).hintColor,
-            //   ),
-            // ],
-          ],
-        );
+          );
+        } else {
+          child = Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 12.0,
+            ),
+            child: child,
+          );
+        }
+        return child;
+
       case UploadImageType.url:
         return Container(
           padding: const EdgeInsets.all(8.0),

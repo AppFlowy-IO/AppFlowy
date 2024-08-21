@@ -24,7 +24,6 @@ validator = { version = "0.16.0", features = ["derive"] }
 protobuf.workspace = true
 bytes.workspace = true
 nanoid = "0.4.0"
-parking_lot.workspace = true
 strum_macros = "0.21"
 serde.workspace = true
 serde_json.workspace = true

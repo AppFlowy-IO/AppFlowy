@@ -96,36 +96,34 @@ class _FavoriteViews extends StatelessWidget {
     final borderColor = Theme.of(context).isLightMode
         ? const Color(0xFFE9E9EC)
         : const Color(0x1AFFFFFF);
-    return Scrollbar(
-      child: ListView.separated(
-        key: const PageStorageKey('favorite_views_page_storage_key'),
-        padding: EdgeInsets.only(
-          bottom: HomeSpaceViewSizes.mVerticalPadding +
-              MediaQuery.of(context).padding.bottom,
-        ),
-        itemBuilder: (context, index) {
-          final view = favoriteViews[index];
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: borderColor,
-                  width: 0.5,
-                ),
+    return ListView.separated(
+      key: const PageStorageKey('favorite_views_page_storage_key'),
+      padding: EdgeInsets.only(
+        bottom: HomeSpaceViewSizes.mVerticalPadding +
+            MediaQuery.of(context).padding.bottom,
+      ),
+      itemBuilder: (context, index) {
+        final view = favoriteViews[index];
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 24.0),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: borderColor,
+                width: 0.5,
               ),
             ),
-            child: MobileViewPage(
-              key: ValueKey(view.item.id),
-              view: view.item,
-              timestamp: view.timestamp,
-              type: MobilePageCardType.favorite,
-            ),
-          );
-        },
-        separatorBuilder: (context, index) => const HSpace(8),
-        itemCount: favoriteViews.length,
-      ),
+          ),
+          child: MobileViewPage(
+            key: ValueKey(view.item.id),
+            view: view.item,
+            timestamp: view.timestamp,
+            type: MobilePageCardType.favorite,
+          ),
+        );
+      },
+      separatorBuilder: (context, index) => const HSpace(8),
+      itemCount: favoriteViews.length,
     );
   }
 }

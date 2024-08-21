@@ -207,6 +207,22 @@ impl FolderTest {
       },
     }
   }
+
+  //   pub async fn duplicate_view(&self, view_id: &str) {
+  //     let payload = DuplicateViewPayloadPB {
+  //       view_id: view_id.to_string(),
+  //       open_after_duplicate: false,
+  //       include_children: false,
+  //       parent_view_id: None,
+  //       suffix: None,
+  //       sync_after_create: false,
+  //     };
+  //     EventBuilder::new(self.sdk.clone())
+  //       .event(DuplicateView)
+  //       .payload(payload)
+  //       .async_send()
+  //       .await;
+  //   }
 }
 pub async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
   let request = CreateWorkspacePayloadPB {

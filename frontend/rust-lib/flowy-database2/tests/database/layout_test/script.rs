@@ -36,7 +36,10 @@ impl DatabaseLayoutTest {
   }
 
   pub async fn get_first_date_field(&self) -> Field {
-    self.database_test.get_first_field(FieldType::DateTime)
+    self
+      .database_test
+      .get_first_field(FieldType::DateTime)
+      .await
   }
 
   async fn get_layout_setting(

@@ -8,6 +8,7 @@ skip_pub_get=false
 skip_pub_packages_get=false
 verbose=false
 exclude_packages=false
+show_loading=false
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -26,6 +27,10 @@ while [[ $# -gt 0 ]]; do
     ;;
   --exclude-packages)
     exclude_packages=true
+    shift
+    ;;
+  --show-loading)
+    show_loading=true
     shift
     ;;
   *)
@@ -75,6 +80,21 @@ if [ "$exclude_packages" = false ]; then
   cd ..
 fi
 
+# Function to display animated loading text
+display_loading() {
+  local pid=$1
+  local delay=0.5
+  local spinstr='|/-\'
+  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    local temp=${spinstr#?}
+    printf " [%c] Generating freezed files..." "$spinstr"
+    local spinstr=$temp${spinstr%"$temp"}
+    sleep $delay
+    printf "\r"
+  done
+  printf "                                   \r"
+}
+
 # Navigate to the appflowy_flutter directory and generate files
 echo "🧊 Start generating freezed files (AppFlowy)."
 
@@ -86,13 +106,30 @@ if [ "$skip_pub_packages_get" = false ]; then
   fi
 fi
 
+# Start the build_runner in the background
 if [ "$verbose" = true ]; then
-  dart run build_runner build -d
+  dart run build_runner build -d &
 else
-  dart run build_runner build >/dev/null 2>&1
+  dart run build_runner build >/dev/null 2>&1 &
 fi
 
-# Return to the original directory
+# Get the PID of the background process
+build_pid=$!
+
+if [ "$show_loading" = true ]; then
+  # Start the loading animation
+  display_loading $build_pid &
+
+  # Get the PID of the loading animation
+  loading_pid=$!
+fi
+
+# Wait for the build_runner to finish
+wait $build_pid
+
+# Clear the line
+printf "\r%*s\r" $(($(tput cols))) ""
+
 cd "$original_dir"
 
 echo "🧊 Done generating freezed files."

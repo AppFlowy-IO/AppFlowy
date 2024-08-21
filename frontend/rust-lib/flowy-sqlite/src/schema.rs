@@ -64,6 +64,7 @@ diesel::table! {
         num_chunk -> Integer,
         upload_id -> Text,
         created_at -> BigInt,
+        is_finish -> Bool,
     }
 }
 

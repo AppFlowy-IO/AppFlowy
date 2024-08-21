@@ -12,7 +12,6 @@ import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -123,9 +122,6 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
           AuthenticatorPB.Local,
         ),
       );
-      break;
-    case AuthenticatorType.supabase:
-      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
     case AuthenticatorType.appflowyCloud:
     case AuthenticatorType.appflowyCloudSelfHost:

@@ -425,13 +425,14 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   },
                 ),
                 const VSpace(6),
-                Opacity(
-                  opacity: 0.6,
-                  child: FlowyText(
-                    LocaleKeys.chat_aiMistakePrompt.tr(),
-                    fontSize: 12,
+                if (PlatformExtension.isDesktop)
+                  Opacity(
+                    opacity: 0.6,
+                    child: FlowyText(
+                      LocaleKeys.chat_aiMistakePrompt.tr(),
+                      fontSize: 12,
+                    ),
                   ),
-                ),
               ],
             );
           },

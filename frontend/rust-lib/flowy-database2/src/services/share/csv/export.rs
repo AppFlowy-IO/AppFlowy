@@ -21,7 +21,11 @@ pub enum CSVFormat {
 
 pub struct CSVExport;
 impl CSVExport {
-  pub fn export_database(&self, database: &Database, style: CSVFormat) -> FlowyResult<String> {
+  pub async fn export_database(
+    &self,
+    database: &Database,
+    style: CSVFormat,
+  ) -> FlowyResult<String> {
     let mut wtr = csv::Writer::from_writer(vec![]);
     let inline_view_id = database.get_inline_view_id();
     let fields = database.get_fields_in_view(&inline_view_id, None);
@@ -43,7 +47,7 @@ impl CSVExport {
     fields.into_iter().for_each(|field| {
       field_by_field_id.insert(field.id.clone(), field);
     });
-    let rows = database.get_rows_for_view(&inline_view_id);
+    let rows = database.get_rows_for_view(&inline_view_id).await;
 
     let stringify = |cell: &Cell, field: &Field, style: CSVFormat| match style {
       CSVFormat::Original => stringify_cell(cell, field),

@@ -35,7 +35,7 @@ impl From<TypeOptionData> for CheckboxTypeOption {
 
 impl From<CheckboxTypeOption> for TypeOptionData {
   fn from(_data: CheckboxTypeOption) -> Self {
-    TypeOptionDataBuilder::new().build()
+    TypeOptionDataBuilder::new()
   }
 }
 

@@ -73,6 +73,7 @@ class ChatWelcomePage extends StatelessWidget {
             const VSpace(8),
             Wrap(
               direction: Axis.vertical,
+              spacing: isMobile ? 12.0 : 0.0,
               children: items
                   .map(
                     (i) => WelcomeQuestionWidget(
