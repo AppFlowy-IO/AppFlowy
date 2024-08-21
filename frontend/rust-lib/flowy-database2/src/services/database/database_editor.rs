@@ -22,11 +22,10 @@ use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
 use async_trait::async_trait;
 use collab_database::database::Database;
+use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{
-  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
-};
+use collab_database::views::{DatabaseLayout, FilterMap, LayoutSetting, OrderObjectPosition};
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -508,7 +507,7 @@ impl DatabaseEditor {
         .await
         .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
 
-      let (index, row_order) = database.create_row_in_view(view_id, params);
+      let (index, row_order) = database.create_row_in_view(view_id, params)?;
       trace!(
         "duplicate row: {:?} at index:{}, new row:{:?}",
         row_id,
@@ -578,9 +577,9 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let (index, order_id) = database.create_row_in_view(&view_editor.view_id, collab_params);
+    let (index, order_id) = database.create_row_in_view(&view_editor.view_id, collab_params)?;
     let row_detail = database.get_row_detail(&order_id.id).await;
-    drop(database); // Explicitly release the lock here
+    drop(database);
 
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
