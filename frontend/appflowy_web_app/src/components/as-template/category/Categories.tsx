@@ -108,7 +108,7 @@ function Categories ({
             style={{
               backgroundColor: category.bg_color,
             }}
-            className={'border-transparent template-category px-3'}
+            className={'border-transparent text-black template-category px-3'}
             variant="outlined"
 
           />

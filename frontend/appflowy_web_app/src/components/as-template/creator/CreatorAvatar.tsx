@@ -46,7 +46,7 @@ function CreatorAvatar ({ src, name, enableUpload, onChange, size }: {
           e.stopPropagation();
         }}
       >
-        <Avatar src={src} className={'w-full h-full object-cover'} {...avatarProps} sx={{
+        <Avatar src={src} className={'w-full h-full object-cover p-2'} {...avatarProps} sx={{
           ...avatarProps?.sx,
           bgcolor: imageUrl ? 'var(--bg-body)' : avatarProps?.sx.bgcolor,
           width: size || undefined,
@@ -93,7 +93,7 @@ function CreatorAvatar ({ src, name, enableUpload, onChange, size }: {
             }}
             >
               <ViewTab value={0} label={t('document.imageBlock.embedLink.label')} />
-              <ViewTab disabled value={1} label={t('button.upload')} />
+              <ViewTab value={1} label={t('button.upload')} />
 
             </ViewTabs>
             <TabPanel className={'w-full'} value={tab} index={0}>

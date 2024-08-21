@@ -98,7 +98,7 @@ function Creator ({ value, onChange }: {
                 loading ? <CircularProgress size={'small'} /> : null
               }
               size={'small'}
-              className={'bg-white flex-1'}
+              className={'bg-bg-body flex-1'}
               placeholder={t('template.creator.typeToSearch')}
             />
             <AddCreator searchText={searchText} onCreated={loadCreators} />

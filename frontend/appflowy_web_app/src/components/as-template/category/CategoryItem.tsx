@@ -38,6 +38,7 @@ function CategoryItem ({
         className={'border-transparent template-category px-4'}
         style={{
           backgroundColor: category.bg_color,
+          color: 'black',
         }}
       />
       <div style={{

@@ -7,7 +7,7 @@ import '@/i18n/config';
 import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
 
-function AppTheme ({ children }: { children: React.ReactNode }) {
+function AppTheme ({ children }: { children: React.ReactNode; }) {
   const { isDark, setIsDark } = useAppThemeMode();
 
   const theme = useMemo(

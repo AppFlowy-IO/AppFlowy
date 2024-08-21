@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import AddComment from './AddComment';
 import { Portal } from '@mui/material';
 
-export function AddCommentWrapper() {
+export function AddCommentWrapper () {
   const { replyCommentId } = useGlobalCommentContext();
   const addCommentRef = useRef<HTMLDivElement>(null);
   const [showFixedAddComment, setShowFixedAddComment] = useState(false);
@@ -44,7 +44,7 @@ export function AddCommentWrapper() {
 
   return (
     <>
-      <div className={'my-2'} id='addComment' ref={addCommentRef}>
+      <div className={'my-2'} id="addComment" ref={addCommentRef}>
         <AddComment
           content={content}
           setContent={setContent}

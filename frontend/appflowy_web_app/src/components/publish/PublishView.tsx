@@ -49,24 +49,35 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
   const isTemplate = search.get('template') === 'true';
   const isTemplateThumb = isTemplate && search.get('thumbnail') === 'true';
 
+  useEffect(() => {
+    if (!isTemplateThumb) return;
+    document.documentElement.setAttribute('thumbnail', 'true');
+  }, [isTemplateThumb]);
+
   if (notFound && !doc) {
     return <NotFound />;
   }
 
   return (
     <PublishProvider isTemplateThumb={isTemplateThumb} namespace={namespace} publishName={publishName}>
-      <div className={'h-screen w-screen'} style={{
-        pointerEvents: isTemplateThumb ? 'none' : 'auto',
-      }}
+      <div className={'h-screen w-screen'} style={isTemplateThumb ? {
+        pointerEvents: 'none',
+        transform: 'scale(0.333)',
+        transformOrigin: '0 0',
+        width: '300vw',
+        height: '400vh',
+        overflow: 'hidden',
+      } : undefined}
       >
         <AFScroller
           overflowXHidden
+          overflowYHidden={isTemplateThumb}
           style={{
             transform: open ? `translateX(${drawerWidth}px)` : 'none',
             width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
             transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
           }}
-          className={'appflowy-layout appflowy-scroll-container'}
+          className={'appflowy-layout appflowy-scroll-container h-full'}
         >
           {!isTemplate && <PublishViewHeader
             onOpenDrawer={() => {

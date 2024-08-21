@@ -26,6 +26,9 @@ export function initAPIService (config: AFCloudConfig) {
 
   axiosInstance = axios.create({
     baseURL: config.baseURL,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 
   initGrantService(config.gotrueURL);
@@ -33,10 +36,6 @@ export function initAPIService (config: AFCloudConfig) {
   axiosInstance.interceptors.request.use(
     async (config) => {
       const token = getTokenParsed();
-
-      Object.assign(config.headers, {
-        'Content-Type': 'application/json',
-      });
 
       if (!token) {
         return config;
@@ -709,18 +708,22 @@ export async function deleteTemplateCreator (creatorId: string) {
 }
 
 export async function uploadFileToCDN (file: File) {
-  const url = '/api/upload';
+  const url = '/api/template-center/avatar';
   const formData = new FormData();
 
-  formData.append('file', file);
+  console.log(file);
+  formData.append('avatar', file);
 
-  const response = await axiosInstance?.post<{
+  const response = await axiosInstance?.request<{
     code: number;
     data?: {
-      url: string;
+      file_id: string;
     };
     message: string;
-  }>(url, formData, {
+  }>({
+    method: 'PUT',
+    url,
+    data: formData,
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -729,7 +732,7 @@ export async function uploadFileToCDN (file: File) {
   const data = response?.data;
 
   if (data?.code === 0 && data.data) {
-    return data.data.url;
+    return axiosInstance?.defaults.baseURL + '/api/template-center/avatar/' + data.data.file_id;
   }
 
   return Promise.reject(data);

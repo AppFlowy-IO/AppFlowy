@@ -31,7 +31,7 @@ function ViewCover ({ coverValue, coverType }: { coverValue?: string; coverType?
       style={{
         height: '40vh',
       }}
-      className={'relative flex max-h-[288px] min-h-[100px] w-full max-sm:h-[180px]'}
+      className={'relative flex max-h-[288px] min-h-[130px] w-full max-sm:h-[180px]'}
     >
       {coverType === 'color' && renderCoverColor(coverValue)}
       {(coverType === 'custom' || coverType === 'built_in') && renderCoverImage(coverValue)}

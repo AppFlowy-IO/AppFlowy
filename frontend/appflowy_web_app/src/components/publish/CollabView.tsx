@@ -46,7 +46,9 @@ function CollabView ({ doc }: CollabViewProps) {
   }
 
   return (
-    <div style={style} className={`relative w-full flex-1 ${layoutClassName}`}>
+    <div style={style}
+         className={`relative w-full flex-1 ${isTemplateThumb ? 'flex justify-center' : ''}  ${layoutClassName}`}
+    >
       <View
         doc={doc}
         loadViewMeta={loadViewMeta}

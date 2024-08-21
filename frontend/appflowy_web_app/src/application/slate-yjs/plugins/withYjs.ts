@@ -75,7 +75,7 @@ export function withYjs<T extends Editor> (
     }
 
     if (readSummary) {
-      e.children = content.children.slice(0, 5);
+      e.children = content.children.slice(0, 10);
     } else {
       e.children = content.children;
     }
