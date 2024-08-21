@@ -135,6 +135,9 @@ async fn collab_db_backup_test() {
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
   let uid = test.get_user_profile().await.unwrap().id;
+  // sleep a bit to make sure the backup is generated
+
+  tokio::time::sleep(Duration::from_secs(10)).await;
   let backups = test.user_manager.get_collab_backup_list(uid);
 
   assert_eq!(backups.len(), 1);

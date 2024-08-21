@@ -55,11 +55,11 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
         let encode = folder
           .encode_collab()
           .map_err(|err| PersistenceError::Internal(err.into()))?;
-        write_txn.flush_doc_with(
+        write_txn.flush_doc(
           session.user_id,
           &session.user_workspace.id,
-          &encode.doc_state,
-          &encode.state_vector,
+          encode.state_vector.to_vec(),
+          encode.doc_state.to_vec(),
         )?;
       }
       Ok(())
