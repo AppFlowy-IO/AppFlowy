@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -73,13 +72,7 @@ class _MobileFolderState extends State<_MobileFolder> {
           child: Column(
             children: [
               ..._buildSpaceOrSection(context, state),
-              const VSpace(4.0),
-              const Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: HomeSpaceViewSizes.mHorizontalPadding,
-                ),
-                child: _TrashButton(),
-              ),
+              const VSpace(80.0),
             ],
           ),
         );
