@@ -77,6 +77,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::CreateDatabaseView, create_database_view)
          // Export
          .event(DatabaseEvent::ExportCSV, export_csv_handler)
+         .event(DatabaseEvent::ExportRawDatabaseData, export_raw_database_data_handler)
          .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
          // Field settings
          .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
@@ -385,4 +386,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedRowMetaPB")]
   GetAllRows = 177,
+
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
+  ExportRawDatabaseData = 178,
 }

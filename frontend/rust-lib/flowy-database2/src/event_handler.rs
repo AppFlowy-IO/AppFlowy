@@ -1022,6 +1022,20 @@ pub(crate) async fn export_csv_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn export_raw_database_data_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<DatabaseExportDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner().value;
+  let data = manager.get_database_json_string(&view_id).await?;
+  data_result_ok(DatabaseExportDataPB {
+    export_type: DatabaseExportDataType::RawDatabaseData,
+    data,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_snapshots_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
