@@ -724,7 +724,7 @@
           "bannerLabel": "Поточний план",
           "freeTitle": "Безкоштовно",
           "proTitle": "Pro",
-          "teamTitle": "команда",
+          "teamTitle": "Команда",
           "freeInfo": "Ідеально підходить для окремих осіб до 2 учасників, щоб організувати все",
           "proInfo": "Ідеально підходить для малих і середніх команд до 10 учасників.",
           "teamInfo": "Ідеально підходить для всіх продуктивних і добре організованих команд.",
@@ -733,7 +733,7 @@
         },
         "addons": {
           "title": "Додатки",
-          "addLabel": "додати",
+          "addLabel": "Додати",
           "activeLabel": "Додано",
           "aiMax": {
             "title": "AI Макс",
@@ -808,7 +808,7 @@
     "comparePlanDialog": {
       "title": "Порівняйте та виберіть план",
       "planFeatures": "План\nособливості",
-      "current": "поточний",
+      "current": "Поточний",
       "actions": {
         "upgrade": "Оновлення",
         "downgrade": "Понизити",
@@ -1035,7 +1035,7 @@
         "hexInvalidError": "Недійсне шістнадцяткове значення",
         "opacityEmptyError": "Непрозорість не може бути пустою",
         "opacityRangeError": "Непрозорість має бути від 1 до 100",
-        "app": "додаток",
+        "app": "Додаток",
         "flowy": "Текучий",
         "apply": "Застосувати"
       },
@@ -1092,6 +1092,8 @@
         "user": "Користувач",
         "role": "роль",
         "removeFromWorkspace": "Видалити з робочої області",
+        "removeFromWorkspaceSuccess": "Успішно видалено з робочої області",
+        "removeFromWorkspaceFailed": "Не вдалося видалити з робочої області",
         "owner": "Власник",
         "guest": "Гість",
         "member": "Член",
@@ -1116,7 +1118,9 @@
         "removeMember": "Видалити учасника",
         "areYouSureToRemoveMember": "Ви впевнені, що хочете видалити цього учасника?",
         "inviteMemberSuccess": "Запрошення успішно надіслано",
-        "failedToInviteMember": "Не вдалося запросити учасника"
+        "failedToInviteMember": "Не вдалося запросити учасника",
+        "workspaceMembersError": "На жаль, сталася помилка",
+        "workspaceMembersErrorDescription": "Не вдалося завантажити список учасників. Спробуйте пізніше"
       }
     },
     "files": {
@@ -1345,6 +1349,7 @@
       "addOption": "Додати опцію",
       "editProperty": "Редагувати властивість",
       "newProperty": "Додати колонку",
+      "openRowDocument": "Відкрити як сторінку",
       "deleteFieldPromptMessage": "Ви впевнені? Ця властивість буде видалена",
       "clearFieldPromptMessage": "Ти впевнений? Усі клітинки в цьому стовпці будуть порожні",
       "newColumn": "Нова колонка",
@@ -1488,7 +1493,7 @@
         "image": "Зображення",
         "bulletedList": "Маркірований список",
         "numberedList": "Нумерований список",
-        "checkbox": "Прапорець",
+        "todoList": "Список справ",
         "doc": "Док",
         "linkedDoc": "Посилання на сторінку",
         "grid": "Сітка",
@@ -1509,7 +1514,8 @@
         "aiWriter": "ШІ Письменник",
         "dateOrReminder": "Дата або нагадування",
         "photoGallery": "Фотогалерея",
-        "file": "Файл"
+        "file": "Файл",
+        "checkbox": "Прапорець"
       }
     },
     "selectionMenu": {
@@ -2379,7 +2385,7 @@
     "defaultSpaceName": "Загальний",
     "upgradeSpaceTitle": "Увімкнути Spaces",
     "upgradeSpaceDescription": "Створіть кілька публічних і приватних просторів, щоб краще організувати свій робочий простір.",
-    "upgrade": "оновлення",
+    "upgrade": "Оновити",
     "upgradeYourSpace": "Створіть кілька просторів",
     "quicklySwitch": "Швидко перейдіть до наступного місця",
     "duplicate": "Дубльований простір",
