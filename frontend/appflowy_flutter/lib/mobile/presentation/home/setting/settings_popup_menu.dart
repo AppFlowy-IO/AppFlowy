@@ -1,3 +1,4 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
@@ -104,7 +105,9 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
     context.push(MobileHomeTrashPage.routeName);
   }
 
-  void _openHelpPage(BuildContext context) {}
+  void _openHelpPage(BuildContext context) {
+    afLaunchUrlString('https://discord.com/invite/9Q2xaN37tV');
+  }
 
   void _openSettingsPage(BuildContext context) {
     context.push(MobileHomeSettingPage.routeName);

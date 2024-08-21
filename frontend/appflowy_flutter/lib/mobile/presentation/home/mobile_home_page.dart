@@ -249,6 +249,8 @@ class _HomePageState extends State<_HomePage> {
       return;
     }
 
+    Log.info('workspace action result: $actionResult');
+
     final actionType = actionResult.actionType;
     final result = actionResult.result;
     final isLoading = actionResult.isLoading;
