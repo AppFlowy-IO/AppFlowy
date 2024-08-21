@@ -89,7 +89,12 @@ where
     let collab = Collab::new_with_origin(origin.clone(), &view.id, vec![], false);
     let document = Document::open_with(collab, Some(default_document_data(&view.id)))?;
     let encode = document.encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
-    write_txn.flush_doc_with(user_id, &view.id, &encode.doc_state, &encode.state_vector)?;
+    write_txn.flush_doc(
+      user_id,
+      &view.id,
+      encode.state_vector.to_vec(),
+      encode.doc_state.to_vec(),
+    )?;
     event!(
       tracing::Level::INFO,
       "Did migrate empty document {}",

@@ -15,6 +15,7 @@ use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, FolderData, FolderNotify};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
+
 if_native! {
 use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
 }
@@ -155,9 +156,19 @@ impl AppFlowyCollabBuilder {
     builder_config: CollabBuilderConfig,
     data: Option<DocumentData>,
   ) -> Result<Arc<RwLock<Document>>, Error> {
-    assert_eq!(object.collab_type, CollabType::Document);
+    let expected_collab_type = CollabType::Document;
+    assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, data_source)?;
     let document = Document::open_with(collab, data)?;
+
+    self.flush_collab_if_not_exist(
+      object.uid,
+      &object.object_id,
+      collab_db.clone(),
+      &expected_collab_type,
+      &document,
+    )?;
+
     let document = Arc::new(RwLock::new(document));
     self.finalize(object, builder_config, document)
   }
@@ -176,9 +187,19 @@ impl AppFlowyCollabBuilder {
     folder_notifier: Option<FolderNotify>,
     folder_data: Option<FolderData>,
   ) -> Result<Arc<RwLock<Folder>>, Error> {
-    assert_eq!(object.collab_type, CollabType::Folder);
+    let expected_collab_type = CollabType::Folder;
+    assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
+
+    self.flush_collab_if_not_exist(
+      object.uid,
+      &object.object_id,
+      collab_db.clone(),
+      &expected_collab_type,
+      &folder,
+    )?;
+
     let folder = Arc::new(RwLock::new(folder));
     self.finalize(object, builder_config, folder)
   }
@@ -196,9 +217,19 @@ impl AppFlowyCollabBuilder {
     builder_config: CollabBuilderConfig,
     notifier: Option<UserAwarenessNotifier>,
   ) -> Result<Arc<RwLock<UserAwareness>>, Error> {
-    assert_eq!(object.collab_type, CollabType::UserAwareness);
+    let expected_collab_type = CollabType::UserAwareness;
+    assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let user_awareness = UserAwareness::open(collab, notifier);
+
+    self.flush_collab_if_not_exist(
+      object.uid,
+      &object.object_id,
+      collab_db.clone(),
+      &expected_collab_type,
+      &user_awareness,
+    )?;
+
     let user_awareness = Arc::new(RwLock::new(user_awareness));
     self.finalize(object, builder_config, user_awareness)
   }
@@ -216,9 +247,19 @@ impl AppFlowyCollabBuilder {
     builder_config: CollabBuilderConfig,
     collab_service: impl DatabaseCollabService,
   ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
-    assert_eq!(object.collab_type, CollabType::WorkspaceDatabase);
+    let expected_collab_type = CollabType::WorkspaceDatabase;
+    assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let workspace = WorkspaceDatabase::open(object.uid, collab, collab_db.clone(), collab_service);
+
+    self.flush_collab_if_not_exist(
+      object.uid,
+      &object.object_id,
+      collab_db.clone(),
+      &expected_collab_type,
+      &workspace,
+    )?;
+
     let workspace = Arc::new(RwLock::new(workspace));
     self.finalize(object, builder_config, workspace)
   }
@@ -289,6 +330,39 @@ impl AppFlowyCollabBuilder {
     (*write_collab).borrow_mut().initialize();
     drop(write_collab);
     Ok(collab)
+  }
+
+  /// Remove all updates in disk and write the final state vector to disk.
+  pub fn flush_collab_if_not_exist<T>(
+    &self,
+    uid: i64,
+    object_id: &str,
+    collab_db: Weak<CollabKVDB>,
+    collab_type: &CollabType,
+    collab: &T,
+  ) -> Result<(), Error>
+  where
+    T: BorrowMut<Collab> + Send + Sync + 'static,
+  {
+    if let Some(collab_db) = collab_db.upgrade() {
+      let write_txn = collab_db.write_txn();
+      let is_not_exist_on_disk = !write_txn.is_exist(uid, object_id);
+      if is_not_exist_on_disk {
+        trace!("flush collab:{}-{} to disk", collab_type, object_id);
+        let collab: &Collab = collab.borrow();
+        let encode_collab =
+          collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
+
+        write_txn.flush_doc(
+          uid,
+          object_id,
+          encode_collab.state_vector.to_vec(),
+          encode_collab.doc_state.to_vec(),
+        )?;
+      }
+    }
+
+    Ok(())
   }
 }
 
