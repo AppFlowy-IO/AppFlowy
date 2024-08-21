@@ -507,7 +507,7 @@ impl DatabaseEditor {
         .await
         .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
 
-      let (index, row_order) = database.create_row_in_view(view_id, params);
+      let (index, row_order) = database.create_row_in_view(view_id, params)?;
       trace!(
         "duplicate row: {:?} at index:{}, new row:{:?}",
         row_id,
@@ -577,9 +577,9 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let (index, order_id) = database.create_row_in_view(&view_editor.view_id, collab_params);
+    let (index, order_id) = database.create_row_in_view(&view_editor.view_id, collab_params)?;
     let row_detail = database.get_row_detail(&order_id.id).await;
-    drop(database); // Explicitly release the lock here
+    drop(database);
 
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
