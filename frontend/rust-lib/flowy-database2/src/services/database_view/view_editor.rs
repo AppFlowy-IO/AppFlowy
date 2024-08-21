@@ -6,7 +6,7 @@ use collab_database::database::{gen_database_calculation_id, gen_database_sort_i
 use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
-use collab_database::views::{DatabaseLayout};
+use collab_database::views::DatabaseLayout;
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
 use tracing::instrument;

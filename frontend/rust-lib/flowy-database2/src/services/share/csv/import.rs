@@ -4,7 +4,7 @@ use collab_database::database::{gen_database_id, gen_field_id, gen_row_id, times
 use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
-use collab_database::views::{DatabaseLayout};
+use collab_database::views::DatabaseLayout;
 
 use collab_entity::EncodedCollab;
 use flowy_error::{FlowyError, FlowyResult};
