@@ -310,8 +310,8 @@ impl DocumentManager {
         // clear the awareness state when close the document
         let mut lock = document.write().await;
         lock.clean_awareness_local_state();
-        lock.flush();
       }
+
       let clone_doc_id = doc_id.clone();
       trace!("move document to removing_documents: {}", doc_id);
       self.removing_documents.insert(doc_id, document);

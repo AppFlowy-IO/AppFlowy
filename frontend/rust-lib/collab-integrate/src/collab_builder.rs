@@ -161,7 +161,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, data_source)?;
     let document = Document::open_with(collab, data)?;
 
-    self.write_collab_to_disk_if_not_exist(
+    self.flush_collab_if_not_exist(
       object.uid,
       &object.object_id,
       collab_db.clone(),
@@ -192,7 +192,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
 
-    self.write_collab_to_disk_if_not_exist(
+    self.flush_collab_if_not_exist(
       object.uid,
       &object.object_id,
       collab_db.clone(),
@@ -222,7 +222,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let user_awareness = UserAwareness::open(collab, notifier);
 
-    self.write_collab_to_disk_if_not_exist(
+    self.flush_collab_if_not_exist(
       object.uid,
       &object.object_id,
       collab_db.clone(),
@@ -252,7 +252,7 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let workspace = WorkspaceDatabase::open(object.uid, collab, collab_db.clone(), collab_service);
 
-    self.write_collab_to_disk_if_not_exist(
+    self.flush_collab_if_not_exist(
       object.uid,
       &object.object_id,
       collab_db.clone(),
@@ -332,7 +332,8 @@ impl AppFlowyCollabBuilder {
     Ok(collab)
   }
 
-  pub fn write_collab_to_disk_if_not_exist<T>(
+  /// Remove all updates in disk and write the final state vector to disk.
+  pub fn flush_collab_if_not_exist<T>(
     &self,
     uid: i64,
     object_id: &str,
@@ -345,10 +346,13 @@ impl AppFlowyCollabBuilder {
   {
     if let Some(collab_db) = collab_db.upgrade() {
       let write_txn = collab_db.write_txn();
-      if !write_txn.is_exist(uid, object_id) {
+      let is_not_exist_on_disk = !write_txn.is_exist(uid, object_id);
+      if is_not_exist_on_disk {
+        trace!("flush collab:{}-{} to disk", collab_type, object_id);
         let collab: &Collab = collab.borrow();
         let encode_collab =
           collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
+
         write_txn.flush_doc(
           uid,
           object_id,
