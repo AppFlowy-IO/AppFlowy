@@ -1,4 +1,17 @@
 # Release Notes
+## Version 0.6.8 - 22/08/2024
+### New Features
+- Optimized date picker and mention block.
+- Added the ability to open database row on mobile.
+- Added the ability to invite members to workspace on mobile.
+- Added support for Monochrome theme on Android.
+- Added AI Bubble button on homepage on mobile.
+- Settings, trash, members and help & support have been moved into the settings pop up menu.
+
+### Bug Fixes
+- Removed Wayland header from AppImage build
+- Fixed the issue where pasting web image on mobile failed.
+
 ## Version 0.6.7 - 13/08/2024
 ### New Features
 - Redesigned the icon picker design on Desktop.
