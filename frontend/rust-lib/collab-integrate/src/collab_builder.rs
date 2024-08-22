@@ -158,9 +158,10 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<Document>>, Error> {
     let expected_collab_type = CollabType::Document;
     assert_eq!(object.collab_type, expected_collab_type);
-    let collab = self.build_collab(&object, &collab_db, data_source)?;
-    let document = Document::open_with(collab, data)?;
+    let mut collab = self.build_collab(&object, &collab_db, data_source)?;
+    collab.enable_undo_redo();
 
+    let document = Document::open_with(collab, data)?;
     self.flush_collab_if_not_exist(
       object.uid,
       &object.object_id,
