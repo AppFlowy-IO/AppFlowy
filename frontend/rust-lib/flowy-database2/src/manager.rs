@@ -19,7 +19,7 @@ use collab_database::workspace_database::{
 use collab_entity::{CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use tokio::sync::{Mutex, RwLock};
-use tracing::{event, instrument, trace};
+use tracing::{error, event, instrument, trace};
 
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
@@ -688,6 +688,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
   ) -> Result<Option<EncodedCollab>, DatabaseError> {
     let workspace_id = self.user.workspace_id().unwrap();
     let object_id = object_id.to_string();
+    trace!("[Database]: fetch {}:{} from remote", object_id, object_ty);
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
 
     match weak_cloud_service.upgrade() {
@@ -766,11 +767,31 @@ pub struct DatabasePersistenceImpl {
 impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
   fn load_collab(&self, uid: i64, collab: &mut Collab) {
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      trace!("[Database]: load collab:{}", collab.object_id());
       let object_id = collab.object_id().to_string();
-      let mut txn = collab.transact_mut();
       let db_read = collab_db.read_txn();
-      let _ = db_read.load_doc_with_txn(uid, &object_id, &mut txn);
+      if !db_read.is_exist(uid, &object_id) {
+        trace!(
+          "[Database]: collab:{} not exist in local storage",
+          object_id
+        );
+      }
+
+      trace!("[Database]: start loading collab:{}", object_id);
+      let mut txn = collab.transact_mut();
+      match db_read.load_doc_with_txn(uid, &object_id, &mut txn) {
+        Ok(update_count) => {
+          trace!(
+            "[Database]: did load collab:{}, update_count:{}",
+            object_id,
+            update_count
+          );
+        },
+        Err(err) => {
+          if !err.is_record_not_found() {
+            error!("[Database]: load collab:{} failed:{}", object_id, err);
+          }
+        },
+      }
     }
   }
 
