@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
@@ -17,6 +16,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'setting/settings_popup_menu.dart';
 
 class MobileHomePageHeader extends StatelessWidget {
   const MobileHomePageHeader({
@@ -45,15 +46,16 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                GestureDetector(
-                  onTap: () => context.push(
-                    MobileHomeSettingPage.routeName,
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: FlowySvg(FlowySvgs.m_notification_settings_s),
-                  ),
-                ),
+                const HomePageSettingsPopupMenu(),
+                // GestureDetector(
+                //   onTap: () => context.push(
+                //     MobileHomeSettingPage.routeName,
+                //   ),
+                //   child: const Padding(
+                //     padding: EdgeInsets.all(8.0),
+                //     child: FlowySvg(FlowySvgs.m_notification_settings_s),
+                //   ),
+                // ),
                 const HSpace(8.0),
               ],
             ),

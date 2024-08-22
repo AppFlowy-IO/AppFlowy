@@ -395,6 +395,12 @@
   },
   "settings": {
     "title": "Settings",
+    "popupMenuItem": {
+      "settings": "Settings",
+      "members": "Members",
+      "trash": "Trash",
+      "helpAndSupport": "Help & Support"
+    },
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",
