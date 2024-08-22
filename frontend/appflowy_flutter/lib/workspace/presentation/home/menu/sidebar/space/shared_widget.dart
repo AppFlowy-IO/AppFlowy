@@ -244,24 +244,11 @@ class SpaceOkButton extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        DecoratedBox(
-          decoration: ShapeDecoration(
-            color: confirmButtonColor ?? Theme.of(context).colorScheme.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: FlowyButton(
-            useIntrinsicWidth: true,
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
-            radius: BorderRadius.circular(8),
-            text: FlowyText.regular(
-              confirmButtonName,
-              lineHeight: 1.0,
-              color: Colors.white,
-            ),
-            onTap: onConfirm,
-          ),
+        PrimaryRoundedButton(
+          text: confirmButtonName,
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
+          radius: 8.0,
+          onTap: onConfirm,
         ),
       ],
     );

@@ -470,10 +470,14 @@ class AutoCompletionInputFooter extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FlowyTextButton.primary(
+        PrimaryRoundedButton(
           text: LocaleKeys.button_generate.tr(),
-          context: context,
-          onPressed: onGenerate,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 10.0,
+          ),
+          radius: 8.0,
+          onTap: onGenerate,
         ),
         const Space(10, 0),
         FlowyTextButton.secondary(
