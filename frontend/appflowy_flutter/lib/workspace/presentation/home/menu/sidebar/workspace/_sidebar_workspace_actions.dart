@@ -133,17 +133,17 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
               },
             ).show(context);
           case WorkspaceMoreAction.leave:
-            await showDialog(
+            await showConfirmDialog(
               context: context,
-              builder: (_) => NavigatorOkCancelDialog(
-                message: LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
-                onOkPressed: () {
-                  workspaceBloc.add(
-                    UserWorkspaceEvent.leaveWorkspace(workspace.workspaceId),
-                  );
-                },
-                okTitle: LocaleKeys.button_yes.tr(),
-              ),
+              title: LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
+              description:
+                  LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
+              confirmLabel: LocaleKeys.button_yes.tr(),
+              onConfirm: () {
+                workspaceBloc.add(
+                  UserWorkspaceEvent.leaveWorkspace(workspace.workspaceId),
+                );
+              },
             );
         }
       },
@@ -175,7 +175,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
       case WorkspaceMoreAction.leave:
         return FlowySvg(
           FlowySvgs.logout_s,
-          color: Theme.of(context).colorScheme.error,
+          color: onHover ? Theme.of(context).colorScheme.error : null,
         );
       case WorkspaceMoreAction.divider:
         return const SizedBox.shrink();

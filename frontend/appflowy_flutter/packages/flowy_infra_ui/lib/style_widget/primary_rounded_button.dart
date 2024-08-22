@@ -54,3 +54,46 @@ class PrimaryRoundedButton extends StatelessWidget {
     );
   }
 }
+
+class OutlinedRoundedButton extends StatelessWidget {
+  const OutlinedRoundedButton({
+    super.key,
+    required this.text,
+    this.onTap,
+    this.margin,
+    this.radius,
+  });
+
+  final String text;
+  final VoidCallback? onTap;
+  final EdgeInsets? margin;
+  final double? radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: Theme.of(context).brightness == Brightness.light
+              ? const BorderSide(color: Color(0x1E14171B))
+              : const BorderSide(color: Colors.white10),
+          borderRadius: BorderRadius.circular(radius ?? 8),
+        ),
+      ),
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        margin: margin ??
+            const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 9.0,
+            ),
+        radius: BorderRadius.circular(radius ?? 8),
+        text: FlowyText.regular(
+          text,
+          lineHeight: 1.0,
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}
