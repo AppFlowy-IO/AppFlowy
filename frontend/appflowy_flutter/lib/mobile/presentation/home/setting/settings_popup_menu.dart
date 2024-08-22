@@ -28,9 +28,9 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
           Radius.circular(12.0),
         ),
       ),
-      // todo: replace it with shadows
       shadowColor: const Color(0x68000000),
       elevation: 10,
+      color: Theme.of(context).colorScheme.surface,
       child: const Padding(
         padding: EdgeInsets.all(8.0),
         child: FlowySvg(
