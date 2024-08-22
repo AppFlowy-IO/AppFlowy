@@ -137,6 +137,10 @@ class _AutoCompletionBlockComponentState
 
   @override
   Widget build(BuildContext context) {
+    if (PlatformExtension.isMobile) {
+      return const SizedBox.shrink();
+    }
+    
     final child = Card(
       elevation: 5,
       shape: RoundedRectangleBorder(
