@@ -137,8 +137,11 @@ class _AutoCompletionBlockComponentState
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final child = Card(
       elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       color: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.all(10),
@@ -164,6 +167,11 @@ class _AutoCompletionBlockComponentState
           ],
         ),
       ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 40),
+      child: child,
     );
   }
 
@@ -480,10 +488,13 @@ class AutoCompletionInputFooter extends StatelessWidget {
           onTap: onGenerate,
         ),
         const Space(10, 0),
-        FlowyTextButton.secondary(
+        OutlinedRoundedButton(
           text: LocaleKeys.button_cancel.tr(),
-          context: context,
-          onPressed: onExit,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 10.0,
+          ),
+          onTap: onExit,
         ),
         Flexible(
           child: Container(
@@ -517,22 +528,23 @@ class AutoCompletionFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        FlowyTextButton.primary(
-          context: context,
+        PrimaryRoundedButton(
           text: LocaleKeys.button_keep.tr(),
-          onPressed: onKeep,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 9.0,
+          ),
+          onTap: onKeep,
         ),
-        const Space(10, 0),
-        FlowyTextButton.secondary(
-          context: context,
+        const HSpace(10),
+        OutlinedRoundedButton(
           text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
-          onPressed: onRewrite,
+          onTap: onRewrite,
         ),
-        const Space(10, 0),
-        FlowyTextButton.secondary(
-          context: context,
+        const HSpace(10),
+        OutlinedRoundedButton(
           text: LocaleKeys.button_discard.tr(),
-          onPressed: onDiscard,
+          onTap: onDiscard,
         ),
       ],
     );

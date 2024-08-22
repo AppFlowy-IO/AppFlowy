@@ -185,22 +185,9 @@ class SpaceCancelOrConfirmButton extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(color: Color(0x1E14171B)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: FlowyButton(
-            useIntrinsicWidth: true,
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
-            text: FlowyText.regular(
-              LocaleKeys.button_cancel.tr(),
-              lineHeight: 1.0,
-            ),
-            onTap: onCancel,
-          ),
+        OutlinedRoundedButton(
+          text: LocaleKeys.button_cancel.tr(),
+          onTap: onCancel,
         ),
         const HSpace(12.0),
         DecoratedBox(
