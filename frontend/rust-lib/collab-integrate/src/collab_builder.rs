@@ -26,7 +26,7 @@ use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 
 pub use crate::plugin_provider::CollabCloudPluginProvider;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
-use collab_plugins::local_storage::kv::KVTransactionDB;
+use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use tokio::sync::RwLock;
@@ -296,39 +296,43 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
+    if !build_config.sync_enable {
+      return Ok(collab);
+    }
+
     let mut write_collab = collab.try_write()?;
     if !write_collab.borrow().get_state().is_uninitialized() {
       warn!("{} is already initialized", object);
       drop(write_collab);
       return Ok(collab);
     }
-    trace!("🚀finalize collab:{}", object);
-    if build_config.sync_enable {
-      let plugin_provider = self.plugin_provider.load_full();
-      let provider_type = plugin_provider.provider_type();
-      let span =
-        tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object.object_id);
-      let _enter = span.enter();
-      match provider_type {
-        CollabPluginProviderType::AppFlowyCloud => {
-          let local_collab = Arc::downgrade(&collab);
-          let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-            uid: object.uid,
-            collab_object: object,
-            local_collab,
-          });
 
-          // at the moment when we get the lock, the collab object is not yet exposed outside
-          for plugin in plugins {
-            write_collab.borrow().add_plugin(plugin);
-          }
-        },
-        CollabPluginProviderType::Local => {},
-      }
+    trace!("🚀finalize collab:{}", object);
+    let plugin_provider = self.plugin_provider.load_full();
+    let provider_type = plugin_provider.provider_type();
+    let span =
+      tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object.object_id);
+    let _enter = span.enter();
+    match provider_type {
+      CollabPluginProviderType::AppFlowyCloud => {
+        let local_collab = Arc::downgrade(&collab);
+        let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+          uid: object.uid,
+          collab_object: object,
+          local_collab,
+        });
+
+        // at the moment when we get the lock, the collab object is not yet exposed outside
+        for plugin in plugins {
+          write_collab.borrow().add_plugin(plugin);
+        }
+      },
+      CollabPluginProviderType::Local => {},
     }
 
     (*write_collab).borrow_mut().initialize();
     drop(write_collab);
+
     Ok(collab)
   }
 
@@ -406,8 +410,18 @@ impl CollabPersistence for KVDBCollabPersistenceImpl {
 
       if rocksdb_read.is_exist(self.uid, &object_id) {
         let mut txn = collab.transact_mut();
-        if let Err(err) = rocksdb_read.load_doc_with_txn(self.uid, &object_id, &mut txn) {
-          error!("🔴 load doc:{} failed: {}", object_id, err);
+        match rocksdb_read.load_doc_with_txn(self.uid, &object_id, &mut txn) {
+          Ok(update_count) => {
+            trace!(
+              "did load collab:{}-{} from disk, update_count:{}",
+              self.uid,
+              object_id,
+              update_count
+            );
+          },
+          Err(err) => {
+            error!("🔴 load doc:{} failed: {}", object_id, err);
+          },
         }
         drop(rocksdb_read);
         txn.commit();
