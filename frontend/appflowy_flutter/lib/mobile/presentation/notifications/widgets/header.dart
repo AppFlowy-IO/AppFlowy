@@ -18,7 +18,7 @@ class MobileNotificationPageHeader extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const HSpace(16.0),
+          const HSpace(18.0),
           FlowyText(
             LocaleKeys.settings_notifications_titles_notifications.tr(),
             fontSize: 20,

@@ -134,7 +134,8 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
         const VSpace(16),
         if (exceededLimit) ...[
           FlowyText.regular(
-            LocaleKeys.settings_appearance_members_inviteFailedMemberLimit.tr(),
+            LocaleKeys.settings_appearance_members_inviteFailedMemberLimitMobile
+                .tr(),
             fontSize: 14.0,
             maxLines: 3,
             color: Theme.of(context).colorScheme.error,
@@ -205,7 +206,9 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
         (f) {
           Log.error('add workspace member failed: $f');
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
-              ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
+              ? LocaleKeys
+                  .settings_appearance_members_inviteFailedMemberLimitMobile
+                  .tr()
               : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
           setState(() {
             exceededLimit = f.code == ErrorCode.WorkspaceMemberLimitExceeded;
@@ -229,7 +232,8 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
         (f) {
           Log.error('invite workspace member failed: $f');
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
-              ? LocaleKeys.settings_appearance_members_inviteFailedMemberLimit
+              ? LocaleKeys
+                  .settings_appearance_members_inviteFailedMemberLimitMobile
                   .tr()
               : LocaleKeys.settings_appearance_members_failedToInviteMember
                   .tr();
