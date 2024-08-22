@@ -250,7 +250,7 @@ impl AppFlowyCollabBuilder {
     let expected_collab_type = CollabType::WorkspaceDatabase;
     assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
-    let workspace = WorkspaceDatabase::open(object.uid, collab, collab_db.clone(), collab_service);
+    let workspace = WorkspaceDatabase::open(object.uid, collab, collab_service);
 
     self.flush_collab_if_not_exist(
       object.uid,
@@ -399,7 +399,7 @@ impl KVDBCollabPersistenceImpl {
 }
 
 impl CollabPersistence for KVDBCollabPersistenceImpl {
-  fn load_collab(&self, collab: &mut Collab) {
+  fn load_collab_from_disk(&self, collab: &mut Collab) {
     if let Some(collab_db) = self.db.upgrade() {
       let object_id = collab.object_id().to_string();
       let rocksdb_read = collab_db.read_txn();
