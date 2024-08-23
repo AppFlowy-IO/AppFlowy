@@ -27,12 +27,14 @@ class RowController {
         }
         _rowMeta = newRowMeta;
         _rowCache.setRowMeta(newRowMeta);
+        _onRowMetaChanged?.call();
       },
     );
   }
 
   RowMetaPB _rowMeta;
   final String? groupId;
+  VoidCallback? _onRowMetaChanged;
   final String viewId;
   final List<VoidCallback> _onRowChangedListeners = [];
   final RowCache _rowCache;
@@ -47,7 +49,10 @@ class RowController {
 
   List<CellContext> loadCells() => _rowCache.loadCells(rowMeta);
 
-  void addListener({OnRowChanged? onRowChanged}) {
+  void addListener({
+    OnRowChanged? onRowChanged,
+    VoidCallback? onMetaChanged,
+  }) {
     final fn = _rowCache.addListener(
       rowId: rowMeta.id,
       onRowChanged: (context, reasons) {
@@ -60,6 +65,7 @@ class RowController {
 
     // Add the listener to the list so that we can remove it later.
     _onRowChangedListeners.add(fn);
+    _onRowMetaChanged = onMetaChanged;
   }
 
   Future<void> dispose() async {
