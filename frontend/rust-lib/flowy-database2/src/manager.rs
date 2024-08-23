@@ -13,17 +13,18 @@ use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
 use collab_database::workspace_database::{
-  DatabaseCollabCloudService, DatabaseCollabPersistenceService, DatabaseCollabService,
-  DatabaseMeta, EncodeCollabByOid, WorkspaceDatabase,
+  CollabPersistenceImpl, DatabaseCollabPersistenceService, DatabaseCollabService, DatabaseMeta,
+  EncodeCollabByOid, WorkspaceDatabase,
 };
-use collab_entity::{CollabType, EncodedCollab};
+use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use dashmap::DashMap;
+use tokio::select;
 use tokio::sync::{Mutex, RwLock};
-use tracing::{error, event, instrument, trace};
+use tokio_util::sync::CancellationToken;
+use tracing::{error, instrument, trace};
 
-use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
-};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB};
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
@@ -80,16 +81,6 @@ impl DatabaseManager {
     }
   }
 
-  fn is_collab_exist(&self, uid: i64, collab_db: &Weak<CollabKVDB>, object_id: &str) -> bool {
-    match collab_db.upgrade() {
-      None => false,
-      Some(collab_db) => {
-        let read_txn = collab_db.read_txn();
-        read_txn.is_exist(uid, object_id)
-      },
-    }
-  }
-
   /// When initialize with new workspace, all the resources will be cleared.
   pub async fn initialize(&self, uid: i64) -> FlowyResult<()> {
     // 1. Clear all existing tasks
@@ -107,72 +98,30 @@ impl DatabaseManager {
     }
 
     let collab_db = self.user.collab_db(uid)?;
-    let collab_service = WorkspaceDatabaseCollabServiceImpl {
-      user: self.user.clone(),
-      collab_builder: self.collab_builder.clone(),
-    };
-    let collab_cloud_service = WorkspaceDatabaseCloudServiceImpl {
-      user: self.user.clone(),
-      cloud_service: self.cloud_service.clone(),
-    };
-
-    let workspace_id = self.user.workspace_id()?;
-    let workspace_database_object_id = self.user.workspace_database_object_id()?;
-    let mut workspace_database_data_source =
-      KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
-    let is_exist_in_disk = self.is_collab_exist(uid, &collab_db, &workspace_database_object_id);
-    // 4.If the workspace database not exist in disk, try to fetch from remote.
-    if !is_exist_in_disk {
-      trace!("workspace database not exist, try to fetch from remote");
-      match self
-        .cloud_service
-        .get_database_encode_collab(
-          &workspace_database_object_id,
-          CollabType::WorkspaceDatabase,
-          &workspace_id,
-        )
-        .await
-      {
-        Ok(value) => {
-          if let Some(encode_collab) = value {
-            workspace_database_data_source = DataSource::from(encode_collab);
-          }
-        },
-        Err(err) => {
-          return Err(FlowyError::record_not_found().with_context(format!(
-            "get workspace database :{} failed: {}",
-            workspace_database_object_id, err,
-          )));
-        },
-      }
-    }
-
-    // Construct the workspace database.
-    event!(
-      tracing::Level::INFO,
-      "create workspace database object: {}",
-      &workspace_database_object_id
+    let collab_service = WorkspaceDatabaseCollabServiceImpl::new(
+      self.user.clone(),
+      self.collab_builder.clone(),
+      self.cloud_service.clone(),
     );
 
-    let workspace_id = self
-      .user
-      .workspace_id()
-      .map_err(|err| DatabaseError::Internal(err.into()))?;
-    let collab_object = self.collab_builder.collab_object(
-      &workspace_id,
-      uid,
-      &workspace_database_object_id,
-      CollabType::WorkspaceDatabase,
-    )?;
-
+    let workspace_database_object_id = self.user.workspace_database_object_id()?;
+    let workspace_database_collab = collab_service
+      .build_collab(
+        workspace_database_object_id.as_str(),
+        CollabType::WorkspaceDatabase,
+        false,
+      )
+      .await?;
+    let collab_object = collab_service
+      .build_collab_object(&workspace_database_object_id, CollabType::WorkspaceDatabase)?;
     let workspace_database = self.collab_builder.create_workspace_database(
       collab_object,
-      workspace_database_data_source,
+      workspace_database_collab,
       collab_db,
       CollabBuilderConfig::default().sync_enable(true),
       collab_service,
-      collab_cloud_service,
     )?;
+
     self.workspace_database.store(Some(workspace_database));
     Ok(())
   }
@@ -677,13 +626,30 @@ impl DatabaseManager {
   }
 }
 
-struct WorkspaceDatabaseCloudServiceImpl {
+struct WorkspaceDatabaseCollabServiceImpl {
   user: Arc<dyn DatabaseUser>,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
+  persistence: Arc<dyn DatabaseCollabPersistenceService>,
   cloud_service: Arc<dyn DatabaseCloudService>,
+  cancellation: Arc<DashMap<String, Option<CancellationToken>>>,
 }
 
-#[async_trait]
-impl DatabaseCollabCloudService for WorkspaceDatabaseCloudServiceImpl {
+impl WorkspaceDatabaseCollabServiceImpl {
+  fn new(
+    user: Arc<dyn DatabaseUser>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
+    cloud_service: Arc<dyn DatabaseCloudService>,
+  ) -> Self {
+    let persistence = DatabasePersistenceImpl { user: user.clone() };
+    Self {
+      user,
+      collab_builder,
+      persistence: Arc::new(persistence),
+      cloud_service,
+      cancellation: Arc::new(Default::default()),
+    }
+  }
+
   async fn get_encode_collab(
     &self,
     object_id: &str,
@@ -693,18 +659,35 @@ impl DatabaseCollabCloudService for WorkspaceDatabaseCloudServiceImpl {
     let object_id = object_id.to_string();
     trace!("[Database]: fetch {}:{} from remote", object_id, object_ty);
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
-
     match weak_cloud_service.upgrade() {
       None => Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
       Some(cloud_service) => {
-        let encode_collab = cloud_service
-          .get_database_encode_collab(&object_id, object_ty, &workspace_id)
-          .await?;
-        Ok(encode_collab)
+        if let Some((_, Some(token))) = self.cancellation.remove(&object_id) {
+          trace!("cancel previous request for object:{}", object_id);
+          token.cancel();
+        }
+
+        let token = CancellationToken::new();
+        self
+          .cancellation
+          .insert(object_id.clone(), Some(token.clone()));
+        let cloned_cancellation = self.cancellation.clone();
+        tokio::spawn(async move {
+            select! {
+              _ = token.cancelled() => {
+                 Err(DatabaseError::ActionCancelled)
+              },
+              encode_collab = cloud_service.get_database_encode_collab(&object_id, object_ty, &workspace_id) => {
+                cloned_cancellation.remove(&object_id);
+                Ok(encode_collab?)
+              }
+            }
+        }).await.map_err(|err| DatabaseError::Internal(err.into()))?
       },
     }
   }
 
+  #[allow(dead_code)]
   async fn batch_get_encode_collab(
     &self,
     object_ids: Vec<String>,
@@ -729,23 +712,23 @@ impl DatabaseCollabCloudService for WorkspaceDatabaseCloudServiceImpl {
       },
     }
   }
-}
 
-struct WorkspaceDatabaseCollabServiceImpl {
-  user: Arc<dyn DatabaseUser>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
-}
+  fn collab_db(&self) -> Result<Weak<CollabKVDB>, DatabaseError> {
+    let uid = self
+      .user
+      .user_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    self
+      .user
+      .collab_db(uid)
+      .map_err(|err| DatabaseError::Internal(err.into()))
+  }
 
-#[async_trait]
-impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
-  ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,
-  /// therefore all Database/DatabaseRow creation methods must initialize plugins thmselves.
-  fn build_collab(
+  fn build_collab_object(
     &self,
     object_id: &str,
     object_type: CollabType,
-    data_source: DataSource,
-  ) -> Result<Collab, DatabaseError> {
+  ) -> Result<CollabObject, DatabaseError> {
     let uid = self
       .user
       .user_id()
@@ -756,11 +739,54 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     let object = self
       .collab_builder
-      .collab_object(&workspace_id, uid, object_id, object_type)?;
-    let collab_db = self
-      .user
-      .collab_db(uid)
-      .map_err(|err| DatabaseError::Internal(anyhow!("Failed to get collab db: {}", err)))?;
+      .collab_object(&workspace_id, uid, object_id, object_type)
+      .map_err(|err| DatabaseError::Internal(anyhow!("Failed to build collab object: {}", err)))?;
+    Ok(object)
+  }
+}
+
+#[async_trait]
+impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
+  ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,
+  /// therefore all Database/DatabaseRow creation methods must initialize plugins thmselves.
+  async fn build_collab(
+    &self,
+    object_id: &str,
+    collab_type: CollabType,
+    is_new: bool,
+  ) -> Result<Collab, DatabaseError> {
+    let object = self.build_collab_object(object_id, collab_type.clone())?;
+    let data_source: DataSource = if is_new {
+      DataSource::Disk(None)
+    } else if self.persistence.is_collab_exist(object_id) {
+      CollabPersistenceImpl {
+        persistence: Some(self.persistence.clone()),
+      }
+      .into()
+    } else {
+      match self.get_encode_collab(object_id, collab_type).await {
+        Ok(Some(encode_collab)) => {
+          self
+            .persistence
+            .flush_collab(object_id, encode_collab.clone())
+            .map_err(|err| DatabaseError::Internal(anyhow!("Failed to flush collab: {}", err)))?;
+          DataSource::from(encode_collab)
+        },
+        Ok(None) => {
+          // when collab not exist, create a default collab
+          CollabPersistenceImpl {
+            persistence: Some(self.persistence.clone()),
+          }
+          .into()
+        },
+        Err(err) => {
+          error!("Failed to get encode collab: {}", err);
+          return Err(err);
+        },
+      }
+    };
+
+    let collab_db = self.collab_db()?;
     let collab = self
       .collab_builder
       .build_collab(&object, &collab_db, data_source)?;
@@ -793,6 +819,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
           "[Database]: collab:{} not exist in local storage",
           object_id
         );
+        return;
       }
 
       trace!("[Database]: start loading collab:{}", object_id);
