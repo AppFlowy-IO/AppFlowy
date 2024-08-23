@@ -675,11 +675,11 @@ impl WorkspaceDatabaseCollabServiceImpl {
         tokio::spawn(async move {
             select! {
               _ = token.cancelled() => {
-                return Err(DatabaseError::ActionCancelled);
+                 Err(DatabaseError::ActionCancelled)
               },
               encode_collab = cloud_service.get_database_encode_collab(&object_id, object_ty, &workspace_id) => {
                 cloned_cancellation.remove(&object_id);
-                return Ok(encode_collab?);
+                Ok(encode_collab?)
               }
             }
         }).await.map_err(|err| DatabaseError::Internal(err.into()))?
