@@ -1,126 +1,161 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_or_logout_button.dart';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ThirdPartySignInButtons extends StatelessWidget {
+import 'third_party_sign_in_button.dart';
+
+class ThirdPartySignInButtons extends StatefulWidget {
   /// Used in DesktopSignInScreen, MobileSignInScreen and SettingThirdPartyLogin
-  const ThirdPartySignInButtons({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Get themeMode from AppearanceSettingsCubit
-    // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
-
-    final themeModeFromCubit =
-        context.watch<AppearanceSettingsCubit>().state.themeMode;
-
-    final isDarkMode = themeModeFromCubit == ThemeMode.system
-        ? MediaQuery.of(context).platformBrightness == Brightness.dark
-        : themeModeFromCubit == ThemeMode.dark;
-
-    return BlocBuilder<SignInBloc, SignInState>(
-      builder: (context, state) {
-        final (googleText, githubText, discordText) = switch (state.loginType) {
-          LoginType.signIn => (
-              LocaleKeys.signIn_signInWithGoogle.tr(),
-              LocaleKeys.signIn_signInWithGithub.tr(),
-              LocaleKeys.signIn_signInWithDiscord.tr()
-            ),
-          LoginType.signUp => (
-              LocaleKeys.signIn_signUpWithGoogle.tr(),
-              LocaleKeys.signIn_signUpWithGithub.tr(),
-              LocaleKeys.signIn_signUpWithDiscord.tr()
-            ),
-        };
-        return Column(
-          children: [
-            _ThirdPartySignInButton(
-              key: const Key('signInWithGoogleButton'),
-              icon: FlowySvgs.google_mark_xl,
-              labelText: googleText,
-              onPressed: () {
-                _signInWithGoogle(context);
-              },
-            ),
-            const VSpace(8),
-            _ThirdPartySignInButton(
-              icon: isDarkMode
-                  ? FlowySvgs.github_mark_white_xl
-                  : FlowySvgs.github_mark_black_xl,
-              labelText: githubText,
-              onPressed: () {
-                _signInWithGithub(context);
-              },
-            ),
-            const VSpace(8),
-            _ThirdPartySignInButton(
-              icon: isDarkMode
-                  ? FlowySvgs.discord_mark_white_xl
-                  : FlowySvgs.discord_mark_blurple_xl,
-              labelText: discordText,
-              onPressed: () {
-                _signInWithDiscord(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ThirdPartySignInButton extends StatelessWidget {
-  /// Build button based on current Platform(mobile or desktop).
-  const _ThirdPartySignInButton({
+  const ThirdPartySignInButtons({
     super.key,
-    required this.icon,
-    required this.labelText,
-    required this.onPressed,
+    this.expanded = false,
   });
 
-  final FlowySvgData icon;
-  final String labelText;
+  final bool expanded;
 
-  final VoidCallback onPressed;
+  @override
+  State<ThirdPartySignInButtons> createState() =>
+      _ThirdPartySignInButtonsState();
+}
+
+class _ThirdPartySignInButtonsState extends State<ThirdPartySignInButtons> {
+  bool expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    expanded = widget.expanded;
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isMobile) {
-      return MobileSignInOrLogoutButton(
-        icon: icon,
-        labelText: labelText,
-        onPressed: onPressed,
+    if (PlatformExtension.isDesktopOrWeb) {
+      const padding = 16.0;
+      return Column(
+        children: [
+          _DesktopSignInButton(
+            type: ThirdPartySignInButtonType.google,
+            onPressed: () {
+              _signInWithGoogle(context);
+            },
+          ),
+          const VSpace(padding),
+          _DesktopSignInButton(
+            type: ThirdPartySignInButtonType.github,
+            onPressed: () {
+              _signInWithGoogle(context);
+            },
+          ),
+          const VSpace(padding),
+          _DesktopSignInButton(
+            type: ThirdPartySignInButtonType.discord,
+            onPressed: () {
+              _signInWithDiscord(context);
+            },
+          ),
+        ],
       );
     } else {
-      return _DesktopSignInButton(
-        icon: icon,
-        labelText: labelText,
-        onPressed: onPressed,
+      const padding = 8.0;
+      return BlocBuilder<SignInBloc, SignInState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              if (Platform.isIOS)
+                MobileThirdPartySignInButton(
+                  type: ThirdPartySignInButtonType.apple,
+                  onPressed: () {
+                    _signInWithApple(context);
+                  },
+                ),
+              const VSpace(padding),
+              MobileThirdPartySignInButton(
+                type: ThirdPartySignInButtonType.google,
+                onPressed: () {
+                  _signInWithGoogle(context);
+                },
+              ),
+              if (expanded) ...[
+                const VSpace(padding),
+                MobileThirdPartySignInButton(
+                  type: ThirdPartySignInButtonType.github,
+                  onPressed: () {
+                    _signInWithGithub(context);
+                  },
+                ),
+                const VSpace(padding),
+                MobileThirdPartySignInButton(
+                  type: ThirdPartySignInButtonType.discord,
+                  onPressed: () {
+                    _signInWithDiscord(context);
+                  },
+                ),
+              ],
+              if (!expanded) ...[
+                const VSpace(padding * 2),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      expanded = !expanded;
+                    });
+                  },
+                  child: FlowyText(
+                    LocaleKeys.signIn_continueAnotherWay.tr(),
+                    color: Theme.of(context).colorScheme.onSurface,
+                    decoration: TextDecoration.underline,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
       );
     }
+  }
+
+  void _signInWithApple(BuildContext context) {
+    context.read<SignInBloc>().add(
+          const SignInEvent.signedInWithOAuth('apple'),
+        );
+  }
+
+  void _signInWithGoogle(BuildContext context) {
+    context.read<SignInBloc>().add(
+          const SignInEvent.signedInWithOAuth('google'),
+        );
+  }
+
+  void _signInWithGithub(BuildContext context) {
+    context
+        .read<SignInBloc>()
+        .add(const SignInEvent.signedInWithOAuth('github'));
+  }
+
+  void _signInWithDiscord(BuildContext context) {
+    context
+        .read<SignInBloc>()
+        .add(const SignInEvent.signedInWithOAuth('discord'));
   }
 }
 
 class _DesktopSignInButton extends StatelessWidget {
   const _DesktopSignInButton({
-    required this.icon,
-    required this.labelText,
+    required this.type,
     required this.onPressed,
   });
 
-  final FlowySvgData icon;
-  final String labelText;
-
+  final ThirdPartySignInButtonType type;
   final VoidCallback onPressed;
 
   @override
@@ -139,7 +174,7 @@ class _DesktopSignInButton extends StatelessWidget {
             // Some icons are not square, so we just use a fixed width here.
             width: 24,
             child: FlowySvg(
-              icon,
+              type.icon,
               blendMode: null,
             ),
           ),
@@ -148,7 +183,7 @@ class _DesktopSignInButton extends StatelessWidget {
           padding: const EdgeInsets.only(left: 8),
           alignment: Alignment.centerLeft,
           child: FlowyText(
-            labelText,
+            type.labelText,
             fontSize: 14,
           ),
         ),
@@ -176,20 +211,4 @@ class _DesktopSignInButton extends StatelessWidget {
       ),
     );
   }
-}
-
-void _signInWithGoogle(BuildContext context) {
-  context.read<SignInBloc>().add(
-        const SignInEvent.signedInWithOAuth('google'),
-      );
-}
-
-void _signInWithGithub(BuildContext context) {
-  context.read<SignInBloc>().add(const SignInEvent.signedInWithOAuth('github'));
-}
-
-void _signInWithDiscord(BuildContext context) {
-  context
-      .read<SignInBloc>()
-      .add(const SignInEvent.signedInWithOAuth('discord'));
 }

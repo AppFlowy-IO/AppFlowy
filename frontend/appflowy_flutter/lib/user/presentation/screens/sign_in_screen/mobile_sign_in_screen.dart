@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -8,6 +6,7 @@ import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,26 +22,27 @@ class MobileSignInScreen extends StatelessWidget {
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
+            padding: const EdgeInsets.symmetric(vertical: 38, horizontal: 40),
             child: Column(
               children: [
                 const Spacer(flex: 4),
                 _buildLogo(),
-                const VSpace(spacing * 2),
-                _buildWelcomeText(),
+                const VSpace(spacing),
+                // _buildWelcomeText(),
                 _buildAppNameText(colorScheme),
                 const VSpace(spacing * 2),
                 const SignInWithMagicLinkButtons(),
                 const VSpace(spacing),
                 if (isAuthEnabled) _buildThirdPartySignInButtons(colorScheme),
-                const VSpace(spacing),
-                const SignInAnonymousButtonV2(),
-                const VSpace(spacing),
+                const VSpace(spacing * 1.5),
                 const SignInAgreement(),
                 const VSpace(spacing),
-                _buildSettingsButton(context),
                 if (!isAuthEnabled) const Spacer(flex: 2),
+                const Spacer(flex: 2),
+                const Spacer(),
+                Expanded(child: _buildSettingsButton(context)),
               ],
             ),
           ),
@@ -51,19 +51,10 @@ class MobileSignInScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeText() {
-    return FlowyText(
-      LocaleKeys.welcomeTo.tr(),
-      textAlign: TextAlign.center,
-      fontSize: 32,
-      fontWeight: FontWeight.w700,
-    );
-  }
-
   Widget _buildLogo() {
     return const FlowySvg(
       FlowySvgs.flowy_logo_xl,
-      size: Size.square(64),
+      size: Size.square(56),
       blendMode: null,
     );
   }
@@ -72,7 +63,7 @@ class MobileSignInScreen extends StatelessWidget {
     return FlowyText(
       LocaleKeys.appName.tr(),
       textAlign: TextAlign.center,
-      fontSize: 32,
+      fontSize: 28,
       color: const Color(0xFF00BCF0),
       fontWeight: FontWeight.w700,
     );
@@ -89,6 +80,7 @@ class MobileSignInScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: FlowyText(
                 LocaleKeys.signIn_or.tr(),
+                fontSize: 12,
                 color: colorScheme.onSecondary,
               ),
             ),
@@ -102,17 +94,35 @@ class MobileSignInScreen extends StatelessWidget {
   }
 
   Widget _buildSettingsButton(BuildContext context) {
-    return FlowyButton(
-      text: FlowyText(
-        LocaleKeys.signIn_settings.tr(),
-        textAlign: TextAlign.center,
-        fontSize: 12.0,
-        fontWeight: FontWeight.w500,
-        decoration: TextDecoration.underline,
-      ),
-      onTap: () {
-        context.push(MobileLaunchSettingsPage.routeName);
-      },
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlowyButton(
+          useIntrinsicWidth: true,
+          text: FlowyText(
+            LocaleKeys.signIn_settings.tr(),
+            textAlign: TextAlign.center,
+            fontSize: 12.0,
+            // fontWeight: FontWeight.w500,
+            color: Colors.grey,
+            decoration: TextDecoration.underline,
+          ),
+          onTap: () {
+            context.push(MobileLaunchSettingsPage.routeName);
+          },
+        ),
+        const HSpace(24),
+        SignInAnonymousButtonV2(
+          child: FlowyText(
+            LocaleKeys.signIn_anonymous.tr(),
+            textAlign: TextAlign.center,
+            fontSize: 12.0,
+            // fontWeight: FontWeight.w500,
+            color: Colors.grey,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ],
     );
   }
 }
