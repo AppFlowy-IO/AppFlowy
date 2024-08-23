@@ -8,7 +8,9 @@ use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::core::collab::DataSource;
 use collab::core::collab_plugin::CollabPersistence;
 use collab::preclude::{Collab, CollabBuilder};
-use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabase};
+use collab_database::workspace_database::{
+  DatabaseCollabCloudService, DatabaseCollabService, WorkspaceDatabase,
+};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::{CollabObject, CollabType};
@@ -236,10 +238,7 @@ impl AppFlowyCollabBuilder {
   }
 
   #[allow(clippy::too_many_arguments)]
-  #[instrument(
-    level = "trace",
-    skip(self, object, doc_state, collab_db, builder_config, collab_service)
-  )]
+  #[instrument(level = "trace", skip_all)]
   pub fn create_workspace_database(
     &self,
     object: CollabObject,
@@ -247,11 +246,12 @@ impl AppFlowyCollabBuilder {
     collab_db: Weak<CollabKVDB>,
     builder_config: CollabBuilderConfig,
     collab_service: impl DatabaseCollabService,
+    cloud_service: impl DatabaseCollabCloudService,
   ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
     let expected_collab_type = CollabType::WorkspaceDatabase;
     assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
-    let workspace = WorkspaceDatabase::open(object.uid, collab, collab_service);
+    let workspace = WorkspaceDatabase::open(collab, collab_service, cloud_service);
 
     self.flush_collab_if_not_exist(
       object.uid,

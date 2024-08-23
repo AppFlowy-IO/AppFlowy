@@ -13,8 +13,8 @@ use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
 use collab_database::workspace_database::{
-  DatabaseCollabPersistenceService, DatabaseCollabService, DatabaseMeta, EncodeCollabByOid,
-  WorkspaceDatabase,
+  DatabaseCollabCloudService, DatabaseCollabPersistenceService, DatabaseCollabService,
+  DatabaseMeta, EncodeCollabByOid, WorkspaceDatabase,
 };
 use collab_entity::{CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -107,9 +107,12 @@ impl DatabaseManager {
     }
 
     let collab_db = self.user.collab_db(uid)?;
-    let collab_builder = UserDatabaseCollabServiceImpl {
+    let collab_service = WorkspaceDatabaseCollabServiceImpl {
       user: self.user.clone(),
       collab_builder: self.collab_builder.clone(),
+    };
+    let collab_cloud_service = WorkspaceDatabaseCloudServiceImpl {
+      user: self.user.clone(),
       cloud_service: self.cloud_service.clone(),
     };
 
@@ -167,7 +170,8 @@ impl DatabaseManager {
       workspace_database_data_source,
       collab_db,
       CollabBuilderConfig::default().sync_enable(true),
-      collab_builder,
+      collab_service,
+      collab_cloud_service,
     )?;
     self.workspace_database.store(Some(workspace_database));
     Ok(())
@@ -673,14 +677,13 @@ impl DatabaseManager {
   }
 }
 
-struct UserDatabaseCollabServiceImpl {
+struct WorkspaceDatabaseCloudServiceImpl {
   user: Arc<dyn DatabaseUser>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
 
 #[async_trait]
-impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
+impl DatabaseCollabCloudService for WorkspaceDatabaseCloudServiceImpl {
   async fn get_encode_collab(
     &self,
     object_id: &str,
@@ -726,16 +729,27 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       },
     }
   }
+}
 
+struct WorkspaceDatabaseCollabServiceImpl {
+  user: Arc<dyn DatabaseUser>,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
+}
+
+#[async_trait]
+impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,
   /// therefore all Database/DatabaseRow creation methods must initialize plugins thmselves.
   fn build_collab(
     &self,
-    uid: i64,
     object_id: &str,
     object_type: CollabType,
     data_source: DataSource,
   ) -> Result<Collab, DatabaseError> {
+    let uid = self
+      .user
+      .user_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     let workspace_id = self
       .user
       .workspace_id()
@@ -765,8 +779,13 @@ pub struct DatabasePersistenceImpl {
 }
 
 impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
-  fn load_collab(&self, uid: i64, collab: &mut Collab) {
-    if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+  fn load_collab(&self, collab: &mut Collab) {
+    let result = self
+      .user
+      .user_id()
+      .map(|uid| (uid, self.user.collab_db(uid).map(|weak| weak.upgrade())));
+
+    if let Ok((uid, Ok(Some(collab_db)))) = result {
       let object_id = collab.object_id().to_string();
       let db_read = collab_db.read_txn();
       if !db_read.is_exist(uid, &object_id) {
@@ -795,7 +814,11 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     }
   }
 
-  fn delete_collab(&self, uid: i64, object_id: &str) -> Result<(), DatabaseError> {
+  fn delete_collab(&self, object_id: &str) -> Result<(), DatabaseError> {
+    let uid = self
+      .user
+      .user_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
       write_txn.delete_doc(uid, object_id).unwrap();
@@ -806,21 +829,33 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     Ok(())
   }
 
-  fn is_collab_exist(&self, uid: i64, object_id: &str) -> bool {
-    if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      let read_txn = collab_db.read_txn();
-      return read_txn.is_exist(uid, object_id);
+  fn is_collab_exist(&self, object_id: &str) -> bool {
+    match self
+      .user
+      .user_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))
+    {
+      Ok(uid) => {
+        if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+          let read_txn = collab_db.read_txn();
+          return read_txn.is_exist(uid, object_id);
+        }
+        false
+      },
+      Err(_) => false,
     }
-    false
   }
 
   fn flush_collab(
     &self,
-    uid: i64,
     object_id: &str,
     encode_collab: EncodedCollab,
   ) -> Result<(), DatabaseError> {
     trace!("[Database]: flush collab:{}", object_id);
+    let uid = self
+      .user
+      .user_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
       write_txn
@@ -839,12 +874,14 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     Ok(())
   }
 
-  fn is_row_exist_partition(&self, uid: i64, row_ids: Vec<RowId>) -> (Vec<RowId>, Vec<RowId>) {
-    if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      let read_txn = collab_db.read_txn();
-      return row_ids
-        .into_iter()
-        .partition(|row_id| read_txn.is_exist(uid, row_id.as_ref()));
+  fn is_row_exist_partition(&self, row_ids: Vec<RowId>) -> (Vec<RowId>, Vec<RowId>) {
+    if let Ok(uid) = self.user.user_id() {
+      if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+        let read_txn = collab_db.read_txn();
+        return row_ids
+          .into_iter()
+          .partition(|row_id| read_txn.is_exist(uid, row_id.as_ref()));
+      }
     }
 
     (vec![], row_ids)
