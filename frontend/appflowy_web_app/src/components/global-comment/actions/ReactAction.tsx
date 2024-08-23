@@ -3,7 +3,7 @@ import { EmojiPicker } from '@/components/_shared/emoji-picker';
 import { EMOJI_SIZE, PER_ROW_EMOJI_COUNT } from '@/components/_shared/emoji-picker/const';
 import { Popover } from '@/components/_shared/popover';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { ReactComponent as AddReactionRounded } from '@/assets/add_reaction.svg';
 import { IconButton, Tooltip } from '@mui/material';

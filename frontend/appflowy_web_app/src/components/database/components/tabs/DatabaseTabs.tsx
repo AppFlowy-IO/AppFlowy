@@ -4,7 +4,7 @@ import { ViewMeta } from '@/application/db/tables/view_metas';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { Tooltip } from '@mui/material';
 import { forwardRef, FunctionComponent, SVGProps, useContext, useEffect, useMemo, useState } from 'react';
-import { ViewTabs, ViewTab } from './ViewTabs';
+import { ViewTabs, ViewTab } from 'src/components/_shared/tabs/ViewTabs';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as GridSvg } from '@/assets/grid.svg';
@@ -74,11 +74,11 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
           style={{
             width: showActions ? 'calc(100% - 120px)' : '100%',
           }}
-          className='flex items-center '
+          className="flex items-center "
         >
           <ViewTabs
             scrollButtons={false}
-            variant='scrollable'
+            variant="scrollable"
             allowScrollButtonsMobile
             value={selectedViewId}
             onChange={handleChange}
@@ -96,8 +96,8 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
                   key={viewId}
                   data-testid={`view-tab-${viewId}`}
                   icon={<Icon className={'h-4 w-4'} />}
-                  iconPosition='start'
-                  color='inherit'
+                  iconPosition="start"
+                  color="inherit"
                   label={
                     <Tooltip title={name} enterDelay={1000} enterNextDelay={1000} placement={'right'}>
                       <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
@@ -112,5 +112,5 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
         {showActions ? <DatabaseActions /> : null}
       </div>
     );
-  }
+  },
 );

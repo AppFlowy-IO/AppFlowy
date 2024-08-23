@@ -22,6 +22,7 @@ export interface EditorContextState {
   loadViewMeta?: LoadViewMeta;
   loadView?: LoadView;
   getViewRowsMap?: GetViewRowsMap;
+  readSummary?: boolean;
 }
 
 export const EditorContext = createContext<EditorContextState>({
@@ -34,6 +35,6 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
   return <EditorContext.Provider value={props}>{children}</EditorContext.Provider>;
 };
 
-export function useEditorContext() {
+export function useEditorContext () {
   return useContext(EditorContext);
 }

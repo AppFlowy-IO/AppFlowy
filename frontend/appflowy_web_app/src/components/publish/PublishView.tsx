@@ -2,14 +2,14 @@ import { YDoc } from '@/application/collab.type';
 import { PublishProvider } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { AFScroller } from '@/components/_shared/scroller';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { GlobalCommentProvider } from '@/components/global-comment';
 import CollabView from '@/components/publish/CollabView';
 import { OutlineDrawer } from '@/components/publish/outline';
-import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import { PublishViewHeader } from '@/components/publish/header';
 import NotFound from '@/components/error/NotFound';
+import { useSearchParams } from 'react-router-dom';
 
 export interface PublishViewProps {
   namespace: string;
@@ -18,7 +18,7 @@ export interface PublishViewProps {
 
 const drawerWidth = 268;
 
-export function PublishView({ namespace, publishName }: PublishViewProps) {
+export function PublishView ({ namespace, publishName }: PublishViewProps) {
   const [doc, setDoc] = useState<YDoc | undefined>();
   const [notFound, setNotFound] = useState<boolean>(false);
 
@@ -44,49 +44,50 @@ export function PublishView({ namespace, publishName }: PublishViewProps) {
 
   const [open, setOpen] = useState(false);
 
-  const onKeyDown = useCallback((e: KeyboardEvent) => {
-    switch (true) {
-      case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
-        e.preventDefault();
-        // setOpen((prev) => !prev);
-        break;
-      default:
-        break;
-    }
-  }, []);
+  const [search] = useSearchParams();
+
+  const isTemplate = search.get('template') === 'true';
+  const isTemplateThumb = isTemplate && search.get('thumbnail') === 'true';
 
   useEffect(() => {
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
+    if (!isTemplateThumb) return;
+    document.documentElement.setAttribute('thumbnail', 'true');
+  }, [isTemplateThumb]);
 
   if (notFound && !doc) {
     return <NotFound />;
   }
 
   return (
-    <PublishProvider namespace={namespace} publishName={publishName}>
-      <div className={'h-screen w-screen'}>
+    <PublishProvider isTemplateThumb={isTemplateThumb} namespace={namespace} publishName={publishName}>
+      <div className={'h-screen w-screen'} style={isTemplateThumb ? {
+        pointerEvents: 'none',
+        transform: 'scale(0.333)',
+        transformOrigin: '0 0',
+        width: '300vw',
+        height: '400vh',
+        overflow: 'hidden',
+      } : undefined}
+      >
         <AFScroller
           overflowXHidden
+          overflowYHidden={isTemplateThumb}
           style={{
             transform: open ? `translateX(${drawerWidth}px)` : 'none',
             width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
             transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
           }}
-          className={'appflowy-layout appflowy-scroll-container'}
+          className={'appflowy-layout appflowy-scroll-container h-full'}
         >
-          <PublishViewHeader
+          {!isTemplate && <PublishViewHeader
             onOpenDrawer={() => {
               setOpen(true);
             }}
             openDrawer={open}
-          />
+          />}
 
           <CollabView doc={doc} />
-          {doc && (
+          {doc && !isTemplate && (
             <Suspense fallback={<ComponentLoading />}>
               <GlobalCommentProvider />
             </Suspense>

@@ -3,7 +3,7 @@ import { PublishContext } from '@/application/publish';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { Button, IconButton, Tooltip, TooltipProps } from '@mui/material';
 import React, { memo, useCallback, useContext, useMemo } from 'react';

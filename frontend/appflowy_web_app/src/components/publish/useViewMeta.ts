@@ -1,10 +1,11 @@
+import { ViewLayout } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
 import { EditorLayoutStyle } from '@/components/editor/EditorContext';
 import { ViewMetaCover } from '@/components/view-meta';
 import { getFontFamily } from '@/utils/font';
 import { useEffect, useMemo } from 'react';
 
-export function useViewMeta() {
+export function useViewMeta () {
   const viewMeta = usePublishContext()?.viewMeta;
 
   const extra = useMemo(() => {
@@ -34,8 +35,9 @@ export function useViewMeta() {
     return {
       fontFamily: layoutStyle.font,
       fontSize: fontSizeMap[layoutStyle.fontLayout],
+      height: layout === ViewLayout.Document ? 'auto' : 'inherit',
     };
-  }, [layoutStyle]);
+  }, [layoutStyle, layout]);
 
   const layoutClassName = useMemo(() => {
     const classList = [];

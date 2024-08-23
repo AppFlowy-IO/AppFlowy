@@ -1,4 +1,4 @@
-export function blobToBytes(blob: Blob): Promise<Uint8Array> {
+export function blobToBytes (blob: Blob): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
