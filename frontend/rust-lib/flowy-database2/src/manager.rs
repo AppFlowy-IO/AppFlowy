@@ -671,17 +671,17 @@ impl WorkspaceDatabaseCollabServiceImpl {
         self
           .cancellation
           .insert(object_id.clone(), Some(token.clone()));
+        let cloned_cancellation = self.cancellation.clone();
         tokio::spawn(async move {
-          loop {
             select! {
               _ = token.cancelled() => {
                 return Err(DatabaseError::ActionCancelled);
               },
               encode_collab = cloud_service.get_database_encode_collab(&object_id, object_ty, &workspace_id) => {
+                cloned_cancellation.remove(&object_id);
                 return Ok(encode_collab?);
               }
             }
-          }
         }).await.map_err(|err| DatabaseError::Internal(err.into()))?
       },
     }
@@ -758,40 +758,38 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
     let data_source: DataSource = if is_new {
       DataSource::Disk(None)
+    } else if self.persistence.is_collab_exist(object_id) {
+      CollabPersistenceImpl {
+        persistence: Some(self.persistence.clone()),
+      }
+      .into()
     } else {
-      if self.persistence.is_collab_exist(object_id) {
-        CollabPersistenceImpl {
-          persistence: Some(self.persistence.clone()),
-        }
-        .into()
-      } else {
-        match self.get_encode_collab(object_id, collab_type).await {
-          Ok(Some(encode_collab)) => {
-            self
-              .persistence
-              .flush_collab(object_id, encode_collab.clone())
-              .map_err(|err| DatabaseError::Internal(anyhow!("Failed to flush collab: {}", err)))?;
-            DataSource::from(encode_collab)
-          },
-          Ok(None) => {
-            // when collab not exist, create a default collab
-            CollabPersistenceImpl {
-              persistence: Some(self.persistence.clone()),
-            }
-            .into()
-          },
-          Err(err) => {
-            error!("Failed to get encode collab: {}", err);
-            return Err(err);
-          },
-        }
+      match self.get_encode_collab(object_id, collab_type).await {
+        Ok(Some(encode_collab)) => {
+          self
+            .persistence
+            .flush_collab(object_id, encode_collab.clone())
+            .map_err(|err| DatabaseError::Internal(anyhow!("Failed to flush collab: {}", err)))?;
+          DataSource::from(encode_collab)
+        },
+        Ok(None) => {
+          // when collab not exist, create a default collab
+          CollabPersistenceImpl {
+            persistence: Some(self.persistence.clone()),
+          }
+          .into()
+        },
+        Err(err) => {
+          error!("Failed to get encode collab: {}", err);
+          return Err(err);
+        },
       }
     };
 
     let collab_db = self.collab_db()?;
     let collab = self
       .collab_builder
-      .build_collab(&object, &collab_db, data_source.into())?;
+      .build_collab(&object, &collab_db, data_source)?;
     Ok(collab)
   }
 
