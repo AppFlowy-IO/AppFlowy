@@ -507,7 +507,7 @@ impl DatabaseEditor {
         .await
         .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
 
-      let (index, row_order) = database.create_row_in_view(view_id, params)?;
+      let (index, row_order) = database.create_row_in_view(view_id, params).await?;
       trace!(
         "duplicate row: {:?} at index:{}, new row:{:?}",
         row_id,
@@ -577,7 +577,9 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let (index, order_id) = database.create_row_in_view(&view_editor.view_id, collab_params)?;
+    let (index, order_id) = database
+      .create_row_in_view(&view_editor.view_id, collab_params)
+      .await?;
     let row_detail = database.get_row_detail(&order_id.id).await;
     drop(database);
 
@@ -698,6 +700,7 @@ impl DatabaseEditor {
       .read()
       .await
       .init_database_row(row_id)
+      .await
       .ok_or_else(|| {
         FlowyError::record_not_found()
           .with_context(format!("The row:{} in database not found", row_id))
