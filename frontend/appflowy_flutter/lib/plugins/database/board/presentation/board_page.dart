@@ -653,7 +653,7 @@ class _BoardCardState extends State<_BoardCard> {
             onTap: (context) => _openCard(
               context: context,
               databaseController: databaseController,
-              rowMeta: context.read<CardBloc>().state.rowMeta,
+              rowMeta: context.read<CardBloc>().rowController.rowMeta,
             ),
             onShiftTap: (_) {
               Focus.of(context).requestFocus();
