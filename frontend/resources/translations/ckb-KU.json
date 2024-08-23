@@ -481,8 +481,8 @@
       "tooltipSelectIcon": "هەڵبژاەدنی وێنۆچكه‌",
       "selectAnIcon": "هەڵبژاردنی وێنۆچكه‌",
       "pleaseInputYourOpenAIKey": "تکایە کلیلی AI ـەکەت بنووسە",
-      "pleaseInputYourStabilityAIKey": "تکایە جێگیری کلیلی  AI ـەکەت بنووسە",
-      "clickToLogout": "بۆ دەرچوون لە بەکارهێنەری ئێستا کلیک بکە"
+      "clickToLogout": "بۆ دەرچوون لە بەکارهێنەری ئێستا کلیک بکە",
+      "pleaseInputYourStabilityAIKey": "تکایە جێگیری کلیلی  AI ـەکەت بنووسە"
     },
     "mobile": {
       "personalInfo": "زانیاری کەسی",

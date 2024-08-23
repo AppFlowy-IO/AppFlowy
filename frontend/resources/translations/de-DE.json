@@ -1197,8 +1197,8 @@
       "tooltipSelectIcon": "Symbol auswählen",
       "selectAnIcon": "Ein Symbol auswählen",
       "pleaseInputYourOpenAIKey": "Bitte gebe den AI-Schlüssel ein",
-      "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
-      "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
+      "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen",
+      "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein"
     },
     "mobile": {
       "personalInfo": "Persönliche Informationen",
@@ -1742,7 +1742,6 @@
       },
       "searchForAnImage": "Nach einem Bild suchen",
       "pleaseInputYourOpenAIKey": "biitte den AI Schlüssel in der Einstellungsseite eingeben",
-      "pleaseInputYourStabilityAIKey": "biitte den Stability AI Schlüssel in der Einstellungsseite eingeben",
       "saveImageToGallery": "Bild speichern",
       "failedToAddImageToGallery": "Das Bild konnte nicht zur Galerie hinzugefügt werden",
       "successToAddImageToGallery": "Das Bild wurde zur Galerie hinzugefügt werden",
@@ -1764,7 +1763,8 @@
           "scalePercentage": "{}%",
           "deleteImageTooltip": "Bild löschen"
         }
-      }
+      },
+      "pleaseInputYourStabilityAIKey": "biitte den Stability AI Schlüssel in der Einstellungsseite eingeben"
     },
     "codeBlock": {
       "language": {

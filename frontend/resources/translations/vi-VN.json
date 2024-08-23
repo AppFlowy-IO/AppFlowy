@@ -42,12 +42,30 @@
     "emailHint": "Email",
     "passwordHint": "Mật khẩu",
     "dontHaveAnAccount": "Bạn chưa có tài khoản?",
+    "createAccount": "Tạo tài khoản",
     "repeatPasswordEmptyError": "Mật khẩu nhập lại không được để trống",
     "unmatchedPasswordError": "Mật khẩu nhập lại không giống mật khẩu",
     "syncPromptMessage": "Việc đồng bộ hóa dữ liệu có thể mất một lúc. Xin đừng đóng trang này",
     "or": "HOẶC",
+    "signInWithGoogle": "Tiếp tục với Google",
+    "signInWithGithub": "Tiếp tục với Github",
+    "signInWithDiscord": "Tiếp tục với Discord",
+    "signUpWithGoogle": "Đăng ký với Google",
+    "signUpWithGithub": "Đăng ký với Github",
+    "signUpWithDiscord": "Đăng ký với Discord",
     "signInWith": "Đăng nhập bằng:",
     "signInWithEmail": "Đăng nhập bằng Email",
+    "signInWithMagicLink": "Tiếp tục",
+    "signUpWithMagicLink": "Đăng ký với Magic Link",
+    "pleaseInputYourEmail": "Vui lòng nhập địa chỉ email của bạn",
+    "settings": "Cài đặt",
+    "magicLinkSent": "Đã gửi Magic Link!",
+    "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ",
+    "alreadyHaveAnAccount": "Bạn đã có tài khoản?",
+    "logIn": "Đăng nhập",
+    "generalError": "Có gì đó không ổn. Vui lòng thử lại sau",
+    "limitRateError": "Vì lý do bảo mật, bạn chỉ có thể yêu cầu Magic Link sau mỗi 60 giây",
+    "magicLinkSentDescription": "Một Magic Link đã được gửi đến email của bạn. Nhấp vào liên kết để hoàn tất đăng nhập. Liên kết sẽ hết hạn sau 5 phút.",
     "LogInWithGoogle": "Đăng nhập bằng Google",
     "LogInWithGithub": "Đăng nhập bằng Github",
     "LogInWithDiscord": "Đăng nhập bằng Discord",
@@ -57,6 +75,7 @@
     "chooseWorkspace": "Chọn không gian làm việc của bạn",
     "create": "Tạo không gian làm việc",
     "reset": "Đặt lại không gian làm việc",
+    "renameWorkspace": "Đổi tên không gian làm việc",
     "resetWorkspacePrompt": "Đặt lại không gian làm việc sẽ xóa tất cả các trang và dữ liệu trong đó. Bạn có chắc chắn muốn đặt lại không gian làm việc? Ngoài ra, bạn có thể liên hệ với nhóm hỗ trợ để khôi phục không gian làm việc",
     "hint": "không gian làm việc",
     "notFoundError": "Không tìm thấy không gian làm việc",
@@ -89,8 +108,18 @@
     "buttonText": "Chia sẻ",
     "workInProgress": "Sắp ra mắt",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Sao chép vào clipboard",
     "csv": "CSV",
-    "copyLink": "Sao chép đường dẫn"
+    "copyLink": "Sao chép đường dẫn",
+    "publishToTheWeb": "Xuất bản lên Web",
+    "publishToTheWebHint": "Tạo trang web với AppFlowy",
+    "publish": "Xuất bản",
+    "unPublish": "Hủy xuất bản",
+    "visitSite": "Truy cập trang web",
+    "exportAsTab": "Xuất khẩu dưới dạng",
+    "publishTab": "Xuất bản",
+    "shareTab": "Chia sẻ"
   },
   "moreAction": {
     "small": "nhỏ",
@@ -121,7 +150,9 @@
     "openNewTab": "Mở trong tab mới",
     "moveTo": "Chuyển tới",
     "addToFavorites": "Thêm vào mục yêu thích",
-    "copyLink": "Sao chép đường dẫn"
+    "copyLink": "Sao chép đường dẫn",
+    "changeIcon": "Thay đổi biểu tượng",
+    "collapseAllPages": "Thu gọn tất cả các trang con"
   },
   "blankPageTitle": "Trang trống",
   "newPageText": "Trang mới",
@@ -129,6 +160,32 @@
   "newGridText": "Lưới mới",
   "newCalendarText": "Lịch mới",
   "newBoardText": "Bảng mới",
+  "chat": {
+    "newChat": "AI Chat",
+    "inputMessageHint": "Hỏi @:appName AI",
+    "inputLocalAIMessageHint": "Hỏi @:appName AI cục bộ",
+    "unsupportedCloudPrompt": "Tính năng này chỉ khả dụng khi sử dụng @:appName Cloud",
+    "relatedQuestion": "Có liên quan",
+    "serverUnavailable": "Dịch vụ tạm thời không khả dụng. Vui lòng thử lại sau.",
+    "aiServerUnavailable": "🌈 Ồ không! 🌈. Một con kỳ lân đã ăn mất câu trả lời của chúng tôi. Vui lòng thử lại!",
+    "clickToRetry": "Nhấp để thử lại",
+    "regenerateAnswer": "Tạo lại",
+    "question1": "Cách sử dụng Kanban để quản lý nhiệm vụ",
+    "question2": "Giải thích phương pháp GTD",
+    "question3": "Tại sao sử dụng Rust",
+    "question4": "Công thức với những gì đang có",
+    "aiMistakePrompt": "AI có thể mắc lỗi. Hãy kiểm tra thông tin quan trọng.",
+    "chatWithFilePrompt": "Bạn có muốn trò chuyện với tập tin không?",
+    "indexFileSuccess": "Đang lập chỉ mục tệp thành công",
+    "inputActionNoPages": "Không có kết quả trang",
+    "referenceSource": "{} nguồn đã tìm thấy",
+    "referenceSources": "{} nguồn được tìm thấy",
+    "clickToMention": "Nhấp để đề cập đến một trang",
+    "uploadFile": "Tải lên các tệp PDF, md hoặc txt để trò chuyện",
+    "questionTitle": "Ý tưởng",
+    "questionDetail": "Xin chào {}! Tôi có thể giúp gì cho bạn hôm nay?",
+    "indexingFile": "Đang lập chỉ mục {}"
+  },
   "trash": {
     "text": "Thùng rác",
     "restoreAll": "Khôi phục lại tất cả",
@@ -190,6 +247,8 @@
     "numList": "Danh sách đánh số",
     "bulletList": "Danh sách có dấu đầu dòng",
     "checkList": "Danh mục",
+    "inlineCode": "Mã nội tuyến",
+    "quote": "Khối trích dẫn",
     "header": "Tiêu đề",
     "highlight": "Điểm nổi bật",
     "color": "Màu",
@@ -205,7 +264,8 @@
     "dragRow": "Nhấn và giữ để sắp xếp lại hàng",
     "viewDataBase": "Xem cơ sở dữ liệu",
     "referencePage": "{name} này được tham chiếu",
-    "addBlockBelow": "Thêm một khối bên dưới"
+    "addBlockBelow": "Thêm một khối bên dưới",
+    "aiGenerate": "Tạo"
   },
   "sideBar": {
     "closeSidebar": "Đóng thanh bên",
@@ -214,10 +274,43 @@
     "private": "Riêng tư",
     "workspace": "Không gian làm việc",
     "favorites": "Yêu thích",
+    "clickToHidePrivate": "Nhấp để ẩn không gian riêng tư\nCác trang bạn tạo ở đây chỉ hiển thị với bạn",
+    "clickToHideWorkspace": "Nhấp để ẩn không gian làm việc\nCác trang bạn tạo ở đây có thể được mọi thành viên nhìn thấy",
     "clickToHidePersonal": "Bấm để ẩn mục riêng tư",
     "clickToHideFavorites": "Bấm để ẩn mục yêu thích",
     "addAPage": "Thêm một trang",
-    "recent": "Gần đây"
+    "addAPageToPrivate": "Thêm một trang vào không gian riêng tư",
+    "addAPageToWorkspace": "Thêm một trang vào không gian làm việc",
+    "recent": "Gần đây",
+    "today": "Hôm nay",
+    "thisWeek": "Tuần này",
+    "others": "Yêu thích trước đó",
+    "justNow": "ngay bây giờ",
+    "minutesAgo": "{count} phút trước",
+    "lastViewed": "Đã xem lần cuối",
+    "favoriteAt": "Đã yêu thích",
+    "emptyRecent": "Không có tài liệu gần đây",
+    "emptyRecentDescription": "Khi bạn xem tài liệu, chúng sẽ xuất hiện ở đây để dễ dàng truy xuất",
+    "emptyFavorite": "Không có tài liệu yêu thích",
+    "emptyFavoriteDescription": "Bắt đầu khám phá và đánh dấu tài liệu là mục yêu thích. Chúng sẽ được liệt kê ở đây để truy cập nhanh!",
+    "removePageFromRecent": "Xóa trang này khỏi mục Gần đây?",
+    "removeSuccess": "Đã xóa thành công",
+    "favoriteSpace": "Yêu thích",
+    "RecentSpace": "Gần đây",
+    "Spaces": "Khoảng cách",
+    "upgradeToPro": "Nâng cấp lên Pro",
+    "upgradeToAIMax": "Mở khóa AI không giới hạn",
+    "storageLimitDialogTitle": "Bạn đã hết dung lượng lưu trữ miễn phí. Nâng cấp để mở khóa dung lượng lưu trữ không giới hạn",
+    "aiResponseLimitTitle": "Bạn đã hết phản hồi AI miễn phí. Nâng cấp lên Gói Pro hoặc mua tiện ích bổ sung AI để mở khóa phản hồi không giới hạn",
+    "aiResponseLimitDialogTitle": "Đã đạt đến giới hạn sử dụng AI",
+    "aiResponseLimit": "Bạn đã hết lượt dùng AI miễn phí.\nVào Cài đặt -> Gói đăng ký -> Nhấp vào AI Max hoặc Gói Pro để có thêm lượt dùng AI",
+    "askOwnerToUpgradeToPro": "Không gian làm việc của bạn sắp hết dung lượng lưu trữ miễn phí. Vui lòng yêu cầu chủ sở hữu không gian làm việc của bạn nâng cấp lên Gói Pro",
+    "askOwnerToUpgradeToAIMax": "Không gian làm việc của bạn sắp hết phản hồi AI miễn phí. Vui lòng yêu cầu chủ sở hữu không gian làm việc của bạn nâng cấp gói hoặc mua tiện ích bổ sung AI",
+    "purchaseStorageSpace": "Mua không gian lưu trữ",
+    "purchaseAIResponse": "Mua ",
+    "askOwnerToUpgradeToLocalAI": "Yêu cầu chủ sở hữu không gian làm việc bật AI trên thiết bị",
+    "upgradeToAILocal": "Chạy các mô hình cục bộ trên thiết bị của bạn để có quyền riêng tư tối đa",
+    "upgradeToAILocalDesc": "Trò chuyện với PDF, cải thiện khả năng viết và tự động điền bảng bằng AI cục bộ"
   },
   "notifications": {
     "export": {
@@ -233,6 +326,7 @@
   },
   "button": {
     "ok": "OK",
+    "confirm": "Xác nhận",
     "done": "Xong",
     "cancel": "Hủy",
     "signIn": "Đăng nhập",
@@ -255,19 +349,33 @@
     "update": "Cập nhật",
     "share": "Chia sẻ",
     "removeFromFavorites": "Loại bỏ khỏi mục yêu thích",
+    "removeFromRecent": "Xóa khỏi gần đây",
     "addToFavorites": "Thêm vào mục yêu thích",
+    "favoriteSuccessfully": "Đã thêm vào yêu thích",
+    "unfavoriteSuccessfully": "Đã xoá khỏi yêu thích",
     "rename": "Đổi tên",
     "helpCenter": "Trung tâm trợ giúp",
     "add": "Thêm",
     "yes": "Đúng",
+    "no": "Không",
+    "clear": "Xoá",
+    "remove": "Di chuyển",
+    "dontRemove": "Không xóa",
     "copyLink": "Sao chép đường dẫn",
     "align": "Căn chỉnh",
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
     "deleteAccount": "Xóa tài khoản",
+    "back": "Quay lại",
     "signInGoogle": "Đăng nhập bằng Google",
     "signInGithub": "Đăng nhập bằng Github",
     "signInDiscord": "Đăng nhập bằng Discord",
+    "more": "Hơn nữa",
+    "create": "Tạo mới",
+    "close": "Đóng",
+    "next": "Kế tiếp",
+    "previous": "Trước đó",
+    "submit": "Gửi",
     "tryAGain": "Thử lại"
   },
   "label": {
@@ -292,6 +400,118 @@
   },
   "settings": {
     "title": "Cài đặt",
+    "popupMenuItem": {
+      "settings": "Cài đặt",
+      "members": "Thành viên",
+      "trash": "Thùng Rác",
+      "helpAndSupport": "Trợ giúp & Hỗ trợ"
+    },
+    "accountPage": {
+      "menuLabel": "Tài khoản của tôi",
+      "title": "Tài khoản của tôi",
+      "general": {
+        "title": "Tên tài khoản & ảnh đại diện",
+        "changeProfilePicture": "Thay đổi ảnh đại diện"
+      },
+      "email": {
+        "title": "E-mail",
+        "actions": {
+          "change": "Thay đổi email"
+        }
+      },
+      "login": {
+        "title": "Đăng nhập tài khoản",
+        "loginLabel": "Đăng nhập",
+        "logoutLabel": "Đăng xuất"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "Không gian làm việc",
+      "title": "Không gian làm việc",
+      "description": "Tùy chỉnh giao diện không gian làm việc, chủ đề, phông chữ, bố cục văn bản, định dạng ngày/giờ và ngôn ngữ.",
+      "workspaceName": {
+        "title": "Tên không gian làm việc"
+      },
+      "workspaceIcon": {
+        "title": "Biểu tượng không gian làm việc",
+        "description": "Tải lên hình ảnh hoặc sử dụng biểu tượng cảm xúc cho không gian làm việc của bạn. Biểu tượng sẽ hiển thị trên thanh bên và thông báo của bạn."
+      },
+      "appearance": {
+        "title": "Vẻ bề ngoài",
+        "description": "Tùy chỉnh giao diện không gian làm việc, chủ đề, phông chữ, bố cục văn bản, ngày, giờ và ngôn ngữ.",
+        "options": {
+          "system": "Tự động",
+          "light": "Sáng",
+          "dark": "Tối"
+        }
+      },
+      "resetCursorColor": {
+        "title": "Đặt lại màu con trỏ tài liệu",
+        "description": "Bạn có chắc chắn muốn thiết lập lại màu con trỏ không?"
+      },
+      "resetSelectionColor": {
+        "title": "Đặt lại màu lựa chọn tài liệu",
+        "description": "Bạn có chắc chắn muốn thiết lập lại màu đã chọn không?"
+      },
+      "theme": {
+        "title": "Chủ đề",
+        "description": "Chọn chủ đề có sẵn hoặc tải lên chủ đề tùy chỉnh của riêng bạn.",
+        "uploadCustomThemeTooltip": "Tải lên một chủ đề tùy chỉnh"
+      },
+      "workspaceFont": {
+        "title": "Phông chữ không gian làm việc",
+        "noFontHint": "Không tìm thấy phông chữ, hãy thử thuật ngữ khác."
+      },
+      "textDirection": {
+        "title": "Hướng văn bản",
+        "leftToRight": "Từ trái sang phải",
+        "rightToLeft": "Từ phải sang trái",
+        "auto": "Tự động",
+        "enableRTLItems": "Bật các mục thanh công cụ RTL"
+      },
+      "layoutDirection": {
+        "title": "Hướng bố trí",
+        "leftToRight": "Từ trái sang phải",
+        "rightToLeft": "Từ phải sang trái"
+      },
+      "dateTime": {
+        "title": "Ngày & giờ",
+        "example": "{} tại {} ({})",
+        "24HourTime": "thời gian 24 giờ",
+        "dateFormat": {
+          "label": "Định dạng ngày tháng",
+          "local": "Địa phương",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Thân thiện",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "Ngôn ngữ"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Xóa không gian làm việc",
+        "content": "Bạn có chắc chắn muốn xóa không gian làm việc này không? Hành động này không thể hoàn tác và bất kỳ trang nào bạn đã xuất bản sẽ bị hủy xuất bản."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Rời khỏi không gian làm việc",
+        "content": "Bạn có chắc chắn muốn rời khỏi không gian làm việc này không? Bạn sẽ mất quyền truy cập vào tất cả các trang và dữ liệu trong đó."
+      },
+      "manageWorkspace": {
+        "title": "Quản lý không gian làm việc",
+        "leaveWorkspace": "Rời khỏi không gian làm việc",
+        "deleteWorkspace": "Xóa không gian làm việc"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "Quản lý dữ liệu",
+      "title": "Quản lý dữ liệu",
+      "description": "Quản lý dữ liệu lưu trữ cục bộ hoặc Nhập dữ liệu hiện có của bạn vào @:appName .",
+      "dataStorage": {
+        "title": "Vị trí lưu trữ tập tin"
+      }
+    },
     "menu": {
       "appearance": "Giao diện",
       "language": "Ngôn ngữ",
@@ -466,8 +686,8 @@
       "tooltipSelectIcon": "Chọn biểu tượng",
       "selectAnIcon": "Chọn một biểu tượng",
       "pleaseInputYourOpenAIKey": "vui lòng nhập khóa AI của bạn",
-      "pleaseInputYourStabilityAIKey": "vui lòng nhập khóa Stability AI của bạn",
-      "clickToLogout": "Nhấn để đăng xuất"
+      "clickToLogout": "Nhấn để đăng xuất",
+      "pleaseInputYourStabilityAIKey": "vui lòng nhập khóa Stability AI của bạn"
     },
     "mobile": {
       "personalInfo": "Thông tin cá nhân",
