@@ -379,6 +379,7 @@ class FlowyTextButton extends StatelessWidget {
       color: textColor,
       textAlign: TextAlign.center,
       lineHeight: lineHeight,
+      fontSize: fontSize,
     ));
 
     Widget child = Row(

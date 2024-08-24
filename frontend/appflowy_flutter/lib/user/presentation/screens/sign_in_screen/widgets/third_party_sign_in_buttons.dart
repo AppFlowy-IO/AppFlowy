@@ -175,7 +175,7 @@ class _DesktopSignInButton extends StatelessWidget {
             width: 24,
             child: FlowySvg(
               type.icon,
-              blendMode: null,
+              blendMode: type.blendMode,
             ),
           ),
         ),

@@ -34,7 +34,7 @@ class _SignInWithMagicLinkButtonsState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 38.0,
+          height: PlatformExtension.isMobile ? 38.0 : 48.0,
           child: FlowyTextField(
             autoFocus: false,
             controller: controller,
@@ -104,7 +104,6 @@ class _ConfirmButton extends StatelessWidget {
               name,
               fontSize: 14,
               color: Theme.of(context).colorScheme.onPrimary,
-              // fontWeight: FontWeight.w500,
             ),
           );
         } else {
@@ -117,6 +116,7 @@ class _ConfirmButton extends StatelessWidget {
               text: FlowyText.medium(
                 name,
                 textAlign: TextAlign.center,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
               radius: Corners.s6Border,
             ),
