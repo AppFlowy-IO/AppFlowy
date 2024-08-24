@@ -86,7 +86,10 @@ impl GroupCustomize for DateGroupController {
     {
       let group = make_group_from_date_cell(&_cell_data.into(), &setting_content);
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowMetaPB::from(_row_detail));
+      new_group
+        .group
+        .rows
+        .push(RowMetaPB::from(_row_detail.clone()));
       inserted_group = Some(new_group);
     }
 
@@ -130,7 +133,7 @@ impl GroupCustomize for DateGroupController {
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {

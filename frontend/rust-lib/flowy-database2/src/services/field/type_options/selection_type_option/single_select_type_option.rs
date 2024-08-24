@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionCellDataSerde,
 };
 use crate::services::field::{
@@ -9,6 +9,7 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 use collab::util::AnyMapExt;
+use collab_database::entity::SelectOption;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -149,40 +150,9 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
 
 #[cfg(test)]
 mod tests {
-  use crate::entities::FieldType;
   use crate::services::cell::CellDataChangeset;
   use crate::services::field::type_options::*;
-
-  #[test]
-  fn single_select_transform_with_checkbox_type_option_test() {
-    let checkbox = CheckboxTypeOption::default();
-
-    let mut single_select = SingleSelectTypeOption::default();
-    single_select.transform_type_option(FieldType::Checkbox, checkbox.clone().into());
-    debug_assert_eq!(single_select.options.len(), 2);
-
-    // Already contain the yes/no option. It doesn't need to insert new options
-    single_select.transform_type_option(FieldType::Checkbox, checkbox.into());
-    debug_assert_eq!(single_select.options.len(), 2);
-  }
-
-  #[test]
-  fn single_select_transform_with_multi_select_type_option_test() {
-    let google = SelectOption::new("Google");
-    let facebook = SelectOption::new("Facebook");
-    let multi_select = MultiSelectTypeOption {
-      options: vec![google, facebook],
-      disable_color: false,
-    };
-
-    let mut single_select = SingleSelectTypeOption::default();
-    single_select.transform_type_option(FieldType::MultiSelect, multi_select.clone().into());
-    debug_assert_eq!(single_select.options.len(), 2);
-
-    // Already contain the yes/no option. It doesn't need to insert new options
-    single_select.transform_type_option(FieldType::MultiSelect, multi_select.into());
-    debug_assert_eq!(single_select.options.len(), 2);
-  }
+  use collab_database::entity::SelectOption;
 
   #[test]
   fn single_select_insert_multi_option_test() {

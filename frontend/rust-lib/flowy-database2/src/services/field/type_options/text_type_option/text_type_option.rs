@@ -147,6 +147,11 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
 
 #[derive(Default, Debug, Clone)]
 pub struct StringCellData(pub String);
+impl StringCellData {
+  pub fn into_inner(self) -> String {
+    self.0
+  }
+}
 impl std::ops::Deref for StringCellData {
   type Target = String;
 

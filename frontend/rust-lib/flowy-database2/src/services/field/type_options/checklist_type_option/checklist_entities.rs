@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
-use crate::services::field::{SelectOption, TypeOptionCellData, CELL_DATA};
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 use collab::util::AnyMapExt;
+use collab_database::entity::SelectOption;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;

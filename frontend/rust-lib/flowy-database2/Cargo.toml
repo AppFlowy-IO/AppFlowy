@@ -61,3 +61,4 @@ flowy-codegen.workspace = true
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
+verbose_log = ["collab-database/verbose_log"]

@@ -16,6 +16,7 @@ pub enum FieldScript {
     field: Field,
   },
   SwitchToField {
+    view_id: String,
     field_id: String,
     new_field_type: FieldType,
   },
@@ -80,13 +81,14 @@ impl DatabaseFieldTest {
         assert_eq!(self.field_count, fields.len());
       },
       FieldScript::SwitchToField {
+        view_id,
         field_id,
         new_field_type,
       } => {
         //
         self
           .editor
-          .switch_to_field_type(&field_id, new_field_type)
+          .switch_to_field_type(&view_id, &field_id, new_field_type)
           .await
           .unwrap();
       },

@@ -57,7 +57,10 @@ impl GroupCustomize for URLGroupController {
       let cell_data: URLCellData = _cell_data.clone().into();
       let group = Group::new(cell_data.data);
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowMetaPB::from(_row_detail));
+      new_group
+        .group
+        .rows
+        .push(RowMetaPB::from(_row_detail.clone()));
       inserted_group = Some(new_group);
     }
 
@@ -98,7 +101,7 @@ impl GroupCustomize for URLGroupController {
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {

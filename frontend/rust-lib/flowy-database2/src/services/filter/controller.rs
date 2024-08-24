@@ -360,7 +360,8 @@ impl FilterController {
         if is_visible {
           if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
             notification.visible_rows.push(
-              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref())).with_index(index as i32),
+              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref().clone()))
+                .with_index(index as i32),
             )
           }
         } else {
@@ -397,7 +398,7 @@ impl FilterController {
         &filters,
       ) {
         if is_visible {
-          let row_meta = RowMetaPB::from(row_detail.as_ref());
+          let row_meta = RowMetaPB::from(row_detail.as_ref().clone());
           visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
           invisible_rows.push(row_detail.row.id.clone());

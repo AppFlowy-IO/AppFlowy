@@ -1,13 +1,13 @@
 use collab::preclude::encoding::serde::from_any;
 use collab::preclude::Any;
-use std::cmp::Ordering;
 
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
-use crate::entities::{TextFilterPB, URLCellDataPB};
+use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
@@ -63,6 +63,17 @@ impl TypeOptionCellDataSerde for URLTypeOption {
 impl CellDataDecoder for URLTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
+  }
+  fn decode_cell_with_transform(
+    &self,
+    cell: &Cell,
+    from_field_type: FieldType,
+    _field: &Field,
+  ) -> Option<<Self as TypeOption>::CellData> {
+    match from_field_type {
+      FieldType::RichText => Some(Self::CellData::from(cell)),
+      _ => None,
+    }
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {

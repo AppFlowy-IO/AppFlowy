@@ -316,7 +316,7 @@ impl DatabaseManager {
           let weak_workspace_database = Arc::downgrade(&self.workspace_database()?);
           let weak_removing_editors = Arc::downgrade(&self.removing_editor);
           af_spawn(async move {
-            tokio::time::sleep(std::time::Duration::from_secs(120)).await;
+            tokio::time::sleep(std::time::Duration::from_secs(30)).await;
             if let Some(removing_editors) = weak_removing_editors.upgrade() {
               if removing_editors.lock().await.remove(&database_id).is_some() {
                 if let Some(workspace_database) = weak_workspace_database.upgrade() {
@@ -793,8 +793,8 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     Ok(collab)
   }
 
-  fn persistence(&self) -> Option<Box<dyn DatabaseCollabPersistenceService>> {
-    Some(Box::new(DatabasePersistenceImpl {
+  fn persistence(&self) -> Option<Arc<dyn DatabaseCollabPersistenceService>> {
+    Some(Arc::new(DatabasePersistenceImpl {
       user: self.user.clone(),
     }))
   }
