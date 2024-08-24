@@ -53,7 +53,7 @@ class _ThirdPartySignInButtonsState extends State<ThirdPartySignInButtons> {
           _DesktopSignInButton(
             type: ThirdPartySignInButtonType.github,
             onPressed: () {
-              _signInWithGoogle(context);
+              _signInWithGithub(context);
             },
           ),
           const VSpace(padding),
