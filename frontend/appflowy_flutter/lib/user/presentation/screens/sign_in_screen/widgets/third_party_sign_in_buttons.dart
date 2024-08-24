@@ -71,14 +71,15 @@ class _ThirdPartySignInButtonsState extends State<ThirdPartySignInButtons> {
         builder: (context, state) {
           return Column(
             children: [
-              if (Platform.isIOS)
+              if (Platform.isIOS) ...[
                 MobileThirdPartySignInButton(
                   type: ThirdPartySignInButtonType.apple,
                   onPressed: () {
                     _signInWithApple(context);
                   },
                 ),
-              const VSpace(padding),
+                const VSpace(padding),
+              ],
               MobileThirdPartySignInButton(
                 type: ThirdPartySignInButtonType.google,
                 onPressed: () {

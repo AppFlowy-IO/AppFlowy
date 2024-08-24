@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -30,7 +32,6 @@ class MobileSignInScreen extends StatelessWidget {
                 const Spacer(flex: 4),
                 _buildLogo(),
                 const VSpace(spacing),
-                // _buildWelcomeText(),
                 _buildAppNameText(colorScheme),
                 const VSpace(spacing * 2),
                 const SignInWithMagicLinkButtons(),
@@ -88,7 +89,11 @@ class MobileSignInScreen extends StatelessWidget {
           ],
         ),
         const VSpace(16),
-        const ThirdPartySignInButtons(),
+        // expand third-party sign in buttons on Android by default.
+        // on iOS, the github and discord buttons are collapsed by default.
+        ThirdPartySignInButtons(
+          expanded: Platform.isAndroid,
+        ),
       ],
     );
   }
