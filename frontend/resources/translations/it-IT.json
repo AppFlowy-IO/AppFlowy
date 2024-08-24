@@ -86,7 +86,6 @@
       "exportLogFiles": "Esporta i file di log",
       "reachOut": "Contattaci su Discord"
     },
-    "menuTitle": "Workspaces",
     "deleteWorkspaceHintText": "Sei sicuro di voler cancellare la workspace? Questa azione non è reversibile, e ogni pagina che hai pubblicato sarà rimossa.",
     "createSuccess": "Workspace creata con successo",
     "createFailed": "Creazione workspace fallita",
@@ -108,7 +107,6 @@
     "buttonText": "Condividi",
     "workInProgress": "Prossimamente",
     "markdown": "Markdown",
-    "html": "HTML",
     "clipboard": "Copia",
     "csv": "CSV",
     "copyLink": "Copia Link",
@@ -272,7 +270,6 @@
     "openSidebar": "Open sidebar",
     "personal": "Personale",
     "private": "Privato",
-    "workspace": "Workspace",
     "favorites": "Preferiti",
     "clickToHidePrivate": "Clicca per nascondere l'area privata\nLe pagine create qui sono visibili solo a te",
     "clickToHideWorkspace": "Clicca per nascondere la workspace\nLe pagine che crei qui sono visibili a ogni membro",
