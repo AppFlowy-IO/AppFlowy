@@ -13,6 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'third_party_sign_in_button.dart';
 
+@visibleForTesting
+const Key signInWithGoogleButtonKey = Key('signInWithGoogleButton');
+
 class ThirdPartySignInButtons extends StatefulWidget {
   /// Used in DesktopSignInScreen, MobileSignInScreen and SettingThirdPartyLogin
   const ThirdPartySignInButtons({
@@ -44,6 +47,7 @@ class _ThirdPartySignInButtonsState extends State<ThirdPartySignInButtons> {
       return Column(
         children: [
           _DesktopSignInButton(
+            key: signInWithGoogleButtonKey,
             type: ThirdPartySignInButtonType.google,
             onPressed: () {
               _signInWithGoogle(context);
@@ -152,6 +156,7 @@ class _ThirdPartySignInButtonsState extends State<ThirdPartySignInButtons> {
 
 class _DesktopSignInButton extends StatelessWidget {
   const _DesktopSignInButton({
+    super.key,
     required this.type,
     required this.onPressed,
   });
