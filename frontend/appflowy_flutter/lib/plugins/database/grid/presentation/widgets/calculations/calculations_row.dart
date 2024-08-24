@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/grid/application/calculations/calculations_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridCalculationsRow extends StatelessWidget {
@@ -27,9 +26,12 @@ class GridCalculationsRow extends StatelessWidget {
       )..add(const CalculationsEvent.started()),
       child: BlocBuilder<CalculationsBloc, CalculationsState>(
         builder: (context, state) {
+          final padding =
+              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
           return Padding(
-            padding:
-                includeDefaultInsets ? GridSize.contentInsets : EdgeInsets.zero,
+            padding: includeDefaultInsets
+                ? EdgeInsets.symmetric(horizontal: padding)
+                : EdgeInsets.zero,
             child: Row(
               children: [
                 ...state.fields.map(

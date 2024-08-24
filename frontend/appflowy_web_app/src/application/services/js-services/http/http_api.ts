@@ -4,6 +4,13 @@ import { initGrantService, refreshToken } from '@/application/services/js-servic
 import { blobToBytes } from '@/application/services/js-services/http/utils';
 import { AFCloudConfig } from '@/application/services/services.type';
 import { getTokenParsed, invalidToken } from '@/application/session/token';
+import {
+  Template,
+  TemplateCategory,
+  TemplateCategoryFormValues,
+  TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
+  UploadTemplatePayload,
+} from '@/application/template.type';
 import { FolderView, User, Workspace } from '@/application/types';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
@@ -12,13 +19,16 @@ export * from './gotrue';
 
 let axiosInstance: AxiosInstance | null = null;
 
-export function initAPIService(config: AFCloudConfig) {
+export function initAPIService (config: AFCloudConfig) {
   if (axiosInstance) {
     return;
   }
 
   axiosInstance = axios.create({
     baseURL: config.baseURL,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 
   initGrantService(config.gotrueURL);
@@ -26,10 +36,6 @@ export function initAPIService(config: AFCloudConfig) {
   axiosInstance.interceptors.request.use(
     async (config) => {
       const token = getTokenParsed();
-
-      Object.assign(config.headers, {
-        'Content-Type': 'application/json',
-      });
 
       if (!token) {
         return config;
@@ -56,7 +62,7 @@ export function initAPIService(config: AFCloudConfig) {
     },
     (error) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   axiosInstance.interceptors.response.use(async (response) => {
@@ -83,7 +89,7 @@ export function initAPIService(config: AFCloudConfig) {
   });
 }
 
-export async function signInWithUrl(url: string) {
+export async function signInWithUrl (url: string) {
   const hash = new URL(url).hash;
 
   if (!hash) {
@@ -100,7 +106,7 @@ export async function signInWithUrl(url: string) {
   await refreshToken(refresh_token);
 }
 
-export async function verifyToken(accessToken: string) {
+export async function verifyToken (accessToken: string) {
   const url = `/api/user/verify/${accessToken}`;
   const response = await axiosInstance?.get<{
     code: number;
@@ -119,7 +125,7 @@ export async function verifyToken(accessToken: string) {
   return Promise.reject(data);
 }
 
-export async function getCurrentUser(): Promise<User> {
+export async function getCurrentUser (): Promise<User> {
   const url = '/api/user/profile';
   const response = await axiosInstance?.get<{
     code: number;
@@ -155,14 +161,14 @@ export async function getCurrentUser(): Promise<User> {
   return Promise.reject(data);
 }
 
-export async function getPublishViewMeta(namespace: string, publishName: string) {
+export async function getPublishViewMeta (namespace: string, publishName: string) {
   const url = `/api/workspace/published/${namespace}/${publishName}`;
   const response = await axiosInstance?.get(url);
 
   return response?.data;
 }
 
-export async function getPublishViewBlob(namespace: string, publishName: string) {
+export async function getPublishViewBlob (namespace: string, publishName: string) {
   const url = `/api/workspace/published/${namespace}/${publishName}/blob`;
   const response = await axiosInstance?.get(url, {
     responseType: 'blob',
@@ -171,7 +177,7 @@ export async function getPublishViewBlob(namespace: string, publishName: string)
   return blobToBytes(response?.data);
 }
 
-export async function getPublishView(publishNamespace: string, publishName: string) {
+export async function getPublishView (publishNamespace: string, publishName: string) {
   const meta = await getPublishViewMeta(publishNamespace, publishName);
   const blob = await getPublishViewBlob(publishNamespace, publishName);
 
@@ -207,7 +213,7 @@ export async function getPublishView(publishNamespace: string, publishName: stri
   }
 }
 
-export async function getPublishInfoWithViewId(viewId: string) {
+export async function getPublishInfoWithViewId (viewId: string) {
   const url = `/api/workspace/published-info/${viewId}`;
   const response = await axiosInstance?.get<{
     code: number;
@@ -227,7 +233,7 @@ export async function getPublishInfoWithViewId(viewId: string) {
   return Promise.reject(data);
 }
 
-export async function getPublishViewComments(viewId: string): Promise<GlobalComment[]> {
+export async function getPublishViewComments (viewId: string): Promise<GlobalComment[]> {
   const url = `/api/workspace/published-info/${viewId}/comment`;
   const response = await axiosInstance?.get<{
     code: number;
@@ -276,7 +282,7 @@ export async function getPublishViewComments(viewId: string): Promise<GlobalComm
   return Promise.reject(data);
 }
 
-export async function getReactions(viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
+export async function getReactions (viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
   let url = `/api/workspace/published-info/${viewId}/reaction`;
 
   if (commentId) {
@@ -327,7 +333,7 @@ export async function getReactions(viewId: string, commentId?: string): Promise<
   return Promise.reject(data);
 }
 
-export async function createGlobalCommentOnPublishView(viewId: string, content: string, replyCommentId?: string) {
+export async function createGlobalCommentOnPublishView (viewId: string, content: string, replyCommentId?: string) {
   const url = `/api/workspace/published-info/${viewId}/comment`;
   const response = await axiosInstance?.post<{ code: number; message: string }>(url, {
     content,
@@ -341,7 +347,7 @@ export async function createGlobalCommentOnPublishView(viewId: string, content: 
   return Promise.reject(response?.data.message);
 }
 
-export async function deleteGlobalCommentOnPublishView(viewId: string, commentId: string) {
+export async function deleteGlobalCommentOnPublishView (viewId: string, commentId: string) {
   const url = `/api/workspace/published-info/${viewId}/comment`;
   const response = await axiosInstance?.delete<{ code: number; message: string }>(url, {
     data: {
@@ -356,7 +362,7 @@ export async function deleteGlobalCommentOnPublishView(viewId: string, commentId
   return Promise.reject(response?.data.message);
 }
 
-export async function addReaction(viewId: string, commentId: string, reactionType: string) {
+export async function addReaction (viewId: string, commentId: string, reactionType: string) {
   const url = `/api/workspace/published-info/${viewId}/reaction`;
   const response = await axiosInstance?.post<{ code: number; message: string }>(url, {
     comment_id: commentId,
@@ -370,7 +376,7 @@ export async function addReaction(viewId: string, commentId: string, reactionTyp
   return Promise.reject(response?.data.message);
 }
 
-export async function removeReaction(viewId: string, commentId: string, reactionType: string) {
+export async function removeReaction (viewId: string, commentId: string, reactionType: string) {
   const url = `/api/workspace/published-info/${viewId}/reaction`;
   const response = await axiosInstance?.delete<{ code: number; message: string }>(url, {
     data: {
@@ -386,7 +392,7 @@ export async function removeReaction(viewId: string, commentId: string, reaction
   return Promise.reject(response?.data.message);
 }
 
-export async function getWorkspaces(): Promise<Workspace[]> {
+export async function getWorkspaces (): Promise<Workspace[]> {
   const query = new URLSearchParams({
     include_member_count: 'true',
   });
@@ -436,7 +442,7 @@ export interface WorkspaceFolder {
   children: WorkspaceFolder[];
 }
 
-function iterateFolder(folder: WorkspaceFolder): FolderView {
+function iterateFolder (folder: WorkspaceFolder): FolderView {
   return {
     id: folder.view_id,
     name: folder.name,
@@ -450,7 +456,7 @@ function iterateFolder(folder: WorkspaceFolder): FolderView {
   };
 }
 
-export async function getWorkspaceFolder(workspaceId: string): Promise<FolderView> {
+export async function getWorkspaceFolder (workspaceId: string): Promise<FolderView> {
   const url = `/api/workspace/${workspaceId}/folder`;
   const response = await axiosInstance?.get<{
     code: number;
@@ -473,7 +479,7 @@ export interface DuplicatePublishViewPayload {
   dest_view_id: string;
 }
 
-export async function duplicatePublishView(workspaceId: string, payload: DuplicatePublishViewPayload) {
+export async function duplicatePublishView (workspaceId: string, payload: DuplicatePublishViewPayload) {
   const url = `/api/workspace/${workspaceId}/published-duplicate`;
 
   const res = await axiosInstance?.post<{
@@ -486,4 +492,248 @@ export async function duplicatePublishView(workspaceId: string, payload: Duplica
   }
 
   return Promise.reject(res?.data.message);
+}
+
+export async function createTemplate (template: UploadTemplatePayload) {
+  const url = '/api/template-center/template';
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, template);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function updateTemplate (viewId: string, template: UploadTemplatePayload) {
+  const url = `/api/template-center/template/${viewId}`;
+  const response = await axiosInstance?.put<{
+    code: number;
+    message: string;
+  }>(url, template);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function getTemplates ({
+  categoryId,
+  nameContains,
+}: {
+  categoryId?: string;
+  nameContains?: string;
+}) {
+  const url = `/api/template-center/template`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      templates: TemplateSummary[];
+    };
+    message: string;
+  }>(url, {
+    params: {
+      category_id: categoryId,
+      name_contains: nameContains,
+    },
+  });
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.templates;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getTemplateById (viewId: string) {
+  const url = `/api/template-center/template/${viewId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: Template;
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function deleteTemplate (viewId: string) {
+  const url = `/api/template-center/template/${viewId}`;
+  const response = await axiosInstance?.delete<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function getTemplateCategories () {
+  const url = '/api/template-center/category';
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      categories: TemplateCategory[]
+
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.categories;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function addTemplateCategory (category: TemplateCategoryFormValues) {
+  const url = '/api/template-center/category';
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, category);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function updateTemplateCategory (id: string, category: TemplateCategoryFormValues) {
+  const url = `/api/template-center/category/${id}`;
+  const response = await axiosInstance?.put<{
+    code: number;
+    message: string;
+  }>(url, category);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function deleteTemplateCategory (categoryId: string) {
+  const url = `/api/template-center/category/${categoryId}`;
+  const response = await axiosInstance?.delete<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function getTemplateCreators () {
+  const url = '/api/template-center/creator';
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      creators: TemplateCreator[];
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.creators;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function createTemplateCreator (creator: TemplateCreatorFormValues) {
+  const url = '/api/template-center/creator';
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, creator);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function updateTemplateCreator (creatorId: string, creator: TemplateCreatorFormValues) {
+  const url = `/api/template-center/creator/${creatorId}`;
+  const response = await axiosInstance?.put<{
+    code: number;
+    message: string;
+  }>(url, creator);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function deleteTemplateCreator (creatorId: string) {
+  const url = `/api/template-center/creator/${creatorId}`;
+  const response = await axiosInstance?.delete<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
+}
+
+export async function uploadFileToCDN (file: File) {
+  const url = '/api/template-center/avatar';
+  const formData = new FormData();
+
+  console.log(file);
+  formData.append('avatar', file);
+
+  const response = await axiosInstance?.request<{
+    code: number;
+    data?: {
+      file_id: string;
+    };
+    message: string;
+  }>({
+    method: 'PUT',
+    url,
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return axiosInstance?.defaults.baseURL + '/api/template-center/avatar/' + data.data.file_id;
+  }
+
+  return Promise.reject(data);
 }

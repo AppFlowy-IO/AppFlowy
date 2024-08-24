@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 
 enum SingleSettingsButtonType {
   primary,
@@ -108,11 +107,13 @@ class SingleSettingAction extends StatelessWidget {
             radius: Corners.s8Border,
             hoverColor: hoverColor(context),
             fontColor: fontColor(context),
+            textColor: fontColor(context),
             fontHoverColor: fontHoverColor(context),
             borderColor: borderColor(context),
             fontSize: 12,
             isDangerous: buttonType.isDangerous,
             onPressed: onPressed,
+            lineHeight: 1.0,
           ),
         ),
       ],
@@ -127,8 +128,12 @@ class SingleSettingAction extends StatelessWidget {
   }
 
   Color? hoverColor(BuildContext context) {
+    if (buttonType.isDangerous) {
+      return Theme.of(context).colorScheme.error.withOpacity(0.1);
+    }
+
     if (buttonType.isPrimary) {
-      return const Color(0xFF005483);
+      return Theme.of(context).colorScheme.primary.withOpacity(0.9);
     }
 
     if (buttonType.isHighlight) {
@@ -146,7 +151,7 @@ class SingleSettingAction extends StatelessWidget {
       return const Color(0xFF5C3699);
     }
 
-    return null;
+    return Theme.of(context).colorScheme.onPrimary;
   }
 
   Color? fontHoverColor(BuildContext context) {

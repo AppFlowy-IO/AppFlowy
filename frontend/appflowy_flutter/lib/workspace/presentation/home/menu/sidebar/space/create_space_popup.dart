@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -17,8 +18,8 @@ class CreateSpacePopup extends StatefulWidget {
 
 class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = LocaleKeys.space_defaultSpaceName.tr();
-  String spaceIcon = builtInSpaceIcons.first;
-  String spaceIconColor = builtInSpaceColors.first;
+  String? spaceIcon = kDefaultSpaceIconId;
+  String? spaceIconColor = builtInSpaceColors.first;
   SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override
@@ -47,6 +48,7 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
           SizedBox.square(
             dimension: 56,
             child: SpaceIconPopup(
+              
               onIconChanged: (icon, iconColor) {
                 spaceIcon = icon;
                 spaceIconColor = iconColor;
@@ -80,8 +82,9 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
     context.read<SpaceBloc>().add(
           SpaceEvent.create(
             name: spaceName,
-            icon: spaceIcon,
-            iconColor: spaceIconColor,
+            // fixme: space issue
+            icon: spaceIcon!,
+            iconColor: spaceIconColor!,
             permission: spacePermission,
             createNewPageByDefault: true,
           ),

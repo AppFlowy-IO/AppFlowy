@@ -1,9 +1,10 @@
 use std::{fs::File, io::prelude::*};
 
 use collab_database::database::{gen_database_id, gen_field_id, gen_row_id, timestamp};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
-use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
+use collab_database::views::DatabaseLayout;
 
 use collab_entity::EncodedCollab;
 use flowy_error::{FlowyError, FlowyResult};
@@ -109,17 +110,18 @@ fn database_from_fields_and_rows(
           let field_type = FieldType::from(field.field_type);
 
           // Make the cell based on the style.
-          let cell = match format {
-            CSVFormat::Original => new_cell_builder(field_type)
-              .insert_str_value(CELL_DATA, cell_content.to_string())
-              .build(),
-            CSVFormat::META => match serde_json::from_str::<Cell>(cell_content) {
-              Ok(cell) => cell,
-              Err(_) => new_cell_builder(field_type)
-                .insert_str_value(CELL_DATA, "".to_string())
-                .build(),
+          let mut cell = new_cell_builder(field_type);
+          match format {
+            CSVFormat::Original => {
+              cell.insert(CELL_DATA.into(), cell_content.as_str().into());
             },
-          };
+            CSVFormat::META => match serde_json::from_str::<Cell>(cell_content) {
+              Ok(cell_json) => cell = cell_json,
+              Err(_) => {
+                cell.insert(CELL_DATA.into(), "".into());
+              },
+            },
+          }
           params.cells.insert(field.id.clone(), cell);
         }
       }

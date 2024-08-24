@@ -163,7 +163,7 @@ checksum = "b3d1d046238990b9cf5bcde22a3fb3584ee5cf65fb2765f454ed428c7a0063da"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "bincode",
@@ -183,11 +183,12 @@ dependencies = [
 [[package]]
 name = "appflowy-ai-client"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "bytes",
  "futures",
+ "pin-project",
  "serde",
  "serde_json",
  "serde_repr",
@@ -197,7 +198,7 @@ dependencies = [
 [[package]]
 name = "appflowy-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=7dd879a6b9b3246e5cd06f1647e620553db9b960#7dd879a6b9b3246e5cd06f1647e620553db9b960"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=6f064efe232268f8d396edbb4b84d57fbb640f13#6f064efe232268f8d396edbb4b84d57fbb640f13"
 dependencies = [
  "anyhow",
  "appflowy-plugin",
@@ -216,7 +217,7 @@ dependencies = [
 [[package]]
 name = "appflowy-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=7dd879a6b9b3246e5cd06f1647e620553db9b960#7dd879a6b9b3246e5cd06f1647e620553db9b960"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=6f064efe232268f8d396edbb4b84d57fbb640f13#6f064efe232268f8d396edbb4b84d57fbb640f13"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -288,9 +289,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.77"
+version = "0.1.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c980ee35e870bd1a4d2c8294d4c04d0499e67bca1e4b5cefcc693c2fa00caea9"
+checksum = "6e0c28dcc82d7c8ead5cb13beb15405b57b8546e93215673ff8ca0349a028107"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -717,11 +718,12 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "again",
  "anyhow",
  "app-error",
+ "arc-swap",
  "async-trait",
  "bincode",
  "brotli",
@@ -767,19 +769,20 @@ dependencies = [
 [[package]]
 name = "client-api-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "collab-entity",
  "collab-rt-entity",
  "database-entity",
  "gotrue-entity",
  "shared-entity",
+ "uuid",
 ]
 
 [[package]]
 name = "client-websocket"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -822,15 +825,16 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "async-trait",
  "bincode",
  "bytes",
  "chrono",
  "js-sys",
- "parking_lot 0.12.1",
+ "lazy_static",
  "serde",
  "serde_json",
  "serde_repr",
@@ -846,20 +850,19 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
  "collab",
  "collab-entity",
- "collab-plugins",
- "dashmap",
+ "dashmap 5.5.3",
+ "futures",
  "getrandom 0.2.10",
  "js-sys",
  "lazy_static",
  "nanoid",
- "parking_lot 0.12.1",
  "rayon",
  "serde",
  "serde_json",
@@ -876,14 +879,14 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "collab",
  "collab-entity",
  "getrandom 0.2.10",
  "nanoid",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "thiserror",
@@ -896,7 +899,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
  "bytes",
@@ -915,14 +918,15 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "chrono",
  "collab",
  "collab-entity",
+ "dashmap 5.5.3",
  "getrandom 0.2.10",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "serde_repr",
@@ -937,13 +941,17 @@ name = "collab-integrate"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "async-trait",
  "collab",
+ "collab-database",
+ "collab-document",
  "collab-entity",
+ "collab-folder",
  "collab-plugins",
+ "collab-user",
  "futures",
  "lib-infra",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "tokio",
@@ -953,7 +961,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -969,7 +977,6 @@ dependencies = [
  "indexed_db_futures",
  "js-sys",
  "lazy_static",
- "parking_lot 0.12.1",
  "rand 0.8.5",
  "rocksdb",
  "serde",
@@ -992,7 +999,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1017,7 +1024,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1034,13 +1041,12 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aeca47a#aeca47a7b56414dcde90c73ba427dc5909318fc8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c714b6bd458420663c7a5b29370d6892902e995c#c714b6bd458420663c7a5b29370d6892902e995c"
 dependencies = [
  "anyhow",
  "collab",
  "collab-entity",
  "getrandom 0.2.10",
- "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "tokio",
@@ -1319,10 +1325,10 @@ dependencies = [
  "flowy-server",
  "flowy-server-pub",
  "flowy-user",
+ "futures",
  "lazy_static",
  "lib-dispatch",
  "lib-log",
- "parking_lot 0.12.1",
  "protobuf",
  "semver",
  "serde",
@@ -1347,6 +1353,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "804c8821570c3f8b70230c2ba75ffa5c0f9a4189b9a432b6656c536712acae28"
+dependencies = [
+ "cfg-if",
+ "crossbeam-utils",
+ "hashbrown 0.14.3",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core 0.9.8",
+]
+
+[[package]]
 name = "data-encoding"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1355,7 +1375,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "app-error",
@@ -1647,7 +1667,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "nanoid",
- "parking_lot 0.12.1",
  "protobuf",
  "rand 0.8.5",
  "semver",
@@ -1780,9 +1799,10 @@ dependencies = [
  "anyhow",
  "appflowy-local-ai",
  "appflowy-plugin",
+ "arc-swap",
  "base64 0.21.5",
  "bytes",
- "dashmap",
+ "dashmap 6.0.1",
  "dotenv",
  "flowy-ai-pub",
  "flowy-codegen",
@@ -1790,6 +1810,7 @@ dependencies = [
  "flowy-error",
  "flowy-notification",
  "flowy-sqlite",
+ "flowy-storage-pub",
  "futures",
  "futures-util",
  "lib-dispatch",
@@ -1797,7 +1818,7 @@ dependencies = [
  "log",
  "md5",
  "notify",
- "parking_lot 0.12.1",
+ "pin-project",
  "protobuf",
  "reqwest",
  "serde",
@@ -1825,6 +1846,7 @@ dependencies = [
  "flowy-error",
  "futures",
  "lib-infra",
+ "serde_json",
 ]
 
 [[package]]
@@ -1880,6 +1902,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "appflowy-local-ai",
+ "arc-swap",
  "base64 0.21.5",
  "bytes",
  "client-api",
@@ -1888,6 +1911,7 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "console-subscriber",
+ "dashmap 6.0.1",
  "diesel",
  "flowy-ai",
  "flowy-ai-pub",
@@ -1914,7 +1938,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "lib-log",
- "parking_lot 0.12.1",
  "semver",
  "serde",
  "serde_json",
@@ -1944,6 +1967,7 @@ name = "flowy-database2"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "async-stream",
  "async-trait",
  "bytes",
@@ -1955,7 +1979,7 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "csv",
- "dashmap",
+ "dashmap 6.0.1",
  "event-integration-test",
  "fancy-regex 0.11.0",
  "flowy-codegen",
@@ -1969,7 +1993,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "nanoid",
- "parking_lot 0.12.1",
  "protobuf",
  "rayon",
  "rust_decimal",
@@ -1980,6 +2003,7 @@ dependencies = [
  "strum",
  "strum_macros 0.25.2",
  "tokio",
+ "tokio-util",
  "tracing",
  "url",
  "validator",
@@ -2006,7 +2030,7 @@ dependencies = [
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
- "dashmap",
+ "dashmap 6.0.1",
  "flowy-ast",
  "flowy-codegen",
  "lazy_static",
@@ -2028,7 +2052,7 @@ dependencies = [
  "collab-entity",
  "collab-integrate",
  "collab-plugins",
- "dashmap",
+ "dashmap 6.0.1",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document-pub",
@@ -2041,7 +2065,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "nanoid",
- "parking_lot 0.12.1",
  "protobuf",
  "scraper 0.18.1",
  "serde",
@@ -2114,6 +2137,7 @@ dependencies = [
 name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
+ "arc-swap",
  "async-trait",
  "bytes",
  "chrono",
@@ -2135,7 +2159,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "nanoid",
- "parking_lot 0.12.1",
  "protobuf",
  "regex",
  "serde",
@@ -2168,7 +2191,7 @@ name = "flowy-notification"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "dashmap",
+ "dashmap 6.0.1",
  "flowy-codegen",
  "flowy-derive",
  "lazy_static",
@@ -2231,15 +2254,18 @@ name = "flowy-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "assert-json-diff",
  "bytes",
  "chrono",
  "client-api",
  "collab",
+ "collab-database",
  "collab-document",
  "collab-entity",
  "collab-folder",
  "collab-plugins",
+ "dashmap 6.0.1",
  "dotenv",
  "flowy-ai-pub",
  "flowy-database-pub",
@@ -2260,7 +2286,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "mime_guess",
- "parking_lot 0.12.1",
  "postgrest",
  "rand 0.8.5",
  "reqwest",
@@ -2299,7 +2324,6 @@ dependencies = [
  "libsqlite3-sys",
  "openssl",
  "openssl-sys",
- "parking_lot 0.12.1",
  "r2d2",
  "scheduled-thread-pool",
  "serde",
@@ -2317,6 +2341,7 @@ dependencies = [
  "async-trait",
  "bytes",
  "chrono",
+ "dashmap 6.0.1",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
@@ -2351,6 +2376,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -2358,6 +2384,7 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "base64 0.21.5",
  "bytes",
  "chrono",
@@ -2370,6 +2397,7 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "collab-user",
+ "dashmap 6.0.1",
  "diesel",
  "diesel_derives",
  "fake",
@@ -2388,7 +2416,6 @@ dependencies = [
  "lib-infra",
  "nanoid",
  "once_cell",
- "parking_lot 0.12.1",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -2727,7 +2754,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2744,7 +2771,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "app-error",
@@ -3109,7 +3136,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3275,7 +3302,6 @@ dependencies = [
  "futures-util",
  "getrandom 0.2.10",
  "nanoid",
- "parking_lot 0.12.1",
  "pin-project",
  "protobuf",
  "serde",
@@ -5318,7 +5344,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f61e6d03469aac73b9ad88e37ac6898a691289d#8f61e6d03469aac73b9ad88e37ac6898a691289d"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=50e6a41513348f42a441c9c4f90220fcec2ba2ca#50e6a41513348f42a441c9c4f90220fcec2ba2ca"
 dependencies = [
  "anyhow",
  "app-error",

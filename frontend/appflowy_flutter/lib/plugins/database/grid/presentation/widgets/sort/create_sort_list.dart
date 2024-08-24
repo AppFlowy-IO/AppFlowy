@@ -120,6 +120,7 @@ class GridSortPropertyCell extends StatelessWidget {
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
           fieldInfo.name,
+          lineHeight: 1.0,
           color: AFThemeExtension.of(context).textColor,
         ),
         onTap: onTap,

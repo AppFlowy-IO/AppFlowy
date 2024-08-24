@@ -14,10 +14,10 @@ SelectionMenuItem dateMenuItem = SelectionMenuItem(
   ),
   keywords: ['insert date', 'date', 'time'],
   handler: (editorState, menuService, context) =>
-      _insertDateReference(editorState),
+      insertDateReference(editorState),
 );
 
-Future<void> _insertDateReference(EditorState editorState) async {
+Future<void> insertDateReference(EditorState editorState) async {
   final selection = editorState.selection;
   if (selection == null || !selection.isCollapsed) {
     return;

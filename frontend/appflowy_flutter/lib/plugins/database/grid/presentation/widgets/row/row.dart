@@ -98,7 +98,7 @@ class _RowLeadingState extends State<_RowLeading> {
     return AppFlowyPopover(
       controller: popoverController,
       triggerActions: PopoverTriggerFlags.none,
-      constraints: BoxConstraints.loose(const Size(176, 200)),
+      constraints: BoxConstraints.loose(const Size(200, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       popupBuilder: (_) {
@@ -188,8 +188,14 @@ class _RowMenuButtonState extends State<RowMenuButton> {
       richTooltipText: widget.isDragEnabled
           ? TextSpan(
               children: [
-                TextSpan(text: '${LocaleKeys.tooltip_dragRow.tr()}\n'),
-                TextSpan(text: LocaleKeys.tooltip_openMenu.tr()),
+                TextSpan(
+                  text: '${LocaleKeys.tooltip_dragRow.tr()}\n',
+                  style: context.tooltipTextStyle(),
+                ),
+                TextSpan(
+                  text: LocaleKeys.tooltip_openMenu.tr(),
+                  style: context.tooltipTextStyle(),
+                ),
               ],
             )
           : null,

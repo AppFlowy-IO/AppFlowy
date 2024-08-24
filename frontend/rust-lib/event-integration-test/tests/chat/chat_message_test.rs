@@ -20,11 +20,12 @@ async fn af_cloud_create_chat_message_test() {
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
     let _ = chat_service
-      .save_question(
+      .create_question(
         &current_workspace.id,
         &chat_id,
         &format!("hello world {}", i),
         ChatMessageType::System,
+        &[],
       )
       .await
       .unwrap();
@@ -75,11 +76,12 @@ async fn af_cloud_load_remote_system_message_test() {
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
     let _ = chat_service
-      .save_question(
+      .create_question(
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),
         ChatMessageType::System,
+        &[],
       )
       .await
       .unwrap();

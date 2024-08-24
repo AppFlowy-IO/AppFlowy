@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -40,6 +41,8 @@ class InitAppWidgetTask extends LaunchTask {
     WidgetsFlutterBinding.ensureInitialized();
 
     await NotificationService.initialize();
+
+    await loadIconGroups();
 
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
@@ -187,9 +190,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
               if (view != null) {
                 final view = action.arguments?[ActionArgumentKeys.view];
                 final rowId = action.arguments?[ActionArgumentKeys.rowId];
-                AppGlobals.rootNavKey.currentContext?.pushView(view, {
-                  PluginArgumentKeys.rowId: rowId,
-                });
+                AppGlobals.rootNavKey.currentContext?.pushView(
+                  view,
+                  arguments: {
+                    PluginArgumentKeys.rowId: rowId,
+                  },
+                );
               }
             }
           });

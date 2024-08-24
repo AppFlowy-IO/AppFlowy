@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -21,10 +18,11 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cell/editable_cell_builder.dart';
-
 import 'accessory/cell_accessory.dart';
 
 /// Display the row properties in a list. Only used in [RowDetailPage].
@@ -165,6 +163,7 @@ class _PropertyCellState extends State<_PropertyCell> {
               svg: FlowySvgs.drag_element_s,
               richMessage: TextSpan(
                 text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
+                style: context.tooltipTextStyle(),
               ),
             ),
           ),
@@ -294,7 +293,11 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return SizedBox(
       height: 30,
       child: FlowyButton(
-        text: FlowyText.medium(text, color: Theme.of(context).hintColor),
+        text: FlowyText.medium(
+          text,
+          lineHeight: 1.0,
+          color: Theme.of(context).hintColor,
+        ),
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         leftIcon: RotatedBox(
           quarterTurns: quarterTurns,
@@ -381,6 +384,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           text: FlowyText.medium(
+            lineHeight: 1.0,
             LocaleKeys.grid_field_newProperty.tr(),
             color: Theme.of(context).hintColor,
           ),

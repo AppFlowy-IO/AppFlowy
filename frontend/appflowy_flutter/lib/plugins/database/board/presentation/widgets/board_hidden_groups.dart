@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
@@ -17,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -65,7 +65,10 @@ class HiddenGroupsColumn extends StatelessWidget {
                         height: 50,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            left: 80 + margin.left,
+                            left: margin.left +
+                                context
+                                    .read<DatabasePluginWidgetBuilderSize>()
+                                    .horizontalPadding,
                             right: margin.right + 4,
                           ),
                           child: Row(

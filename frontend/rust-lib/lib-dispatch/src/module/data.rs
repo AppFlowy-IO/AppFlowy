@@ -53,7 +53,7 @@ where
 
 impl<T> FromAFPluginRequest for AFPluginState<T>
 where
-  T: ?Sized + AFConcurrent + 'static,
+  T: ?Sized + Send + Sync + 'static,
 {
   type Error = DispatchError;
   type Future = Ready<Result<Self, DispatchError>>;

@@ -9,10 +9,12 @@ import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class PluginArgumentKeys {
@@ -116,6 +118,10 @@ extension ViewExtension on ViewPB {
 
   bool get isSpace {
     try {
+      if (extra.isEmpty) {
+        return false;
+      }
+
       final ext = jsonDecode(extra);
       final isSpace = ext[ViewExtKeys.isSpaceKey] ?? false;
       return isSpace;
@@ -134,18 +140,48 @@ extension ViewExtension on ViewPB {
     }
   }
 
-  FlowySvg? get spaceIconSvg {
+  FlowySvg? buildSpaceIconSvg(BuildContext context, {Size? size}) {
     try {
+      if (extra.isEmpty) {
+        return null;
+      }
+
       final ext = jsonDecode(extra);
       final icon = ext[ViewExtKeys.spaceIconKey];
       final color = ext[ViewExtKeys.spaceIconColorKey];
       if (icon == null || color == null) {
         return null;
       }
-      return FlowySvg(
-        FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
-        color: Color(int.parse(color)),
-        blendMode: BlendMode.srcOut,
+      // before version 0.6.7
+      if (icon.contains('space_icon')) {
+        return FlowySvg(
+          FlowySvgData('assets/flowy_icons/16x/$icon.svg'),
+          color: Theme.of(context).colorScheme.surface,
+        );
+      }
+
+      final values = icon.split('/');
+      if (values.length != 2) {
+        return null;
+      }
+      final groupName = values[0];
+      final iconName = values[1];
+      final svgString = kIconGroups
+          ?.firstWhereOrNull(
+            (group) => group.name == groupName,
+          )
+          ?.icons
+          .firstWhereOrNull(
+            (icon) => icon.name == iconName,
+          )
+          ?.content;
+      if (svgString == null) {
+        return null;
+      }
+      return FlowySvg.string(
+        svgString,
+        color: Theme.of(context).colorScheme.surface,
+        size: size,
       );
     } catch (e) {
       return null;
@@ -186,6 +222,11 @@ extension ViewExtension on ViewPB {
     if (layout != ViewLayoutPB.Document) {
       return null;
     }
+
+    if (extra.isEmpty) {
+      return null;
+    }
+
     try {
       final ext = jsonDecode(extra);
       final cover = ext[ViewExtKeys.coverKey] ?? {};

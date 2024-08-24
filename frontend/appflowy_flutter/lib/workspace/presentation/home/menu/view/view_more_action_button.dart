@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
@@ -161,10 +161,10 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(364, 356)),
-      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (_) => FlowyIconPicker(
-        onSelected: (result) => onTap(controller, result),
+      popupBuilder: (_) => FlowyIconEmojiPicker(
+        onSelectedEmoji: (result) => onTap(controller, result),
       ),
       child: child,
     );
@@ -256,6 +256,9 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         iconPadding: 10.0,
         textBuilder: (onHover) => FlowyText.regular(
           inner.name,
+          fontSize: 14.0,
+          lineHeight: 1.0,
+          figmaLineHeight: 18.0,
           color: inner == ViewMoreActionType.delete && onHover
               ? Theme.of(context).colorScheme.error
               : null,

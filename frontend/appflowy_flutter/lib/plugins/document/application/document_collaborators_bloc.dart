@@ -39,6 +39,10 @@ class DocumentCollaboratorsBloc
             if (userProfile != null) {
               _listener.start(
                 onDocAwarenessUpdate: (states) {
+                  if (isClosed) {
+                    return;
+                  }
+
                   add(
                     DocumentCollaboratorsEvent.update(
                       userProfile,

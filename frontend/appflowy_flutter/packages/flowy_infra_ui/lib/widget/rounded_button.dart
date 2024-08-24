@@ -51,9 +51,11 @@ class RoundedTextButton extends StatelessWidget {
           radius: borderRadius ?? Corners.s6Border,
           fontColor: textColor ?? Theme.of(context).colorScheme.onPrimary,
           fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
+          textColor: textColor,
           hoverColor:
               hoverColor ?? Theme.of(context).colorScheme.primaryContainer,
           padding: padding,
+          
         ),
       ),
     );

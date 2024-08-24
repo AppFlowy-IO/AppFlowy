@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/row_page_button.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -294,6 +295,7 @@ class MobileRowDetailPageContentState
   RowCache get rowCache => widget.databaseController.rowCache;
   FieldController get fieldController =>
       widget.databaseController.fieldController;
+  ValueNotifier<String> primaryFieldId = ValueNotifier('');
 
   @override
   void initState() {
@@ -326,7 +328,13 @@ class MobileRowDetailPageContentState
                   fieldController: fieldController,
                   rowMeta: rowController.rowMeta,
                 )..add(const RowBannerEvent.initial()),
-                child: BlocBuilder<RowBannerBloc, RowBannerState>(
+                child: BlocConsumer<RowBannerBloc, RowBannerState>(
+                  listener: (context, state) {
+                    if (state.primaryField == null) {
+                      return;
+                    }
+                    primaryFieldId.value = state.primaryField!.id;
+                  },
                   builder: (context, state) {
                     if (state.primaryField == null) {
                       return const SizedBox.shrink();
@@ -366,6 +374,23 @@ class MobileRowDetailPageContentState
                           if (rowDetailState.numHiddenFields != 0) ...[
                             const ToggleHiddenFieldsVisibilityButton(),
                           ],
+                          const VSpace(8.0),
+                          ValueListenableBuilder(
+                            valueListenable: primaryFieldId,
+                            builder: (context, primaryFieldId, child) {
+                              if (primaryFieldId.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              return OpenRowPageButton(
+                                databaseController: widget.databaseController,
+                                cellContext: CellContext(
+                                  rowId: rowController.rowId,
+                                  fieldId: primaryFieldId,
+                                ),
+                                documentId: rowController.rowMeta.documentId,
+                              );
+                            },
+                          ),
                           MobileRowDetailCreateFieldButton(
                             viewId: viewId,
                             fieldController: fieldController,

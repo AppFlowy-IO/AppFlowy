@@ -13,85 +13,87 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);
   plugin
-        .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-        .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
-        .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
-        .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
-        .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
-        .event(DatabaseEvent::GetAllFilters, get_all_filters_handler)
-        .event(DatabaseEvent::GetAllSorts, get_all_sorts_handler)
-        .event(DatabaseEvent::DeleteAllSorts, delete_all_sorts_handler)
-        // Field
-        .event(DatabaseEvent::GetFields, get_fields_handler)
-        .event(DatabaseEvent::GetPrimaryField, get_primary_field_handler)
-        .event(DatabaseEvent::UpdateField, update_field_handler)
-        .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
-        .event(DatabaseEvent::DeleteField, delete_field_handler)
-        .event(DatabaseEvent::ClearField, clear_field_handler)
-        .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
-        .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
-        .event(DatabaseEvent::MoveField, move_field_handler)
-        .event(DatabaseEvent::CreateField, create_field_handler)
-        // Row
-        .event(DatabaseEvent::CreateRow, create_row_handler)
-        .event(DatabaseEvent::GetRow, get_row_handler)
-        .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
-        .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
-        .event(DatabaseEvent::DeleteRows, delete_rows_handler)
-        .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
-        .event(DatabaseEvent::MoveRow, move_row_handler)
-        // Cell
-        .event(DatabaseEvent::GetCell, get_cell_handler)
-        .event(DatabaseEvent::UpdateCell, update_cell_handler)
-        // SelectOption
-        .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
-        .event(DatabaseEvent::InsertOrUpdateSelectOption, insert_or_update_select_option_handler)
-        .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
-        .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
-        // Checklist
-        .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
-        // Date
-        .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
-        // Group
-        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
-        .event(DatabaseEvent::MoveGroup, move_group_handler)
-        .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
-        .event(DatabaseEvent::GetGroups, get_groups_handler)
-        .event(DatabaseEvent::GetGroup, get_group_handler)
-        .event(DatabaseEvent::UpdateGroup, update_group_handler)
-        .event(DatabaseEvent::CreateGroup, create_group_handler)
-        .event(DatabaseEvent::DeleteGroup, delete_group_handler)
-        // Database
-        .event(DatabaseEvent::GetDatabaseMeta, get_database_meta_handler)
-        .event(DatabaseEvent::GetDatabases, get_databases_handler)
-        // Calendar
-        .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
-        .event(DatabaseEvent::GetNoDateCalendarEvents, get_no_date_calendar_events_handler)
-        .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
-        .event(DatabaseEvent::MoveCalendarEvent, move_calendar_event_handler)
-        // Layout setting
-        .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
-        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
-        .event(DatabaseEvent::CreateDatabaseView, create_database_view)
-        // Export
-        .event(DatabaseEvent::ExportCSV, export_csv_handler)
-        .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
-        // Field settings
-        .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
-        .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
-        .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
-        // Calculations
-        .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
-        .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
-        .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
-        // Relation
-        .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
-        .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
-        .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
-        .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
-        // AI
-        .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
-        .event(DatabaseEvent::TranslateRow, translate_row_handler)
+         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
+         .event(DatabaseEvent::GetAllRows, get_all_rows_handler)
+         .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
+         .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
+         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
+         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
+         .event(DatabaseEvent::GetAllFilters, get_all_filters_handler)
+         .event(DatabaseEvent::GetAllSorts, get_all_sorts_handler)
+         .event(DatabaseEvent::DeleteAllSorts, delete_all_sorts_handler)
+         // Field
+         .event(DatabaseEvent::GetFields, get_fields_handler)
+         .event(DatabaseEvent::GetPrimaryField, get_primary_field_handler)
+         .event(DatabaseEvent::UpdateField, update_field_handler)
+         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
+         .event(DatabaseEvent::DeleteField, delete_field_handler)
+         .event(DatabaseEvent::ClearField, clear_field_handler)
+         .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
+         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
+         .event(DatabaseEvent::MoveField, move_field_handler)
+         .event(DatabaseEvent::CreateField, create_field_handler)
+         // Row
+         .event(DatabaseEvent::CreateRow, create_row_handler)
+         .event(DatabaseEvent::GetRow, get_row_handler)
+         .event(DatabaseEvent::InitRow, init_row_handler)
+         .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
+         .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
+         .event(DatabaseEvent::DeleteRows, delete_rows_handler)
+         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
+         .event(DatabaseEvent::MoveRow, move_row_handler)
+         // Cell
+         .event(DatabaseEvent::GetCell, get_cell_handler)
+         .event(DatabaseEvent::UpdateCell, update_cell_handler)
+         // SelectOption
+         .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
+         .event(DatabaseEvent::InsertOrUpdateSelectOption, insert_or_update_select_option_handler)
+         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
+         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+         // Checklist
+         .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
+         // Date
+         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
+         // Group
+         .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
+         .event(DatabaseEvent::MoveGroup, move_group_handler)
+         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
+         .event(DatabaseEvent::GetGroups, get_groups_handler)
+         .event(DatabaseEvent::GetGroup, get_group_handler)
+         .event(DatabaseEvent::UpdateGroup, update_group_handler)
+         .event(DatabaseEvent::CreateGroup, create_group_handler)
+         .event(DatabaseEvent::DeleteGroup, delete_group_handler)
+         // Database
+         .event(DatabaseEvent::GetDatabaseMeta, get_database_meta_handler)
+         .event(DatabaseEvent::GetDatabases, get_databases_handler)
+         // Calendar
+         .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
+         .event(DatabaseEvent::GetNoDateCalendarEvents, get_no_date_calendar_events_handler)
+         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
+         .event(DatabaseEvent::MoveCalendarEvent, move_calendar_event_handler)
+         // Layout setting
+         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
+         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
+         .event(DatabaseEvent::CreateDatabaseView, create_database_view)
+         // Export
+         .event(DatabaseEvent::ExportCSV, export_csv_handler)
+         .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
+         // Field settings
+         .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
+         .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
+         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
+         // Calculations
+         .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
+         .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
+         .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
+         // Relation
+         .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+         .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+         .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
+         // AI
+         .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
+         .event(DatabaseEvent::TranslateRow, translate_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -377,4 +379,10 @@ pub enum DatabaseEvent {
 
   #[event(input = "TranslateRowPB")]
   TranslateRow = 175,
+
+  #[event(input = "RowIdPB")]
+  InitRow = 176,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedRowMetaPB")]
+  GetAllRows = 177,
 }

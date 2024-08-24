@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
@@ -13,7 +16,10 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,7 +106,8 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = pageStyle.fontLayout.fontSize;
     final lineHeight = pageStyle.lineHeightLayout.lineHeight;
-    final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
+    final fontFamily = pageStyle.fontFamily ??
+        context.read<AppearanceSettingsCubit>().state.font;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
     final textScaleFactor =
@@ -393,5 +400,84 @@ class EditorStyleCustomizer {
       before,
       after,
     );
+  }
+
+  Widget buildToolbarItemTooltip(
+    BuildContext context,
+    String id,
+    String message,
+    Widget child,
+  ) {
+    final tooltipMessage = _buildTooltipMessage(id, message);
+    child = FlowyTooltip(
+      richMessage: tooltipMessage,
+      preferBelow: false,
+      verticalOffset: 20,
+      child: child,
+    );
+
+    // the align/font toolbar item doesn't need the hover effect
+    final toolbarItemsWithoutHover = {
+      kFontToolbarItemId,
+      kAlignToolbarItemId,
+    };
+
+    if (!toolbarItemsWithoutHover.contains(id)) {
+      child = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: FlowyHover(
+          style: HoverStyle(
+            hoverColor: Colors.grey.withOpacity(0.3),
+          ),
+          child: child,
+        ),
+      );
+    }
+
+    return child;
+  }
+
+  TextSpan _buildTooltipMessage(String id, String message) {
+    final markdownItemTooltips = {
+      'underline': (LocaleKeys.toolbar_underline.tr(), 'U'),
+      'bold': (LocaleKeys.toolbar_bold.tr(), 'B'),
+      'italic': (LocaleKeys.toolbar_italic.tr(), 'I'),
+      'strikethrough': (LocaleKeys.toolbar_strike.tr(), 'Shift+S'),
+      'code': (LocaleKeys.toolbar_inlineCode.tr(), 'E'),
+    };
+
+    final markdownItemIds = markdownItemTooltips.keys.toSet();
+    // the items without shortcuts
+    if (!markdownItemIds.contains(id)) {
+      return TextSpan(
+        text: message,
+        style: context.tooltipTextStyle(),
+      );
+    }
+
+    final tooltip = markdownItemTooltips[id];
+    if (tooltip == null) {
+      return TextSpan(
+        text: message,
+        style: context.tooltipTextStyle(),
+      );
+    }
+
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+          text: '${tooltip.$1}\n',
+          style: context.tooltipTextStyle(),
+        ),
+        TextSpan(
+          text: (Platform.isMacOS ? '⌘+' : 'Ctrl+\\') + tooltip.$2,
+          style: context
+              .tooltipTextStyle()
+              ?.copyWith(color: Theme.of(context).hintColor),
+        ),
+      ],
+    );
+
+    return textSpan;
   }
 }

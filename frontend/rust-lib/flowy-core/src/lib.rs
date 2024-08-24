@@ -165,6 +165,7 @@ impl AppFlowyCore {
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         store_preference.clone(),
+        Arc::downgrade(&storage_manager.storage_service),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(
@@ -260,6 +261,7 @@ impl AppFlowyCore {
         error!("Init user failed: {}", err)
       }
     }
+    #[allow(clippy::arc_with_non_send_sync)]
     let event_dispatcher = Arc::new(AFPluginDispatcher::new(
       runtime,
       make_plugins(
@@ -299,7 +301,6 @@ impl From<Server> for CollabPluginProviderType {
     match server_type {
       Server::Local => CollabPluginProviderType::Local,
       Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
-      Server::Supabase => CollabPluginProviderType::Supabase,
     }
   }
 }

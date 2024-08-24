@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
@@ -11,13 +9,17 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
 
-Future<String?> showPageSelectorSheet(
+Future<ViewPB?> showPageSelectorSheet(
   BuildContext context, {
   String? currentViewId,
   String? selectedViewId,
+  bool Function(ViewPB view)? filter,
 }) async {
-  return showMobileBottomSheet<String>(
+  filter ??= (v) => !v.isSpace && v.parentViewId.isNotEmpty;
+
+  return showMobileBottomSheet<ViewPB>(
     context,
     title: LocaleKeys.document_mobilePageSelector_title.tr(),
     showHeader: true,
@@ -32,16 +34,22 @@ Future<String?> showPageSelectorSheet(
       child: _MobilePageSelectorBody(
         currentViewId: currentViewId,
         selectedViewId: selectedViewId,
+        filter: filter,
       ),
     ),
   );
 }
 
 class _MobilePageSelectorBody extends StatefulWidget {
-  const _MobilePageSelectorBody({this.currentViewId, this.selectedViewId});
+  const _MobilePageSelectorBody({
+    this.currentViewId,
+    this.selectedViewId,
+    this.filter,
+  });
 
   final String? currentViewId;
   final String? selectedViewId;
+  final bool Function(ViewPB view)? filter;
 
   @override
   State<_MobilePageSelectorBody> createState() =>
@@ -79,7 +87,10 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
               );
             }
 
-            final views = snapshot.data!;
+            final views = snapshot.data!
+                .where((v) => widget.filter?.call(v) ?? true)
+                .toList();
+
             if (widget.currentViewId != null) {
               views.removeWhere((v) => v.id == widget.currentViewId);
             }
@@ -118,7 +129,7 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
                               ),
                         text: view.name,
                         isSelected: view.id == widget.selectedViewId,
-                        onTap: () => Navigator.of(context).pop(view.id),
+                        onTap: () => Navigator.of(context).pop(view),
                       ),
                     )
                     .toList(),

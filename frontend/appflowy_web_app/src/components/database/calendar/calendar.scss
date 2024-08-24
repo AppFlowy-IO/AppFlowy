@@ -48,6 +48,7 @@ $today-highlight-bg: transparent;
 
 }
 
+
 .rbc-day-bg + .rbc-day-bg {
   border-left-color: var(--line-divider);
 }
@@ -67,6 +68,13 @@ $today-highlight-bg: transparent;
     border-bottom: 1px solid var(--line-divider);
     @apply flex items-end py-2 justify-center font-normal text-text-caption bg-bg-body;
 
+  }
+}
+
+html[thumbnail="true"] {
+  .rbc-month-row, .rbc-month-header {
+    width: 100% !important;
+    min-width: 100% !important;
   }
 }
 

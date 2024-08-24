@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -73,13 +74,18 @@ class _RowCardState extends State<RowCard> {
   @override
   void initState() {
     super.initState();
+    final rowController = RowController(
+      viewId: widget.viewId,
+      rowMeta: widget.rowMeta,
+      rowCache: widget.rowCache,
+    );
+
     _cardBloc = CardBloc(
       fieldController: widget.fieldController,
       viewId: widget.viewId,
       groupFieldId: widget.groupingFieldId,
       isEditing: widget.isEditing,
-      rowMeta: widget.rowMeta,
-      rowCache: widget.rowCache,
+      rowController: rowController,
     )..add(const CardEvent.initial());
   }
 
@@ -143,7 +149,7 @@ class _RowCardState extends State<RowCard> {
       popupBuilder: (_) {
         return RowActionMenu.board(
           viewId: _cardBloc.viewId,
-          rowId: _cardBloc.rowId,
+          rowId: _cardBloc.rowController.rowId,
           groupId: widget.groupId,
         );
       },

@@ -107,7 +107,7 @@ pub(crate) async fn create_view_handler(
   let set_as_current = params.set_as_current;
   let (view, _) = folder.create_view_with_params(params, true).await?;
   if set_as_current {
-    let _ = folder.set_current_view(&view.id).await;
+    let _ = folder.set_current_view(view.id.clone()).await;
   }
   data_result_ok(view_pb_without_child_views(view))
 }
@@ -121,7 +121,7 @@ pub(crate) async fn create_orphan_view_handler(
   let set_as_current = params.set_as_current;
   let view = folder.create_orphan_view_with_params(params).await?;
   if set_as_current {
-    let _ = folder.set_current_view(&view.id).await;
+    let _ = folder.set_current_view(view.id.clone()).await;
   }
   data_result_ok(view_pb_without_child_views(view))
 }
@@ -226,7 +226,7 @@ pub(crate) async fn set_latest_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let view_id: ViewIdPB = data.into_inner();
-  let _ = folder.set_current_view(&view_id.value).await;
+  let _ = folder.set_current_view(view_id.value.clone()).await;
   Ok(())
 }
 
@@ -400,7 +400,9 @@ pub(crate) async fn update_view_visibility_status_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params = data.into_inner();
-  folder.set_views_visibility(params.view_ids, params.is_public);
+  folder
+    .set_views_visibility(params.view_ids, params.is_public)
+    .await;
   Ok(())
 }
 

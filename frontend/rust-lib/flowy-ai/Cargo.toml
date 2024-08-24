@@ -19,10 +19,11 @@ uuid.workspace = true
 strum_macros = "0.21"
 protobuf.workspace = true
 bytes.workspace = true
+arc-swap.workspace = true
 validator = { workspace = true, features = ["derive"] }
 lib-infra = { workspace = true, features = ["isolate_flutter"] }
 flowy-ai-pub.workspace = true
-dashmap = "5.5"
+dashmap.workspace = true
 flowy-sqlite = { workspace = true }
 tokio.workspace = true
 futures.workspace = true
@@ -33,7 +34,6 @@ serde_json = { workspace = true }
 anyhow = "1.0.86"
 tokio-stream = "0.1.15"
 tokio-util = { workspace = true, features = ["full"] }
-parking_lot.workspace = true
 appflowy-local-ai = { version = "0.1.0", features = ["verbose"] }
 appflowy-plugin = { version = "0.1.0" }
 reqwest = "0.11.27"
@@ -43,6 +43,8 @@ futures-util = "0.3.30"
 md5 = "0.7.0"
 zip = { workspace = true, features = ["deflate"] }
 zip-extensions = "0.8.0"
+pin-project = "1.1.5"
+flowy-storage-pub = { workspace = true }
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"

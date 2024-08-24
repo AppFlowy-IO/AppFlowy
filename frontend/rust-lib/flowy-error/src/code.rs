@@ -257,8 +257,8 @@ pub enum ErrorCode {
   #[error("AppFlowy data folder import error")]
   AppFlowyDataFolderImportError = 89,
 
-  #[error("Cloud request payload too large")]
-  CloudRequestPayloadTooLarge = 90,
+  #[error("payload too large")]
+  PayloadTooLarge = 90,
 
   #[error("Workspace limit exceeded")]
   WorkspaceLimitExceeded = 91,
@@ -304,6 +304,13 @@ pub enum ErrorCode {
 
   #[error("AI offline not started")]
   AIOfflineNotInstalled = 105,
+
+  #[error("Invalid Request")]
+  InvalidRequest = 106,
+
+  #[error("In progress")]
+  // when client receives InProgress, it should retry
+  InProgress = 107,
 }
 
 impl ErrorCode {

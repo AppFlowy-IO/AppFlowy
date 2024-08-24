@@ -1,8 +1,8 @@
 use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
 use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
-use crate::services::database::UpdatedRow;
+use crate::services::database::{DatabaseEditor, UpdatedRow};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::MutexDatabase;
+use collab_database::database::Database;
 use collab_database::fields::FieldChange;
 use collab_database::rows::{RowChange, RowId};
 use collab_database::views::DatabaseViewChange;
@@ -10,11 +10,14 @@ use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
+use std::time::Duration;
+use tokio::sync::RwLock;
+use tokio_util::sync::CancellationToken;
 use tracing::{trace, warn};
 
-pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
   let weak_database = Arc::downgrade(database);
-  let mut sync_state = database.lock().subscribe_sync_state();
+  let mut sync_state = database.read().await.subscribe_sync_state();
   let database_id = database_id.to_string();
   af_spawn(async move {
     while let Some(sync_state) = sync_state.next().await {
@@ -35,13 +38,13 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<MutexDa
 #[allow(dead_code)]
 pub(crate) async fn observe_rows_change(
   database_id: &str,
-  database: &Arc<MutexDatabase>,
+  database: &Arc<RwLock<Database>>,
   notification_sender: &Arc<DebounceNotificationSender>,
 ) {
   let notification_sender = notification_sender.clone();
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut row_change = database.lock().subscribe_row_change();
+  let mut row_change = database.read().await.subscribe_row_change();
   af_spawn(async move {
     while let Ok(row_change) = row_change.recv().await {
       if let Some(database) = weak_database.upgrade() {
@@ -59,7 +62,7 @@ pub(crate) async fn observe_rows_change(
             let cell_id = format!("{}:{}", row_id, field_id);
             notify_cell(&notification_sender, &cell_id);
 
-            let views = database.lock().get_all_database_views_meta();
+            let views = database.read().await.get_all_database_views_meta();
             for view in views {
               notify_row(&notification_sender, &view.id, &field_id, &row_id);
             }
@@ -75,10 +78,10 @@ pub(crate) async fn observe_rows_change(
   });
 }
 #[allow(dead_code)]
-pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLock<Database>>) {
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut field_change = database.lock().subscribe_field_change();
+  let mut field_change = database.read().await.subscribe_field_change();
   af_spawn(async move {
     while let Ok(field_change) = field_change.recv().await {
       if weak_database.upgrade().is_none() {
@@ -100,10 +103,10 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<Mutex
 }
 
 #[allow(dead_code)]
-pub(crate) async fn observe_view_change(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_view_change(database_id: &str, database: &Arc<RwLock<Database>>) {
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut view_change = database.lock().subscribe_view_change();
+  let mut view_change = database.read().await.subscribe_view_change();
   af_spawn(async move {
     while let Ok(view_change) = view_change.recv().await {
       if weak_database.upgrade().is_none() {
@@ -135,14 +138,18 @@ pub(crate) async fn observe_view_change(database_id: &str, database: &Arc<MutexD
   });
 }
 
-#[allow(dead_code)]
-pub(crate) async fn observe_block_event(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
-  let weak_database = Arc::downgrade(database);
-  let mut block_event_rx = database.lock().subscribe_block_event();
+  let mut block_event_rx = database_editor
+    .database
+    .read()
+    .await
+    .subscribe_block_event();
+  let database_editor = Arc::downgrade(database_editor);
   af_spawn(async move {
+    let token = CancellationToken::new();
     while let Ok(event) = block_event_rx.recv().await {
-      if weak_database.upgrade().is_none() {
+      if database_editor.upgrade().is_none() {
         break;
       }
 
@@ -155,12 +162,31 @@ pub(crate) async fn observe_block_event(database_id: &str, database: &Arc<MutexD
         BlockEvent::DidFetchRow(row_details) => {
           for row_detail in row_details {
             trace!("Did fetch row: {:?}", row_detail.row.id);
+
             let row_id = row_detail.row.id.clone();
             let pb = DidFetchRowPB::from(row_detail);
             send_notification(&row_id, DatabaseNotification::DidFetchRow)
               .payload(pb)
               .send();
           }
+
+          let cloned_token = token.clone();
+          let cloned_database_editor = database_editor.clone();
+          tokio::spawn(async move {
+            tokio::time::sleep(Duration::from_secs(2)).await;
+            if cloned_token.is_cancelled() {
+              return;
+            }
+            if let Some(database_editor) = cloned_database_editor.upgrade() {
+              for view_editor in database_editor.database_views.editors().await {
+                send_notification(
+                  &view_editor.view_id.clone(),
+                  DatabaseNotification::ReloadRows,
+                )
+                .send();
+              }
+            }
+          });
         },
       }
     }

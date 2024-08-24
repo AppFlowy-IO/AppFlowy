@@ -121,8 +121,8 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                         priceInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_priceInfo
                             .tr(),
-                        billingInfo: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiMax_billingInfo
+                        recommend: LocaleKeys
+                            .settings_planPage_planUsage_addons_aiMax_recommend
                             .tr(
                           args: [SubscriptionPlanPB.AiMax.priceMonthBilling],
                         ),
@@ -160,8 +160,8 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                           priceInfo: LocaleKeys
                               .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
                               .tr(),
-                          billingInfo: LocaleKeys
-                              .settings_planPage_planUsage_addons_aiOnDevice_billingInfo
+                          recommend: LocaleKeys
+                              .settings_planPage_planUsage_addons_aiOnDevice_recommend
                               .tr(
                             args: [
                               SubscriptionPlanPB.AiLocal.priceMonthBilling,
@@ -654,7 +654,7 @@ class _AddOnBox extends StatelessWidget {
     required this.description,
     required this.price,
     required this.priceInfo,
-    required this.billingInfo,
+    required this.recommend,
     required this.buttonText,
     required this.isActive,
     required this.plan,
@@ -664,7 +664,7 @@ class _AddOnBox extends StatelessWidget {
   final String description;
   final String price;
   final String priceInfo;
-  final String billingInfo;
+  final String recommend;
   final String buttonText;
   final bool isActive;
   final SubscriptionPlanPB plan;
@@ -717,7 +717,7 @@ class _AddOnBox extends StatelessWidget {
             children: [
               Expanded(
                 child: FlowyText(
-                  billingInfo,
+                  recommend,
                   color: AFThemeExtension.of(context).secondaryTextColor,
                   fontSize: 11,
                   maxLines: 2,

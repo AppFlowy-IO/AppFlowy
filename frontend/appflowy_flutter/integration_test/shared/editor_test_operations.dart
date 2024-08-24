@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
@@ -15,8 +10,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/doc
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
+import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -85,7 +84,7 @@ class EditorOperations {
     final Finder button = !isInPicker
         ? find.text(LocaleKeys.document_plugins_cover_removeIcon.tr())
         : find.descendant(
-            of: find.byType(FlowyIconPicker),
+            of: find.byType(FlowyIconEmojiPicker),
             matching: find.text(LocaleKeys.button_remove.tr()),
           );
     await tester.tapButton(button);
@@ -171,7 +170,10 @@ class EditorOperations {
   /// Tap the slash menu item with [name]
   ///
   /// Must call [showSlashMenu] first.
-  Future<void> tapSlashMenuItemWithName(String name) async {
+  Future<void> tapSlashMenuItemWithName(
+    String name, {
+    double offset = 200,
+  }) async {
     final slashMenu = find
         .ancestor(
           of: find.byType(SelectionMenuItemWidget),
@@ -181,8 +183,13 @@ class EditorOperations {
         )
         .first;
     final slashMenuItem = find.text(name, findRichText: true);
-    await tester.scrollUntilVisible(slashMenuItem, 200, scrollable: slashMenu);
-    // await tester.ensureVisible(slashMenuItem);
+    await tester.scrollUntilVisible(
+      slashMenuItem,
+      offset,
+      scrollable: slashMenu,
+      duration: const Duration(milliseconds: 250),
+    );
+    assert(slashMenuItem.hasFound);
     await tester.tapButton(slashMenuItem);
   }
 

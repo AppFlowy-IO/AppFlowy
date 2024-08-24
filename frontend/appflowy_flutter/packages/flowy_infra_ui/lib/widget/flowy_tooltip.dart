@@ -10,6 +10,7 @@ class FlowyTooltip extends StatelessWidget {
     this.preferBelow,
     this.showDuration,
     this.margin,
+    this.verticalOffset,
     this.child,
   });
 
@@ -19,6 +20,7 @@ class FlowyTooltip extends StatelessWidget {
   final Duration? showDuration;
   final EdgeInsetsGeometry? margin;
   final Widget? child;
+  final double? verticalOffset;
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +30,14 @@ class FlowyTooltip extends StatelessWidget {
 
     return Tooltip(
       margin: margin,
-      verticalOffset: 16.0,
-      padding: const EdgeInsets.only(
-        left: 12.0,
-        right: 12.0,
-        top: 5.0,
-        bottom: 8.0,
+      verticalOffset: verticalOffset ?? 16.0,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12.0,
+        vertical: 8.0,
       ),
       decoration: BoxDecoration(
         color: context.tooltipBackgroundColor(),
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(10.0),
       ),
       waitDuration: _tooltipWaitDuration,
       message: message,
@@ -50,8 +50,8 @@ class FlowyTooltip extends StatelessWidget {
 }
 
 extension FlowyToolTipExtension on BuildContext {
-  double tooltipFontSize() => 13.0;
-  double tooltipHeight() => 18.0 / tooltipFontSize();
+  double tooltipFontSize() => 14.0;
+  double tooltipHeight() => 20.0 / tooltipFontSize();
   Color tooltipFontColor() => Theme.of(this).brightness == Brightness.light
       ? Colors.white
       : Colors.black;
@@ -62,6 +62,7 @@ extension FlowyToolTipExtension on BuildContext {
           fontSize: tooltipFontSize(),
           fontWeight: FontWeight.w400,
           height: tooltipHeight(),
+          leadingDistribution: TextLeadingDistribution.even,
         );
   }
 

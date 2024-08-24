@@ -1,14 +1,17 @@
-use anyhow::bail;
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::encoding::serde::from_any;
+use collab::preclude::Any;
 use collab_database::views::{CalculationMap, CalculationMapBuilder};
+use serde::Deserialize;
 
 use crate::entities::CalculationPB;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Calculation {
   pub id: String,
   pub field_id: String,
+  #[serde(default, rename = "ty")]
   pub calculation_type: i64,
+  #[serde(default, rename = "calculation_value")]
   pub value: String,
 }
 
@@ -19,12 +22,12 @@ const CALCULATION_VALUE: &str = "calculation_value";
 
 impl From<Calculation> for CalculationMap {
   fn from(data: Calculation) -> Self {
-    CalculationMapBuilder::new()
-      .insert_str_value(CALCULATION_ID, data.id)
-      .insert_str_value(FIELD_ID, data.field_id)
-      .insert_i64_value(CALCULATION_TYPE, data.calculation_type)
-      .insert_str_value(CALCULATION_VALUE, data.value)
-      .build()
+    CalculationMapBuilder::from([
+      (CALCULATION_ID.into(), data.id.into()),
+      (FIELD_ID.into(), data.field_id.into()),
+      (CALCULATION_TYPE.into(), Any::BigInt(data.calculation_type)),
+      (CALCULATION_VALUE.into(), data.value.into()),
+    ])
   }
 }
 
@@ -45,29 +48,7 @@ impl TryFrom<CalculationMap> for Calculation {
   type Error = anyhow::Error;
 
   fn try_from(calculation: CalculationMap) -> Result<Self, Self::Error> {
-    match (
-      calculation.get_str_value(CALCULATION_ID),
-      calculation.get_str_value(FIELD_ID),
-    ) {
-      (Some(id), Some(field_id)) => {
-        let value = calculation
-          .get_str_value(CALCULATION_VALUE)
-          .unwrap_or_default();
-        let calculation_type = calculation
-          .get_i64_value(CALCULATION_TYPE)
-          .unwrap_or_default();
-
-        Ok(Calculation {
-          id,
-          field_id,
-          calculation_type,
-          value,
-        })
-      },
-      _ => {
-        bail!("Invalid calculation data")
-      },
-    }
+    from_any(&Any::from(calculation)).map_err(|e| e.into())
   }
 }
 

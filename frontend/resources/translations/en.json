@@ -158,8 +158,8 @@
   "newBoardText": "New board",
   "chat": {
     "newChat": "AI Chat",
-    "inputMessageHint": "Message @:appName AI",
-    "inputLocalAIMessageHint": "Message @:appName Local AI",
+    "inputMessageHint": "Ask @:appName AI",
+    "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
@@ -173,6 +173,13 @@
     "aiMistakePrompt": "AI can make mistakes. Check important info.",
     "chatWithFilePrompt": "Do you want to chat with the file?",
     "indexFileSuccess": "Indexing file successfully",
+    "inputActionNoPages": "No page results",
+    "referenceSource": "{} source found",
+    "referenceSources": "{} sources found",
+    "clickToMention": "Click to mention a page",
+    "uploadFile": "Upload PDFs, md or txt files to chat with",
+    "questionTitle": "Ideas",
+    "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}"
   },
   "trash": {
@@ -297,7 +304,9 @@
     "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
-    "upgradeToAILocal": "AI offline on your device"
+    "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
+    "upgradeToAILocal": "Run local models on your device for ultimate privacy",
+    "upgradeToAILocalDesc": "Chat with PDFs, improve your writing, and auto-fill tables using local AI"
   },
   "notifications": {
     "export": {
@@ -386,6 +395,12 @@
   },
   "settings": {
     "title": "Settings",
+    "popupMenuItem": {
+      "settings": "Settings",
+      "members": "Members",
+      "trash": "Trash",
+      "helpAndSupport": "Help & Support"
+    },
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",
@@ -654,13 +669,14 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure AI models used on @:appName. For best performance we recommend using the default model options",
+        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT 4-o, Claude 3,5, Llama 3.1, and Mistral 7B",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
         "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
         "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
+        "downloadBigFilePrompt": "It may take around 10 minutes to complete the download",
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
@@ -698,10 +714,10 @@
         "unlimitedAILabel": "Unlimited responses",
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
-        "aiOnDeviceBadge": "AI On-device",
+        "aiOnDeviceBadge": "AI On-device for Mac",
         "memberProToggle": "More members & unlimited AI",
-        "aiMaxToggle": "Unlimited AI responses",
-        "aiOnDeviceToggle": "On-device AI for ultimate privacy",
+        "aiMaxToggle": "Unlimited AI and access to advanced models",
+        "aiOnDeviceToggle": "Local AI for ultimate privacy",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "{}",
@@ -716,7 +732,7 @@
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
+          "freeInfo": "Perfect for individuals up to 2 members to organize everything",
           "proInfo": "Perfect for small and medium teams up to 10 members.",
           "teamInfo": "Perfect for all productive and well-organized teams..",
           "upgrade": "Change plan",
@@ -728,17 +744,17 @@
           "activeLabel": "Added",
           "aiMax": {
             "title": "AI Max",
-            "description": "Unlock unlimited AI",
+            "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "per user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "per user per month billed annually",
+            "recommend": ""
           },
           "aiOnDevice": {
-            "title": "AI On-device",
-            "description": "AI offline on your device",
+            "title": "AI On-device for Mac",
+            "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
-            "priceInfo": "per user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "per user per month billed annually",
+            "recommend": "Recommend M1 or newer"
           }
         },
         "deal": {
@@ -777,10 +793,10 @@
           "canceledDescription": "AI Max will be available until {}"
         },
         "aiOnDevice": {
-          "label": "AI On-device",
-          "description": "Unlock unlimited AI offline on your device",
+          "label": "AI On-device for Mac",
+          "description": "Unlock unlimited AI On-device on your device",
           "activeDescription": "Next invoice due on {}",
-          "canceledDescription": "AI On-device will be available until {}"
+          "canceledDescription": "AI On-device for Mac will be available until {}"
         },
         "removeDialog": {
           "title": "Remove {}",
@@ -806,7 +822,7 @@
       },
       "freePlan": {
         "title": "Free",
-        "description": "For individuals and small groups to organize everything",
+        "description": "For individuals up to 2 members to organize everything",
         "price": "{}",
         "priceInfo": "free forever"
       },
@@ -824,17 +840,17 @@
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
         "tooltipSix": "Lifetime means the number of responses never reset",
-        "itemSeven": "Custom namespace",
+        "intelligentSearch": "Intelligent search",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
         "itemOne": "charged per workspace",
-        "itemTwo": "up to 3",
+        "itemTwo": "up to 2",
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
         "itemOne": "charged per workspace",
@@ -843,7 +859,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "unlimited",
-        "itemSeven": ""
+        "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
@@ -861,7 +877,7 @@
       "commonOther": "Other",
       "otherHint": "Write your answer here",
       "questionOne": {
-        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "question": "What prompted you to cancel your @:appName Pro subscription?",
         "answerOne": "Cost too high",
         "answerTwo": "Features did not meet expectations",
         "answerThree": "Found a better alternative",
@@ -869,7 +885,7 @@
         "answerFive": "Service issue or technical difficulties"
       },
       "questionTwo": {
-        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "question": "How likely are you to consider re-subscribing to @:appName Pro in the future?",
         "answerOne": "Very likely",
         "answerTwo": "Somewhat likely",
         "answerThree": "Not sure",
@@ -884,7 +900,7 @@
         "answerFour": "Access to local AI models"
       },
       "questionFour": {
-        "question": "How would you describe your overall experience with AppFlowy?",
+        "question": "How would you describe your overall experience with @:appName?",
         "answerOne": "Great",
         "answerTwo": "Good",
         "answerThree": "Average",
@@ -1080,6 +1096,8 @@
         "user": "User",
         "role": "Role",
         "removeFromWorkspace": "Remove from Workspace",
+        "removeFromWorkspaceSuccess": "Remove from workspace successfully",
+        "removeFromWorkspaceFailed": "Remove from workspace failed",
         "owner": "Owner",
         "guest": "Guest",
         "member": "Member",
@@ -1093,6 +1111,9 @@
           "one": "{} member",
           "other": "{} members"
         },
+        "inviteFailedDialogTitle": "Failed to send invite",
+        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
+        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit. Upgrade on Desktop to unlock more features.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
@@ -1102,7 +1123,9 @@
         "removeMember": "Remove Member",
         "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
         "inviteMemberSuccess": "The invitation has been sent successfully",
-        "failedToInviteMember": "Failed to invite member"
+        "failedToInviteMember": "Failed to invite member",
+        "workspaceMembersError": "Oops, something went wrong",
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
       }
     },
     "files": {
@@ -1151,7 +1174,6 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "mobile": {
@@ -1320,6 +1342,7 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
+      "openRowDocument": "Open as a page",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
@@ -1454,6 +1477,37 @@
       },
       "document": {
         "selectADocumentToLinkTo": "Select a Document to link to"
+      },
+      "name": {
+        "text": "Text",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "image": "Image",
+        "bulletedList": "Bulleted List",
+        "numberedList": "Numbered List",
+        "todoList": "To-do List",
+        "doc": "Doc",
+        "linkedDoc": "Link to page",
+        "grid": "Grid",
+        "linkedGrid": "Linked Grid",
+        "kanban": "Kanban",
+        "linkedKanban": "Linked Kanban",
+        "calendar": "Calendar",
+        "linkedCalendar": "Linked Calendar",
+        "quote": "Quote",
+        "divider": "Divider",
+        "table": "Table",
+        "callout": "Callout",
+        "outline": "Outline",
+        "mathEquation": "Math Equation",
+        "code": "Code",
+        "toggleList": "Toggle list",
+        "emoji": "Emoji",
+        "aiWriter": "AI Writer",
+        "dateOrReminder": "Date or Reminder",
+        "photoGallery": "Photo Gallery",
+        "file": "File"
       }
     },
     "selectionMenu": {
@@ -1472,9 +1526,9 @@
       "autoGeneratorHintText": "Ask AI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
-      "smartEdit": "AI Assistants",
+      "smartEdit": "Ask AI",
       "aI": "AI",
-      "smartEditFixSpelling": "Fix spelling",
+      "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
       "smartEditImproveWriting": "Improve writing",
@@ -1541,9 +1595,9 @@
         "depth": "Depth"
       },
       "image": {
-        "addAnImage": "Add an image",
+        "addAnImage": "Add images",
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImageDesktop": "Drop image(s) or click to add image(s)",
+        "addAnImageDesktop": "Add an image",
         "addAnImageMobile": "Click to add one or more images",
         "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
@@ -1611,12 +1665,12 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
-        "networkTab": "Integrate link",
-        "placeholderText": "Click or drag and drop to upload a file",
+        "networkTab": "Embed link",
+        "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
         "dropFileToUpload": "Drop the file to upload",
-        "fileUploadHint": "Drag and drop a file here\nor click to select a file.",
-        "networkHint": "Enter a link to a file",
+        "fileUploadHint": "Drop a file here to upload\nor click to browse",
+        "networkHint": "Paste a file link",
         "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
         "networkAction": "Embed file link",
         "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
@@ -1674,7 +1728,6 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
@@ -1704,7 +1757,7 @@
         "placeholder": "Select language",
         "auto": "Auto"
       },
-      "copyTooltip": "Copy contents of the code block",
+      "copyTooltip": "Copy",
       "searchLanguageHint": "Search for a language",
       "codeCopiedSnackbar": "Code copied to clipboard!"
     },
@@ -1729,7 +1782,8 @@
         "tooltip": "Click to open page"
       },
       "deleted": "Deleted",
-      "deletedContent": "This content does not exist or has been deleted"
+      "deletedContent": "This content does not exist or has been deleted",
+      "noAccess": "No Access"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
@@ -1846,6 +1900,7 @@
   },
   "search": {
     "label": "Search",
+    "sidebarSearchIcon": "Search and quickly jump to a page",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -1903,7 +1958,8 @@
       "medium": "Medium",
       "mediumDark": "Medium-Dark",
       "dark": "Dark"
-    }
+    },
+    "openSourceIconsFrom": "Open source icons from"
   },
   "inlineActions": {
     "noResults": "No results",
@@ -2370,5 +2426,66 @@
     "failedToAddComment": "Failed to add comment",
     "commentAddedSuccessfully": "Comment added successfully.",
     "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
+  },
+  "template": {
+    "asTemplate": "As template",
+    "name": "Template name",
+    "description": "Template Description",
+    "about": "Template About",
+    "preview": "Template Preview",
+    "categories": "Template Categories",
+    "isNewTemplate": "PIN to New template",
+    "featured": "PIN to Featured",
+    "relatedTemplates": "Related Templates",
+    "requiredField": "{field} is required",
+    "addCategory": "Add \"{category}\"",
+    "addNewCategory": "Add new category",
+    "addNewCreator": "Add new creator",
+    "deleteCategory": "Delete category",
+    "editCategory": "Edit category",
+    "editCreator": "Edit creator",
+    "category": {
+      "name": "Category name",
+      "icon": "Category icon",
+      "bgColor": "Category background color",
+      "priority": "Category priority",
+      "desc": "Category description",
+      "type": "Category type",
+      "icons": "Category Icons",
+      "colors": "Category Colors",
+      "byUseCase": "By Use Case",
+      "byFeature": "By Feature",
+      "deleteCategory": "Delete category",
+      "deleteCategoryDescription": "Are you sure you want to delete this category?",
+      "typeToSearch": "Type to search categories..."
+    },
+    "creator": {
+      "label": "Template Creator",
+      "name": "Creator name",
+      "avatar": "Creator avatar",
+      "accountLinks": "Creator account links",
+      "uploadAvatar": "Click to upload avatar",
+      "deleteCreator": "Delete creator",
+      "deleteCreatorDescription": "Are you sure you want to delete this creator?",
+      "typeToSearch": "Type to search creators..."
+    },
+    "uploadSuccess": "Template uploaded successfully",
+    "uploadSuccessDescription": "Your template has been uploaded successfully. You can now view it in the template gallery.",
+    "viewTemplate": "View template",
+    "deleteTemplate": "Delete template",
+    "deleteTemplateDescription": "Are you sure you want to delete this template?",
+    "addRelatedTemplate": "Add related template",
+    "removeRelatedTemplate": "Remove related template",
+    "uploadAvatar": "Upload avatar",
+    "searchInCategory": "Search in {category}"
+  },
+  "fileDropzone": {
+    "dropFile": "Click or drag file to this area to upload",
+    "uploading": "Uploading...",
+    "uploadFailed": "Upload failed",
+    "uploadSuccess": "Upload success",
+    "uploadSuccessDescription": "The file has been uploaded successfully",
+    "uploadFailedDescription": "The file upload failed",
+    "uploadingDescription": "The file is being uploaded"
   }
 }

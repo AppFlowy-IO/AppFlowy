@@ -61,7 +61,7 @@ async fn grid_filter_checklist_is_complete_test() {
 }
 
 async fn get_checklist_cell_options(test: &DatabaseFilterTest) -> Vec<String> {
-  let field = test.get_first_field(FieldType::Checklist);
+  let field = test.get_first_field(FieldType::Checklist).await;
   let row_cell = test
     .editor
     .get_cell(&field.id, &test.row_details[0].row.id)

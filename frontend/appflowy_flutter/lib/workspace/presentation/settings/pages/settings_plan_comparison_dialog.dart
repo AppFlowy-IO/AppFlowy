@@ -11,7 +11,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
@@ -427,13 +426,13 @@ class _CurrentBadge extends StatelessWidget {
 
 class _ComparisonCell extends StatelessWidget {
   const _ComparisonCell({
-    required this.label,
+    this.label,
     this.icon,
     this.tooltip,
     this.isHighlighted = false,
   });
 
-  final String label;
+  final String? label;
   final FlowySvgData? icon;
   final String? tooltip;
   final bool isHighlighted;
@@ -458,10 +457,10 @@ class _ComparisonCell extends StatelessWidget {
               icon!,
               color: AFThemeExtension.of(context).strongText,
             ),
-          ] else ...[
+          ] else if (label != null) ...[
             Expanded(
               child: FlowyText.medium(
-                label,
+                label!,
                 lineHeight: 1.2,
                 color: AFThemeExtension.of(context).strongText,
               ),
@@ -662,71 +661,74 @@ final _planLabels = [
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFive.tr(),
   ),
   _PlanItem(
-    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSix.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
+    label:
+        LocaleKeys.settings_comparePlanDialog_planLabels_intelligentSearch.tr(),
   ),
   _PlanItem(
-    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSeven.tr(),
-    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSeven.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSix.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
   ),
 ];
 
 class _CellItem {
-  const _CellItem(this.label, {this.icon});
+  const _CellItem({this.label, this.icon});
 
-  final String label;
+  final String? label;
   final FlowySvgData? icon;
 }
 
 final List<_CellItem> _freeLabels = [
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemOne.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemTwo.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemThree.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFour.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFive.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
+    label:
+        LocaleKeys.settings_comparePlanDialog_freeLabels_intelligentSearch.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
   ),
 ];
 
 final List<_CellItem> _proLabels = [
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemOne.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemTwo.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemThree.tr(),
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFour.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFive.tr(),
     icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+    label:
+        LocaleKeys.settings_comparePlanDialog_proLabels_intelligentSearch.tr(),
+    icon: FlowySvgs.check_m,
   ),
   _CellItem(
-    LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
-    icon: FlowySvgs.check_m,
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
   ),
 ];

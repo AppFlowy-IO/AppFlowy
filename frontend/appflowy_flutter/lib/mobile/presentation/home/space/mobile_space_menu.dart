@@ -74,6 +74,8 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
       leftIcon: SpaceIcon(
         dimension: 24,
         space: space,
+        svgSize: 14,
+        textDimension: 18.0,
         cornerRadius: 6.0,
       ),
       leftIconSize: const Size.square(24),

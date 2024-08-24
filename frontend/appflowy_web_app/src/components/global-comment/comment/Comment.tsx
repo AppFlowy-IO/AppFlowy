@@ -14,7 +14,7 @@ interface CommentProps {
 
 const MAX_HEIGHT = 320;
 
-function Comment({ comment }: CommentProps) {
+function Comment ({ comment }: CommentProps) {
   const { avatar, time, timeFormat } = useCommentRender(comment);
   const { t } = useTranslation();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -41,7 +41,7 @@ function Comment({ comment }: CommentProps) {
     <div className={'comment flex flex-col gap-2'} ref={ref}>
       <div className={'flex items-center gap-2'}>
         <div className={'flex items-center gap-4'}>
-          <Avatar {...avatar} className={'h-8 w-8'} />
+          <Avatar {...avatar} className={`h-8 w-8`} />
           <div className={'font-semibold'}>{comment.user?.name}</div>
         </div>
         <Tooltip title={timeFormat} enterNextDelay={500} enterDelay={1000} placement={'top-start'}>

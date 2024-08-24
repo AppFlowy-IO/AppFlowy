@@ -14,20 +14,16 @@ dependencies:
   ffi: ^2.0.2
   isolates: ^3.0.3+8
   protobuf: ^3.1.0
-  freezed_annotation:
   logger: ^2.4.0
   plugin_platform_interface: ^2.1.3
-  json_annotation: ^4.7.0
   appflowy_result:
     path: ../appflowy_result
+  fixnum: ^1.1.0
+  async: ^2.11.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner:
-  freezed:
-  flutter_lints: ^3.0.1
-  json_serializable: ^6.6.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,38 +1,18 @@
 import { clearData } from '@/application/db';
+import { getService } from '@/application/services';
+import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { EventType, on } from '@/application/session';
 import { isTokenValid } from '@/application/session/token';
+import { User } from '@/application/types';
+import { InfoSnackbarProps } from '@/components/_shared/notify';
+import { AFConfigContext, defaultConfig } from '@/components/app/app.hooks';
 import { useAppLanguage } from '@/components/app/useAppLanguage';
 import { LoginModal } from '@/components/login';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { useSnackbar } from 'notistack';
-import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { AFService, AFServiceConfig } from '@/application/services/services.type';
-import { getService } from '@/application/services';
-import { InfoSnackbarProps } from '@/components/_shared/notify';
-import { User } from '@/application/types';
+import React, { useCallback, useEffect, useState } from 'react';
 
-const baseURL = import.meta.env.AF_BASE_URL || 'https://test.appflowy.cloud';
-const gotrueURL = import.meta.env.AF_GOTRUE_URL || 'https://test.appflowy.cloud/gotrue';
-const wsURL = import.meta.env.AF_WS_URL || 'wss://test.appflowy.cloud/ws/v1';
-
-const defaultConfig: AFServiceConfig = {
-  cloudConfig: {
-    baseURL,
-    gotrueURL,
-    wsURL,
-  },
-};
-
-export const AFConfigContext = createContext<
-  | {
-      service: AFService | undefined;
-      isAuthenticated: boolean;
-      currentUser?: User;
-      openLoginModal: (redirectTo?: string) => void;
-    }
-  | undefined
->(undefined);
-
-function AppConfig({ children }: { children: React.ReactNode }) {
+function AppConfig ({ children }: { children: React.ReactNode }) {
   const [appConfig] = useState<AFServiceConfig>(defaultConfig);
   const [service, setService] = useState<AFService>();
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(isTokenValid());
@@ -123,13 +103,18 @@ function AppConfig({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleClearData = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 'r' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-        e.stopPropagation();
-        e.preventDefault();
-        void clearData().then(() => {
-          window.location.reload();
-        });
+      switch (true) {
+        case createHotkey(HOT_KEY_NAME.CLEAR_CACHE)(e):
+          e.stopPropagation();
+          e.preventDefault();
+          void clearData().then(() => {
+            window.location.reload();
+          });
+          break;
+        default:
+          break;
       }
+
     };
 
     window.addEventListener('keydown', handleClearData);

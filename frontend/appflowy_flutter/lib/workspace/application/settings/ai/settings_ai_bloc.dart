@@ -1,4 +1,5 @@
 import 'package:appflowy/user/application/user_listener.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -10,14 +11,35 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'settings_ai_bloc.freezed.dart';
 
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
-  SettingsAIBloc(this.userProfile)
-      : _userListener = UserListener(userProfile: userProfile),
-        super(SettingsAIState(userProfile: userProfile)) {
+  SettingsAIBloc(
+    this.userProfile,
+    this.workspaceId,
+    WorkspaceMemberPB? member,
+  )   : _userListener = UserListener(userProfile: userProfile),
+        _userService = UserBackendService(userId: userProfile.id),
+        super(SettingsAIState(userProfile: userProfile, member: member)) {
     _dispatch();
+
+    if (member == null) {
+      _userService.getWorkspaceMember().then((result) {
+        result.fold(
+          (member) {
+            if (!isClosed) {
+              add(SettingsAIEvent.refreshMember(member));
+            }
+          },
+          (err) {
+            Log.error(err);
+          },
+        );
+      });
+    }
   }
 
   final UserListener _userListener;
   final UserProfilePB userProfile;
+  final UserBackendService _userService;
+  final String workspaceId;
 
   @override
   Future<void> close() async {
@@ -62,6 +84,9 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             ),
           );
         },
+        refreshMember: (member) {
+          emit(state.copyWith(member: member));
+        },
       );
     });
   }
@@ -71,7 +96,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     AIModelPB? model,
   }) {
     final payload = UpdateUserWorkspaceSettingPB(
-      workspaceId: userProfile.workspaceId,
+      workspaceId: workspaceId,
     );
     if (disableSearchIndexing != null) {
       payload.disableSearchIndexing = disableSearchIndexing;
@@ -91,7 +116,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
       );
 
   void _loadUserWorkspaceSetting() {
-    final payload = UserWorkspaceIdPB(workspaceId: userProfile.workspaceId);
+    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
     UserEventGetWorkspaceSetting(payload).send().then((result) {
       result.fold((settings) {
         if (!isClosed) {
@@ -112,6 +137,8 @@ class SettingsAIEvent with _$SettingsAIEvent {
   ) = _DidLoadWorkspaceSetting;
 
   const factory SettingsAIEvent.toggleAISearch() = _toggleAISearch;
+  const factory SettingsAIEvent.refreshMember(WorkspaceMemberPB member) =
+      _RefreshMember;
 
   const factory SettingsAIEvent.selectModel(AIModelPB model) = _SelectAIModel;
 
@@ -125,6 +152,7 @@ class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
     UseAISettingPB? aiSettings,
+    WorkspaceMemberPB? member,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
 }

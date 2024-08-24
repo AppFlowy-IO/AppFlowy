@@ -190,7 +190,6 @@ class _SelectLocalModelDropdownMenu extends StatelessWidget {
                     context,
                     value: llm,
                     label: llm.chatModel,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                 )
                 .toList(),

@@ -15,12 +15,11 @@ flowy-database-pub = { workspace = true }
 
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
-parking_lot.workspace = true
 protobuf.workspace = true
 flowy-error = { path = "../flowy-error", features = [
     "impl_from_dispatch_error",
     "impl_from_collab_database",
-]}
+] }
 
 lib-dispatch = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
@@ -29,6 +28,7 @@ tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
+arc-swap.workspace = true
 lib-infra = { workspace = true }
 chrono = { workspace = true, default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
@@ -38,7 +38,7 @@ indexmap = { version = "2.1.0", features = ["serde"] }
 url = { version = "2" }
 fancy-regex = "0.11.0"
 futures.workspace = true
-dashmap = "5"
+dashmap.workspace = true
 anyhow.workspace = true
 async-stream = "0.3.4"
 rayon = "1.9.0"
@@ -49,6 +49,7 @@ csv = "1.1.6"
 strum = "0.25"
 strum_macros = "0.25"
 validator = { workspace = true, features = ["derive"] }
+tokio-util.workspace = true
 
 [dev-dependencies]
 event-integration-test = { path = "../event-integration-test", default-features = false }

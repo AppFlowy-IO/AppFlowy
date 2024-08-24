@@ -6,19 +6,27 @@ use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, AppFlowyLocalAI};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
-use flowy_ai_pub::cloud::{AppFlowyOfflineAI, ChatCloudService, LLMModel, LocalAIConfig};
+use flowy_ai_pub::cloud::{
+  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ChatMetadataContentType, LLMModel,
+  LocalAIConfig,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::Sink;
 use lib_infra::async_trait::async_trait;
+use std::collections::HashMap;
 
-use parking_lot::Mutex;
+use crate::stream_message::StreamMessage;
+use arc_swap::ArcSwapOption;
+use futures_util::SinkExt;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::ops::Deref;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument, trace};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LLMSetting {
@@ -39,8 +47,9 @@ const LOCAL_AI_SETTING_KEY: &str = "appflowy_local_ai_setting:v0";
 pub struct LocalAIController {
   local_ai: Arc<AppFlowyLocalAI>,
   local_ai_resource: Arc<LocalAIResourceController>,
-  current_chat_id: Mutex<Option<String>>,
+  current_chat_id: ArcSwapOption<String>,
   store_preferences: Arc<KVStorePreferences>,
+  user_service: Arc<dyn AIUserService>,
 }
 
 impl Deref for LocalAIController {
@@ -66,8 +75,12 @@ impl LocalAIController {
     };
 
     let (tx, mut rx) = tokio::sync::mpsc::channel(1);
-    let llm_res = Arc::new(LocalAIResourceController::new(user_service, res_impl, tx));
-    let current_chat_id = Mutex::new(None);
+    let llm_res = Arc::new(LocalAIResourceController::new(
+      user_service.clone(),
+      res_impl,
+      tx,
+    ));
+    let current_chat_id = ArcSwapOption::default();
 
     let mut running_state_rx = local_ai.subscribe_running_state();
     let cloned_llm_res = llm_res.clone();
@@ -93,6 +106,7 @@ impl LocalAIController {
       local_ai_resource: llm_res,
       current_chat_id,
       store_preferences,
+      user_service,
     };
 
     let rag_enabled = this.is_rag_enabled();
@@ -134,7 +148,13 @@ impl LocalAIController {
 
     this
   }
-  pub async fn refresh(&self) -> FlowyResult<LLMModelInfo> {
+  pub async fn refresh(&self) -> FlowyResult<()> {
+    let is_enabled = self.is_enabled();
+    self.enable_chat_plugin(is_enabled).await?;
+    Ok(())
+  }
+
+  pub async fn refresh_model_info(&self) -> FlowyResult<LLMModelInfo> {
     self.local_ai_resource.refresh_llm_resource().await
   }
 
@@ -150,10 +170,16 @@ impl LocalAIController {
 
   /// Indicate whether the local AI is enabled.
   pub fn is_enabled(&self) -> bool {
-    self
-      .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
-      .unwrap_or(true)
+    if let Ok(key) = self.local_ai_enabled_key() {
+      self.store_preferences.get_bool(&key).unwrap_or(true)
+    } else {
+      false
+    }
+  }
+
+  fn local_ai_enabled_key(&self) -> FlowyResult<String> {
+    let workspace_id = self.user_service.workspace_id()?;
+    Ok(format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id))
   }
 
   /// Indicate whether the local AI chat is enabled. In the future, we can support multiple
@@ -173,18 +199,20 @@ impl LocalAIController {
   }
 
   pub fn open_chat(&self, chat_id: &str) {
-    if !self.is_running() {
+    if !self.is_enabled() {
       return;
     }
 
     // Only keep one chat open at a time. Since loading multiple models at the same time will cause
     // memory issues.
-    if let Some(current_chat_id) = self.current_chat_id.lock().as_ref() {
+    if let Some(current_chat_id) = self.current_chat_id.load().as_ref() {
       debug!("[AI Plugin] close previous chat: {}", current_chat_id);
       self.close_chat(current_chat_id);
     }
 
-    *self.current_chat_id.lock() = Some(chat_id.to_string());
+    self
+      .current_chat_id
+      .store(Some(Arc::new(chat_id.to_string())));
     let chat_id = chat_id.to_string();
     let weak_ctrl = Arc::downgrade(&self.local_ai);
     tokio::spawn(async move {
@@ -289,13 +317,9 @@ impl LocalAIController {
   }
 
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
-    let enabled = !self
-      .store_preferences
-      .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
-      .unwrap_or(true);
-    self
-      .store_preferences
-      .set_bool(APPFLOWY_LOCAL_AI_ENABLED, enabled)?;
+    let key = self.local_ai_enabled_key()?;
+    let enabled = !self.store_preferences.get_bool(&key).unwrap_or(true);
+    self.store_preferences.set_bool(&key, enabled)?;
 
     // when enable local ai. we need to check if chat is enabled, if enabled, we need to init chat plugin
     // otherwise, we need to destroy the plugin
@@ -304,9 +328,12 @@ impl LocalAIController {
         .store_preferences
         .get_bool(APPFLOWY_LOCAL_AI_CHAT_ENABLED)
         .unwrap_or(true);
-      self.enable_chat_plugin(chat_enabled).await?;
+
+      if self.local_ai_resource.is_resource_ready() {
+        self.enable_chat_plugin(chat_enabled).await?;
+      }
     } else {
-      self.enable_chat_plugin(false).await?;
+      let _ = self.enable_chat_plugin(false).await;
     }
     Ok(enabled)
   }
@@ -332,6 +359,119 @@ impl LocalAIController {
       .store_preferences
       .set_bool(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED, enabled)?;
     Ok(enabled)
+  }
+  pub async fn index_message_metadata(
+    &self,
+    chat_id: &str,
+    metadata_list: &[ChatMessageMetadata],
+    index_process_sink: &mut (impl Sink<String> + Unpin),
+  ) -> FlowyResult<()> {
+    if !self.is_enabled() {
+      return Ok(());
+    }
+
+    for metadata in metadata_list {
+      if let Err(err) = metadata.data.validate() {
+        error!(
+          "[AI Plugin] invalid metadata: {:?}, error: {:?}",
+          metadata, err
+        );
+        continue;
+      }
+
+      let mut index_metadata = HashMap::new();
+      index_metadata.insert("id".to_string(), json!(&metadata.id));
+      index_metadata.insert("name".to_string(), json!(&metadata.name));
+      index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
+      index_metadata.insert("source".to_string(), json!(&metadata.source));
+      match &metadata.data.content_type {
+        ChatMetadataContentType::Unknown => {
+          error!(
+            "[AI Plugin] unsupported content type: {:?}",
+            metadata.data.content_type
+          );
+        },
+        ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
+          trace!("[AI Plugin]: index text: {}", metadata.data.content);
+          self
+            .process_index_file(
+              chat_id,
+              None,
+              Some(metadata.data.content.clone()),
+              metadata,
+              &index_metadata,
+              index_process_sink,
+            )
+            .await?;
+        },
+        ChatMetadataContentType::PDF => {
+          trace!("[AI Plugin]: index pdf file: {}", metadata.data.content);
+          let file_path = Path::new(&metadata.data.content);
+          if file_path.exists() {
+            self
+              .process_index_file(
+                chat_id,
+                Some(file_path.to_path_buf()),
+                None,
+                metadata,
+                &index_metadata,
+                index_process_sink,
+              )
+              .await?;
+          }
+        },
+      }
+    }
+
+    Ok(())
+  }
+
+  async fn process_index_file(
+    &self,
+    chat_id: &str,
+    file_path: Option<PathBuf>,
+    content: Option<String>,
+    metadata: &ChatMessageMetadata,
+    index_metadata: &HashMap<String, serde_json::Value>,
+    index_process_sink: &mut (impl Sink<String> + Unpin),
+  ) -> Result<(), FlowyError> {
+    let _ = index_process_sink
+      .send(
+        StreamMessage::StartIndexFile {
+          file_name: metadata.name.clone(),
+        }
+        .to_string(),
+      )
+      .await;
+
+    let result = self
+      .index_file(chat_id, file_path, content, Some(index_metadata.clone()))
+      .await;
+    match result {
+      Ok(_) => {
+        let _ = index_process_sink
+          .send(
+            StreamMessage::EndIndexFile {
+              file_name: metadata.name.clone(),
+            }
+            .to_string(),
+          )
+          .await;
+      },
+      Err(err) => {
+        let _ = index_process_sink
+          .send(
+            StreamMessage::IndexFileError {
+              file_name: metadata.name.clone(),
+            }
+            .to_string(),
+          )
+          .await;
+        error!("[AI Plugin] failed to index file: {:?}", err);
+      },
+    }
+
+    Ok(())
   }
 
   async fn enable_chat_plugin(&self, enabled: bool) -> FlowyResult<()> {
@@ -396,7 +536,7 @@ impl LLMResourceService for LLMResourceServiceImpl {
   fn store_setting(&self, setting: LLMSetting) -> Result<(), Error> {
     self
       .store_preferences
-      .set_object(LOCAL_AI_SETTING_KEY, setting)?;
+      .set_object(LOCAL_AI_SETTING_KEY, &setting)?;
     Ok(())
   }
 

@@ -1,9 +1,10 @@
-use collab_database::database::{gen_field_id, MutexDatabase};
+use collab_database::database::{gen_field_id, Database};
 use collab_database::fields::Field;
 use collab_database::views::{
   DatabaseLayout, FieldSettingsByFieldIdMap, LayoutSetting, OrderObjectPosition,
 };
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 use crate::entities::FieldType;
 use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
@@ -15,20 +16,20 @@ use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 /// view depends on a field that can be used to group rows while a calendar view
 /// depends on a date field.
 pub struct DatabaseLayoutDepsResolver {
-  pub database: Arc<MutexDatabase>,
+  pub database: Arc<RwLock<Database>>,
   /// The new database layout.
   pub database_layout: DatabaseLayout,
 }
 
 impl DatabaseLayoutDepsResolver {
-  pub fn new(database: Arc<MutexDatabase>, database_layout: DatabaseLayout) -> Self {
+  pub fn new(database: Arc<RwLock<Database>>, database_layout: DatabaseLayout) -> Self {
     Self {
       database,
       database_layout,
     }
   }
 
-  pub fn resolve_deps_when_create_database_linked_view(
+  pub async fn resolve_deps_when_create_database_linked_view(
     &self,
     view_id: &str,
   ) -> (
@@ -41,9 +42,8 @@ impl DatabaseLayoutDepsResolver {
       DatabaseLayout::Board => {
         let layout_settings = BoardLayoutSetting::new().into();
 
-        let field = if !self
-          .database
-          .lock()
+        let database = self.database.read().await;
+        let field = if !database
           .get_fields(None)
           .into_iter()
           .any(|field| FieldType::from(field.field_type).can_be_group())
@@ -53,7 +53,7 @@ impl DatabaseLayoutDepsResolver {
           None
         };
 
-        let field_settings_map = self.database.lock().get_field_settings(view_id, None);
+        let field_settings_map = database.get_field_settings(view_id, None);
         tracing::info!(
           "resolve_deps_when_create_database_linked_view {:?}",
           field_settings_map
@@ -68,7 +68,8 @@ impl DatabaseLayoutDepsResolver {
       DatabaseLayout::Calendar => {
         match self
           .database
-          .lock()
+          .read()
+          .await
           .get_fields(None)
           .into_iter()
           .find(|field| FieldType::from(field.field_type) == FieldType::DateTime)
@@ -89,13 +90,20 @@ impl DatabaseLayoutDepsResolver {
 
   /// If the new layout type is a calendar and there is not date field in the database, it will add
   /// a new date field to the database and create the corresponding layout setting.
-  pub fn resolve_deps_when_update_layout_type(&self, view_id: &str) {
-    let fields = self.database.lock().get_fields(None);
+  pub async fn resolve_deps_when_update_layout_type(&self, view_id: &str) {
+    let mut database = self.database.write().await;
+    let fields = database.get_fields(None);
     // Insert the layout setting if it's not exist
     match &self.database_layout {
       DatabaseLayout::Grid => {},
       DatabaseLayout::Board => {
-        self.create_board_layout_setting_if_need(view_id);
+        if database
+          .get_layout_setting::<BoardLayoutSetting>(view_id, &self.database_layout)
+          .is_none()
+        {
+          let layout_setting = BoardLayoutSetting::new();
+          database.insert_layout_setting(view_id, &self.database_layout, layout_setting);
+        }
       },
       DatabaseLayout::Calendar => {
         let date_field_id = match fields
@@ -106,7 +114,7 @@ impl DatabaseLayoutDepsResolver {
             tracing::trace!("Create a new date field after layout type change");
             let field = self.create_date_field();
             let field_id = field.id.clone();
-            self.database.lock().create_field(
+            database.create_field(
               None,
               field,
               &OrderObjectPosition::End,
@@ -116,38 +124,14 @@ impl DatabaseLayoutDepsResolver {
           },
           Some(date_field) => date_field.id,
         };
-        self.create_calendar_layout_setting_if_need(view_id, &date_field_id);
+        if database
+          .get_layout_setting::<CalendarLayoutSetting>(view_id, &self.database_layout)
+          .is_none()
+        {
+          let layout_setting = CalendarLayoutSetting::new(date_field_id);
+          database.insert_layout_setting(view_id, &self.database_layout, layout_setting);
+        }
       },
-    }
-  }
-
-  fn create_board_layout_setting_if_need(&self, view_id: &str) {
-    if self
-      .database
-      .lock()
-      .get_layout_setting::<BoardLayoutSetting>(view_id, &self.database_layout)
-      .is_none()
-    {
-      let layout_setting = BoardLayoutSetting::new();
-      self
-        .database
-        .lock()
-        .insert_layout_setting(view_id, &self.database_layout, layout_setting);
-    }
-  }
-
-  fn create_calendar_layout_setting_if_need(&self, view_id: &str, field_id: &str) {
-    if self
-      .database
-      .lock()
-      .get_layout_setting::<CalendarLayoutSetting>(view_id, &self.database_layout)
-      .is_none()
-    {
-      let layout_setting = CalendarLayoutSetting::new(field_id.to_string());
-      self
-        .database
-        .lock()
-        .insert_layout_setting(view_id, &self.database_layout, layout_setting);
     }
   }
 

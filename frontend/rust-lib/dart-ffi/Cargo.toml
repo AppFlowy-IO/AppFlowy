@@ -22,13 +22,12 @@ serde_json.workspace = true
 bytes.workspace = true
 crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
-parking_lot.workspace = true
 tracing.workspace = true
 lib-log.workspace = true
 semver = "1.0.22"
 
 # workspace
-lib-dispatch = { workspace = true }
+lib-dispatch = { workspace = true, features = ["local_set"] }
 
 # Core
 #flowy-core = { workspace = true, features = ["profiling"] }
@@ -46,6 +45,7 @@ collab-integrate = { workspace = true }
 flowy-derive.workspace = true
 serde_yaml = "0.9.27"
 flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "dart"] }
+futures = "0.3.26"
 
 [features]
 default = ["dart"]

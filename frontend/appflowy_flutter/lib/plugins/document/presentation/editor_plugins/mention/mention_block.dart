@@ -73,7 +73,11 @@ class MentionBlock extends StatelessWidget {
 
     switch (type) {
       case MentionType.page:
-        final String pageId = mention[MentionBlockKeys.pageId];
+        final String? pageId = mention[MentionBlockKeys.pageId] as String?;
+        if (pageId == null) {
+          return const SizedBox.shrink();
+        }
+
         return MentionPageBlock(
           key: ValueKey(pageId),
           editorState: editorState,

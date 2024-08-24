@@ -71,9 +71,10 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
           child: Row(
             children: [
               const HSpace(10),
-              const FlowySvg(
-                FlowySvgs.image_placeholder_s,
-                size: Size.square(24),
+              FlowySvg(
+                FlowySvgs.slash_menu_icon_image_s,
+                size: const Size.square(24),
+                color: Theme.of(context).hintColor,
               ),
               const HSpace(10),
               ..._buildTrailing(context),
@@ -101,7 +102,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               UploadImageType.local,
               UploadImageType.url,
               UploadImageType.unsplash,
-              UploadImageType.stabilityAI,
             ],
             onSelectedLocalImages: (paths) {
               controller.close();
@@ -192,6 +192,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                     ? LocaleKeys.document_plugins_image_dropImageToInsert.tr()
                     : LocaleKeys.document_plugins_image_addAnImageDesktop.tr()
                 : LocaleKeys.document_plugins_image_addAnImageMobile.tr(),
+            color: Theme.of(context).hintColor,
           ),
         ),
       ];

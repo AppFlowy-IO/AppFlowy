@@ -1,5 +1,4 @@
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -38,11 +37,7 @@ TextStyle getGoogleFontSafely(
         letterSpacing: letterSpacing,
         height: lineHeight,
       );
-    } catch (e) {
-      Log.error(
-        'Font family $fontFamily is not available, using default font family instead',
-      );
-    }
+    } catch (_) {}
   }
 
   return TextStyle(

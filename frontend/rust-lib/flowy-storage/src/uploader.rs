@@ -153,13 +153,22 @@ impl FileUploader {
       .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
     match task {
-      UploadTask::Task {
+      UploadTask::ImmediateTask {
+        chunks,
+        record,
+        mut retry_count,
+      }
+      | UploadTask::Task {
         chunks,
         record,
         mut retry_count,
       } => {
         let record = BoxAny::new(record);
-        if let Err(err) = self.storage_service.start_upload(&chunks, &record).await {
+        if let Err(err) = self
+          .storage_service
+          .start_upload(chunks.clone(), &record)
+          .await
+        {
           if err.is_file_limit_exceeded() {
             error!("Failed to upload file: {}", err);
             self.disable_storage_write();
@@ -253,6 +262,11 @@ impl FileUploaderRunner {
 }
 
 pub enum UploadTask {
+  ImmediateTask {
+    chunks: ChunkedBytes,
+    record: UploadFileTable,
+    retry_count: u8,
+  },
   Task {
     chunks: ChunkedBytes,
     record: UploadFileTable,
@@ -270,8 +284,9 @@ pub enum UploadTask {
 impl UploadTask {
   pub fn retry_count(&self) -> u8 {
     match self {
-      Self::Task { retry_count, .. } => *retry_count,
-      Self::BackgroundTask { retry_count, .. } => *retry_count,
+      UploadTask::ImmediateTask { retry_count, .. } => *retry_count,
+      UploadTask::Task { retry_count, .. } => *retry_count,
+      UploadTask::BackgroundTask { retry_count, .. } => *retry_count,
     }
   }
 }
@@ -279,8 +294,9 @@ impl UploadTask {
 impl Display for UploadTask {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
-      Self::Task { record, .. } => write!(f, "Task: {}", record.file_id),
-      Self::BackgroundTask { file_id, .. } => write!(f, "BackgroundTask: {}", file_id),
+      UploadTask::Task { record, .. } => write!(f, "Task: {}", record.file_id),
+      UploadTask::BackgroundTask { file_id, .. } => write!(f, "BackgroundTask: {}", file_id),
+      UploadTask::ImmediateTask { record, .. } => write!(f, "Immediate Task: {}", record.file_id),
     }
   }
 }
@@ -290,6 +306,9 @@ impl Eq for UploadTask {}
 impl PartialEq for UploadTask {
   fn eq(&self, other: &Self) -> bool {
     match (self, other) {
+      (Self::ImmediateTask { record: lhs, .. }, Self::ImmediateTask { record: rhs, .. }) => {
+        lhs.local_file_path == rhs.local_file_path
+      },
       (Self::Task { record: lhs, .. }, Self::Task { record: rhs, .. }) => {
         lhs.local_file_path == rhs.local_file_path
       },
@@ -319,6 +338,11 @@ impl PartialOrd for UploadTask {
 impl Ord for UploadTask {
   fn cmp(&self, other: &Self) -> Ordering {
     match (self, other) {
+      (Self::ImmediateTask { record: lhs, .. }, Self::ImmediateTask { record: rhs, .. }) => {
+        lhs.created_at.cmp(&rhs.created_at)
+      },
+      (_, Self::ImmediateTask { .. }) => Ordering::Less,
+      (Self::ImmediateTask { .. }, _) => Ordering::Greater,
       (Self::Task { record: lhs, .. }, Self::Task { record: rhs, .. }) => {
         lhs.created_at.cmp(&rhs.created_at)
       },

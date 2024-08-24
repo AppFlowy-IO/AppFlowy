@@ -52,6 +52,7 @@ pub enum DatabaseNotification {
   DidUpdateFieldSettings = 86,
   // Trigger when Calculation changed
   DidUpdateCalculation = 87,
+  ReloadRows = 88,
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {

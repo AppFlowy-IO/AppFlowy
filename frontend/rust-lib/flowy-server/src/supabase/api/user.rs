@@ -6,11 +6,10 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use anyhow::Error;
-use collab::core::collab::MutexCollab;
+use arc_swap::ArcSwapOption;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::{CollabObject, CollabType};
-use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use tokio_retry::strategy::FixedInterval;
@@ -44,7 +43,7 @@ use crate::AppFlowyEncryption;
 pub struct SupabaseUserServiceImpl<T> {
   server: T,
   realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
-  user_update_rx: RwLock<Option<UserUpdateReceiver>>,
+  user_update_rx: ArcSwapOption<UserUpdateReceiver>,
 }
 
 impl<T> SupabaseUserServiceImpl<T> {
@@ -56,7 +55,7 @@ impl<T> SupabaseUserServiceImpl<T> {
     Self {
       server,
       realtime_event_handlers,
-      user_update_rx: RwLock::new(user_update_rx),
+      user_update_rx: ArcSwapOption::from(user_update_rx.map(Arc::new)),
     }
   }
 }
@@ -306,7 +305,8 @@ where
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
-    self.user_update_rx.write().take()
+    let rx = self.user_update_rx.swap(None)?;
+    Arc::into_inner(rx)
   }
 
   fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), FlowyError> {
@@ -647,7 +647,7 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
       serde_json::from_value::<RealtimeCollabUpdateEvent>(event.new.clone())
     {
       if let Some(sender_by_oid) = self.sender_by_oid.upgrade() {
-        if let Some(sender) = sender_by_oid.read().get(collab_update.oid.as_str()) {
+        if let Some(sender) = sender_by_oid.get(collab_update.oid.as_str()) {
           tracing::trace!(
             "current device: {}, event device: {}",
             self.device_id,
@@ -688,15 +688,16 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
 
 fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
   let workspace_id = collab_object.object_id.clone();
-  let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
-    CollabOrigin::Empty,
-    &collab_object.object_id,
-    vec![],
-    false,
-  )));
+  let collab =
+    Collab::new_with_origin(CollabOrigin::Empty, &collab_object.object_id, vec![], false);
   let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
-  let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
-  folder.encode_collab_v1().unwrap().doc_state.to_vec()
+  let folder = Folder::open_with(
+    collab_object.uid,
+    collab,
+    None,
+    Some(FolderData::new(workspace)),
+  );
+  folder.encode_collab().unwrap().doc_state.to_vec()
 }
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {

@@ -13,7 +13,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/em
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -221,6 +220,7 @@ class AddEmojiButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
@@ -243,6 +243,7 @@ class RemoveEmojiButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.document_plugins_cover_removeIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),

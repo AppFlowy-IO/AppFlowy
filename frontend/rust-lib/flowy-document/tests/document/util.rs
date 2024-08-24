@@ -1,13 +1,14 @@
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use anyhow::Error;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
-use parking_lot::Once;
 use tempfile::TempDir;
+use tokio::sync::RwLock;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
 use collab_integrate::collab_builder::{
@@ -15,16 +16,14 @@ use collab_integrate::collab_builder::{
   CollabPluginProviderType, WorkspaceCollabIntegrate,
 };
 use collab_integrate::CollabKVDB;
-use flowy_document::document::MutexDocument;
 use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::chunked_byte::ChunkedBytes;
-use flowy_storage_pub::storage::{CreatedUpload, StorageService};
+use flowy_storage_pub::storage::{CreatedUpload, FileProgressReceiver, StorageService};
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
-use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
   inner: DocumentManager,
@@ -103,8 +102,8 @@ impl DocumentUserService for FakeUser {
 }
 
 pub fn setup_log() {
-  static START: Once = Once::new();
-  START.call_once(|| {
+  static START: OnceLock<()> = OnceLock::new();
+  START.get_or_init(|| {
     std::env::set_var("RUST_LOG", "collab_persistence=trace");
     let subscriber = Subscriber::builder()
       .with_env_filter(EnvFilter::from_default_env())
@@ -114,7 +113,7 @@ pub fn setup_log() {
   });
 }
 
-pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
+pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<RwLock<Document>>, String) {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data(&doc_id);
@@ -126,7 +125,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
     .unwrap();
 
   test.open_document(&doc_id).await.unwrap();
-  let document = test.get_document(&doc_id).await.unwrap();
+  let document = test.editable_document(&doc_id).await.unwrap();
 
   (test, document, data.page_id)
 }
@@ -141,36 +140,36 @@ pub fn gen_id() -> String {
 }
 
 pub struct LocalTestDocumentCloudServiceImpl();
+
+#[async_trait]
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_document_doc_state(
+  async fn get_document_doc_state(
     &self,
     document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<Vec<u8>, FlowyError> {
+  ) -> Result<Vec<u8>, FlowyError> {
     let document_id = document_id.to_string();
-    FutureResult::new(async move {
-      Err(FlowyError::new(
-        ErrorCode::RecordNotFound,
-        format!("Document {} not found", document_id),
-      ))
-    })
+    Err(FlowyError::new(
+      ErrorCode::RecordNotFound,
+      format!("Document {} not found", document_id),
+    ))
   }
 
-  fn get_document_snapshots(
+  async fn get_document_snapshots(
     &self,
     _document_id: &str,
     _limit: usize,
     _workspace_id: &str,
-  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
-    FutureResult::new(async move { Ok(vec![]) })
+  ) -> Result<Vec<DocumentSnapshot>, Error> {
+    Ok(vec![])
   }
 
-  fn get_document_data(
+  async fn get_document_data(
     &self,
     _document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<Option<DocumentData>, Error> {
-    FutureResult::new(async move { Ok(None) })
+  ) -> Result<Option<DocumentData>, Error> {
+    Ok(None)
   }
 }
 
@@ -178,14 +177,6 @@ pub struct DocumentTestFileStorageService;
 
 #[async_trait]
 impl StorageService for DocumentTestFileStorageService {
-  fn upload_object(
-    &self,
-    _workspace_id: &str,
-    _local_file_path: &str,
-  ) -> FutureResult<String, FlowyError> {
-    todo!()
-  }
-
   fn delete_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
     todo!()
   }
@@ -194,16 +185,17 @@ impl StorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  fn create_upload(
+  async fn create_upload(
     &self,
     _workspace_id: &str,
     _parent_dir: &str,
     _local_file_path: &str,
-  ) -> FutureResult<CreatedUpload, flowy_error::FlowyError> {
+    _upload_immediately: bool,
+  ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), flowy_error::FlowyError> {
     todo!()
   }
 
-  async fn start_upload(&self, _chunks: &ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, _chunks: ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
     todo!()
   }
 
@@ -213,6 +205,14 @@ impl StorageService for DocumentTestFileStorageService {
     _parent_dir: &str,
     _file_id: &str,
   ) -> Result<(), FlowyError> {
+    todo!()
+  }
+
+  async fn subscribe_file_progress(
+    &self,
+    _parent_idr: &str,
+    _url: &str,
+  ) -> Result<Option<FileProgressReceiver>, FlowyError> {
     todo!()
   }
 }

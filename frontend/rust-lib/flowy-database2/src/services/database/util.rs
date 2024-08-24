@@ -1,4 +1,5 @@
-use collab_database::views::{DatabaseLayout, DatabaseView};
+use collab_database::entity::DatabaseView;
+use collab_database::views::DatabaseLayout;
 
 use crate::entities::{
   DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB, FieldSettingsPB, FilterPB,

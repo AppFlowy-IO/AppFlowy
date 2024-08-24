@@ -10,7 +10,7 @@ enum FlowyAppBarLeadingType {
   Widget getWidget(VoidCallback? onTap) {
     switch (this) {
       case FlowyAppBarLeadingType.back:
-        return AppBarBackButton(onTap: onTap);
+        return AppBarImmersiveBackButton(onTap: onTap);
       case FlowyAppBarLeadingType.close:
         return AppBarCloseButton(onTap: onTap);
       case FlowyAppBarLeadingType.cancel:

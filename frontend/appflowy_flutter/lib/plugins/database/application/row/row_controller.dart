@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/domain/row_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -9,35 +11,66 @@ typedef OnRowChanged = void Function(List<CellContext>, ChangedReason);
 
 class RowController {
   RowController({
-    required this.rowMeta,
+    required RowMetaPB rowMeta,
     required this.viewId,
     required RowCache rowCache,
     this.groupId,
-  }) : _rowCache = rowCache;
+  })  : _rowMeta = rowMeta,
+        _rowCache = rowCache,
+        _rowBackendSvc = RowBackendService(viewId: viewId),
+        _rowListener = RowListener(rowMeta.id) {
+    _rowBackendSvc.initRow(rowMeta.id);
+    _rowListener.start(
+      onMetaChanged: (newRowMeta) {
+        if (_isDisposed) {
+          return;
+        }
+        _rowMeta = newRowMeta;
+        _rowCache.setRowMeta(newRowMeta);
+        _onRowMetaChanged?.call();
+      },
+    );
+  }
 
-  final RowMetaPB rowMeta;
+  RowMetaPB _rowMeta;
   final String? groupId;
+  VoidCallback? _onRowMetaChanged;
   final String viewId;
   final List<VoidCallback> _onRowChangedListeners = [];
   final RowCache _rowCache;
+  final RowListener _rowListener;
+  final RowBackendService _rowBackendSvc;
+  bool _isDisposed = false;
 
   CellMemCache get cellCache => _rowCache.cellCache;
 
   String get rowId => rowMeta.id;
+  RowMetaPB get rowMeta => _rowMeta;
 
-  List<CellContext> loadData() => _rowCache.loadCells(rowMeta);
+  List<CellContext> loadCells() => _rowCache.loadCells(rowMeta);
 
-  void addListener({OnRowChanged? onRowChanged}) {
+  void addListener({
+    OnRowChanged? onRowChanged,
+    VoidCallback? onMetaChanged,
+  }) {
     final fn = _rowCache.addListener(
       rowId: rowMeta.id,
-      onRowChanged: onRowChanged,
+      onRowChanged: (context, reasons) {
+        if (_isDisposed) {
+          return;
+        }
+        onRowChanged?.call(context, reasons);
+      },
     );
 
     // Add the listener to the list so that we can remove it later.
     _onRowChangedListeners.add(fn);
+    _onRowMetaChanged = onMetaChanged;
   }
 
-  void dispose() {
+  Future<void> dispose() async {
+    _isDisposed = true;
+    await _rowListener.stop();
     for (final fn in _onRowChangedListeners) {
       _rowCache.removeRowListener(fn);
     }

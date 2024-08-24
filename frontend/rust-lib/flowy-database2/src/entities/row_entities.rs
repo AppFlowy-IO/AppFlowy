@@ -68,6 +68,12 @@ pub struct RowMetaPB {
   pub is_document_empty: bool,
 }
 
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedRowMetaPB {
+  #[pb(index = 1)]
+  pub items: Vec<RowMetaPB>,
+}
+
 impl std::convert::From<&RowDetail> for RowMetaPB {
   fn from(row_detail: &RowDetail) -> Self {
     Self {
@@ -211,18 +217,6 @@ impl TryInto<RowCommentParams> for RowCommentPayloadPB {
 pub struct OptionalRowPB {
   #[pb(index = 1, one_of)]
   pub row: Option<RowPB>,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedRowPB {
-  #[pb(index = 1)]
-  pub items: Vec<RowPB>,
-}
-
-impl std::convert::From<Vec<RowPB>> for RepeatedRowPB {
-  fn from(items: Vec<RowPB>) -> Self {
-    Self { items }
-  }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

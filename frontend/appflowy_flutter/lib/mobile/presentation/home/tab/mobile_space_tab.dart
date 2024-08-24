@@ -6,9 +6,12 @@ import 'package:appflowy/mobile/presentation/home/recent_folder/recent_space.dar
 import 'package:appflowy/mobile/presentation/home/tab/_tab_bar.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/workspace/invite_members_screen.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,6 +19,10 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+
+import 'ai_bubble_button.dart';
+
+final ValueNotifier<int> mobileCreateNewAIChatNotifier = ValueNotifier(0);
 
 class MobileSpaceTab extends StatefulWidget {
   const MobileSpaceTab({
@@ -37,14 +44,19 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   void initState() {
     super.initState();
 
-    mobileCreateNewPageNotifier.addListener(_createNewPage);
+    mobileCreateNewPageNotifier.addListener(_createNewDocument);
+    mobileCreateNewAIChatNotifier.addListener(_createNewAIChat);
+    mobileLeaveWorkspaceNotifier.addListener(_leaveWorkspace);
   }
 
   @override
   void dispose() {
     tabController?.removeListener(_onTabChange);
     tabController?.dispose();
-    mobileCreateNewPageNotifier.removeListener(_createNewPage);
+
+    mobileCreateNewPageNotifier.removeListener(_createNewDocument);
+    mobileCreateNewAIChatNotifier.removeListener(_createNewAIChat);
+    mobileLeaveWorkspaceNotifier.removeListener(_leaveWorkspace);
 
     super.dispose();
   }
@@ -140,7 +152,20 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
         case MobileSpaceTabType.recent:
           return const MobileRecentSpace();
         case MobileSpaceTabType.spaces:
-          return MobileHomeSpace(userProfile: widget.userProfile);
+          return Stack(
+            children: [
+              MobileHomeSpace(userProfile: widget.userProfile),
+              // only show ai chat button for cloud user
+              if (widget.userProfile.authenticator ==
+                  AuthenticatorPB.AppFlowyCloud)
+                Positioned(
+                  bottom: MediaQuery.of(context).padding.bottom + 16,
+                  left: 20,
+                  right: 20,
+                  child: const FloatingAIEntry(),
+                ),
+            ],
+          );
         case MobileSpaceTabType.favorites:
           return MobileFavoriteSpace(userProfile: widget.userProfile);
         default:
@@ -150,15 +175,24 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   }
 
   // quick create new page when clicking the add button in navigation bar
-  void _createNewPage() {
+  void _createNewDocument() {
+    _createNewPage(ViewLayoutPB.Document);
+  }
+
+  void _createNewAIChat() {
+    _createNewPage(ViewLayoutPB.Chat);
+  }
+
+  void _createNewPage(ViewLayoutPB layout) {
     if (context.read<SpaceBloc>().state.spaces.isNotEmpty) {
       context.read<SpaceBloc>().add(
             SpaceEvent.createPage(
               name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-              layout: ViewLayoutPB.Document,
+              layout: layout,
             ),
           );
-    } else {
+    } else if (layout == ViewLayoutPB.Document) {
+      // only support create document in section
       context.read<SidebarSectionsBloc>().add(
             SidebarSectionsEvent.createRootViewInSection(
               name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -170,5 +204,17 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
             const FolderEvent.expandOrUnExpand(isExpanded: true),
           );
     }
+  }
+
+  void _leaveWorkspace() {
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId;
+    if (workspaceId == null) {
+      Log.error('Workspace ID is null');
+      return;
+    }
+    context
+        .read<UserWorkspaceBloc>()
+        .add(UserWorkspaceEvent.leaveWorkspace(workspaceId));
   }
 }

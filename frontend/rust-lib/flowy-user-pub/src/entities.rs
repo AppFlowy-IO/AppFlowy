@@ -346,8 +346,6 @@ pub enum Authenticator {
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
   AppFlowyCloud = 1,
-  /// It uses Supabase as the backend.
-  Supabase = 2,
 }
 
 impl Default for Authenticator {
@@ -371,7 +369,6 @@ impl From<i32> for Authenticator {
     match value {
       0 => Authenticator::Local,
       1 => Authenticator::AppFlowyCloud,
-      2 => Authenticator::Supabase,
       _ => Authenticator::Local,
     }
   }

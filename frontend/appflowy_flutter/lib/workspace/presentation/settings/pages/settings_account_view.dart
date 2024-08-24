@@ -1,7 +1,7 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
@@ -18,7 +18,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -194,17 +193,14 @@ class SignInOutButton extends StatelessWidget {
       children: [
         SizedBox(
           height: 48,
-          child: FlowyTextButton(
-            signIn
+          child: PrimaryRoundedButton(
+            text: signIn
                 ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
                 : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             fontWeight: FontWeight.w600,
-            radius: BorderRadius.circular(12),
-            fillColor: Theme.of(context).colorScheme.primary,
-            hoverColor: const Color(0xFF005483),
-            fontHoverColor: Colors.white,
-            onPressed: () {
+            radius: 12.0,
+            onTap: () {
               if (signIn) {
                 _showSignInDialog(context);
               } else {
@@ -466,9 +462,9 @@ class _UserProfileSettingState extends State<UserProfileSetting> {
           Container(
             height: 380,
             width: 360,
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            child: FlowyIconPicker(
-              onSelected: (r) {
+            margin: const EdgeInsets.all(0),
+            child: FlowyIconEmojiPicker(
+              onSelectedEmoji: (r) {
                 context
                     .read<SettingsUserViewBloc>()
                     .add(SettingsUserEvent.updateUserIcon(iconUrl: r.emoji));

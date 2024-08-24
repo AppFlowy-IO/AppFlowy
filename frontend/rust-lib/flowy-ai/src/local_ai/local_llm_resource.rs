@@ -9,8 +9,8 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use futures::Sink;
 use futures_util::SinkExt;
 use lib_infra::async_trait::async_trait;
-use parking_lot::RwLock;
 
+use arc_swap::ArcSwapOption;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -64,10 +64,10 @@ impl DownloadTask {
 pub struct LocalAIResourceController {
   user_service: Arc<dyn AIUserService>,
   resource_service: Arc<dyn LLMResourceService>,
-  llm_setting: RwLock<Option<LLMSetting>>,
+  llm_setting: ArcSwapOption<LLMSetting>,
   // The ai_config will be set when user try to get latest local ai config from server
-  ai_config: RwLock<Option<LocalAIConfig>>,
-  download_task: Arc<RwLock<Option<DownloadTask>>>,
+  ai_config: ArcSwapOption<LocalAIConfig>,
+  download_task: Arc<ArcSwapOption<DownloadTask>>,
   resource_notify: tokio::sync::mpsc::Sender<()>,
   #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
   #[allow(dead_code)]
@@ -82,7 +82,7 @@ impl LocalAIResourceController {
     resource_notify: tokio::sync::mpsc::Sender<()>,
   ) -> Self {
     let (offline_app_state_sender, _) = tokio::sync::broadcast::channel(1);
-    let llm_setting = RwLock::new(resource_service.retrieve_setting());
+    let llm_setting = resource_service.retrieve_setting().map(Arc::new);
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     let mut offline_app_disk_watch: Option<WatchContext> = None;
 
@@ -109,7 +109,7 @@ impl LocalAIResourceController {
     Self {
       user_service,
       resource_service: Arc::new(resource_service),
-      llm_setting,
+      llm_setting: ArcSwapOption::new(llm_setting),
       ai_config: Default::default(),
       download_task: Default::default(),
       resource_notify,
@@ -125,7 +125,7 @@ impl LocalAIResourceController {
   }
 
   fn set_llm_setting(&self, llm_setting: LLMSetting) {
-    *self.llm_setting.write() = Some(llm_setting);
+    self.llm_setting.store(Some(llm_setting.into()));
   }
 
   /// Returns true when all resources are downloaded and ready to use.
@@ -153,7 +153,7 @@ impl LocalAIResourceController {
       return Err(FlowyError::local_ai().with_context("No model found"));
     }
 
-    *self.ai_config.write() = Some(ai_config.clone());
+    self.ai_config.store(Some(ai_config.clone().into()));
     let selected_model = self.select_model(&ai_config)?;
 
     let llm_setting = LLMSetting {
@@ -173,7 +173,7 @@ impl LocalAIResourceController {
   pub fn use_local_llm(&self, llm_id: i64) -> FlowyResult<LocalModelResourcePB> {
     let (app, llm_model) = self
       .ai_config
-      .read()
+      .load()
       .as_ref()
       .and_then(|config| {
         config
@@ -209,7 +209,7 @@ impl LocalAIResourceController {
 
     let pending_resources = self.calculate_pending_resources().ok()?;
     let is_ready = pending_resources.is_empty();
-    let is_downloading = self.download_task.read().is_some();
+    let is_downloading = self.download_task.load().is_some();
     let pending_resources: Vec<_> = pending_resources
       .into_iter()
       .flat_map(|res| match res {
@@ -243,7 +243,7 @@ impl LocalAIResourceController {
 
   /// Returns true when all resources are downloaded and ready to use.
   pub fn calculate_pending_resources(&self) -> FlowyResult<Vec<PendingResource>> {
-    match self.llm_setting.read().as_ref() {
+    match self.llm_setting.load().as_ref() {
       None => Err(FlowyError::local_ai().with_context("Can't find any llm config")),
       Some(llm_setting) => {
         let mut resources = vec![];
@@ -288,7 +288,7 @@ impl LocalAIResourceController {
         while let Ok(value) = rx.recv().await {
           let is_finish = value == DOWNLOAD_FINISH;
           if let Err(err) = progress_sink.send(value).await {
-            error!("Failed to send progress: {:?}", err);
+            warn!("Failed to send progress: {:?}", err);
             break;
           }
 
@@ -296,7 +296,7 @@ impl LocalAIResourceController {
             info!("notify download finish, need to reload resources");
             let _ = resource_notify.send(()).await;
             if let Some(download_task) = weak_download_task.upgrade() {
-              if let Some(task) = download_task.write().take() {
+              if let Some(task) = download_task.swap(None) {
                 task.cancel();
               }
             }
@@ -307,25 +307,27 @@ impl LocalAIResourceController {
     };
 
     // return immediately if download task already exists
-    if let Some(download_task) = self.download_task.read().as_ref() {
-      trace!(
-        "Download task already exists, return the task id: {}",
-        task_id
-      );
-      progress_notify(download_task.tx.subscribe());
-      return Ok(task_id);
+    {
+      let guard = self.download_task.load();
+      if let Some(download_task) = &*guard {
+        trace!(
+          "Download task already exists, return the task id: {}",
+          task_id
+        );
+        progress_notify(download_task.tx.subscribe());
+        return Ok(task_id);
+      }
     }
 
     // If download task is not exists, create a new download task.
     info!("[LLM Resource] Start new download task");
     let llm_setting = self
       .llm_setting
-      .read()
-      .clone()
+      .load_full()
       .ok_or_else(|| FlowyError::local_ai().with_context("No local ai config found"))?;
 
-    let download_task = DownloadTask::new();
-    *self.download_task.write() = Some(download_task.clone());
+    let download_task = Arc::new(DownloadTask::new());
+    self.download_task.store(Some(download_task.clone()));
     progress_notify(download_task.tx.subscribe());
 
     let model_dir = self.user_model_folder()?;
@@ -339,15 +341,15 @@ impl LocalAIResourceController {
       // After download the plugin, start downloading models
       let chat_model_file = (
         model_dir.join(&llm_setting.llm_model.chat_model.file_name),
-        llm_setting.llm_model.chat_model.file_name,
-        llm_setting.llm_model.chat_model.name,
-        llm_setting.llm_model.chat_model.download_url,
+        &llm_setting.llm_model.chat_model.file_name,
+        &llm_setting.llm_model.chat_model.name,
+        &llm_setting.llm_model.chat_model.download_url,
       );
       let embedding_model_file = (
         model_dir.join(&llm_setting.llm_model.embedding_model.file_name),
-        llm_setting.llm_model.embedding_model.file_name,
-        llm_setting.llm_model.embedding_model.name,
-        llm_setting.llm_model.embedding_model.download_url,
+        &llm_setting.llm_model.embedding_model.file_name,
+        &llm_setting.llm_model.embedding_model.name,
+        &llm_setting.llm_model.embedding_model.download_url,
       );
       for (file_path, file_name, model_name, url) in [chat_model_file, embedding_model_file] {
         if file_path.exists() {
@@ -359,6 +361,10 @@ impl LocalAIResourceController {
         let cloned_model_name = model_name.clone();
         let progress = Arc::new(move |downloaded, total_size| {
           let progress = (downloaded as f64 / total_size as f64).clamp(0.0, 1.0);
+          if plugin_progress_tx.receiver_count() == 0 {
+            return;
+          }
+
           if let Err(err) =
             plugin_progress_tx.send(format!("{}:progress:{}", cloned_model_name, progress))
           {
@@ -366,9 +372,9 @@ impl LocalAIResourceController {
           }
         });
         match download_model(
-          &url,
+          url,
           &model_dir,
-          &file_name,
+          file_name,
           Some(progress),
           Some(download_task.cancel_token.clone()),
         )
@@ -396,7 +402,7 @@ impl LocalAIResourceController {
   }
 
   pub fn cancel_download(&self) -> FlowyResult<()> {
-    if let Some(cancel_token) = self.download_task.write().take() {
+    if let Some(cancel_token) = self.download_task.swap(None) {
       info!("[LLM Resource] Cancel download");
       cancel_token.cancel();
     }
@@ -412,9 +418,7 @@ impl LocalAIResourceController {
 
     let llm_setting = self
       .llm_setting
-      .read()
-      .as_ref()
-      .cloned()
+      .load_full()
       .ok_or_else(|| FlowyError::local_ai().with_context("No local llm setting found"))?;
 
     let model_dir = self.user_model_folder()?;
@@ -471,16 +475,14 @@ impl LocalAIResourceController {
   }
 
   pub fn get_selected_model(&self) -> Option<LLMModel> {
-    self
-      .llm_setting
-      .read()
-      .as_ref()
-      .map(|setting| setting.llm_model.clone())
+    let setting = self.llm_setting.load();
+    Some(setting.as_ref()?.llm_model.clone())
   }
 
   /// Selects the appropriate model based on the current settings or defaults to the first model.
   fn select_model(&self, ai_config: &LocalAIConfig) -> FlowyResult<LLMModel> {
-    let selected_model = match self.llm_setting.read().as_ref() {
+    let llm_setting = self.llm_setting.load();
+    let selected_model = match &*llm_setting {
       None => ai_config.models[0].clone(),
       Some(llm_setting) => {
         match ai_config
@@ -514,7 +516,7 @@ impl LocalAIResourceController {
   }
 
   pub(crate) fn resource_dir(&self) -> FlowyResult<PathBuf> {
-    let user_data_dir = self.user_service.data_root_dir()?;
+    let user_data_dir = self.user_service.application_root_dir()?;
     Ok(user_data_dir.join("ai"))
   }
 }

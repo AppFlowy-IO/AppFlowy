@@ -197,7 +197,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxWidth: GridSize.newPropertyButtonWidth,
+        maxWidth: GridSize.mobileNewPropertyButtonWidth,
         minHeight: GridSize.headerHeight,
       ),
       decoration: _getDecoration(context),

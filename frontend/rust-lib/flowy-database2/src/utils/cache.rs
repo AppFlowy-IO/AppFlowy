@@ -1,23 +1,25 @@
-use parking_lot::RwLock;
+use dashmap::mapref::one::{MappedRef, MappedRefMut};
+use dashmap::DashMap;
 use std::any::{type_name, Any};
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::sync::Arc;
 
 #[derive(Default, Debug)]
 /// The better option is use LRU cache
-pub struct AnyTypeCache<TypeValueKey>(HashMap<TypeValueKey, TypeValue>);
-
-impl<TypeValueKey> AnyTypeCache<TypeValueKey>
+pub struct AnyTypeCache<K>(DashMap<K, TypeValue>)
 where
-  TypeValueKey: Clone + Hash + Eq,
+  K: Clone + Hash + Eq;
+
+impl<K> AnyTypeCache<K>
+where
+  K: Clone + Hash + Eq,
 {
-  pub fn new() -> Arc<RwLock<AnyTypeCache<TypeValueKey>>> {
-    Arc::new(RwLock::new(AnyTypeCache(HashMap::default())))
+  pub fn new() -> Arc<AnyTypeCache<K>> {
+    Arc::new(AnyTypeCache(DashMap::default()))
   }
 
-  pub fn insert<T>(&mut self, key: &TypeValueKey, val: T) -> Option<T>
+  pub fn insert<T>(&self, key: &K, val: T) -> Option<T>
   where
     T: 'static + Send + Sync,
   {
@@ -27,31 +29,27 @@ where
       .and_then(downcast_owned)
   }
 
-  pub fn remove(&mut self, key: &TypeValueKey) {
+  pub fn remove(&self, key: &K) {
     self.0.remove(key);
   }
 
-  pub fn get<T>(&self, key: &TypeValueKey) -> Option<&T>
+  pub fn get<T>(&self, key: &K) -> Option<MappedRef<'_, K, TypeValue, T>>
   where
     T: 'static + Send + Sync,
   {
-    self
-      .0
-      .get(key)
-      .and_then(|type_value| type_value.boxed.downcast_ref())
+    let cell = self.0.get(key)?;
+    cell.try_map(|v| v.boxed.downcast_ref()).ok()
   }
 
-  pub fn get_mut<T>(&mut self, key: &TypeValueKey) -> Option<&mut T>
+  pub fn get_mut<T>(&self, key: &K) -> Option<MappedRefMut<'_, K, TypeValue, T>>
   where
     T: 'static + Send + Sync,
   {
-    self
-      .0
-      .get_mut(key)
-      .and_then(|type_value| type_value.boxed.downcast_mut())
+    let cell = self.0.get_mut(key)?;
+    cell.try_map(|v| v.boxed.downcast_mut()).ok()
   }
 
-  pub fn contains(&self, key: &TypeValueKey) -> bool {
+  pub fn contains(&self, key: &K) -> bool {
     self.0.contains_key(key)
   }
 
@@ -65,7 +63,7 @@ fn downcast_owned<T: 'static + Send + Sync>(type_value: TypeValue) -> Option<T> 
 }
 
 #[derive(Debug)]
-struct TypeValue {
+pub struct TypeValue {
   boxed: Box<dyn Any + Send + Sync + 'static>,
   #[allow(dead_code)]
   ty: &'static str,

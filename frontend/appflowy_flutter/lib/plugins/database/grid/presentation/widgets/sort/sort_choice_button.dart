@@ -34,6 +34,7 @@ class SortChoiceButton extends StatelessWidget {
       useIntrinsicWidth: true,
       text: FlowyText(
         text,
+        lineHeight: 1.0,
         color: AFThemeExtension.of(context).textColor,
         overflow: TextOverflow.ellipsis,
       ),

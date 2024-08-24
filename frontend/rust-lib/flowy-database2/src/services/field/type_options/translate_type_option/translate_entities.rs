@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::rows::{new_cell_builder, Cell};
 
 #[derive(Default, Debug, Clone)]
@@ -21,15 +21,15 @@ impl TypeOptionCellData for TranslateCellData {
 
 impl From<&Cell> for TranslateCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
+    Self(cell.get_as(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<TranslateCellData> for Cell {
   fn from(data: TranslateCellData) -> Self {
-    new_cell_builder(FieldType::Translate)
-      .insert_str_value(CELL_DATA, data.0)
-      .build()
+    let mut cell = new_cell_builder(FieldType::Translate);
+    cell.insert(CELL_DATA.into(), data.0.into());
+    cell
   }
 }
 

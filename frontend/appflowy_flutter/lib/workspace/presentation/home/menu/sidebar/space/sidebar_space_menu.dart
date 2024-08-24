@@ -9,7 +9,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -88,6 +87,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
       leftIcon: SpaceIcon(
         dimension: 20,
         space: space,
+        svgSize: 12.0,
         cornerRadius: 6.0,
       ),
       leftIconSize: const Size.square(20),

@@ -22,7 +22,7 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: double.infinity,
-        minHeight: GridSize.headerHeight,
+        maxHeight: GridSize.headerHeight,
       ),
       child: TextButton.icon(
         style: Theme.of(context).textButtonTheme.style?.copyWith(
@@ -37,7 +37,7 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
               alignment: AlignmentDirectional.centerStart,
               splashFactory: NoSplash.splashFactory,
               padding: const WidgetStatePropertyAll(
-                EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+                EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               ),
             ),
         label: FlowyText.medium(

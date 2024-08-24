@@ -7,8 +7,8 @@ use crate::database::sort_test::script::SortScript::*;
 #[tokio::test]
 async fn sort_checkbox_and_then_text_by_descending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let checkbox_field = test.get_first_field(FieldType::Checkbox);
-  let text_field = test.get_first_field(FieldType::RichText);
+  let checkbox_field = test.get_first_field(FieldType::Checkbox).await;
+  let text_field = test.get_first_field(FieldType::RichText).await;
   let scripts = vec![
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
@@ -51,8 +51,8 @@ async fn sort_checkbox_and_then_text_by_descending_test() {
 #[tokio::test]
 async fn reorder_sort_test() {
   let mut test = DatabaseSortTest::new().await;
-  let checkbox_field = test.get_first_field(FieldType::Checkbox);
-  let text_field = test.get_first_field(FieldType::RichText);
+  let checkbox_field = test.get_first_field(FieldType::Checkbox).await;
+  let text_field = test.get_first_field(FieldType::RichText).await;
   // Use the same sort set up as above
   let scripts = vec![
     AssertCellContentOrder {

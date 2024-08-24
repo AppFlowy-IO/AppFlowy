@@ -4,7 +4,6 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
@@ -13,7 +12,6 @@ import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -43,7 +41,6 @@ import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart' as http;
 
 class DependencyResolver {
   static Future<void> resolve(
@@ -100,23 +97,6 @@ void _resolveCommonService(
     },
   );
 
-  getIt.registerFactoryAsync<StabilityAIRepository>(
-    () async {
-      final result = await UserBackendService.getCurrentUserProfile();
-      return result.fold(
-        (s) {
-          return HttpStabilityAIRepository(
-            client: http.Client(),
-            apiKey: s.stabilityAiKey,
-          );
-        },
-        (e) {
-          throw Exception('Failed to get user profile: ${e.msg}');
-        },
-      );
-    },
-  );
-
   getIt.registerFactory<ClipboardService>(
     () => ClipboardService(),
   );
@@ -142,9 +122,6 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
           AuthenticatorPB.Local,
         ),
       );
-      break;
-    case AuthenticatorType.supabase:
-      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       break;
     case AuthenticatorType.appflowyCloud:
     case AuthenticatorType.appflowyCloudSelfHost:

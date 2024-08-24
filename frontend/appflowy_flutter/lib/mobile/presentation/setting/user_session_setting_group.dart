@@ -42,14 +42,24 @@ class UserSessionSettingGroup extends StatelessWidget {
         MobileSignInOrLogoutButton(
           labelText: LocaleKeys.settings_menu_logout.tr(),
           onPressed: () async {
-            await showFlowyMobileConfirmDialog(
-              context,
-              content: FlowyText(
-                LocaleKeys.settings_menu_logoutPrompt.tr(),
+            await showFlowyCupertinoConfirmDialog(
+              title: LocaleKeys.settings_menu_logoutPrompt.tr(),
+              leftButton: FlowyText(
+                LocaleKeys.button_cancel.tr(),
+                fontSize: 17.0,
+                figmaLineHeight: 24.0,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF007AFF),
               ),
-              actionButtonTitle: LocaleKeys.button_yes.tr(),
-              actionButtonColor: Theme.of(context).colorScheme.error,
-              onActionButtonPressed: () async {
+              rightButton: FlowyText(
+                LocaleKeys.button_logout.tr(),
+                fontSize: 17.0,
+                figmaLineHeight: 24.0,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFFFE0220),
+              ),
+              onRightButtonPressed: (context) async {
+                Navigator.of(context).pop();
                 await getIt<AuthService>().signOut();
                 await runAppFlowy();
               },

@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -67,11 +68,14 @@ class BlockOptionButton extends StatelessWidget {
           controller.close();
         }
       },
-      buildChild: (controller) => _buildOptionButton(controller),
+      buildChild: (controller) => _buildOptionButton(context, controller),
     );
   }
 
-  Widget _buildOptionButton(PopoverController controller) {
+  Widget _buildOptionButton(
+    BuildContext context,
+    PopoverController controller,
+  ) {
     return BlockActionButton(
       svg: FlowySvgs.drag_element_s,
       richMessage: TextSpan(
@@ -79,9 +83,11 @@ class BlockOptionButton extends StatelessWidget {
           TextSpan(
             // todo: customize the color to highlight the text.
             text: LocaleKeys.document_plugins_optionAction_click.tr(),
+            style: context.tooltipTextStyle(),
           ),
           TextSpan(
             text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
+            style: context.tooltipTextStyle(),
           ),
         ],
       ),

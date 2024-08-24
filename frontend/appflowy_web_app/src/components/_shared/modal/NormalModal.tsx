@@ -18,7 +18,7 @@ export interface NormalModalProps extends DialogProps {
   okLoading?: boolean;
 }
 
-export function NormalModal({
+export function NormalModal ({
   okText,
   title,
   cancelText,
@@ -35,7 +35,6 @@ export function NormalModal({
   const { t } = useTranslation();
   const modalOkText = okText || t('button.ok');
   const modalCancelText = cancelText || t('button.cancel');
-  const buttonColor = danger ? 'var(--function-error)' : undefined;
 
   return (
     <Dialog
@@ -57,14 +56,20 @@ export function NormalModal({
         </div>
 
         <div className={'flex-1'}>{children}</div>
-        <div className={'flex w-full justify-end gap-4'}>
-          <Button color={'inherit'} variant={'outlined'} onClick={onCancel} {...cancelButtonProps}>
+        <div className={'flex w-full justify-end gap-3'}>
+          <Button color={'inherit'} variant={'outlined'} onClick={() => {
+            if (onCancel) {
+              onCancel();
+            } else {
+              onClose?.();
+            }
+          }} {...cancelButtonProps}>
             {modalCancelText}
           </Button>
           <Button
-            color={'primary'}
+            color={danger ? 'error' : 'primary'}
             variant={'contained'}
-            style={{ backgroundColor: buttonColor }}
+
             onClick={() => {
               if (okLoading) return;
               onOk?.();

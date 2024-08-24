@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 
@@ -10,7 +11,7 @@ use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 /// [GroupCustomize] is implemented by parameterized `BaseGroupController`s to provide different
 /// behaviors. This allows the BaseGroupController to call these actions indescriminantly using
 /// polymorphism.
-///
+#[async_trait]
 pub trait GroupCustomize: Send + Sync {
   type GroupTypeOption: TypeOption;
   /// Returns the a value of the cell if the cell data is not exist.
@@ -67,14 +68,14 @@ pub trait GroupCustomize: Send + Sync {
     None
   }
 
-  fn create_group(
+  async fn create_group(
     &mut self,
     _name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
     Ok((None, None))
   }
 
-  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
+  async fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
 
   fn update_type_option_when_update_group(
     &mut self,
@@ -95,7 +96,7 @@ pub trait GroupCustomize: Send + Sync {
 /// or a `DefaultGroupController` may be the actual object that provides the functionality of
 /// this trait. For example, a `Single-Select` group controller will be a `BaseGroupController`,
 /// while a `URL` group controller will be a `DefaultGroupController`.
-///
+#[async_trait]
 pub trait GroupController: Send + Sync {
   /// Returns the id of field that is being used to group the rows
   fn get_grouping_field_id(&self) -> &str;
@@ -119,7 +120,7 @@ pub trait GroupController: Send + Sync {
   /// Returns a new type option data for the grouping field if it's altered.
   ///
   /// * `name`: name of the new group
-  fn create_group(
+  async fn create_group(
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)>;
@@ -179,7 +180,10 @@ pub trait GroupController: Send + Sync {
   /// successful.
   ///
   /// * `group_id`: the id of the group to be deleted
-  fn delete_group(&mut self, group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)>;
+  async fn delete_group(
+    &mut self,
+    group_id: &str,
+  ) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)>;
 
   /// Updates the name and/or visibility of groups.
   ///
@@ -187,7 +191,7 @@ pub trait GroupController: Send + Sync {
   /// in the field type option data.
   ///
   /// * `changesets`: list of changesets to be made to one or more groups
-  fn apply_group_changeset(
+  async fn apply_group_changeset(
     &mut self,
     changesets: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)>;

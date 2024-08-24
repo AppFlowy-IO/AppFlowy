@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 use std::mem;
+use std::ops::Deref;
 
 use anyhow::bail;
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::Any;
+use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
@@ -316,13 +318,20 @@ const FILTER_DATA_INDEX: i64 = 2;
 
 impl<'a> From<&'a Filter> for FilterMap {
   fn from(filter: &'a Filter) -> Self {
-    let mut builder = FilterMapBuilder::new()
-      .insert_str_value(FILTER_ID, &filter.id)
-      .insert_i64_value(FILTER_TYPE, filter.inner.get_int_repr());
+    let mut builder = FilterMapBuilder::from([
+      (FILTER_ID.into(), filter.id.as_str().into()),
+      (FILTER_TYPE.into(), Any::BigInt(filter.inner.get_int_repr())),
+    ]);
 
     builder = match &filter.inner {
       FilterInner::And { children } | FilterInner::Or { children } => {
-        builder.insert_maps(FILTER_CHILDREN, children.iter().collect::<Vec<&Filter>>())
+        let mut vec = Vec::with_capacity(children.len());
+        for child in children.iter() {
+          let any: Any = FilterMap::from(child).into();
+          vec.push(any);
+        }
+        builder.insert(FILTER_CHILDREN.into(), Any::from(vec));
+        builder
       },
       FilterInner::Data {
         field_id,
@@ -387,15 +396,15 @@ impl<'a> From<&'a Filter> for FilterMap {
           Default::default()
         });
 
+        builder.insert(FIELD_ID.into(), field_id.as_str().into());
+        builder.insert(FIELD_TYPE.into(), Any::BigInt(i64::from(field_type)));
+        builder.insert(FILTER_CONDITION.into(), Any::BigInt(condition as i64));
+        builder.insert(FILTER_CONTENT.into(), content.into());
         builder
-          .insert_str_value(FIELD_ID, field_id)
-          .insert_i64_value(FIELD_TYPE, field_type.into())
-          .insert_i64_value(FILTER_CONDITION, condition as i64)
-          .insert_str_value(FILTER_CONTENT, content)
       },
     };
 
-    builder.build()
+    builder
   }
 }
 
@@ -403,32 +412,30 @@ impl TryFrom<FilterMap> for Filter {
   type Error = anyhow::Error;
 
   fn try_from(filter_map: FilterMap) -> Result<Self, Self::Error> {
-    let filter_id = filter_map
-      .get_str_value(FILTER_ID)
+    let filter_id: String = filter_map
+      .get_as(FILTER_ID)
       .ok_or_else(|| anyhow::anyhow!("invalid filter data"))?;
-    let filter_type = filter_map
-      .get_i64_value(FILTER_TYPE)
-      .unwrap_or(FILTER_DATA_INDEX);
+    let filter_type: i64 = filter_map.get_as(FILTER_TYPE).unwrap_or(FILTER_DATA_INDEX);
 
     let filter = Filter {
       id: filter_id,
       inner: match filter_type {
         FILTER_AND_INDEX => FilterInner::And {
-          children: filter_map.try_get_array(FILTER_CHILDREN),
+          children: get_children(filter_map),
         },
         FILTER_OR_INDEX => FilterInner::Or {
-          children: filter_map.try_get_array(FILTER_CHILDREN),
+          children: get_children(filter_map),
         },
         FILTER_DATA_INDEX => {
-          let field_id = filter_map
-            .get_str_value(FIELD_ID)
+          let field_id: String = filter_map
+            .get_as(FIELD_ID)
             .ok_or_else(|| anyhow::anyhow!("invalid filter data"))?;
           let field_type = filter_map
-            .get_i64_value(FIELD_TYPE)
+            .get_as::<i64>(FIELD_TYPE)
             .map(FieldType::from)
             .unwrap_or_default();
-          let condition = filter_map.get_i64_value(FILTER_CONDITION).unwrap_or(0);
-          let content = filter_map.get_str_value(FILTER_CONTENT).unwrap_or_default();
+          let condition: i64 = filter_map.get_as(FILTER_CONDITION).unwrap_or_default();
+          let content: String = filter_map.get_as(FILTER_CONTENT).unwrap_or_default();
 
           FilterInner::new_data(field_id, field_type, condition, content)
         },
@@ -438,6 +445,22 @@ impl TryFrom<FilterMap> for Filter {
 
     Ok(filter)
   }
+}
+
+fn get_children(filter_map: FilterMap) -> Vec<Filter> {
+  //TODO: this method wouldn't be necessary if we could make Filters serializable in backward
+  // compatible way
+  let mut result = Vec::new();
+  if let Some(Any::Array(children)) = filter_map.get(FILTER_CHILDREN) {
+    for child in children.iter() {
+      if let Any::Map(child_map) = child {
+        if let Ok(filter) = Filter::try_from(child_map.deref().clone()) {
+          result.push(filter);
+        }
+      }
+    }
+  }
+  result
 }
 
 #[derive(Debug)]

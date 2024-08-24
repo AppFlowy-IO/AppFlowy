@@ -7,16 +7,20 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::encoding::serde::from_any;
+use collab::preclude::Any;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
+use serde::Deserialize;
 use std::cmp::Ordering;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct TranslateTypeOption {
+  #[serde(default)]
   pub auto_fill: bool,
   /// Use [TranslateTypeOption::language_from_type] to get the language name
+  #[serde(default, rename = "language")]
   pub language_type: i64,
 }
 
@@ -48,21 +52,16 @@ impl Default for TranslateTypeOption {
 
 impl From<TypeOptionData> for TranslateTypeOption {
   fn from(value: TypeOptionData) -> Self {
-    let auto_fill = value.get_bool_value("auto_fill").unwrap_or_default();
-    let language = value.get_i64_value("language").unwrap_or_default();
-    Self {
-      auto_fill,
-      language_type: language,
-    }
+    from_any(&Any::from(value)).unwrap()
   }
 }
 
 impl From<TranslateTypeOption> for TypeOptionData {
   fn from(value: TranslateTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_bool_value("auto_fill", value.auto_fill)
-      .insert_i64_value("language", value.language_type)
-      .build()
+    TypeOptionDataBuilder::from([
+      ("auto_fill".into(), value.auto_fill.into()),
+      ("language".into(), Any::BigInt(value.language_type)),
+    ])
   }
 }
 

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -26,6 +24,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -42,11 +41,13 @@ class DocumentPage extends StatefulWidget {
     required this.view,
     required this.onDeleted,
     this.initialSelection,
+    this.fixedTitle,
   });
 
   final ViewPB view;
   final VoidCallback onDeleted;
   final Selection? initialSelection;
+  final String? fixedTitle;
 
   @override
   State<DocumentPage> createState() => _DocumentPageState();
@@ -103,6 +104,7 @@ class _DocumentPageState extends State<DocumentPage>
           BlocProvider.value(value: documentBloc),
         ],
         child: BlocBuilder<DocumentBloc, DocumentState>(
+          buildWhen: _shouldRebuildDocument,
           builder: (context, state) {
             if (state.isLoading) {
               return const Center(child: CircularProgressIndicator.adaptive());
@@ -195,13 +197,15 @@ class _DocumentPageState extends State<DocumentPage>
 
               final isLocalMode = context.read<DocumentBloc>().isLocalMode;
               final List<XFile> imageFiles = [];
-              final List<XFile> otherfiles = [];
+              final List<XFile> otherFiles = [];
+
               for (final file in details.files) {
+                final fileName = file.name.toLowerCase();
                 if (file.mimeType?.startsWith('image/') ??
-                    false || imgExtensionRegex.hasMatch(file.name)) {
+                    false || imgExtensionRegex.hasMatch(fileName)) {
                   imageFiles.add(file);
                 } else {
-                  otherfiles.add(file);
+                  otherFiles.add(file);
                 }
               }
 
@@ -213,7 +217,7 @@ class _DocumentPageState extends State<DocumentPage>
               );
               await editorState!.dropFiles(
                 data.dropTarget!,
-                otherfiles,
+                otherFiles,
                 widget.view.id,
                 isLocalMode,
               );
@@ -261,6 +265,7 @@ class _DocumentPageState extends State<DocumentPage>
 
     if (PlatformExtension.isMobile) {
       return DocumentImmersiveCover(
+        fixedTitle: widget.fixedTitle,
         view: widget.view,
         userProfilePB: userProfilePB,
       );
@@ -307,5 +312,32 @@ class _DocumentPageState extends State<DocumentPage>
         );
       }
     }
+  }
+
+  bool _shouldRebuildDocument(DocumentState previous, DocumentState current) {
+    // only rebuild the document page when the below fields are changed
+    // this is to prevent unnecessary rebuilds
+    //
+    // If you confirm the newly added fields should be rebuilt, please update
+    // this function.
+    if (previous.editorState != current.editorState) {
+      return true;
+    }
+
+    if (previous.forceClose != current.forceClose ||
+        previous.isDeleted != current.isDeleted) {
+      return true;
+    }
+
+    if (previous.userProfilePB != current.userProfilePB) {
+      return true;
+    }
+
+    if (previous.isLoading != current.isLoading ||
+        previous.error != current.error) {
+      return true;
+    }
+
+    return false;
   }
 }

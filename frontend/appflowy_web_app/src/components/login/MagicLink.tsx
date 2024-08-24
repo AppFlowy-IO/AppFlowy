@@ -1,5 +1,5 @@
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { Button, CircularProgress, OutlinedInput } from '@mui/material';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';

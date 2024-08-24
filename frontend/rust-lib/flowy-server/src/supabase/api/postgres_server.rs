@@ -2,7 +2,7 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
-use parking_lot::RwLock;
+use arc_swap::ArcSwapOption;
 use postgrest::Postgrest;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -77,11 +77,11 @@ where
 }
 
 #[derive(Clone)]
-pub struct SupabaseServerServiceImpl(pub Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>);
+pub struct SupabaseServerServiceImpl(pub Arc<ArcSwapOption<RESTfulPostgresServer>>);
 
 impl SupabaseServerServiceImpl {
   pub fn new(postgrest: Arc<RESTfulPostgresServer>) -> Self {
-    Self(Arc::new(RwLock::new(Some(postgrest))))
+    Self(Arc::new(ArcSwapOption::from(Some(postgrest))))
   }
 }
 
@@ -89,7 +89,7 @@ impl SupabaseServerService for SupabaseServerServiceImpl {
   fn get_postgrest(&self) -> Option<Arc<PostgresWrapper>> {
     self
       .0
-      .read()
+      .load()
       .as_ref()
       .map(|server| server.postgrest.clone())
   }
@@ -97,7 +97,7 @@ impl SupabaseServerService for SupabaseServerServiceImpl {
   fn try_get_postgrest(&self) -> Result<Arc<PostgresWrapper>, Error> {
     self
       .0
-      .read()
+      .load()
       .as_ref()
       .map(|server| server.postgrest.clone())
       .ok_or_else(|| {

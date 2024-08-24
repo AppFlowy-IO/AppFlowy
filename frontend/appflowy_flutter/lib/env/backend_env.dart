@@ -13,7 +13,6 @@ class AppFlowyConfiguration {
     required this.device_id,
     required this.platform,
     required this.authenticator_type,
-    required this.supabase_config,
     required this.appflowy_cloud_config,
     required this.envs,
   });
@@ -28,39 +27,10 @@ class AppFlowyConfiguration {
   final String device_id;
   final String platform;
   final int authenticator_type;
-  final SupabaseConfiguration supabase_config;
   final AppFlowyCloudConfiguration appflowy_cloud_config;
   final Map<String, String> envs;
 
   Map<String, dynamic> toJson() => _$AppFlowyConfigurationToJson(this);
-}
-
-@JsonSerializable()
-class SupabaseConfiguration {
-  SupabaseConfiguration({
-    required this.url,
-    required this.anon_key,
-  });
-
-  factory SupabaseConfiguration.fromJson(Map<String, dynamic> json) =>
-      _$SupabaseConfigurationFromJson(json);
-
-  /// Indicates whether the sync feature is enabled.
-  final String url;
-  final String anon_key;
-
-  Map<String, dynamic> toJson() => _$SupabaseConfigurationToJson(this);
-
-  static SupabaseConfiguration defaultConfig() {
-    return SupabaseConfiguration(
-      url: '',
-      anon_key: '',
-    );
-  }
-
-  bool get isValid {
-    return url.isNotEmpty && anon_key.isNotEmpty;
-  }
 }
 
 @JsonSerializable()

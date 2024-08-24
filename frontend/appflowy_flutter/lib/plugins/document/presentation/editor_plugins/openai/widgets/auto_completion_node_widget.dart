@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
@@ -41,7 +43,11 @@ Node autoCompletionNode({
 
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
-  iconData: Icons.generating_tokens,
+  iconBuilder: (editorState, onSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.menu_item_ai_writer_s,
+    isSelected: onSelected,
+    style: style,
+  ),
   keywords: ['ai', 'openai', 'writer', 'ai writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
     final node = autoCompletionNode(start: editorState.selection!);
@@ -131,8 +137,15 @@ class _AutoCompletionBlockComponentState
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    if (PlatformExtension.isMobile) {
+      return const SizedBox.shrink();
+    }
+    
+    final child = Card(
       elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       color: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.all(10),
@@ -158,6 +171,11 @@ class _AutoCompletionBlockComponentState
           ],
         ),
       ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 40),
+      child: child,
     );
   }
 
@@ -464,16 +482,23 @@ class AutoCompletionInputFooter extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FlowyTextButton.primary(
+        PrimaryRoundedButton(
           text: LocaleKeys.button_generate.tr(),
-          context: context,
-          onPressed: onGenerate,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 10.0,
+          ),
+          radius: 8.0,
+          onTap: onGenerate,
         ),
         const Space(10, 0),
-        FlowyTextButton.secondary(
+        OutlinedRoundedButton(
           text: LocaleKeys.button_cancel.tr(),
-          context: context,
-          onPressed: onExit,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 10.0,
+          ),
+          onTap: onExit,
         ),
         Flexible(
           child: Container(
@@ -507,22 +532,23 @@ class AutoCompletionFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        FlowyTextButton.primary(
-          context: context,
+        PrimaryRoundedButton(
           text: LocaleKeys.button_keep.tr(),
-          onPressed: onKeep,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 9.0,
+          ),
+          onTap: onKeep,
         ),
-        const Space(10, 0),
-        FlowyTextButton.secondary(
-          context: context,
+        const HSpace(10),
+        OutlinedRoundedButton(
           text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
-          onPressed: onRewrite,
+          onTap: onRewrite,
         ),
-        const Space(10, 0),
-        FlowyTextButton.secondary(
-          context: context,
+        const HSpace(10),
+        OutlinedRoundedButton(
           text: LocaleKeys.button_discard.tr(),
-          onPressed: onDiscard,
+          onTap: onDiscard,
         ),
       ],
     );

@@ -26,7 +26,6 @@ async fn anon_user_profile_get() {
   assert_eq!(user_profile.id, user.id);
   assert_eq!(user_profile.openai_key, user.openai_key);
   assert_eq!(user_profile.stability_ai_key, user.stability_ai_key);
-  assert_eq!(user_profile.workspace_id, user.workspace_id);
   assert_eq!(user_profile.authenticator, AuthenticatorPB::Local);
 }
 

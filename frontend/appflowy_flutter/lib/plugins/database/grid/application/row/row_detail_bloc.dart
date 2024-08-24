@@ -29,7 +29,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   @override
   Future<void> close() async {
-    rowController.dispose();
+    await rowController.dispose();
     return super.close();
   }
 
@@ -125,7 +125,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   }
 
   void _init() {
-    allCells.addAll(rowController.loadData());
+    allCells.addAll(rowController.loadCells());
     int numHiddenFields = 0;
     final visibleCells = <CellContext>[];
     for (final cell in allCells) {

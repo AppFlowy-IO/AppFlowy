@@ -1,5 +1,5 @@
+import { AFConfigContext } from '@/components/app/app.hooks';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { AFConfigContext } from '@/components/app/AppConfig';
 import { useSearchParams } from 'react-router-dom';
 import { SpaceView, Workspace } from '@/application/types';
 import { notify } from '@/components/_shared/notify';

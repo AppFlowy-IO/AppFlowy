@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -18,6 +18,7 @@ class WorkspaceIcon extends StatefulWidget {
     this.borderRadius = 4,
     this.emojiSize,
     this.alignment,
+    required this.figmaLineHeight,
   });
 
   final UserWorkspacePB workspace;
@@ -28,6 +29,7 @@ class WorkspaceIcon extends StatefulWidget {
   final void Function(EmojiPickerResult) onSelected;
   final double borderRadius;
   final Alignment? alignment;
+  final double figmaLineHeight;
 
   @override
   State<WorkspaceIcon> createState() => _WorkspaceIconState();
@@ -45,7 +47,8 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             child: FlowyText.emoji(
               widget.workspace.icon,
               fontSize: widget.emojiSize ?? widget.iconSize,
-              figmaLineHeight: 21.0,
+              figmaLineHeight: widget.figmaLineHeight,
+              optimizeEmojiAlign: true,
             ),
           )
         : Container(
@@ -76,8 +79,9 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         direction: PopoverDirection.bottomWithLeftAligned,
         constraints: BoxConstraints.loose(const Size(364, 356)),
         clickHandler: PopoverClickHandler.gestureDetector,
-        popupBuilder: (_) => FlowyIconPicker(
-          onSelected: (result) {
+        margin: const EdgeInsets.all(0),
+        popupBuilder: (_) => FlowyIconEmojiPicker(
+          onSelectedEmoji: (result) {
             widget.onSelected(result);
             controller.close();
           },

@@ -1,5 +1,6 @@
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use appflowy_plugin::core::plugin::RunningState;
+use std::collections::HashMap;
 
 use crate::local_ai::local_llm_resource::PendingResource;
 use flowy_ai_pub::cloud::{
@@ -8,6 +9,29 @@ use flowy_ai_pub::cloud::{
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct ChatId {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub value: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatInfoPB {
+  #[pb(index = 1)]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub files: Vec<FilePB>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct FilePB {
+  #[pb(index = 1)]
+  pub id: String,
+  #[pb(index = 2)]
+  pub name: String,
+}
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct SendChatPayloadPB {
@@ -37,7 +61,40 @@ pub struct StreamChatPayloadPB {
   pub message_type: ChatMessageTypePB,
 
   #[pb(index = 4)]
-  pub text_stream_port: i64,
+  pub answer_stream_port: i64,
+
+  #[pb(index = 5)]
+  pub question_stream_port: i64,
+
+  #[pb(index = 6)]
+  pub metadata: Vec<ChatMessageMetaPB>,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct ChatMessageMetaPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub data: String,
+
+  #[pb(index = 4)]
+  pub data_type: ChatMessageMetaTypePB,
+
+  #[pb(index = 5)]
+  pub source: String,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
+pub enum ChatMessageMetaTypePB {
+  #[default]
+  UnknownMetaType = 0,
+  Txt = 1,
+  Markdown = 2,
+  PDF = 3,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -127,6 +184,9 @@ pub struct ChatMessagePB {
 
   #[pb(index = 6, one_of)]
   pub reply_message_id: Option<i64>,
+
+  #[pb(index = 7, one_of)]
+  pub metadata: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -147,6 +207,7 @@ impl From<ChatMessage> for ChatMessagePB {
       author_type: chat_message.author.author_type as i64,
       author_id: chat_message.author.author_id.to_string(),
       reply_message_id: None,
+      metadata: Some(serde_json::to_string(&chat_message.meta_data).unwrap_or_default()),
     }
   }
 }
@@ -444,4 +505,22 @@ pub struct LocalModelStoragePB {
 pub struct OfflineAIPB {
   #[pb(index = 1)]
   pub link: String,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct CreateChatContextPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub content_type: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_not_empty_str")]
+  pub text: String,
+
+  #[pb(index = 3)]
+  pub metadata: HashMap<String, String>,
+
+  #[pb(index = 4)]
+  #[validate(custom = "required_not_empty_str")]
+  pub chat_id: String,
 }

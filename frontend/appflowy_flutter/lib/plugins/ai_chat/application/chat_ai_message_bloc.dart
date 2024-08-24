@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
@@ -8,14 +9,22 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'chat_message_service.dart';
+
 part 'chat_ai_message_bloc.freezed.dart';
 
 class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
   ChatAIMessageBloc({
     dynamic message,
+    String? refSourceJsonString,
     required this.chatId,
     required this.questionId,
-  }) : super(ChatAIMessageState.initial(message)) {
+  }) : super(
+          ChatAIMessageState.initial(
+            message,
+            messageReferenceSource(refSourceJsonString),
+          ),
+        ) {
     if (state.stream != null) {
       state.stream!.listen(
         onData: (text) {
@@ -31,6 +40,11 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
         onAIResponseLimit: () {
           if (!isClosed) {
             add(const ChatAIMessageEvent.onAIResponseLimit());
+          }
+        },
+        onMetadata: (sources) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.receiveSources(sources));
           }
         },
       );
@@ -103,6 +117,13 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
+          receiveSources: (List<ChatMessageRefSource> sources) {
+            emit(
+              state.copyWith(
+                sources: sources,
+              ),
+            );
+          },
         );
       },
     );
@@ -120,6 +141,9 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
+  const factory ChatAIMessageEvent.receiveSources(
+    List<ChatMessageRefSource> sources,
+  ) = _ReceiveMetadata;
 }
 
 @freezed
@@ -128,13 +152,18 @@ class ChatAIMessageState with _$ChatAIMessageState {
     AnswerStream? stream,
     required String text,
     required MessageState messageState,
+    required List<ChatMessageRefSource> sources,
   }) = _ChatAIMessageState;
 
-  factory ChatAIMessageState.initial(dynamic text) {
+  factory ChatAIMessageState.initial(
+    dynamic text,
+    List<ChatMessageRefSource> sources,
+  ) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
       messageState: const MessageState.ready(),
+      sources: sources,
     );
   }
 }
