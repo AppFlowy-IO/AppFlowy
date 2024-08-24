@@ -413,8 +413,8 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         if (isHovering)
           Row(
             children: [
-              GestureDetector(
-                onTap: () {
+              EditShortcutBtn(
+                onEdit: () {
                   if (widget.canStartEditing()) {
                     setState(() {
                       widget.onStartEditing();
@@ -422,41 +422,11 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                     });
                   }
                 },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: FlowyTooltip(
-                    message: LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
-                    child: const FlowySvg(
-                      FlowySvgs.edit_s,
-                      size: Size.square(16),
-                    ),
-                  ),
-                ),
               ),
               const HSpace(16),
-              Opacity(
-                opacity: canReset ? 1 : 0.5,
-                child: GestureDetector(
-                  onTap: canReset
-                      ? () => _resetIndividualCommand(widget.command)
-                      : null,
-                  child: MouseRegion(
-                    cursor:
-                        canReset ? SystemMouseCursors.click : MouseCursor.defer,
-                    child: FlowyTooltip(
-                      message: canReset
-                          ? LocaleKeys.settings_shortcutsPage_resetSingleTooltip
-                              .tr()
-                          : LocaleKeys
-                              .settings_shortcutsPage_unavailableResetSingleTooltip
-                              .tr(),
-                      child: const FlowySvg(
-                        FlowySvgs.restore_s,
-                        size: Size.square(16),
-                      ),
-                    ),
-                  ),
-                ),
+              ResetShortcutBtn(
+                onReset: () => _resetIndividualCommand(widget.command),
+                canReset: canReset,
               ),
             ],
           ),
@@ -504,6 +474,64 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     }
 
     return keys..add(binding.keyLabel);
+  }
+}
+
+class EditShortcutBtn extends StatelessWidget {
+  const EditShortcutBtn({super.key, required this.onEdit});
+
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onEdit,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: FlowyTooltip(
+          message: LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
+          child: const FlowySvg(
+            FlowySvgs.edit_s,
+            size: Size.square(16),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ResetShortcutBtn extends StatelessWidget {
+  const ResetShortcutBtn({
+    super.key,
+    required this.onReset,
+    required this.canReset,
+  });
+
+  final bool canReset;
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: canReset ? 1 : 0.5,
+      child: GestureDetector(
+        onTap: canReset ? onReset : null,
+        child: MouseRegion(
+          cursor: canReset ? SystemMouseCursors.click : MouseCursor.defer,
+          child: FlowyTooltip(
+            message: canReset
+                ? LocaleKeys.settings_shortcutsPage_resetSingleTooltip.tr()
+                : LocaleKeys
+                    .settings_shortcutsPage_unavailableResetSingleTooltip
+                    .tr(),
+            child: const FlowySvg(
+              FlowySvgs.restore_s,
+              size: Size.square(16),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
