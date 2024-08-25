@@ -170,17 +170,17 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
               .send();
           }
 
-          let cloned_token = token.clone();
-          tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_secs(2)).await;
-            if cloned_token.is_cancelled() {
-            }
-            // if let Some(database_editor) = cloned_database_editor.upgrade() {
-            // TODO(nathan): calculate inserted row with RowsVisibilityChangePB
-            // for view_editor in database_editor.database_views.editors().await {
-            // }
-            // }
-          });
+          // let cloned_token = token.clone();
+          // tokio::spawn(async move {
+          //   tokio::time::sleep(Duration::from_secs(2)).await;
+          //   if cloned_token.is_cancelled() {
+          //   }
+          //   // if let Some(database_editor) = cloned_database_editor.upgrade() {
+          //   // TODO(nathan): calculate inserted row with RowsVisibilityChangePB
+          //   // for view_editor in database_editor.database_views.editors().await {
+          //   // }
+          //   // }
+          // });
         },
       }
     }
