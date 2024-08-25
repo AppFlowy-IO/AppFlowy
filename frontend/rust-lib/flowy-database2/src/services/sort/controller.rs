@@ -195,6 +195,10 @@ impl SortController {
   }
 
   pub async fn sort_rows_and_notify(&mut self, rows: &mut Vec<Arc<Row>>) {
+    if self.sorts.is_empty() {
+      return;
+    }
+
     self.sort_rows(rows).await;
     let row_orders = rows
       .iter()

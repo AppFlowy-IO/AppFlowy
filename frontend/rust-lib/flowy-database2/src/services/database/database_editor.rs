@@ -1355,15 +1355,22 @@ impl DatabaseEditor {
                   return;
                 }
 
-                for database_view in opening_database_views.editors().await {
-                  let mut view_rows = loaded_rows.clone();
-                  database_view.v_filter_rows_and_notify(&mut view_rows).await;
-                  database_view.v_sort_rows_and_notify(&mut view_rows).await;
+                if loaded_rows.len() % 100 == 0 {
+                  for database_view in opening_database_views.editors().await {
+                    let mut view_rows = loaded_rows.clone();
+                    database_view.v_filter_rows_and_notify(&mut view_rows).await;
+                    database_view.v_sort_rows_and_notify(&mut view_rows).await;
+                  }
                 }
               },
             }
-
             tokio::task::yield_now().await;
+          }
+
+          for database_view in opening_database_views.editors().await {
+            let mut view_rows = loaded_rows.clone();
+            database_view.v_filter_rows_and_notify(&mut view_rows).await;
+            database_view.v_sort_rows_and_notify(&mut view_rows).await;
           }
         });
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::mem;
 use std::ops::Deref;
 
-use anyhow::{bail, Error};
+use anyhow::bail;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
