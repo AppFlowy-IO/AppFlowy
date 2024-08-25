@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowId};
 use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -27,7 +27,7 @@ use crate::services::group::{GroupChangeset, GroupsBuilder, MoveGroupRowContext}
 pub trait GroupControllerDelegate: Send + Sync + 'static {
   async fn get_field(&self, field_id: &str) -> Option<Field>;
 
-  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
+  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>>;
 }
 
 /// [BaseGroupController] is a generic group controller that provides customized implementations
@@ -86,7 +86,7 @@ where
 
   fn update_no_status_group(
     &mut self,
-    row_detail: &RowDetail,
+    row: &Row,
     other_group_changesets: &[GroupRowsNotificationPB],
   ) -> Option<GroupRowsNotificationPB> {
     let no_status_group = self.context.get_mut_no_status_group()?;
@@ -115,8 +115,8 @@ where
     if !no_status_group_rows.is_empty() {
       changeset
         .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
-      no_status_group.add_row(row_detail.clone());
+        .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+      no_status_group.add_row(row.clone());
     }
 
     // [other_group_delete_rows] contains all the deleted rows except the default group.
@@ -139,8 +139,8 @@ where
       .collect::<Vec<&InsertedRowPB>>();
 
     let mut deleted_row_ids = vec![];
-    for row_detail in &no_status_group.rows {
-      let row_id = row_detail.row.id.to_string();
+    for row in &no_status_group.rows {
+      let row_id = row.id.to_string();
       if default_group_deleted_rows
         .iter()
         .any(|deleted_row| deleted_row.row_meta.id == row_id)
@@ -150,7 +150,7 @@ where
     }
     no_status_group
       .rows
-      .retain(|row_detail| !deleted_row_ids.contains(&row_detail.row.id));
+      .retain(|row| !deleted_row_ids.contains(&row.id));
     changeset.deleted_rows.extend(deleted_row_ids);
     Some(changeset)
   }
@@ -179,9 +179,9 @@ where
   }
 
   #[tracing::instrument(level = "trace", skip_all, fields(row_count=%rows.len(), group_result))]
-  fn fill_groups(&mut self, rows: &[&RowDetail], _field: &Field) -> FlowyResult<()> {
-    for row_detail in rows {
-      let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
+  fn fill_groups(&mut self, rows: &[&Row], _field: &Field) -> FlowyResult<()> {
+    for row in rows {
+      let cell = match row.cells.get(&self.grouping_field_id) {
         None => self.placeholder_cell(),
         Some(cell) => Some(cell.clone()),
       };
@@ -192,7 +192,7 @@ where
         for group in self.context.groups() {
           if self.can_group(&group.id, &cell_data) {
             grouped_rows.push(GroupedRow {
-              row_detail: (*row_detail).clone(),
+              row: (*row).clone(),
               group_id: group.id.clone(),
             });
           }
@@ -201,7 +201,7 @@ where
         if !grouped_rows.is_empty() {
           for group_row in grouped_rows {
             if let Some(group) = self.context.get_mut_group(&group_row.group_id) {
-              group.add_row(group_row.row_detail);
+              group.add_row(group_row.row);
             }
           }
           continue;
@@ -210,7 +210,7 @@ where
 
       match self.context.get_mut_no_status_group() {
         None => {},
-        Some(no_status_group) => no_status_group.add_row((*row_detail).clone()),
+        Some(no_status_group) => no_status_group.add_row((*row).clone()),
       }
     }
 
@@ -229,14 +229,10 @@ where
     self.context.move_group(from_group_id, to_group_id)
   }
 
-  fn did_create_row(
-    &mut self,
-    row_detail: &RowDetail,
-    index: usize,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB> {
     let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
 
-    let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
+    let cell = match row.cells.get(&self.grouping_field_id) {
       None => self.placeholder_cell(),
       Some(cell) => Some(cell.clone()),
     };
@@ -252,7 +248,7 @@ where
           let changeset = GroupRowsNotificationPB::insert(
             group.id.clone(),
             vec![InsertedRowPB {
-              row_meta: (*row_detail).clone().into(),
+              row_meta: (*row).clone().into(),
               index: Some(index as i32),
               is_new: true,
             }],
@@ -263,15 +259,15 @@ where
       if !suitable_group_ids.is_empty() {
         for group_id in suitable_group_ids.iter() {
           if let Some(group) = self.context.get_mut_group(group_id) {
-            group.add_row((*row_detail).clone());
+            group.add_row((*row).clone());
           }
         }
       } else if let Some(no_status_group) = self.context.get_mut_no_status_group() {
-        no_status_group.add_row((*row_detail).clone());
+        no_status_group.add_row((*row).clone());
         let changeset = GroupRowsNotificationPB::insert(
           no_status_group.id.clone(),
           vec![InsertedRowPB {
-            row_meta: (*row_detail).clone().into(),
+            row_meta: (*row).clone().into(),
             index: Some(index as i32),
             is_new: true,
           }],
@@ -285,8 +281,8 @@ where
 
   fn did_update_group_row(
     &mut self,
-    old_row_detail: &Option<RowDetail>,
-    row_detail: &RowDetail,
+    old_row: &Option<Row>,
+    new_row: &Row,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     let mut result = DidUpdateGroupRowResult {
@@ -294,20 +290,17 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    if let Some(cell_data) = get_cell_data_from_row::<P>(Some(&row_detail.row), field) {
-      let old_cell_data =
-        get_cell_data_from_row::<P>(old_row_detail.as_ref().map(|detail| &detail.row), field);
-      if let Ok((insert, delete)) = self.create_or_delete_group_when_cell_changed(
-        row_detail,
-        old_cell_data.as_ref(),
-        &cell_data,
-      ) {
+    if let Some(cell_data) = get_cell_data_from_row::<P>(Some(&new_row), field) {
+      let old_cell_data = get_cell_data_from_row::<P>(old_row.as_ref(), field);
+      if let Ok((insert, delete)) =
+        self.create_or_delete_group_when_cell_changed(new_row, old_cell_data.as_ref(), &cell_data)
+      {
         result.inserted_group = insert;
         result.deleted_group = delete;
       }
 
-      let mut changesets = self.add_or_remove_row_when_cell_changed(row_detail, &cell_data);
-      if let Some(changeset) = self.update_no_status_group(row_detail, &changesets) {
+      let mut changesets = self.add_or_remove_row_when_cell_changed(new_row, &cell_data);
+      if let Some(changeset) = self.update_no_status_group(new_row, &changesets) {
         if !changeset.is_empty() {
           changesets.push(changeset);
         }
@@ -356,7 +349,7 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    let cell = match context.row_detail.row.cells.get(&self.grouping_field_id) {
+    let cell = match context.row.cells.get(&self.grouping_field_id) {
       Some(cell) => Some(cell.clone()),
       None => self.placeholder_cell(),
     };
@@ -364,7 +357,7 @@ where
     if let Some(cell) = cell {
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
-      result.deleted_group = self.delete_group_when_move_row(&context.row_detail.row, &cell_data);
+      result.deleted_group = self.delete_group_when_move_row(&context.row, &cell_data);
       result.row_changesets = self.move_row(context);
     } else {
       tracing::warn!("Unexpected moving group row, changes should not be empty");
@@ -388,11 +381,7 @@ where
 
     match group {
       Some((_index, group_data)) => {
-        let row_ids = group_data
-          .rows
-          .iter()
-          .map(|row| row.row.id.clone())
-          .collect();
+        let row_ids = group_data.rows.iter().map(|row| row.id.clone()).collect();
         let type_option_data = <Self as GroupCustomize>::delete_group(self, group_id).await?;
         Ok((row_ids, type_option_data))
       },
@@ -446,7 +435,7 @@ where
 }
 
 struct GroupedRow {
-  row_detail: RowDetail,
+  row: Row,
   group_id: String,
 }
 

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use collab_database::entity::SelectOption;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::{FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 
@@ -53,12 +53,12 @@ impl GroupCustomize for SingleSelectGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_detail: &RowDetail,
+    row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
-      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row_detail) {
+      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });

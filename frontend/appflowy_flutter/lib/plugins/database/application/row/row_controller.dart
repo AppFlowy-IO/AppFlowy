@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/domain/row_listener.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +40,9 @@ class RowController {
   Future<void> initialize() async {
     await _rowBackendSvc.initRow(rowMeta.id);
     _rowListener.start(
+      onRowFetched: (DidFetchRowPB row) {
+        _rowCache.setRowMeta(row.meta);
+      },
       onMetaChanged: (newRowMeta) {
         if (_isDisposed) {
           return;

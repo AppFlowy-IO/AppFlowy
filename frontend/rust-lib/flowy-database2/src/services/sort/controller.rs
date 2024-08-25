@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowDetail, RowId};
+use collab_database::rows::{Cell, Row, RowId};
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -28,8 +28,8 @@ use crate::services::sort::{
 pub trait SortDelegate: Send + Sync {
   async fn get_sort(&self, view_id: &str, sort_id: &str) -> Option<Arc<Sort>>;
   /// Returns all the rows after applying grid's filter
-  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
-  async fn filter_row(&self, row_detail: &RowDetail) -> bool;
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<Row>>;
+  async fn filter_row(&self, row_detail: &Row) -> bool;
   async fn get_field(&self, field_id: &str) -> Option<Field>;
   async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field>;
 }
@@ -95,22 +95,22 @@ impl SortController {
     }
   }
 
-  pub async fn did_create_row(&self, preliminary_index: usize, row_detail: &RowDetail) {
-    if !self.delegate.filter_row(row_detail).await {
+  pub async fn did_create_row(&self, preliminary_index: usize, row: &Row) {
+    if !self.delegate.filter_row(row).await {
       return;
     }
 
     if !self.sorts.is_empty() {
       self
         .gen_task(
-          SortEvent::NewRowInserted(row_detail.clone()),
+          SortEvent::NewRowInserted(row.clone()),
           QualityOfService::Background,
         )
         .await;
     } else {
       let result = InsertRowResult {
         view_id: self.view_id.clone(),
-        row: row_detail.clone(),
+        row: row.clone(),
         index: preliminary_index,
       };
       let _ = self
@@ -130,31 +130,15 @@ impl SortController {
   // #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
-    let mut row_details = self.delegate.get_rows(&self.view_id).await;
+    let mut rows = self.delegate.get_rows(&self.view_id).await;
 
     match event_type {
       SortEvent::SortDidChanged | SortEvent::DeleteAllSorts => {
-        self.sort_rows(&mut row_details).await;
-        let row_orders = row_details
-          .iter()
-          .map(|row_detail| row_detail.row.id.to_string())
-          .collect::<Vec<String>>();
-
-        let notification = ReorderAllRowsResult {
-          view_id: self.view_id.clone(),
-          row_orders,
-        };
-
-        let _ = self
-          .notifier
-          .send(DatabaseViewChanged::ReorderAllRowsNotification(
-            notification,
-          ));
+        self.sort_rows_and_notify(&mut rows).await;
       },
       SortEvent::RowDidChanged(row_id) => {
         let old_row_index = self.row_index_cache.get(&row_id).cloned();
-
-        self.sort_rows(&mut row_details).await;
+        self.sort_rows(&mut rows).await;
         let new_row_index = self.row_index_cache.get(&row_id).cloned();
         match (old_row_index, new_row_index) {
           (Some(old_row_index), Some(new_row_index)) => {
@@ -176,17 +160,17 @@ impl SortController {
           _ => tracing::trace!("The row index cache is outdated"),
         }
       },
-      SortEvent::NewRowInserted(row_detail) => {
-        self.sort_rows(&mut row_details).await;
-        let row_index = self.row_index_cache.get(&row_detail.row.id).cloned();
+      SortEvent::NewRowInserted(row) => {
+        self.sort_rows(&mut rows).await;
+        let row_index = self.row_index_cache.get(&row.id).cloned();
         match row_index {
           Some(row_index) => {
             let notification = InsertRowResult {
               view_id: self.view_id.clone(),
-              row: row_detail.clone(),
+              row: row.clone(),
               index: row_index,
             };
-            self.row_index_cache.insert(row_detail.row.id, row_index);
+            self.row_index_cache.insert(row.id, row_index);
             let _ = self
               .notifier
               .send(DatabaseViewChanged::InsertRowNotification(notification));
@@ -210,20 +194,36 @@ impl SortController {
     self.task_scheduler.write().await.add_task(task);
   }
 
-  pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<RowDetail>>) {
+  pub async fn sort_rows_and_notify(&mut self, rows: &mut Vec<Arc<Row>>) {
+    self.sort_rows(rows).await;
+    let row_orders = rows
+      .iter()
+      .map(|row| row.id.to_string())
+      .collect::<Vec<String>>();
+
+    let notification = ReorderAllRowsResult {
+      view_id: self.view_id.clone(),
+      row_orders,
+    };
+
+    let _ = self
+      .notifier
+      .send(DatabaseViewChanged::ReorderAllRowsNotification(
+        notification,
+      ));
+  }
+
+  pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<Row>>) {
     if self.sorts.is_empty() {
       return;
     }
 
     let fields = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter().rev() {
-      rows
-        .par_sort_by(|left, right| cmp_row(&left.row, &right.row, sort, &fields, &self.cell_cache));
+      rows.par_sort_by(|left, right| cmp_row(&left, &right, sort, &fields, &self.cell_cache));
     }
-    rows.iter().enumerate().for_each(|(index, row_detail)| {
-      self
-        .row_index_cache
-        .insert(row_detail.row.id.clone(), index);
+    rows.iter().enumerate().for_each(|(index, row)| {
+      self.row_index_cache.insert(row.id.clone(), index);
     });
   }
 
@@ -363,7 +363,7 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
-  NewRowInserted(RowDetail),
+  NewRowInserted(Row),
   DeleteAllSorts,
 }
 
