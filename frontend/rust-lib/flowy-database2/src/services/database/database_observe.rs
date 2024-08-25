@@ -10,9 +10,7 @@ use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::sync::RwLock;
-use tokio_util::sync::CancellationToken;
 use tracing::{trace, warn};
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
@@ -147,7 +145,7 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
     .subscribe_block_event();
   let database_editor = Arc::downgrade(database_editor);
   af_spawn(async move {
-    let token = CancellationToken::new();
+    // let token = CancellationToken::new();
     while let Ok(event) = block_event_rx.recv().await {
       if database_editor.upgrade().is_none() {
         break;
@@ -170,23 +168,17 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
               .send();
           }
 
-          let cloned_token = token.clone();
-          let cloned_database_editor = database_editor.clone();
-          tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_secs(2)).await;
-            if cloned_token.is_cancelled() {
-              return;
-            }
-            if let Some(database_editor) = cloned_database_editor.upgrade() {
-              for view_editor in database_editor.database_views.editors().await {
-                send_notification(
-                  &view_editor.view_id.clone(),
-                  DatabaseNotification::ReloadRows,
-                )
-                .send();
-              }
-            }
-          });
+          // let cloned_token = token.clone();
+          // tokio::spawn(async move {
+          //   tokio::time::sleep(Duration::from_secs(2)).await;
+          //   if cloned_token.is_cancelled() {
+          //   }
+          //   // if let Some(database_editor) = cloned_database_editor.upgrade() {
+          //   // TODO(nathan): calculate inserted row with RowsVisibilityChangePB
+          //   // for view_editor in database_editor.database_views.editors().await {
+          //   // }
+          //   // }
+          // });
         },
       }
     }

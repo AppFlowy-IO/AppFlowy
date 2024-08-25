@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::gen_database_view_id;
+use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::{RowDetail, RowId};
 use lib_infra::box_any::BoxAny;
@@ -16,8 +17,7 @@ use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,
 };
 use flowy_database2::services::field::{
-  CheckboxTypeOption, MultiSelectTypeOption, SelectOption, SelectOptionCellChangeset,
-  SingleSelectTypeOption,
+  CheckboxTypeOption, MultiSelectTypeOption, SelectOptionCellChangeset, SingleSelectTypeOption,
 };
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
@@ -86,7 +86,7 @@ impl DatabaseEditorTest {
       .map(Arc::new)
       .collect();
     let rows = editor
-      .get_row_details(&test.child_view.id)
+      .get_all_row_details(&test.child_view.id)
       .await
       .unwrap()
       .into_iter()
@@ -109,7 +109,11 @@ impl DatabaseEditorTest {
   }
 
   pub async fn get_rows(&self) -> Vec<Arc<RowDetail>> {
-    self.editor.get_row_details(&self.view_id).await.unwrap()
+    self
+      .editor
+      .get_all_row_details(&self.view_id)
+      .await
+      .unwrap()
   }
 
   pub async fn get_field(&self, field_id: &str, field_type: FieldType) -> Field {

@@ -97,7 +97,7 @@ impl GroupControllerDelegate for GroupControllerDelegateImpl {
   }
 
   async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
-    let mut row_details = self.delegate.get_row_details(view_id).await;
+    let mut row_details = self.delegate.get_all_row_details(view_id).await;
     self.filter_controller.filter_rows(&mut row_details).await;
     row_details
   }

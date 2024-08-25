@@ -307,6 +307,7 @@ impl DatabaseManager {
       if should_remove {
         trace!("remove database editor:{}", database_id);
         if let Some(editor) = editors.remove(&database_id) {
+          editor.close_database().await;
           self
             .removing_editor
             .lock()
@@ -793,8 +794,8 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     Ok(collab)
   }
 
-  fn persistence(&self) -> Option<Box<dyn DatabaseCollabPersistenceService>> {
-    Some(Box::new(DatabasePersistenceImpl {
+  fn persistence(&self) -> Option<Arc<dyn DatabaseCollabPersistenceService>> {
+    Some(Arc::new(DatabasePersistenceImpl {
       user: self.user.clone(),
     }))
   }

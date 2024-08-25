@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowDetail};
 
@@ -8,7 +9,7 @@ use crate::entities::{
 use crate::services::cell::{
   insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
-use crate::services::field::{SelectOption, SelectOptionIds, CHECK};
+use crate::services::field::{SelectOptionIds, CHECK};
 use crate::services::group::{Group, GroupData, MoveGroupRowContext};
 
 pub fn add_or_remove_select_option_row(
@@ -30,7 +31,7 @@ pub fn add_or_remove_select_option_row(
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {

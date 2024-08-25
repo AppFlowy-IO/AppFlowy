@@ -18,19 +18,7 @@ class RowController {
   })  : _rowMeta = rowMeta,
         _rowCache = rowCache,
         _rowBackendSvc = RowBackendService(viewId: viewId),
-        _rowListener = RowListener(rowMeta.id) {
-    _rowBackendSvc.initRow(rowMeta.id);
-    _rowListener.start(
-      onMetaChanged: (newRowMeta) {
-        if (_isDisposed) {
-          return;
-        }
-        _rowMeta = newRowMeta;
-        _rowCache.setRowMeta(newRowMeta);
-        _onRowMetaChanged?.call();
-      },
-    );
-  }
+        _rowListener = RowListener(rowMeta.id);
 
   RowMetaPB _rowMeta;
   final String? groupId;
@@ -42,12 +30,25 @@ class RowController {
   final RowBackendService _rowBackendSvc;
   bool _isDisposed = false;
 
-  CellMemCache get cellCache => _rowCache.cellCache;
-
   String get rowId => rowMeta.id;
   RowMetaPB get rowMeta => _rowMeta;
+  CellMemCache get cellCache => _rowCache.cellCache;
 
   List<CellContext> loadCells() => _rowCache.loadCells(rowMeta);
+
+  Future<void> initialize() async {
+    await _rowBackendSvc.initRow(rowMeta.id);
+    _rowListener.start(
+      onMetaChanged: (newRowMeta) {
+        if (_isDisposed) {
+          return;
+        }
+        _rowMeta = newRowMeta;
+        _rowCache.setRowMeta(newRowMeta);
+        _onRowMetaChanged?.call();
+      },
+    );
+  }
 
   void addListener({
     OnRowChanged? onRowChanged,

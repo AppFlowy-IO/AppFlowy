@@ -115,7 +115,7 @@ where
     if !no_status_group_rows.is_empty() {
       changeset
         .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
+        .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
       no_status_group.add_row(row_detail.clone());
     }
 

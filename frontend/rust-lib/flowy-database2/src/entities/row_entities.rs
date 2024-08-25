@@ -55,8 +55,8 @@ pub struct RowMetaPB {
   #[pb(index = 1)]
   pub id: String,
 
-  #[pb(index = 2)]
-  pub document_id: String,
+  #[pb(index = 2, one_of)]
+  pub document_id: Option<String>,
 
   #[pb(index = 3, one_of)]
   pub icon: Option<String>,
@@ -64,8 +64,8 @@ pub struct RowMetaPB {
   #[pb(index = 4, one_of)]
   pub cover: Option<String>,
 
-  #[pb(index = 5)]
-  pub is_document_empty: bool,
+  #[pb(index = 5, one_of)]
+  pub is_document_empty: Option<bool>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -74,25 +74,26 @@ pub struct RepeatedRowMetaPB {
   pub items: Vec<RowMetaPB>,
 }
 
-impl std::convert::From<&RowDetail> for RowMetaPB {
-  fn from(row_detail: &RowDetail) -> Self {
+impl From<RowOrder> for RowMetaPB {
+  fn from(data: RowOrder) -> Self {
     Self {
-      id: row_detail.row.id.to_string(),
-      document_id: row_detail.document_id.clone(),
-      icon: row_detail.meta.icon_url.clone(),
-      cover: row_detail.meta.cover_url.clone(),
-      is_document_empty: row_detail.meta.is_document_empty,
+      id: data.id.into_inner(),
+      document_id: None,
+      icon: None,
+      cover: None,
+      is_document_empty: None,
     }
   }
 }
+
 impl std::convert::From<RowDetail> for RowMetaPB {
   fn from(row_detail: RowDetail) -> Self {
     Self {
       id: row_detail.row.id.to_string(),
-      document_id: row_detail.document_id,
+      document_id: Some(row_detail.document_id),
       icon: row_detail.meta.icon_url,
       cover: row_detail.meta.cover_url,
-      is_document_empty: row_detail.meta.is_document_empty,
+      is_document_empty: Some(row_detail.meta.is_document_empty),
     }
   }
 }

@@ -313,8 +313,8 @@ impl DatabaseViewEditor {
   }
 
   #[instrument(level = "info", skip(self))]
-  pub async fn v_get_row_details(&self) -> Vec<Arc<RowDetail>> {
-    let mut rows = self.delegate.get_row_details(&self.view_id).await;
+  pub async fn v_get_all_row_details(&self) -> Vec<Arc<RowDetail>> {
+    let mut rows = self.delegate.get_all_row_details(&self.view_id).await;
     self.v_filter_rows(&mut rows).await;
     self.v_sort_rows(&mut rows).await;
     rows
@@ -937,7 +937,7 @@ impl DatabaseViewEditor {
 
     let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
     Some(CalendarEventPB {
-      row_meta: RowMetaPB::from(row_detail.as_ref()),
+      row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
@@ -1000,7 +1000,7 @@ impl DatabaseViewEditor {
 
       let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
-        row_meta: RowMetaPB::from(row_detail.as_ref()),
+        row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,

@@ -68,7 +68,7 @@ impl GroupCustomize for CheckboxGroupController {
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
+              .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
             group.add_row(row_detail.clone());
           }
         }
@@ -86,7 +86,7 @@ impl GroupCustomize for CheckboxGroupController {
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
+              .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
             group.add_row(row_detail.clone());
           }
         }

@@ -1,3 +1,4 @@
+use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
 
@@ -6,8 +7,7 @@ use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
 use flowy_database2::services::field::{
-  edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
-  SingleSelectTypeOption,
+  edit_single_select_type_option, SelectTypeOptionSharedAction, SingleSelectTypeOption,
 };
 
 use crate::database::database_editor::DatabaseEditorTest;

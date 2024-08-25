@@ -3,14 +3,13 @@ use std::convert::TryFrom;
 
 use bytes::Bytes;
 use collab_database::database::timestamp;
+use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::cell::CellBuilder;
-use flowy_database2::services::field::{
-  MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
-};
+use flowy_database2::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
