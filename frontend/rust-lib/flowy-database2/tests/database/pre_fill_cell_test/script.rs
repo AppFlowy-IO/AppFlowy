@@ -63,14 +63,14 @@ impl DatabasePreFillRowCellTest {
         self
           .row_by_row_id
           .insert(row_detail.row.id.to_string(), row_detail.into());
-        self.row_details = self.get_rows().await;
+        self.rows = self.get_rows().await;
       },
       PreFillRowCellTestScript::CreateRowWithPayload { payload } => {
         let row_detail = self.editor.create_row(payload).await.unwrap().unwrap();
         self
           .row_by_row_id
           .insert(row_detail.row.id.to_string(), row_detail.into());
-        self.row_details = self.get_rows().await;
+        self.rows = self.get_rows().await;
       },
       PreFillRowCellTestScript::InsertFilter { filter } => self
         .editor
@@ -103,10 +103,8 @@ impl DatabasePreFillRowCellTest {
           .get_all_row_details(&self.view_id)
           .await
           .unwrap();
-        let row_detail = rows.get(row_index).unwrap();
-
-        let cell = row_detail.row.cells.get(&field_id).cloned();
-
+        let row = rows.get(row_index).unwrap();
+        let cell = row.cells.get(&field_id).cloned();
         assert_eq!(exists, cell.is_some());
       },
       PreFillRowCellTestScript::AssertCellContent {
@@ -121,14 +119,8 @@ impl DatabasePreFillRowCellTest {
           .get_all_row_details(&self.view_id)
           .await
           .unwrap();
-        let row_detail = rows.get(row_index).unwrap();
-
-        let cell = row_detail
-          .row
-          .cells
-          .get(&field_id)
-          .cloned()
-          .unwrap_or_default();
+        let row = rows.get(row_index).unwrap();
+        let cell = row.cells.get(&field_id).cloned().unwrap_or_default();
         let content = stringify_cell(&cell, &field);
         assert_eq!(content, expected_content);
       },
@@ -142,17 +134,9 @@ impl DatabasePreFillRowCellTest {
           .get_all_row_details(&self.view_id)
           .await
           .unwrap();
-        let row_detail = rows.get(row_index).unwrap();
-
-        let cell = row_detail
-          .row
-          .cells
-          .get(&field_id)
-          .cloned()
-          .unwrap_or_default();
-
+        let row = rows.get(row_index).unwrap();
+        let cell = row.cells.get(&field_id).cloned().unwrap_or_default();
         let content = SelectOptionIds::from(&cell).join(SELECTION_IDS_SEPARATOR);
-
         assert_eq!(content, expected_content);
       },
       PreFillRowCellTestScript::Wait { milliseconds } => {

@@ -128,9 +128,9 @@ impl DatabaseFieldTest {
           .get_all_row_details(&self.view_id())
           .await
           .unwrap();
-        let row_detail = rows.get(row_index).unwrap();
+        let row = rows.get(row_index).unwrap();
 
-        let cell = row_detail.row.cells.get(&field_id).unwrap().clone();
+        let cell = row.cells.get(&field_id).unwrap().clone();
         let content = stringify_cell(&cell, &field);
         assert_eq!(content, expected_content);
       },

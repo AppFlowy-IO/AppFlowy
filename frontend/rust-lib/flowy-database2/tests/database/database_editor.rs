@@ -4,7 +4,7 @@ use std::sync::Arc;
 use collab_database::database::gen_database_view_id;
 use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowId};
 use lib_infra::box_any::BoxAny;
 use strum::EnumCount;
 
@@ -31,7 +31,7 @@ pub struct DatabaseEditorTest {
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
   pub fields: Vec<Arc<Field>>,
-  pub row_details: Vec<Arc<RowDetail>>,
+  pub rows: Vec<Arc<Row>>,
   pub field_count: usize,
   pub row_by_row_id: HashMap<String, RowMetaPB>,
 }
@@ -98,7 +98,7 @@ impl DatabaseEditorTest {
       view_id,
       editor,
       fields,
-      row_details: rows,
+      rows,
       field_count: FieldType::COUNT,
       row_by_row_id: HashMap::default(),
     }
@@ -108,7 +108,7 @@ impl DatabaseEditorTest {
     self.editor.get_all_filters(&self.view_id).await.items
   }
 
-  pub async fn get_rows(&self) -> Vec<Arc<RowDetail>> {
+  pub async fn get_rows(&self) -> Vec<Arc<Row>> {
     self
       .editor
       .get_all_row_details(&self.view_id)
