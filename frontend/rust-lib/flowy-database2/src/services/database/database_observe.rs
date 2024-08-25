@@ -174,7 +174,6 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
           tokio::spawn(async move {
             tokio::time::sleep(Duration::from_secs(2)).await;
             if cloned_token.is_cancelled() {
-              return;
             }
             // if let Some(database_editor) = cloned_database_editor.upgrade() {
             // TODO(nathan): calculate inserted row with RowsVisibilityChangePB

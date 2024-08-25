@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../defines.dart';
 import '../field/field_controller.dart';

@@ -245,7 +245,7 @@ async fn get_row_event_test() {
   assert!(row.is_some());
 
   let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
-  assert!(!row.document_id.is_empty());
+  assert!(row.document_id.is_some());
 }
 
 #[tokio::test]
