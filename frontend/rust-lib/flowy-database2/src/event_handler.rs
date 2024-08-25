@@ -36,7 +36,9 @@ pub(crate) async fn get_database_data_handler(
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
-  let data = database_editor.open_database_view(view_id.as_ref()).await?;
+  let data = database_editor
+    .async_open_database_view(view_id.as_ref())
+    .await?;
   trace!(
     "layout: {:?}, rows: {}, fields: {}",
     data.layout_type,
@@ -57,9 +59,7 @@ pub(crate) async fn get_all_rows_handler(
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
-  let row_details = database_editor
-    .get_all_row_details(view_id.as_ref())
-    .await?;
+  let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
   let rows = row_details
     .into_iter()
     .map(|detail| RowMetaPB::from(detail.as_ref().clone()))

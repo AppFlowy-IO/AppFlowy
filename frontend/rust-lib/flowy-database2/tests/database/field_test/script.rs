@@ -123,11 +123,7 @@ impl DatabaseFieldTest {
       } => {
         let field = self.editor.get_field(&field_id).await.unwrap();
 
-        let rows = self
-          .editor
-          .get_all_row_details(&self.view_id())
-          .await
-          .unwrap();
+        let rows = self.editor.get_all_rows(&self.view_id()).await.unwrap();
         let row = rows.get(row_index).unwrap();
 
         let cell = row.cells.get(&field_id).unwrap().clone();

@@ -86,7 +86,7 @@ impl DatabaseEditorTest {
       .map(Arc::new)
       .collect();
     let rows = editor
-      .get_all_row_details(&test.child_view.id)
+      .get_all_rows(&test.child_view.id)
       .await
       .unwrap()
       .into_iter()
@@ -109,11 +109,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn get_rows(&self) -> Vec<Arc<Row>> {
-    self
-      .editor
-      .get_all_row_details(&self.view_id)
-      .await
-      .unwrap()
+    self.editor.get_all_rows(&self.view_id).await.unwrap()
   }
 
   pub async fn get_field(&self, field_id: &str, field_type: FieldType) -> Field {

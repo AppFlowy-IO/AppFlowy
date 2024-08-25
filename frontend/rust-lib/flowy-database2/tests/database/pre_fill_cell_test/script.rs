@@ -86,11 +86,7 @@ impl DatabasePreFillRowCellTest {
         .await
         .unwrap(),
       PreFillRowCellTestScript::AssertRowCount(expected_row_count) => {
-        let rows = self
-          .editor
-          .get_all_row_details(&self.view_id)
-          .await
-          .unwrap();
+        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
         assert_eq!(expected_row_count, rows.len());
       },
       PreFillRowCellTestScript::AssertCellExistence {
@@ -98,11 +94,7 @@ impl DatabasePreFillRowCellTest {
         row_index,
         exists,
       } => {
-        let rows = self
-          .editor
-          .get_all_row_details(&self.view_id)
-          .await
-          .unwrap();
+        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
         let row = rows.get(row_index).unwrap();
         let cell = row.cells.get(&field_id).cloned();
         assert_eq!(exists, cell.is_some());
@@ -114,11 +106,7 @@ impl DatabasePreFillRowCellTest {
       } => {
         let field = self.editor.get_field(&field_id).await.unwrap();
 
-        let rows = self
-          .editor
-          .get_all_row_details(&self.view_id)
-          .await
-          .unwrap();
+        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
         let row = rows.get(row_index).unwrap();
         let cell = row.cells.get(&field_id).cloned().unwrap_or_default();
         let content = stringify_cell(&cell, &field);
@@ -129,11 +117,7 @@ impl DatabasePreFillRowCellTest {
         row_index,
         expected_content,
       } => {
-        let rows = self
-          .editor
-          .get_all_row_details(&self.view_id)
-          .await
-          .unwrap();
+        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
         let row = rows.get(row_index).unwrap();
         let cell = row.cells.get(&field_id).cloned().unwrap_or_default();
         let content = SelectOptionIds::from(&cell).join(SELECTION_IDS_SEPARATOR);

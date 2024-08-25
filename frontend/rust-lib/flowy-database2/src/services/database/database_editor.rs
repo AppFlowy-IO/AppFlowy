@@ -679,7 +679,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_all_row_details(&self, view_id: &str) -> FlowyResult<Vec<Arc<Row>>> {
+  pub async fn get_all_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<Row>>> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     Ok(view_editor.v_get_all_rows().await)
   }
@@ -1171,7 +1171,7 @@ impl DatabaseEditor {
         let to_row = if to_row.is_some() {
           to_row
         } else {
-          let row_details = self.get_all_row_details(view_id).await?;
+          let row_details = self.get_all_rows(view_id).await?;
           row_details.last().map(|row| row.id.clone())
         };
         if let Some(row_id) = to_row.clone() {
@@ -1309,7 +1309,34 @@ impl DatabaseEditor {
     }
   }
 
+  // Only used in test
+  #[cfg(debug_assertions)]
   pub async fn open_database_view(&self, view_id: &str) -> FlowyResult<DatabasePB> {
+    let rows = self
+      .get_all_rows(view_id)
+      .await?
+      .into_iter()
+      .map(|order| RowMetaPB::from(order.as_ref().clone()))
+      .collect::<Vec<RowMetaPB>>();
+    let view_layout = self.database.read().await.get_database_view_layout(view_id);
+    let fields = self
+      .database
+      .read()
+      .await
+      .get_all_field_orders()
+      .into_iter()
+      .map(FieldIdPB::from)
+      .collect::<Vec<_>>();
+    Ok(DatabasePB {
+      id: self.database_id.clone(),
+      fields,
+      rows,
+      layout_type: view_layout.into(),
+      is_linked: self.database.read().await.is_inline_view(view_id),
+    })
+  }
+
+  pub async fn async_open_database_view(&self, view_id: &str) -> FlowyResult<DatabasePB> {
     info!("Open database: {}, view: {}", self.database_id, view_id);
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
@@ -1350,8 +1377,8 @@ impl DatabaseEditor {
                   }
                 }
 
+                // stop init database rows
                 if new_token.is_cancelled() {
-                  // stop init database rows
                   return;
                 }
 
