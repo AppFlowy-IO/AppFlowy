@@ -76,12 +76,17 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
 
     const showActions = !hideConditions && layout !== DatabaseViewLayout.Calendar;
 
-    const getSelectedTabWidth = useCallback(() => {
+    const getSelectedTabIndicatorProps = useCallback(() => {
       const selectedTab = document.getElementById(`view-tab-${selectedViewId}`);
 
       if (!selectedTab) return;
 
-      return selectedTab.clientWidth;
+      return {
+        style: {
+          width: selectedTab.clientWidth,
+          left: selectedTab.offsetLeft,
+        },
+      };
     }, [selectedViewId]);
 
     if (viewIds.length === 0) return null;
@@ -99,11 +104,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             allowScrollButtonsMobile
             value={selectedViewId}
             onChange={handleChange}
-            TabIndicatorProps={{
-              style: {
-                width: getSelectedTabWidth(),
-              },
-            }}
+            TabIndicatorProps={getSelectedTabIndicatorProps()}
           >
             {viewIds.map((viewId) => {
               const view = views?.get(viewId) as YDatabaseView | null;

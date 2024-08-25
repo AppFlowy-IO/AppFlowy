@@ -13,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import './template.scss';
-import { useNavigate } from 'react-router-dom';
 
 function AsTemplate ({
   viewName,
@@ -37,7 +36,9 @@ function AsTemplate ({
     loading,
   } = useLoadTemplate(viewId);
 
-  const navigate = useNavigate();
+  const handleBack = useCallback(() => {
+    window.location.href = `${decodeURIComponent(viewUrl)}`;
+  }, [viewUrl]);
   const handleSubmit = useCallback(async (data: AsTemplateFormValue) => {
     if (!service || !selectedCreatorId || selectedCategoryIds.length === 0) return;
     const formData: UploadTemplatePayload = {
@@ -49,8 +50,6 @@ function AsTemplate ({
       is_featured: isFeatured,
       view_url: viewUrl,
     };
-
-    console.log('formData', formData);
 
     try {
       if (template) {
@@ -71,14 +70,14 @@ function AsTemplate ({
           window.open(`${url}/template-center/${selectedCategoryIds[0]}/${viewId}`, '_blank');
         },
       });
-      navigate(-1);
+      handleBack();
     } catch (error) {
       // eslint-disable-next-line
       // @ts-ignore
       notify.error(error.toString());
     }
 
-  }, [service, selectedCreatorId, selectedCategoryIds, viewId, isNewTemplate, isFeatured, viewUrl, template, t, navigate, loadTemplate]);
+  }, [service, selectedCreatorId, selectedCategoryIds, viewId, isNewTemplate, isFeatured, viewUrl, template, t, handleBack, loadTemplate]);
 
   const submitRef = React.useRef<HTMLInputElement>(null);
 
@@ -114,9 +113,7 @@ function AsTemplate ({
     <div className={'flex flex-col gap-4 w-full h-full overflow-hidden'}>
       <div className={'flex items-center justify-between'}>
         <Button
-          onClick={() => {
-            navigate(-1);
-          }}
+          onClick={handleBack}
           variant={'outlined'}
           color={'inherit'}
           endIcon={<CloseIcon className={'w-4 h-4'} />}
@@ -179,10 +176,13 @@ function AsTemplate ({
           </div>
         </div>
       </div>
-      {deleteModalOpen && <DeleteTemplate id={viewId} onDeleted={() => {
-        navigate(-1);
-      }} open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}
-      />}
+      {deleteModalOpen &&
+        <DeleteTemplate
+          id={viewId}
+          onDeleted={handleBack}
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+        />}
     </div>
 
   );
