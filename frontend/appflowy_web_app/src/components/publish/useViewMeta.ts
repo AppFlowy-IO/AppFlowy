@@ -1,4 +1,3 @@
-import { ViewLayout } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
 import { EditorLayoutStyle } from '@/components/editor/EditorContext';
 import { ViewMetaCover } from '@/components/view-meta';
@@ -35,9 +34,8 @@ export function useViewMeta () {
     return {
       fontFamily: layoutStyle.font,
       fontSize: fontSizeMap[layoutStyle.fontLayout],
-      height: layout === ViewLayout.Document ? 'auto' : 'inherit',
     };
-  }, [layoutStyle, layout]);
+  }, [layoutStyle]);
 
   const layoutClassName = useMemo(() => {
     const classList = [];

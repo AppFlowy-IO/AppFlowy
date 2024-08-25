@@ -47,7 +47,7 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
   return (
     <div
       style={{
-        minHeight: 'calc(100% - 48px)',
+        minHeight: 'calc(100vh - 48px)',
         maxWidth: isTemplateThumb ? '964px' : undefined,
       }}
       className={'relative flex h-full w-full flex-col px-16 max-md:px-4'}
