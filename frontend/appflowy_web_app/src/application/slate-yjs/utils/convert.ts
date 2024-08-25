@@ -10,10 +10,12 @@ import {
   BlockData,
   BlockType,
 } from '@/application/collab.type';
+import { sortTableCells } from '@/application/slate-yjs/utils/table';
 import { BlockJson } from '@/application/slate-yjs/utils/types';
+import { TableCellNode } from '@/components/editor/editor.type';
 import { Element, Text } from 'slate';
 
-export function yDataToSlateContent({
+export function yDataToSlateContent ({
   blocks,
   rootId,
   childrenMap,
@@ -24,7 +26,7 @@ export function yDataToSlateContent({
   textMap: YTextMap;
   rootId: string;
 }): Element | undefined {
-  function traverse(id: string) {
+  function traverse (id: string) {
     const block = blocks.get(id)?.toJSON() as BlockJson;
 
     if (!block) {
@@ -38,7 +40,11 @@ export function yDataToSlateContent({
 
     const slateNode = blockToSlateNode(block);
 
-    slateNode.children = children;
+    if (slateNode.type === BlockType.TableBlock) {
+      slateNode.children = sortTableCells(children as TableCellNode[]);
+    } else {
+      slateNode.children = children;
+    }
 
     if (slateNode.type === BlockType.Page) {
       return slateNode;
@@ -100,7 +106,7 @@ export function yDataToSlateContent({
   return result;
 }
 
-export function yDocToSlateContent(doc: YDoc): Element | undefined {
+export function yDocToSlateContent (doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   if (!sharedRoot || sharedRoot.size === 0) return;
@@ -120,7 +126,7 @@ export function yDocToSlateContent(doc: YDoc): Element | undefined {
   });
 }
 
-export function blockToSlateNode(block: BlockJson): Element {
+export function blockToSlateNode (block: BlockJson): Element {
   const data = block.data;
   let blockData;
 
@@ -144,7 +150,7 @@ export interface YDelta {
   attributes?: Record<string, string | number | undefined | boolean>;
 }
 
-export function deltaInsertToSlateNode({ attributes, insert }: YDelta): Element | Text | Element[] {
+export function deltaInsertToSlateNode ({ attributes, insert }: YDelta): Element | Text | Element[] {
   const matchInlines = transformToInlineElement({
     insert,
     attributes,
@@ -164,7 +170,7 @@ export function deltaInsertToSlateNode({ attributes, insert }: YDelta): Element 
   };
 }
 
-function dealWithEmptyAttribute(attributes: Record<string, string | number | undefined | boolean>) {
+function dealWithEmptyAttribute (attributes: Record<string, string | number | undefined | boolean>) {
   for (const key in attributes) {
     if (!attributes[key]) {
       delete attributes[key];
@@ -172,7 +178,7 @@ function dealWithEmptyAttribute(attributes: Record<string, string | number | und
   }
 }
 
-export function transformToInlineElement(op: YDelta): Element[] {
+export function transformToInlineElement (op: YDelta): Element[] {
   const attributes = op.attributes;
 
   if (!attributes) return [];
