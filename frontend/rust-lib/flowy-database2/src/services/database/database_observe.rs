@@ -145,7 +145,6 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
     .subscribe_block_event();
   let database_editor = Arc::downgrade(database_editor);
   af_spawn(async move {
-    // let token = CancellationToken::new();
     while let Ok(event) = block_event_rx.recv().await {
       if database_editor.upgrade().is_none() {
         break;
