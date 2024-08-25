@@ -8,6 +8,7 @@ function TemplateItem ({ template, category }: { template: TemplateSummary; cate
   const iframeUrl = useMemo(() => {
     const url = new URL(template.view_url);
 
+    url.searchParams.delete('v');
     url.searchParams.set('theme', 'light');
     url.searchParams.set('template', 'true');
     url.searchParams.set('thumbnail', 'true');

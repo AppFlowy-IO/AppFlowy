@@ -6,16 +6,16 @@ import { useSearchParams } from 'react-router-dom';
 import { useDuplicate } from '@/components/publish/header/duplicate/useDuplicate';
 import DuplicateModal from '@/components/publish/header/duplicate/DuplicateModal';
 
-export function Duplicate() {
+export function Duplicate () {
   const { t } = useTranslation();
   const { loginOpen, duplicateOpen, handleDuplicateClose, handleLoginClose, url } = useDuplicate();
-  const [search, setSearch] = useSearchParams();
+  const [, setSearch] = useSearchParams();
   const handleClick = useCallback(() => {
-    setSearch({
-      ...search,
-      action: 'duplicate',
+    setSearch(prev => {
+      prev.set('action', 'duplicate');
+      return prev;
     });
-  }, [search, setSearch]);
+  }, [setSearch]);
 
   return (
     <>

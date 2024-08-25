@@ -28,14 +28,20 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
 
   const handleChangeView = useCallback(
     (viewId: string) => {
-      setSearch({ v: viewId });
+      setSearch(prev => {
+        prev.set('v', viewId);
+        return prev;
+      });
     },
     [setSearch],
   );
 
   const handleNavigateToRow = useCallback(
     (rowId: string) => {
-      setSearch({ r: rowId });
+      setSearch(prev => {
+        prev.set('r', rowId);
+        return prev;
+      });
     },
     [setSearch],
   );
