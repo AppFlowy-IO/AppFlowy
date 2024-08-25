@@ -5,18 +5,19 @@ use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, Tim
 use chrono_tz::Tz;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
+use collab_database::template::date_parse::cast_string_to_timestamp;
 use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::entities::{DateCellDataPB, DateFilterPB};
+use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
-  TypeOptionTransform,
+  TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
 
@@ -230,6 +231,17 @@ impl CellDataDecoder for DateTypeOption {
     } else {
       date
     }
+  }
+
+  fn decode_cell_with_transform(
+    &self,
+    cell: &Cell,
+    _from_field_type: FieldType,
+    _field: &Field,
+  ) -> Option<<Self as TypeOption>::CellData> {
+    let s = cell.get_as::<String>(CELL_DATA)?;
+    let timestamp = cast_string_to_timestamp(&s)?;
+    Some(DateCellData::from_timestamp(timestamp))
   }
 
   fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {

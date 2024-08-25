@@ -20,6 +20,7 @@ use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
+use arc_swap::ArcSwap;
 use async_trait::async_trait;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
@@ -35,11 +36,15 @@ use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
+use std::time::Duration;
+use tokio::sync::{broadcast, oneshot, RwLock};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, event, info, instrument, trace, warn};
 
+type OpenDatabaseResult = oneshot::Sender<FlowyResult<DatabasePB>>;
+
 pub struct DatabaseEditor {
+  database_id: String,
   pub(crate) database: Arc<RwLock<Database>>,
   pub cell_cache: CellCache,
   pub(crate) database_views: Arc<DatabaseViews>,
@@ -48,6 +53,8 @@ pub struct DatabaseEditor {
   notification_sender: Arc<DebounceNotificationSender>,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
+  is_opening: ArcSwap<bool>,
+  opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
 }
 
@@ -101,12 +108,15 @@ impl DatabaseEditor {
       database.clone(),
     )?;
     let this = Arc::new(Self {
+      database_id: database_id.clone(),
       user,
       database,
       cell_cache,
       database_views,
       notification_sender,
       collab_builder,
+      is_opening: Default::default(),
+      opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
     });
     observe_block_event(&database_id, &this).await;
@@ -1283,11 +1293,15 @@ impl DatabaseEditor {
       .read()
       .await
       .get_view(view_id)
-      .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find the database view"))?;
+      .ok_or_else(|| {
+        FlowyError::record_not_found()
+          .with_context(format!("Can't find the database view:{}", view_id))
+      })?;
     Ok(database_view_setting_pb_from_view(view))
   }
 
   pub async fn close_database(&self) {
+    info!("Close database: {}", self.database_id);
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
@@ -1295,57 +1309,85 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn open_database(&self, view_id: &str) -> FlowyResult<DatabasePB> {
-    let view_layout = self.database.read().await.get_database_view_layout(view_id);
-    let new_token = CancellationToken::new();
+  pub async fn open_database_view(&self, view_id: &str) -> FlowyResult<DatabasePB> {
+    info!("Open database: {}, view: {}", self.database_id, view_id);
+    let (tx, rx) = oneshot::channel();
+    self.opening_ret_txs.write().await.push(tx);
+    // Check if the database is currently being opened
+    if !*self.is_opening.load_full() {
+      self.is_opening.store(Arc::new(true));
 
-    if let Some(old_token) = self
-      .database_cancellation
-      .write()
-      .await
-      .replace(new_token.clone())
-    {
-      old_token.cancel();
+      let fut = async {
+        let view_layout = self.database.read().await.get_database_view_layout(view_id);
+        let new_token = CancellationToken::new();
+        if let Some(old_token) = self
+          .database_cancellation
+          .write()
+          .await
+          .replace(new_token.clone())
+        {
+          old_token.cancel();
+        }
+
+        let row_details = self
+          .database_views
+          .get_view_editor(view_id)
+          .await?
+          .v_get_all_row_details()
+          .await;
+
+        // Collect database details in a single block holding the `read` lock
+        let (database_id, fields, is_linked) = {
+          let database = self.database.read().await;
+          (
+            database.get_database_id(),
+            database
+              .get_all_field_orders()
+              .into_iter()
+              .map(FieldIdPB::from)
+              .collect::<Vec<_>>(),
+            database.is_inline_view(view_id),
+          )
+        };
+
+        let rows = row_details
+          .into_iter()
+          .map(|order| RowMetaPB::from(order.as_ref().clone()))
+          .collect::<Vec<RowMetaPB>>();
+
+        trace!(
+          "database: {}, num fields: {}, num rows: {}",
+          database_id,
+          fields.len(),
+          rows.len()
+        );
+        Ok::<_, FlowyError>(DatabasePB {
+          id: database_id,
+          fields,
+          rows,
+          layout_type: view_layout.into(),
+          is_linked,
+        })
+      };
+
+      let result = fut.await;
+      // Mark that the opening process is complete
+      self.is_opening.store(Arc::new(false));
+      // Clear cancellation token
+      self.database_cancellation.write().await.take();
+
+      // Collect all waiting tasks and send the result
+      let txs = std::mem::take(&mut *self.opening_ret_txs.write().await);
+      for tx in txs {
+        let _ = tx.send(result.clone());
+      }
     }
 
-    let row_details = self
-      .database_views
-      .get_view_editor(view_id)
-      .await?
-      .v_get_all_row_details()
-      .await;
-
-    let (database_id, fields, is_linked) = {
-      let database = self.database.read().await;
-      let database_id = database.get_database_id();
-      let fields = database
-        .get_all_field_orders()
-        .into_iter()
-        .map(FieldIdPB::from)
-        .collect::<Vec<_>>();
-      let is_linked = database.is_inline_view(view_id);
-      (database_id, fields, is_linked)
-    };
-
-    let rows = row_details
-      .into_iter()
-      .map(|order| RowMetaPB::from(order.as_ref().clone()))
-      .collect::<Vec<RowMetaPB>>();
-
-    trace!(
-      "database: {}, num fields: {}, num row: {}",
-      database_id,
-      fields.len(),
-      rows.len()
-    );
-    self.database_cancellation.write().await.take();
-    Ok(DatabasePB {
-      id: database_id,
-      fields,
-      rows,
-      layout_type: view_layout.into(),
-      is_linked,
-    })
+    // Wait for the result or timeout after 60 seconds
+    match tokio::time::timeout(Duration::from_secs(60), rx).await {
+      Ok(result) => result.map_err(internal_error)?,
+      Err(_) => Err(FlowyError::internal().with_context("Timeout while opening database view")),
+    }
   }
 
   pub async fn export_csv(&self, style: CSVFormat) -> FlowyResult<String> {

@@ -36,7 +36,7 @@ pub(crate) async fn get_database_data_handler(
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
-  let data = database_editor.open_database(view_id.as_ref()).await?;
+  let data = database_editor.open_database_view(view_id.as_ref()).await?;
   trace!(
     "layout: {:?}, rows: {}, fields: {}",
     data.layout_type,
