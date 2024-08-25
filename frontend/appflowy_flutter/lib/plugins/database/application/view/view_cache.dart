@@ -93,17 +93,6 @@ class DatabaseViewCache {
         (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
         (err) => Log.error(err),
       ),
-      onReloadRows: () {
-        final payload = DatabaseViewIdPB(value: viewId);
-        DatabaseEventGetAllRows(payload).send().then((result) {
-          result.fold(
-            (rows) {
-              _rowCache.setInitialRows(rows.items);
-            },
-            (err) => Log.error(err),
-          );
-        });
-      },
     );
 
     _rowCache.onRowsChanged(

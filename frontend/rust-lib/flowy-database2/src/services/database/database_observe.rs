@@ -171,21 +171,16 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
           }
 
           let cloned_token = token.clone();
-          let cloned_database_editor = database_editor.clone();
           tokio::spawn(async move {
             tokio::time::sleep(Duration::from_secs(2)).await;
             if cloned_token.is_cancelled() {
               return;
             }
-            if let Some(database_editor) = cloned_database_editor.upgrade() {
-              for view_editor in database_editor.database_views.editors().await {
-                send_notification(
-                  &view_editor.view_id.clone(),
-                  DatabaseNotification::ReloadRows,
-                )
-                .send();
-              }
-            }
+            // if let Some(database_editor) = cloned_database_editor.upgrade() {
+            // TODO(nathan): calculate inserted row with RowsVisibilityChangePB
+            // for view_editor in database_editor.database_views.editors().await {
+            // }
+            // }
           });
         },
       }

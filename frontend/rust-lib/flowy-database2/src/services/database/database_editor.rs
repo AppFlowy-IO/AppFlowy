@@ -20,7 +20,6 @@ use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
-use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
@@ -38,7 +37,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, error, event, instrument, trace, warn};
+use tracing::{debug, error, event, info, instrument, trace, warn};
 
 pub struct DatabaseEditor {
   pub(crate) database: Arc<RwLock<Database>>,
@@ -49,7 +48,7 @@ pub struct DatabaseEditor {
   notification_sender: Arc<DebounceNotificationSender>,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  load_database_cancellation: ArcSwapOption<CancellationToken>,
+  database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
 }
 
 impl DatabaseEditor {
@@ -62,6 +61,7 @@ impl DatabaseEditor {
     let notification_sender = Arc::new(DebounceNotificationSender::new(200));
     let cell_cache = AnyTypeCache::<u64>::new();
     let database_id = database.read().await.get_database_id();
+    let database_cancellation = Arc::new(RwLock::new(None));
     // Receive database sync state and send to frontend via the notification
     observe_sync_state(&database_id, &database).await;
     // observe_view_change(&database_id, &database).await;
@@ -75,6 +75,7 @@ impl DatabaseEditor {
       task_scheduler: task_scheduler.clone(),
       cell_cache: cell_cache.clone(),
       editor_by_view_id: editor_by_view_id.clone(),
+      database_cancellation: database_cancellation.clone(),
     });
 
     let database_views = Arc::new(
@@ -106,7 +107,7 @@ impl DatabaseEditor {
       database_views,
       notification_sender,
       collab_builder,
-      load_database_cancellation: Default::default(),
+      database_cancellation,
     });
     observe_block_event(&database_id, &this).await;
     Ok(this)
@@ -676,9 +677,9 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_row_details(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
+  pub async fn get_all_row_details(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    Ok(view_editor.v_get_row_details().await)
+    Ok(view_editor.v_get_all_row_details().await)
   }
 
   pub async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
@@ -1158,7 +1159,7 @@ impl DatabaseEditor {
         let to_row = if to_row.is_some() {
           to_row
         } else {
-          let row_details = self.get_row_details(view_id).await?;
+          let row_details = self.get_all_row_details(view_id).await?;
           row_details
             .last()
             .map(|row_detail| row_detail.row.id.clone())
@@ -1286,29 +1287,34 @@ impl DatabaseEditor {
     Ok(database_view_setting_pb_from_view(view))
   }
 
-  pub async fn get_database_data(&self, view_id: &str) -> FlowyResult<DatabasePB> {
+  pub async fn close_database(&self) {
+    let cancellation = self.database_cancellation.read().await;
+    if let Some(cancellation) = &*cancellation {
+      info!("Cancel database operation");
+      cancellation.cancel();
+    }
+  }
+
+  pub async fn open_database(&self, view_id: &str) -> FlowyResult<DatabasePB> {
     let view_layout = self.database.read().await.get_database_view_layout(view_id);
-    let database = self.database.clone();
-    let cloned_view_id = view_id.to_string();
-    let new_token = Arc::new(CancellationToken::new());
+    let new_token = CancellationToken::new();
+
     if let Some(old_token) = self
-      .load_database_cancellation
-      .swap(Some(new_token.clone()))
+      .database_cancellation
+      .write()
+      .await
+      .replace(new_token.clone())
     {
       old_token.cancel();
     }
 
-    let row_orders = tokio::task::spawn_blocking(move || {
-      if new_token.is_cancelled() {
-        return Ok(vec![]);
-      }
-      let row_orders = database
-        .blocking_read()
-        .get_row_orders_for_view(&cloned_view_id);
-      Ok::<_, FlowyError>(row_orders)
-    })
-    .await
-    .map_err(internal_error)??;
+    let row_details = self
+      .database_views
+      .get_view_editor(view_id)
+      .await?
+      .v_get_all_row_details()
+      .await;
+
     let (database_id, fields, is_linked) = {
       let database = self.database.read().await;
       let database_id = database.get_database_id();
@@ -1321,9 +1327,9 @@ impl DatabaseEditor {
       (database_id, fields, is_linked)
     };
 
-    let rows = row_orders
+    let rows = row_details
       .into_iter()
-      .map(|order| RowMetaPB::from(order))
+      .map(|order| RowMetaPB::from(order.as_ref().clone()))
       .collect::<Vec<RowMetaPB>>();
 
     trace!(
@@ -1332,6 +1338,7 @@ impl DatabaseEditor {
       fields.len(),
       rows.len()
     );
+    self.database_cancellation.write().await.take();
     Ok(DatabasePB {
       id: database_id,
       fields,
@@ -1339,16 +1346,6 @@ impl DatabaseEditor {
       layout_type: view_layout.into(),
       is_linked,
     })
-  }
-
-  pub async fn get_all_rows(&self, view_id: &str) -> FlowyResult<RepeatedRowMetaPB> {
-    let database_view = self.database_views.get_view_editor(view_id).await?;
-    let row_details = database_view.v_get_row_details().await;
-    let rows = row_details
-      .into_iter()
-      .map(|detail| RowMetaPB::from(detail.as_ref().clone()))
-      .collect::<Vec<RowMetaPB>>();
-    Ok(RepeatedRowMetaPB { items: rows })
   }
 
   pub async fn export_csv(&self, style: CSVFormat) -> FlowyResult<String> {
@@ -1472,6 +1469,7 @@ struct DatabaseViewOperationImpl {
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   cell_cache: CellCache,
   editor_by_view_id: Arc<RwLock<EditorByViewId>>,
+  database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
 }
 
 #[async_trait]
@@ -1564,19 +1562,30 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     }
   }
 
-  async fn get_row_details(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
+  async fn get_all_row_details(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
     let view_id = view_id.to_string();
     let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
-    trace!("total row orders: {}", row_orders.len());
-
+    trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut row_details_list = vec![];
     // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
     const CHUNK_SIZE: usize = 10;
+    let cancellation = self
+      .database_cancellation
+      .read()
+      .await
+      .as_ref()
+      .map(|c| c.clone());
     for chunk in row_orders.chunks(CHUNK_SIZE) {
       let database_read_guard = self.database.read().await;
       let chunk = chunk.to_vec();
       let rows = database_read_guard.get_rows_from_row_orders(&chunk).await;
       for row in rows {
+        if let Some(cancellation) = &cancellation {
+          if cancellation.is_cancelled() {
+            info!("Get all database row is cancelled:{}", view_id);
+            return vec![];
+          }
+        }
         match database_read_guard.get_row_detail(&row.id).await {
           None => warn!("Failed to get row detail for row: {}", row.id.as_str()),
           Some(row_details) => {

@@ -307,6 +307,7 @@ impl DatabaseManager {
       if should_remove {
         trace!("remove database editor:{}", database_id);
         if let Some(editor) = editors.remove(&database_id) {
+          editor.close_database().await;
           self
             .removing_editor
             .lock()
