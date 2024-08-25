@@ -522,6 +522,7 @@ pub fn is_type_option_cell_transformable(
       | (FieldType::RichText, FieldType::SingleSelect)
       | (FieldType::RichText, FieldType::MultiSelect)
       | (FieldType::RichText, FieldType::URL)
+      | (FieldType::RichText, FieldType::Number)
       | (_, FieldType::RichText)
   )
 }
