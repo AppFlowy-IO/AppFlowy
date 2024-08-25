@@ -22,7 +22,7 @@ use dashmap::DashMap;
 use tokio::select;
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::sync::CancellationToken;
-use tracing::{error, instrument, trace};
+use tracing::{error, info, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB};
@@ -437,15 +437,17 @@ impl DatabaseManager {
     let view_id = params.inline_view_id.clone();
     let database_id = params.database_id.clone();
     let database = self.create_database_with_params(params).await?;
-    let encoded_collab = database
-      .read()
-      .await
-      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))?;
+    let encoded_database = database.read().await.encode_database_collabs().await?;
+    let encoded_collabs = std::iter::once(encoded_database.encoded_database_collab)
+      .chain(encoded_database.encoded_row_collabs.into_iter())
+      .collect::<Vec<_>>();
+
     let result = ImportResult {
       database_id,
       view_id,
-      encoded_collab,
+      encoded_collabs,
     };
+    info!("import csv result: {}", result);
     Ok(result)
   }
 
