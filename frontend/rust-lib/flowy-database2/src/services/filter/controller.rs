@@ -109,6 +109,10 @@ impl FilterController {
     }
   }
 
+  pub async fn has_filters(&self) -> bool {
+    !self.filters.read().await.is_empty()
+  }
+
   pub async fn close(&self) {
     if let Ok(mut task_scheduler) = self.task_scheduler.try_write() {
       task_scheduler.unregister_handler(&self.handler_id).await;

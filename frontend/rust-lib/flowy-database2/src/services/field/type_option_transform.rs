@@ -17,7 +17,7 @@ pub async fn transform_type_option(
   new_field_type: FieldType,
   old_type_option_data: Option<TypeOptionData>,
   new_type_option_data: TypeOptionData,
-  database: &Database,
+  database: &mut Database,
 ) -> TypeOptionData {
   if let Some(old_type_option_data) = old_type_option_data {
     let mut transform_handler =
@@ -28,6 +28,7 @@ pub async fn transform_type_option(
         field_id,
         old_field_type,
         old_type_option_data,
+        new_field_type,
         database,
       )
       .await;
@@ -46,7 +47,8 @@ pub trait TypeOptionTransformHandler: Send + Sync {
     field_id: &str,
     old_type_option_field_type: FieldType,
     old_type_option_data: TypeOptionData,
-    database: &Database,
+    new_type_option_field_type: FieldType,
+    database: &mut Database,
   );
 
   fn to_type_option_data(&self) -> TypeOptionData;
@@ -63,7 +65,8 @@ where
     field_id: &str,
     old_type_option_field_type: FieldType,
     old_type_option_data: TypeOptionData,
-    database: &Database,
+    new_type_option_field_type: FieldType,
+    database: &mut Database,
   ) {
     self
       .transform_type_option(
@@ -71,6 +74,7 @@ where
         field_id,
         old_type_option_field_type,
         old_type_option_data,
+        new_type_option_field_type,
         database,
       )
       .await

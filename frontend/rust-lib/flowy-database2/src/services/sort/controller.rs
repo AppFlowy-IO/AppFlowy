@@ -84,6 +84,10 @@ impl SortController {
     }
   }
 
+  pub async fn has_sorts(&self) -> bool {
+    !self.sorts.is_empty()
+  }
+
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
     if !self.sorts.is_empty() {
       self
