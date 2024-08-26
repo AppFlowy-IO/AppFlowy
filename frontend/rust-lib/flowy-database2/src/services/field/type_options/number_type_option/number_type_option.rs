@@ -1,18 +1,19 @@
+use async_trait::async_trait;
 use collab::preclude::encoding::serde::from_any;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
-use std::cmp::Ordering;
-use std::default::Default;
-use std::str::FromStr;
-
+use collab_database::database::Database;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::{new_cell_builder, Cell};
 use fancy_regex::Regex;
+use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer, Serialize};
-
-use flowy_error::FlowyResult;
+use std::cmp::Ordering;
+use std::default::Default;
+use std::str::FromStr;
+use tracing::info;
 
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
@@ -180,7 +181,51 @@ impl NumberTypeOption {
   }
 }
 
-impl TypeOptionTransform for NumberTypeOption {}
+#[async_trait]
+impl TypeOptionTransform for NumberTypeOption {
+  async fn transform_type_option(
+    &mut self,
+    view_id: &str,
+    field_id: &str,
+    old_type_option_field_type: FieldType,
+    _old_type_option_data: TypeOptionData,
+    _new_type_option_field_type: FieldType,
+    database: &mut Database,
+  ) {
+    match old_type_option_field_type {
+      FieldType::RichText => {
+        let rows = database
+          .get_cells_for_field(view_id, field_id)
+          .await
+          .into_iter()
+          .filter_map(|row| row.cell.map(|cell| (row.row_id, cell)))
+          .collect::<Vec<_>>();
+
+        info!(
+          "Transforming RichText to NumberTypeOption, updating {} row's cell content",
+          rows.len()
+        );
+        for (row_id, cell_data) in rows {
+          if let Ok(num_cell) = self
+            .parse_cell(&cell_data)
+            .and_then(|num_cell_data| self.format_cell_data(num_cell_data))
+          {
+            database
+              .update_row(row_id, |row| {
+                row.update_cells(|cell| {
+                  cell.insert(field_id, NumberCellData::from(num_cell.to_string()));
+                });
+              })
+              .await;
+          }
+        }
+      },
+      _ => {
+        // do nothing
+      },
+    }
+  }
+}
 
 impl CellDataDecoder for NumberTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {

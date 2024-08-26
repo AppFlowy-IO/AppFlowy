@@ -124,6 +124,14 @@ impl DatabaseViewEditor {
     self.calculations_controller.close().await;
   }
 
+  pub async fn has_filters(&self) -> bool {
+    self.filter_controller.has_filters().await
+  }
+
+  pub async fn has_sorts(&self) -> bool {
+    self.sort_controller.read().await.has_sorts().await
+  }
+
   pub async fn v_get_view(&self) -> Option<DatabaseView> {
     self.delegate.get_view(&self.view_id).await
   }

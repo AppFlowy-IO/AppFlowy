@@ -112,7 +112,8 @@ pub trait TypeOptionTransform: TypeOption + Send + Sync {
     _field_id: &str,
     _old_type_option_field_type: FieldType,
     _old_type_option_data: TypeOptionData,
-    _database: &Database,
+    _new_type_option_field_type: FieldType,
+    _database: &mut Database,
   ) {
   }
 }

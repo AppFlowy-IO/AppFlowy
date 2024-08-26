@@ -80,7 +80,8 @@ where
     field_id: &str,
     old_type_option_field_type: FieldType,
     old_type_option_data: TypeOptionData,
-    database: &Database,
+    new_type_option_field_type: FieldType,
+    database: &mut Database,
   ) {
     SelectOptionTypeOptionTransformHelper::transform_type_option(
       self,
@@ -88,6 +89,7 @@ where
       field_id,
       &old_type_option_field_type,
       old_type_option_data,
+      new_type_option_field_type,
       database,
     )
     .await;

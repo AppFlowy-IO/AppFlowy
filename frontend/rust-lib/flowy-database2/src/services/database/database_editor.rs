@@ -464,7 +464,7 @@ impl DatabaseEditor {
           new_field_type,
           old_type_option_data,
           new_type_option_data,
-          &database,
+          &mut database,
         )
         .await;
 
@@ -1362,6 +1362,21 @@ impl DatabaseEditor {
         let opening_database_views = self.database_views.clone();
         tokio::spawn(async move {
           const CHUNK_SIZE: usize = 10;
+          let apply_filter_and_sort =
+            |mut loaded_rows, opening_database_views: Arc<DatabaseViews>| async move {
+              for database_view in opening_database_views.editors().await {
+                if database_view.has_filters().await {
+                  database_view
+                    .v_filter_rows_and_notify(&mut loaded_rows)
+                    .await;
+                }
+
+                if database_view.has_sorts().await {
+                  database_view.v_sort_rows_and_notify(&mut loaded_rows).await;
+                }
+              }
+            };
+
           let mut loaded_rows = vec![];
           for chunk_row_orders in cloned_row_orders.chunks(CHUNK_SIZE) {
             match cloned_database.upgrade() {
@@ -1382,23 +1397,15 @@ impl DatabaseEditor {
                   return;
                 }
 
-                if loaded_rows.len() % 100 == 0 {
-                  for database_view in opening_database_views.editors().await {
-                    let mut view_rows = loaded_rows.clone();
-                    database_view.v_filter_rows_and_notify(&mut view_rows).await;
-                    database_view.v_sort_rows_and_notify(&mut view_rows).await;
-                  }
+                if loaded_rows.len() % 1000 == 0 {
+                  apply_filter_and_sort(loaded_rows.clone(), opening_database_views.clone()).await;
                 }
               },
             }
             tokio::task::yield_now().await;
           }
 
-          for database_view in opening_database_views.editors().await {
-            let mut view_rows = loaded_rows.clone();
-            database_view.v_filter_rows_and_notify(&mut view_rows).await;
-            database_view.v_sort_rows_and_notify(&mut view_rows).await;
-          }
+          apply_filter_and_sort(loaded_rows.clone(), opening_database_views).await;
         });
 
         // Collect database details in a single block holding the `read` lock
