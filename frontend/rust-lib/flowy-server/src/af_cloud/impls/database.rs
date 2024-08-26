@@ -32,7 +32,7 @@ impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  #[instrument(level = "debug", skip_all)]
+  #[instrument(level = "debug", skip_all, err)]
   async fn get_database_encode_collab(
     &self,
     object_id: &str,

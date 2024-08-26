@@ -98,7 +98,7 @@ impl From<Row> for RowMetaPB {
   }
 }
 
-impl std::convert::From<RowDetail> for RowMetaPB {
+impl From<RowDetail> for RowMetaPB {
   fn from(row_detail: RowDetail) -> Self {
     Self {
       id: row_detail.row.id.to_string(),

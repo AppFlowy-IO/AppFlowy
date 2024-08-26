@@ -762,20 +762,32 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     let data_source: DataSource = if is_new {
       DataSource::Disk(None)
     } else if self.persistence.is_collab_exist(object_id) {
+      trace!("build collab: load {}:{} from disk", collab_type, object_id);
       CollabPersistenceImpl {
         persistence: Some(self.persistence.clone()),
       }
       .into()
     } else {
-      match self.get_encode_collab(object_id, collab_type).await {
+      trace!(
+        "build collab: fetch {}:{} from remote",
+        collab_type,
+        object_id
+      );
+      match self.get_encode_collab(object_id, collab_type.clone()).await {
         Ok(Some(encode_collab)) => {
-          self
-            .persistence
-            .flush_collab(object_id, encode_collab.clone())
-            .map_err(|err| DatabaseError::Internal(anyhow!("Failed to flush collab: {}", err)))?;
+          trace!(
+            "build collab: {}:{} with remote encode collab",
+            collab_type,
+            object_id
+          );
           DataSource::from(encode_collab)
         },
         Ok(None) => {
+          trace!(
+            "build collab: {}:{} with empty encode collab",
+            collab_type,
+            object_id
+          );
           // when collab not exist, create a default collab
           CollabPersistenceImpl {
             persistence: Some(self.persistence.clone()),
@@ -790,9 +802,10 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     };
 
     let collab_db = self.collab_db()?;
-    let collab = self
+    let mut collab = self
       .collab_builder
       .build_collab(&object, &collab_db, data_source)?;
+    collab.initialize();
     Ok(collab)
   }
 
@@ -825,7 +838,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
         return;
       }
 
-      trace!("[Database]: start loading collab:{}", object_id);
+      trace!("[Database]: start loading collab:{} from disk", object_id);
       let mut txn = collab.transact_mut();
       match db_read.load_doc_with_txn(uid, &object_id, &mut txn) {
         Ok(update_count) => {
@@ -881,12 +894,12 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     object_id: &str,
     encode_collab: EncodedCollab,
   ) -> Result<(), DatabaseError> {
-    trace!("[Database]: flush collab:{}", object_id);
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+      trace!("[Database]: flush collab:{}", object_id);
       let write_txn = collab_db.write_txn();
       write_txn
         .flush_doc(
