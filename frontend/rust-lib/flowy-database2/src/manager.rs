@@ -802,10 +802,9 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     };
 
     let collab_db = self.collab_db()?;
-    let mut collab = self
+    let collab = self
       .collab_builder
       .build_collab(&object, &collab_db, data_source)?;
-    collab.initialize();
     Ok(collab)
   }
 

@@ -245,7 +245,7 @@ impl AppFlowyCollabBuilder {
       persistence_config.clone(),
     );
     collab.add_plugin(Box::new(db_plugin));
-    collab.initialize();
+    collab.observe_update();
     Ok(collab)
   }
 
