@@ -32,7 +32,6 @@ class SidebarSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // const sectionPadding = 16.0;
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
