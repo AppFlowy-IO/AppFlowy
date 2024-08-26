@@ -31,6 +31,7 @@ use collab_database::views::{
 };
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use dashmap::DashMap;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;
@@ -58,6 +59,7 @@ pub struct DatabaseEditor {
   is_opening: ArcSwap<bool>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
+  finalized_rows: Arc<DashMap<RowId, bool>>,
 }
 
 impl DatabaseEditor {
@@ -120,6 +122,7 @@ impl DatabaseEditor {
       is_opening: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
+      finalized_rows: Arc::new(Default::default()),
     });
     observe_block_event(&database_id, &this).await;
     Ok(this)
@@ -699,18 +702,13 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<()> {
-    if let Some(database_row) = self.database.read().await.get_database_row(row_id) {
-      if !database_row
-        .read()
-        .await
-        .collab
-        .get_state()
-        .is_uninitialized()
-      {
+    if let Some(entry) = self.finalized_rows.get(row_id) {
+      if *entry.value() {
         return Ok(());
       }
     }
 
+    self.finalized_rows.insert(row_id.clone(), true);
     debug!("Init database row: {}", row_id);
     let database_row = self
       .database

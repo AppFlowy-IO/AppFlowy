@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/domain/row_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -38,6 +40,25 @@ class RowController {
 
   Future<void> initialize() async {
     await _rowBackendSvc.initRow(rowMeta.id);
+    unawaited(
+      _rowBackendSvc.getRowMeta(rowId).then(
+        (result) {
+          if (_isDisposed) {
+            return;
+          }
+
+          result.fold(
+            (rowMeta) {
+              _rowMeta = rowMeta;
+              _rowCache.setRowMeta(rowMeta);
+              _onRowMetaChanged?.call();
+            },
+            (error) => debugPrint(error.toString()),
+          );
+        },
+      ),
+    );
+
     _rowListener.start(
       onRowFetched: (DidFetchRowPB row) {
         _rowCache.setRowMeta(row.meta);
