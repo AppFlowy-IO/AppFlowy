@@ -290,7 +290,7 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    if let Some(cell_data) = get_cell_data_from_row::<P>(Some(&new_row), field) {
+    if let Some(cell_data) = get_cell_data_from_row::<P>(Some(new_row), field) {
       let old_cell_data = get_cell_data_from_row::<P>(old_row.as_ref(), field);
       if let Ok((insert, delete)) =
         self.create_or_delete_group_when_cell_changed(new_row, old_cell_data.as_ref(), &cell_data)
@@ -357,7 +357,7 @@ where
     if let Some(cell) = cell {
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
-      result.deleted_group = self.delete_group_when_move_row(&context.row, &cell_data);
+      result.deleted_group = self.delete_group_when_move_row(context.row, &cell_data);
       result.row_changesets = self.move_row(context);
     } else {
       tracing::warn!("Unexpected moving group row, changes should not be empty");

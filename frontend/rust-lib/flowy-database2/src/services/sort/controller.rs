@@ -224,7 +224,7 @@ impl SortController {
 
     let fields = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter().rev() {
-      rows.par_sort_by(|left, right| cmp_row(&left, &right, sort, &fields, &self.cell_cache));
+      rows.par_sort_by(|left, right| cmp_row(left, right, sort, &fields, &self.cell_cache));
     }
     rows.iter().enumerate().for_each(|(index, row)| {
       self.row_index_cache.insert(row.id.clone(), index);

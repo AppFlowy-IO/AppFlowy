@@ -1417,7 +1417,7 @@ impl DatabaseEditor {
 
         let rows = row_orders
           .into_iter()
-          .map(|order| RowMetaPB::from(order))
+          .map(RowMetaPB::from)
           .collect::<Vec<RowMetaPB>>();
 
         trace!(

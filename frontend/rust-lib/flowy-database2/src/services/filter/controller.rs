@@ -362,9 +362,9 @@ impl FilterController {
     let field_by_field_id = self.get_field_map().await;
     let mut visible_rows = vec![];
     let mut invisible_rows = vec![];
-    for (index, row) in rows.into_iter().enumerate() {
+    for (index, row) in rows.iter_mut().enumerate() {
       if let Some(is_visible) = filter_row(
-        &row,
+        row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
@@ -379,7 +379,7 @@ impl FilterController {
       }
     }
 
-    rows.retain(|row| invisible_rows.iter().find(|id| id == &&row.id).is_none());
+    rows.retain(|row| !invisible_rows.iter().any(|id| id == &row.id));
     let notification = FilterResultNotification {
       view_id: self.view_id.clone(),
       invisible_rows,
@@ -402,7 +402,7 @@ impl FilterController {
     let field_by_field_id = self.get_field_map().await;
     rows.iter().for_each(|row| {
       let _ = filter_row(
-        &row,
+        row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
