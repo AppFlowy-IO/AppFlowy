@@ -47,15 +47,6 @@ class MobileHomePageHeader extends StatelessWidget {
                       : _MobileUser(userProfile: userProfile),
                 ),
                 const HomePageSettingsPopupMenu(),
-                // GestureDetector(
-                //   onTap: () => context.push(
-                //     MobileHomeSettingPage.routeName,
-                //   ),
-                //   child: const Padding(
-                //     padding: EdgeInsets.all(8.0),
-                //     child: FlowySvg(FlowySvgs.m_notification_settings_s),
-                //   ),
-                // ),
                 const HSpace(8.0),
               ],
             ),
