@@ -387,13 +387,9 @@ class PopupMenuItemState<T, W extends PopupMenuItem<T>> extends State<W> {
       child: Semantics(
         enabled: widget.enabled,
         button: true,
-        child: InkWell(
+        child: GestureDetector(
           onTap: widget.enabled ? handleTap : null,
-          canRequestFocus: widget.enabled,
-          mouseCursor: _EffectiveMouseCursor(
-            widget.mouseCursor,
-            popupMenuTheme.mouseCursor,
-          ),
+          behavior: HitTestBehavior.opaque,
           child: ListTileTheme.merge(
             contentPadding: EdgeInsets.zero,
             titleTextStyle: style,
