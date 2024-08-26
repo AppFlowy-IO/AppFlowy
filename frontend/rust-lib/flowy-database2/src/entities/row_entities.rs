@@ -86,6 +86,18 @@ impl From<RowOrder> for RowMetaPB {
   }
 }
 
+impl From<Row> for RowMetaPB {
+  fn from(data: Row) -> Self {
+    Self {
+      id: data.id.into_inner(),
+      document_id: None,
+      icon: None,
+      cover: None,
+      is_document_empty: None,
+    }
+  }
+}
+
 impl std::convert::From<RowDetail> for RowMetaPB {
   fn from(row_detail: RowDetail) -> Self {
     Self {

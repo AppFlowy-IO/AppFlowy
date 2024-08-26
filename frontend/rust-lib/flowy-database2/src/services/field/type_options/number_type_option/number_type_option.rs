@@ -132,7 +132,7 @@ impl NumberTypeOption {
     match self.format {
       NumberFormat::Num => {
         if SCIENTIFIC_NOTATION_REGEX
-          .is_match(&num_cell_data.as_ref())
+          .is_match(num_cell_data.as_ref())
           .unwrap()
         {
           match Decimal::from_scientific(&num_cell_data.as_ref().to_lowercase()) {
@@ -142,7 +142,7 @@ impl NumberTypeOption {
         } else {
           // Test the input string is start with dot and only contains number.
           // If it is, add a 0 before the dot. For example, ".123" -> "0.123"
-          let num_str = match START_WITH_DOT_NUM_REGEX.captures(&num_cell_data.as_ref()) {
+          let num_str = match START_WITH_DOT_NUM_REGEX.captures(num_cell_data.as_ref()) {
             Ok(Some(captures)) => match captures.get(0).map(|m| m.as_str().to_string()) {
               Some(s) => {
                 format!("0{}", s)
@@ -152,7 +152,7 @@ impl NumberTypeOption {
             // Extract the number from the string.
             // For example, "123abc" -> "123". check out the number_type_option_input_test test for
             // more examples.
-            _ => match EXTRACT_NUM_REGEX.captures(&num_cell_data.as_ref()) {
+            _ => match EXTRACT_NUM_REGEX.captures(num_cell_data.as_ref()) {
               Ok(Some(captures)) => captures
                 .get(0)
                 .map(|m| m.as_str().to_string())
@@ -169,7 +169,7 @@ impl NumberTypeOption {
       },
       _ => {
         // If the format is not number, use the format string to format the number.
-        NumberCellFormat::from_format_str(&num_cell_data.as_ref(), &self.format)
+        NumberCellFormat::from_format_str(num_cell_data.as_ref(), &self.format)
       },
     }
   }
@@ -186,12 +186,12 @@ impl CellDataDecoder for NumberTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     let num_cell_data = self.parse_cell(cell)?;
     Ok(NumberCellData::from(
-      self.format_cell_data(&num_cell_data)?.to_string(),
+      self.format_cell_data(num_cell_data)?.to_string(),
     ))
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    match self.format_cell_data(&cell_data) {
+    match self.format_cell_data(cell_data) {
       Ok(cell_data) => cell_data.to_string(),
       Err(_) => "".to_string(),
     }
@@ -205,7 +205,7 @@ impl CellDataDecoder for NumberTypeOption {
   ) -> Option<<Self as TypeOption>::CellData> {
     let num_cell = Self::CellData::from(cell);
     Some(Self::CellData::from(
-      self.format_cell_data(&num_cell).ok()?.to_string(),
+      self.format_cell_data(num_cell).ok()?.to_string(),
     ))
   }
 

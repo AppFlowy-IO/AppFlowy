@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
@@ -49,27 +49,25 @@ impl GroupCustomize for CheckboxGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_detail: &RowDetail,
+    row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      let is_not_contained = !group.contains_row(&row_detail.row.id);
+      let is_not_contained = !group.contains_row(&row.id);
       if group.id == CHECK {
         if !cell_data.is_checked {
           // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
-          changeset
-            .deleted_rows
-            .push(row_detail.row.id.clone().into_inner());
-          group.remove_row(&row_detail.row.id);
+          changeset.deleted_rows.push(row.id.clone().into_inner());
+          group.remove_row(&row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
-            group.add_row(row_detail.clone());
+              .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+            group.add_row(row.clone());
           }
         }
       }
@@ -77,17 +75,15 @@ impl GroupCustomize for CheckboxGroupController {
       if group.id == UNCHECK {
         if cell_data.is_checked {
           // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
-          changeset
-            .deleted_rows
-            .push(row_detail.row.id.clone().into_inner());
-          group.remove_row(&row_detail.row.id);
+          changeset.deleted_rows.push(row.id.clone().into_inner());
+          group.remove_row(&row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(row_detail.clone())));
-            group.add_row(row_detail.clone());
+              .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+            group.add_row(row.clone());
           }
         }
       }

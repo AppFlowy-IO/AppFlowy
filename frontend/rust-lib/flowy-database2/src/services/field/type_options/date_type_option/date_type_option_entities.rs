@@ -47,6 +47,16 @@ impl DateCellData {
       reminder_id,
     }
   }
+
+  pub fn from_timestamp(timestamp: i64) -> Self {
+    Self {
+      timestamp: Some(timestamp),
+      end_timestamp: None,
+      include_time: false,
+      is_range: false,
+      reminder_id: String::new(),
+    }
+  }
 }
 
 impl TypeOptionCellData for DateCellData {

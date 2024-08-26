@@ -159,25 +159,12 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
         BlockEvent::DidFetchRow(row_details) => {
           for row_detail in row_details {
             trace!("Did fetch row: {:?}", row_detail.row.id);
-
             let row_id = row_detail.row.id.clone();
             let pb = DidFetchRowPB::from(row_detail);
             send_notification(&row_id, DatabaseNotification::DidFetchRow)
               .payload(pb)
               .send();
           }
-
-          // let cloned_token = token.clone();
-          // tokio::spawn(async move {
-          //   tokio::time::sleep(Duration::from_secs(2)).await;
-          //   if cloned_token.is_cancelled() {
-          //   }
-          //   // if let Some(database_editor) = cloned_database_editor.upgrade() {
-          //   // TODO(nathan): calculate inserted row with RowsVisibilityChangePB
-          //   // for view_editor in database_editor.database_views.editors().await {
-          //   // }
-          //   // }
-          // });
         },
       }
     }

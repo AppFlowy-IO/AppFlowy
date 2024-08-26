@@ -194,12 +194,12 @@ where
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
       let key = CellDataCacheKey::new(field, field_type, cell);
-      tracing::trace!(
-        "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
-        field_type,
-        cell,
-        cell_data
-      );
+      // tracing::trace!(
+      //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
+      //   field_type,
+      //   cell,
+      //   cell_data
+      // );
       cell_data_cache.insert(key.as_ref(), cell_data);
     }
   }
@@ -523,6 +523,7 @@ pub fn is_type_option_cell_transformable(
       | (FieldType::RichText, FieldType::MultiSelect)
       | (FieldType::RichText, FieldType::URL)
       | (FieldType::RichText, FieldType::Number)
+      | (FieldType::RichText, FieldType::DateTime)
       | (_, FieldType::RichText)
   )
 }
