@@ -33,6 +33,7 @@ where
   T: AFServer,
 {
   #[instrument(level = "debug", skip_all, err)]
+  #[allow(clippy::blocks_in_conditions)]
   async fn get_database_encode_collab(
     &self,
     object_id: &str,
