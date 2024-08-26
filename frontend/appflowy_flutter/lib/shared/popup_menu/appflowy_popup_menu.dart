@@ -1545,26 +1545,6 @@ class PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
   }
 }
 
-// This MaterialStateProperty is passed along to the menu item's InkWell which
-// resolves the property against MaterialState.disabled, MaterialState.hovered,
-// MaterialState.focused.
-class _EffectiveMouseCursor extends WidgetStateMouseCursor {
-  const _EffectiveMouseCursor(this.widgetCursor, this.themeCursor);
-
-  final MouseCursor? widgetCursor;
-  final WidgetStateProperty<MouseCursor?>? themeCursor;
-
-  @override
-  MouseCursor resolve(Set<WidgetState> states) {
-    return WidgetStateProperty.resolveAs<MouseCursor?>(widgetCursor, states) ??
-        themeCursor?.resolve(states) ??
-        WidgetStateMouseCursor.clickable.resolve(states);
-  }
-
-  @override
-  String get debugDescription => 'MaterialStateMouseCursor(PopupMenuItemState)';
-}
-
 class _PopupMenuDefaultsM2 extends PopupMenuThemeData {
   _PopupMenuDefaultsM2(this.context) : super(elevation: 8.0);
 
