@@ -42,6 +42,8 @@ export function yDataToSlateContent ({
 
     if (slateNode.type === BlockType.TableBlock) {
       slateNode.children = sortTableCells(children as TableCellNode[]);
+    } else if (slateNode.type === BlockType.TableCell) {
+      slateNode.children = children.slice(0, 1);
     } else {
       slateNode.children = children;
     }

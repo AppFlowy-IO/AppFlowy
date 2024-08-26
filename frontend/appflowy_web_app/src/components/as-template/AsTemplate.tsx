@@ -67,7 +67,7 @@ function AsTemplate ({
         onOk: () => {
           const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
 
-          window.open(`${url}/template-center/${selectedCategoryIds[0]}/${viewId}`, '_blank');
+          window.open(`${url}/templates/${selectedCategoryIds[0]}/${viewId}`, '_blank');
         },
       });
       handleBack();
