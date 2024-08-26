@@ -6,7 +6,7 @@ import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { ReactComponent as AIIndicatorSvg } from '@/assets/ai_indicator.svg';
 
-export function GridColumn({ column, index }: { column: Column; index: number }) {
+export function GridColumn ({ column, index }: { column: Column; index: number }) {
   const { field } = useFieldSelector(column.fieldId);
   const name = field?.get(YjsDatabaseKey.name);
   const type = useMemo(() => {
@@ -29,8 +29,8 @@ export function GridColumn({ column, index }: { column: Column; index: number })
           'flex h-full w-full items-center gap-1 overflow-hidden whitespace-nowrap border-t border-b border-l border-line-divider px-2 text-sm font-medium hover:bg-fill-list-active'
         }
       >
-        <div className={'w-5'}>
-          <FieldTypeIcon type={type} className={'mr-1 h-5 w-5'} />
+        <div>
+          <FieldTypeIcon type={type} className={'mr-1 w-4 h-4 icon'} />
         </div>
         <div className={'flex-1'}>{name}</div>
         {isAIField && <AIIndicatorSvg className={'text-xl'} />}

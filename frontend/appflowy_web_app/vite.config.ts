@@ -29,6 +29,15 @@ export default defineConfig({
                 },
               },
             },
+            {
+              name: 'prefixIds',
+              params: {
+                prefix: (node, { path }) => {
+                  const fileName = path?.split('/').pop()?.split('.')[0];
+                  return `${fileName}-`;
+                },
+              },
+            },
           ],
         },
         svgProps: {
@@ -36,6 +45,7 @@ export default defineConfig({
         },
         replaceAttrValues: {
           '#333': 'currentColor',
+          'black': 'currentColor',
         },
       },
     }),
@@ -58,14 +68,14 @@ export default defineConfig({
     }),
     process.env.ANALYZE_MODE
       ? visualizer({
-          emitFile: true,
-        })
+        emitFile: true,
+      })
       : undefined,
     process.env.ANALYZE_MODE
       ? totalBundleSize({
-          fileNameRegex: /\.(js|css)$/,
-          calculateGzip: false,
-        })
+        fileNameRegex: /\.(js|css)$/,
+        calculateGzip: false,
+      })
       : undefined,
   ],
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -86,45 +96,45 @@ export default defineConfig({
   },
   build: !!process.env.TAURI_PLATFORM
     ? {
-        // Tauri supports es2021
-        target: process.env.TAURI_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
-        // don't minify for debug builds
-        minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
-        // produce sourcemaps for debug builds
-        sourcemap: !!process.env.TAURI_DEBUG,
-      }
+      // Tauri supports es2021
+      target: process.env.TAURI_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
+      // don't minify for debug builds
+      minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
+      // produce sourcemaps for debug builds
+      sourcemap: !!process.env.TAURI_DEBUG,
+    }
     : {
-        target: `esnext`,
-        reportCompressedSize: true,
-        sourcemap: isDev,
-        rollupOptions: !isDev
-          ? {
-              output: {
-                chunkFileNames: 'static/js/[name]-[hash].js',
-                entryFileNames: 'static/js/[name]-[hash].js',
-                assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
-                manualChunks(id) {
-                  if (
-                    id.includes('/react@') ||
-                    id.includes('/react-dom@') ||
-                    id.includes('/react-is@') ||
-                    id.includes('/yjs@') ||
-                    id.includes('/y-indexeddb@') ||
-                    id.includes('/dexie') ||
-                    id.includes('/redux') ||
-                    id.includes('/react-custom-scrollbars') ||
-                    id.includes('/dayjs') ||
-                    id.includes('/smooth-scroll-into-view-if-needed') ||
-                    id.includes('/react-virtualized-auto-sizer') ||
-                    id.includes('/react-window')
-                  ) {
-                    return 'common';
-                  }
-                },
-              },
-            }
-          : {},
-      },
+      target: `esnext`,
+      reportCompressedSize: true,
+      sourcemap: isDev,
+      rollupOptions: !isDev
+        ? {
+          output: {
+            chunkFileNames: 'static/js/[name]-[hash].js',
+            entryFileNames: 'static/js/[name]-[hash].js',
+            assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+            manualChunks (id) {
+              if (
+                id.includes('/react@') ||
+                id.includes('/react-dom@') ||
+                id.includes('/react-is@') ||
+                id.includes('/yjs@') ||
+                id.includes('/y-indexeddb@') ||
+                id.includes('/dexie') ||
+                id.includes('/redux') ||
+                id.includes('/react-custom-scrollbars') ||
+                id.includes('/dayjs') ||
+                id.includes('/smooth-scroll-into-view-if-needed') ||
+                id.includes('/react-virtualized-auto-sizer') ||
+                id.includes('/react-window')
+              ) {
+                return 'common';
+              }
+            },
+          },
+        }
+        : {},
+    },
   resolve: {
     alias: [
       { find: 'src/', replacement: `${__dirname}/src/` },
