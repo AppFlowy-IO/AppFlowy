@@ -355,10 +355,6 @@ impl FilterController {
 
   pub async fn filter_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) -> FlowyResult<()> {
     let filters = self.filters.read().await;
-    if filters.is_empty() {
-      return Ok(());
-    }
-
     let field_by_field_id = self.get_field_map().await;
     let mut visible_rows = vec![];
     let mut invisible_rows = vec![];
