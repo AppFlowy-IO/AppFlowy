@@ -181,7 +181,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     self.database_manager.initialize(user_id).await?;
     self.document_manager.initialize(user_id).await?;
     self.ai_manager.initialize(&user_workspace.id).await?;
-    self.storage_manager.initialize(&user_workspace.id).await?;
+    self.storage_manager.initialize(&user_workspace.id).await;
     Ok(())
   }
 
