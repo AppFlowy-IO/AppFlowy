@@ -55,17 +55,17 @@ export const getIconComponent = (icon: string) => {
   }
 };
 
-function SpaceIcon({ value }: { value: string }) {
+function SpaceIcon ({ value, char }: { value: string, char?: string }) {
   const IconComponent = getIconComponent(value);
   const [iconEncodeContent, setIconEncodeContent] = useState<string | null>(null);
 
   useEffect(() => {
-    if (value && !IconComponent) {
+    if (!char && value && !IconComponent) {
       void getIconSvgEncodedContent(value, 'white').then((res) => {
         setIconEncodeContent(res);
       });
     }
-  }, [IconComponent, value]);
+  }, [IconComponent, value, char]);
 
   const customIcon = useMemo(() => {
     if (!iconEncodeContent) {
@@ -77,6 +77,14 @@ function SpaceIcon({ value }: { value: string }) {
      */
     return <img src={iconEncodeContent} className={'h-full w-full p-1 text-white'} alt={value} />;
   }, [iconEncodeContent, value]);
+
+  if (char) {
+    return (
+      <span className={'text-content-on-fill font-medium h-full w-full flex items-center justify-center'}>
+        {char}
+      </span>
+    );
+  }
 
   if (!IconComponent) {
     return customIcon;
