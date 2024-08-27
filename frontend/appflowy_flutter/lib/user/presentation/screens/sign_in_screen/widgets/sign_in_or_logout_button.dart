@@ -20,7 +20,7 @@ class MobileSignInOrLogoutButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        height: 48,
+        height: 38,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
             Radius.circular(4),
@@ -54,7 +54,7 @@ class MobileSignInOrLogoutButton extends StatelessWidget {
             FlowyText(
               labelText,
               fontSize: 14.0,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
             ),
           ],
         ),

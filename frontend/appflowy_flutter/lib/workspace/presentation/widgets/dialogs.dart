@@ -303,12 +303,14 @@ void showToastNotification(
   required String message,
   String? description,
   ToastificationType type = ToastificationType.success,
+  ToastificationCallbacks? callbacks,
   double bottomPadding = 100,
 }) {
   if (PlatformExtension.isMobile) {
     toastification.showCustom(
       alignment: Alignment.bottomCenter,
       autoCloseDuration: const Duration(milliseconds: 3000),
+      callbacks: callbacks ?? const ToastificationCallbacks(),
       builder: (_, __) => _MToast(
         message: message,
         type: type,
