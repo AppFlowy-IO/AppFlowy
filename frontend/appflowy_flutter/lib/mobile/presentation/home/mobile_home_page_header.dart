@@ -109,6 +109,7 @@ class _MobileWorkspace extends StatelessWidget {
           return const SizedBox.shrink();
         }
         return AnimatedGestureDetector(
+          scaleFactor: 0.99,
           alignment: Alignment.centerLeft,
           onTapUp: () {
             context.read<UserWorkspaceBloc>().add(
