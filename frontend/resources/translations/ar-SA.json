@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "أنا",
   "welcomeText": "مرحبًا بك في @: appName",
+  "welcomeTo": "مرحبا بكم في",
   "githubStarText": "نجمة على GitHub",
   "subscribeNewsletterText": "اشترك في النشرة الإخبارية",
   "letsGoButtonText": "بداية سريعة",
@@ -34,16 +35,24 @@
     "loginButtonText": "تسجيل الدخول",
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
+    "anonymous": "مجهول",
     "buttonText": "تسجيل الدخول",
     "forgotPassword": "هل نسيت كلمة السر؟",
     "emailHint": "بريد إلكتروني",
     "passwordHint": "كلمة المرور",
     "dontHaveAnAccount": "ليس لديك حساب؟",
+    "createAccount": "إنشاء حساب",
     "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
     "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
     "syncPromptMessage": "قد تستغرق مزامنة البيانات بعض الوقت. من فضلك لا تغلق هذه الصفحة",
     "or": "أو",
     "signInWith": "تسجيل الدخول ب:",
+    "pleaseInputYourEmail": "المرجو إدخال البريد الإلكتروني",
+    "settings": "الإعدادات",
+    "magicLinkSent": "تم ارسال الرابط السحري",
+    "invalidEmail": "المرجو إدخال بريد إلكتروني صحيح",
+    "alreadyHaveAnAccount": "تملك حساب ؟",
+    "logIn": "تسجيل الدخول",
     "LogInWithGoogle": "تسجيل الدخول عبر جوجل",
     "LogInWithGithub": "تسجيل الدخول مع جيثب",
     "LogInWithDiscord": "تسجيل الدخول مع ديسكورد",
@@ -66,8 +75,13 @@
     "buttonText": "مشاركه",
     "workInProgress": "قريباً",
     "markdown": "Markdown",
+    "clipboard": "نسخ",
     "csv": "CSV",
-    "copyLink": "نسخ الرابط"
+    "copyLink": "نسخ الرابط",
+    "publishToTheWebHint": "إنشاء موقع بواسطة AppFlowy",
+    "publish": "نشر",
+    "publishTab": "نشر",
+    "shareTab": "مشاركة"
   },
   "moreAction": {
     "small": "صغير",
@@ -75,7 +89,10 @@
     "large": "كبير",
     "fontSize": "حجم الخط",
     "import": "استيراد",
-    "moreOptions": "المزيد من الخيارات"
+    "moreOptions": "المزيد من الخيارات",
+    "wordCount": "عدد الكلمات: {}",
+    "charCount": "عدد الحروف: {}",
+    "deleteView": "حذف"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -101,6 +118,10 @@
   "newGridText": "شبكة جديدة",
   "newCalendarText": "تقويم جديد",
   "newBoardText": "سبورة جديدة",
+  "chat": {
+    "clickToRetry": "اضغط لإعادة المحاولة",
+    "questionTitle": "أفكار"
+  },
   "trash": {
     "text": "المهملات",
     "restoreAll": "استعادة الكل",
@@ -184,11 +205,16 @@
     "closeSidebar": "إغلاق الشريط الجانبي",
     "openSidebar": "فتح الشريط الجانبي",
     "personal": "شخصي",
+    "private": "خاص",
     "favorites": "المفضلة",
     "clickToHidePersonal": "انقر لإخفاء القسم الشخصي",
     "clickToHideFavorites": "انقر لإخفاء القسم المفضل",
     "addAPage": "أضف صفحة",
-    "recent": "مؤخرًا"
+    "recent": "مؤخرًا",
+    "today": "اليوم",
+    "thisWeek": "هذا الأسبوع",
+    "justNow": "الآن",
+    "purchaseAIResponse": "شراء"
   },
   "notifications": {
     "export": {
@@ -204,6 +230,7 @@
   },
   "button": {
     "ok": "حسنا",
+    "confirm": "تأكيد",
     "done": "منتهي",
     "cancel": "الغاء",
     "signIn": "تسجيل الدخول",
@@ -231,7 +258,19 @@
     "helpCenter": "مركز المساعدة",
     "add": "اضافة",
     "yes": "نعم",
+    "no": "لا",
+    "remove": "حذف",
+    "copyLink": "نسخ الرابط",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "deleteAccount": "حذف الحساب",
     "back": "خلف",
+    "more": "أكثر",
+    "create": "إنشاء",
+    "close": "إغلاق",
+    "next": "التالي",
+    "previous": "السابق",
+    "download": "تحميل",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -256,6 +295,10 @@
   },
   "settings": {
     "title": "إعدادات",
+    "popupMenuItem": {
+      "settings": "إعدادات",
+      "members": "الأعضاء"
+    },
     "menu": {
       "appearance": "مظهر",
       "language": "لغة",
@@ -407,8 +450,8 @@
       "tooltipSelectIcon": "حدد أيقونة",
       "selectAnIcon": "حدد أيقونة",
       "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح AI الخاص بك",
-      "pleaseInputYourStabilityAIKey": "يرجى إدخال رمز Stability AI الخاص بك",
-      "clickToLogout": "انقر لتسجيل خروج المستخدم الحالي"
+      "clickToLogout": "انقر لتسجيل خروج المستخدم الحالي",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال رمز Stability AI الخاص بك"
     },
     "mobile": {
       "personalInfo": "معلومات شخصية",
@@ -793,11 +836,11 @@
       },
       "searchForAnImage": "ابحث عن صورة",
       "pleaseInputYourOpenAIKey": "يرجى إدخال مفتاح AI الخاص بك في صفحة الإعدادات",
-      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات",
       "saveImageToGallery": "احفظ الصورة",
       "failedToAddImageToGallery": "فشلت إضافة الصورة إلى المعرض",
       "successToAddImageToGallery": "تمت إضافة الصورة إلى المعرض بنجاح",
-      "unableToLoadImage": "غير قادر على تحميل الصورة"
+      "unableToLoadImage": "غير قادر على تحميل الصورة",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات"
     },
     "codeBlock": {
       "language": {

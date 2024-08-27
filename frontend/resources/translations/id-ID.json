@@ -377,8 +377,8 @@
       "tooltipSelectIcon": "Pilih ikon",
       "selectAnIcon": "Pilih ikon",
       "pleaseInputYourOpenAIKey": "silakan masukkan kunci AI Anda",
-      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
-      "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
+      "clickToLogout": "Klik untuk keluar dari pengguna saat ini",
+      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda"
     },
     "mobile": {
       "personalInfo": "Informasi pribadi",
