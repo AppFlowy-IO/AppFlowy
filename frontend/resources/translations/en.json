@@ -2050,7 +2050,10 @@
   },
   "error": {
     "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues.",
+    "syncError": "Data is not synced from another device",
+    "syncErrorHint": "Please reopen this page on the device where it was last edited, then open it again on the current device.",
+    "clickToCopy": "Click to copy error code"
   },
   "editor": {
     "bold": "Bold",
