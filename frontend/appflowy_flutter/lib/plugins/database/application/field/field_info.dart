@@ -65,6 +65,7 @@ class FieldInfo with _$FieldInfo {
       case FieldType.Checklist:
       case FieldType.URL:
       case FieldType.Time:
+      case FieldType.Media:
         return true;
       default:
         return false;

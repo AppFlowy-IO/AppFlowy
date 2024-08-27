@@ -1261,3 +1261,31 @@ pub(crate) async fn translate_row_handler(
   rx.await??;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_media_cell_handler(
+  data: AFPluginData<MediaCellChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: MediaCellChangesetPB = data.into_inner();
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+  let cell_changeset = MediaCellChangeset {
+    inserted_files: params.inserted_files.into_iter().map(Into::into).collect(),
+    removed_ids: params.removed_ids,
+  };
+
+  let database_editor = manager
+    .get_database_editor_with_view_id(&cell_id.view_id)
+    .await?;
+
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      &cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(cell_changeset),
+    )
+    .await?;
+  Ok(())
+}

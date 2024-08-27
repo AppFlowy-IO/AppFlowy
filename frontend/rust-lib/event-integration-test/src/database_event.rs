@@ -668,6 +668,12 @@ impl<'a> TestRowBuilder<'a> {
     time_field.id.clone()
   }
 
+  pub fn insert_media_cell(&mut self, media: String) -> String {
+    let media_field = self.field_with_type(&FieldType::Media);
+    self.cell_build.insert_text_cell(&media_field.id, media);
+    media_field.id.clone()
+  }
+
   pub fn field_with_type(&self, field_type: &FieldType) -> Field {
     self
       .fields

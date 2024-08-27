@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,7 +22,7 @@ class FileUploadMenu extends StatefulWidget {
     required this.onInsertNetworkFile,
   });
 
-  final void Function(String path) onInsertLocalFile;
+  final void Function(XFile file) onInsertLocalFile;
   final void Function(String url) onInsertNetworkFile;
 
   @override
@@ -61,9 +62,9 @@ class _FileUploadMenuState extends State<FileUploadMenu> {
           const Divider(height: 4),
           if (currentTab == 0) ...[
             _FileUploadLocal(
-              onFilePicked: (path) {
-                if (path != null) {
-                  widget.onInsertLocalFile(path);
+              onFilePicked: (file) {
+                if (file != null) {
+                  widget.onInsertLocalFile(file);
                 }
               },
             ),
@@ -98,7 +99,7 @@ class _Tab extends StatelessWidget {
 class _FileUploadLocal extends StatefulWidget {
   const _FileUploadLocal({required this.onFilePicked});
 
-  final void Function(String?) onFilePicked;
+  final void Function(XFile?) onFilePicked;
 
   @override
   State<_FileUploadLocal> createState() => _FileUploadLocalState();
@@ -117,7 +118,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
       child: DropTarget(
         onDragEntered: (_) => setState(() => isDragging = true),
         onDragExited: (_) => setState(() => isDragging = false),
-        onDragDone: (details) => widget.onFilePicked(details.files.first.path),
+        onDragDone: (details) => widget.onFilePicked(details.files.first),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
@@ -181,7 +182,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
 
   Future<void> _uploadFile(BuildContext context) async {
     final result = await getIt<FilePickerService>().pickFiles(dialogTitle: '');
-    widget.onFilePicked(result?.files.first.path);
+    widget.onFilePicked(result?.files.first.xFile);
   }
 }
 

@@ -1313,6 +1313,7 @@
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
       "timeFieldName": "Time",
+      "mediaFieldName": "Files & media",
       "translateFieldName": "AI Translate",
       "translateTo": "Translate to",
       "numberFormat": "Number format",

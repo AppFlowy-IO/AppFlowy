@@ -231,7 +231,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const FlowySvg(
-                              FlowySvgs.import_s,
+                              FlowySvgs.download_s,
                               size: Size.square(28),
                             ),
                             const HSpace(12),
