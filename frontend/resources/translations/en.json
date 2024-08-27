@@ -375,7 +375,8 @@
     "close": "Close",
     "next": "Next",
     "previous": "Previous",
-    "submit": "Submit"
+    "submit": "Submit",
+    "download": "Download"
   },
   "label": {
     "welcome": "Welcome!",
@@ -2327,7 +2328,8 @@
     "copy": {
       "codeBlock": "The content of code block has been copied to the clipboard",
       "imageBlock": "The image link has been copied to the clipboard",
-      "mathBlock": "The math equation has been copied to the clipboard"
+      "mathBlock": "The math equation has been copied to the clipboard",
+      "fileBlock": "The file link has been copied to the clipboard"
     },
     "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
     "publishSuccessfully": "Published successfully",
@@ -2375,7 +2377,12 @@
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
-    "login": "Sign up or log in"
+    "login": "Sign up or log in",
+    "fileBlock": {
+      "uploadedAt": "Uploaded on {time}",
+      "linkedAt": "Link added on {time}",
+      "empty": "Upload or embed a file"
+    }
   },
   "globalComment": {
     "comments": "Comments",
