@@ -31,7 +31,7 @@ async fn af_cloud_edit_document_test() {
   let rx = test
     .notification_sender
     .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| {
-      pb.value != DocumentSyncState::Syncing
+      pb.value == DocumentSyncState::SyncFinished
     });
   let _ = receive_with_timeout(rx, Duration::from_secs(30)).await;
 

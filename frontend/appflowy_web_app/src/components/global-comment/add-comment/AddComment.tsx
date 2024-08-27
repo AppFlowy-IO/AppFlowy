@@ -1,6 +1,6 @@
 import { PublishContext } from '@/application/publish';
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import ReplyComment from '@/components/global-comment/ReplyComment';
 

@@ -42,12 +42,12 @@ async fn according_to_text_contains_filter_test() {
   let scripts = vec![
     AssertCellExistence {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len() - 1,
+      row_index: test.rows.len() - 1,
       exists: true,
     },
     AssertCellContent {
       field_id: text_field.id,
-      row_index: test.row_details.len() - 1,
+      row_index: test.rows.len() - 1,
 
       expected_content: "sample".to_string(),
     },
@@ -84,7 +84,7 @@ async fn according_to_empty_text_contains_filter_test() {
 
   let scripts = vec![AssertCellExistence {
     field_id: text_field.id.clone(),
-    row_index: test.row_details.len() - 1,
+    row_index: test.rows.len() - 1,
     exists: false,
   }];
 
@@ -278,7 +278,7 @@ async fn according_to_invalid_date_time_is_filter_test() {
     AssertRowCount(8),
     AssertCellExistence {
       field_id: datetime_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: false,
     },
   ];

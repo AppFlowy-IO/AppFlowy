@@ -124,6 +124,14 @@ impl DatabaseViewEditor {
     self.calculations_controller.close().await;
   }
 
+  pub async fn has_filters(&self) -> bool {
+    self.filter_controller.has_filters().await
+  }
+
+  pub async fn has_sorts(&self) -> bool {
+    self.sort_controller.read().await.has_sorts().await
+  }
+
   pub async fn v_get_view(&self) -> Option<DatabaseView> {
     self.delegate.get_view(&self.view_id).await
   }
@@ -180,14 +188,14 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_did_create_row(&self, row_detail: &RowDetail, index: usize) {
+  pub async fn v_did_create_row(&self, row: &Row, index: usize) {
     // Send the group notification if the current view has groups
     if let Some(controller) = self.group_controller.write().await.as_mut() {
-      let mut row_details = vec![Arc::new(row_detail.clone())];
-      self.v_filter_rows(&mut row_details).await;
+      let mut rows = vec![Arc::new(row.clone())];
+      self.v_filter_rows(&mut rows).await;
 
-      if let Some(row_detail) = row_details.pop() {
-        let changesets = controller.did_create_row(&row_detail, index);
+      if let Some(row) = rows.pop() {
+        let changesets = controller.did_create_row(&row, index);
 
         for changeset in changesets {
           notify_did_update_group_rows(changeset).await;
@@ -195,9 +203,7 @@ impl DatabaseViewEditor {
       }
     }
 
-    self
-      .gen_did_create_row_view_tasks(index, row_detail.clone())
-      .await;
+    self.gen_did_create_row_view_tasks(index, row.clone()).await;
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
@@ -244,12 +250,7 @@ impl DatabaseViewEditor {
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
-  pub async fn v_did_update_row(
-    &self,
-    old_row: &Option<RowDetail>,
-    row_detail: &RowDetail,
-    field_id: Option<String>,
-  ) {
+  pub async fn v_did_update_row(&self, old_row: &Option<Row>, row: &Row, field_id: Option<String>) {
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let field = self
         .delegate
@@ -257,11 +258,11 @@ impl DatabaseViewEditor {
         .await;
 
       if let Some(field) = field {
-        let mut row_details = vec![Arc::new(row_detail.clone())];
-        self.v_filter_rows(&mut row_details).await;
+        let mut rows = vec![Arc::new(row.clone())];
+        self.v_filter_rows(&mut rows).await;
 
-        if let Some(row_detail) = row_details.pop() {
-          let result = controller.did_update_group_row(old_row, &row_detail, &field);
+        if let Some(row) = rows.pop() {
+          let result = controller.did_update_group_row(old_row, &row, &field);
 
           if let Ok(result) = result {
             let mut group_changes = GroupChangesPB {
@@ -295,26 +296,34 @@ impl DatabaseViewEditor {
     // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
     self
-      .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
+      .gen_did_update_row_view_tasks(row.id.clone(), field_id)
       .await;
   }
 
-  pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
-    self.filter_controller.filter_rows(row_details).await
+  pub async fn v_filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+    self.filter_controller.filter_rows(rows).await
   }
 
-  pub async fn v_sort_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
+  pub async fn v_filter_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) {
+    let _ = self.filter_controller.filter_rows_and_notify(rows).await;
+  }
+
+  pub async fn v_sort_rows(&self, rows: &mut Vec<Arc<Row>>) {
+    self.sort_controller.write().await.sort_rows(rows).await
+  }
+
+  pub async fn v_sort_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) {
     self
       .sort_controller
       .write()
       .await
-      .sort_rows(row_details)
-      .await
+      .sort_rows_and_notify(rows)
+      .await;
   }
 
   #[instrument(level = "info", skip(self))]
-  pub async fn v_get_row_details(&self) -> Vec<Arc<RowDetail>> {
-    let mut rows = self.delegate.get_row_details(&self.view_id).await;
+  pub async fn v_get_all_rows(&self) -> Vec<Arc<Row>> {
+    let mut rows = self.delegate.get_all_rows(&self.view_id).await;
     self.v_filter_rows(&mut rows).await;
     self.v_sort_rows(&mut rows).await;
     rows
@@ -322,7 +331,7 @@ impl DatabaseViewEditor {
 
   pub async fn v_move_group_row(
     &self,
-    row_detail: &RowDetail,
+    row: &Row,
     row_changeset: &mut RowChangeset,
     to_group_id: &str,
     to_row_id: Option<RowId>,
@@ -330,7 +339,7 @@ impl DatabaseViewEditor {
     let result = self
       .mut_group_controller(|group_controller, field| {
         let move_row_context = MoveGroupRowContext {
-          row_detail,
+          row,
           row_changeset,
           field: &field,
           to_group_id,
@@ -937,7 +946,7 @@ impl DatabaseViewEditor {
 
     let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
     Some(CalendarEventPB {
-      row_meta: RowMetaPB::from(row_detail.as_ref()),
+      row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
@@ -1000,7 +1009,7 @@ impl DatabaseViewEditor {
 
       let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
-        row_meta: RowMetaPB::from(row_detail.as_ref()),
+        row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,
@@ -1126,7 +1135,7 @@ impl DatabaseViewEditor {
     });
   }
 
-  async fn gen_did_create_row_view_tasks(&self, preliminary_index: usize, row_detail: RowDetail) {
+  async fn gen_did_create_row_view_tasks(&self, preliminary_index: usize, row: Row) {
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
     af_spawn(async move {
@@ -1134,13 +1143,13 @@ impl DatabaseViewEditor {
         sort_controller
           .read()
           .await
-          .did_create_row(preliminary_index, &row_detail)
+          .did_create_row(preliminary_index, &row)
           .await;
       }
 
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
-          .did_receive_row_changed(row_detail.row.clone())
+          .did_receive_row_changed(row.clone())
           .await;
       }
     });

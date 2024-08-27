@@ -89,6 +89,15 @@ class CellController<T, D> {
       fieldId: _cellContext.fieldId,
     );
 
+    _rowCache.addListener(
+      rowId: rowId,
+      onRowChanged: (context, reason) {
+        if (reason == const ChangedReason.didFetchRow()) {
+          _onRowMetaChanged?.call();
+        }
+      },
+    );
+
     // 1. Listen on user edit event and load the new cell data if needed.
     // For example:
     //  user input: 12

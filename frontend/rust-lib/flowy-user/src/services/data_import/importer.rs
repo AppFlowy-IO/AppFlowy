@@ -15,7 +15,6 @@ where
   PersistenceError: From<R::Error>,
 {
   let mut collab_by_oid = HashMap::new();
-
   for object_id in object_ids {
     match load_collab_by_object_id(uid, collab_read_txn, object_id) {
       Ok(collab) => {

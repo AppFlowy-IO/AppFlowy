@@ -64,6 +64,10 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
               case MobileViewItemBottomSheetBodyAction.duplicate:
                 Navigator.pop(context);
                 context.read<ViewBloc>().add(const ViewEvent.duplicate());
+                showToastNotification(
+                  context,
+                  message: LocaleKeys.button_duplicateSuccessfully.tr(),
+                );
                 break;
               case MobileViewItemBottomSheetBodyAction.share:
                 // unimplemented
@@ -79,6 +83,12 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 context
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
+                showToastNotification(
+                  context,
+                  message: !widget.view.isFavorite
+                      ? LocaleKeys.button_favoriteSuccessfully.tr()
+                      : LocaleKeys.button_unfavoriteSuccessfully.tr(),
+                );
                 break;
               case MobileViewItemBottomSheetBodyAction.removeFromRecent:
                 _removeFromRecent(context);

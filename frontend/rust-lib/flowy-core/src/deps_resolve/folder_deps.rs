@@ -17,7 +17,7 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
   DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabWrapper, FolderOperationHandler,
-  FolderOperationHandlers, View, ViewData,
+  FolderOperationHandlers, ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
@@ -254,13 +254,17 @@ impl FolderOperationHandler for DocumentFolderOperation {
     _name: &str,
     _import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError> {
+  ) -> Result<Vec<ImportedData>, FlowyError> {
     let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
     let encoded_collab = self
       .0
       .create_document(uid, view_id, Some(data.into()))
       .await?;
-    Ok(encoded_collab)
+    Ok(vec![(
+      view_id.to_string(),
+      CollabType::Document,
+      encoded_collab,
+    )])
   }
 
   // will implement soon
@@ -462,7 +466,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     _name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError> {
+  ) -> Result<Vec<ImportedData>, FlowyError> {
     let format = match import_type {
       ImportType::CSV => CSVFormat::Original,
       ImportType::HistoryDatabase => CSVFormat::META,
@@ -477,7 +481,19 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       .0
       .import_csv(view_id.to_string(), content, format)
       .await?;
-    Ok(result.encoded_collab)
+    Ok(
+      result
+        .encoded_collabs
+        .into_iter()
+        .map(|encoded| {
+          (
+            encoded.object_id,
+            encoded.collab_type,
+            encoded.encoded_collab,
+          )
+        })
+        .collect(),
+    )
   }
 
   async fn import_from_file_path(
@@ -570,7 +586,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     _name: &str,
     _import_type: ImportType,
     _bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError> {
+  ) -> Result<Vec<ImportedData>, FlowyError> {
     Err(FlowyError::not_support())
   }
 

@@ -1,15 +1,15 @@
-use std::cmp::Ordering;
-
+use collab_database::entity::SelectOption;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
+use std::cmp::Ordering;
 
 use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
-  SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::sort::SortCondition;
 

@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/domain/row_listener.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 
 import '../cell/cell_cache.dart';
@@ -18,21 +20,11 @@ class RowController {
   })  : _rowMeta = rowMeta,
         _rowCache = rowCache,
         _rowBackendSvc = RowBackendService(viewId: viewId),
-        _rowListener = RowListener(rowMeta.id) {
-    _rowBackendSvc.initRow(rowMeta.id);
-    _rowListener.start(
-      onMetaChanged: (newRowMeta) {
-        if (_isDisposed) {
-          return;
-        }
-        _rowMeta = newRowMeta;
-        _rowCache.setRowMeta(newRowMeta);
-      },
-    );
-  }
+        _rowListener = RowListener(rowMeta.id);
 
   RowMetaPB _rowMeta;
   final String? groupId;
+  VoidCallback? _onRowMetaChanged;
   final String viewId;
   final List<VoidCallback> _onRowChangedListeners = [];
   final RowCache _rowCache;
@@ -40,14 +32,52 @@ class RowController {
   final RowBackendService _rowBackendSvc;
   bool _isDisposed = false;
 
-  CellMemCache get cellCache => _rowCache.cellCache;
-
   String get rowId => rowMeta.id;
   RowMetaPB get rowMeta => _rowMeta;
+  CellMemCache get cellCache => _rowCache.cellCache;
 
   List<CellContext> loadCells() => _rowCache.loadCells(rowMeta);
 
-  void addListener({OnRowChanged? onRowChanged}) {
+  Future<void> initialize() async {
+    await _rowBackendSvc.initRow(rowMeta.id);
+    unawaited(
+      _rowBackendSvc.getRowMeta(rowId).then(
+        (result) {
+          if (_isDisposed) {
+            return;
+          }
+
+          result.fold(
+            (rowMeta) {
+              _rowMeta = rowMeta;
+              _rowCache.setRowMeta(rowMeta);
+              _onRowMetaChanged?.call();
+            },
+            (error) => debugPrint(error.toString()),
+          );
+        },
+      ),
+    );
+
+    _rowListener.start(
+      onRowFetched: (DidFetchRowPB row) {
+        _rowCache.setRowMeta(row.meta);
+      },
+      onMetaChanged: (newRowMeta) {
+        if (_isDisposed) {
+          return;
+        }
+        _rowMeta = newRowMeta;
+        _rowCache.setRowMeta(newRowMeta);
+        _onRowMetaChanged?.call();
+      },
+    );
+  }
+
+  void addListener({
+    OnRowChanged? onRowChanged,
+    VoidCallback? onMetaChanged,
+  }) {
     final fn = _rowCache.addListener(
       rowId: rowMeta.id,
       onRowChanged: (context, reasons) {
@@ -60,6 +90,7 @@ class RowController {
 
     // Add the listener to the list so that we can remove it later.
     _onRowChangedListeners.add(fn);
+    _onRowMetaChanged = onMetaChanged;
   }
 
   Future<void> dispose() async {

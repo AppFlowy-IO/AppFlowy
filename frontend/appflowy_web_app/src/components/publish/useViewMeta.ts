@@ -4,7 +4,7 @@ import { ViewMetaCover } from '@/components/view-meta';
 import { getFontFamily } from '@/utils/font';
 import { useEffect, useMemo } from 'react';
 
-export function useViewMeta() {
+export function useViewMeta () {
   const viewMeta = usePublishContext()?.viewMeta;
 
   const extra = useMemo(() => {

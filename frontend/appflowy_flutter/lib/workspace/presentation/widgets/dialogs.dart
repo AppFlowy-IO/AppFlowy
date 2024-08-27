@@ -304,6 +304,7 @@ void showToastNotification(
   String? description,
   ToastificationType type = ToastificationType.success,
   ToastificationCallbacks? callbacks,
+  double bottomPadding = 100,
 }) {
   if (PlatformExtension.isMobile) {
     toastification.showCustom(
@@ -313,6 +314,7 @@ void showToastNotification(
       builder: (_, __) => _MToast(
         message: message,
         type: type,
+        bottomPadding: bottomPadding,
       ),
     );
     return;
@@ -348,10 +350,12 @@ class _MToast extends StatelessWidget {
   const _MToast({
     required this.message,
     this.type = ToastificationType.success,
+    this.bottomPadding = 100,
   });
 
   final String message;
   final ToastificationType type;
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +368,7 @@ class _MToast extends StatelessWidget {
     );
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+      padding: EdgeInsets.only(bottom: bottomPadding, left: 16, right: 16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 13.0),
         decoration: BoxDecoration(

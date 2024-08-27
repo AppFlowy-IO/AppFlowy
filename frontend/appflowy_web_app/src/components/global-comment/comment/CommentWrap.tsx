@@ -1,4 +1,4 @@
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import CommentActions from '@/components/global-comment/actions/CommentActions';
 import Comment from './Comment';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';

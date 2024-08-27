@@ -1,5 +1,5 @@
 import { Reaction as ReactionType } from '@/application/comment.type';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { isFlagEmoji } from '@/utils/emoji';
 import { getPlatform } from '@/utils/platform';
 import { Tooltip } from '@mui/material';
