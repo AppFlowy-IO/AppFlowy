@@ -1,19 +1,19 @@
-use client_api::entity::search_dto::SearchDocumentResponseItem;
-use flowy_search_pub::cloud::SearchCloudService;
-use std::collections::HashMap;
-use std::path::Path;
-use std::sync::atomic::Ordering;
-use std::sync::Arc;
-
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
+use client_api::entity::search_dto::SearchDocumentResponseItem;
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
+use flowy_search_pub::cloud::SearchCloudService;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::path::Path;
+use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{debug, info};
 
@@ -532,6 +532,7 @@ impl CollabCloudPluginProvider for ServerProvider {
                 stream,
                 Some(channel),
                 ws_connect_state,
+                Some(Duration::from_secs(60)),
               );
               plugins.push(Box::new(sync_plugin));
             },

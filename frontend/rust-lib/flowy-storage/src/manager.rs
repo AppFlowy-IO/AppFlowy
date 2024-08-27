@@ -97,6 +97,10 @@ impl StorageManager {
     }
   }
 
+  pub async fn initialize(&self, _workspace_id: &str) {
+    self.enable_storage_write_access();
+  }
+
   pub fn update_network_reachable(&self, reachable: bool) {
     if reachable {
       self.uploader.resume();
