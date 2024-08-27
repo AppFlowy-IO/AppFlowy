@@ -44,6 +44,7 @@ class MobileSignInScreen extends StatelessWidget {
                 const Spacer(flex: 2),
                 const Spacer(),
                 Expanded(child: _buildSettingsButton(context)),
+                if (Platform.isAndroid) const Spacer(),
               ],
             ),
           ),
