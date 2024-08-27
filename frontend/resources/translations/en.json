@@ -2319,7 +2319,8 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
@@ -2480,7 +2481,8 @@
     "addRelatedTemplate": "Add related template",
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
-    "searchInCategory": "Search in {category}"
+    "searchInCategory": "Search in {category}",
+    "label": "Template"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",
