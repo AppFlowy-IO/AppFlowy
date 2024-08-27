@@ -177,7 +177,13 @@ class _HomePageState extends State<_HomePage> {
         getIt<CachedRecentService>().reset();
         mCurrentWorkspace.value = state.currentWorkspace;
 
-        _showResultDialog(context, state);
+        Debounce.debounce(
+          'workspace_action_result',
+          const Duration(milliseconds: 150),
+          () {
+            _showResultDialog(context, state);
+          },
+        );
       },
       builder: (context, state) {
         if (state.currentWorkspace == null) {

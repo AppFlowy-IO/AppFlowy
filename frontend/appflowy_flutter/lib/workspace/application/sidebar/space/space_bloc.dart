@@ -559,7 +559,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           return true;
         }
 
-        final viewId = fixedUuid(user.id.toInt(), UuidType.publicSpace);
+        final viewId = fixedUuid(
+          user.id.toInt() + (_workspaceId?.hashCode ?? 0),
+          UuidType.publicSpace,
+        );
         final publicSpace = await _createSpace(
           name: 'Shared',
           icon: builtInSpaceIcons.first,
