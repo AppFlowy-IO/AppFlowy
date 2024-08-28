@@ -452,6 +452,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     )..start(
         sectionChanged: (result) async {
           Log.info('did receive section views changed');
+          if (isClosed) {
+            return;
+          }
           add(const SpaceEvent.didReceiveSpaceUpdate());
         },
       );
