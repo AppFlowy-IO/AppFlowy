@@ -137,9 +137,8 @@ class EditorStyleCustomizer {
           textStyle: baseTextStyle.copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
-            fontStyle: FontStyle.italic,
             color: Colors.red,
-            backgroundColor: Colors.grey.withOpacity(0.3),
+            backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
           ),
         ),
         applyHeightToFirstAscent: true,
