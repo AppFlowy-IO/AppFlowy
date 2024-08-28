@@ -82,7 +82,7 @@ impl DatabaseManager {
   }
 
   /// When initialize with new workspace, all the resources will be cleared.
-  pub async fn initialize(&self, uid: i64) -> FlowyResult<()> {
+  pub async fn initialize(&self, uid: i64, is_local_user: bool) -> FlowyResult<()> {
     // 1. Clear all existing tasks
     self.task_scheduler.write().await.clear_task();
     // 2. Release all existing editors
@@ -99,6 +99,7 @@ impl DatabaseManager {
 
     let collab_db = self.user.collab_db(uid)?;
     let collab_service = WorkspaceDatabaseCollabServiceImpl::new(
+      is_local_user,
       self.user.clone(),
       self.collab_builder.clone(),
       self.cloud_service.clone(),
@@ -168,8 +169,12 @@ impl DatabaseManager {
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(&self, user_id: i64) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
     Ok(())
   }
 
@@ -630,6 +635,7 @@ impl DatabaseManager {
 }
 
 struct WorkspaceDatabaseCollabServiceImpl {
+  is_local_user: bool,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   persistence: Arc<dyn DatabaseCollabPersistenceService>,
@@ -639,12 +645,14 @@ struct WorkspaceDatabaseCollabServiceImpl {
 
 impl WorkspaceDatabaseCollabServiceImpl {
   fn new(
+    is_local_user: bool,
     user: Arc<dyn DatabaseUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
     let persistence = DatabasePersistenceImpl { user: user.clone() };
     Self {
+      is_local_user,
       user,
       collab_builder,
       persistence: Arc::new(persistence),
@@ -783,15 +791,18 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           DataSource::from(encode_collab)
         },
         Ok(None) => {
-          info!(
-            "build collab: {}:{} with empty encode collab",
-            collab_type, object_id
-          );
-          // when collab not exist, create a default collab
-          CollabPersistenceImpl {
-            persistence: Some(self.persistence.clone()),
+          if self.is_local_user {
+            CollabPersistenceImpl {
+              persistence: Some(self.persistence.clone()),
+            }
+            .into()
+          } else {
+            error!(
+              "build collab: {}:{} with empty encode collab",
+              collab_type, object_id
+            );
+            return Err(DatabaseError::RecordNotFound);
           }
-          .into()
         },
         Err(err) => {
           error!("build collab: failed to get encode collab: {}", err);

@@ -202,11 +202,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           endEditingHeader: (String groupId, String? groupName) async {
-            await groupBackendSvc.updateGroup(
-              fieldId: groupControllers.values.first.group.fieldId,
-              groupId: groupId,
-              name: groupName,
-            );
+            final group = groupControllers[groupId]?.group;
+            if (group != null) {
+              if (generateGroupNameFromGroup(group) != groupName) {
+                await groupBackendSvc.updateGroup(
+                  fieldId: groupControllers.values.first.group.fieldId,
+                  groupId: groupId,
+                  name: groupName,
+                );
+                return;
+              }
+            }
+
             state.maybeMap(
               ready: (state) => emit(state.copyWith(editingHeaderId: null)),
               orElse: () {},

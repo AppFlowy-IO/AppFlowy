@@ -55,6 +55,8 @@ class RowCache {
   final RowLifeCycle _rowLifeCycle;
   final RowFieldsDelegate _fieldDelegate;
   RowChangesetNotifier? _changedNotifier;
+  bool _isInitialRows = false;
+  final List<RowsVisibilityChangePB> _pendingVisibilityChanges = [];
 
   /// Returns a unmodifiable list of RowInfo
   UnmodifiableListView<RowInfo> get rowInfos {
@@ -80,7 +82,13 @@ class RowCache {
       final rowInfo = buildGridRow(row);
       _rowList.add(rowInfo);
     }
+    _isInitialRows = true;
     _changedNotifier?.receive(const ChangedReason.setInitialRows());
+
+    for (final changeset in _pendingVisibilityChanges) {
+      applyRowsVisibility(changeset);
+    }
+    _pendingVisibilityChanges.clear();
   }
 
   void setRowMeta(RowMetaPB rowMeta) {
@@ -103,8 +111,12 @@ class RowCache {
   }
 
   void applyRowsVisibility(RowsVisibilityChangePB changeset) {
-    _hideRows(changeset.invisibleRows);
-    _showRows(changeset.visibleRows);
+    if (_isInitialRows) {
+      _hideRows(changeset.invisibleRows);
+      _showRows(changeset.visibleRows);
+    } else {
+      _pendingVisibilityChanges.add(changeset);
+    }
   }
 
   void reorderAllRows(List<String> rowIds) {

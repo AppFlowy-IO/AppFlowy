@@ -280,6 +280,7 @@ impl UserManager {
           &cloud_config,
           &session.user_workspace,
           &self.authenticate_user.user_config.device_id,
+          &user.authenticator,
         )
         .await?;
     }
@@ -352,6 +353,7 @@ impl UserManager {
         user_profile.uid,
         &latest_workspace,
         &self.authenticate_user.user_config.device_id,
+        &authenticator,
       )
       .await?;
     send_auth_state_notification(AuthStateChangedPB {
@@ -443,6 +445,7 @@ impl UserManager {
         new_user_profile,
         &new_session.user_workspace,
         &self.authenticate_user.user_config.device_id,
+        authenticator,
       )
       .await?;
 
