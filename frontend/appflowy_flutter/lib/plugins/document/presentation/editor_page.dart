@@ -500,7 +500,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   void _customizeBlockComponentBackgroundColorDecorator() {
     blockComponentBackgroundColorDecorator = (Node node, String colorString) {
-      if (context.mounted) {
+      if (mounted && context.mounted) {
         return buildEditorCustomizedColor(context, node, colorString);
       }
       return null;
