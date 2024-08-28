@@ -11,7 +11,7 @@ use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
-use tracing::error;
+use tracing::{error, trace};
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
@@ -74,14 +74,13 @@ impl FilterController {
     let mut need_save = false;
 
     let mut filters = delegate.get_all_filters(view_id).await;
+    trace!("[Database]: filters: {:?}", filters);
     let mut filtering_field_ids: HashMap<String, Vec<String>> = HashMap::new();
-
     for filter in filters.iter() {
       filter.get_all_filtering_field_ids(&mut filtering_field_ids);
     }
 
     let mut delete_filter_ids = vec![];
-
     for (field_id, filter_ids) in &filtering_field_ids {
       if !field_ids.contains(field_id) {
         need_save = true;
@@ -385,7 +384,6 @@ impl FilterController {
       invisible_rows,
       visible_rows,
     };
-    tracing::trace!("filter result {:?}", notification);
     let _ = self
       .notifier
       .send(DatabaseViewChanged::FilterNotification(notification));

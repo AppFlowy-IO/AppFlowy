@@ -53,7 +53,7 @@ collab-user = { version = "0.2" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5badffc97b17984d5f25a178c0c5a477338039c4" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "50f2d18c7280aa45bcaab020bd3f1befad94d65c" }
 
 [dependencies]
 serde_json.workspace = true

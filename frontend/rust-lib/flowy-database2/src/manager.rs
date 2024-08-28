@@ -783,15 +783,11 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           DataSource::from(encode_collab)
         },
         Ok(None) => {
-          info!(
+          error!(
             "build collab: {}:{} with empty encode collab",
             collab_type, object_id
           );
-          // when collab not exist, create a default collab
-          CollabPersistenceImpl {
-            persistence: Some(self.persistence.clone()),
-          }
-          .into()
+          return Err(DatabaseError::RecordNotFound);
         },
         Err(err) => {
           error!("build collab: failed to get encode collab: {}", err);
