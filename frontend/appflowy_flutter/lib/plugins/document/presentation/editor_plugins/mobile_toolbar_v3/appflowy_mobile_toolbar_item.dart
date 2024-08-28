@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/base/gesture.dart';
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';

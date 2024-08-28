@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/gesture.dart';
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
