@@ -56,7 +56,7 @@ class RowCache {
   final RowFieldsDelegate _fieldDelegate;
   RowChangesetNotifier? _changedNotifier;
   bool _isInitialRows = false;
-  List<RowsVisibilityChangePB> _pendingVisibilityChanges = [];
+  final List<RowsVisibilityChangePB> _pendingVisibilityChanges = [];
 
   /// Returns a unmodifiable list of RowInfo
   UnmodifiableListView<RowInfo> get rowInfos {
