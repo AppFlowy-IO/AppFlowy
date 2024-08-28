@@ -194,7 +194,7 @@ async fn supabase_duplicate_updates_test() {
   {
     let mut txn = doc_2.transact_mut();
     let update = Update::decode_v1(&second_init_sync_update).unwrap();
-    txn.apply_update(update);
+    txn.apply_update(update).unwrap();
   }
   {
     let txn = doc_2.transact();
@@ -282,7 +282,7 @@ async fn supabase_diff_state_vector_test() {
   {
     let mut txn = old_version_doc.transact_mut();
     let update = Update::decode_v1(&doc_state).unwrap();
-    txn.apply_update(update);
+    txn.apply_update(update).unwrap();
   }
   let txn = old_version_doc.transact();
   let json = map.to_json(&txn);

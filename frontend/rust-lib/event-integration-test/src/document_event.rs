@@ -108,7 +108,7 @@ pub fn assert_document_data_equal(doc_state: &[u8], doc_id: &str, expected: Docu
   {
     let update = Update::decode_v1(doc_state).unwrap();
     let mut txn = collab.transact_mut();
-    txn.apply_update(update);
+    txn.apply_update(update).unwrap();
   };
   let document = Document::open(collab).unwrap();
   let actual = document.get_document_data().unwrap();

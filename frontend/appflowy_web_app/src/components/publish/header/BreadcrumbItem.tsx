@@ -18,7 +18,7 @@ export interface Crumb {
   extra?: string | null;
 }
 
-function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disableClick?: boolean }) {
+function BreadcrumbItem ({ crumb, disableClick = false }: { crumb: Crumb; disableClick?: boolean }) {
   const { viewId, icon, name, layout, extra } = crumb;
 
   const extraObj: {
@@ -56,11 +56,11 @@ function BreadcrumbItem({ crumb, disableClick = false }: { crumb: Crumb; disable
           <span
             className={'icon h-5 w-5'}
             style={{
-              backgroundColor: extraObj.space_icon_color ? renderColor(extraObj.space_icon_color) : undefined,
+              backgroundColor: extraObj.space_icon_color ? renderColor(extraObj.space_icon_color) : 'rgb(163, 74, 253)',
               borderRadius: '8px',
             }}
           >
-            <SpaceIcon value={extraObj.space_icon || ''} />
+            <SpaceIcon value={extraObj.space_icon || ''} char={extraObj.space_icon ? undefined : name.slice(0, 1)} />
           </span>
         ) : (
           <span className={`${isFlag ? 'icon' : ''} flex h-5 w-5 items-center justify-center`}>
