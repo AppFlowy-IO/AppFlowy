@@ -1897,6 +1897,8 @@
   "errorDialog": {
     "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "howToFixFallbackHint1": "We're sorry for the inconvenience! Submit an issue on our ",
+    "howToFixFallbackHint2": " page that describes your error.",
     "github": "View on GitHub"
   },
   "search": {
@@ -2051,7 +2053,10 @@
   },
   "error": {
     "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues.",
+    "syncError": "Data is not synced from another device",
+    "syncErrorHint": "Please reopen this page on the device where it was last edited, then open it again on the current device.",
+    "clickToCopy": "Click to copy error code"
   },
   "editor": {
     "bold": "Bold",
@@ -2317,7 +2322,8 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
@@ -2484,7 +2490,8 @@
     "addRelatedTemplate": "Add related template",
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
-    "searchInCategory": "Search in {category}"
+    "searchInCategory": "Search in {category}",
+    "label": "Template"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",

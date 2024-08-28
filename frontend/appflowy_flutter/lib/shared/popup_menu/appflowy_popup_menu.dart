@@ -10,6 +10,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -1524,9 +1525,10 @@ class PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
     assert(debugCheckHasMaterialLocalizations(context));
 
     if (widget.child != null) {
-      return GestureDetector(
-        onTap: widget.enabled ? showButtonMenu : null,
-        child: widget.child,
+      return AnimatedGestureDetector(
+        scaleFactor: 0.99,
+        onTapUp: widget.enabled ? showButtonMenu : null,
+        child: widget.child!,
       );
     }
 

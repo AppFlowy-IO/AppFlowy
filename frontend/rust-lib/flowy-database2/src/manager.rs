@@ -345,12 +345,20 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
+  pub async fn get_database_json_bytes(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
+  }
+
+  pub async fn get_database_json_string(&self, view_id: &str) -> FlowyResult<String> {
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
+    let data = wdb.get_database_data(view_id).await?;
+    let json_string = serde_json::to_string(&data)?;
+    Ok(json_string)
   }
 
   /// Create a new database with the given data that can be deserialized to [DatabaseData].

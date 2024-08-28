@@ -109,7 +109,8 @@ class FlowyRunner {
       [
         // this task should be first task, for handling platform errors.
         // don't catch errors in test mode
-        if (!mode.isUnitTest) const PlatformErrorCatcherTask(),
+        if (!mode.isUnitTest && !mode.isIntegrationTest)
+          const PlatformErrorCatcherTask(),
         if (!mode.isUnitTest) const InitSentryTask(),
         // this task should be second task, for handling memory leak.
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.

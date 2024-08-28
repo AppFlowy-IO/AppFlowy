@@ -138,7 +138,7 @@ class EditorStyleCustomizer {
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
+            backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
         applyHeightToFirstAscent: true,
