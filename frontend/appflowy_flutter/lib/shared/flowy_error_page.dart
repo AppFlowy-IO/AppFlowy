@@ -13,8 +13,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class SyncErrorPage extends StatelessWidget {
-  const SyncErrorPage({
+class AppFlowyErrorPage extends StatelessWidget {
+  const AppFlowyErrorPage({
     super.key,
     this.error,
   });

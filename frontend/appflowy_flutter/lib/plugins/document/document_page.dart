@@ -11,7 +11,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy/plugins/document/presentation/sync_error_page.dart';
+import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -114,7 +114,7 @@ class _DocumentPageState extends State<DocumentPage>
             if (error != null || editorState == null) {
               Log.error(error);
               return Center(
-                child: SyncErrorPage(
+                child: AppFlowyErrorPage(
                   error: error,
                 ),
               );

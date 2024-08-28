@@ -296,7 +296,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
           },
-          reset: (userProfile, workspaceId) async {
+          reset: (userProfile, workspaceId, openFirstPage) async {
             if (workspaceId == _workspaceId) {
               return;
             }
@@ -738,6 +738,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.reset(
     UserProfilePB userProfile,
     String workspaceId,
+    bool openFirstPage,
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
