@@ -59,17 +59,6 @@ function AsTemplate ({
         await loadTemplate();
       }
 
-      notify.info({
-        type: 'success',
-        title: t('template.uploadSuccess'),
-        message: t('template.uploadSuccessDescription'),
-        okText: t('template.viewTemplate'),
-        onOk: () => {
-          const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
-
-          window.open(`${url}/templates/${selectedCategoryIds[0]}/${viewId}`, '_blank');
-        },
-      });
       handleBack();
     } catch (error) {
       // eslint-disable-next-line
@@ -77,8 +66,7 @@ function AsTemplate ({
       notify.error(error.toString());
     }
 
-  }, [service, selectedCreatorId, selectedCategoryIds, viewId, isNewTemplate, isFeatured, viewUrl, template, t, handleBack, loadTemplate]);
-
+  }, [service, selectedCreatorId, selectedCategoryIds, isNewTemplate, isFeatured, viewId, viewUrl, template, loadTemplate, handleBack]);
   const submitRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
