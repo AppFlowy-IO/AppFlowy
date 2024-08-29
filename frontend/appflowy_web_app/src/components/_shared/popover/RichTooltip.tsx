@@ -26,7 +26,7 @@ export const RichTooltip = ({ placement = 'top', open, onClose, content, childre
         anchorEl={childNode}
         placement={placement}
         transition
-        style={{ zIndex: 1200 }}
+        style={{ zIndex: 1500 }}
         modifiers={[
           {
             name: 'flip',
@@ -48,7 +48,7 @@ export const RichTooltip = ({ placement = 'top', open, onClose, content, childre
           >
             <Paper className={'bg-transparent shadow-none'}>
               <ClickAwayListener onClickAway={onClose}>
-                <Paper className={'m-2 rounded-md border border-line-divider bg-bg-body'}>
+                <Paper className={'m-2 rounded-md border border-line-divider bg-bg-body overflow-hidden'}>
                   <Box>{content}</Box>
                 </Paper>
               </ClickAwayListener>

@@ -29,12 +29,12 @@ async fn row_data_payload_with_empty_hashmap_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: false,
     },
     AssertCellContent {
       field_id: text_field.id,
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: "".to_string(),
     },
@@ -64,18 +64,18 @@ async fn row_data_payload_with_unknown_field_id_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: false,
     },
     AssertCellContent {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: "".to_string(),
     },
     AssertCellExistence {
       field_id: malformed_field_id.to_string(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: false,
     },
   ];
@@ -101,12 +101,12 @@ async fn row_data_payload_with_empty_string_text_data_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: text_field.id,
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: cell_data.to_string(),
     },
@@ -133,12 +133,12 @@ async fn row_data_payload_with_text_data_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: cell_data.to_string(),
     },
@@ -174,34 +174,34 @@ async fn row_data_payload_with_multi_text_data_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: text_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: text_field.id,
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: text_cell_data.to_string(),
     },
     AssertCellExistence {
       field_id: number_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: number_field.id,
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: "$1,234".to_string(),
     },
     AssertCellExistence {
       field_id: url_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: url_field.id,
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: url_cell_data.to_string(),
     },
@@ -228,12 +228,12 @@ async fn row_data_payload_with_date_time_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: date_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: date_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: "2024/03/15".to_string(),
     },
@@ -264,7 +264,7 @@ async fn row_data_payload_with_invalid_date_time_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: date_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: false,
     },
   ];
@@ -290,12 +290,12 @@ async fn row_data_payload_with_checkbox_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: checkbox_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: checkbox_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: cell_data.to_string(),
     },
@@ -336,12 +336,12 @@ async fn row_data_payload_with_select_option_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: multi_select_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertCellContent {
       field_id: multi_select_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
 
       expected_content: stringified_cell_data,
     },
@@ -373,12 +373,12 @@ async fn row_data_payload_with_invalid_select_option_id_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: multi_select_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertSelectOptionCellStrict {
       field_id: multi_select_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       expected_content: first_id,
     },
   ];
@@ -414,12 +414,12 @@ async fn row_data_payload_with_too_many_select_option_test() {
     Wait { milliseconds: 100 },
     AssertCellExistence {
       field_id: single_select_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       exists: true,
     },
     AssertSelectOptionCellStrict {
       field_id: single_select_field.id.clone(),
-      row_index: test.row_details.len(),
+      row_index: test.rows.len(),
       expected_content: stringified_cell_data,
     },
   ];

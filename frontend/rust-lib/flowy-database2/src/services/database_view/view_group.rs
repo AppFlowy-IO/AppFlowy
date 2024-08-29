@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -96,10 +96,10 @@ impl GroupControllerDelegate for GroupControllerDelegateImpl {
     self.delegate.get_field(field_id).await
   }
 
-  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
-    let mut row_details = self.delegate.get_row_details(view_id).await;
-    self.filter_controller.filter_rows(&mut row_details).await;
-    row_details
+  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
+    let mut rows = self.delegate.get_all_rows(view_id).await;
+    self.filter_controller.filter_rows(&mut rows).await;
+    rows
   }
 }
 

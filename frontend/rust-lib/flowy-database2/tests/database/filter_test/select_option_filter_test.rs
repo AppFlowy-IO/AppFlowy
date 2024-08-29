@@ -84,7 +84,7 @@ async fn grid_filter_multi_select_is_test2() {
 async fn grid_filter_single_select_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let expected = 3;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -109,7 +109,7 @@ async fn grid_filter_single_select_is_test() {
   let field = test.get_first_field(FieldType::SingleSelect).await;
   let mut options = test.get_single_select_type_option(&field.id).await;
   let expected = 2;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -135,7 +135,7 @@ async fn grid_filter_single_select_is_test2() {
   let row_details = test.get_rows().await;
   let mut options = test.get_single_select_type_option(&field.id).await;
   let option = options.remove(0);
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
 
   let scripts = vec![
     CreateDataFilter {
@@ -152,13 +152,13 @@ async fn grid_filter_single_select_is_test2() {
     },
     AssertNumberOfVisibleRows { expected: 2 },
     UpdateSingleSelectCell {
-      row_id: row_details[1].row.id.clone(),
+      row_id: row_details[1].id.clone(),
       option_id: option.id.clone(),
       changed: None,
     },
     AssertNumberOfVisibleRows { expected: 3 },
     UpdateSingleSelectCell {
-      row_id: row_details[1].row.id.clone(),
+      row_id: row_details[1].id.clone(),
       option_id: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,

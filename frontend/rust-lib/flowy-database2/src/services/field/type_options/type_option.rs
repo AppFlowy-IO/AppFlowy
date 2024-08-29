@@ -1,10 +1,11 @@
-use std::cmp::Ordering;
-use std::fmt::Debug;
-
+use async_trait::async_trait;
 use bytes::Bytes;
+use collab_database::database::Database;
 use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use protobuf::ProtobufError;
+use std::cmp::Ordering;
+use std::fmt::Debug;
 
 use flowy_error::FlowyResult;
 
@@ -92,7 +93,8 @@ pub trait TypeOptionCellData {
   }
 }
 
-pub trait TypeOptionTransform: TypeOption {
+#[async_trait]
+pub trait TypeOptionTransform: TypeOption + Send + Sync {
   /// Transform the TypeOption from one field type to another
   /// For example, when switching from `Checkbox` type option to `Single-Select`
   /// type option, adding the `Yes` option if the `Single-select` type-option doesn't contain it.
@@ -104,10 +106,14 @@ pub trait TypeOptionTransform: TypeOption {
   /// * `old_type_option_field_type`: the FieldType of the passed-in TypeOption
   /// * `old_type_option_data`: the data that can be parsed into corresponding `TypeOption`.
   ///
-  fn transform_type_option(
+  async fn transform_type_option(
     &mut self,
+    _view_id: &str,
+    _field_id: &str,
     _old_type_option_field_type: FieldType,
     _old_type_option_data: TypeOptionData,
+    _new_type_option_field_type: FieldType,
+    _database: &mut Database,
   ) {
   }
 }

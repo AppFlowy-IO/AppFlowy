@@ -563,8 +563,14 @@ where
       let doc = Doc::new();
       {
         let mut txn = doc.transact_mut();
-        txn.apply_update(update);
-        drop(txn);
+        if let Err(e) = txn.apply_update(update) {
+          error!(
+            "Collab {} failed to apply update: {}",
+            collab.object_id(),
+            e
+          );
+          return;
+        }
       }
 
       let txn = doc.transact();

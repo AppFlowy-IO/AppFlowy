@@ -311,6 +311,9 @@ pub enum ErrorCode {
   #[error("In progress")]
   // when client receives InProgress, it should retry
   InProgress = 107,
+
+  #[error("Upload part size exceeds the limit")]
+  SingleUploadLimitExceeded = 108,
 }
 
 impl ErrorCode {

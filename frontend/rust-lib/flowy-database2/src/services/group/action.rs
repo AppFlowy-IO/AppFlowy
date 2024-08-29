@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -33,7 +33,7 @@ pub trait GroupCustomize: Send + Sync {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    _row_detail: &RowDetail,
+    _row: &Row,
     _old_cell_data: Option<&<Self::GroupTypeOption as TypeOption>::CellProtobufType>,
     _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
@@ -45,7 +45,7 @@ pub trait GroupCustomize: Send + Sync {
   ///
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_detail: &RowDetail,
+    row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB>;
 
@@ -113,7 +113,7 @@ pub trait GroupController: Send + Sync {
   ///
   /// * `rows`: rows to be inserted
   /// * `field`: reference to the field being sorted (currently unused)
-  fn fill_groups(&mut self, rows: &[&RowDetail], field: &Field) -> FlowyResult<()>;
+  fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()>;
 
   /// Create a new group, currently only supports single and multi-select.
   ///
@@ -137,11 +137,7 @@ pub trait GroupController: Send + Sync {
   /// Returns a changeset payload to be sent as a notification.
   ///
   /// * `row_detail`: the newly-created row
-  fn did_create_row(
-    &mut self,
-    row_detail: &RowDetail,
-    index: usize,
-  ) -> Vec<GroupRowsNotificationPB>;
+  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB>;
 
   /// Called after a row's cell data is changed, this moves the row to the
   /// correct group. It may also insert a new group and/or remove an old group.
@@ -153,8 +149,8 @@ pub trait GroupController: Send + Sync {
   /// * `field`:
   fn did_update_group_row(
     &mut self,
-    old_row_detail: &Option<RowDetail>,
-    row_detail: &RowDetail,
+    old_row: &Option<Row>,
+    new_row: &Row,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult>;
 

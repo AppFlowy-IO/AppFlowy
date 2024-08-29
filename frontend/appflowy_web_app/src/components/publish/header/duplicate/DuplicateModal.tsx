@@ -1,3 +1,4 @@
+import { AFConfigContext } from '@/components/app/app.hooks';
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NormalModal } from '@/components/_shared/modal';
@@ -5,7 +6,6 @@ import SelectWorkspace from '@/components/publish/header/duplicate/SelectWorkspa
 import { useLoadWorkspaces } from '@/components/publish/header/duplicate/useDuplicate';
 import SpaceList from '@/components/publish/header/duplicate/SpaceList';
 import { downloadPage, openAppFlowySchema } from '@/utils/url';
-import { AFConfigContext } from '@/components/app/AppConfig';
 import { PublishContext } from '@/application/publish';
 import { CollabType, ViewLayout } from '@/application/collab.type';
 import { notify } from '@/components/_shared/notify';

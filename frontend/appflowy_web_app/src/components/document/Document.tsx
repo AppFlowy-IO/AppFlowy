@@ -11,9 +11,18 @@ export interface DocumentProps {
   loadView?: LoadView;
   getViewRowsMap?: GetViewRowsMap;
   viewMeta: ViewMetaProps;
+  isTemplateThumb?: boolean;
 }
 
-export const Document = ({ doc, loadView, navigateToView, loadViewMeta, getViewRowsMap, viewMeta }: DocumentProps) => {
+export const Document = ({
+  doc,
+  loadView,
+  navigateToView,
+  loadViewMeta,
+  getViewRowsMap,
+  viewMeta,
+  isTemplateThumb,
+}: DocumentProps) => {
   return (
     <div className={'mb-16 flex h-full w-full flex-col items-center justify-center'}>
       <ViewMetaPreview {...viewMeta} />
@@ -24,11 +33,13 @@ export const Document = ({ doc, loadView, navigateToView, loadViewMeta, getViewR
             loadViewMeta={loadViewMeta}
             navigateToView={navigateToView}
             getViewRowsMap={getViewRowsMap}
+            readSummary={isTemplateThumb}
             doc={doc}
             readOnly={true}
           />
         </div>
       </Suspense>
+
     </div>
   );
 };

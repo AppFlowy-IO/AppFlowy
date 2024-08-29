@@ -1,7 +1,7 @@
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { Login } from '@/components/login';
 import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AFConfigContext } from '@/components/app/AppConfig';
 
 function LoginPage() {
   const [search] = useSearchParams();

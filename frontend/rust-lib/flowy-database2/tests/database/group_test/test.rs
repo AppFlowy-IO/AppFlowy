@@ -1,7 +1,6 @@
-use flowy_database2::services::field::SelectOption;
-
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
+use collab_database::entity::SelectOption;
 
 #[tokio::test]
 async fn group_init_test() {

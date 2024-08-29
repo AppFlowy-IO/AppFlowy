@@ -11,17 +11,17 @@ use crate::database::block_test::script::RowScript::*;
 #[tokio::test]
 async fn created_at_field_test() {
   let mut test = DatabaseRowTest::new().await;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   test
     .run_scripts(vec![CreateEmptyRow, AssertRowCount(row_count + 1)])
     .await;
 
   // Get created time of the new row.
-  let row_detail = test.get_rows().await.last().cloned().unwrap();
+  let row = test.get_rows().await.last().cloned().unwrap();
   let updated_at_field = test.get_first_field(FieldType::CreatedTime).await;
   let cell = test
     .editor
-    .get_cell(&updated_at_field.id, &row_detail.row.id)
+    .get_cell(&updated_at_field.id, &row.id)
     .await
     .unwrap();
   let created_at_timestamp = DateCellData::from(&cell).timestamp.unwrap();
@@ -34,11 +34,11 @@ async fn created_at_field_test() {
 #[tokio::test]
 async fn update_at_field_test() {
   let mut test = DatabaseRowTest::new().await;
-  let row_detail = test.get_rows().await.remove(0);
+  let row = test.get_rows().await.remove(0);
   let last_edit_field = test.get_first_field(FieldType::LastEditedTime).await;
   let cell = test
     .editor
-    .get_cell(&last_edit_field.id, &row_detail.row.id)
+    .get_cell(&last_edit_field.id, &row.id)
     .await
     .unwrap();
   let old_updated_at = DateCellData::from(&cell).timestamp.unwrap();
@@ -46,17 +46,17 @@ async fn update_at_field_test() {
   tokio::time::sleep(Duration::from_millis(1000)).await;
   test
     .run_script(UpdateTextCell {
-      row_id: row_detail.row.id.clone(),
+      row_id: row.id.clone(),
       content: "test".to_string(),
     })
     .await;
 
   // Get the updated time of the row.
-  let row_detail = test.get_rows().await.remove(0);
+  let row = test.get_rows().await.remove(0);
   let last_edit_field = test.get_first_field(FieldType::LastEditedTime).await;
   let cell = test
     .editor
-    .get_cell(&last_edit_field.id, &row_detail.row.id)
+    .get_cell(&last_edit_field.id, &row.id)
     .await
     .unwrap();
   let new_updated_at = DateCellData::from(&cell).timestamp.unwrap();

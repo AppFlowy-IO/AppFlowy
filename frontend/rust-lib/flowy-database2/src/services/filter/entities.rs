@@ -10,6 +10,7 @@ use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
+use tracing::error;
 
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContent, DateFilterPB, FieldType, FilterType,
@@ -454,8 +455,13 @@ fn get_children(filter_map: FilterMap) -> Vec<Filter> {
   if let Some(Any::Array(children)) = filter_map.get(FILTER_CHILDREN) {
     for child in children.iter() {
       if let Any::Map(child_map) = child {
-        if let Ok(filter) = Filter::try_from(child_map.deref().clone()) {
-          result.push(filter);
+        match Filter::try_from(child_map.deref().clone()) {
+          Ok(filter) => {
+            result.push(filter);
+          },
+          Err(err) => {
+            error!("Failed to deserialize filter: {:?}", err);
+          },
         }
       }
     }

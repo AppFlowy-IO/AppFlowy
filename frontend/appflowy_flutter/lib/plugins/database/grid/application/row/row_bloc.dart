@@ -26,6 +26,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     _dispatch();
     _startListening();
     _init();
+    rowController.initialize();
   }
 
   final FieldController fieldController;

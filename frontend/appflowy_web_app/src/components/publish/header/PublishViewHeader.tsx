@@ -1,8 +1,9 @@
 import { usePublishContext } from '@/application/publish';
 import { openOrDownload } from '@/components/publish/header/utils';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { debounce } from 'lodash-es';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { OutlinePopover } from '@/components/publish/outline';
 import { useTranslation } from 'react-i18next';
 import Breadcrumb from './Breadcrumb';
@@ -13,7 +14,7 @@ import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
 export const HEADER_HEIGHT = 48;
 
-export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
+export function PublishViewHeader ({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
@@ -46,6 +47,24 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
       setOpenPopover(false);
     }, 200);
   }, []);
+
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    switch (true) {
+      case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
+        e.preventDefault();
+        // setOpen((prev) => !prev);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onKeyDown]);
 
   const handleOpenPopover = useCallback(() => {
     debounceClosePopover.cancel();
@@ -92,6 +111,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
         </div>
 
         <div className={'flex items-center gap-2'}>
+
           <MoreActions />
           {/*<Duplicate />*/}
           <Divider orientation={'vertical'} className={'mx-2'} flexItem />

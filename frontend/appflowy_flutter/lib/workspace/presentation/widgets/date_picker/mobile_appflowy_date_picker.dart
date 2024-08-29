@@ -447,7 +447,7 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
               LocaleKeys.button_confirm.tr(),
               constraints: const BoxConstraints.tightFor(height: 42),
               mainAxisAlignment: MainAxisAlignment.center,
-              textColor: Theme.of(context).colorScheme.onPrimary,
+              fontColor: Theme.of(context).colorScheme.onPrimary,
               fillColor: Theme.of(context).primaryColor,
               onPressed: () {
                 if (isStartDay) {

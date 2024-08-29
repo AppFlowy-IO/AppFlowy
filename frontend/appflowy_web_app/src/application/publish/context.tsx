@@ -1,7 +1,7 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta } from '@/application/collab.type';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 export interface PublishContextType {
   namespace: string;
   publishName: string;
+  isTemplateThumb?: boolean;
   viewMeta?: ViewMeta;
   toView: (viewId: string) => Promise<void>;
   loadViewMeta: LoadViewMeta;
@@ -23,10 +24,12 @@ export const PublishProvider = ({
   children,
   namespace,
   publishName,
+  isTemplateThumb,
 }: {
   children: React.ReactNode;
   namespace: string;
   publishName: string;
+  isTemplateThumb?: boolean;
 }) => {
   const viewMeta = useLiveQuery(async () => {
     const name = `${namespace}_${publishName}`;
@@ -87,7 +90,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [navigate, service]
+    [navigate, service],
   );
 
   const loadViewMeta = useCallback(
@@ -124,7 +127,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [service]
+    [service],
   );
 
   const getViewRowsMap = useCallback(
@@ -148,7 +151,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [service]
+    [service],
   );
 
   const loadView = useCallback(
@@ -173,7 +176,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [service]
+    [service],
   );
 
   useEffect(() => {
@@ -195,6 +198,7 @@ export const PublishProvider = ({
         toView,
         namespace,
         publishName,
+        isTemplateThumb,
       }}
     >
       {children}
@@ -202,6 +206,6 @@ export const PublishProvider = ({
   );
 };
 
-export function usePublishContext() {
+export function usePublishContext () {
   return useContext(PublishContext);
 }

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowDetail, RowId};
 
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
@@ -52,8 +52,8 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
     self.0.get_fields(view_id, field_ids).await
   }
 
-  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
-    self.0.get_row_details(view_id).await
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
+    self.0.get_all_rows(view_id).await
   }
 
   async fn get_row(&self, view_id: &str, rows_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {

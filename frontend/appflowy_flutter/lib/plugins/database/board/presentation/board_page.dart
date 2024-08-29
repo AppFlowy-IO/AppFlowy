@@ -556,10 +556,8 @@ class _BoardCardState extends State<_BoardCard> {
   @override
   Widget build(BuildContext context) {
     final boardBloc = context.read<BoardBloc>();
-
     final groupData = widget.afGroupData.customData as GroupData;
     final rowCache = boardBloc.rowCache;
-
     final databaseController = boardBloc.databaseController;
     final rowMeta =
         rowCache.getRow(widget.groupItem.id)?.rowMeta ?? widget.groupItem.row;
@@ -653,7 +651,7 @@ class _BoardCardState extends State<_BoardCard> {
             onTap: (context) => _openCard(
               context: context,
               databaseController: databaseController,
-              rowMeta: context.read<CardBloc>().state.rowMeta,
+              rowMeta: context.read<CardBloc>().rowController.rowMeta,
             ),
             onShiftTap: (_) {
               Focus.of(context).requestFocus();

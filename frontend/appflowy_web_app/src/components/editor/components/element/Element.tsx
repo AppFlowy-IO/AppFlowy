@@ -22,6 +22,7 @@ import { ToggleList } from 'src/components/editor/components/blocks/toggle-list'
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
 import { Formula } from '@/components/editor/components/leaf/formula';
 import { Mention } from '@/components/editor/components/leaf/mention';
+import { FileBlock } from '@/components/editor/components/blocks/file';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { FC, useMemo } from 'react';
@@ -74,6 +75,8 @@ export const Element = ({
         return DatabaseBlock;
       case BlockType.LinkPreview:
         return LinkPreview;
+      case BlockType.FileBlock:
+        return FileBlock;
       default:
         return UnSupportedBlock;
     }

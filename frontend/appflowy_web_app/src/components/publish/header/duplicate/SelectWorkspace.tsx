@@ -1,3 +1,4 @@
+import { AFConfigContext } from '@/components/app/app.hooks';
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Button, CircularProgress, Divider, Tooltip } from '@mui/material';
@@ -6,7 +7,6 @@ import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 import { ReactComponent as CheckIcon } from '@/assets/selected.svg';
 import { Popover } from '@/components/_shared/popover';
 import { stringToColor } from '@/utils/color';
-import { AFConfigContext } from '@/components/app/AppConfig';
 
 export interface SelectWorkspaceProps {
   value: string;

@@ -36,7 +36,9 @@ pub(crate) async fn get_database_data_handler(
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
-  let data = database_editor.get_database_data(view_id.as_ref()).await?;
+  let data = database_editor
+    .async_open_database_view(view_id.as_ref())
+    .await?;
   trace!(
     "layout: {:?}, rows: {}, fields: {}",
     data.layout_type,
@@ -57,8 +59,12 @@ pub(crate) async fn get_all_rows_handler(
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
-  let data = database_editor.get_all_rows(view_id.as_ref()).await?;
-  data_result_ok(data)
+  let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
+  let rows = row_details
+    .into_iter()
+    .map(|detail| RowMetaPB::from(detail.as_ref().clone()))
+    .collect::<Vec<RowMetaPB>>();
+  data_result_ok(RepeatedRowMetaPB { items: rows })
 }
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn open_database_handler(
@@ -326,7 +332,7 @@ pub(crate) async fn switch_to_field_handler(
     .await?;
   let old_field = database_editor.get_field(&params.field_id).await;
   database_editor
-    .switch_to_field_type(&params.field_id, params.field_type)
+    .switch_to_field_type(&params.view_id, &params.field_id, params.field_type)
     .await?;
 
   if let Some(new_type_option) = database_editor
@@ -1017,6 +1023,20 @@ pub(crate) async fn export_csv_handler(
   let data = database.export_csv(CSVFormat::Original).await?;
   data_result_ok(DatabaseExportDataPB {
     export_type: DatabaseExportDataType::CSV,
+    data,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn export_raw_database_data_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<DatabaseExportDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner().value;
+  let data = manager.get_database_json_string(&view_id).await?;
+  data_result_ok(DatabaseExportDataPB {
+    export_type: DatabaseExportDataType::RawDatabaseData,
     data,
   })
 }
