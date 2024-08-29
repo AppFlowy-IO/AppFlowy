@@ -132,9 +132,7 @@ class _AccountDeletionDialog extends StatelessWidget {
                 valueListenable: isChecked,
                 builder: (context, isChecked, _) {
                   return FlowySvg(
-                    isChecked
-                        ? FlowySvgs.m_checkbox_checked_s
-                        : FlowySvgs.m_checkbox_uncheck_s,
+                    isChecked ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
                     size: const Size.square(16.0),
                     blendMode: isChecked ? null : BlendMode.srcIn,
                   );

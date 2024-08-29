@@ -194,9 +194,7 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
               return Padding(
                 padding: const EdgeInsets.all(1.0),
                 child: FlowySvg(
-                  isChecked
-                      ? FlowySvgs.m_checkbox_checked_s
-                      : FlowySvgs.m_checkbox_uncheck_s,
+                  isChecked ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
                   size: const Size.square(16.0),
                   blendMode: isChecked ? null : BlendMode.srcIn,
                 ),
@@ -204,7 +202,7 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
             },
           ),
         ),
-        const HSpace(8.0),
+        const HSpace(6.0),
         Expanded(
           child: FlowyText.regular(
             LocaleKeys.newSettings_myAccount_deleteAccount_confirmHint2.tr(),
