@@ -36,6 +36,7 @@
     "loginButtonText": "Увійти",
     "loginStartWithAnonymous": "Почати анонімну сесію",
     "continueAnonymousUser": "Продовжити анонімну сесію",
+    "anonymous": "Анонім",
     "buttonText": "Увійти",
     "signingInText": "Вхід...",
     "forgotPassword": "Забули пароль?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Продовжуйте з Google",
     "signInWithGithub": "Продовжуйте з Github",
     "signInWithDiscord": "Продовжуйте з Discord",
+    "signInWithApple": "Продовжуйте з Apple",
+    "continueAnotherWay": "Продовжуйте іншим шляхом",
     "signUpWithGoogle": "Зареєструватися в Google",
     "signUpWithGithub": "Зареєструйтеся на Github",
     "signUpWithDiscord": "Зареєструйтеся в Discord",
@@ -352,6 +355,7 @@
     "addToFavorites": "Додати в обране",
     "favoriteSuccessfully": "Улюблений успіх",
     "unfavoriteSuccessfully": "Неулюблений успіх",
+    "duplicateSuccessfully": "Продубльовано успішно",
     "rename": "Перейменувати",
     "helpCenter": "Центр допомоги",
     "add": "Додати",
@@ -374,7 +378,8 @@
     "close": "Закрити",
     "next": "Далі",
     "previous": "Попередній",
-    "submit": "Надіслати"
+    "submit": "Надіслати",
+    "download": "Завантажити"
   },
   "label": {
     "welcome": "Ласкаво просимо!",
@@ -398,6 +403,12 @@
   },
   "settings": {
     "title": "Налаштування",
+    "popupMenuItem": {
+      "settings": "Налаштування",
+      "members": "Члени",
+      "trash": "Cміття",
+      "helpAndSupport": "Допомога та підтримка"
+    },
     "accountPage": {
       "menuLabel": "Мій рахунок",
       "title": "Мій рахунок",
@@ -1969,6 +1980,7 @@
   "errorDialog": {
     "title": "@:appName Помилка",
     "howToFixFallback": "Просимо вибачення за незручності! Надішліть проблему на нашій сторінці GitHub з описом вашої помилки.",
+    "howToFixFallbackHint2": " сторінка, яка описує вашу помилку.",
     "github": "Переглянути на GitHub"
   },
   "search": {
@@ -2124,7 +2136,9 @@
   },
   "error": {
     "weAreSorry": "Нам шкода",
-    "loadingViewError": "У нас виникла проблема із завантаженням цього перегляду. Перевірте підключення до Інтернету, оновіть програму та не соромтеся зв’язатися з командою, якщо проблема не зникне."
+    "loadingViewError": "У нас виникла проблема із завантаженням цього перегляду. Перевірте підключення до Інтернету, оновіть програму та не соромтеся зв’язатися з командою, якщо проблема не зникне.",
+    "syncErrorHint": "Будь ласка, повторно відкрийте цю сторінку на пристрої, де її востаннє редагували, а потім знову відкрийте її на поточному пристрої.",
+    "clickToCopy": "Натисніть, щоб скопіювати код помилки"
   },
   "editor": {
     "bold": "жирний",
@@ -2390,7 +2404,8 @@
     "quicklySwitch": "Швидко перейдіть до наступного місця",
     "duplicate": "Дубльований простір",
     "movePageToSpace": "Перемістити сторінку в простір",
-    "switchSpace": "Переключити простір"
+    "switchSpace": "Переключити простір",
+    "spaceNameCannotBeEmpty": "Назва групи не може бути пустою"
   },
   "publish": {
     "hasNotBeenPublished": "Ця сторінка ще не опублікована",
@@ -2449,7 +2464,12 @@
     "termOfUse": "Умови",
     "privacyPolicy": "Політика конфіденційності",
     "signInError": "Помилка входу",
-    "login": "Зареєструйтесь або увійдіть"
+    "login": "Зареєструйтесь або увійдіть",
+    "fileBlock": {
+      "uploadedAt": "Завантажено {time}",
+      "linkedAt": "Посилання додано {time}",
+      "empty": "Завантажте або вставте файл"
+    }
   },
   "globalComment": {
     "comments": "Коментарі",
@@ -2500,5 +2520,67 @@
     "failedToAddComment": "Не вдалося додати коментар",
     "commentAddedSuccessfully": "Коментар успішно додано.",
     "commentAddedSuccessTip": "Ви щойно додали коментар або відповіли на нього. Бажаєте перейти вгору, щоб переглянути останні коментарі?"
+  },
+  "template": {
+    "asTemplate": "Як шаблон",
+    "name": "Назва шаблону",
+    "description": "Опис шаблону",
+    "about": "Шаблон Про",
+    "preview": "Попередній перегляд шаблону",
+    "categories": "Категорії шаблонів",
+    "isNewTemplate": "PIN для нового шаблону",
+    "featured": "PIN-код для рекомендованого",
+    "relatedTemplates": "Пов’язані шаблони",
+    "requiredField": "{field} є обов’язковим",
+    "addCategory": "Додати \"{category}\"",
+    "addNewCategory": "Додати нову категорію",
+    "addNewCreator": "Додати нового творця",
+    "deleteCategory": "Видалити категорію",
+    "editCategory": "Редагувати категорію",
+    "editCreator": "Редагувати творця",
+    "category": {
+      "name": "Назва категорії",
+      "icon": "Значок категорії",
+      "bgColor": "Колір фону категорії",
+      "priority": "Пріоритет категорії",
+      "desc": "Опис категорії",
+      "type": "Тип категорії",
+      "icons": "Іконки категорій",
+      "colors": "Категорія кольори",
+      "byUseCase": "За випадком використання",
+      "byFeature": "За ознакою",
+      "deleteCategory": "Видалити категорію",
+      "deleteCategoryDescription": "Ви впевнені, що хочете видалити цю категорію?",
+      "typeToSearch": "Введіть для пошуку категорій..."
+    },
+    "creator": {
+      "label": "Творець шаблонів",
+      "name": "Ім'я творця",
+      "avatar": "Аватар творця",
+      "accountLinks": "Посилання на акаунт творця",
+      "uploadAvatar": "Натисніть, щоб завантажити аватар",
+      "deleteCreator": "Видалити творця",
+      "deleteCreatorDescription": "Ви впевнені, що хочете видалити цього творця?",
+      "typeToSearch": "Введіть для пошуку творців..."
+    },
+    "uploadSuccess": "Шаблон успішно завантажено",
+    "uploadSuccessDescription": "Ваш шаблон успішно завантажено. Тепер ви можете переглянути його в галереї шаблонів.",
+    "viewTemplate": "Переглянути шаблон",
+    "deleteTemplate": "Видалити шаблон",
+    "deleteTemplateDescription": "Ви впевнені, що хочете видалити цей шаблон?",
+    "addRelatedTemplate": "Додайте відповідний шаблон",
+    "removeRelatedTemplate": "Видалити пов’язаний шаблон",
+    "uploadAvatar": "Завантажити аватар",
+    "searchInCategory": "Шукати в {category}",
+    "label": "Шаблон"
+  },
+  "fileDropzone": {
+    "dropFile": "Натисніть або перетягніть файл у цю область, щоб завантажити",
+    "uploading": "Завантаження...",
+    "uploadFailed": "Помилка завантаження",
+    "uploadSuccess": "Завантаження успішне",
+    "uploadSuccessDescription": "Файл успішно завантажено",
+    "uploadFailedDescription": "Не вдалося завантажити файл",
+    "uploadingDescription": "Файл завантажується"
   }
 }
