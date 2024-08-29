@@ -13,7 +13,6 @@ import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart'
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_multiple_select_page.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
-import 'package:appflowy/mobile/presentation/setting/account/acount_deletion_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
@@ -60,7 +59,6 @@ GoRouter generateRouter(Widget child) {
         _mobileCloudSettingAppFlowyCloudPageRoute(),
         _mobileLaunchSettingsPageRoute(),
         _mobileFeatureFlagPageRoute(),
-        _mobileAccountDeletionPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -396,18 +394,6 @@ GoRoute _mobileEditPropertyPageRoute() {
 }
 
 GoRoute _mobileCalendarEventsPageRoute() {
-  return GoRoute(
-    path: AccountDeletionScreen.routeName,
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    pageBuilder: (context, state) {
-      return const MaterialExtendedPage(
-        child: AccountDeletionScreen(),
-      );
-    },
-  );
-}
-
-GoRoute _mobileAccountDeletionPageRoute() {
   return GoRoute(
     path: MobileCalendarEventsScreen.routeName,
     parentNavigatorKey: AppGlobals.rootNavKey,
