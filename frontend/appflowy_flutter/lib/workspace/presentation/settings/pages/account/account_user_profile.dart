@@ -60,7 +60,9 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
       children: [
         _buildAvatar(),
         const HSpace(16),
-        isEditing ? _buildEditingField() : _buildNameDisplay(),
+        Flexible(
+          child: isEditing ? _buildEditingField() : _buildNameDisplay(),
+        ),
       ],
     );
   }
@@ -92,32 +94,30 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
   }
 
   Widget _buildNameDisplay() {
-    return Flexible(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: FlowyText.medium(
-                widget.name,
-                overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: FlowyText.medium(
+              widget.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const HSpace(4),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => setState(() => isEditing = true),
+            child: const FlowyHover(
+              resetHoverOnRebuild: false,
+              child: Padding(
+                padding: EdgeInsets.all(4),
+                child: FlowySvg(FlowySvgs.edit_s),
               ),
             ),
-            const HSpace(4),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => setState(() => isEditing = true),
-              child: const FlowyHover(
-                resetHoverOnRebuild: false,
-                child: Padding(
-                  padding: EdgeInsets.all(4),
-                  child: FlowySvg(FlowySvgs.edit_s),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
