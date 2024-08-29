@@ -2,16 +2,18 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class MobileSignInOrLogoutButton extends StatelessWidget {
-  const MobileSignInOrLogoutButton({
+class MobileLogoutButton extends StatelessWidget {
+  const MobileLogoutButton({
     super.key,
     this.icon,
-    required this.labelText,
+    required this.text,
+    this.textColor,
     required this.onPressed,
   });
 
   final FlowySvgData? icon;
-  final String labelText;
+  final String text;
+  final Color? textColor;
   final VoidCallback onPressed;
 
   @override
@@ -26,7 +28,7 @@ class MobileSignInOrLogoutButton extends StatelessWidget {
             Radius.circular(4),
           ),
           border: Border.all(
-            color: style.colorScheme.outline,
+            color: textColor ?? style.colorScheme.outline,
             width: 0.5,
           ),
         ),
@@ -52,9 +54,10 @@ class MobileSignInOrLogoutButton extends StatelessWidget {
               const HSpace(8),
             ],
             FlowyText(
-              labelText,
+              text,
               fontSize: 14.0,
               fontWeight: FontWeight.w400,
+              color: textColor,
             ),
           ],
         ),

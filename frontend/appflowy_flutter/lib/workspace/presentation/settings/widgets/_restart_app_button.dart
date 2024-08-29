@@ -67,8 +67,8 @@ class RestartButton extends StatelessWidget {
       //   ],
       // );
     } else {
-      return MobileSignInOrLogoutButton(
-        labelText: LocaleKeys.settings_menu_restartApp.tr(),
+      return MobileLogoutButton(
+        text: LocaleKeys.settings_menu_restartApp.tr(),
         onPressed: onClick,
       );
     }

@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -79,64 +80,17 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                     emailController: emailController,
                     isChecked: isCheckedNotifier,
                   ),
-                  onDelete: _onDelete,
+                  onDelete: () => deleteMyAccount(
+                    context,
+                    emailController.text.trim(),
+                    isCheckedNotifier.value,
+                  ),
                 );
               },
             ),
           ],
         ),
       ],
-    );
-  }
-
-  Future<void> _onDelete() async {
-    if (!isCheckedNotifier.value) {
-      showToastNotification(
-        context,
-        type: ToastificationType.warning,
-        message: LocaleKeys
-            .newSettings_myAccount_deleteAccount_checkToConfirmError
-            .tr(),
-      );
-      return;
-    }
-
-    final userEmail = await UserBackendService.getCurrentUserProfile()
-        .fold((s) => s.email, (_) => null);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (userEmail == null) {
-      showToastNotification(
-        context,
-        type: ToastificationType.error,
-        message: LocaleKeys
-            .newSettings_myAccount_deleteAccount_failedToGetCurrentUser
-            .tr(),
-      );
-      return;
-    }
-
-    final email = emailController.text.trim();
-    if (email.isEmpty || email != userEmail) {
-      showToastNotification(
-        context,
-        type: ToastificationType.warning,
-        message: LocaleKeys
-            .newSettings_myAccount_deleteAccount_emailValidationFailed
-            .tr(),
-      );
-      return;
-    }
-
-    // Todo(Lucas): delete account
-    showToastNotification(
-      context,
-      message: LocaleKeys
-          .newSettings_myAccount_deleteAccount_deleteAccountSuccess
-          .tr(),
     );
   }
 }
@@ -182,7 +136,7 @@ class _AccountDeletionDialog extends StatelessWidget {
                         ? FlowySvgs.m_checkbox_checked_s
                         : FlowySvgs.m_checkbox_uncheck_s,
                     size: const Size.square(16.0),
-                    blendMode: null,
+                    blendMode: isChecked ? null : BlendMode.srcIn,
                   );
                 },
               ),
@@ -203,4 +157,67 @@ class _AccountDeletionDialog extends StatelessWidget {
       ],
     );
   }
+}
+
+Future<void> deleteMyAccount(
+  BuildContext context,
+  String email,
+  bool isChecked,
+) async {
+  final bottomPadding = PlatformExtension.isMobile
+      ? MediaQuery.of(context).viewInsets.bottom
+      : 0.0;
+
+  if (!isChecked) {
+    showToastNotification(
+      context,
+      type: ToastificationType.warning,
+      bottomPadding: bottomPadding,
+      message: LocaleKeys
+          .newSettings_myAccount_deleteAccount_checkToConfirmError
+          .tr(),
+    );
+    return;
+  }
+
+  // fetch the user email from server instead of reading from provider,
+  // this is to avoid the email doesn't match the real user's email
+  final userEmail = await UserBackendService.getCurrentUserProfile()
+      .fold((s) => s.email, (_) => null);
+
+  if (!context.mounted) {
+    return;
+  }
+
+  if (userEmail == null) {
+    showToastNotification(
+      context,
+      type: ToastificationType.error,
+      bottomPadding: bottomPadding,
+      message: LocaleKeys
+          .newSettings_myAccount_deleteAccount_failedToGetCurrentUser
+          .tr(),
+    );
+    return;
+  }
+
+  if (email.isEmpty || email.toLowerCase() != userEmail.toLowerCase()) {
+    showToastNotification(
+      context,
+      type: ToastificationType.warning,
+      bottomPadding: bottomPadding,
+      message: LocaleKeys
+          .newSettings_myAccount_deleteAccount_emailValidationFailed
+          .tr(),
+    );
+    return;
+  }
+
+  // Todo(Lucas): delete account
+  showToastNotification(
+    context,
+    message: LocaleKeys.newSettings_myAccount_deleteAccount_deleteAccountSuccess
+        .tr(),
+    bottomPadding: bottomPadding,
+  );
 }
