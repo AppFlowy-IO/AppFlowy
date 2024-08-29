@@ -94,7 +94,9 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
       showToastNotification(
         context,
         type: ToastificationType.warning,
-        message: 'You must check the box to confirm deletion',
+        message: LocaleKeys
+            .newSettings_myAccount_deleteAccount_checkToConfirmError
+            .tr(),
       );
       return;
     }
@@ -110,7 +112,9 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
       showToastNotification(
         context,
         type: ToastificationType.error,
-        message: 'Failed to get the current user email',
+        message: LocaleKeys
+            .newSettings_myAccount_deleteAccount_failedToGetCurrentUser
+            .tr(),
       );
       return;
     }
@@ -120,13 +124,20 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
       showToastNotification(
         context,
         type: ToastificationType.warning,
-        message: 'The email field validation failed',
+        message: LocaleKeys
+            .newSettings_myAccount_deleteAccount_emailValidationFailed
+            .tr(),
       );
       return;
     }
 
     // Todo(Lucas): delete account
-    showToastNotification(context, message: 'Account deleted successfully');
+    showToastNotification(
+      context,
+      message: LocaleKeys
+          .newSettings_myAccount_deleteAccount_deleteAccountSuccess
+          .tr(),
+    );
   }
 }
 
@@ -154,7 +165,7 @@ class _AccountDeletionDialog extends StatelessWidget {
         ),
         const VSpace(12.0),
         FlowyTextField(
-          hintText: 'Email',
+          hintText: LocaleKeys.settings_user_email.tr(),
           controller: emailController,
         ),
         const VSpace(16),
