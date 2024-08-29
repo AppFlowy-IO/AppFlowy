@@ -969,7 +969,8 @@
       },
       "action": {
         "markAsRead": "Marquer comme lu",
-        "multipleChoice": "Sélectionnez plus"
+        "multipleChoice": "Sélectionnez plus",
+        "archive": "Archiver"
       },
       "settings": {
         "settings": "Paramètres",
@@ -995,6 +996,7 @@
       },
       "refreshSuccess": "Les notifications ont été actualisées avec succès",
       "titles": {
+        "notifications": "Notifications",
         "reminder": "Rappel"
       }
     },
@@ -1103,7 +1105,9 @@
         "removeMember": "Supprimer un membre",
         "areYouSureToRemoveMember": "Êtes-vous sûr de vouloir supprimer ce membre ?",
         "inviteMemberSuccess": "L'invitation a été envoyée avec succès",
-        "failedToInviteMember": "Impossible d'inviter un membre"
+        "failedToInviteMember": "Impossible d'inviter un membre",
+        "workspaceMembersError": "Une erreur s'est produite",
+        "workspaceMembersErrorDescription": "Nous n'avons pas pu charger la liste des membres. Veuillez essayer plus tard s'il vous plait"
       }
     },
     "files": {
@@ -1213,6 +1217,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1220,8 +1225,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",
@@ -1306,6 +1310,8 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Check-list",
       "relationFieldName": "Relation",
+      "summaryFieldName": "Résumé IA",
+      "translateFieldName": "Traduction IA",
       "translateTo": "Traduire en",
       "numberFormat": "Format du nombre",
       "dateFormat": "Format de la date",
@@ -1475,6 +1481,7 @@
         "heading1": "Titre 1",
         "heading2": "Titre 2",
         "heading3": "Titre 3",
+        "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
         "linkedDoc": "Lien vers la page",
