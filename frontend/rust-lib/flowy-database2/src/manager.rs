@@ -370,7 +370,7 @@ impl DatabaseManager {
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
 
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
+    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data, None);
     let old_view_id = create_database_params.inline_view_id.clone();
     create_database_params.inline_view_id = view_id.to_string();
 
@@ -906,26 +906,26 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     }
   }
 
-  fn flush_collab(
+  fn flush_collabs(
     &self,
-    object_id: &str,
-    encode_collab: EncodedCollab,
+    encoded_collabs: Vec<(String, EncodedCollab)>,
   ) -> Result<(), DatabaseError> {
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      trace!("[Database]: flush collab:{}", object_id);
       let write_txn = collab_db.write_txn();
-      write_txn
-        .flush_doc(
-          uid,
-          object_id,
-          encode_collab.state_vector.to_vec(),
-          encode_collab.doc_state.to_vec(),
-        )
-        .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
+      for (object_id, encoded_collab) in encoded_collabs {
+        write_txn
+          .flush_doc(
+            uid,
+            &object_id,
+            encoded_collab.state_vector.to_vec(),
+            encoded_collab.doc_state.to_vec(),
+          )
+          .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
+      }
 
       write_txn
         .commit_transaction()
