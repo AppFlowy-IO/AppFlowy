@@ -95,7 +95,9 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               ),
 
               // user deletion
-              const AccountDeletionButton(),
+              if (widget.userProfile.authenticator ==
+                  AuthenticatorPB.AppFlowyCloud)
+                const AccountDeletionButton(),
             ],
           );
         },

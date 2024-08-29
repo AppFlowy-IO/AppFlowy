@@ -8,6 +8,7 @@ import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/account_deletion.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +17,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class UserSessionSettingGroup extends StatelessWidget {
   const UserSessionSettingGroup({
     super.key,
+    required this.userProfile,
     required this.showThirdPartyLogin,
   });
 
+  final UserProfilePB userProfile;
   final bool showThirdPartyLogin;
 
   @override
@@ -36,12 +39,15 @@ class UserSessionSettingGroup extends StatelessWidget {
         ),
 
         // delete account button
-        const VSpace(16.0),
-        MobileLogoutButton(
-          text: LocaleKeys.button_deleteAccount.tr(),
-          textColor: Theme.of(context).colorScheme.error,
-          onPressed: () => _showDeleteAccountDialog(context),
-        ),
+        // only show the delete account button in cloud mode
+        if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
+          const VSpace(16.0),
+          MobileLogoutButton(
+            text: LocaleKeys.button_deleteAccount.tr(),
+            textColor: Theme.of(context).colorScheme.error,
+            onPressed: () => _showDeleteAccountDialog(context),
+          ),
+        ],
       ],
     );
   }

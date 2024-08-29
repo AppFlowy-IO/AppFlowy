@@ -29,7 +29,8 @@ class AccountUserProfile extends StatefulWidget {
 }
 
 class _AccountUserProfileState extends State<AccountUserProfile> {
-  late final TextEditingController nameController = TextEditingController(text: widget.name);
+  late final TextEditingController nameController =
+      TextEditingController(text: widget.name);
   final FocusNode focusNode = FocusNode();
   bool isEditing = false;
   bool isHovering = false;
@@ -59,9 +60,7 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
       children: [
         _buildAvatar(),
         const HSpace(16),
-        Flexible(
-          child: isEditing ? _buildEditingField() : _buildNameDisplay(),
-        ),
+        isEditing ? _buildEditingField() : _buildNameDisplay(),
       ],
     );
   }
