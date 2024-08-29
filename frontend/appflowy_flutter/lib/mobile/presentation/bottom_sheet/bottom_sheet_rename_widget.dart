@@ -65,7 +65,7 @@ class _MobileBottomSheetRenameWidgetState
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
             ),
-            textColor: Colors.white,
+            fontColor: Colors.white,
             fillColor: Theme.of(context).primaryColor,
             onPressed: () {
               widget.onRename(controller.text);

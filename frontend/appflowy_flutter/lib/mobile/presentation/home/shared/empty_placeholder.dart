@@ -36,6 +36,7 @@ class EmptySpacePlaceholder extends StatelessWidget {
             lineHeight: 1.3,
             color: Theme.of(context).hintColor,
           ),
+          const VSpace(kBottomNavigationBarHeight + 36.0),
         ],
       ),
     );

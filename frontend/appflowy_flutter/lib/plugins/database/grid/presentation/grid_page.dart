@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
@@ -305,22 +307,26 @@ class _GridRowsState extends State<_GridRows> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         return Flexible(
-          child: _WrapScrollView(
-            scrollController: widget.scrollController,
-            contentWidth: GridLayout.headerWidth(state.fields),
-            child: BlocConsumer<GridBloc, GridState>(
-              listenWhen: (previous, current) =>
-                  previous.rowCount != current.rowCount,
-              listener: (context, state) => _evaluateFloatingCalculations(),
-              builder: (context, state) {
-                return ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(
-                    scrollbars: false,
-                  ),
-                  child: _renderList(context, state),
-                );
-              },
-            ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints layoutConstraits) {
+              return _WrapScrollView(
+                scrollController: widget.scrollController,
+                contentWidth: GridLayout.headerWidth(state.fields),
+                child: BlocConsumer<GridBloc, GridState>(
+                  listenWhen: (previous, current) =>
+                      previous.rowCount != current.rowCount,
+                  listener: (context, state) => _evaluateFloatingCalculations(),
+                  builder: (context, state) {
+                    return ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        scrollbars: false,
+                      ),
+                      child: _renderList(context, state, layoutConstraits),
+                    );
+                  },
+                ),
+              );
+            },
           ),
         );
       },
@@ -330,19 +336,19 @@ class _GridRowsState extends State<_GridRows> {
   Widget _renderList(
     BuildContext context,
     GridState state,
+    BoxConstraints layoutConstraints,
   ) {
     // 1. GridRowBottomBar
     // 2. GridCalculationsRow
     // 3. Footer Padding
     final itemCount = state.rowInfos.length + 3;
-
     return Stack(
       children: [
         Positioned.fill(
           child: ReorderableListView.builder(
             ///  This is a workaround related to
             ///  https://github.com/flutter/flutter/issues/25652
-            cacheExtent: 5000,
+            cacheExtent: max(layoutConstraints.maxHeight * 2, 500),
             scrollController: widget.scrollController.verticalController,
             physics: const ClampingScrollPhysics(),
             buildDefaultDragHandles: false,
@@ -421,7 +427,7 @@ class _GridRowsState extends State<_GridRows> {
     );
 
     final child = GridRow(
-      key: ValueKey(rowMeta.id),
+      key: ValueKey(rowId),
       fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,

@@ -28,14 +28,20 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
 
   const handleChangeView = useCallback(
     (viewId: string) => {
-      setSearch({ v: viewId });
+      setSearch(prev => {
+        prev.set('v', viewId);
+        return prev;
+      });
     },
     [setSearch],
   );
 
   const handleNavigateToRow = useCallback(
     (rowId: string) => {
-      setSearch({ r: rowId });
+      setSearch(prev => {
+        prev.set('r', rowId);
+        return prev;
+      });
     },
     [setSearch],
   );
@@ -47,7 +53,7 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
   return (
     <div
       style={{
-        minHeight: 'calc(100% - 48px)',
+        minHeight: 'calc(100vh - 48px)',
         maxWidth: isTemplateThumb ? '964px' : undefined,
       }}
       className={'relative flex h-full w-full flex-col px-16 max-md:px-4'}

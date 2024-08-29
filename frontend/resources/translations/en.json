@@ -36,6 +36,7 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
+    "anonymous": "Anonymous",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Continue with Google",
     "signInWithGithub": "Continue with Github",
     "signInWithDiscord": "Continue with Discord",
+    "signInWithApple": "Continue with Apple",
+    "continueAnotherWay": "Continue another way",
     "signUpWithGoogle": "Sign up with Google",
     "signUpWithGithub": "Sign up with Github",
     "signUpWithDiscord": "Sign up with Discord",
@@ -349,6 +352,7 @@
     "addToFavorites": "Add to favorites",
     "favoriteSuccessfully": "Favorited success",
     "unfavoriteSuccessfully": "Unfavorited success",
+    "duplicateSuccessfully": "Duplicated successfully",
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
@@ -371,7 +375,8 @@
     "close": "Close",
     "next": "Next",
     "previous": "Previous",
-    "submit": "Submit"
+    "submit": "Submit",
+    "download": "Download"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1891,6 +1896,8 @@
   "errorDialog": {
     "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "howToFixFallbackHint1": "We're sorry for the inconvenience! Submit an issue on our ",
+    "howToFixFallbackHint2": " page that describes your error.",
     "github": "View on GitHub"
   },
   "search": {
@@ -2045,7 +2052,10 @@
   },
   "error": {
     "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues.",
+    "syncError": "Data is not synced from another device",
+    "syncErrorHint": "Please reopen this page on the device where it was last edited, then open it again on the current device.",
+    "clickToCopy": "Click to copy error code"
   },
   "editor": {
     "bold": "Bold",
@@ -2311,7 +2321,8 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
@@ -2322,7 +2333,8 @@
     "copy": {
       "codeBlock": "The content of code block has been copied to the clipboard",
       "imageBlock": "The image link has been copied to the clipboard",
-      "mathBlock": "The math equation has been copied to the clipboard"
+      "mathBlock": "The math equation has been copied to the clipboard",
+      "fileBlock": "The file link has been copied to the clipboard"
     },
     "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
     "publishSuccessfully": "Published successfully",
@@ -2365,12 +2377,17 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
-    "signInAgreement": "By clicking \"Continue\" above, you confirm that\nyou have read, understood, and agreed to\nAppFlowy's",
+    "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
-    "login": "Sign up or log in"
+    "login": "Sign up or log in",
+    "fileBlock": {
+      "uploadedAt": "Uploaded on {time}",
+      "linkedAt": "Link added on {time}",
+      "empty": "Upload or embed a file"
+    }
   },
   "globalComment": {
     "comments": "Comments",
@@ -2472,7 +2489,8 @@
     "addRelatedTemplate": "Add related template",
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
-    "searchInCategory": "Search in {category}"
+    "searchInCategory": "Search in {category}",
+    "label": "Template"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",

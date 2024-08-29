@@ -30,6 +30,7 @@ function AsTemplateForm ({ viewUrl, defaultValues, onSubmit, defaultRelatedTempl
   const iframeUrl = useMemo(() => {
     const url = new URL(viewUrl);
 
+    url.searchParams.delete('v');
     url.searchParams.set('theme', 'light');
     url.searchParams.set('template', 'true');
     return url.toString();

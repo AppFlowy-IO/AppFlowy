@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use bytes::Bytes;
 use collab::entity::EncodedCollab;
+use collab_entity::CollabType;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use std::collections::HashMap;
@@ -36,6 +37,8 @@ pub struct DatabaseEncodedCollab {
   pub database_row_encoded_collabs: HashMap<String, EncodedCollab>,
   pub database_relations: HashMap<String, String>,
 }
+
+pub type ImportedData = (String, CollabType, EncodedCollab);
 
 /// The handler will be used to handler the folder operation for a specific
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
@@ -118,7 +121,7 @@ pub trait FolderOperationHandler {
     name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError>;
+  ) -> Result<Vec<ImportedData>, FlowyError>;
 
   /// Create a view by importing data from a file
   async fn import_from_file_path(

@@ -1421,7 +1421,7 @@ impl FolderManager {
     &self,
     parent_view_id: String,
     import_data: ImportValue,
-  ) -> FlowyResult<(View, Option<EncodedCollab>)> {
+  ) -> FlowyResult<(View, Vec<(String, CollabType, EncodedCollab)>)> {
     // Ensure either data or file_path is provided
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
@@ -1433,21 +1433,19 @@ impl FolderManager {
     let handler = self.get_handler(&import_data.view_layout)?;
     let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
-    let mut encoded_collab: Option<EncodedCollab> = None;
+    let mut encoded_collab = vec![];
 
     // Import data from bytes if available
     if let Some(data) = import_data.data {
-      encoded_collab = Some(
-        handler
-          .import_from_bytes(
-            uid,
-            &view_id,
-            &import_data.name,
-            import_data.import_type,
-            data,
-          )
-          .await?,
-      );
+      encoded_collab = handler
+        .import_from_bytes(
+          uid,
+          &view_id,
+          &import_data.name,
+          import_data.import_type,
+          data,
+        )
+        .await?;
     }
 
     // Import data from file path if available
@@ -1494,20 +1492,15 @@ impl FolderManager {
 
     // Iterate over the values in the import data
     for data in import_data.values {
-      let collab_type = data.import_type.clone().into();
-
       // Import a single file and get the view and encoded collab data
-      let (view, encoded_collab) = self
+      let (view, encoded_collabs) = self
         .import_single_file(import_data.parent_view_id.clone(), data)
         .await?;
-      let object_id = view.id.clone();
-
       views.push(view_pb_without_child_views(view));
 
       if sync_after_create {
-        if let Some(encoded_collab) = encoded_collab {
-          // don't block the whole import process if the view can't be encoded
-          match self.get_folder_collab_params(object_id, collab_type, encoded_collab) {
+        for (object_id, collab_type, encode_collab) in encoded_collabs {
+          match self.get_folder_collab_params(object_id, collab_type, encode_collab) {
             Ok(params) => objects.push(params),
             Err(e) => {
               error!("import error {}", e);
@@ -1519,6 +1512,7 @@ impl FolderManager {
 
     // Sync the view to the cloud
     if sync_after_create {
+      info!("Syncing the imported {} collab to the cloud", objects.len());
       self
         .cloud_service
         .batch_create_folder_collab_objects(&workspace_id, objects)

@@ -21,7 +21,11 @@ class SignInAgreement extends StatelessWidget {
           ),
           TextSpan(
             text: '${LocaleKeys.web_termOfUse.tr()} ',
-            style: const TextStyle(color: Colors.blue, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+              decoration: TextDecoration.underline,
+            ),
             mouseCursor: SystemMouseCursors.click,
             recognizer: TapGestureRecognizer()
               ..onTap = () => afLaunchUrlString('https://appflowy.io/terms'),
@@ -32,7 +36,11 @@ class SignInAgreement extends StatelessWidget {
           ),
           TextSpan(
             text: LocaleKeys.web_privacyPolicy.tr(),
-            style: const TextStyle(color: Colors.blue, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+              decoration: TextDecoration.underline,
+            ),
             mouseCursor: SystemMouseCursors.click,
             recognizer: TapGestureRecognizer()
               ..onTap = () => afLaunchUrlString('https://appflowy.io/privacy'),

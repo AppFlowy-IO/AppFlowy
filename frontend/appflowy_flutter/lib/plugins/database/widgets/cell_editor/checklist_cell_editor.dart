@@ -372,7 +372,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
                 ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primaryContainer,
             fontColor: Theme.of(context).colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             onPressed: _textEditingController.text.isEmpty
                 ? null
                 : () {

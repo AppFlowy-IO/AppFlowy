@@ -97,6 +97,13 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
           VSpace(Insets.xl),
           OkCancelButton(
             onOkPressed: () {
+              if (newValue.isEmpty) {
+                showToastNotification(
+                  context,
+                  message: LocaleKeys.space_spaceNameCannotBeEmpty.tr(),
+                );
+                return;
+              }
               widget.onConfirm(newValue, context);
               Navigator.of(context).pop();
             },
@@ -303,14 +310,18 @@ void showToastNotification(
   required String message,
   String? description,
   ToastificationType type = ToastificationType.success,
+  ToastificationCallbacks? callbacks,
+  double bottomPadding = 100,
 }) {
   if (PlatformExtension.isMobile) {
     toastification.showCustom(
       alignment: Alignment.bottomCenter,
       autoCloseDuration: const Duration(milliseconds: 3000),
+      callbacks: callbacks ?? const ToastificationCallbacks(),
       builder: (_, __) => _MToast(
         message: message,
         type: type,
+        bottomPadding: bottomPadding,
       ),
     );
     return;
@@ -346,10 +357,12 @@ class _MToast extends StatelessWidget {
   const _MToast({
     required this.message,
     this.type = ToastificationType.success,
+    this.bottomPadding = 100,
   });
 
   final String message;
   final ToastificationType type;
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -362,7 +375,7 @@ class _MToast extends StatelessWidget {
     );
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+      padding: EdgeInsets.only(bottom: bottomPadding, left: 16, right: 16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 13.0),
         decoration: BoxDecoration(

@@ -1,16 +1,16 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -208,6 +208,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   SignInState _stateFromCode(FlowyError error) {
+    Log.error('SignInState _stateFromCode: ${error.msg}');
+
     switch (error.code) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(

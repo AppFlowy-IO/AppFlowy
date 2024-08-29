@@ -102,7 +102,7 @@ async fn grid_filter_contain_text_test() {
 #[tokio::test]
 async fn grid_filter_contain_text_test2() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_detail = test.row_details.clone();
+  let row_detail = test.rows.clone();
 
   let scripts = vec![
     CreateDataFilter {
@@ -118,7 +118,7 @@ async fn grid_filter_contain_text_test2() {
       }),
     },
     UpdateTextCell {
-      row_id: row_detail[1].row.id.clone(),
+      row_id: row_detail[1].id.clone(),
       text: "ABC".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,
@@ -257,7 +257,7 @@ async fn grid_filter_delete_test() {
 #[tokio::test]
 async fn grid_filter_update_empty_text_cell_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_details = test.row_details.clone();
+  let row = test.rows.clone();
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -273,7 +273,7 @@ async fn grid_filter_update_empty_text_cell_test() {
     },
     AssertFilterCount { count: 1 },
     UpdateTextCell {
-      row_id: row_details[0].row.id.clone(),
+      row_id: row[0].id.clone(),
       text: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,

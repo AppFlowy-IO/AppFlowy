@@ -3,10 +3,14 @@ import { TextCell as CellType, CellProps } from '@/application/database-yjs/cell
 import { TextCell } from '@/components/database/components/cell/text';
 // import { getPlatform } from '@/utils/platform';
 import React, { useEffect, useState } from 'react';
+import { ReactComponent as DocumentSvg } from '@/assets/notes.svg';
 
-export function PrimaryCell(props: CellProps<CellType>) {
-  const { rowId } = props;
+export function PrimaryCell (props: CellProps<CellType> & {
+  showDocumentIcon?: boolean;
+}) {
+  const { rowId, showDocumentIcon } = props;
   const meta = useRowMetaSelector(rowId);
+  const hasDocument = meta?.isEmptyDocument === false;
   const icon = meta?.icon;
 
   const [, setHover] = useState(false);
@@ -55,7 +59,9 @@ export function PrimaryCell(props: CellProps<CellType>) {
       // }}
       className={'primary-cell relative flex min-h-full w-full items-center gap-2'}
     >
-      {icon && <div className={'h-4 w-4'}>{icon}</div>}
+      {icon ? <div className={'h-5 w-5 flex items-center justify-center text-base'}
+      >{icon}</div> : hasDocument && showDocumentIcon ? <DocumentSvg className={'h-5 w-5'}
+      /> : null}
       <div className={'flex-1 overflow-x-hidden'}>
         <TextCell {...props} />
       </div>

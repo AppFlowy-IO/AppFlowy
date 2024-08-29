@@ -32,7 +32,6 @@ class DatabaseViewListener {
     required ReorderAllRowsCallback onReorderAllRows,
     required SingleRowCallback onReorderSingleRow,
     required RowsVisibilityCallback onRowsVisibilityChanged,
-    required void Function() onReloadRows,
   }) {
     // Stop any existing listener
     _listener?.stop();
@@ -47,7 +46,6 @@ class DatabaseViewListener {
         onReorderAllRows,
         onReorderSingleRow,
         onRowsVisibilityChanged,
-        onReloadRows,
       ),
     );
   }
@@ -59,7 +57,6 @@ class DatabaseViewListener {
     ReorderAllRowsCallback onReorderAllRows,
     SingleRowCallback onReorderSingleRow,
     RowsVisibilityCallback onRowsVisibilityChanged,
-    void Function() onReloadRows,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateViewRowsVisibility:
@@ -93,9 +90,6 @@ class DatabaseViewListener {
           ),
           (error) => onReorderSingleRow(FlowyResult.failure(error)),
         );
-        break;
-      case DatabaseNotification.ReloadRows:
-        onReloadRows();
         break;
       default:
         break;

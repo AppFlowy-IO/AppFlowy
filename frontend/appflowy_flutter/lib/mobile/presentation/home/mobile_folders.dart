@@ -45,6 +45,7 @@ class MobileFolders extends StatelessWidget {
               SpaceEvent.reset(
                 user,
                 state.currentWorkspace?.workspaceId ?? workspaceId,
+                false,
               ),
             );
       },

@@ -33,7 +33,9 @@ class UserSessionSettingGroup extends StatelessWidget {
                 );
               },
               builder: (context, state) {
-                return const ThirdPartySignInButtons();
+                return const ThirdPartySignInButtons(
+                  expanded: true,
+                );
               },
             ),
           ),
