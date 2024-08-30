@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
@@ -6,7 +7,7 @@ use collab_database::rows::{Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, LayoutSetting};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::RwLock as TokioRwLock;
 
 use flowy_error::FlowyError;
 use lib_infra::priority_task::TaskDispatcher;
@@ -56,7 +57,7 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   async fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)>;
 
   /// Returns all the rows in the view
-  async fn get_row_details(&self, view_id: &str) -> Vec<Arc<RowDetail>>;
+  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>>;
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row>;
 
@@ -118,7 +119,7 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   async fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout);
 
   /// Returns a `TaskDispatcher` used to poll a `Task`
-  fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
+  fn get_task_scheduler(&self) -> Arc<TokioRwLock<TaskDispatcher>>;
 
   fn get_type_option_cell_handler(
     &self,

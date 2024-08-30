@@ -34,6 +34,7 @@ class InviteMembersScreen extends StatelessWidget {
         titleText: LocaleKeys.settings_appearance_members_label.tr(),
       ),
       body: const _InviteMemberPage(),
+      resizeToAvoidBottomInset: false,
     );
   }
 }
@@ -193,6 +194,9 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
     final actionType = actionResult.actionType;
     final result = actionResult.result;
 
+    // get keyboard height
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
     // only show the result dialog when the action is WorkspaceMemberActionType.add
     if (actionType == WorkspaceMemberActionType.add) {
       result.fold(
@@ -201,6 +205,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             context,
             message:
                 LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
+            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -216,6 +221,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
           showToastNotification(
             context,
             type: ToastificationType.error,
+            bottomPadding: keyboardHeight,
             message: message,
           );
         },
@@ -227,6 +233,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             context,
             message:
                 LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
+            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -244,6 +251,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             context,
             type: ToastificationType.error,
             message: message,
+            bottomPadding: keyboardHeight,
           );
         },
       );
@@ -255,6 +263,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceSuccess
                 .tr(),
+            bottomPadding: keyboardHeight,
           );
         },
         (f) {
@@ -264,6 +273,7 @@ class _InviteMemberPageState extends State<_InviteMemberPage> {
             message: LocaleKeys
                 .settings_appearance_members_removeFromWorkspaceFailed
                 .tr(),
+            bottomPadding: keyboardHeight,
           );
         },
       );

@@ -3,7 +3,16 @@ import { DatabaseContext, useDatabase, useDatabaseView } from '@/application/dat
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { Tooltip } from '@mui/material';
-import { forwardRef, FunctionComponent, SVGProps, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  forwardRef,
+  FunctionComponent,
+  SVGProps,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { ViewTabs, ViewTab } from 'src/components/_shared/tabs/ViewTabs';
 import { useTranslation } from 'react-i18next';
 
@@ -67,6 +76,19 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
 
     const showActions = !hideConditions && layout !== DatabaseViewLayout.Calendar;
 
+    const getSelectedTabIndicatorProps = useCallback(() => {
+      const selectedTab = document.getElementById(`view-tab-${selectedViewId}`);
+
+      if (!selectedTab) return;
+
+      return {
+        style: {
+          width: selectedTab.clientWidth,
+          left: selectedTab.offsetLeft,
+        },
+      };
+    }, [selectedViewId]);
+
     if (viewIds.length === 0) return null;
     return (
       <div ref={ref} className={className}>
@@ -82,6 +104,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
             allowScrollButtonsMobile
             value={selectedViewId}
             onChange={handleChange}
+            TabIndicatorProps={getSelectedTabIndicatorProps()}
           >
             {viewIds.map((viewId) => {
               const view = views?.get(viewId) as YDatabaseView | null;
@@ -94,6 +117,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               return (
                 <ViewTab
                   key={viewId}
+                  id={`view-tab-${viewId}`}
                   data-testid={`view-tab-${viewId}`}
                   icon={<Icon className={'h-4 w-4'} />}
                   iconPosition="start"

@@ -38,6 +38,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     _device_id: &str,
+    authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     self
       .server_provider
@@ -64,7 +65,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         },
       )
       .await?;
-    self.database_manager.initialize(user_id).await?;
+    self
+      .database_manager
+      .initialize(user_id, authenticator == &Authenticator::Local)
+      .await?;
     self.document_manager.initialize(user_id).await?;
     Ok(())
   }
@@ -74,6 +78,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_id: i64,
     user_workspace: &UserWorkspace,
     device_id: &str,
+    authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     event!(
       tracing::Level::TRACE,
@@ -86,7 +91,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .folder_manager
       .initialize_with_workspace_id(user_id)
       .await?;
-    self.database_manager.initialize(user_id).await?;
+    self
+      .database_manager
+      .initialize(user_id, authenticator.is_local())
+      .await?;
     self.document_manager.initialize(user_id).await?;
     Ok(())
   }
@@ -97,6 +105,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
     device_id: &str,
+    authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     self
       .server_provider
@@ -156,7 +165,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     self
       .database_manager
-      .initialize_with_new_user(user_profile.uid)
+      .initialize_with_new_user(user_profile.uid, authenticator.is_local())
       .await
       .context("DatabaseManager error")?;
 
@@ -173,14 +182,23 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     Ok(())
   }
 
-  async fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> FlowyResult<()> {
+  async fn open_workspace(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
     self
       .folder_manager
       .initialize_with_workspace_id(user_id)
       .await?;
-    self.database_manager.initialize(user_id).await?;
+    self
+      .database_manager
+      .initialize(user_id, authenticator.is_local())
+      .await?;
     self.document_manager.initialize(user_id).await?;
     self.ai_manager.initialize(&user_workspace.id).await?;
+    self.storage_manager.initialize(&user_workspace.id).await;
     Ok(())
   }
 

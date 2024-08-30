@@ -89,7 +89,10 @@ class SignInAnonymousButton extends StatelessWidget {
 class SignInAnonymousButtonV2 extends StatelessWidget {
   const SignInAnonymousButtonV2({
     super.key,
+    this.child,
   });
+
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -126,11 +129,12 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
                     onTap: onTap,
-                    child: FlowyText(
-                      text,
-                      color: Colors.blue,
-                      fontSize: 12,
-                    ),
+                    child: child ??
+                        FlowyText(
+                          text,
+                          color: Colors.blue,
+                          fontSize: 12,
+                        ),
                   ),
                 );
               },

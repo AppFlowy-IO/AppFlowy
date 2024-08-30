@@ -44,7 +44,8 @@ class RowCache {
       for (final fieldInfo in fieldInfos) {
         _cellMemCache.removeCellWithFieldId(fieldInfo.id);
       }
-      _changedNotifier.receive(const ChangedReason.fieldDidChange());
+
+      _changedNotifier?.receive(const ChangedReason.fieldDidChange());
     });
   }
 
@@ -53,7 +54,9 @@ class RowCache {
   final CellMemCache _cellMemCache;
   final RowLifeCycle _rowLifeCycle;
   final RowFieldsDelegate _fieldDelegate;
-  final RowChangesetNotifier _changedNotifier;
+  RowChangesetNotifier? _changedNotifier;
+  bool _isInitialRows = false;
+  final List<RowsVisibilityChangePB> _pendingVisibilityChanges = [];
 
   /// Returns a unmodifiable list of RowInfo
   UnmodifiableListView<RowInfo> get rowInfos {
@@ -67,7 +70,8 @@ class RowCache {
   }
 
   CellMemCache get cellCache => _cellMemCache;
-  ChangedReason get changeReason => _changedNotifier.reason;
+  ChangedReason get changeReason =>
+      _changedNotifier?.reason ?? const InitialListState();
 
   RowInfo? getRow(RowId rowId) {
     return _rowList.get(rowId);
@@ -78,18 +82,25 @@ class RowCache {
       final rowInfo = buildGridRow(row);
       _rowList.add(rowInfo);
     }
-    _changedNotifier.receive(const ChangedReason.setInitialRows());
+    _isInitialRows = true;
+    _changedNotifier?.receive(const ChangedReason.setInitialRows());
+
+    for (final changeset in _pendingVisibilityChanges) {
+      applyRowsVisibility(changeset);
+    }
+    _pendingVisibilityChanges.clear();
   }
 
   void setRowMeta(RowMetaPB rowMeta) {
     final rowInfo = buildGridRow(rowMeta);
     _rowList.add(rowInfo);
-    _changedNotifier.receive(const ChangedReason.didFetchRow());
+    _changedNotifier?.receive(const ChangedReason.didFetchRow());
   }
 
   void dispose() {
     _rowLifeCycle.onRowDisposed();
-    _changedNotifier.dispose();
+    _changedNotifier?.dispose();
+    _changedNotifier = null;
     _cellMemCache.dispose();
   }
 
@@ -100,13 +111,17 @@ class RowCache {
   }
 
   void applyRowsVisibility(RowsVisibilityChangePB changeset) {
-    _hideRows(changeset.invisibleRows);
-    _showRows(changeset.visibleRows);
+    if (_isInitialRows) {
+      _hideRows(changeset.invisibleRows);
+      _showRows(changeset.visibleRows);
+    } else {
+      _pendingVisibilityChanges.add(changeset);
+    }
   }
 
   void reorderAllRows(List<String> rowIds) {
     _rowList.reorderWithRowIds(rowIds);
-    _changedNotifier.receive(const ChangedReason.reorderRows());
+    _changedNotifier?.receive(const ChangedReason.reorderRows());
   }
 
   void reorderSingleRow(ReorderSingleRowPB reorderRow) {
@@ -117,7 +132,7 @@ class RowCache {
         reorderRow.oldIndex,
         reorderRow.newIndex,
       );
-      _changedNotifier.receive(
+      _changedNotifier?.receive(
         ChangedReason.reorderSingleRow(
           reorderRow,
           rowInfo,
@@ -130,7 +145,7 @@ class RowCache {
     for (final rowId in deletedRowIds) {
       final deletedRow = _rowList.remove(rowId);
       if (deletedRow != null) {
-        _changedNotifier.receive(ChangedReason.delete(deletedRow));
+        _changedNotifier?.receive(ChangedReason.delete(deletedRow));
       }
     }
   }
@@ -140,7 +155,7 @@ class RowCache {
       final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
       if (insertedIndex != null) {
-        _changedNotifier.receive(ChangedReason.insert(insertedIndex));
+        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
       }
     }
   }
@@ -165,7 +180,7 @@ class RowCache {
         _rowList.updateRows(updatedList, (rowId) => buildGridRow(rowId));
 
     if (updatedIndexs.isNotEmpty) {
-      _changedNotifier.receive(ChangedReason.update(updatedIndexs));
+      _changedNotifier?.receive(ChangedReason.update(updatedIndexs));
     }
   }
 
@@ -173,7 +188,7 @@ class RowCache {
     for (final rowId in invisibleRows) {
       final deletedRow = _rowList.remove(rowId);
       if (deletedRow != null) {
-        _changedNotifier.receive(ChangedReason.delete(deletedRow));
+        _changedNotifier?.receive(ChangedReason.delete(deletedRow));
       }
     }
   }
@@ -183,14 +198,16 @@ class RowCache {
       final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
       if (insertedIndex != null) {
-        _changedNotifier.receive(ChangedReason.insert(insertedIndex));
+        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
       }
     }
   }
 
   void onRowsChanged(void Function(ChangedReason) onRowChanged) {
-    _changedNotifier.addListener(() {
-      onRowChanged(_changedNotifier.reason);
+    _changedNotifier?.addListener(() {
+      if (_changedNotifier != null) {
+        onRowChanged(_changedNotifier!.reason);
+      }
     });
   }
 
@@ -203,17 +220,19 @@ class RowCache {
         final rowInfo = _rowList.get(rowId);
         if (rowInfo != null) {
           final cellDataMap = _makeCells(rowInfo.rowMeta);
-          onRowChanged(cellDataMap, _changedNotifier.reason);
+          if (_changedNotifier != null) {
+            onRowChanged(cellDataMap, _changedNotifier!.reason);
+          }
         }
       }
     }
 
-    _changedNotifier.addListener(listenerHandler);
+    _changedNotifier?.addListener(listenerHandler);
     return listenerHandler;
   }
 
   void removeRowListener(VoidCallback callback) {
-    _changedNotifier.removeListener(callback);
+    _changedNotifier?.removeListener(callback);
   }
 
   List<CellContext> loadCells(RowMetaPB rowMeta) {
@@ -242,7 +261,7 @@ class RowCache {
             rowId: rowMetaPB.id,
           );
 
-          _changedNotifier.receive(ChangedReason.update(updatedIndexs));
+          _changedNotifier?.receive(ChangedReason.update(updatedIndexs));
         }
       },
       (err) => Log.error(err),

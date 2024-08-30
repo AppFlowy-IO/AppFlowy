@@ -14,7 +14,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::workspace_database::DatabaseMetaList;
+use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
@@ -353,7 +353,7 @@ where
     &mut imported_database_indexer.transact_mut(),
   )?;
 
-  let array = DatabaseMetaList::new(&mut imported_database_indexer);
+  let array = WorkspaceDatabaseBody::new(&mut imported_database_indexer);
   for database_meta_list in array.get_all_database_meta(&imported_database_indexer.transact()) {
     database_view_ids_by_database_id.insert(
       old_to_new_id_map.exchange_new_id(&database_meta_list.database_id),
@@ -403,7 +403,7 @@ where
   let new_uid = new_user_session.user_id;
   let new_object_id = &new_user_session.user_workspace.database_indexer_id;
 
-  let array = DatabaseMetaList::new(&mut database_with_views_collab);
+  let array = WorkspaceDatabaseBody::new(&mut database_with_views_collab);
   let mut txn = database_with_views_collab.transact_mut();
   for database_meta in array.get_all_database_meta(&txn) {
     array.update_database(&mut txn, &database_meta.database_id, |update| {
@@ -563,8 +563,14 @@ where
       let doc = Doc::new();
       {
         let mut txn = doc.transact_mut();
-        txn.apply_update(update);
-        drop(txn);
+        if let Err(e) = txn.apply_update(update) {
+          error!(
+            "Collab {} failed to apply update: {}",
+            collab.object_id(),
+            e
+          );
+          return;
+        }
       }
 
       let txn = doc.transact();

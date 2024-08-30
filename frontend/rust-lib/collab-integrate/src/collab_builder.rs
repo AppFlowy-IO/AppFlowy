@@ -25,11 +25,11 @@ use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 }
 
 pub use crate::plugin_provider::CollabCloudPluginProvider;
+use collab::lock::RwLock;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
-use tokio::sync::RwLock;
 
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
@@ -162,14 +162,6 @@ impl AppFlowyCollabBuilder {
     collab.enable_undo_redo();
 
     let document = Document::open_with(collab, data)?;
-    self.flush_collab_if_not_exist(
-      object.uid,
-      &object.object_id,
-      collab_db.clone(),
-      &expected_collab_type,
-      &document,
-    )?;
-
     let document = Arc::new(RwLock::new(document));
     self.finalize(object, builder_config, document)
   }
@@ -192,15 +184,6 @@ impl AppFlowyCollabBuilder {
     assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
-
-    self.flush_collab_if_not_exist(
-      object.uid,
-      &object.object_id,
-      collab_db.clone(),
-      &expected_collab_type,
-      &folder,
-    )?;
-
     let folder = Arc::new(RwLock::new(folder));
     self.finalize(object, builder_config, folder)
   }
@@ -222,15 +205,6 @@ impl AppFlowyCollabBuilder {
     assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let user_awareness = UserAwareness::open(collab, notifier);
-
-    self.flush_collab_if_not_exist(
-      object.uid,
-      &object.object_id,
-      collab_db.clone(),
-      &expected_collab_type,
-      &user_awareness,
-    )?;
-
     let user_awareness = Arc::new(RwLock::new(user_awareness));
     self.finalize(object, builder_config, user_awareness)
   }
@@ -241,22 +215,13 @@ impl AppFlowyCollabBuilder {
     &self,
     object: CollabObject,
     collab: Collab,
-    collab_db: Weak<CollabKVDB>,
+    _collab_db: Weak<CollabKVDB>,
     builder_config: CollabBuilderConfig,
     collab_service: impl DatabaseCollabService,
   ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
     let expected_collab_type = CollabType::WorkspaceDatabase;
     assert_eq!(object.collab_type, expected_collab_type);
-    let workspace = WorkspaceDatabase::open(collab, collab_service);
-
-    self.flush_collab_if_not_exist(
-      object.uid,
-      &object.object_id,
-      collab_db.clone(),
-      &expected_collab_type,
-      &workspace,
-    )?;
-
+    let workspace = WorkspaceDatabase::open(&object.object_id, collab, collab_service);
     let workspace = Arc::new(RwLock::new(workspace));
     self.finalize(object, builder_config, workspace)
   }
@@ -267,7 +232,7 @@ impl AppFlowyCollabBuilder {
     collab_db: &Weak<CollabKVDB>,
     data_source: DataSource,
   ) -> Result<Collab, Error> {
-    let collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
+    let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
 
@@ -280,7 +245,7 @@ impl AppFlowyCollabBuilder {
       persistence_config.clone(),
     );
     collab.add_plugin(Box::new(db_plugin));
-
+    collab.initialize();
     Ok(collab)
   }
 
@@ -293,43 +258,34 @@ impl AppFlowyCollabBuilder {
   where
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
-    if !build_config.sync_enable {
-      return Ok(collab);
-    }
-
     let mut write_collab = collab.try_write()?;
-    if !write_collab.borrow().get_state().is_uninitialized() {
-      warn!("{} is already initialized", object);
-      drop(write_collab);
-      return Ok(collab);
-    }
+    if build_config.sync_enable {
+      trace!("🚀finalize collab:{}", object);
+      let plugin_provider = self.plugin_provider.load_full();
+      let provider_type = plugin_provider.provider_type();
+      let span =
+        tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object.object_id);
+      let _enter = span.enter();
+      match provider_type {
+        CollabPluginProviderType::AppFlowyCloud => {
+          let local_collab = Arc::downgrade(&collab);
+          let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+            uid: object.uid,
+            collab_object: object,
+            local_collab,
+          });
 
-    trace!("🚀finalize collab:{}", object);
-    let plugin_provider = self.plugin_provider.load_full();
-    let provider_type = plugin_provider.provider_type();
-    let span =
-      tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object.object_id);
-    let _enter = span.enter();
-    match provider_type {
-      CollabPluginProviderType::AppFlowyCloud => {
-        let local_collab = Arc::downgrade(&collab);
-        let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-          uid: object.uid,
-          collab_object: object,
-          local_collab,
-        });
-
-        // at the moment when we get the lock, the collab object is not yet exposed outside
-        for plugin in plugins {
-          write_collab.borrow().add_plugin(plugin);
-        }
-      },
-      CollabPluginProviderType::Local => {},
+          // at the moment when we get the lock, the collab object is not yet exposed outside
+          for plugin in plugins {
+            write_collab.borrow().add_plugin(plugin);
+          }
+        },
+        CollabPluginProviderType::Local => {},
+      }
     }
 
     (*write_collab).borrow_mut().initialize();
     drop(write_collab);
-
     Ok(collab)
   }
 
@@ -349,17 +305,17 @@ impl AppFlowyCollabBuilder {
       let write_txn = collab_db.write_txn();
       let is_not_exist_on_disk = !write_txn.is_exist(uid, object_id);
       if is_not_exist_on_disk {
-        trace!("flush collab:{}-{} to disk", collab_type, object_id);
+        trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
         let collab: &Collab = collab.borrow();
         let encode_collab =
           collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
-
         write_txn.flush_doc(
           uid,
           object_id,
           encode_collab.state_vector.to_vec(),
           encode_collab.doc_state.to_vec(),
         )?;
+        write_txn.commit_transaction()?;
       }
     }
 

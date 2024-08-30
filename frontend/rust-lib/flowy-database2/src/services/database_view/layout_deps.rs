@@ -1,10 +1,10 @@
+use collab::lock::RwLock;
 use collab_database::database::{gen_field_id, Database};
 use collab_database::fields::Field;
 use collab_database::views::{
   DatabaseLayout, FieldSettingsByFieldIdMap, LayoutSetting, OrderObjectPosition,
 };
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 use crate::entities::FieldType;
 use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
