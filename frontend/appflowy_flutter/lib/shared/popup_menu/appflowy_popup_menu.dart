@@ -700,8 +700,8 @@ class _PopupMenuState<T> extends State<_PopupMenu<T>> {
 
   @override
   void dispose() {
-    super.dispose();
     _kPopupMenuKey = null;
+    super.dispose();
   }
 
   void dismiss() {
