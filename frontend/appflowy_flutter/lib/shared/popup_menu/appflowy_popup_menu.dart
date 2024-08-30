@@ -33,9 +33,10 @@ const double _kMenuVerticalPadding = 8.0;
 const double _kMenuWidthStep = 56.0;
 const double _kMenuScreenPadding = 8.0;
 
-GlobalKey<_PopupMenuState> _kPopupMenuKey = GlobalKey<_PopupMenuState>();
+GlobalKey<_PopupMenuState>? _kPopupMenuKey;
 void closePopupMenu() {
-  _kPopupMenuKey.currentState?.dismiss();
+  _kPopupMenuKey?.currentState?.dismiss();
+  _kPopupMenuKey = null;
 }
 
 /// A base class for entries in a Material Design popup menu.
@@ -697,8 +698,19 @@ class _PopupMenuState<T> extends State<_PopupMenu<T>> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _kPopupMenuKey = null;
+  }
+
   void dismiss() {
-    Navigator.of(context).maybePop();
+    if (_kPopupMenuKey == null) {
+      return;
+    }
+
+    Navigator.of(context).pop();
+    _kPopupMenuKey = null;
   }
 }
 
@@ -951,6 +963,7 @@ class _PopupMenuRoute<T> extends PopupRoute<T> {
       scrollTo(selectedItemIndex);
     }
 
+    _kPopupMenuKey ??= GlobalKey<_PopupMenuState>();
     final Widget menu = _PopupMenu<T>(
       key: _kPopupMenuKey,
       route: this,
@@ -1622,3 +1635,12 @@ class _PopupMenuDefaultsM3 extends PopupMenuThemeData {
       const EdgeInsets.symmetric(horizontal: 12.0);
 }
 // END GENERATED TOKEN PROPERTIES - PopupMenu
+
+extension PopupMenuColors on BuildContext {
+  Color get popupMenuBackgroundColor {
+    if (Theme.of(this).brightness == Brightness.light) {
+      return Theme.of(this).colorScheme.surface;
+    }
+    return const Color(0xFF23262B);
+  }
+}

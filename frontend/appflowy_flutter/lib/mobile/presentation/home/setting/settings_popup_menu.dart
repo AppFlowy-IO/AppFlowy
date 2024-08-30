@@ -22,6 +22,7 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return PopupMenuButton<_MobileSettingsPopupMenuItem>(
       offset: const Offset(0, 36),
       padding: EdgeInsets.zero,
@@ -32,7 +33,7 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
       ),
       shadowColor: const Color(0x68000000),
       elevation: 10,
-      color: Theme.of(context).colorScheme.surface,
+      color: context.popupMenuBackgroundColor,
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<_MobileSettingsPopupMenuItem>>[
         _buildItem(

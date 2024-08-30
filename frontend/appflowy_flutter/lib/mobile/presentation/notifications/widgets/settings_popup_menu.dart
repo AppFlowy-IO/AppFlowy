@@ -36,7 +36,7 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
       // todo: replace it with shadows
       shadowColor: const Color(0x68000000),
       elevation: 10,
-      color: Theme.of(context).colorScheme.surface,
+      color: context.popupMenuBackgroundColor,
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<_NotificationSettingsPopupMenuItem>>[
         _buildItem(
