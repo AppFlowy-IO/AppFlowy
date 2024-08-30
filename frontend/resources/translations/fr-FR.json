@@ -36,6 +36,7 @@
     "loginButtonText": "Connexion",
     "loginStartWithAnonymous": "Lancer avec une session anonyme",
     "continueAnonymousUser": "Continuer avec une session anonyme",
+    "anonymous": "Anonyme",
     "buttonText": "Se connecter",
     "signingInText": "Connexion en cours...",
     "forgotPassword": "Mot de passe oublié ?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Continuer avec Google",
     "signInWithGithub": "Continuer avec Github",
     "signInWithDiscord": "Continuer avec Discord",
+    "signInWithApple": "Se connecter via Apple",
+    "continueAnotherWay": "Continuer via une autre méthode",
     "signUpWithGoogle": "S'inscrire avec Google",
     "signUpWithGithub": "S'inscrire avec Github",
     "signUpWithDiscord": "S'inscrire avec Discord",
@@ -166,6 +169,7 @@
     "inputMessageHint": "Demandez à l'IA @:appName",
     "inputLocalAIMessageHint": "Demander l'IA locale @:appName",
     "unsupportedCloudPrompt": "Cette fonctionnalité n'est disponible que lors de l'utilisation du cloud @:appName",
+    "relatedQuestion": "Questions Associées",
     "serverUnavailable": "Service temporairement indisponible. Veuillez réessayer ultérieurement.",
     "aiServerUnavailable": "🌈 Oh-oh ! 🌈. Une licorne a mangé notre réponse. Veuillez réessayer !",
     "clickToRetry": "Cliquez pour réessayer",
@@ -379,6 +383,7 @@
     "next": "Suivant",
     "previous": "Précédent",
     "submit": "Soumettre",
+    "download": "Télécharger",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -403,6 +408,12 @@
   },
   "settings": {
     "title": "Paramètres",
+    "popupMenuItem": {
+      "settings": "Paramètres",
+      "members": "Membres",
+      "trash": "Corbeille",
+      "helpAndSupport": "Aide & Support"
+    },
     "accountPage": {
       "menuLabel": "Mon compte",
       "title": "Mon compte",
@@ -667,6 +678,7 @@
       "keys": {
         "enableAISearchTitle": "Recherche IA",
         "aiSettingsDescription": "Choisissez votre modèle préféré pour alimenter AppFlowy AI. Inclut désormais GPT 4-o, Claude 3,5, Llama 3.1 et Mistral 7B",
+        "loginToEnableAIFeature": "Les fonctionnalités d'IA sont accessibles uniquement après s'être connecté avec @:appName Cloud. Pour créer un compte @:appName, voir dans la rubrique 'Mon Compte'.",
         "llmModel": "Modèle de langage",
         "llmModelType": "Type de modèle de langue",
         "downloadLLMPrompt": "Télécharger {}",
@@ -699,14 +711,21 @@
       "planUsage": {
         "title": "Résumé de l'utilisation du plan",
         "storageLabel": "Stockage",
+        "storageUsage": "{} sur {} GB",
         "unlimitedStorageLabel": "Stockage illimité",
         "collaboratorsLabel": "Membres",
+        "collaboratorsUsage": "{} sur {}",
         "aiResponseLabel": "Réponses de l'IA",
+        "aiResponseUsage": "{} sur {}",
+        "unlimitedAILabel": "Réponses illimitées",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
         "memberProToggle": "Plus de membres et une IA illimitée",
         "aiMaxToggle": "IA illimitée et accès à des modèles avancés",
         "aiOnDeviceToggle": "IA locale pour une confidentialité ultime",
         "aiCredit": {
           "title": "Ajoutez des crédit IA @:appName ",
+          "price": "{}",
           "priceDescription": "pour 1 000 crédits",
           "purchase": "Acheter l'IA",
           "infoItemOne": "10 000 réponses par base de données",
@@ -715,6 +734,7 @@
         "currentPlan": {
           "bannerLabel": "Plan actuel",
           "freeTitle": "Gratuit",
+          "proTitle": "Pro",
           "teamTitle": "Équipe",
           "freeInfo": "Idéal pour les particuliers jusqu'à 2 membres pour tout organiser",
           "proInfo": "Idéal pour les petites et moyennes équipes jusqu'à 10 membres.",
@@ -727,10 +747,13 @@
           "addLabel": "Ajouter",
           "activeLabel": "Ajouté",
           "aiMax": {
+            "title": "AI Max",
+            "price": "{}",
             "priceInfo": "par utilisateur et par mois, facturé annuellement"
           },
           "aiOnDevice": {
             "description": "Exécutez Mistral 7B, LLAMA 3 et d'autres modèles locaux sur votre machine",
+            "price": "{}",
             "priceInfo": "par utilisateur et par mois, facturé annuellement",
             "recommend": "Recommand2 M1 ou plus récent"
           }
@@ -746,7 +769,9 @@
       "menuLabel": "Facturation",
       "title": "Facturation",
       "plan": {
+        "title": "Plan",
         "freeLabel": "Gratuit",
+        "proLabel": "Pro",
         "planButtonLabel": "Changer de plan",
         "billingPeriod": "Période de facturation",
         "periodButtonLabel": "Changer la période "
@@ -772,6 +797,10 @@
           "description": "Débloquez une IA illimitée locale sur votre appareil",
           "activeDescription": "Prochaine facture due le {}",
           "canceledDescription": "IA locale pour Mac sera disponible jusqu'au {}"
+        },
+        "removeDialog": {
+          "title": "Supprimer",
+          "description": "Êtes-vous sûr de vouloir supprimer {plan}? Vous perdrez l'accès aux fonctionnalités et bénéfices de {plan} de manière immédiate."
         }
       },
       "currentPeriodBadge": "ACTUEL",
@@ -786,15 +815,20 @@
       "planFeatures": "Plan\nCaractéristiques",
       "current": "Actuel",
       "actions": {
+        "upgrade": "Améliorer",
+        "downgrade": "Rétrograder",
         "current": "Actuel"
       },
       "freePlan": {
         "title": "Gratuit",
         "description": "Pour les particuliers jusqu'à 2 membres pour tout organiser",
+        "price": "{}",
         "priceInfo": "gratuit pour toujours"
       },
       "proPlan": {
+        "title": "Pro",
         "description": "Pour les petites équipes pour gérer les projets et les bases de connaissance",
+        "price": "{}",
         "priceInfo": "par utilisateur et par mois\nfacturé annuellement\n\n{} facturé mensuellement"
       },
       "planLabels": {
@@ -833,6 +867,7 @@
       }
     },
     "cancelSurveyDialog": {
+      "title": "Désolé de vous voir partir",
       "commonOther": "Autre",
       "otherHint": "Écrivez votre réponse ici",
       "questionOne": {
@@ -944,7 +979,8 @@
       },
       "action": {
         "markAsRead": "Marquer comme lu",
-        "multipleChoice": "Sélectionnez plus"
+        "multipleChoice": "Sélectionnez plus",
+        "archive": "Archiver"
       },
       "settings": {
         "settings": "Paramètres",
@@ -970,6 +1006,7 @@
       },
       "refreshSuccess": "Les notifications ont été actualisées avec succès",
       "titles": {
+        "notifications": "Notifications",
         "reminder": "Rappel"
       }
     },
@@ -1073,12 +1110,15 @@
         "memberLimitExceeded": "Vous avez atteint la limite maximale de membres autorisée pour votre compte. Si vous souhaitez ajouter d'autres membres pour continuer votre travail, veuillez en faire la demande sur Github.",
         "memberLimitExceededUpgrade": "mise à niveau",
         "memberLimitExceededPro": "Limite de membres atteinte, si vous avez besoin de plus de membres, contactez ",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "Échec de l'ajout d'un membre",
         "addMemberSuccess": "Membre ajouté avec succès",
         "removeMember": "Supprimer un membre",
         "areYouSureToRemoveMember": "Êtes-vous sûr de vouloir supprimer ce membre ?",
         "inviteMemberSuccess": "L'invitation a été envoyée avec succès",
-        "failedToInviteMember": "Impossible d'inviter un membre"
+        "failedToInviteMember": "Impossible d'inviter un membre",
+        "workspaceMembersError": "Une erreur s'est produite",
+        "workspaceMembersErrorDescription": "Nous n'avons pas pu charger la liste des membres. Veuillez essayer plus tard s'il vous plait"
       }
     },
     "files": {
@@ -1281,6 +1321,8 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Check-list",
       "relationFieldName": "Relation",
+      "summaryFieldName": "Résume IA",
+      "translateFieldName": "Traduction IA",
       "translateTo": "Traduire en",
       "numberFormat": "Format du nombre",
       "dateFormat": "Format de la date",
@@ -1450,11 +1492,13 @@
         "heading1": "Titre 1",
         "heading2": "Titre 2",
         "heading3": "Titre 3",
+        "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
         "linkedGrid": "Grille liée",
+        "kanban": "Kanban",
         "linkedKanban": "Kanban lié",
         "calendar": "Calendrier",
         "linkedCalendar": "Calendrier lié",
@@ -1462,6 +1506,7 @@
         "divider": "Diviseur",
         "table": "Tableau",
         "mathEquation": "Équation mathématique",
+        "code": "Code",
         "emoji": "Émoji",
         "aiWriter": "Rédacteur IA",
         "dateOrReminder": "Date ou rappel",
@@ -1567,7 +1612,9 @@
       },
       "photoGallery": {
         "name": "Galerie de photos",
+        "imageKeyword": "image",
         "imageGalleryKeyword": "Galerie d'images",
+        "photoKeyword": "photo",
         "photoBrowserKeyword": "navigateur de photos",
         "galleryKeyword": "galerie",
         "addImageTooltip": "Ajouter une image",
@@ -1700,6 +1747,7 @@
           "openLocalImage": "Ouvrir l'image",
           "downloadImage": "Télécharger l'image",
           "closeViewer": "Fermer la visionneuse",
+          "scalePercentage": "{}%",
           "deleteImageTooltip": "Supprimer l'image"
         }
       },
@@ -1708,7 +1756,8 @@
     "codeBlock": {
       "language": {
         "label": "Langue",
-        "placeholder": "Choisir la langue"
+        "placeholder": "Choisir la langue",
+        "auto": "Auto"
       },
       "copyTooltip": "Copier le contenu du bloc de code",
       "searchLanguageHint": "Rechercher une langue",
@@ -1793,6 +1842,7 @@
       "failedToLoad": "Échec du chargement de la vue du tableau"
     },
     "dateCondition": {
+      "weekOf": "Semaine de {} - {}",
       "today": "Aujourd'hui",
       "yesterday": "Hier",
       "tomorrow": "Demain",

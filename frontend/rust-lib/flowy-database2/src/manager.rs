@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::DataSource;
+use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
 use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
@@ -20,7 +21,7 @@ use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use dashmap::DashMap;
 use tokio::select;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, instrument, trace};
 
@@ -39,6 +40,7 @@ use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
+use tokio::sync::RwLock as TokioRwLock;
 
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
@@ -53,7 +55,7 @@ pub trait DatabaseUser: Send + Sync {
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
   workspace_database: ArcSwapOption<RwLock<WorkspaceDatabase>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
   removing_editor: Arc<Mutex<HashMap<String, Arc<DatabaseEditor>>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -64,7 +66,7 @@ pub struct DatabaseManager {
 impl DatabaseManager {
   pub fn new(
     database_user: Arc<dyn DatabaseUser>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
@@ -370,7 +372,7 @@ impl DatabaseManager {
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
 
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
+    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data, None);
     let old_view_id = create_database_params.inline_view_id.clone();
     create_database_params.inline_view_id = view_id.to_string();
 
@@ -813,7 +815,9 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           }
         },
         Err(err) => {
-          error!("build collab: failed to get encode collab: {}", err);
+          if !matches!(err, DatabaseError::ActionCancelled) {
+            error!("build collab: failed to get encode collab: {}", err);
+          }
           return Err(err);
         },
       }
@@ -906,27 +910,26 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     }
   }
 
-  fn flush_collab(
+  fn flush_collabs(
     &self,
-    object_id: &str,
-    encode_collab: EncodedCollab,
+    encoded_collabs: Vec<(String, EncodedCollab)>,
   ) -> Result<(), DatabaseError> {
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      trace!("[Database]: flush collab:{}", object_id);
       let write_txn = collab_db.write_txn();
-      write_txn
-        .flush_doc(
-          uid,
-          object_id,
-          encode_collab.state_vector.to_vec(),
-          encode_collab.doc_state.to_vec(),
-        )
-        .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
-
+      for (object_id, encode_collab) in encoded_collabs {
+        write_txn
+          .flush_doc(
+            uid,
+            &object_id,
+            encode_collab.state_vector.to_vec(),
+            encode_collab.doc_state.to_vec(),
+          )
+          .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
+      }
       write_txn
         .commit_transaction()
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;

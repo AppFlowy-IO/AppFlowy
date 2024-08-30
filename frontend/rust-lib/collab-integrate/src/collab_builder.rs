@@ -25,11 +25,11 @@ use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 }
 
 pub use crate::plugin_provider::CollabCloudPluginProvider;
+use collab::lock::RwLock;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
-use tokio::sync::RwLock;
 
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};

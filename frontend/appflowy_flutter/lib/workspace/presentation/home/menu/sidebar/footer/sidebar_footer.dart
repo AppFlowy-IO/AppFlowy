@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'sidebar_footer_button.dart';
@@ -26,9 +27,24 @@ class SidebarFooter extends StatelessWidget {
               return const SidebarToast();
             },
           ),
-        const SidebarTemplateButton(),
-        const SidebarTrashButton(),
+        Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Expanded(child: SidebarTemplateButton()),
+            _buildVerticalDivider(context),
+            const Expanded(child: SidebarTrashButton()),
+          ],
+        ),
       ],
+    );
+  }
+
+  Widget _buildVerticalDivider(BuildContext context) {
+    return Container(
+      width: 1.0,
+      height: 14,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: AFThemeExtension.of(context).borderColor,
     );
   }
 }
@@ -39,12 +55,9 @@ class SidebarTemplateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SidebarFooterButton(
-      leftIconSize: const Size.square(24.0),
-      leftIcon: const Padding(
-        padding: EdgeInsets.all(2.0),
-        child: FlowySvg(
-          FlowySvgs.icon_template_s,
-        ),
+      leftIconSize: const Size.square(18.0),
+      leftIcon: const FlowySvg(
+        FlowySvgs.icon_template_s,
       ),
       text: LocaleKeys.template_label.tr(),
       onTap: () => afLaunchUrlString('https://appflowy.io/templates'),
@@ -61,9 +74,9 @@ class SidebarTrashButton extends StatelessWidget {
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
         return SidebarFooterButton(
-          leftIconSize: const Size.square(24.0),
+          leftIconSize: const Size.square(18.0),
           leftIcon: const FlowySvg(
-            FlowySvgs.sidebar_footer_trash_m,
+            FlowySvgs.icon_delete_s,
           ),
           text: LocaleKeys.trash_text.tr(),
           onTap: () {

@@ -5,6 +5,7 @@ use crate::entities::{
 use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser};
 use crate::notification::{send_notification, FolderNotification};
 use collab::core::collab_state::SyncState;
+use collab::lock::RwLock;
 use collab_folder::{
   Folder, SectionChange, SectionChangeReceiver, TrashSectionChange, View, ViewChange,
   ViewChangeReceiver,
@@ -12,7 +13,6 @@ use collab_folder::{
 use lib_dispatch::prelude::af_spawn;
 use std::collections::HashSet;
 use std::sync::Weak;
-use tokio::sync::RwLock;
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
 use tracing::{event, trace, Level};
