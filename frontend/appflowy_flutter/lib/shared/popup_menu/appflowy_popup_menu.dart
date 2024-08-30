@@ -33,6 +33,12 @@ const double _kMenuVerticalPadding = 8.0;
 const double _kMenuWidthStep = 56.0;
 const double _kMenuScreenPadding = 8.0;
 
+GlobalKey<_PopupMenuState>? _kPopupMenuKey;
+void closePopupMenu() {
+  _kPopupMenuKey?.currentState?.dismiss();
+  _kPopupMenuKey = null;
+}
+
 /// A base class for entries in a Material Design popup menu.
 ///
 /// The popup menu widget uses this interface to interact with the menu items.
@@ -569,7 +575,7 @@ class _CheckedPopupMenuItemState<T>
   }
 }
 
-class _PopupMenu<T> extends StatelessWidget {
+class _PopupMenu<T> extends StatefulWidget {
   const _PopupMenu({
     super.key,
     required this.itemKeys,
@@ -586,9 +592,14 @@ class _PopupMenu<T> extends StatelessWidget {
   final Clip clipBehavior;
 
   @override
+  State<_PopupMenu<T>> createState() => _PopupMenuState<T>();
+}
+
+class _PopupMenuState<T> extends State<_PopupMenu<T>> {
+  @override
   Widget build(BuildContext context) {
     final double unit = 1.0 /
-        (route.items.length +
+        (widget.route.items.length +
             1.5); // 1.0 for the width and 0.5 for the last item's fade.
     final List<Widget> children = <Widget>[];
     final ThemeData theme = Theme.of(context);
@@ -597,16 +608,16 @@ class _PopupMenu<T> extends StatelessWidget {
         ? _PopupMenuDefaultsM3(context)
         : _PopupMenuDefaultsM2(context);
 
-    for (int i = 0; i < route.items.length; i += 1) {
+    for (int i = 0; i < widget.route.items.length; i += 1) {
       final double start = (i + 1) * unit;
       final double end = clampDouble(start + 1.5 * unit, 0.0, 1.0);
       final CurvedAnimation opacity = CurvedAnimation(
-        parent: route.animation!,
+        parent: widget.route.animation!,
         curve: Interval(start, end),
       );
-      Widget item = route.items[i];
-      if (route.initialValue != null &&
-          route.items[i].represents(route.initialValue)) {
+      Widget item = widget.route.items[i];
+      if (widget.route.initialValue != null &&
+          widget.route.items[i].represents(widget.route.initialValue)) {
         item = ColoredBox(
           color: Theme.of(context).highlightColor,
           child: item,
@@ -615,10 +626,10 @@ class _PopupMenu<T> extends StatelessWidget {
       children.add(
         _MenuItem(
           onLayout: (Size size) {
-            route.itemSizes[i] = size;
+            widget.route.itemSizes[i] = size;
           },
           child: FadeTransition(
-            key: itemKeys[i],
+            key: widget.itemKeys[i],
             opacity: opacity,
             child: item,
           ),
@@ -630,10 +641,10 @@ class _PopupMenu<T> extends StatelessWidget {
         CurveTween(curve: const Interval(0.0, 1.0 / 3.0));
     final CurveTween width = CurveTween(curve: Interval(0.0, unit));
     final CurveTween height =
-        CurveTween(curve: Interval(0.0, unit * route.items.length));
+        CurveTween(curve: Interval(0.0, unit * widget.route.items.length));
 
     final Widget child = ConstrainedBox(
-      constraints: constraints ??
+      constraints: widget.constraints ??
           const BoxConstraints(
             minWidth: _kMenuMinWidth,
             maxWidth: _kMenuMaxWidth,
@@ -644,7 +655,7 @@ class _PopupMenu<T> extends StatelessWidget {
           scopesRoute: true,
           namesRoute: true,
           explicitChildNodes: true,
-          label: semanticLabel,
+          label: widget.semanticLabel,
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               vertical: _kMenuVerticalPadding,
@@ -656,28 +667,28 @@ class _PopupMenu<T> extends StatelessWidget {
     );
 
     return AnimatedBuilder(
-      animation: route.animation!,
+      animation: widget.route.animation!,
       builder: (BuildContext context, Widget? child) {
         return FadeTransition(
-          opacity: opacity.animate(route.animation!),
+          opacity: opacity.animate(widget.route.animation!),
           child: Material(
-            shape: route.shape ?? popupMenuTheme.shape ?? defaults.shape,
-            color: route.color ?? popupMenuTheme.color ?? defaults.color,
-            clipBehavior: clipBehavior,
+            shape: widget.route.shape ?? popupMenuTheme.shape ?? defaults.shape,
+            color: widget.route.color ?? popupMenuTheme.color ?? defaults.color,
+            clipBehavior: widget.clipBehavior,
             type: MaterialType.card,
-            elevation: route.elevation ??
+            elevation: widget.route.elevation ??
                 popupMenuTheme.elevation ??
                 defaults.elevation!,
-            shadowColor: route.shadowColor ??
+            shadowColor: widget.route.shadowColor ??
                 popupMenuTheme.shadowColor ??
                 defaults.shadowColor,
-            surfaceTintColor: route.surfaceTintColor ??
+            surfaceTintColor: widget.route.surfaceTintColor ??
                 popupMenuTheme.surfaceTintColor ??
                 defaults.surfaceTintColor,
             child: Align(
               alignment: AlignmentDirectional.topEnd,
-              widthFactor: width.evaluate(route.animation!),
-              heightFactor: height.evaluate(route.animation!),
+              widthFactor: width.evaluate(widget.route.animation!),
+              heightFactor: height.evaluate(widget.route.animation!),
               child: child,
             ),
           ),
@@ -685,6 +696,21 @@ class _PopupMenu<T> extends StatelessWidget {
       },
       child: child,
     );
+  }
+
+  @override
+  void dispose() {
+    _kPopupMenuKey = null;
+    super.dispose();
+  }
+
+  void dismiss() {
+    if (_kPopupMenuKey == null) {
+      return;
+    }
+
+    Navigator.of(context).pop();
+    _kPopupMenuKey = null;
   }
 }
 
@@ -937,7 +963,9 @@ class _PopupMenuRoute<T> extends PopupRoute<T> {
       scrollTo(selectedItemIndex);
     }
 
+    _kPopupMenuKey ??= GlobalKey<_PopupMenuState>();
     final Widget menu = _PopupMenu<T>(
+      key: _kPopupMenuKey,
       route: this,
       itemKeys: itemKeys,
       semanticLabel: semanticLabel,
@@ -1526,7 +1554,7 @@ class PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
 
     if (widget.child != null) {
       return AnimatedGestureDetector(
-        scaleFactor: 0.99,
+        scaleFactor: 0.95,
         onTapUp: widget.enabled ? showButtonMenu : null,
         child: widget.child!,
       );
@@ -1607,3 +1635,12 @@ class _PopupMenuDefaultsM3 extends PopupMenuThemeData {
       const EdgeInsets.symmetric(horizontal: 12.0);
 }
 // END GENERATED TOKEN PROPERTIES - PopupMenu
+
+extension PopupMenuColors on BuildContext {
+  Color get popupMenuBackgroundColor {
+    if (Theme.of(this).brightness == Brightness.light) {
+      return Theme.of(this).colorScheme.surface;
+    }
+    return const Color(0xFF23262B);
+  }
+}

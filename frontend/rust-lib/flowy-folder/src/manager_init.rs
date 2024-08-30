@@ -2,12 +2,12 @@ use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
 use collab::core::collab::DataSource;
+use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::{Folder, FolderNotify};
 use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
-use tokio::sync::RwLock;
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
 
