@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
+import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +13,21 @@ enum ThirdPartySignInButtonType {
   github,
   discord,
   anonymous;
+
+  String get provider {
+    switch (this) {
+      case ThirdPartySignInButtonType.apple:
+        return 'apple';
+      case ThirdPartySignInButtonType.google:
+        return 'google';
+      case ThirdPartySignInButtonType.github:
+        return 'github';
+      case ThirdPartySignInButtonType.discord:
+        return 'discord';
+      case ThirdPartySignInButtonType.anonymous:
+        throw UnsupportedError('Anonymous session does not have a provider');
+    }
+  }
 
   FlowySvgData get icon {
     switch (this) {
@@ -131,6 +148,72 @@ class MobileThirdPartySignInButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+class DesktopSignInButton extends StatelessWidget {
+  const DesktopSignInButton({
+    super.key,
+    required this.type,
+    required this.onPressed,
+  });
+
+  final ThirdPartySignInButtonType type;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context);
+    // In desktop, the width of button is limited by [AuthFormContainer]
+    return SizedBox(
+      height: 48,
+      width: AuthFormContainer.width,
+      child: OutlinedButton.icon(
+        // In order to align all the labels vertically in a relatively centered position to the button, we use a fixed width container to wrap the icon(align to the right), then use another container to align the label to left.
+        icon: Container(
+          width: AuthFormContainer.width / 4,
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            // Some icons are not square, so we just use a fixed width here.
+            width: 24,
+            child: FlowySvg(
+              type.icon,
+              blendMode: type.blendMode,
+            ),
+          ),
+        ),
+        label: Container(
+          padding: const EdgeInsets.only(left: 8),
+          alignment: Alignment.centerLeft,
+          child: FlowyText(
+            type.labelText,
+            fontSize: 14,
+          ),
+        ),
+        style: ButtonStyle(
+          overlayColor: WidgetStateProperty.resolveWith<Color?>(
+            (states) {
+              if (states.contains(WidgetState.hovered)) {
+                return style.colorScheme.onSecondaryContainer;
+              }
+              return null;
+            },
+          ),
+          shape: WidgetStateProperty.all(
+            const RoundedRectangleBorder(
+              borderRadius: Corners.s6Border,
+            ),
+          ),
+          side: WidgetStateProperty.all(
+            BorderSide(
+              color: style.dividerColor,
+            ),
+          ),
+        ),
+        onPressed: onPressed,
       ),
     );
   }
