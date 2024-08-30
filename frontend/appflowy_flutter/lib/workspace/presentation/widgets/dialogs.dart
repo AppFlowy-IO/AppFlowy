@@ -97,6 +97,13 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
           VSpace(Insets.xl),
           OkCancelButton(
             onOkPressed: () {
+              if (newValue.isEmpty) {
+                showToastNotification(
+                  context,
+                  message: LocaleKeys.space_spaceNameCannotBeEmpty.tr(),
+                );
+                return;
+              }
               widget.onConfirm(newValue, context);
               Navigator.of(context).pop();
             },

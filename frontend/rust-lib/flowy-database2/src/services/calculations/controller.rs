@@ -6,7 +6,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::RwLock as TokioRwLock;
 
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
@@ -34,7 +34,7 @@ pub struct CalculationsController {
   handler_id: String,
   delegate: Box<dyn CalculationsDelegate>,
   calculations_by_field_cache: CalculationsByFieldIdCache,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   calculations_service: CalculationsService,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -51,7 +51,7 @@ impl CalculationsController {
     handler_id: &str,
     delegate: T,
     calculations: Vec<Arc<Calculation>>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where

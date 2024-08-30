@@ -4,11 +4,13 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_header.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_menu.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -124,8 +126,15 @@ class _Pages extends StatelessWidget {
           final spaceType = space.spacePermission == SpacePermission.publicToAll
               ? FolderSpaceType.public
               : FolderSpaceType.private;
+          final childViews = state.view.childViews.unique((view) => view.id);
+          if (childViews.length != state.view.childViews.length) {
+            final duplicatedViews = state.view.childViews
+                .where((view) => childViews.contains(view))
+                .toList();
+            Log.error('some view id are duplicated: $duplicatedViews');
+          }
           return Column(
-            children: state.view.childViews
+            children: childViews
                 .map(
                   (view) => MobileViewItem(
                     key: ValueKey(

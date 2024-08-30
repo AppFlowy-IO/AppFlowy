@@ -1,6 +1,7 @@
 use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
 use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
 use crate::services::database::{DatabaseEditor, UpdatedRow};
+use collab::lock::RwLock;
 use collab_database::blocks::BlockEvent;
 use collab_database::database::Database;
 use collab_database::fields::FieldChange;
@@ -10,7 +11,6 @@ use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use tracing::{trace, warn};
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {

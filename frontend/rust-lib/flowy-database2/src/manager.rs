@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::DataSource;
+use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
 use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
@@ -20,7 +21,7 @@ use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use dashmap::DashMap;
 use tokio::select;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, instrument, trace};
 
@@ -39,6 +40,7 @@ use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
+use tokio::sync::RwLock as TokioRwLock;
 
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
@@ -53,7 +55,7 @@ pub trait DatabaseUser: Send + Sync {
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
   workspace_database: ArcSwapOption<RwLock<WorkspaceDatabase>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
   removing_editor: Arc<Mutex<HashMap<String, Arc<DatabaseEditor>>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -64,7 +66,7 @@ pub struct DatabaseManager {
 impl DatabaseManager {
   pub fn new(
     database_user: Arc<dyn DatabaseUser>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
     ai_service: Arc<dyn DatabaseAIService>,
@@ -82,7 +84,7 @@ impl DatabaseManager {
   }
 
   /// When initialize with new workspace, all the resources will be cleared.
-  pub async fn initialize(&self, uid: i64) -> FlowyResult<()> {
+  pub async fn initialize(&self, uid: i64, is_local_user: bool) -> FlowyResult<()> {
     // 1. Clear all existing tasks
     self.task_scheduler.write().await.clear_task();
     // 2. Release all existing editors
@@ -99,6 +101,7 @@ impl DatabaseManager {
 
     let collab_db = self.user.collab_db(uid)?;
     let collab_service = WorkspaceDatabaseCollabServiceImpl::new(
+      is_local_user,
       self.user.clone(),
       self.collab_builder.clone(),
       self.cloud_service.clone(),
@@ -168,8 +171,12 @@ impl DatabaseManager {
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(&self, user_id: i64) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    is_local_user: bool,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, is_local_user).await?;
     Ok(())
   }
 
@@ -340,12 +347,20 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
+  pub async fn get_database_json_bytes(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
+  }
+
+  pub async fn get_database_json_string(&self, view_id: &str) -> FlowyResult<String> {
+    let lock = self.workspace_database()?;
+    let wdb = lock.read().await;
+    let data = wdb.get_database_data(view_id).await?;
+    let json_string = serde_json::to_string(&data)?;
+    Ok(json_string)
   }
 
   /// Create a new database with the given data that can be deserialized to [DatabaseData].
@@ -357,7 +372,7 @@ impl DatabaseManager {
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
 
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
+    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data, None);
     let old_view_id = create_database_params.inline_view_id.clone();
     create_database_params.inline_view_id = view_id.to_string();
 
@@ -630,6 +645,7 @@ impl DatabaseManager {
 }
 
 struct WorkspaceDatabaseCollabServiceImpl {
+  is_local_user: bool,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   persistence: Arc<dyn DatabaseCollabPersistenceService>,
@@ -639,12 +655,14 @@ struct WorkspaceDatabaseCollabServiceImpl {
 
 impl WorkspaceDatabaseCollabServiceImpl {
   fn new(
+    is_local_user: bool,
     user: Arc<dyn DatabaseUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
     let persistence = DatabasePersistenceImpl { user: user.clone() };
     Self {
+      is_local_user,
       user,
       collab_builder,
       persistence: Arc::new(persistence),
@@ -783,18 +801,23 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           DataSource::from(encode_collab)
         },
         Ok(None) => {
-          info!(
-            "build collab: {}:{} with empty encode collab",
-            collab_type, object_id
-          );
-          // when collab not exist, create a default collab
-          CollabPersistenceImpl {
-            persistence: Some(self.persistence.clone()),
+          if self.is_local_user {
+            CollabPersistenceImpl {
+              persistence: Some(self.persistence.clone()),
+            }
+            .into()
+          } else {
+            error!(
+              "build collab: {}:{} with empty encode collab",
+              collab_type, object_id
+            );
+            return Err(DatabaseError::RecordNotFound);
           }
-          .into()
         },
         Err(err) => {
-          error!("build collab: failed to get encode collab: {}", err);
+          if !matches!(err, DatabaseError::ActionCancelled) {
+            error!("build collab: failed to get encode collab: {}", err);
+          }
           return Err(err);
         },
       }
@@ -887,27 +910,26 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     }
   }
 
-  fn flush_collab(
+  fn flush_collabs(
     &self,
-    object_id: &str,
-    encode_collab: EncodedCollab,
+    encoded_collabs: Vec<(String, EncodedCollab)>,
   ) -> Result<(), DatabaseError> {
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      trace!("[Database]: flush collab:{}", object_id);
       let write_txn = collab_db.write_txn();
-      write_txn
-        .flush_doc(
-          uid,
-          object_id,
-          encode_collab.state_vector.to_vec(),
-          encode_collab.doc_state.to_vec(),
-        )
-        .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
-
+      for (object_id, encode_collab) in encoded_collabs {
+        write_txn
+          .flush_doc(
+            uid,
+            &object_id,
+            encode_collab.state_vector.to_vec(),
+            encode_collab.doc_state.to_vec(),
+          )
+          .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
+      }
       write_txn
         .commit_transaction()
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;

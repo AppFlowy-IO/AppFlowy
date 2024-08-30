@@ -137,7 +137,6 @@ class EditorStyleCustomizer {
           textStyle: baseTextStyle.copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
-            fontStyle: FontStyle.italic,
             color: Colors.red,
             backgroundColor: Colors.grey.withOpacity(0.3),
           ),

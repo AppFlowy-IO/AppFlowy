@@ -556,10 +556,8 @@ class _BoardCardState extends State<_BoardCard> {
   @override
   Widget build(BuildContext context) {
     final boardBloc = context.read<BoardBloc>();
-
     final groupData = widget.afGroupData.customData as GroupData;
     final rowCache = boardBloc.rowCache;
-
     final databaseController = boardBloc.databaseController;
     final rowMeta =
         rowCache.getRow(widget.groupItem.id)?.rowMeta ?? widget.groupItem.row;

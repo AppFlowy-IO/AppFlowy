@@ -290,6 +290,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -299,6 +300,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_id: i64,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -309,6 +311,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -320,6 +323,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
