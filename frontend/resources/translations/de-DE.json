@@ -1462,7 +1462,7 @@
       "tagName": "Tag-Name"
     },
     "checklist": {
-      "taskHint": "Aufgbenbeschreibbung",
+      "taskHint": "Aufgabenbeschreibung",
       "addNew": "Füge eine Aufgabe hinzu",
       "submitNewTask": "Erstellen",
       "hideComplete": "Blende abgeschlossene Aufgaben aus",
