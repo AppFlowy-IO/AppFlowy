@@ -1,8 +1,16 @@
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
+import 'package:appflowy/shared/window_title_bar.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
@@ -10,9 +18,10 @@ import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
@@ -47,6 +56,17 @@ class HomeStack extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
+              if (Platform.isWindows)
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    WindowTitleBar(
+                      leftChildren: [
+                        _buildToggleMenuButton(context),
+                      ],
+                    ),
+                  ],
+                ),
               Padding(
                 padding: EdgeInsets.only(left: layout.menuSpacing),
                 child: TabsManager(pageController: pageController),
@@ -70,6 +90,47 @@ class HomeStack extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildToggleMenuButton(BuildContext context) {
+    if (!context.read<HomeSettingBloc>().state.isMenuCollapsed) {
+      return const SizedBox.shrink();
+    }
+
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+          text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
+          style: context.tooltipTextStyle(),
+        ),
+        TextSpan(
+          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+          style: context
+              .tooltipTextStyle()
+              ?.copyWith(color: Theme.of(context).hintColor),
+        ),
+      ],
+    );
+
+    return FlowyTooltip(
+      richMessage: textSpan,
+      child: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) => context
+            .read<HomeSettingBloc>()
+            .add(const HomeSettingEvent.collapseMenu()),
+        child: FlowyHover(
+          child: Container(
+            width: 24,
+            padding: const EdgeInsets.all(4),
+            child: const RotatedBox(
+              quarterTurns: 2,
+              child: FlowySvg(FlowySvgs.hide_menu_s),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -230,7 +291,6 @@ class PageManager {
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (_, __, child) => MoveWindowDetector(
-          showTitleBar: true,
           child: HomeTopBar(layout: layout),
         ),
       ),
