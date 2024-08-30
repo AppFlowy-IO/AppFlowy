@@ -33,12 +33,6 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
       shadowColor: const Color(0x68000000),
       elevation: 10,
       color: Theme.of(context).colorScheme.surface,
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: FlowySvg(
-          FlowySvgs.m_settings_more_s,
-        ),
-      ),
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<_MobileSettingsPopupMenuItem>>[
         _buildItem(
@@ -81,6 +75,12 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
             break;
         }
       },
+      child: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: FlowySvg(
+          FlowySvgs.m_settings_more_s,
+        ),
+      ),
     );
   }
 
