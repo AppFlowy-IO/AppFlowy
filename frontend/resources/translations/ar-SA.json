@@ -35,6 +35,7 @@
     "loginButtonText": "تسجيل الدخول",
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
+    "anonymous": "مجهول",
     "buttonText": "تسجيل الدخول",
     "signingInText": "جاري تسجيل الدخول...",
     "forgotPassword": "هل نسيت كلمة السر؟",
@@ -248,11 +249,16 @@
     "closeSidebar": "إغلاق الشريط الجانبي",
     "openSidebar": "فتح الشريط الجانبي",
     "personal": "شخصي",
+    "private": "خاص",
     "favorites": "المفضلة",
     "clickToHidePersonal": "انقر لإخفاء القسم الشخصي",
     "clickToHideFavorites": "انقر لإخفاء القسم المفضل",
     "addAPage": "أضف صفحة",
-    "recent": "مؤخرًا"
+    "recent": "مؤخرًا",
+    "today": "اليوم",
+    "thisWeek": "هذا الأسبوع",
+    "justNow": "الآن",
+    "purchaseAIResponse": "شراء"
   },
   "notifications": {
     "export": {
@@ -268,6 +274,7 @@
   },
   "button": {
     "ok": "حسنا",
+    "confirm": "تأكيد",
     "done": "منتهي",
     "cancel": "الغاء",
     "signIn": "تسجيل الدخول",
@@ -295,7 +302,19 @@
     "helpCenter": "مركز المساعدة",
     "add": "اضافة",
     "yes": "نعم",
+    "no": "لا",
+    "remove": "حذف",
+    "copyLink": "نسخ الرابط",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "deleteAccount": "حذف الحساب",
     "back": "خلف",
+    "more": "أكثر",
+    "create": "إنشاء",
+    "close": "إغلاق",
+    "next": "التالي",
+    "previous": "السابق",
+    "download": "تحميل",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -320,6 +339,10 @@
   },
   "settings": {
     "title": "إعدادات",
+    "popupMenuItem": {
+      "settings": "إعدادات",
+      "members": "الأعضاء"
+    },
     "menu": {
       "appearance": "مظهر",
       "language": "لغة",
