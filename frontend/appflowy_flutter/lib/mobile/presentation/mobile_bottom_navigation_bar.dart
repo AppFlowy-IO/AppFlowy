@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/notifications/mobile_notifications_screen.dart';
 import 'package:appflowy/mobile/presentation/widgets/navigation_bar_button.dart';
+import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
 import 'package:appflowy/shared/red_dot.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -193,25 +195,44 @@ class _HomePageNavigationBar extends StatelessWidget {
             border: context.border,
             color: context.backgroundColor,
           ),
-          child: BottomNavigationBar(
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            enableFeedback: false,
-            type: BottomNavigationBarType.fixed,
-            elevation: 0,
-            items: _items,
-            backgroundColor: Colors.transparent,
-            currentIndex: navigationShell.currentIndex,
-            onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+          child: Theme(
+            data: _getThemeData(context),
+            child: BottomNavigationBar(
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              enableFeedback: false,
+              type: BottomNavigationBarType.fixed,
+              elevation: 0,
+              items: _items,
+              backgroundColor: Colors.transparent,
+              currentIndex: navigationShell.currentIndex,
+              onTap: (int bottomBarIndex) => _onTap(context, bottomBarIndex),
+            ),
           ),
         ),
       ),
     );
   }
 
+  ThemeData _getThemeData(BuildContext context) {
+    if (Platform.isAndroid) {
+      return Theme.of(context);
+    }
+
+    // hide the splash effect for iOS
+    return Theme.of(context).copyWith(
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+    );
+  }
+
   /// Navigate to the current location of the branch at the provided index when
   /// tapping an item in the BottomNavigationBar.
   void _onTap(BuildContext context, int bottomBarIndex) {
+    // close the popup menu
+    closePopupMenu();
+
     final label = _items[bottomBarIndex].label;
     if (label == _addLabel) {
       // show an add dialog

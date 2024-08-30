@@ -36,12 +36,7 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
       // todo: replace it with shadows
       shadowColor: const Color(0x68000000),
       elevation: 10,
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: FlowySvg(
-          FlowySvgs.m_settings_more_s,
-        ),
-      ),
+      color: context.popupMenuBackgroundColor,
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<_NotificationSettingsPopupMenuItem>>[
         _buildItem(
@@ -87,6 +82,12 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
             break;
         }
       },
+      child: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: FlowySvg(
+          FlowySvgs.m_settings_more_s,
+        ),
+      ),
     );
   }
 

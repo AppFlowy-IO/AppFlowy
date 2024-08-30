@@ -49,7 +49,7 @@
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
     "signInWithGoogle": "Continue with Google",
-    "signInWithGithub": "Continue with Github",
+    "signInWithGithub": "Continue with GitHub",
     "signInWithDiscord": "Continue with Discord",
     "signInWithApple": "Continue with Apple",
     "continueAnotherWay": "Continue another way",
@@ -144,8 +144,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "unfavorite": "Remove from favorites",
-    "favorite": "Add to favorites",
+    "unfavorite": "Remove from Favorites",
+    "favorite": "Add to Favorites",
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
@@ -204,8 +204,8 @@
     },
     "mobile": {
       "actions": "Trash Actions",
-      "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file",
+      "empty": "No pages or spaces in Trash",
+      "emptyDescription": "Move things you don't need to the Trash.",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
     },
@@ -347,9 +347,9 @@
     "putback": "Put Back",
     "update": "Update",
     "share": "Share",
-    "removeFromFavorites": "Remove from favorites",
-    "removeFromRecent": "Remove from recent",
-    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "removeFromRecent": "Remove from Recent",
+    "addToFavorites": "Add to Favorites",
     "favoriteSuccessfully": "Favorited success",
     "unfavoriteSuccessfully": "Unfavorited success",
     "duplicateSuccessfully": "Duplicated successfully",
@@ -368,7 +368,7 @@
     "deleteAccount": "Delete account",
     "back": "Back",
     "signInGoogle": "Continue with Google",
-    "signInGithub": "Continue with Github",
+    "signInGithub": "Continue with GitHub",
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
@@ -997,16 +997,16 @@
         "archiveAll": "Archive all"
       },
       "emptyInbox": {
-        "title": "No notifications yet",
-        "description": "You'll be notified here for @mentions"
+        "title": "Inbox Zero!",
+        "description": "Set reminders to receive notifications here."
       },
       "emptyUnread": {
         "title": "No unread notifications",
         "description": "You're all caught up!"
       },
       "emptyArchived": {
-        "title": "No archived notifications",
-        "description": "You haven't archived any notifications yet"
+        "title": "No archived",
+        "description": "Archived notifications will appear here."
       },
       "tabs": {
         "inbox": "Inbox",
