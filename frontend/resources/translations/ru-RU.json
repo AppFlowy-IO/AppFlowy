@@ -1000,8 +1000,8 @@
       "tooltipSelectIcon": "Выберите иконку",
       "selectAnIcon": "Выбрать иконку",
       "pleaseInputYourOpenAIKey": "Пожалуйста, введите токен AI",
-      "pleaseInputYourStabilityAIKey": "Пожалуйста, введите свой токен Stability AI",
-      "clickToLogout": "Нажмите, чтобы выйти из текущего аккаунта"
+      "clickToLogout": "Нажмите, чтобы выйти из текущего аккаунта",
+      "pleaseInputYourStabilityAIKey": "Пожалуйста, введите свой токен Stability AI"
     },
     "mobile": {
       "personalInfo": "Личная информация",
@@ -1496,14 +1496,14 @@
       },
       "searchForAnImage": "Поиск изображения",
       "pleaseInputYourOpenAIKey": "пожалуйста, введите свой токен AI на странице настроек",
-      "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек",
       "saveImageToGallery": "Сохранить изображение",
       "failedToAddImageToGallery": "Ошибка добавления изображения в галерею",
       "successToAddImageToGallery": "Изображение успешно добавлено",
       "unableToLoadImage": "Ошибка загрузки изображения",
       "maximumImageSize": "Максимальный поддерживаемый размер загружаемого изображения — 10 МБ.",
       "uploadImageErrorImageSizeTooBig": "Размер изображения должен быть меньше 10 МБ.",
-      "imageIsUploading": "Изображение загружается"
+      "imageIsUploading": "Изображение загружается",
+      "pleaseInputYourStabilityAIKey": "пожалуйста, введите свой токен Stability AI на странице настроек"
     },
     "codeBlock": {
       "language": {

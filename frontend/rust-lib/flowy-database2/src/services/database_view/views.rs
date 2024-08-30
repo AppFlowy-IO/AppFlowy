@@ -2,14 +2,13 @@ use collab_database::database::Database;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use nanoid::nanoid;
-use tokio::sync::{broadcast, RwLock};
-
-use flowy_error::FlowyResult;
-
 use crate::services::cell::CellCache;
 use crate::services::database::DatabaseRowEvent;
 use crate::services::database_view::{DatabaseViewEditor, DatabaseViewOperation};
+use collab::lock::RwLock;
+use flowy_error::FlowyResult;
+use nanoid::nanoid;
+use tokio::sync::broadcast;
 
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;

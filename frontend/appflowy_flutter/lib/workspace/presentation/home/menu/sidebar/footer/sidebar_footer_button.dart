@@ -26,11 +26,15 @@ class SidebarFooterButton extends StatelessWidget {
       child: FlowyButton(
         leftIcon: leftIcon,
         leftIconSize: leftIconSize,
-        iconPadding: 8.0,
         margin: const EdgeInsets.all(4.0),
-        text: FlowyText.regular(
-          text,
-          lineHeight: 1.15,
+        expandText: false,
+        text: Padding(
+          padding: const EdgeInsets.only(right: 6.0),
+          child: FlowyText(
+            text,
+            fontWeight: FontWeight.w400,
+            figmaLineHeight: 18.0,
+          ),
         ),
         onTap: onTap,
       ),

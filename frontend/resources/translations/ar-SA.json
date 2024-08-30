@@ -857,11 +857,11 @@
       },
       "searchForAnImage": "ابحث عن صورة",
       "pleaseInputYourOpenAIKey": "يرجى إدخال مفتاح AI الخاص بك في صفحة الإعدادات",
-      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات",
       "saveImageToGallery": "احفظ الصورة",
       "failedToAddImageToGallery": "فشلت إضافة الصورة إلى المعرض",
       "successToAddImageToGallery": "تمت إضافة الصورة إلى المعرض بنجاح",
-      "unableToLoadImage": "غير قادر على تحميل الصورة"
+      "unableToLoadImage": "غير قادر على تحميل الصورة",
+      "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات"
     },
     "codeBlock": {
       "language": {

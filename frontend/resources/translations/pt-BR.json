@@ -422,8 +422,8 @@
       "tooltipSelectIcon": "Selecionar ícone",
       "selectAnIcon": "Escolha um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave AI",
-      "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI",
-      "clickToLogout": "Clique para sair do usuário atual"
+      "clickToLogout": "Clique para sair do usuário atual",
+      "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI"
     },
     "mobile": {
       "personalInfo": "Informações pessoais",
@@ -838,11 +838,11 @@
       },
       "searchForAnImage": "Procurar uma imagem",
       "pleaseInputYourOpenAIKey": "insira sua chave AI na página configurações",
-      "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI na página Configurações",
       "saveImageToGallery": "Salvar imagem",
       "failedToAddImageToGallery": "Falha ao adicionar imagem à galeria",
       "successToAddImageToGallery": "Imagem adicionada à galeria com sucesso",
-      "unableToLoadImage": "Não foi possível carregar a imagem"
+      "unableToLoadImage": "Não foi possível carregar a imagem",
+      "pleaseInputYourStabilityAIKey": "insira sua chave Stability AI na página Configurações"
     },
     "codeBlock": {
       "language": {
