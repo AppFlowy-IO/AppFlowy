@@ -20,6 +20,8 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     _dispatch();
     _startListening();
     _init();
+
+    rowController.initialize();
   }
 
   final FieldController fieldController;
