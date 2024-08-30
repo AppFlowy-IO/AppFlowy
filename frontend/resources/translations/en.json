@@ -205,7 +205,7 @@
     "mobile": {
       "actions": "Trash Actions",
       "empty": "No pages or spaces in Trash",
-      "emptyDescription": "Move things you don't need anymore to the Trash.",
+      "emptyDescription": "Move things you don't need to the Trash.",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
     },
@@ -997,7 +997,7 @@
         "archiveAll": "Archive all"
       },
       "emptyInbox": {
-        "title": "Inbox zero!",
+        "title": "Inbox Zero!",
         "description": "Set reminders to receive notifications here."
       },
       "emptyUnread": {

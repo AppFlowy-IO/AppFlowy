@@ -88,8 +88,8 @@ class _EmptyTrashBin extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const FlowySvg(
-            FlowySvgs.icon_delete_s,
-            size: Size.square(64),
+            FlowySvgs.m_empty_trash_xl,
+            size: Size.square(46),
           ),
           const VSpace(16.0),
           FlowyText.medium(
