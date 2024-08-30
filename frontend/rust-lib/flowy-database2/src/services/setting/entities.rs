@@ -90,6 +90,8 @@ pub struct BoardLayoutSetting {
   pub hide_ungrouped_column: bool,
   #[serde(default)]
   pub collapse_hidden_groups: bool,
+  #[serde(default)]
+  pub fetch_url_meta_data: bool,
 }
 
 impl BoardLayoutSetting {
@@ -114,6 +116,10 @@ impl From<BoardLayoutSetting> for LayoutSetting {
       (
         "collapse_hidden_groups".into(),
         setting.collapse_hidden_groups.into(),
+      ),
+      (
+        "fetch_url_meta_data".into(),
+        setting.fetch_url_meta_data.into(),
       ),
     ])
   }

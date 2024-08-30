@@ -57,3 +57,10 @@ class TranslateTypeOptionDataParser
     return TranslateTypeOptionPB.fromBuffer(buffer);
   }
 }
+
+class URLTypeOptionDataParser extends TypeOptionParser<URLTypeOptionPB> {
+  @override
+  URLTypeOptionPB fromBuffer(List<int> buffer) {
+    return URLTypeOptionPB.fromBuffer(buffer);
+  }
+}

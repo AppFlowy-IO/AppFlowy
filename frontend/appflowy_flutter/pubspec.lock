@@ -1283,6 +1283,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.0"
+  metadata_fetch_plus:
+    dependency: "direct main"
+    description:
+      name: metadata_fetch_plus
+      sha256: f4a833f0dc00f50203fa97a780d10025fb3703c4f7b1fbbe9c635b48dc7a41fe
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   mime:
     dependency: transitive
     description:

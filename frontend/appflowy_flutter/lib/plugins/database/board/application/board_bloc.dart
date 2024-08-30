@@ -97,12 +97,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _openDatabase(emit);
           },
-          createRow: (groupId, position, title, targetRowId) async {
+          createRow: (groupId, position, title, targetRowId, url) async {
             final primaryField = databaseController.fieldController.fieldInfos
                 .firstWhereOrNull((element) => element.isPrimary)!;
+            final urlField =
+                databaseController.fieldController.fieldInfos.firstWhereOrNull(
+              (element) => element.fieldType == FieldType.URL,
+            );
             final void Function(RowDataBuilder)? cellBuilder = title == null
                 ? null
-                : (builder) => builder.insertText(primaryField, title);
+                : (builder) {
+                    builder.insertText(primaryField, title);
+                    if (urlField != null && url != null) {
+                      builder.insertURL(urlField, url);
+                    }
+                  };
 
             final result = await RowBackendService.createRow(
               viewId: databaseController.viewId,
@@ -630,8 +639,9 @@ class BoardEvent with _$BoardEvent {
     String groupId,
     OrderObjectPositionTypePB position,
     String? title,
-    String? targetRowId,
-  ) = _CreateRow;
+    String? targetRowId, {
+    String? url,
+  }) = _CreateRow;
   const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;

@@ -147,6 +147,11 @@ class RowDataBuilder {
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
   }
 
+  void insertURL(FieldInfo fieldInfo, String url) {
+    assert(fieldInfo.fieldType == FieldType.URL);
+    _cellDataByFieldId[fieldInfo.field.id] = url;
+  }
+
   Map<String, String> build() {
     return _cellDataByFieldId;
   }

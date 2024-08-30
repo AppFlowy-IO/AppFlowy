@@ -27,6 +27,8 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
+import 'package:metadata_fetch_plus/metadata_fetch_plus.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
@@ -479,15 +481,32 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
         hintTextConstraints: const BoxConstraints(maxHeight: 36),
         controller: _textController,
         focusNode: _focusNode,
-        onSubmitted: (name) {
-          context.read<BoardBloc>().add(
-                BoardEvent.createRow(
-                  widget.columnData.id,
-                  OrderObjectPositionTypePB.End,
-                  name,
-                  null,
-                ),
-              );
+        onSubmitted: (name) async {
+          final boardBloc = context.read<BoardBloc>();
+          final fetchURL = boardBloc.databaseController.databaseLayoutSetting
+                  ?.board.fetchUrlMetaData ??
+              false;
+
+          String? url;
+          if (fetchURL && isURL(name)) {
+            final data = await MetadataFetch.extract(name);
+            if (data != null && data.title != null) {
+              url = name;
+              name = data.title!;
+            }
+          }
+
+          if (mounted) {
+            boardBloc.add(
+              BoardEvent.createRow(
+                widget.columnData.id,
+                OrderObjectPositionTypePB.End,
+                name,
+                null,
+                url: url,
+              ),
+            );
+          }
           widget.scrollManager.scrollToBottom(widget.columnData.id);
           _textController.clear();
           _focusNode.requestFocus();

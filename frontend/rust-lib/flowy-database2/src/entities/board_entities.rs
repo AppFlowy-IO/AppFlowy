@@ -9,6 +9,9 @@ pub struct BoardLayoutSettingPB {
 
   #[pb(index = 2)]
   pub collapse_hidden_groups: bool,
+
+  #[pb(index = 3)]
+  pub fetch_url_meta_data: bool,
 }
 
 impl From<BoardLayoutSetting> for BoardLayoutSettingPB {
@@ -16,6 +19,7 @@ impl From<BoardLayoutSetting> for BoardLayoutSettingPB {
     Self {
       hide_ungrouped_column: setting.hide_ungrouped_column,
       collapse_hidden_groups: setting.collapse_hidden_groups,
+      fetch_url_meta_data: setting.fetch_url_meta_data,
     }
   }
 }
@@ -25,6 +29,7 @@ impl From<BoardLayoutSettingPB> for BoardLayoutSetting {
     Self {
       hide_ungrouped_column: setting.hide_ungrouped_column,
       collapse_hidden_groups: setting.collapse_hidden_groups,
+      fetch_url_meta_data: setting.fetch_url_meta_data,
     }
   }
 }

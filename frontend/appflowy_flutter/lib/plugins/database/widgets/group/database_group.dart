@@ -56,7 +56,7 @@ class DatabaseGroupList extends StatelessWidget {
           }
 
           final children = [
-            if (showHideUngroupedToggle) ...[
+            if (showHideUngroupedToggle)
               SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: Padding(
@@ -71,16 +71,41 @@ class DatabaseGroupList extends StatelessWidget {
                       ),
                       Toggle(
                         value: !state.layoutSettings.hideUngroupedColumn,
-                        onChanged: (value) =>
-                            _updateLayoutSettings(state.layoutSettings, value),
+                        onChanged: (value) => _updateLayoutSettings(
+                          state.layoutSettings,
+                          (message) => message.hideUngroupedColumn = value,
+                        ),
                         padding: EdgeInsets.zero,
                       ),
                     ],
                   ),
                 ),
               ),
-              const TypeOptionSeparator(spacing: 0),
-            ],
+            SizedBox(
+              height: GridSize.popoverItemHeight,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FlowyText.medium(
+                        LocaleKeys.board_fetchURLMetaData.tr(),
+                      ),
+                    ),
+                    Toggle(
+                      value: state.layoutSettings.fetchUrlMetaData,
+                      onChanged: (value) => _updateLayoutSettings(
+                        state.layoutSettings,
+                        (message) => message.fetchUrlMetaData = !value,
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const TypeOptionSeparator(spacing: 0),
             SizedBox(
               height: GridSize.popoverItemHeight,
               child: Padding(
@@ -144,11 +169,11 @@ class DatabaseGroupList extends StatelessWidget {
 
   Future<void> _updateLayoutSettings(
     BoardLayoutSettingPB layoutSettings,
-    bool hideUngrouped,
+    Function(BoardLayoutSettingPB) update,
   ) {
     layoutSettings.freeze();
     final newLayoutSetting = layoutSettings.rebuild((message) {
-      message.hideUngroupedColumn = hideUngrouped;
+      update(message);
     });
     return databaseController.updateLayoutSetting(
       boardLayoutSetting: newLayoutSetting,
