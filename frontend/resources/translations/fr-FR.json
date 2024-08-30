@@ -1188,7 +1188,6 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1196,7 +1195,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "textFilter": {
       "contains": "Contient",
@@ -1452,7 +1452,6 @@
         "heading3": "Titre 3",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
-        "checkbox": "Case à cocher",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
         "linkedGrid": "Grille liée",
@@ -1467,7 +1466,8 @@
         "aiWriter": "Rédacteur IA",
         "dateOrReminder": "Date ou rappel",
         "photoGallery": "Galerie de photos",
-        "file": "Fichier"
+        "file": "Fichier",
+        "checkbox": "Case à cocher"
       }
     },
     "selectionMenu": {
@@ -1829,10 +1829,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
