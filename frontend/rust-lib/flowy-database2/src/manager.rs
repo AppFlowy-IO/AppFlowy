@@ -906,27 +906,26 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     }
   }
 
-  fn flush_collab(
+  fn flush_collabs(
     &self,
-    object_id: &str,
-    encode_collab: EncodedCollab,
+    encoded_collabs: Vec<(String, EncodedCollab)>,
   ) -> Result<(), DatabaseError> {
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-      trace!("[Database]: flush collab:{}", object_id);
       let write_txn = collab_db.write_txn();
-      write_txn
-        .flush_doc(
-          uid,
-          object_id,
-          encode_collab.state_vector.to_vec(),
-          encode_collab.doc_state.to_vec(),
-        )
-        .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
-
+      for (object_id, encode_collab) in encoded_collabs {
+        write_txn
+          .flush_doc(
+            uid,
+            &object_id,
+            encode_collab.state_vector.to_vec(),
+            encode_collab.doc_state.to_vec(),
+          )
+          .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
+      }
       write_txn
         .commit_transaction()
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
