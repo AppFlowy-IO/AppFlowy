@@ -815,7 +815,9 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           }
         },
         Err(err) => {
-          error!("build collab: failed to get encode collab: {}", err);
+          if !matches!(err, DatabaseError::ActionCancelled) {
+            error!("build collab: failed to get encode collab: {}", err);
+          }
           return Err(err);
         },
       }
