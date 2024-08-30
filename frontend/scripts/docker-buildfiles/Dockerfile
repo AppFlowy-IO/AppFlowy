@@ -73,7 +73,7 @@ FROM archlinux/archlinux
 RUN pacman -Syyu --noconfirm
 
 # Install runtime dependencies
-RUN pacman -S --noconfirm xdg-user-dirs gtk3 libkeybinder3 && \
+RUN pacman -S --noconfirm xdg-user-dirs gtk3 libkeybinder3 libnotify rocksdb && \
     pacman -Scc --noconfirm
 
 # Set up appflowy user
