@@ -306,6 +306,8 @@ class MobileRowDetailPageContentState
       viewId: viewId,
       rowCache: rowCache,
     );
+    rowController.initialize();
+
     cellBuilder = EditableCellBuilder(
       databaseController: widget.databaseController,
     );
