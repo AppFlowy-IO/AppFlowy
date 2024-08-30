@@ -16,10 +16,6 @@ pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<Watch
   let install_path = install_path().ok_or_else(|| {
     FlowyError::internal().with_context("Unsupported platform for offline app watching")
   })?;
-  trace!(
-    "[LLM Resource] Start watching offline app path: {:?}",
-    install_path,
-  );
   let (tx, rx) = unbounded_channel();
   let app_path = offline_app_path();
   let mut watcher = notify::recommended_watcher(move |res: Result<Event, _>| match res {

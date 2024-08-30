@@ -22,6 +22,7 @@ use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
 use arc_swap::ArcSwap;
 use async_trait::async_trait;
+use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
@@ -40,7 +41,8 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{broadcast, oneshot, RwLock};
+use tokio::sync::RwLock as TokioRwLock;
+use tokio::sync::{broadcast, oneshot};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, event, info, instrument, trace, warn};
 
@@ -66,7 +68,7 @@ impl DatabaseEditor {
   pub async fn new(
     user: Arc<dyn DatabaseUser>,
     database: Arc<RwLock<Database>>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> FlowyResult<Arc<Self>> {
     let notification_sender = Arc::new(DebounceNotificationSender::new(200));
@@ -1576,7 +1578,7 @@ impl DatabaseEditor {
 
 struct DatabaseViewOperationImpl {
   database: Arc<RwLock<Database>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   cell_cache: CellCache,
   editor_by_view_id: Arc<RwLock<EditorByViewId>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
@@ -1860,7 +1862,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .update_layout_type(view_id, layout_type);
   }
 
-  fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {
+  fn get_task_scheduler(&self) -> Arc<TokioRwLock<TaskDispatcher>> {
     self.task_scheduler.clone()
   }
 
