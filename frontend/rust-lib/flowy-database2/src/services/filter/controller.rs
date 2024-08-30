@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use collab::lock::RwLock;
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
@@ -10,7 +11,7 @@ use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::RwLock as TokioRwLock;
 use tracing::{error, trace};
 
 use crate::entities::filter_entities::*;
@@ -41,7 +42,7 @@ pub struct FilterController {
   result_by_row_id: DashMap<RowId, bool>,
   cell_cache: CellCache,
   filters: RwLock<Vec<Filter>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
 
@@ -56,7 +57,7 @@ impl FilterController {
     view_id: &str,
     handler_id: &str,
     delegate: T,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
