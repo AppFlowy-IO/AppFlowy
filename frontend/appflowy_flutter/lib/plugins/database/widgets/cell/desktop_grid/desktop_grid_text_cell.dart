@@ -55,32 +55,34 @@ class _IconOrEmoji extends StatelessWidget {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ValueListenableBuilder<String>(
-              valueListenable: state.emoji!,
-              builder: (context, value, child) {
-                if (value.isEmpty) {
-                  return const SizedBox.shrink();
-                } else {
-                  return FlowyText(
-                    value,
-                    fontSize: 16,
-                  );
-                }
-              },
-            ),
-            ValueListenableBuilder<bool>(
-              valueListenable: state.hasDocument!,
-              builder: (context, hasDocument, child) {
-                if ((state.emoji?.value.isEmpty ?? true) && hasDocument) {
-                  return FlowySvg(
-                    FlowySvgs.notes_s,
-                    color: Theme.of(context).hintColor,
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              },
-            ),
+            if (state.emoji != null)
+              ValueListenableBuilder<String>(
+                valueListenable: state.emoji!,
+                builder: (context, value, child) {
+                  if (value.isEmpty) {
+                    return const SizedBox.shrink();
+                  } else {
+                    return FlowyText(
+                      value,
+                      fontSize: 16,
+                    );
+                  }
+                },
+              ),
+            if (state.hasDocument != null)
+              ValueListenableBuilder<bool>(
+                valueListenable: state.hasDocument!,
+                builder: (context, hasDocument, child) {
+                  if ((state.emoji?.value.isEmpty ?? true) && hasDocument) {
+                    return FlowySvg(
+                      FlowySvgs.notes_s,
+                      color: Theme.of(context).hintColor,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             const HSpace(6),
           ],
         );

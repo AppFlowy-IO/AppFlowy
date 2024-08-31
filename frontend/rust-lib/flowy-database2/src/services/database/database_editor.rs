@@ -1521,6 +1521,7 @@ impl DatabaseEditor {
     Ok(type_option.database_id)
   }
 
+  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
     row_ids: Option<&Vec<String>>,

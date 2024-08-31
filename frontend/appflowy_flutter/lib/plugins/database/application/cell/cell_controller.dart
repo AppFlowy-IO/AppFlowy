@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/cell_listener.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/domain/row_meta_listener.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -61,10 +60,8 @@ class CellController<T, D> {
   final CellDataPersistence<D> _cellDataPersistence;
 
   CellListener? _cellListener;
-  RowMetaListener? _rowMetaListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
 
@@ -128,22 +125,6 @@ class CellController<T, D> {
 
     // Return the function pointer that can be used when calling removeListener.
     return onCellChangedFn;
-  }
-
-  void onRowMetaChanged(VoidCallback onRowMetaChanged) {
-    _onRowMetaChanged = onRowMetaChanged;
-
-    // 3. If the field is primary listen to row meta changes.
-    if (_rowMetaListener == null) {
-      if (fieldInfo.field.isPrimary) {
-        _rowMetaListener = RowMetaListener(_cellContext.rowId);
-        _rowMetaListener?.start(
-          callback: (newRowMeta) {
-            _onRowMetaChanged?.call();
-          },
-        );
-      }
-    }
   }
 
   void removeListener({
@@ -237,9 +218,6 @@ class CellController<T, D> {
   }
 
   Future<void> dispose() async {
-    await _rowMetaListener?.stop();
-    _rowMetaListener = null;
-
     await _cellListener?.stop();
     _cellListener = null;
 
@@ -253,7 +231,6 @@ class CellController<T, D> {
     _saveDataOperation?.cancel();
     _cellDataNotifier?.dispose();
     _cellDataNotifier = null;
-    _onRowMetaChanged = null;
   }
 }
 

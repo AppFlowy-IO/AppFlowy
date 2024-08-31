@@ -28,7 +28,8 @@ async fn import_appflowy_data_need_migration_test() {
     .unwrap();
   // after import, the structure is:
   // workspace:
-  //   view: Getting Started
+  //   view: Generate
+  //   view: Shared
   //   view: 037_local
   //      view: Getting Started
   //        view: Document1
@@ -36,9 +37,9 @@ async fn import_appflowy_data_need_migration_test() {
 
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
-  assert_eq!(views[1].name, import_container_name);
+  assert_eq!(views[2].name, import_container_name);
 
-  let child_views = test.get_view(&views[1].id).await.child_views;
+  let child_views = test.get_view(&views[2].id).await.child_views;
   assert_eq!(child_views.len(), 1);
 
   let child_views = test.get_view(&child_views[0].id).await.child_views;
@@ -82,12 +83,12 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   //          view: Grid2
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
-  assert_eq!(views[1].name, import_container_name);
+  assert_eq!(views[2].name, import_container_name);
 
   // the 040_local should be an empty document, so try to get the document data
-  let _ = test.get_document_data(&views[1].id).await;
+  let _ = test.get_document_data(&views[2].id).await;
 
-  let local_child_views = test.get_view(&views[1].id).await.child_views;
+  let local_child_views = test.get_view(&views[2].id).await.child_views;
   assert_eq!(local_child_views.len(), 1);
   assert_eq!(local_child_views[0].name, "Document1");
 
@@ -139,16 +140,17 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
     .unwrap();
   // after import, the structure is:
   // workspace:
-  //   view: Getting Started
+  //   view: General
+  //   view: Shared
   //   view: Document1
   //      view: Document2
   //        view: Grid1
   //        view: Grid2
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
-  assert_eq!(views[1].name, "Document1");
+  assert_eq!(views[2].name, "Document1");
 
-  let document_1_child_views = test.get_view(&views[1].id).await.child_views;
+  let document_1_child_views = test.get_view(&views[2].id).await.child_views;
   assert_eq!(document_1_child_views.len(), 1);
   assert_eq!(document_1_child_views[0].name, "Document2");
 
@@ -180,8 +182,8 @@ async fn import_appflowy_data_folder_into_new_view_test2() {
 
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
-  assert_eq!(views[1].name, import_container_name);
-  assert_040_local_2_import_content(&test, &views[1].id).await;
+  assert_eq!(views[2].name, import_container_name);
+  assert_040_local_2_import_content(&test, &views[2].id).await;
 
   drop(cleaner);
 }
@@ -226,13 +228,14 @@ async fn import_appflowy_data_folder_multiple_times_test() {
     .await
     .unwrap();
   // after import, the structure is:
-  //   Getting Started
+  //   General
+  //   Shared
   //   040_local_2
 
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
-  assert_eq!(views[1].name, import_container_name);
-  assert_040_local_2_import_content(&test, &views[1].id).await;
+  assert_eq!(views.len(), 3);
+  assert_eq!(views[2].name, import_container_name);
+  assert_040_local_2_import_content(&test, &views[2].id).await;
 
   test
     .import_appflowy_data(
@@ -242,16 +245,17 @@ async fn import_appflowy_data_folder_multiple_times_test() {
     .await
     .unwrap();
   // after import, the structure is:
-  //   Getting Started
+  //   Generate
+  //   Shared
   //   040_local_2
   //      Getting started
   //   040_local_2
   //      Getting started
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
-  assert_eq!(views[2].name, import_container_name);
-  assert_040_local_2_import_content(&test, &views[1].id).await;
+  assert_eq!(views.len(), 4);
+  assert_eq!(views[3].name, import_container_name);
   assert_040_local_2_import_content(&test, &views[2].id).await;
+  assert_040_local_2_import_content(&test, &views[3].id).await;
   drop(cleaner);
 }
 

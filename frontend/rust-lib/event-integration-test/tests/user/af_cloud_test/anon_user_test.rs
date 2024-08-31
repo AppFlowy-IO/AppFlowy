@@ -81,7 +81,7 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
 
   println!("user first level views: {:?}", user_first_level_views);
   let user_second_level_views = test
-    .get_view(&user_first_level_views[1].id)
+    .get_view(&user_first_level_views[2].id)
     .await
     .child_views;
   println!("user second level views: {:?}", user_second_level_views);
@@ -95,11 +95,11 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   assert_eq!(anon_first_level_views.len(), 1);
 
   // the first view of user_first_level_views is the default get started view
-  assert_eq!(user_first_level_views.len(), 2);
+  assert_eq!(user_first_level_views.len(), 3);
   assert_ne!(anon_first_level_views[0].id, user_first_level_views[1].id);
   assert_eq!(
     anon_first_level_views[0].name,
-    user_first_level_views[1].name
+    user_first_level_views[2].name
   );
 
   // check second level
