@@ -3,12 +3,13 @@ import {
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
   OrderObjectPositionTypePB,
+  RepeatedRowIdPB,
   RowIdPB,
   UpdateRowMetaChangesetPB,
 } from '@/services/backend';
 import {
   DatabaseEventCreateRow,
-  DatabaseEventDeleteRow,
+  DatabaseEventDeleteRows,
   DatabaseEventDuplicateRow,
   DatabaseEventGetRowMeta,
   DatabaseEventMoveGroupRow,
@@ -51,13 +52,12 @@ export async function duplicateRow(viewId: string, rowId: string, groupId?: stri
 }
 
 export async function deleteRow(viewId: string, rowId: string, groupId?: string): Promise<void> {
-  const payload = RowIdPB.fromObject({
+  const payload = RepeatedRowIdPB.fromObject({
     view_id: viewId,
-    row_id: rowId,
-    group_id: groupId,
+    row_ids: [rowId],
   });
 
-  const result = await DatabaseEventDeleteRow(payload);
+  const result = await DatabaseEventDeleteRows(payload);
 
   return result.unwrap();
 }

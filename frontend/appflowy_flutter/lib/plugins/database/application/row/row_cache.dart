@@ -94,7 +94,7 @@ class RowCache {
   void setRowMeta(RowMetaPB rowMeta) {
     final rowInfo = buildGridRow(rowMeta);
     _rowList.add(rowInfo);
-    _changedNotifier?.receive(ChangedReason.didFetchRow(rowMeta.id));
+    _changedNotifier?.receive(const ChangedReason.didFetchRow());
   }
 
   void dispose() {
@@ -332,7 +332,7 @@ class ChangedReason with _$ChangedReason {
   const factory ChangedReason.update(UpdatedIndexMap indexs) = _Update;
   const factory ChangedReason.fieldDidChange() = _FieldDidChange;
   const factory ChangedReason.initial() = InitialListState;
-  const factory ChangedReason.didFetchRow(String rowId) = _DidFetchRow;
+  const factory ChangedReason.didFetchRow() = _DidFetchRow;
   const factory ChangedReason.reorderRows() = _ReorderRows;
   const factory ChangedReason.reorderSingleRow(
     ReorderSingleRowPB reorderRow,

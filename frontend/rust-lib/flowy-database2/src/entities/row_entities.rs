@@ -68,6 +68,15 @@ pub struct RowMetaPB {
   pub is_document_empty: Option<bool>,
 }
 
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct RowIdPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2)]
+  pub document_id: String,
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedRowMetaPB {
   #[pb(index = 1)]
@@ -305,7 +314,7 @@ impl From<UpdatedRow> for UpdatedRowPB {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowIdPB {
+pub struct DatabaseViewRowIdPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -322,7 +331,7 @@ pub struct RowIdParams {
   pub group_id: Option<String>,
 }
 
-impl TryInto<RowIdParams> for RowIdPB {
+impl TryInto<RowIdParams> for DatabaseViewRowIdPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {

@@ -93,7 +93,7 @@ class CellController<T, D> {
     _rowCache.addListener(
       rowId: rowId,
       onRowChanged: (context, reason) {
-        if (reason == const ChangedReason.didFetchRow(_)) {
+        if (reason == const ChangedReason.didFetchRow()) {
           _onRowMetaChanged?.call();
         }
       },
