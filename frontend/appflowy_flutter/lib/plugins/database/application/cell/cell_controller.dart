@@ -75,9 +75,9 @@ class CellController<T, D> {
   FieldInfo get fieldInfo => _fieldController.getField(_cellContext.fieldId)!;
   FieldType get fieldType =>
       _fieldController.getField(_cellContext.fieldId)!.fieldType;
-  RowMetaPB? get rowMeta => _rowCache.getRow(rowId)?.rowMeta;
-  String get icon => rowMeta?.icon ?? "";
-  bool get hasDocument => !(rowMeta?.isDocumentEmpty ?? true);
+  ValueNotifier<String>? get icon => _rowCache.getRow(rowId)?.rowIconNotifier;
+  ValueNotifier<bool>? get hasDocument =>
+      _rowCache.getRow(rowId)?.rowDocumentNotifier;
   CellMemCache get _cellCache => _rowCache.cellCache;
 
   /// casting method for painless type coersion
@@ -88,15 +88,6 @@ class CellController<T, D> {
     _cellListener = CellListener(
       rowId: _cellContext.rowId,
       fieldId: _cellContext.fieldId,
-    );
-
-    _rowCache.addListener(
-      rowId: rowId,
-      onRowChanged: (context, reason) {
-        if (reason == const ChangedReason.didFetchRow()) {
-          _onRowMetaChanged?.call();
-        }
-      },
     );
 
     // 1. Listen on user edit event and load the new cell data if needed.
@@ -117,23 +108,12 @@ class CellController<T, D> {
       fieldId,
       onFieldChanged: _onFieldChangedListener,
     );
-
-    // 3. If the field is primary listen to row meta changes.
-    if (fieldInfo.field.isPrimary) {
-      _rowMetaListener = RowMetaListener(_cellContext.rowId);
-      _rowMetaListener?.start(
-        callback: (newRowMeta) {
-          _onRowMetaChanged?.call();
-        },
-      );
-    }
   }
 
   /// Add a new listener
   VoidCallback? addListener({
     required void Function(T?) onCellChanged,
     void Function(FieldInfo fieldInfo)? onFieldChanged,
-    VoidCallback? onRowMetaChanged,
   }) {
     /// an adaptor for the onCellChanged listener
     void onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
@@ -146,10 +126,24 @@ class CellController<T, D> {
       );
     }
 
-    _onRowMetaChanged = onRowMetaChanged;
-
     // Return the function pointer that can be used when calling removeListener.
     return onCellChangedFn;
+  }
+
+  void onRowMetaChanged(VoidCallback onRowMetaChanged) {
+    _onRowMetaChanged = onRowMetaChanged;
+
+    // 3. If the field is primary listen to row meta changes.
+    if (_rowMetaListener == null) {
+      if (fieldInfo.field.isPrimary) {
+        _rowMetaListener = RowMetaListener(_cellContext.rowId);
+        _rowMetaListener?.start(
+          callback: (newRowMeta) {
+            _onRowMetaChanged?.call();
+          },
+        );
+      }
+    }
   }
 
   void removeListener({
