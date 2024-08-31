@@ -62,19 +62,7 @@ pub struct RowMetaPB {
   pub icon: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub cover: Option<String>,
-
-  #[pb(index = 5, one_of)]
   pub is_document_empty: Option<bool>,
-}
-
-#[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowIdPB {
-  #[pb(index = 1)]
-  pub row_id: String,
-
-  #[pb(index = 2)]
-  pub document_id: String,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -89,7 +77,6 @@ impl From<RowOrder> for RowMetaPB {
       id: data.id.into_inner(),
       document_id: None,
       icon: None,
-      cover: None,
       is_document_empty: None,
     }
   }
@@ -101,7 +88,6 @@ impl From<Row> for RowMetaPB {
       id: data.id.into_inner(),
       document_id: None,
       icon: None,
-      cover: None,
       is_document_empty: None,
     }
   }
@@ -113,7 +99,6 @@ impl From<RowDetail> for RowMetaPB {
       id: row_detail.row.id.to_string(),
       document_id: Some(row_detail.document_id),
       icon: row_detail.meta.icon_url,
-      cover: row_detail.meta.cover_url,
       is_document_empty: Some(row_detail.meta.is_document_empty),
     }
   }
