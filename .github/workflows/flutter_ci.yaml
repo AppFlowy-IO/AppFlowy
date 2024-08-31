@@ -246,7 +246,7 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         env:
-          BACKEND_VERSION: 0.3.24-amd64
+          BACKEND_VERSION: 0.6.4-amd64
         run: |
           if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
             docker compose pull
