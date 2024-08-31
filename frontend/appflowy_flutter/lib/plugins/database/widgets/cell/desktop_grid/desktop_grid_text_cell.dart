@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
@@ -23,21 +24,36 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
           BlocBuilder<TextCellBloc, TextCellState>(
             buildWhen: (p, c) => p.emoji != c.emoji,
             builder: (context, state) {
-              if (state.emoji.isEmpty) {
-                return const SizedBox.shrink();
+              if (state.emoji.isNotEmpty) {
+                return Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FlowyText(
+                        state.emoji,
+                        fontSize: 16,
+                      ),
+                      const HSpace(6),
+                    ],
+                  ),
+                );
               }
-              return Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FlowyText(
-                      state.emoji,
-                      fontSize: 16,
-                    ),
-                    const HSpace(6),
-                  ],
-                ),
-              );
+
+              if (state.hasDocument) {
+                return Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FlowySvg(
+                        FlowySvgs.notes_s,
+                        color: Theme.of(context).hintColor,
+                      ),
+                      const HSpace(6),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
             },
           ),
           Expanded(

@@ -42,8 +42,8 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
               emit(state.copyWith(wrap: wrap));
             }
           },
-          didUpdateEmoji: (String emoji) {
-            emit(state.copyWith(emoji: emoji));
+          didUpdateEmoji: (String emoji, bool hasDocument) {
+            emit(state.copyWith(emoji: emoji, hasDocument: hasDocument));
           },
           updateText: (String text) {
             if (state.content != text) {
@@ -69,7 +69,12 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
       onRowMetaChanged: cellController.fieldInfo.isPrimary
           ? () {
               if (!isClosed) {
-                add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
+                add(
+                  TextCellEvent.didUpdateEmoji(
+                    cellController.icon,
+                    cellController.hasDocument,
+                  ),
+                );
               }
             }
           : null,
@@ -91,7 +96,10 @@ class TextCellEvent with _$TextCellEvent {
       _DidUpdateField;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
   const factory TextCellEvent.enableEdit(bool enabled) = _EnableEdit;
-  const factory TextCellEvent.didUpdateEmoji(String emoji) = _UpdateEmoji;
+  const factory TextCellEvent.didUpdateEmoji(
+    String emoji,
+    bool hasDocument,
+  ) = _UpdateEmoji;
 }
 
 @freezed
@@ -99,6 +107,7 @@ class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
     required String emoji,
+    required bool hasDocument,
     required bool enableEdit,
     required bool wrap,
   }) = _TextCellState;
@@ -106,13 +115,13 @@ class TextCellState with _$TextCellState {
   factory TextCellState.initial(TextCellController cellController) {
     final cellData = cellController.getCellData() ?? "";
     final wrap = cellController.fieldInfo.wrapCellContent ?? true;
-    final emoji =
-        cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "";
+    final emoji = cellController.fieldInfo.isPrimary ? cellController.icon : "";
 
     return TextCellState(
       content: cellData,
       emoji: emoji,
       enableEdit: false,
+      hasDocument: cellController.hasDocument,
       wrap: wrap,
     );
   }

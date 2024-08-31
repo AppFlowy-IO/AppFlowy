@@ -76,7 +76,8 @@ class CellController<T, D> {
   FieldType get fieldType =>
       _fieldController.getField(_cellContext.fieldId)!.fieldType;
   RowMetaPB? get rowMeta => _rowCache.getRow(rowId)?.rowMeta;
-  String? get icon => rowMeta?.icon;
+  String get icon => rowMeta?.icon ?? "";
+  bool get hasDocument => !(rowMeta?.isDocumentEmpty ?? true);
   CellMemCache get _cellCache => _rowCache.cellCache;
 
   /// casting method for painless type coersion
@@ -92,7 +93,7 @@ class CellController<T, D> {
     _rowCache.addListener(
       rowId: rowId,
       onRowChanged: (context, reason) {
-        if (reason == const ChangedReason.didFetchRow()) {
+        if (reason == const ChangedReason.didFetchRow(_)) {
           _onRowMetaChanged?.call();
         }
       },
