@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 
@@ -117,20 +118,23 @@ class RowList {
     return deletedIndex;
   }
 
-  UpdatedIndexMap updateRows(
-    List<RowMetaPB> rowMetas,
-    RowInfo Function(RowMetaPB) builder,
-  ) {
+  UpdatedIndexMap updateRows({
+    required List<RowMetaPB> rowMetas,
+    required RowInfo Function(RowMetaPB) builder,
+  }) {
     final UpdatedIndexMap updatedIndexs = UpdatedIndexMap();
     for (final rowMeta in rowMetas) {
       final index = _rowInfos.indexWhere(
         (rowInfo) => rowInfo.rowId == rowMeta.id,
       );
       if (index != -1) {
+        rowInfoByRowId[rowMeta.id]?.updateRowMeta(rowMeta);
+      } else {
+        final insertIndex = max(index, _rowInfos.length);
         final rowInfo = builder(rowMeta);
-        insert(index, rowInfo);
+        insert(insertIndex, rowInfo);
         updatedIndexs[rowMeta.id] = UpdatedIndex(
-          index: index,
+          index: insertIndex,
           rowId: rowMeta.id,
         );
       }
@@ -161,5 +165,12 @@ class RowList {
 
   bool contains(RowId rowId) {
     return rowInfoByRowId[rowId] != null;
+  }
+
+  void dispose() {
+    for (final rowInfo in _rowInfos) {
+      rowInfo.dispose();
+    }
+    _rowInfos.clear();
   }
 }
