@@ -29,6 +29,8 @@ class CalendarEventEditorBloc
       (event, emit) async {
         await event.when(
           initial: () {
+            rowController.initialize();
+
             _startListening();
             final primaryFieldId = fieldController.fieldInfos
                 .firstWhere((fieldInfo) => fieldInfo.isPrimary)
