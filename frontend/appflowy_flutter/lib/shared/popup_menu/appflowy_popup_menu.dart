@@ -1506,7 +1506,7 @@ class PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
     if (items.isNotEmpty) {
       var popUpAnimationStyle = widget.popUpAnimationStyle;
       if (popUpAnimationStyle == null &&
-          Theme.of(context).platform == TargetPlatform.iOS) {
+          defaultTargetPlatform == TargetPlatform.iOS) {
         popUpAnimationStyle = AnimationStyle(
           curve: Curves.easeInOut,
           duration: const Duration(milliseconds: 300),
