@@ -1224,7 +1224,6 @@
       "typeAValue": "Nhập một giá trị...",
       "layout": "Bố cục",
       "databaseLayout": "Bố cục",
-      "viewList": "Database Views",
       "editView": "Chỉnh sửa chế độ xem",
       "boardSettings": "Cài đặt bảng",
       "calendarSettings": "Cài đặt lịch",
@@ -1232,7 +1231,8 @@
       "duplicateView": "Xem trùng lặp",
       "deleteView": "Xóa chế độ xem",
       "numberOfVisibleFields": "{} đã hiển thị",
-      "Properties": "Thuộc tính"
+      "Properties": "Thuộc tính",
+      "viewList": "Database Views"
     },
     "textFilter": {
       "contains": "Chứa",
