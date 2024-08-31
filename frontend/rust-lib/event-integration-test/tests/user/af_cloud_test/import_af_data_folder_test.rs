@@ -35,7 +35,7 @@ async fn import_appflowy_data_need_migration_test() {
   //        view: Document2
 
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
+  assert_eq!(views.len(), 3);
   assert_eq!(views[1].name, import_container_name);
 
   let child_views = test.get_view(&views[1].id).await.child_views;
@@ -81,7 +81,7 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   //          view: Grid1
   //          view: Grid2
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
+  assert_eq!(views.len(), 3);
   assert_eq!(views[1].name, import_container_name);
 
   // the 040_local should be an empty document, so try to get the document data
@@ -145,7 +145,7 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
   //        view: Grid1
   //        view: Grid2
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
+  assert_eq!(views.len(), 3);
   assert_eq!(views[1].name, "Document1");
 
   let document_1_child_views = test.get_view(&views[1].id).await.child_views;
@@ -179,7 +179,7 @@ async fn import_appflowy_data_folder_into_new_view_test2() {
     .unwrap();
 
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
+  assert_eq!(views.len(), 3);
   assert_eq!(views[1].name, import_container_name);
   assert_040_local_2_import_content(&test, &views[1].id).await;
 

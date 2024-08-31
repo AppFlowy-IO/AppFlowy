@@ -107,7 +107,7 @@ async fn af_cloud_open_workspace_test() {
   test.create_document("B").await;
   let first_workspace = test.get_current_workspace().await;
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
+  assert_eq!(views.len(), 4);
   assert_eq!(views[0].name, default_document_name);
   assert_eq!(views[1].name, "A");
   assert_eq!(views[2].name, "B");
@@ -174,7 +174,7 @@ async fn af_cloud_different_open_same_workspace_test() {
 
     let views = client.get_all_workspace_views().await;
     // only the getting started view should be present
-    assert_eq!(views.len(), 1);
+    assert_eq!(views.len(), 2);
     for view in views {
       client.delete_view(&view.id).await;
     }

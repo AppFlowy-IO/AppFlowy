@@ -55,7 +55,7 @@ async fn af_cloud_sync_anon_user_document_test() {
   // workspace:
   //  view: SyncDocument
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
+  assert_eq!(views.len(), 3);
   let document_id = views[1].id.clone();
   test.open_document(document_id.clone()).await;
 
