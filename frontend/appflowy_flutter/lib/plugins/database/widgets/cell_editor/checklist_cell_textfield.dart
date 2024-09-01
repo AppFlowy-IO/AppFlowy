@@ -61,6 +61,7 @@ class ChecklistCellTextfield extends StatelessWidget {
       controller: textController,
       focusNode: focusNode,
       style: Theme.of(context).textTheme.bodyMedium,
+      maxLines: null,
       decoration: InputDecoration(
         border: InputBorder.none,
         isCollapsed: true,
