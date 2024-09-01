@@ -43,6 +43,19 @@ jobs:
           sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+        run: |
+          if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
+            docker compose pull
+            docker compose up -d
+            sleep 10
+          else
+            echo "Docker container 'appflowy-cloud' is already running."
+          fi
+
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
         env:
