@@ -936,7 +936,7 @@ impl DatabaseViewEditor {
       return false;
     }
 
-    return match field_type {
+    match field_type {
       FieldType::RichText
       | FieldType::Number
       | FieldType::DateTime
@@ -974,7 +974,7 @@ impl DatabaseViewEditor {
 
         return false;
       },
-    };
+    }
   }
 
   /// Called when a grouping field is updated.
