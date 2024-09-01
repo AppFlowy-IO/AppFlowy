@@ -7,17 +7,21 @@ import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/media_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_upload_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
-import 'package:appflowy/shared/patterns/common_patterns.dart';
+import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -49,7 +53,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MediaCellBloc, MediaCellState>(
-      builder: (_, state) {
+      builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.all(4),
           child: SingleChildScrollView(
@@ -97,11 +101,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                     onInsertLocalFile: (file) async {
                       if (file.path.isEmpty) return;
 
-                      final fileType = file.mimeType?.startsWith('image/') ??
-                              false || imgExtensionRegex.hasMatch(file.name)
-                          ? MediaFileTypePB.Image
-                          : MediaFileTypePB.Other;
-
+                      final fileType = file.fileType.toMediaFileTypePB();
                       final mediaCellBloc = context.read<MediaCellBloc>();
 
                       // Check upload type
@@ -152,9 +152,20 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                         );
                       }
 
-                      String name = uri.pathSegments.last;
+                      final fakeFile = XFile(uri.path);
+                      MediaFileTypePB fileType =
+                          fakeFile.fileType.toMediaFileTypePB();
+                      fileType = fileType == MediaFileTypePB.Other
+                          ? MediaFileTypePB.Link
+                          : fileType;
+
+                      String name = uri.pathSegments.isNotEmpty
+                          ? uri.pathSegments.last
+                          : "";
                       if (name.isEmpty && uri.pathSegments.length > 1) {
                         name = uri.pathSegments[uri.pathSegments.length - 2];
+                      } else if (name.isEmpty) {
+                        name = uri.host;
                       }
 
                       context.read<MediaCellBloc>().add(
@@ -162,7 +173,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                               url: url,
                               name: name,
                               uploadType: MediaUploadTypePB.NetworkMedia,
-                              fileType: MediaFileTypePB.Other,
+                              fileType: fileType,
                             ),
                           );
 
@@ -259,7 +270,6 @@ class __RenderMediaState extends State<_RenderMedia> {
                         url: widget.file.url,
                         userProfilePB:
                             context.read<MediaCellBloc>().userProfile,
-                        height: 64,
                       ),
                     ),
                   ),
@@ -272,14 +282,12 @@ class __RenderMediaState extends State<_RenderMedia> {
                               MediaUploadTypePB.NetworkMedia
                           ? Image.network(
                               widget.file.url,
-                              height: 64,
-                              fit: BoxFit.contain,
+                              fit: BoxFit.cover,
                               alignment: Alignment.centerLeft,
                             )
                           : Image.file(
                               File(widget.file.url),
-                              height: 64,
-                              fit: BoxFit.contain,
+                              fit: BoxFit.cover,
                               alignment: Alignment.centerLeft,
                             ),
                     ),
@@ -288,9 +296,21 @@ class __RenderMediaState extends State<_RenderMedia> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () => afLaunchUrlString(widget.file.url),
-                      child: FlowyText(
-                        widget.file.name,
-                        overflow: TextOverflow.ellipsis,
+                      child: Row(
+                        children: [
+                          FlowySvg(
+                            widget.file.fileType.icon,
+                            color: AFThemeExtension.of(context).textColor,
+                            size: const Size.square(18),
+                          ),
+                          const HSpace(8),
+                          Flexible(
+                            child: FlowyText(
+                              widget.file.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -302,9 +322,12 @@ class __RenderMediaState extends State<_RenderMedia> {
                     asBarrier: true,
                     constraints: const BoxConstraints(maxWidth: 150),
                     direction: PopoverDirection.bottomWithRightAligned,
-                    popupBuilder: (_) => BlocProvider.value(
+                    popupBuilder: (popoverContext) => BlocProvider.value(
                       value: context.read<MediaCellBloc>(),
-                      child: _MediaItemMenu(file: widget.file),
+                      child: _MediaItemMenu(
+                        file: widget.file,
+                        closeContext: popoverContext,
+                      ),
                     ),
                     child: FlowyIconButton(
                       width: 24,
@@ -354,12 +377,31 @@ class __RenderMediaState extends State<_RenderMedia> {
   }
 }
 
-class _MediaItemMenu extends StatelessWidget {
+class _MediaItemMenu extends StatefulWidget {
   const _MediaItemMenu({
     required this.file,
+    this.closeContext,
   });
 
   final MediaFilePB file;
+  final BuildContext? closeContext;
+
+  @override
+  State<_MediaItemMenu> createState() => _MediaItemMenuState();
+}
+
+class _MediaItemMenuState extends State<_MediaItemMenu> {
+  late final nameController = TextEditingController(text: widget.file.name);
+  final errorMessage = ValueNotifier<String?>(null);
+
+  BuildContext? renameContext;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    errorMessage.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -367,22 +409,22 @@ class _MediaItemMenu extends StatelessWidget {
       separatorBuilder: () => const VSpace(4),
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (file.fileType == MediaFileTypePB.Image) ...[
+        if (widget.file.fileType == MediaFileTypePB.Image) ...[
           FlowyButton(
             onTap: () => showDialog(
-              context: context,
+              context: widget.closeContext ?? context,
               builder: (_) => InteractiveImageViewer(
                 userProfile: context.read<MediaCellBloc>().userProfile,
                 imageProvider: AFBlockImageProvider(
                   images: [
                     ImageBlockData(
-                      url: file.url,
-                      type: file.uploadType.toCustomImageType(),
+                      url: widget.file.url,
+                      type: widget.file.uploadType.toCustomImageType(),
                     ),
                   ],
                   onDeleteImage: (_) => context
                       .read<MediaCellBloc>()
-                      .add(MediaCellEvent.removeFile(fileId: file.id)),
+                      .add(MediaCellEvent.removeFile(fileId: widget.file.id)),
                 ),
               ),
             ),
@@ -398,23 +440,54 @@ class _MediaItemMenu extends StatelessWidget {
             leftIconSize: const Size(18, 18),
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
           ),
+        ] else ...[
+          FlowyButton(
+            leftIcon: const FlowySvg(FlowySvgs.edit_s),
+            text: FlowyText.regular(LocaleKeys.grid_media_rename.tr()),
+            onTap: () {
+              nameController.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: nameController.text.length,
+              );
+
+              showCustomConfirmDialog(
+                context: context,
+                title: LocaleKeys.document_plugins_file_renameFile_title.tr(),
+                description: LocaleKeys
+                    .document_plugins_file_renameFile_description
+                    .tr(),
+                closeOnConfirm: false,
+                builder: (dialogContext) {
+                  renameContext = dialogContext;
+                  return FileRenameTextField(
+                    nameController: nameController,
+                    errorMessage: errorMessage,
+                    onSubmitted: () => _saveName(context),
+                    disposeController: false,
+                  );
+                },
+                confirmLabel: LocaleKeys.button_save.tr(),
+                onConfirm: () => _saveName(context),
+              );
+            },
+          ),
         ],
         FlowyButton(
           onTap: () async {
             if ([MediaUploadTypePB.NetworkMedia, MediaUploadTypePB.LocalMedia]
-                .contains(file.uploadType)) {
+                .contains(widget.file.uploadType)) {
               /// When the file is a network file or a local file, we can directly open the file.
-              await afLaunchUrl(Uri.parse(file.url));
+              await afLaunchUrl(Uri.parse(widget.file.url));
             } else {
               final userProfile = context.read<MediaCellBloc>().userProfile;
-              final uri = Uri.parse(file.url);
+              final uri = Uri.parse(widget.file.url);
               final imgFile = File(uri.pathSegments.last);
               final savePath = await FilePicker().saveFile(
                 fileName: basename(imgFile.path),
               );
 
               if (savePath != null) {
-                final uri = Uri.parse(file.url);
+                final uri = Uri.parse(widget.file.url);
 
                 final token = jsonDecode(userProfile.token)['access_token'];
                 final response = await http.get(
@@ -448,7 +521,7 @@ class _MediaItemMenu extends StatelessWidget {
         FlowyButton(
           onTap: () => context.read<MediaCellBloc>().add(
                 MediaCellEvent.removeFile(
-                  fileId: file.id,
+                  fileId: widget.file.id,
                 ),
               ),
           leftIcon: FlowySvg(
@@ -465,5 +538,24 @@ class _MediaItemMenu extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _saveName(BuildContext context) {
+    if (nameController.text.isEmpty) {
+      errorMessage.value =
+          LocaleKeys.document_plugins_file_renameFile_nameEmptyError.tr();
+      return;
+    }
+
+    context.read<MediaCellBloc>().add(
+          MediaCellEvent.renameFile(
+            fileId: widget.file.id,
+            name: nameController.text,
+          ),
+        );
+
+    if (renameContext != null) {
+      Navigator.of(renameContext!).pop();
+    }
   }
 }

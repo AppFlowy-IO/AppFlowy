@@ -136,6 +136,21 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
             final result = await DatabaseEventUpdateMediaCell(payload).send();
             result.fold((l) => null, (err) => Log.error(err));
           },
+          renameFile: (fileId, name) async {
+            final payload = RenameMediaChangesetPB(
+              viewId: cellController.viewId,
+              cellId: CellIdPB(
+                viewId: cellController.viewId,
+                fieldId: cellController.fieldId,
+                rowId: cellController.rowId,
+              ),
+              fileId: fileId,
+              name: name,
+            );
+
+            final result = await DatabaseEventRenameMediaFile(payload).send();
+            result.fold((l) => null, (err) => Log.error(err));
+          },
         );
       },
     );
@@ -184,6 +199,11 @@ class MediaCellEvent with _$MediaCellEvent {
     required int from,
     required int to,
   }) = _ReorderFiles;
+
+  const factory MediaCellEvent.renameFile({
+    required String fileId,
+    required String name,
+  }) = _RenameFile;
 }
 
 @freezed

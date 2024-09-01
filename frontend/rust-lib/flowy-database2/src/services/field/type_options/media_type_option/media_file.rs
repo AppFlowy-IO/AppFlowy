@@ -11,6 +11,18 @@ pub struct MediaFile {
   pub file_type: MediaFileType,
 }
 
+impl MediaFile {
+  pub fn rename(&self, new_name: String) -> Self {
+    Self {
+      id: self.id.clone(),
+      name: new_name,
+      url: self.url.clone(),
+      upload_type: self.upload_type.clone(),
+      file_type: self.file_type.clone(),
+    }
+  }
+}
+
 impl Display for MediaFile {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     write!(
@@ -36,4 +48,10 @@ pub enum MediaFileType {
   #[default]
   Other = 0,
   Image = 1,
+  Link = 2,
+  Document = 3,
+  Archive = 4,
+  Video = 5,
+  Audio = 6,
+  Text = 7,
 }

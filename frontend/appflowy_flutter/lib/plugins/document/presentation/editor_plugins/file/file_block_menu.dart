@@ -80,7 +80,7 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
               builder: (context) {
                 renameContext = context;
 
-                return _RenameTextField(
+                return FileRenameTextField(
                   nameController: nameController,
                   errorMessage: errorMessage,
                   onSubmitted: _saveName,
@@ -146,22 +146,26 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
   }
 }
 
-class _RenameTextField extends StatefulWidget {
-  const _RenameTextField({
+class FileRenameTextField extends StatefulWidget {
+  const FileRenameTextField({
+    super.key,
     required this.nameController,
     required this.errorMessage,
     required this.onSubmitted,
+    this.disposeController = true,
   });
 
   final TextEditingController nameController;
   final ValueNotifier<String?> errorMessage;
   final VoidCallback onSubmitted;
 
+  final bool disposeController;
+
   @override
-  State<_RenameTextField> createState() => _RenameTextFieldState();
+  State<FileRenameTextField> createState() => _FileRenameTextFieldState();
 }
 
-class _RenameTextFieldState extends State<_RenameTextField> {
+class _FileRenameTextFieldState extends State<FileRenameTextField> {
   @override
   void initState() {
     super.initState();
@@ -171,7 +175,9 @@ class _RenameTextFieldState extends State<_RenameTextField> {
   @override
   void dispose() {
     widget.errorMessage.removeListener(_setState);
-    widget.nameController.dispose();
+    if (widget.disposeController) {
+      widget.nameController.dispose();
+    }
     super.dispose();
   }
 

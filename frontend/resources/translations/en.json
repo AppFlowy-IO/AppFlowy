@@ -1456,6 +1456,13 @@
       "countEmptyShort": "EMPTY",
       "countNonEmpty": "Count not empty",
       "countNonEmptyShort": "FILLED"
+    },
+    "media": {
+      "rename": "Rename",
+      "download": "Download",
+      "open": "Open",
+      "delete": "Delete",
+      "moreFilesHint": "+{} files"
     }
   },
   "document": {
