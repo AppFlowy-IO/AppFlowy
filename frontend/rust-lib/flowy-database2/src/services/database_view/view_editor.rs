@@ -960,7 +960,7 @@ impl DatabaseViewEditor {
           return old_field_type_option.options.len() != new_field_type_option.options.len();
         }
 
-        return false;
+        false
       },
       FieldType::MultiSelect => {
         let old_field_type_option = old_field.get_type_option::<MultiSelectTypeOption>(field_type);
@@ -972,7 +972,7 @@ impl DatabaseViewEditor {
           return old_field_type_option.options.len() != new_field_type_option.options.len();
         }
 
-        return false;
+        false
       },
     }
   }
