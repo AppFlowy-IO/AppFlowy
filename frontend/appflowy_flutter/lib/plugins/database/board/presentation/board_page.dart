@@ -1,11 +1,15 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart' hide Card;
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/column_header_bloc.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
@@ -24,13 +28,12 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart' hide Card;
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
+
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_focus_scope.dart';
 import 'widgets/board_hidden_groups.dart';
@@ -339,8 +342,22 @@ class _BoardContentState extends State<_BoardContent> {
                       false
                   ? BoardTrailing(scrollController: scrollController)
                   : const HSpace(40),
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
+              headerBuilder: (_, groupData) => MultiBlocProvider(
+                providers: [
+                  BlocProvider<BoardBloc>.value(
+                    value: context.read<BoardBloc>(),
+                  ),
+                  BlocProvider<ColumnHeaderBloc>(
+                    create: (context) => ColumnHeaderBloc(
+                      databaseController: databaseController,
+                      fieldId: (groupData.customData as GroupData).fieldInfo.id,
+                      group: context
+                          .read<BoardBloc>()
+                          .groupControllers[groupData.headerData.groupId]!
+                          .group,
+                    )..add(const ColumnHeaderEvent.initial()),
+                  ),
+                ],
                 child: BoardColumnHeader(
                   groupData: groupData,
                   margin: config.groupHeaderPadding,
