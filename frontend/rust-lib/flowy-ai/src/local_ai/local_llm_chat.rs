@@ -165,10 +165,15 @@ impl LocalAIController {
 
   /// Indicate whether the local AI plugin is running.
   pub fn is_running(&self) -> bool {
+    if !self.is_enabled() {
+      return false;
+    }
     self.local_ai.get_plugin_running_state().is_ready()
   }
 
   /// Indicate whether the local AI is enabled.
+  /// AppFlowy store the value in local storage isolated by workspace id. Each workspace can have
+  /// different settings.
   pub fn is_enabled(&self) -> bool {
     if let Ok(key) = self.local_ai_enabled_key() {
       self.store_preferences.get_bool(&key).unwrap_or(true)
@@ -225,6 +230,10 @@ impl LocalAIController {
   }
 
   pub fn close_chat(&self, chat_id: &str) {
+    if !self.is_running() {
+      return;
+    }
+    info!("[AI Plugin] notify close chat: {}", chat_id);
     let weak_ctrl = Arc::downgrade(&self.local_ai);
     let chat_id = chat_id.to_string();
     tokio::spawn(async move {
@@ -285,6 +294,13 @@ impl LocalAIController {
   }
 
   pub fn get_chat_plugin_state(&self) -> LocalAIPluginStatePB {
+    if !self.is_enabled() {
+      return LocalAIPluginStatePB {
+        state: RunningStatePB::Stopped,
+        offline_ai_ready: false,
+      };
+    }
+
     let offline_ai_ready = self.local_ai_resource.is_offline_app_ready();
     let state = self.local_ai.get_plugin_running_state();
     LocalAIPluginStatePB {

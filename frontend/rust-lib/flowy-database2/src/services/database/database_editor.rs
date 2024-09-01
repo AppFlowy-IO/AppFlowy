@@ -1300,7 +1300,7 @@ impl DatabaseEditor {
   }
 
   pub async fn close_database(&self) {
-    info!("Close database: {}", self.database_id);
+    info!("close database editor: {}", self.database_id);
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
