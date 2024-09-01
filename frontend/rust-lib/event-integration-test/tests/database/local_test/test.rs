@@ -288,14 +288,14 @@ async fn update_row_meta_event_with_cover_test() {
 
   // By default the row icon is None.
   let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
-  assert_eq!(row.cover, None);
+  assert_eq!(row.icon, None);
 
   // Insert cover to the row.
   let changeset = UpdateRowMetaChangesetPB {
     id: database.rows[0].id.clone(),
     view_id: grid_view.id.clone(),
-    cover_url: Some("cover url".to_owned()),
-    icon_url: None,
+    icon_url: Some("cover url".to_owned()),
+    cover_url: None,
     is_document_empty: None,
   };
   let error = test.update_row_meta(changeset).await;
@@ -303,7 +303,7 @@ async fn update_row_meta_event_with_cover_test() {
 
   // Check if the icon is updated.
   let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
-  assert_eq!(row.cover, Some("cover url".to_owned()));
+  assert_eq!(row.icon, Some("cover url".to_owned()));
 }
 
 #[tokio::test]

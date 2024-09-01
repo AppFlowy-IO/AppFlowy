@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
@@ -197,10 +195,10 @@ class _HomePageState extends State<_HomePage> {
           children: [
             // Header
             Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 left: HomeSpaceViewSizes.mHorizontalPadding,
                 right: 8.0,
-                top: Platform.isAndroid ? 8.0 : 0.0,
+
               ),
               child: MobileHomePageHeader(
                 userProfile: widget.userProfile,

@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use collab::lock::RwLock;
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
@@ -10,8 +11,8 @@ use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
-use tracing::error;
+use tokio::sync::RwLock as TokioRwLock;
+use tracing::{error, trace};
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
@@ -41,7 +42,7 @@ pub struct FilterController {
   result_by_row_id: DashMap<RowId, bool>,
   cell_cache: CellCache,
   filters: RwLock<Vec<Filter>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
 
@@ -56,7 +57,7 @@ impl FilterController {
     view_id: &str,
     handler_id: &str,
     delegate: T,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
@@ -74,14 +75,13 @@ impl FilterController {
     let mut need_save = false;
 
     let mut filters = delegate.get_all_filters(view_id).await;
+    trace!("[Database]: filters: {:?}", filters);
     let mut filtering_field_ids: HashMap<String, Vec<String>> = HashMap::new();
-
     for filter in filters.iter() {
       filter.get_all_filtering_field_ids(&mut filtering_field_ids);
     }
 
     let mut delete_filter_ids = vec![];
-
     for (field_id, filter_ids) in &filtering_field_ids {
       if !field_ids.contains(field_id) {
         need_save = true;
@@ -385,7 +385,6 @@ impl FilterController {
       invisible_rows,
       visible_rows,
     };
-    tracing::trace!("filter result {:?}", notification);
     let _ = self
       .notifier
       .send(DatabaseViewChanged::FilterNotification(notification));

@@ -264,7 +264,13 @@ final referencedDocSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['page', 'notes', 'referenced page', 'referenced document'],
+  keywords: [
+    'page',
+    'notes',
+    'referenced page',
+    'referenced document',
+    'link to page',
+  ],
   handler: (editorState, menuService, context) => showLinkToPageMenu(
     editorState,
     menuService,

@@ -4,6 +4,7 @@ use std::sync::Weak;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab::entity::EncodedCollab;
+use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::conversions::convert_document_to_plain_text;
@@ -17,7 +18,6 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
-use tokio::sync::RwLock;
 use tracing::trace;
 use tracing::{event, instrument};
 

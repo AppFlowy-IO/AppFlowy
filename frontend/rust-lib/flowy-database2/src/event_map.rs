@@ -14,7 +14,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .state(database_manager);
   plugin
          .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-         .event(DatabaseEvent::GetAllRows, get_all_rows_handler)
          .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
          .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
          .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
@@ -77,6 +76,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::CreateDatabaseView, create_database_view)
          // Export
          .event(DatabaseEvent::ExportCSV, export_csv_handler)
+         .event(DatabaseEvent::ExportRawDatabaseData, export_raw_database_data_handler)
          .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
          // Field settings
          .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
@@ -226,19 +226,19 @@ pub enum DatabaseEvent {
 
   /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
   /// to return a nullable row data.
-  #[event(input = "RowIdPB", output = "OptionalRowPB")]
+  #[event(input = "DatabaseViewRowIdPB", output = "OptionalRowPB")]
   GetRow = 51,
 
   #[event(input = "RepeatedRowIdPB")]
   DeleteRows = 52,
 
-  #[event(input = "RowIdPB")]
+  #[event(input = "DatabaseViewRowIdPB")]
   DuplicateRow = 53,
 
   #[event(input = "MoveRowPayloadPB")]
   MoveRow = 54,
 
-  #[event(input = "RowIdPB", output = "RowMetaPB")]
+  #[event(input = "DatabaseViewRowIdPB", output = "RowMetaPB")]
   GetRowMeta = 55,
 
   #[event(input = "UpdateRowMetaChangesetPB")]
@@ -323,7 +323,7 @@ pub enum DatabaseEvent {
   )]
   GetNoDateCalendarEvents = 124,
 
-  #[event(input = "RowIdPB", output = "CalendarEventPB")]
+  #[event(input = "DatabaseViewRowIdPB", output = "CalendarEventPB")]
   GetCalendarEvent = 125,
 
   #[event(input = "MoveCalendarEventPB")]
@@ -383,15 +383,18 @@ pub enum DatabaseEvent {
   #[event(input = "TranslateRowPB")]
   TranslateRow = 175,
 
-  #[event(input = "RowIdPB")]
+  #[event(input = "DatabaseViewRowIdPB")]
   InitRow = 176,
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedRowMetaPB")]
   GetAllRows = 177,
 
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
+  ExportRawDatabaseData = 178,
+
   #[event(input = "MediaCellChangesetPB")]
-  UpdateMediaCell = 178,
+  UpdateMediaCell = 200,
 
   #[event(input = "RenameMediaChangesetPB")]
-  RenameMediaFile = 179,
+  RenameMediaFile = 201,
 }

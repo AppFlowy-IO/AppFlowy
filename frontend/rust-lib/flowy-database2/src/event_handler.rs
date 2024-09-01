@@ -404,7 +404,7 @@ pub(crate) async fn move_field_handler(
 
 // #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -420,7 +420,7 @@ pub(crate) async fn get_row_handler(
 }
 
 pub(crate) async fn init_row_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -433,7 +433,7 @@ pub(crate) async fn init_row_handler(
 }
 
 pub(crate) async fn get_row_meta_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RowMetaPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -487,7 +487,7 @@ pub(crate) async fn delete_rows_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -960,7 +960,7 @@ pub(crate) async fn get_no_date_calendar_events_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_calendar_event_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<CalendarEventPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -1023,6 +1023,20 @@ pub(crate) async fn export_csv_handler(
   let data = database.export_csv(CSVFormat::Original).await?;
   data_result_ok(DatabaseExportDataPB {
     export_type: DatabaseExportDataType::CSV,
+    data,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn export_raw_database_data_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<DatabaseExportDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner().value;
+  let data = manager.get_database_json_string(&view_id).await?;
+  data_result_ok(DatabaseExportDataPB {
+    export_type: DatabaseExportDataType::RawDatabaseData,
     data,
   })
 }

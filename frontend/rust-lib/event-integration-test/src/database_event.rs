@@ -262,7 +262,7 @@ impl EventIntegrationTest {
   pub async fn get_row(&self, view_id: &str, row_id: &str) -> OptionalRowPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRow)
-      .payload(RowIdPB {
+      .payload(DatabaseViewRowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,
@@ -275,7 +275,7 @@ impl EventIntegrationTest {
   pub async fn get_row_meta(&self, view_id: &str, row_id: &str) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRowMeta)
-      .payload(RowIdPB {
+      .payload(DatabaseViewRowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,
@@ -297,7 +297,7 @@ impl EventIntegrationTest {
   pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::DuplicateRow)
-      .payload(RowIdPB {
+      .payload(DatabaseViewRowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,

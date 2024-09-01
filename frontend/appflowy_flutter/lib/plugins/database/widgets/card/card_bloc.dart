@@ -32,6 +32,7 @@ class CardBloc extends Bloc<CardEvent, CardState> {
             rowController.rowMeta,
           ),
         ) {
+    rowController.initialize();
     _dispatch();
   }
 

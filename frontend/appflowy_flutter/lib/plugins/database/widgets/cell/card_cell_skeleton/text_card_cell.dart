@@ -142,12 +142,13 @@ class _TextCellState extends State<TextCardCell> {
   }
 
   Widget? _buildIcon(TextCellState state) {
-    if (state.emoji.isNotEmpty) {
+    if (state.emoji?.value.isNotEmpty ?? false) {
       return Text(
-        state.emoji,
+        state.emoji?.value ?? '',
         style: widget.style.titleTextStyle,
       );
     }
+
     if (widget.showNotes) {
       return FlowyTooltip(
         message: LocaleKeys.board_notesTooltip.tr(),

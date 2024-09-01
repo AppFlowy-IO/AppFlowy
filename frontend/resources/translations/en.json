@@ -49,7 +49,7 @@
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
     "signInWithGoogle": "Continue with Google",
-    "signInWithGithub": "Continue with Github",
+    "signInWithGithub": "Continue with GitHub",
     "signInWithDiscord": "Continue with Discord",
     "signInWithApple": "Continue with Apple",
     "continueAnotherWay": "Continue another way",
@@ -144,8 +144,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "unfavorite": "Remove from favorites",
-    "favorite": "Add to favorites",
+    "unfavorite": "Remove from Favorites",
+    "favorite": "Add to Favorites",
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
@@ -204,8 +204,8 @@
     },
     "mobile": {
       "actions": "Trash Actions",
-      "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file",
+      "empty": "No pages or spaces in Trash",
+      "emptyDescription": "Move things you don't need to the Trash.",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
     },
@@ -347,9 +347,9 @@
     "putback": "Put Back",
     "update": "Update",
     "share": "Share",
-    "removeFromFavorites": "Remove from favorites",
-    "removeFromRecent": "Remove from recent",
-    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "removeFromRecent": "Remove from Recent",
+    "addToFavorites": "Add to Favorites",
     "favoriteSuccessfully": "Favorited success",
     "unfavoriteSuccessfully": "Unfavorited success",
     "duplicateSuccessfully": "Duplicated successfully",
@@ -368,7 +368,7 @@
     "deleteAccount": "Delete account",
     "back": "Back",
     "signInGoogle": "Continue with Google",
-    "signInGithub": "Continue with Github",
+    "signInGithub": "Continue with GitHub",
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
@@ -747,14 +747,14 @@
             "title": "AI Max",
             "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "per user per month billed annually",
+            "priceInfo": "Per user per month billed annually",
             "recommend": ""
           },
           "aiOnDevice": {
             "title": "AI On-device for Mac",
             "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
-            "priceInfo": "per user per month billed annually",
+            "priceInfo": "Per user per month billed annually",
             "recommend": "Recommend M1 or newer"
           }
         },
@@ -825,13 +825,13 @@
         "title": "Free",
         "description": "For individuals up to 2 members to organize everything",
         "price": "{}",
-        "priceInfo": "free forever"
+        "priceInfo": "Free forever"
       },
       "proPlan": {
         "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "per user per month \nbilled annually\n\n{} billed monthly"
+        "priceInfo": "Per user per month \nbilled annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -840,26 +840,29 @@
         "itemFour": "Real-time collaboration",
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
+        "itemFileUpload": "File uploads",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 2",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
+        "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 10",
-        "itemThree": "unlimited",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 10",
+        "itemThree": "Unlimited",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "unlimited",
+        "itemSix": "Unlimited",
+        "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
@@ -994,16 +997,16 @@
         "archiveAll": "Archive all"
       },
       "emptyInbox": {
-        "title": "No notifications yet",
-        "description": "You'll be notified here for @mentions"
+        "title": "Inbox Zero!",
+        "description": "Set reminders to receive notifications here."
       },
       "emptyUnread": {
         "title": "No unread notifications",
         "description": "You're all caught up!"
       },
       "emptyArchived": {
-        "title": "No archived notifications",
-        "description": "You haven't archived any notifications yet"
+        "title": "No archived",
+        "description": "Archived notifications will appear here."
       },
       "tabs": {
         "inbox": "Inbox",
@@ -1905,6 +1908,8 @@
   "errorDialog": {
     "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "howToFixFallbackHint1": "We're sorry for the inconvenience! Submit an issue on our ",
+    "howToFixFallbackHint2": " page that describes your error.",
     "github": "View on GitHub"
   },
   "search": {
@@ -2059,7 +2064,10 @@
   },
   "error": {
     "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues.",
+    "syncError": "Data is not synced from another device",
+    "syncErrorHint": "Please reopen this page on the device where it was last edited, then open it again on the current device.",
+    "clickToCopy": "Click to copy error code"
   },
   "editor": {
     "bold": "Bold",
@@ -2325,7 +2333,8 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
@@ -2492,7 +2501,8 @@
     "addRelatedTemplate": "Add related template",
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
-    "searchInCategory": "Search in {category}"
+    "searchInCategory": "Search in {category}",
+    "label": "Template"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",

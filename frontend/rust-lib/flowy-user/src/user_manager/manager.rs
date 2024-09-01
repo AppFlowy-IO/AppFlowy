@@ -3,6 +3,7 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use arc_swap::ArcSwapOption;
+use collab::lock::RwLock;
 use collab_user::core::UserAwareness;
 use dashmap::DashMap;
 use flowy_server_pub::AuthenticatorType;
@@ -18,7 +19,7 @@ use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, trace, warn};
 
@@ -280,6 +281,7 @@ impl UserManager {
           &cloud_config,
           &session.user_workspace,
           &self.authenticate_user.user_config.device_id,
+          &user.authenticator,
         )
         .await?;
     }
@@ -352,6 +354,7 @@ impl UserManager {
         user_profile.uid,
         &latest_workspace,
         &self.authenticate_user.user_config.device_id,
+        &authenticator,
       )
       .await?;
     send_auth_state_notification(AuthStateChangedPB {
@@ -443,6 +446,7 @@ impl UserManager {
         new_user_profile,
         &new_session.user_workspace,
         &self.authenticate_user.user_config.device_id,
+        authenticator,
       )
       .await?;
 

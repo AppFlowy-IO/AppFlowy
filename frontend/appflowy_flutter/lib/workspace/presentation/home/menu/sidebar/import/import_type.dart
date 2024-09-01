@@ -48,6 +48,8 @@ enum ImportType {
 
   bool get enableOnRelease {
     switch (this) {
+      case ImportType.historyDatabase:
+      case ImportType.historyDocument:
       case ImportType.databaseRawData:
         return kDebugMode;
       default:
