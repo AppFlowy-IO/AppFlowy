@@ -45,14 +45,27 @@ jobs:
       - uses: futureware-tech/simulator-action@v3
         id: simulator-action
         with:
-          model: 'iPhone 15'
+          model: "iPhone 15"
           shutdown_after_job: false
 
-  build-macos:
+  build-iOS:
     if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: macos-latest
 
     steps:
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Delete GH Cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.repository == 'AppFlowy-IO/AppFlowy' && env.GH_TOKEN != '' }}
+        run: gh cache delete --all --repo AppFlowy-IO/AppFlowy
+
       - name: Checkout source code
         uses: actions/checkout@v2
 
@@ -99,7 +112,7 @@ jobs:
       - uses: futureware-tech/simulator-action@v3
         id: simulator-action
         with:
-          model: 'iPhone 15'
+          model: "iPhone 15"
           shutdown_after_job: false
 
       # - name: Run AppFlowy on simulator

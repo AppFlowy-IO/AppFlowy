@@ -36,7 +36,9 @@ const DOWNLOAD_FINISH: &str = "finish";
 
 #[derive(Debug, Clone)]
 pub enum WatchDiskEvent {
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
   Create,
+  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
   Remove,
 }
 

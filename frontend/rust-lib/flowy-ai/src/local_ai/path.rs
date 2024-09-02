@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub(crate) fn install_path() -> Option<PathBuf> {
   #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
   return None;
