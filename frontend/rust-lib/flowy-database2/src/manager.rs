@@ -308,11 +308,15 @@ impl DatabaseManager {
       if let Some(editor) = editors.get(&database_id) {
         editor.close_view(view_id).await;
         // when there is no opening views, mark the database to be removed.
+        trace!(
+          "{} has {} opening views",
+          database_id,
+          editor.num_of_opening_views().await
+        );
         should_remove = editor.num_of_opening_views().await == 0;
       }
 
       if should_remove {
-        trace!("remove database editor:{}", database_id);
         if let Some(editor) = editors.remove(&database_id) {
           editor.close_database().await;
           self

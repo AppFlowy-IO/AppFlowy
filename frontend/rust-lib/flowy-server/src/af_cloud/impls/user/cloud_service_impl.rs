@@ -506,7 +506,6 @@ where
     &self,
     workspace_id: String,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
-    let workspace_id = workspace_id.to_string();
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
     let plans = client
