@@ -750,7 +750,6 @@ impl DatabaseEditor {
         id: row_id.clone().into_inner(),
         document_id: Some(row_document_id),
         icon: row_meta.icon_url,
-        cover: row_meta.cover_url,
         is_document_empty: Some(row_meta.is_document_empty),
       })
     } else {
@@ -1301,7 +1300,7 @@ impl DatabaseEditor {
   }
 
   pub async fn close_database(&self) {
-    info!("Close database: {}", self.database_id);
+    info!("close database editor: {}", self.database_id);
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
@@ -1522,6 +1521,7 @@ impl DatabaseEditor {
     Ok(type_option.database_id)
   }
 
+  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
     row_ids: Option<&Vec<String>>,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -42,8 +43,8 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
               emit(state.copyWith(wrap: wrap));
             }
           },
-          didUpdateEmoji: (String emoji) {
-            emit(state.copyWith(emoji: emoji));
+          didUpdateEmoji: (String emoji, bool hasDocument) {
+            // emit(state.copyWith(emoji: emoji, hasDocument: hasDocument));
           },
           updateText: (String text) {
             if (state.content != text) {
@@ -66,13 +67,6 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
         }
       },
       onFieldChanged: _onFieldChangedListener,
-      onRowMetaChanged: cellController.fieldInfo.isPrimary
-          ? () {
-              if (!isClosed) {
-                add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
-              }
-            }
-          : null,
     );
   }
 
@@ -91,14 +85,18 @@ class TextCellEvent with _$TextCellEvent {
       _DidUpdateField;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
   const factory TextCellEvent.enableEdit(bool enabled) = _EnableEdit;
-  const factory TextCellEvent.didUpdateEmoji(String emoji) = _UpdateEmoji;
+  const factory TextCellEvent.didUpdateEmoji(
+    String emoji,
+    bool hasDocument,
+  ) = _UpdateEmoji;
 }
 
 @freezed
 class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
-    required String emoji,
+    required ValueNotifier<String>? emoji,
+    required ValueNotifier<bool>? hasDocument,
     required bool enableEdit,
     required bool wrap,
   }) = _TextCellState;
@@ -106,13 +104,16 @@ class TextCellState with _$TextCellState {
   factory TextCellState.initial(TextCellController cellController) {
     final cellData = cellController.getCellData() ?? "";
     final wrap = cellController.fieldInfo.wrapCellContent ?? true;
-    final emoji =
-        cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "";
+    ValueNotifier<String>? emoji;
+    if (cellController.fieldInfo.isPrimary) {
+      emoji = cellController.icon;
+    }
 
     return TextCellState(
       content: cellData,
       emoji: emoji,
       enableEdit: false,
+      hasDocument: cellController.hasDocument,
       wrap: wrap,
     );
   }

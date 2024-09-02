@@ -22,7 +22,7 @@ class MobileGridTextCellSkin extends IEditableTextCellSkin {
           buildWhen: (p, c) => p.emoji != c.emoji,
           builder: (context, state) => Center(
             child: FlowyText.emoji(
-              state.emoji,
+              state.emoji?.value ?? "",
               fontSize: 15,
               optimizeEmojiAlign: true,
             ),
