@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -20,6 +21,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     required this.fieldController,
     this.onFieldInserted,
     required FieldPB field,
+    required this.isNew,
   })  : fieldId = field.id,
         fieldService = FieldBackendService(
           viewId: viewId,
@@ -34,6 +36,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 
   final String viewId;
   final String fieldId;
+  final bool isNew;
   final FieldController fieldController;
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
@@ -58,11 +61,20 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: fieldInfo));
           },
           switchFieldType: (fieldType) async {
-            await fieldService.updateType(fieldType: fieldType);
+            String? fieldName;
+            if (!state.wasRenameManually && isNew) {
+              fieldName = fieldType.i18n;
+            }
+
+            await fieldService.updateType(
+              fieldType: fieldType,
+              fieldName: fieldName,
+            );
           },
           renameField: (newName) async {
             final result = await fieldService.updateField(name: newName);
             _logIfError(result);
+            emit(state.copyWith(wasRenameManually: true));
           },
           updateTypeOption: (typeOptionData) async {
             final result = await FieldBackendService.updateFieldTypeOption(
@@ -164,5 +176,6 @@ class FieldEditorEvent with _$FieldEditorEvent {
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
     required final FieldInfo field,
+    @Default(false) bool wasRenameManually,
   }) = _FieldEditorState;
 }

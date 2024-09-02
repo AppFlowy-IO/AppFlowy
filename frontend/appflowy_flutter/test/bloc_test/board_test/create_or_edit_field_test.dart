@@ -36,6 +36,7 @@ void main() {
       viewId: context.gridView.id,
       field: fieldInfo.field,
       fieldController: context.fieldController,
+      isNew: false,
     );
     await boardResponseFuture();
 
