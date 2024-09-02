@@ -220,7 +220,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
-    final payload = RowIdPB(viewId: viewId, rowId: rowId);
+    final payload = DatabaseViewRowIdPB(viewId: viewId, rowId: rowId);
     return DatabaseEventGetCalendarEvent(payload).send().then((result) {
       return result.fold(
         (eventPB) => _calendarEventDataFromEventPB(eventPB),

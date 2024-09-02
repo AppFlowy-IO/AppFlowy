@@ -2,6 +2,7 @@ use client_api::entity::ai_dto::{CompletionType, LocalAIConfig, RepeatedRelatedQ
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, StreamAnswer, StreamComplete,
+  SubscriptionPlan,
 };
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
@@ -101,6 +102,16 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
   }
 
   async fn get_local_ai_config(&self, _workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
+    Err(
+      FlowyError::not_support()
+        .with_context("Get local ai config is not supported in local server."),
+    )
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
     Err(
       FlowyError::not_support()
         .with_context("Get local ai config is not supported in local server."),

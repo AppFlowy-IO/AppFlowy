@@ -443,6 +443,7 @@ impl DatabaseEditor {
     view_id: &str,
     field_id: &str,
     new_field_type: FieldType,
+    field_name: Option<String>,
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
     let field = database.get_field(field_id);
@@ -476,6 +477,7 @@ impl DatabaseEditor {
         database.update_field(field_id, |update| {
           update
             .set_field_type(new_field_type.into())
+            .set_name_if_not_none(field_name)
             .set_type_option(new_field_type.into(), Some(transformed_type_option));
         });
 
@@ -750,7 +752,6 @@ impl DatabaseEditor {
         id: row_id.clone().into_inner(),
         document_id: Some(row_document_id),
         icon: row_meta.icon_url,
-        cover: row_meta.cover_url,
         is_document_empty: Some(row_meta.is_document_empty),
       })
     } else {
@@ -1301,7 +1302,7 @@ impl DatabaseEditor {
   }
 
   pub async fn close_database(&self) {
-    info!("Close database: {}", self.database_id);
+    info!("close database editor: {}", self.database_id);
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
@@ -1522,6 +1523,7 @@ impl DatabaseEditor {
     Ok(type_option.database_id)
   }
 
+  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
     row_ids: Option<&Vec<String>>,

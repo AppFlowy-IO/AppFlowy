@@ -43,6 +43,31 @@ jobs:
           sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
+      - name: Ensure AppFlowy-Cloud is Running with Correct Version
+        working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+        run: |
+          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
+          if [ -z "$container_id" ]; then
+            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
+            docker compose pull
+            docker compose up -d
+            echo "Waiting for the container to be ready..."
+            sleep 10
+          else
+            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
+            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
+              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
+              docker compose pull
+              docker compose up -d
+              echo "Waiting for the container to be ready..."
+              sleep 10
+            else
+              echo "AppFlowy-Cloud is running with the correct version."
+            fi
+          fi
+
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
         env:
@@ -104,15 +129,29 @@ jobs:
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
-      - name: Run Docker-Compose
+      - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
         run: |
-          if [ "$(docker ps --filter name=appflowy-cloud -q)" == "" ]; then
+          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
+          if [ -z "$container_id" ]; then
+            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
             docker compose pull
             docker compose up -d
+            echo "Waiting for the container to be ready..."
             sleep 10
           else
-            echo "Docker container 'appflowy-cloud' is already running."
+            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
+            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
+              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
+              docker compose pull
+              docker compose up -d
+              echo "Waiting for the container to be ready..."
+              sleep 10
+            else
+              echo "AppFlowy-Cloud is running with the correct version."
+            fi
           fi
 
       - name: Run rust-lib tests
