@@ -747,8 +747,7 @@
             "title": "AI Max",
             "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "Per user per month billed annually",
-            "recommend": ""
+            "priceInfo": "Per user per month billed annually"
           },
           "aiOnDevice": {
             "title": "AI On-device for Mac",

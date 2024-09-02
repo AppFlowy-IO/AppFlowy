@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/int64_extension.dart';
@@ -22,6 +20,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
@@ -121,11 +120,7 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                         priceInfo: LocaleKeys
                             .settings_planPage_planUsage_addons_aiMax_priceInfo
                             .tr(),
-                        recommend: LocaleKeys
-                            .settings_planPage_planUsage_addons_aiMax_recommend
-                            .tr(
-                          args: [SubscriptionPlanPB.AiMax.priceMonthBilling],
-                        ),
+                        recommend: '',
                         buttonText: state.subscriptionInfo.hasAIMax
                             ? LocaleKeys
                                 .settings_planPage_planUsage_addons_activeLabel
