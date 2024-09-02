@@ -33,6 +33,7 @@ class FieldEditor extends StatefulWidget {
     required this.viewId,
     required this.field,
     required this.fieldController,
+    required this.isNewField,
     this.initialPage = FieldEditorPage.details,
     this.onFieldInserted,
   });
@@ -42,6 +43,7 @@ class FieldEditor extends StatefulWidget {
   final FieldController fieldController;
   final FieldEditorPage initialPage;
   final void Function(String fieldId)? onFieldInserted;
+  final bool isNewField;
 
   @override
   State<StatefulWidget> createState() => _FieldEditorState();
@@ -72,6 +74,7 @@ class _FieldEditorState extends State<FieldEditor> {
         field: widget.field,
         fieldController: widget.fieldController,
         onFieldInserted: widget.onFieldInserted,
+        isNew: widget.isNewField,
       ),
       child: _currentPage == FieldEditorPage.details
           ? _fieldDetails()

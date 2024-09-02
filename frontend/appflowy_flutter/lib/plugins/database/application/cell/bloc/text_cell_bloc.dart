@@ -43,9 +43,6 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
               emit(state.copyWith(wrap: wrap));
             }
           },
-          didUpdateEmoji: (String emoji, bool hasDocument) {
-            // emit(state.copyWith(emoji: emoji, hasDocument: hasDocument));
-          },
           updateText: (String text) {
             if (state.content != text) {
               cellController.saveCellData(text, debounce: true);
@@ -85,10 +82,6 @@ class TextCellEvent with _$TextCellEvent {
       _DidUpdateField;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
   const factory TextCellEvent.enableEdit(bool enabled) = _EnableEdit;
-  const factory TextCellEvent.didUpdateEmoji(
-    String emoji,
-    bool hasDocument,
-  ) = _UpdateEmoji;
 }
 
 @freezed
@@ -105,15 +98,17 @@ class TextCellState with _$TextCellState {
     final cellData = cellController.getCellData() ?? "";
     final wrap = cellController.fieldInfo.wrapCellContent ?? true;
     ValueNotifier<String>? emoji;
+    ValueNotifier<bool>? hasDocument;
     if (cellController.fieldInfo.isPrimary) {
       emoji = cellController.icon;
+      hasDocument = cellController.hasDocument;
     }
 
     return TextCellState(
       content: cellData,
       emoji: emoji,
       enableEdit: false,
-      hasDocument: cellController.hasDocument,
+      hasDocument: hasDocument,
       wrap: wrap,
     );
   }
