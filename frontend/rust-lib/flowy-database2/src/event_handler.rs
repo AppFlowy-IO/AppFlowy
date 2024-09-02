@@ -1334,7 +1334,7 @@ pub(crate) async fn rename_media_cell_file_handler(
   let field = database_editor
     .get_field(&cell_id.field_id)
     .await
-    .ok_or_else(|| FlowyError::record_not_found())?;
+    .ok_or_else(FlowyError::record_not_found)?;
   let handler = TypeOptionCellExt::new(&field, None)
     .get_type_option_cell_data_handler_with_field_type(FieldType::Media);
   if handler.is_none() {
@@ -1346,13 +1346,13 @@ pub(crate) async fn rename_media_cell_file_handler(
   let data = handler
     .handle_get_boxed_cell_data(&cell, &field)
     .and_then(|cell_data| cell_data.unbox_or_none())
-    .unwrap_or_else(|| MediaCellData::default());
+    .unwrap_or_else(MediaCellData::default);
 
   let file = data
     .files
     .iter()
     .find(|file| file.id == params.file_id)
-    .ok_or_else(|| FlowyError::record_not_found())?;
+    .ok_or_else(FlowyError::record_not_found)?;
 
   let new_file = file.rename(params.name);
   let new_data = MediaCellData {
