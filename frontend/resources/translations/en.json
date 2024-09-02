@@ -1465,7 +1465,9 @@
       "download": "Download",
       "open": "Open",
       "delete": "Delete",
-      "moreFilesHint": "+{} files"
+      "moreFilesHint": "+{} files",
+      "showMore": "There are {} more files, click to show all",
+      "addFileOrImage": "Add a file, image, or link"
     }
   },
   "document": {
@@ -1862,7 +1864,11 @@
       "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
-    "noGroupDesc": "Board views require a property to group by in order to display"
+    "noGroupDesc": "Board views require a property to group by in order to display",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "files"
+    }
   },
   "calendar": {
     "menuName": "Calendar",

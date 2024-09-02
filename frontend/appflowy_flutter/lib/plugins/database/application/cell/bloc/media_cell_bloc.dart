@@ -19,14 +19,11 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
     required this.cellController,
   }) : super(MediaCellState.initial(cellController)) {
     _dispatch();
+    _startListening();
   }
 
   final MediaCellController cellController;
   void Function()? _onCellChangedFn;
-
-  late UserProfilePB _userProfile;
-
-  UserProfilePB get userProfile => _userProfile;
 
   String get databaseId => cellController.viewId;
 
@@ -49,21 +46,13 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            _startListening();
-
             // Fetch user profile
             final userProfileResult =
                 await UserBackendService.getCurrentUserProfile();
             userProfileResult.fold(
-              (userProfile) => _userProfile = userProfile,
+              (userProfile) => emit(state.copyWith(userProfile: userProfile)),
               (l) => Log.error(l),
             );
-
-            // Fetch the files from cellController
-            final data = cellController.getCellData();
-            if (data != null) {
-              emit(state.copyWith(files: data.files));
-            }
           },
           didUpdateCell: (files) {
             emit(state.copyWith(files: files));
@@ -209,11 +198,17 @@ class MediaCellEvent with _$MediaCellEvent {
 @freezed
 class MediaCellState with _$MediaCellState {
   const factory MediaCellState({
+    UserProfilePB? userProfile,
     required String fieldName,
     @Default([]) List<MediaFilePB> files,
   }) = _MediaCellState;
 
   factory MediaCellState.initial(MediaCellController cellController) {
-    return MediaCellState(fieldName: cellController.fieldInfo.field.name);
+    final cellData = cellController.getCellData();
+
+    return MediaCellState(
+      fieldName: cellController.fieldInfo.field.name,
+      files: cellData?.files ?? const [],
+    );
   }
 }

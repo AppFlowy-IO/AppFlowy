@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -13,11 +13,12 @@ import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DekstopGridMediaCellSkin extends IEditableMediaCellSkin {
+class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
   @override
   Widget build(
     BuildContext context,
@@ -48,34 +49,36 @@ class DekstopGridMediaCellSkin extends IEditableMediaCellSkin {
               final filesToDisplay = state.files.take(4).toList();
               final extraCount = state.files.length - filesToDisplay.length;
 
-              final wrapContent = context.read<MediaCellBloc>().wrapContent;
-              final children = [
-                ...filesToDisplay.map((file) => _FilePreviewRender(file: file)),
-                if (extraCount > 0) _ExtraInfo(extraCount: extraCount),
-              ];
-              if (wrapContent) {
-                return Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      runSpacing: 4,
-                      children: children,
-                    ),
-                  ),
-                );
-              }
-
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: SizedBox(
                   width: double.infinity,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SeparatedRow(
-                      separatorBuilder: () => const HSpace(6),
-                      children: children,
-                    ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (state.files.isEmpty) {
+                        return Flexible(
+                          child: FlowyText.medium(
+                            LocaleKeys.grid_row_textPlaceholder.tr(),
+                            color: Theme.of(context).hintColor,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }
+
+                      final size = constraints.maxWidth / 2 - 8;
+                      return Wrap(
+                        runSpacing: 6,
+                        spacing: 6,
+                        children: [
+                          ...filesToDisplay.map(
+                            (file) =>
+                                _FilePreviewRender(file: file, size: size),
+                          ),
+                          if (extraCount > 0)
+                            _ExtraInfo(extraCount: extraCount),
+                        ],
+                      );
+                    },
                   ),
                 ),
               );
@@ -88,9 +91,10 @@ class DekstopGridMediaCellSkin extends IEditableMediaCellSkin {
 }
 
 class _FilePreviewRender extends StatelessWidget {
-  const _FilePreviewRender({required this.file});
+  const _FilePreviewRender({required this.file, required this.size});
 
   final MediaFilePB file;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -99,15 +103,11 @@ class _FilePreviewRender extends StatelessWidget {
       if (file.uploadType == MediaUploadTypePB.NetworkMedia) {
         child = Image.network(
           file.url,
-          height: 32,
-          width: 32,
           fit: BoxFit.cover,
         );
       } else if (file.uploadType == MediaUploadTypePB.LocalMedia) {
         child = Image.file(
           File(file.url),
-          height: 32,
-          width: 32,
           fit: BoxFit.cover,
         );
       } else {
@@ -115,29 +115,53 @@ class _FilePreviewRender extends StatelessWidget {
         child = FlowyNetworkImage(
           url: file.url,
           userProfilePB: context.read<MediaCellBloc>().state.userProfile,
-          height: 32,
-          width: 32,
         );
       }
     } else {
-      child = Container(
-        height: 32,
-        width: 32,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AFThemeExtension.of(context).greyHover,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: FlowySvg(
-          file.fileType.icon,
-          color: AFThemeExtension.of(context).textColor,
-        ),
+      child = Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: FlowySvg(
+                  file.fileType.icon,
+                  color: AFThemeExtension.of(context).textColor,
+                  size: const Size.square(32),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            height: 32,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AFThemeExtension.of(context).greyHover,
+              borderRadius: Corners.s6Border,
+            ),
+            child: Center(
+              child: FlowyText.regular(
+                file.name,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
       );
     }
 
     return Padding(
       padding: const EdgeInsets.all(2),
-      child: child,
+      child: Container(
+        height: size,
+        width: size,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AFThemeExtension.of(context).greyHover,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: child,
+      ),
     );
   }
 }
@@ -152,14 +176,15 @@ class _ExtraInfo extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(2),
       child: Container(
-        height: 32,
-        padding: const EdgeInsets.all(8),
+        height: 38,
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AFThemeExtension.of(context).greyHover,
           borderRadius: BorderRadius.circular(4),
         ),
         child: FlowyText.regular(
-          LocaleKeys.grid_media_moreFilesHint.tr(args: ['$extraCount']),
+          LocaleKeys.grid_media_showMore.tr(args: ['$extraCount']),
           lineHeight: 1,
         ),
       ),

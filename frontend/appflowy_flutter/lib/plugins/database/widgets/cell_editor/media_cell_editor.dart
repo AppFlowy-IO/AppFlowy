@@ -105,9 +105,10 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                       final mediaCellBloc = context.read<MediaCellBloc>();
 
                       // Check upload type
-                      final userProfile = mediaCellBloc.userProfile;
-                      final isLocalMode =
-                          userProfile.authenticator == AuthenticatorPB.Local;
+                      final userProfile = state.userProfile;
+                      final isLocalMode = (userProfile?.authenticator ??
+                              AuthenticatorPB.Local) ==
+                          AuthenticatorPB.Local;
 
                       String? path;
                       String? errorMsg;
@@ -183,15 +184,17 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                   child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: addFilePopoverController.show,
-                    child: const FlowyHover(
+                    child: FlowyHover(
                       resetHoverOnRebuild: false,
                       child: Padding(
-                        padding: EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(4.0),
                         child: Row(
                           children: [
-                            FlowySvg(FlowySvgs.add_s),
-                            HSpace(8),
-                            FlowyText('Add a file or image'),
+                            const FlowySvg(FlowySvgs.add_s),
+                            const HSpace(8),
+                            FlowyText(
+                              LocaleKeys.grid_media_addFileOrImage.tr(),
+                            ),
                           ],
                         ),
                       ),
@@ -269,7 +272,7 @@ class __RenderMediaState extends State<_RenderMedia> {
                       child: FlowyNetworkImage(
                         url: widget.file.url,
                         userProfilePB:
-                            context.read<MediaCellBloc>().userProfile,
+                            context.read<MediaCellBloc>().state.userProfile,
                       ),
                     ),
                   ),
@@ -357,7 +360,7 @@ class __RenderMediaState extends State<_RenderMedia> {
         showDialog(
           context: context,
           builder: (_) => InteractiveImageViewer(
-            userProfile: context.read<MediaCellBloc>().userProfile,
+            userProfile: context.read<MediaCellBloc>().state.userProfile,
             imageProvider: AFBlockImageProvider(
               images: [
                 ImageBlockData(
@@ -414,7 +417,7 @@ class _MediaItemMenuState extends State<_MediaItemMenu> {
             onTap: () => showDialog(
               context: widget.closeContext ?? context,
               builder: (_) => InteractiveImageViewer(
-                userProfile: context.read<MediaCellBloc>().userProfile,
+                userProfile: context.read<MediaCellBloc>().state.userProfile,
                 imageProvider: AFBlockImageProvider(
                   images: [
                     ImageBlockData(
@@ -479,7 +482,10 @@ class _MediaItemMenuState extends State<_MediaItemMenu> {
               /// When the file is a network file or a local file, we can directly open the file.
               await afLaunchUrl(Uri.parse(widget.file.url));
             } else {
-              final userProfile = context.read<MediaCellBloc>().userProfile;
+              final userProfile =
+                  context.read<MediaCellBloc>().state.userProfile;
+              if (userProfile == null) return;
+
               final uri = Uri.parse(widget.file.url);
               final imgFile = File(uri.pathSegments.last);
               final savePath = await FilePicker().saveFile(

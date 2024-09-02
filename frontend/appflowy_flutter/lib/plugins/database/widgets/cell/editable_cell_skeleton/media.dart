@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/cell/bloc/media_cell_bloc.
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/widgets/cell/desktop_grid/desktop_grid_media_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_media_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -17,8 +18,8 @@ abstract class IEditableMediaCellSkin {
   factory IEditableMediaCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
       EditableCellStyle.desktopGrid => DekstopGridMediaCellSkin(),
+      EditableCellStyle.desktopRowDetail => DekstopRowDetailMediaCellSkin(),
       // TODO(Mathias): Implement the rest of the styles
-      EditableCellStyle.desktopRowDetail => DekstopGridMediaCellSkin(),
       EditableCellStyle.mobileGrid => DekstopGridMediaCellSkin(),
       EditableCellStyle.mobileRowDetail => DekstopGridMediaCellSkin(),
     };
