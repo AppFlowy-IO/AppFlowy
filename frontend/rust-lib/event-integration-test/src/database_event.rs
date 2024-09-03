@@ -184,6 +184,7 @@ impl EventIntegrationTest {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
         field_type,
+        field_name: None,
       })
       .async_send()
       .await

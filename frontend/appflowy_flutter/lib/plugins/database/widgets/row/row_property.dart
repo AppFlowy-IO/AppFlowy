@@ -153,6 +153,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                 .getField(widget.cellContext.fieldId)!
                 .field,
             fieldController: widget.fieldController,
+            isNewField: false,
           ),
           child: ValueListenableBuilder(
             valueListenable: _isFieldHover,
@@ -230,6 +231,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                     viewId: widget.fieldController.viewId,
                     field: fieldInfo.field,
                     fieldController: widget.fieldController,
+                    isNewField: false,
                   ),
                   child: SizedBox(
                     width: 160,
@@ -415,6 +417,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           viewId: widget.viewId,
           field: createdField!,
           fieldController: widget.fieldController,
+          isNewField: true,
         );
       },
     );

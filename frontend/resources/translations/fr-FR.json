@@ -850,6 +850,7 @@
         "itemThree": "5 Go",
         "itemFour": "Oui",
         "itemFive": "Oui",
+        "itemFileUpload": "Jusqu'à 7 Mo",
         "intelligentSearch": "Recherche intelligente"
       },
       "proLabels": {
@@ -859,6 +860,7 @@
         "itemFour": "Oui",
         "itemFive": "Oui",
         "itemSix": "illimité",
+        "itemFileUpload": "Illimité",
         "intelligentSearch": "Recherche intelligente"
       },
       "paymentSuccess": {
@@ -1506,6 +1508,7 @@
         "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
+        "doc": "Doc",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
         "linkedGrid": "Grille liée",

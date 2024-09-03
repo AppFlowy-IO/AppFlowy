@@ -133,6 +133,11 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Sign out an account
   async fn sign_out(&self, token: Option<String>) -> Result<(), FlowyError>;
 
+  /// Delete an account and all the data associated with the account
+  async fn delete_account(&self) -> Result<(), FlowyError> {
+    Err(FlowyError::not_support())
+  }
+
   /// Generate a sign in url for the user with the given email
   /// Currently, only use the admin client for testing
   async fn generate_sign_in_url_with_email(&self, email: &str) -> Result<String, FlowyError>;

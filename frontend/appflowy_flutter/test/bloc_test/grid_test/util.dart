@@ -103,6 +103,7 @@ Future<FieldEditorBloc> createFieldEditor({
         viewId: databaseController.viewId,
         fieldController: databaseController.fieldController,
         field: field,
+        isNew: true,
       );
     },
     (err) => throw Exception(err),
