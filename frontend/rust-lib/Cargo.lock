@@ -2378,6 +2378,7 @@ dependencies = [
 name = "flowy-storage"
 version = "0.1.0"
 dependencies = [
+ "allo-isolate",
  "anyhow",
  "async-trait",
  "bytes",
@@ -2389,13 +2390,16 @@ dependencies = [
  "flowy-notification",
  "flowy-sqlite",
  "flowy-storage-pub",
+ "futures-util",
  "fxhash",
+ "lib-dispatch",
  "lib-infra",
  "mime_guess",
  "protobuf",
  "rand 0.8.5",
  "serde",
  "serde_json",
+ "strum_macros 0.25.2",
  "tokio",
  "tracing",
  "url",
@@ -3370,6 +3374,7 @@ dependencies = [
  "chrono",
  "futures",
  "futures-core",
+ "futures-util",
  "md5",
  "pin-project",
  "rand 0.8.5",
