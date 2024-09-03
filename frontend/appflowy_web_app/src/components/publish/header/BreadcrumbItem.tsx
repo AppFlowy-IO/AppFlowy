@@ -42,7 +42,7 @@ function BreadcrumbItem ({ crumb, disableClick = false }: { crumb: Crumb; disabl
   return (
     <Tooltip title={name} placement={'bottom'} enterDelay={1000} enterNextDelay={1000}>
       <div
-        className={`flex items-center gap-1 text-sm ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
+        className={`flex items-center gap-1.5 text-sm ${!disableClick ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
         onClick={async () => {
           if (disableClick) return;
           try {
@@ -54,10 +54,10 @@ function BreadcrumbItem ({ crumb, disableClick = false }: { crumb: Crumb; disabl
       >
         {extraObj && extraObj.is_space ? (
           <span
-            className={'icon h-5 w-5'}
+            className={'icon h-4 w-4'}
             style={{
               backgroundColor: extraObj.space_icon_color ? renderColor(extraObj.space_icon_color) : 'rgb(163, 74, 253)',
-              borderRadius: '8px',
+              borderRadius: '4px',
             }}
           >
             <SpaceIcon value={extraObj.space_icon || ''} char={extraObj.space_icon ? undefined : name.slice(0, 1)} />
