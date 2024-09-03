@@ -96,20 +96,24 @@ class FileProgress {
     required this.progress,
     this.error,
   });
+
   static FileProgress? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return null;
     }
 
-    if (json.containsKey('file_url') && json.containsKey('progress')) {
-      return FileProgress(
-        fileUrl: json['file_url'] as String,
-        progress: (json['progress'] as num).toDouble(),
-        error: json['error'] as String?,
-      );
-    } else {
-      return null;
+    try {
+      if (json.containsKey('file_url') && json.containsKey('progress')) {
+        return FileProgress(
+          fileUrl: json['file_url'] as String,
+          progress: (json['progress'] as num).toDouble(),
+          error: json['error'] as String?,
+        );
+      }
+    } catch (e) {
+      Log.error('unable to parse file progress: $e');
     }
+    return null;
   }
 
   // Method to parse a JSON string and return a FileProgress object or null
