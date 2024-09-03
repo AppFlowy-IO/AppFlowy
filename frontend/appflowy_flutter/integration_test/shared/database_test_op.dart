@@ -41,6 +41,7 @@ import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/media.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/number.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/select_option.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
@@ -50,6 +51,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_edi
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
@@ -857,6 +859,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(finder, matcher);
   }
 
+  Future<void> findMediaCellEditor(dynamic matcher) async {
+    final finder = find.byType(MediaCellEditor);
+    expect(finder, matcher);
+  }
+
   Future<void> findSelectOptionEditor(dynamic matcher) async {
     final finder = find.byType(SelectOptionCellEditor);
     expect(finder, matcher);
@@ -1580,6 +1587,8 @@ Finder finderForFieldType(FieldType fieldType) {
       return find.byType(EditableTextCell, skipOffstage: false);
     case FieldType.URL:
       return find.byType(EditableURLCell, skipOffstage: false);
+    case FieldType.Media:
+      return find.byType(EditableMediaCell, skipOffstage: false);
     default:
       throw Exception('Unknown field type: $fieldType');
   }

@@ -67,7 +67,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                     itemBuilder: (_, index) => BlocProvider.value(
                       key: Key(state.files[index].id),
                       value: context.read<MediaCellBloc>(),
-                      child: _RenderMedia(
+                      child: RenderMedia(
                         file: state.files[index],
                         index: index,
                         enableReordering: state.files.length > 1,
@@ -218,8 +218,10 @@ extension ToCustomImageType on MediaUploadTypePB {
       };
 }
 
-class _RenderMedia extends StatefulWidget {
-  const _RenderMedia({
+@visibleForTesting
+class RenderMedia extends StatefulWidget {
+  const RenderMedia({
+    super.key,
     required this.index,
     required this.file,
     required this.enableReordering,
@@ -232,10 +234,10 @@ class _RenderMedia extends StatefulWidget {
   final PopoverMutex mutex;
 
   @override
-  State<_RenderMedia> createState() => __RenderMediaState();
+  State<RenderMedia> createState() => _RenderMediaState();
 }
 
-class __RenderMediaState extends State<_RenderMedia> {
+class _RenderMediaState extends State<RenderMedia> {
   bool isHovering = false;
 
   @override
