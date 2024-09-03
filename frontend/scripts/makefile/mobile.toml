@@ -25,8 +25,9 @@ dependencies = ["set-app-version"]
 private = true
 script = [
   """
+    echo "💻 💻 💻  Disk space before build"
+    df -h
     cd rust-lib/
-    rustup show
     if [ "${BUILD_FLAG}" = "debug" ]; then
       echo "🚀 🚀 🚀  Building iOS SDK for debug"
       cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
@@ -99,8 +100,9 @@ script = [
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
     lib = set lib${LIB_NAME}.${LIB_EXT}
 
-    ls -a ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}
-
+    echo "💻 💻 💻  Disk space"
+    df -h
+    du -sh ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}
 
     echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}/${lib}"
     rm -f ${dart_ffi_dir}/${lib}
