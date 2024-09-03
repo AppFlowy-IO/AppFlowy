@@ -1,7 +1,6 @@
 use anyhow::anyhow;
 use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -127,42 +126,6 @@ impl DatabaseManager {
 
     self.workspace_database.store(Some(workspace_database));
     Ok(())
-  }
-
-  //FIXME: we need to initialize sync plugin for newly created collabs
-  #[allow(dead_code)]
-  fn initialize_plugins<T>(
-    &self,
-    uid: i64,
-    object_id: &str,
-    collab_type: CollabType,
-    collab: Arc<RwLock<T>>,
-  ) -> FlowyResult<Arc<RwLock<T>>>
-  where
-    T: BorrowMut<Collab> + Send + Sync + 'static,
-  {
-    //FIXME: unfortunately UserDatabaseCollabService::build_collab_with_config is broken by
-    //  design as it assumes that we can split collab building process, which we cannot because:
-    //  1. We should not be able to run plugins ie. SyncPlugin over not-fully initialized collab,
-    //     and that's what originally build_collab_with_config did.
-    //  2. We cannot fully initialize collab from UserDatabaseCollabService, because
-    //     WorkspaceDatabase itself requires UserDatabaseCollabService as constructor parameter.
-    // Ideally we should never need to initialize plugins that require collab instance as part of
-    // that collab construction process itself - it means that we should redesign SyncPlugin to only
-    // be fired once a collab is fully initialized.
-    let workspace_id = self
-      .user
-      .workspace_id()
-      .map_err(|err| DatabaseError::Internal(err.into()))?;
-    let object = self
-      .collab_builder
-      .collab_object(&workspace_id, uid, object_id, collab_type)?;
-    let collab = self.collab_builder.finalize(
-      object,
-      CollabBuilderConfig::default().sync_enable(true),
-      collab,
-    )?;
-    Ok(collab)
   }
 
   #[instrument(

@@ -14,6 +14,7 @@ import 'deps_resolver.dart';
 import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
+import 'tasks/file_storage_task.dart';
 import 'tasks/prelude.dart';
 
 final getIt = GetIt.instance;
@@ -126,6 +127,7 @@ class FlowyRunner {
         InitRustSDKTask(customApplicationPath: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
+        const FileStorageTask(),
 
         // init the app widget
         // ignore in test mode
