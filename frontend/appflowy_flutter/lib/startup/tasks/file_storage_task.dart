@@ -5,7 +5,9 @@ import 'dart:isolate';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-storage/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -36,9 +38,9 @@ class FileStorageService {
         final fileProgress = FileProgress.fromJsonString(event);
         if (fileProgress != null) {
           Log.debug(
-            "Upload progress: file: ${fileProgress.fileId} ${fileProgress.progress}",
+            "Upload progress: file: ${fileProgress.fileUrl} ${fileProgress.progress}",
           );
-          final notifier = _notifierList[fileProgress.fileId];
+          final notifier = _notifierList[fileProgress.fileUrl];
           if (notifier != null) {
             notifier.value = fileProgress;
           }
@@ -55,16 +57,25 @@ class FileStorageService {
   final StreamController<String> _controller = StreamController.broadcast();
   late StreamSubscription<String> _subscription;
 
-  AutoRemoveNotifier<FileProgress> onFileProgress({required String fileId}) {
-    _notifierList.remove(fileId)?.dispose();
+  AutoRemoveNotifier<FileProgress> onFileProgress({required String fileUrl}) {
+    _notifierList.remove(fileUrl)?.dispose();
 
     final notifier = AutoRemoveNotifier<FileProgress>(
-      FileProgress(fileId: fileId, progress: 0),
+      FileProgress(fileUrl: fileUrl, progress: 0),
       notifierList: _notifierList,
-      fileId: fileId,
+      fileId: fileUrl,
     );
-    _notifierList[fileId] = notifier;
+    _notifierList[fileUrl] = notifier;
+
+    // trigger the initial file state
+    getFileState(fileUrl);
+
     return notifier;
+  }
+
+  Future<FlowyResult<FileStatePB, FlowyError>> getFileState(String url) {
+    final payload = QueryFilePB()..url = url;
+    return FileStorageEventQueryFile(payload).send();
   }
 
   Future<void> dispose() async {
@@ -81,7 +92,7 @@ class FileStorageService {
 
 class FileProgress {
   FileProgress({
-    required this.fileId,
+    required this.fileUrl,
     required this.progress,
     this.error,
   });
@@ -90,9 +101,9 @@ class FileProgress {
       return null;
     }
 
-    if (json.containsKey('file_id') && json.containsKey('progress')) {
+    if (json.containsKey('file_url') && json.containsKey('progress')) {
       return FileProgress(
-        fileId: json['file_id'] as String,
+        fileUrl: json['file_url'] as String,
         progress: (json['progress'] as num).toDouble(),
         error: json['error'] as String?,
       );
@@ -112,7 +123,7 @@ class FileProgress {
   }
 
   final double progress;
-  final String fileId;
+  final String fileUrl;
   final String? error;
 }
 

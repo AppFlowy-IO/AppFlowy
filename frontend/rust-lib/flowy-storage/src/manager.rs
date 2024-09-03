@@ -1,3 +1,4 @@
+use crate::entities::FileStatePB;
 use crate::file_cache::FileTempStorage;
 use crate::notification::{make_notification, StorageNotification};
 use crate::sqlite_sql::{
@@ -39,6 +40,8 @@ pub trait StorageUserService: Send + Sync + 'static {
 type GlobalNotifier = broadcast::Sender<FileProgress>;
 pub struct StorageManager {
   pub storage_service: Arc<dyn StorageService>,
+  cloud_service: Arc<dyn StorageCloudService>,
+  user_service: Arc<dyn StorageUserService>,
   uploader: Arc<FileUploader>,
   progress_notifiers: Arc<DashMap<String, ProgressNotifier>>,
   global_notifier: GlobalNotifier,
@@ -66,7 +69,7 @@ impl StorageManager {
     let task_queue = Arc::new(UploadTaskQueue::new(notifier));
     let progress_notifiers = Arc::new(DashMap::new());
     let storage_service = Arc::new(StorageServiceImpl {
-      cloud_service,
+      cloud_service: cloud_service.clone(),
       user_service: user_service.clone(),
       temp_storage,
       task_queue: task_queue.clone(),
@@ -86,11 +89,12 @@ impl StorageManager {
     ));
 
     let weak_uploader = Arc::downgrade(&uploader);
+    let cloned_user_service = user_service.clone();
     tokio::spawn(async move {
       // Start uploading after 20 seconds
       tokio::time::sleep(Duration::from_secs(20)).await;
       if let Some(uploader) = weak_uploader.upgrade() {
-        if let Err(err) = prepare_upload_task(uploader, user_service).await {
+        if let Err(err) = prepare_upload_task(uploader, cloned_user_service).await {
           error!("prepare upload task failed: {}", err);
         }
       }
@@ -98,6 +102,8 @@ impl StorageManager {
 
     Self {
       storage_service,
+      cloud_service,
+      user_service,
       uploader,
       progress_notifiers,
       global_notifier,
@@ -117,6 +123,28 @@ impl StorageManager {
         }
       }
     });
+  }
+
+  pub async fn query_file_state(&self, url: &str) -> Option<FileStatePB> {
+    let (workspace_id, parent_dir, file_id) = self.cloud_service.parse_object_url_v1(url).await?;
+    let current_workspace_id = self.user_service.workspace_id().ok()?;
+    if workspace_id != current_workspace_id {
+      return None;
+    }
+
+    let uid = self.user_service.user_id().ok()?;
+    let mut conn = self.user_service.sqlite_connection(uid).ok()?;
+    let is_finish = is_upload_completed(&mut conn, &workspace_id, &parent_dir, &file_id).ok()?;
+
+    if let Err(err) = self.global_notifier.send(FileProgress {
+      file_url: url.to_string(),
+      progress: if is_finish { 1.0 } else { 0.0 },
+      error: None,
+    }) {
+      error!("[File] send global notifier failed: {}", err);
+    }
+
+    Some(FileStatePB { file_id, is_finish })
   }
 
   pub async fn initialize(&self, _workspace_id: &str) {
@@ -402,6 +430,7 @@ impl StorageService for StorageServiceImpl {
       let workspace_id = self.user_service.workspace_id()?;
       is_upload_completed(&mut conn, &workspace_id, parent_idr, file_id).unwrap_or(false)
     };
+
     if is_completed {
       return Ok(None);
     }
@@ -558,8 +587,15 @@ async fn start_upload(
           progress
         );
 
+        let file_url = cloud_service
+          .get_object_url_v1(
+            &upload_file.workspace_id,
+            &upload_file.parent_dir,
+            &upload_file.file_id,
+          )
+          .await?;
         if let Err(err) = global_notifier.send(FileProgress {
-          file_id: upload_file.file_id.clone(),
+          file_url,
           progress,
           error: None,
         }) {
@@ -737,8 +773,16 @@ async fn complete_upload(
           .await;
       }
 
+      let file_url = cloud_service
+        .get_object_url_v1(
+          &upload_file.workspace_id,
+          &upload_file.parent_dir,
+          &upload_file.file_id,
+        )
+        .await?;
+
       if let Err(err) = global_notifier.send(FileProgress {
-        file_id: upload_file.file_id.clone(),
+        file_url,
         progress: 1.0,
         error: None,
       }) {

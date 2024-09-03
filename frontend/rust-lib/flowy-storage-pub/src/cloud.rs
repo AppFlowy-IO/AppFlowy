@@ -52,6 +52,8 @@ pub trait StorageCloudService: Send + Sync {
     file_id: &str,
   ) -> FlowyResult<String>;
 
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)>;
+
   async fn create_upload(
     &self,
     workspace_id: &str,

@@ -67,14 +67,14 @@ pub enum FileUploadState {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct FileProgress {
-  pub file_id: String,
+  pub file_url: String,
   pub progress: f64,
   pub error: Option<String>,
 }
 
 impl Display for FileProgress {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "FileProgress: {} - {}", self.file_id, self.progress)
+    write!(f, "FileProgress: {} - {}", self.file_url, self.progress)
   }
 }
 
