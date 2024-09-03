@@ -2356,7 +2356,7 @@
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
     "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
-    "saveThisPage": "Save this page",
+    "saveThisPage": "Start with this template",
     "duplicateTitle": "Where would you like to add",
     "selectWorkspace": "Select a workspace",
     "addTo": "Add to",

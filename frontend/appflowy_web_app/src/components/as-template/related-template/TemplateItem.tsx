@@ -2,7 +2,7 @@ import { TemplateSummary, TemplateCategory } from '@/application/template.type';
 import CreatorAvatar from '@/components/as-template/creator/CreatorAvatar';
 import React, { useMemo } from 'react';
 
-function TemplateItem ({ template, category }: { template: TemplateSummary; category: TemplateCategory }) {
+function TemplateItem({ template, category }: { template: TemplateSummary; category: TemplateCategory }) {
   const iframeUrl = useMemo(() => {
     const url = new URL(template.view_url);
 
@@ -21,12 +21,20 @@ function TemplateItem ({ template, category }: { template: TemplateSummary; cate
           backgroundColor: category?.bg_color,
         }}
       >
-        <iframe loading={'lazy'} className={'w-full h-full'} src={iframeUrl} />
+        <iframe
+          loading={'lazy'}
+          className={'w-full h-full'}
+          src={iframeUrl}
+        />
       </div>
       <div className={'template-info'}>
         <div className={'template-creator'}>
           <div className={'avatar'}>
-            <CreatorAvatar size={40} src={template.creator.avatar_url} name={template.creator.name} />
+            <CreatorAvatar
+              size={40}
+              src={template.creator.avatar_url}
+              name={template.creator.name}
+            />
           </div>
           <div className={'right-info'}>
             <div className={'template-name'}>{template.name}</div>
