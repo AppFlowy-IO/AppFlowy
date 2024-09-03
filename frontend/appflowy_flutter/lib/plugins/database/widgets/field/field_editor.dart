@@ -347,7 +347,7 @@ enum FieldAction {
             );
           },
         ).show(context);
-        PopoverContainer.of(context).close();
+        PopoverContainer.of(context).closeAll();
         break;
       case FieldAction.wrap:
         context
