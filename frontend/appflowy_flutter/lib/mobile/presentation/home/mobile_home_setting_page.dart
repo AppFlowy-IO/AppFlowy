@@ -87,6 +87,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
             const SupportSettingGroup(),
             const AboutSettingGroup(),
             UserSessionSettingGroup(
+              userProfile: userProfile,
               showThirdPartyLogin: showThirdPartyLogin,
             ),
             const VSpace(20),

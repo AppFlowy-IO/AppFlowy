@@ -2227,10 +2227,17 @@
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
+        "description": "Permanently delete your account and remove access from all teamspaces.",
         "deleteMyAccount": "Delete my account",
         "dialogTitle": "Delete account",
         "dialogContent1": "Are you sure you want to permanently delete your account?",
-        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
+        "confirmHint1": "Please type in your email address to confirm.",
+        "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
+        "checkToConfirmError": "You must check the box to confirm deletion",
+        "failedToGetCurrentUser": "Failed to get current user email",
+        "emailValidationFailed": "Your email address does not match the account email address",
+        "deleteAccountSuccess": "Account deleted successfully"
       }
     },
     "workplace": {
