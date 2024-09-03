@@ -44,12 +44,12 @@ export const gradientMap = {
 
 // Convert ARGB to RGBA
 // Flutter uses ARGB, but CSS uses RGBA
-function argbToRgba (color: string): string {
+function argbToRgba(color: string): string {
   const hex = color.replace(/^#|0x/, '');
 
   const hasAlpha = hex.length === 8;
 
-  if (!hasAlpha) {
+  if(!hasAlpha) {
     return color.replace('0x', '#');
   }
 
@@ -61,30 +61,34 @@ function argbToRgba (color: string): string {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-export function renderColor (color: string) {
-  if (colorMap[color as ColorEnum]) {
+export function renderColor(color: string) {
+  if(colorMap[color as ColorEnum]) {
     return colorMap[color as ColorEnum];
   }
 
-  if (gradientMap[color as GradientEnum]) {
+  if(gradientMap[color as GradientEnum]) {
     return gradientMap[color as GradientEnum];
   }
 
   return argbToRgba(color);
 }
 
-export function stringToColor (string: string) {
+export function stringToColor(string: string, colorArray?: string[]) {
   let hash = 0;
   let i;
 
   /* eslint-disable no-bitwise */
-  for (i = 0; i < string.length; i += 1) {
+  for(i = 0; i < string.length; i += 1) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  if(colorArray) {
+    return colorArray[string.slice(0, 1).charCodeAt(0) % colorArray.length];
   }
 
   let color = '#';
 
-  for (i = 0; i < 3; i += 1) {
+  for(i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff;
 
     color += `00${value.toString(16)}`.slice(-2);
@@ -94,14 +98,14 @@ export function stringToColor (string: string) {
   return color;
 }
 
-export function stringAvatar (name: string) {
-  if (!name) {
+export function stringAvatar(name: string, colorArray?: string[]) {
+  if(!name) {
     return null;
   }
 
   return {
     sx: {
-      bgcolor: stringToColor(name),
+      bgcolor: stringToColor(name, colorArray),
     },
     children: `${name.split('')[0]}`,
   };

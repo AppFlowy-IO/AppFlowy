@@ -444,6 +444,7 @@ impl DatabaseEditor {
     view_id: &str,
     field_id: &str,
     new_field_type: FieldType,
+    field_name: Option<String>,
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
     let field = database.get_field(field_id);
@@ -477,6 +478,7 @@ impl DatabaseEditor {
         database.update_field(field_id, |update| {
           update
             .set_field_type(new_field_type.into())
+            .set_name_if_not_none(field_name)
             .set_type_option(new_field_type.into(), Some(transformed_type_option));
         });
 

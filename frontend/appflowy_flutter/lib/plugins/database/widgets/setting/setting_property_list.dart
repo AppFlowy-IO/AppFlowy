@@ -206,6 +206,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
           viewId: widget.viewId,
           field: widget.fieldInfo.field,
           fieldController: widget.fieldController,
+          isNewField: false,
         );
       },
     );

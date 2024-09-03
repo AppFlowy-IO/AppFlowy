@@ -11,6 +11,7 @@ Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
     viewId: context.gridView.id,
     fieldController: context.fieldController,
     field: fieldInfo.field,
+    isNew: false,
   );
 }
 

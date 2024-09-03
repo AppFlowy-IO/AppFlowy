@@ -46,7 +46,9 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                const HomePageSettingsPopupMenu(),
+                HomePageSettingsPopupMenu(
+                  userProfile: userProfile,
+                ),
                 const HSpace(8.0),
               ],
             ),

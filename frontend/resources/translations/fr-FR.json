@@ -847,6 +847,7 @@
         "itemThree": "5 Go",
         "itemFour": "Oui",
         "itemFive": "Oui",
+        "itemFileUpload": "Jusqu'à 7 Mo",
         "intelligentSearch": "Recherche intelligente"
       },
       "proLabels": {
@@ -856,6 +857,7 @@
         "itemFour": "Oui",
         "itemFive": "Oui",
         "itemSix": "illimité",
+        "itemFileUpload": "Illimité",
         "intelligentSearch": "Recherche intelligente"
       },
       "paymentSuccess": {
@@ -1228,6 +1230,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1235,8 +1238,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",
@@ -1322,6 +1324,7 @@
       "checklistFieldName": "Check-list",
       "relationFieldName": "Relation",
       "summaryFieldName": "Résume IA",
+      "timeFieldName": "Temps",
       "translateFieldName": "Traduction IA",
       "translateTo": "Traduire en",
       "numberFormat": "Format du nombre",
@@ -1495,6 +1498,7 @@
         "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
+        "doc": "Doc",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
         "linkedGrid": "Grille liée",
@@ -2044,7 +2048,8 @@
   },
   "error": {
     "weAreSorry": "Nous sommes désolés",
-    "loadingViewError": "Nous rencontrons des difficultés pour charger cette vue. Veuillez vérifier votre connexion Internet, actualiser l'application et n'hésitez pas à contacter l'équipe si le problème persiste."
+    "loadingViewError": "Nous rencontrons des difficultés pour charger cette vue. Veuillez vérifier votre connexion Internet, actualiser l'application et n'hésitez pas à contacter l'équipe si le problème persiste.",
+    "syncError": "Les données ne sont pas synchronisées depuis un autre appareil"
   },
   "editor": {
     "bold": "Gras",
@@ -2263,6 +2268,7 @@
   },
   "commandPalette": {
     "placeholder": "Tapez pour rechercher des vues...",
+    "bestMatches": "Meilleurs résultats",
     "recentHistory": "Historique récent",
     "navigateHint": "naviguer",
     "loadingTooltip": "Nous recherchons des résultats...",
@@ -2314,7 +2320,8 @@
     "copy": {
       "codeBlock": "Le contenu du bloc de code a été copié dans le presse-papiers",
       "imageBlock": "Le lien de l'image a été copié dans le presse-papiers",
-      "mathBlock": "L'équation mathématique a été copiée dans le presse-papiers"
+      "mathBlock": "L'équation mathématique a été copiée dans le presse-papiers",
+      "fileBlock": "Le lien du fichier a été copié dans le presse-papier"
     },
     "containsPublishedPage": "Cette page contient une ou plusieurs pages publiées. Si vous continuez, elles ne seront plus publiées. Voulez-vous procéder à la suppression ?",
     "publishSuccessfully": "Publié avec succès",
@@ -2412,5 +2419,11 @@
     "failedToAddComment": "Problème lors de l'ajout du commentaire",
     "commentAddedSuccessfully": "Commentaire ajouté avec succès.",
     "commentAddedSuccessTip": "Vous venez d'ajouter ou de répondre à un commentaire. Souhaitez-vous passer en haut de la page pour voir les derniers commentaires ?"
+  },
+  "template": {
+    "category": {
+      "deleteCategoryDescription": "Êtes-vous sûr de vouloir supprimer cette catégorie ?",
+      "typeToSearch": "Tapez pour rechercher une catégorie..."
+    }
   }
 }
