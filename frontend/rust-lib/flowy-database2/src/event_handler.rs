@@ -332,7 +332,12 @@ pub(crate) async fn switch_to_field_handler(
     .await?;
   let old_field = database_editor.get_field(&params.field_id).await;
   database_editor
-    .switch_to_field_type(&params.view_id, &params.field_id, params.field_type)
+    .switch_to_field_type(
+      &params.view_id,
+      &params.field_id,
+      params.field_type,
+      params.field_name,
+    )
     .await?;
 
   if let Some(new_type_option) = database_editor

@@ -62,6 +62,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
         viewId: widget.viewId,
         fieldController: widget.fieldController,
         field: widget.fieldInfo.field,
+        isNew: false,
       ),
       child: BlocConsumer<FieldEditorBloc, FieldEditorState>(
         listenWhen: (previous, current) =>
