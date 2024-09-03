@@ -327,7 +327,7 @@ class __RenderMediaState extends State<_RenderMedia> {
                     direction: PopoverDirection.bottomWithRightAligned,
                     popupBuilder: (popoverContext) => BlocProvider.value(
                       value: context.read<MediaCellBloc>(),
-                      child: _MediaItemMenu(
+                      child: MediaItemMenu(
                         file: widget.file,
                         closeContext: popoverContext,
                       ),
@@ -380,8 +380,9 @@ class __RenderMediaState extends State<_RenderMedia> {
   }
 }
 
-class _MediaItemMenu extends StatefulWidget {
-  const _MediaItemMenu({
+class MediaItemMenu extends StatefulWidget {
+  const MediaItemMenu({
+    super.key,
     required this.file,
     this.closeContext,
   });
@@ -390,10 +391,10 @@ class _MediaItemMenu extends StatefulWidget {
   final BuildContext? closeContext;
 
   @override
-  State<_MediaItemMenu> createState() => _MediaItemMenuState();
+  State<MediaItemMenu> createState() => _MediaItemMenuState();
 }
 
-class _MediaItemMenuState extends State<_MediaItemMenu> {
+class _MediaItemMenuState extends State<MediaItemMenu> {
   late final nameController = TextEditingController(text: widget.file.name);
   final errorMessage = ValueNotifier<String?>(null);
 
@@ -443,38 +444,36 @@ class _MediaItemMenuState extends State<_MediaItemMenu> {
             leftIconSize: const Size(18, 18),
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
           ),
-        ] else ...[
-          FlowyButton(
-            leftIcon: const FlowySvg(FlowySvgs.edit_s),
-            text: FlowyText.regular(LocaleKeys.grid_media_rename.tr()),
-            onTap: () {
-              nameController.selection = TextSelection(
-                baseOffset: 0,
-                extentOffset: nameController.text.length,
-              );
-
-              showCustomConfirmDialog(
-                context: context,
-                title: LocaleKeys.document_plugins_file_renameFile_title.tr(),
-                description: LocaleKeys
-                    .document_plugins_file_renameFile_description
-                    .tr(),
-                closeOnConfirm: false,
-                builder: (dialogContext) {
-                  renameContext = dialogContext;
-                  return FileRenameTextField(
-                    nameController: nameController,
-                    errorMessage: errorMessage,
-                    onSubmitted: () => _saveName(context),
-                    disposeController: false,
-                  );
-                },
-                confirmLabel: LocaleKeys.button_save.tr(),
-                onConfirm: () => _saveName(context),
-              );
-            },
-          ),
         ],
+        FlowyButton(
+          leftIcon: const FlowySvg(FlowySvgs.edit_s),
+          text: FlowyText.regular(LocaleKeys.grid_media_rename.tr()),
+          onTap: () {
+            nameController.selection = TextSelection(
+              baseOffset: 0,
+              extentOffset: nameController.text.length,
+            );
+
+            showCustomConfirmDialog(
+              context: context,
+              title: LocaleKeys.document_plugins_file_renameFile_title.tr(),
+              description:
+                  LocaleKeys.document_plugins_file_renameFile_description.tr(),
+              closeOnConfirm: false,
+              builder: (dialogContext) {
+                renameContext = dialogContext;
+                return FileRenameTextField(
+                  nameController: nameController,
+                  errorMessage: errorMessage,
+                  onSubmitted: () => _saveName(context),
+                  disposeController: false,
+                );
+              },
+              confirmLabel: LocaleKeys.button_save.tr(),
+              onConfirm: () => _saveName(context),
+            );
+          },
+        ),
         FlowyButton(
           onTap: () async {
             if ([MediaUploadTypePB.NetworkMedia, MediaUploadTypePB.LocalMedia]
@@ -518,7 +517,7 @@ class _MediaItemMenuState extends State<_MediaItemMenu> {
             size: const Size.square(18),
           ),
           text: FlowyText.regular(
-            'Download',
+            LocaleKeys.button_download.tr(),
             color: AFThemeExtension.of(context).textColor,
           ),
           leftIconSize: const Size(18, 18),

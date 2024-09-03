@@ -1466,7 +1466,7 @@
       "open": "Open",
       "delete": "Delete",
       "moreFilesHint": "+{} files",
-      "showMore": "There are {} more files, click to show all",
+      "showMore": "There are {} more files, click to view",
       "addFileOrImage": "Add a file, image, or link"
     }
   },

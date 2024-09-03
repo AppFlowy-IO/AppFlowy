@@ -25,6 +25,13 @@ abstract class IEditableMediaCellSkin {
     };
   }
 
+  bool autoShowPopover(EditableCellStyle style) => switch (style) {
+        EditableCellStyle.desktopGrid => true,
+        EditableCellStyle.desktopRowDetail => false,
+        EditableCellStyle.mobileGrid => false,
+        EditableCellStyle.mobileRowDetail => false,
+      };
+
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
@@ -39,11 +46,13 @@ class EditableMediaCell extends EditableCellWidget {
     required this.databaseController,
     required this.cellContext,
     required this.skin,
+    required this.style,
   });
 
   final DatabaseController databaseController;
   final CellContext cellContext;
   final IEditableMediaCellSkin skin;
+  final EditableCellStyle style;
 
   @override
   GridEditableTextCell<EditableMediaCell> createState() =>
@@ -85,7 +94,9 @@ class _EditableMediaCellState extends GridEditableTextCell<EditableMediaCell> {
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
-  void onRequestFocus() => popoverController.show();
+  void onRequestFocus() => widget.skin.autoShowPopover(widget.style)
+      ? popoverController.show()
+      : null;
 
   @override
   String? onCopy() => null;

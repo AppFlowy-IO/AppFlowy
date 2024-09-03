@@ -182,7 +182,9 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
 
   Future<void> _uploadFile(BuildContext context) async {
     final result = await getIt<FilePickerService>().pickFiles(dialogTitle: '');
-    widget.onFilePicked(result?.files.first.xFile);
+    final file =
+        result?.files.isNotEmpty ?? false ? result?.files.first.xFile : null;
+    widget.onFilePicked(file);
   }
 }
 
