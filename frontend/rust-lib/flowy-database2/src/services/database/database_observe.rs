@@ -33,7 +33,6 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<
   });
 }
 
-#[allow(dead_code)]
 pub(crate) async fn observe_rows_change(
   database_id: &str,
   database: &Arc<RwLock<Database>>,
