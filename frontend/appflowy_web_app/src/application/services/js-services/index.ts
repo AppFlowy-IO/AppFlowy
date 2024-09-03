@@ -212,7 +212,6 @@ export class AFClientService implements AFService {
   async getCurrentUser () {
     const data = await APIService.getCurrentUser();
 
-    await APIService.getWorkspaces();
     return data;
   }
 

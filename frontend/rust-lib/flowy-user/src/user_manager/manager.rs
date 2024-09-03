@@ -501,6 +501,16 @@ impl UserManager {
     Ok(())
   }
 
+  #[tracing::instrument(level = "info", skip(self))]
+  pub async fn delete_account(&self) -> Result<(), FlowyError> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .delete_account()
+      .await?;
+    Ok(())
+  }
+
   /// Updates the user's profile with the given parameters.
   ///
   /// This function modifies the user's profile based on the provided update parameters. After updating, it
