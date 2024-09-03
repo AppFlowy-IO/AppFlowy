@@ -1,8 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,7 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 
 class AccountDeletionButton extends StatefulWidget {
-  const AccountDeletionButton({super.key});
+  const AccountDeletionButton({
+    super.key,
+  });
 
   @override
   State<AccountDeletionButton> createState() => _AccountDeletionButtonState();
@@ -211,11 +217,46 @@ Future<void> deleteMyAccount(
     return;
   }
 
-  // Todo(Lucas): delete account
-  showToastNotification(
-    context,
-    message: LocaleKeys.newSettings_myAccount_deleteAccount_deleteAccountSuccess
-        .tr(),
-    bottomPadding: bottomPadding,
+  final loading = Loading(context)..start();
+
+  await UserBackendService.deleteCurrentAccount().fold(
+    (s) {
+      Log.info('account deletion success, email: $email');
+
+      loading.stop();
+      showToastNotification(
+        context,
+        message: LocaleKeys
+            .newSettings_myAccount_deleteAccount_deleteAccountSuccess
+            .tr(),
+        bottomPadding: bottomPadding,
+      );
+
+      // delay 1 second to make sure the toast notification is shown
+      Future.delayed(const Duration(seconds: 1), () async {
+        // pop to the home screen
+        Navigator.of(context).popUntil((route) {
+          if (route.settings.name == '/') {
+            return true;
+          }
+          return false;
+        });
+
+        // restart the application
+        await getIt<AuthService>().signOut();
+        await runAppFlowy();
+      });
+    },
+    (f) {
+      Log.error('account deletion failed, email: $email, error: $f');
+
+      loading.stop();
+      showToastNotification(
+        context,
+        type: ToastificationType.error,
+        bottomPadding: bottomPadding,
+        message: f.msg,
+      );
+    },
   );
 }

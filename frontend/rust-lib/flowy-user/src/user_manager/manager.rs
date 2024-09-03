@@ -3,6 +3,7 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use arc_swap::ArcSwapOption;
+use collab::lock::RwLock;
 use collab_user::core::UserAwareness;
 use dashmap::DashMap;
 use flowy_server_pub::AuthenticatorType;
@@ -18,7 +19,7 @@ use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, trace, warn};
 
@@ -497,6 +498,16 @@ impl UserManager {
       )
       .await?;
     }
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "info", skip(self))]
+  pub async fn delete_account(&self) -> Result<(), FlowyError> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .delete_account()
+      .await?;
     Ok(())
   }
 

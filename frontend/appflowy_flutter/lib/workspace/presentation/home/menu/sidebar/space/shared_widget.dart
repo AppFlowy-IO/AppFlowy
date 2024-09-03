@@ -321,11 +321,14 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           Navigator.of(context).pop();
         }
       },
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: 20.0,
           horizontal: 20.0,
         ),
+        color: PlatformExtension.isDesktop
+            ? null
+            : Theme.of(context).colorScheme.surface,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

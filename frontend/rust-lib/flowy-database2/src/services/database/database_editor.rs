@@ -22,6 +22,7 @@ use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
 use arc_swap::ArcSwap;
 use async_trait::async_trait;
+use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
@@ -40,7 +41,8 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{broadcast, oneshot, RwLock};
+use tokio::sync::RwLock as TokioRwLock;
+use tokio::sync::{broadcast, oneshot};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, event, info, instrument, trace, warn};
 
@@ -66,7 +68,7 @@ impl DatabaseEditor {
   pub async fn new(
     user: Arc<dyn DatabaseUser>,
     database: Arc<RwLock<Database>>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> FlowyResult<Arc<Self>> {
     let notification_sender = Arc::new(DebounceNotificationSender::new(200));
@@ -441,6 +443,7 @@ impl DatabaseEditor {
     view_id: &str,
     field_id: &str,
     new_field_type: FieldType,
+    field_name: Option<String>,
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
     let field = database.get_field(field_id);
@@ -474,6 +477,7 @@ impl DatabaseEditor {
         database.update_field(field_id, |update| {
           update
             .set_field_type(new_field_type.into())
+            .set_name_if_not_none(field_name)
             .set_type_option(new_field_type.into(), Some(transformed_type_option));
         });
 
@@ -748,7 +752,6 @@ impl DatabaseEditor {
         id: row_id.clone().into_inner(),
         document_id: Some(row_document_id),
         icon: row_meta.icon_url,
-        cover: row_meta.cover_url,
         is_document_empty: Some(row_meta.is_document_empty),
       })
     } else {
@@ -1299,7 +1302,7 @@ impl DatabaseEditor {
   }
 
   pub async fn close_database(&self) {
-    info!("Close database: {}", self.database_id);
+    info!("close database editor: {}", self.database_id);
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
@@ -1520,6 +1523,7 @@ impl DatabaseEditor {
     Ok(type_option.database_id)
   }
 
+  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
     row_ids: Option<&Vec<String>>,
@@ -1576,7 +1580,7 @@ impl DatabaseEditor {
 
 struct DatabaseViewOperationImpl {
   database: Arc<RwLock<Database>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   cell_cache: CellCache,
   editor_by_view_id: Arc<RwLock<EditorByViewId>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
@@ -1860,7 +1864,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .update_layout_type(view_id, layout_type);
   }
 
-  fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {
+  fn get_task_scheduler(&self) -> Arc<TokioRwLock<TaskDispatcher>> {
     self.task_scheduler.clone()
   }
 

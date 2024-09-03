@@ -19,11 +19,23 @@ export function Duplicate () {
 
   return (
     <>
-      <Button onClick={handleClick} size={'small'} variant={'outlined'} color={'inherit'}>
+      <Button
+        onClick={handleClick}
+        size={'small'}
+        variant={'outlined'}
+        color={'inherit'}
+      >
         {t('publish.saveThisPage')}
       </Button>
-      <LoginModal redirectTo={url} open={loginOpen} onClose={handleLoginClose} />
-      {duplicateOpen && <DuplicateModal open={duplicateOpen} onClose={handleDuplicateClose} />}
+      <LoginModal
+        redirectTo={url}
+        open={loginOpen}
+        onClose={handleLoginClose}
+      />
+      <DuplicateModal
+        open={duplicateOpen}
+        onClose={handleDuplicateClose}
+      />
     </>
   );
 }

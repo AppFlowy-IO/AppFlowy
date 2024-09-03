@@ -38,6 +38,9 @@ class RowController {
 
   List<CellContext> loadCells() => _rowCache.loadCells(rowMeta);
 
+  /// This method must be called to initialize the row controller; otherwise, the row will not sync between devices.
+  /// When creating a row controller, calling [initialize] immediately may not be necessary.
+  /// Only call [initialize] when the row becomes visible. This approach helps reduce unnecessary sync operations.
   Future<void> initialize() async {
     await _rowBackendSvc.initRow(rowMeta.id);
     unawaited(
