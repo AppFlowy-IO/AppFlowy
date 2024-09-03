@@ -8,7 +8,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::RwLock as TokioRwLock;
 
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -38,7 +38,7 @@ pub struct SortController {
   view_id: String,
   handler_id: String,
   delegate: Box<dyn SortDelegate>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   sorts: Vec<Arc<Sort>>,
   cell_cache: CellCache,
   row_index_cache: HashMap<RowId, usize>,
@@ -57,7 +57,7 @@ impl SortController {
     handler_id: &str,
     sorts: Vec<Arc<Sort>>,
     delegate: T,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self

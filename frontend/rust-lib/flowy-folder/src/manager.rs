@@ -22,6 +22,7 @@ use crate::view_operation::{
 };
 use arc_swap::ArcSwapOption;
 use collab::core::collab::DataSource;
+use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
 use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
@@ -44,7 +45,6 @@ use futures::future;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
-use tokio::sync::RwLock;
 use tracing::{error, info, instrument};
 
 pub trait FolderUser: Send + Sync {

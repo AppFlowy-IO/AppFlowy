@@ -397,6 +397,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                     viewId: viewId,
                     rowCache: rowCache,
                   );
+                  rowController.initialize();
 
                   final databaseController =
                       context.read<BoardBloc>().databaseController;

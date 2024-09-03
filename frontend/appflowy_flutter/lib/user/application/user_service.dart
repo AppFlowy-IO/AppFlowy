@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -9,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class IUserBackendService {
   Future<FlowyResult<void, FlowyError>> cancelSubscription(
@@ -291,5 +290,10 @@ class UserBackendService implements IUserBackendService {
       ..recurringInterval = interval;
 
     return UserEventUpdateWorkspaceSubscriptionPaymentPeriod(request).send();
+  }
+
+  // NOTE: This function is irreversible and will delete the current user's account.
+  static Future<FlowyResult<void, FlowyError>> deleteCurrentAccount() {
+    return UserEventDeleteAccount().send();
   }
 }

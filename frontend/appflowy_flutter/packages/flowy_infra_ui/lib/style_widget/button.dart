@@ -258,17 +258,32 @@ class FlowyButton extends StatelessWidget {
       child = IntrinsicWidth(child: child);
     }
 
-    final decoration = this.decoration ??
+    var decoration = this.decoration;
+
+    if (decoration == null &&
         (showDefaultBoxDecorationOnMobile &&
-                (Platform.isIOS || Platform.isAndroid)
-            ? BoxDecoration(
-                border: Border.all(
-                  color: borderColor ?? Theme.of(context).colorScheme.outline,
-                  width: 1.0,
-                ),
-                borderRadius: radius,
-              )
-            : null);
+            (Platform.isIOS || Platform.isAndroid))) {
+      decoration = BoxDecoration(
+        color: backgroundColor ?? Theme.of(context).colorScheme.surface,
+      );
+    }
+
+    if (decoration == null && (Platform.isIOS || Platform.isAndroid)) {
+      if (showDefaultBoxDecorationOnMobile) {
+        decoration = BoxDecoration(
+          border: Border.all(
+            color: borderColor ?? Theme.of(context).colorScheme.outline,
+            width: 1.0,
+          ),
+          borderRadius: radius,
+        );
+      } else if (backgroundColor != null) {
+        decoration = BoxDecoration(
+          color: backgroundColor,
+          borderRadius: radius,
+        );
+      }
+    }
 
     return Container(
       decoration: decoration,

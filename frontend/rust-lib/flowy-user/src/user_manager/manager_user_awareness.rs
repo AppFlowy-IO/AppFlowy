@@ -2,6 +2,7 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Context;
 use collab::core::collab::DataSource;
+use collab::lock::RwLock;
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{
@@ -9,7 +10,6 @@ use collab_integrate::collab_builder::{
 };
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use dashmap::try_result::TryResult;
-use tokio::sync::RwLock;
 use tracing::{error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;

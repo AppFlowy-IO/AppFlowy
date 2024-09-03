@@ -1,11 +1,11 @@
 use crate::manager::{FolderManager, FolderUser};
 use crate::view_operation::FolderOperationHandlers;
+use collab::lock::RwLock;
 use collab_folder::Folder;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_search_pub::entities::FolderIndexManager;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 impl FolderManager {
   pub fn get_mutex_folder(&self) -> Option<Arc<RwLock<Folder>>> {
