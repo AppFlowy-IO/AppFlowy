@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useDuplicate } from '@/components/publish/header/duplicate/useDuplicate';
 import DuplicateModal from '@/components/publish/header/duplicate/DuplicateModal';
 
-export function Duplicate () {
+export function Duplicate() {
   const { t } = useTranslation();
   const { loginOpen, duplicateOpen, handleDuplicateClose, handleLoginClose, url } = useDuplicate();
   const [, setSearch] = useSearchParams();
@@ -19,11 +19,23 @@ export function Duplicate () {
 
   return (
     <>
-      <Button onClick={handleClick} size={'small'} variant={'outlined'} color={'inherit'}>
+      <Button
+        onClick={handleClick}
+        size={'small'}
+        variant={'outlined'}
+        color={'inherit'}
+      >
         {t('publish.saveThisPage')}
       </Button>
-      <LoginModal redirectTo={url} open={loginOpen} onClose={handleLoginClose} />
-      {duplicateOpen && <DuplicateModal open={duplicateOpen} onClose={handleDuplicateClose} />}
+      <LoginModal
+        redirectTo={url}
+        open={loginOpen}
+        onClose={handleLoginClose}
+      />
+      {duplicateOpen && <DuplicateModal
+        open={duplicateOpen}
+        onClose={handleDuplicateClose}
+      />}
     </>
   );
 }

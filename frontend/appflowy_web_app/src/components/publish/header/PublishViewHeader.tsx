@@ -1,4 +1,5 @@
 import { usePublishContext } from '@/application/publish';
+import { useCurrentUser } from '@/components/app/app.hooks';
 import { openOrDownload } from '@/components/publish/header/utils';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Divider, IconButton, Tooltip } from '@mui/material';
@@ -14,7 +15,7 @@ import { Duplicate } from './duplicate';
 
 export const HEADER_HEIGHT = 48;
 
-export function PublishViewHeader ({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
+export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
@@ -27,7 +28,7 @@ export function PublishViewHeader ({ onOpenDrawer, openDrawer }: { onOpenDrawer:
         const extra = ancestor?.extra ? JSON.parse(ancestor.extra) : {};
 
         icon = extra.icon?.value || ancestor.icon?.value;
-      } catch (e) {
+      } catch(e) {
         // ignore
       }
 
@@ -49,7 +50,7 @@ export function PublishViewHeader ({ onOpenDrawer, openDrawer }: { onOpenDrawer:
   }, []);
 
   const onKeyDown = useCallback((e: KeyboardEvent) => {
-    switch (true) {
+    switch(true) {
       case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
         e.preventDefault();
         // setOpen((prev) => !prev);
@@ -68,12 +69,16 @@ export function PublishViewHeader ({ onOpenDrawer, openDrawer }: { onOpenDrawer:
 
   const handleOpenPopover = useCallback(() => {
     debounceClosePopover.cancel();
-    if (openDrawer) {
+    if(openDrawer) {
       return;
     }
 
     setOpenPopover(true);
   }, [openDrawer, debounceClosePopover]);
+
+  const currentUser = useCurrentUser();
+
+  const isAppFlowyUser = currentUser?.email?.endsWith('@appflowy.io');
 
   return (
     <div
@@ -113,8 +118,12 @@ export function PublishViewHeader ({ onOpenDrawer, openDrawer }: { onOpenDrawer:
         <div className={'flex items-center gap-2'}>
 
           <MoreActions />
-          <Duplicate />
-          <Divider orientation={'vertical'} className={'mx-2'} flexItem />
+          {isAppFlowyUser && <Duplicate />}
+          <Divider
+            orientation={'vertical'}
+            className={'mx-2'}
+            flexItem
+          />
           <Tooltip title={t('publish.downloadApp')}>
             <button onClick={openOrDownload}>
               <Logo className={'h-6 w-6'} />
