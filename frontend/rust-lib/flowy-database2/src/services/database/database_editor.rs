@@ -10,8 +10,9 @@ use crate::services::database_view::{
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
-  ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset, StringCellData,
-  TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler, TypeOptionCellExt,
+  ChecklistCellChangeset, MediaCellData, RelationTypeOption, SelectOptionCellChangeset,
+  StringCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
+  TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -751,6 +752,7 @@ impl DatabaseEditor {
         document_id: Some(row_document_id),
         icon: row_meta.icon_url,
         is_document_empty: Some(row_meta.is_document_empty),
+        attachment_count: Some(row_meta.attachment_count),
       })
     } else {
       warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
@@ -787,7 +789,8 @@ impl DatabaseEditor {
         meta_update
           .insert_cover_if_not_none(changeset.cover_url)
           .insert_icon_if_not_none(changeset.icon_url)
-          .update_is_document_empty_if_not_none(changeset.is_document_empty);
+          .update_is_document_empty_if_not_none(changeset.is_document_empty)
+          .update_attachment_count_if_not_none(changeset.attachment_count);
       })
       .await;
 
@@ -957,10 +960,97 @@ impl DatabaseEditor {
     old_row: Option<Row>,
   ) {
     let option_row = self.get_row(view_id, row_id).await;
+    let field_type = self
+      .database
+      .read()
+      .await
+      .get_field(field_id)
+      .map(|field| field.field_type);
+
     if let Some(row) = option_row {
       for view in self.database_views.editors().await {
         view
           .v_did_update_row(&old_row, &row, Some(field_id.to_owned()))
+          .await;
+      }
+
+      if let Some(field_type) = field_type {
+        if FieldType::from(field_type) == FieldType::Media {
+          self
+            .did_update_attachments(view_id, row_id, field_id, old_row.clone())
+            .await;
+        }
+      }
+    }
+  }
+
+  async fn did_update_attachments(
+    &self,
+    view_id: &str,
+    row_id: &RowId,
+    field_id: &str,
+    old_row: Option<Row>,
+  ) {
+    let field = self.get_field(field_id).await;
+    if let Some(field) = field {
+      let handler = TypeOptionCellExt::new(&field, None)
+        .get_type_option_cell_data_handler_with_field_type(FieldType::Media);
+      if handler.is_none() {
+        return;
+      }
+      let handler = handler.unwrap();
+
+      let new_count: i64;
+      let old_count: i64;
+
+      let cell = self.get_cell(field_id, row_id).await;
+      if cell.is_some() {
+        let cell = cell.unwrap();
+        let data = handler
+          .handle_get_boxed_cell_data(&cell, &field)
+          .and_then(|cell_data| cell_data.unbox_or_none())
+          .unwrap_or_else(MediaCellData::default);
+
+        new_count = data.files.len() as i64;
+      } else {
+        new_count = 0;
+      }
+
+      let old_cell = old_row.and_then(|row| row.cells.get(field_id).cloned());
+      if let Some(old_cell) = old_cell {
+        let data = handler
+          .handle_get_boxed_cell_data(&old_cell, &field)
+          .and_then(|cell_data| cell_data.unbox_or_none())
+          .unwrap_or_else(MediaCellData::default);
+
+        old_count = data.files.len() as i64;
+      } else {
+        old_count = 0;
+      }
+
+      if new_count != old_count {
+        let attachment_count = self
+          .get_row_meta(view_id, row_id)
+          .await
+          .and_then(|meta| meta.attachment_count);
+
+        let new_attachment_count = match attachment_count {
+          Some(attachment_count) => attachment_count + new_count - old_count,
+          None => new_count,
+        };
+
+        self
+          .update_row_meta(
+            row_id,
+            UpdateRowMetaParams {
+              id: row_id.clone().into_inner(),
+              view_id: view_id.to_string(),
+              cover_url: None,
+              icon_url: None,
+              is_document_empty: None,
+              attachment_count: Some(new_attachment_count),
+            },
+          )
           .await;
       }
     }
