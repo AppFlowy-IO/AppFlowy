@@ -1467,7 +1467,8 @@
       "delete": "Delete",
       "moreFilesHint": "+{} files",
       "showMore": "There are {} more files, click to view",
-      "addFileOrImage": "Add a file, image, or link"
+      "addFileOrImage": "Add a file, image, or link",
+      "attachmentsHint": "{} attachment(s)"
     }
   },
   "document": {
