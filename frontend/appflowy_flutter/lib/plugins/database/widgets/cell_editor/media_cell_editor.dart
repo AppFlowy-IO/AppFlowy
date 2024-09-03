@@ -303,7 +303,7 @@ class __RenderMediaState extends State<_RenderMedia> {
                         children: [
                           FlowySvg(
                             widget.file.fileType.icon,
-                            color: AFThemeExtension.of(context).textColor,
+                            color: AFThemeExtension.of(context).strongText,
                             size: const Size.square(18),
                           ),
                           const HSpace(8),

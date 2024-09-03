@@ -38,6 +38,8 @@ abstract class IEditableMediaCellSkin {
     PopoverController popoverController,
     MediaCellBloc bloc,
   );
+
+  void dispose();
 }
 
 class EditableMediaCell extends EditableCellWidget {
@@ -72,6 +74,7 @@ class _EditableMediaCellState extends GridEditableTextCell<EditableMediaCell> {
   @override
   void dispose() {
     cellBloc.close();
+    widget.skin.dispose();
     super.dispose();
   }
 

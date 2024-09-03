@@ -116,13 +116,13 @@ custom-protocol = ["tauri/custom-protocol"]
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "47dbd6c8033f8fd2999cb8d11f2d60ede121a0ac" }
+collab = { path = "../../AppFlowy-Collab/collab" }
+collab-entity = { path = "../../AppFlowy-Collab/collab-entity" }
+collab-folder = { path = "../../AppFlowy-Collab/collab-folder" }
+collab-document = { path = "../../AppFlowy-Collab/collab-document" }
+collab-database = { path = "../../AppFlowy-Collab/collab-database" }
+collab-plugins = { path = "../../AppFlowy-Collab/collab-plugins" }
+collab-user = { path = "../../AppFlowy-Collab/collab-user" }
 
 # Working directory: frontend
 # To update the commit ID, run:

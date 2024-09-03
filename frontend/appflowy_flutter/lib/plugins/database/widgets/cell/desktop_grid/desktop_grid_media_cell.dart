@@ -19,6 +19,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DekstopGridMediaCellSkin extends IEditableMediaCellSkin {
   @override
+  void dispose() {}
+
+  @override
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
