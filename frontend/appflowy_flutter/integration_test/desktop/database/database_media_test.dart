@@ -62,6 +62,7 @@ void main() {
 
       // Click on add file button in the Media Cell Editor
       await tester.tap(find.text(LocaleKeys.grid_media_addFileOrImage.tr()));
+      await tester.pumpAndSettle();
 
       // Tap on the upload interaction
       await tester.tapButtonWithName(
@@ -77,6 +78,7 @@ void main() {
 
       // Click on add file button in the Media Cell Editor
       await tester.tap(find.text(LocaleKeys.grid_media_addFileOrImage.tr()));
+      await tester.pumpAndSettle();
 
       // Tap on the upload interaction
       await tester.tapButtonWithName(
