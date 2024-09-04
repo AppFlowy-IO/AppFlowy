@@ -9,7 +9,6 @@ import 'package:appflowy/workspace/application/settings/application_data_storage
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/widgets.dart';
@@ -61,8 +60,8 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
       return (s.url, null);
     },
     (err) {
-      final message = PlatformExtension.isMobile
-          ? LocaleKeys.sideBar_storageLimitDialogTitleMobile.tr()
+      final message = Platform.isIOS
+          ? LocaleKeys.sideBar_storageLimitDialogTitleIOS.tr()
           : LocaleKeys.sideBar_storageLimitDialogTitle.tr();
       if (err.isStorageLimitExceeded) {
         return (null, message);
