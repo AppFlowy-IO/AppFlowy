@@ -24,12 +24,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     this.textController,
     this.onFieldInserted,
     required this.isNew,
+    this.field,
   })  : _fieldService = FieldBackendService(
           viewId: viewId,
           fieldId: fieldId,
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
-        super(const FieldEditorState(field: null)) {
+        super(FieldEditorState(field: field)) {
     _dispatch();
     _startListening();
     _init();
@@ -43,6 +44,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final FieldBackendService _fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final void Function(String newFieldId)? onFieldInserted;
+  final FieldInfo? field;
 
   late final OnReceiveField _listener;
 
@@ -145,6 +147,9 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   }
 
   void _init() async {
+    if (field != null) {
+      textController?.text = field!.name;
+    }
     await Future.delayed(const Duration(milliseconds: 50));
     if (!isClosed) {
       final field = fieldController.getField(fieldId);
