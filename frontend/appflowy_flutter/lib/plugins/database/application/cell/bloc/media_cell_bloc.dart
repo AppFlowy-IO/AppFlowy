@@ -161,6 +161,12 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
       add(MediaCellEvent.didUpdateField(fieldInfo.name));
     }
   }
+
+  void renameFile(String fileId, String name) =>
+      add(MediaCellEvent.renameFile(fileId: fileId, name: name));
+
+  void deleteFile(String fileId) =>
+      add(MediaCellEvent.removeFile(fileId: fileId));
 }
 
 @freezed

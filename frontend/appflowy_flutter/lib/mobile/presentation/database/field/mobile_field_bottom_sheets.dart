@@ -29,6 +29,7 @@ const mobileSupportedFieldTypes = [
   FieldType.CreatedTime,
   FieldType.Checkbox,
   FieldType.Checklist,
+  FieldType.Media,
   // FieldType.Time,
 ];
 
@@ -154,6 +155,20 @@ Future<String?> showFieldPicker(
         fieldController: fieldController,
         filterBy: filterBy,
       );
+    },
+  );
+}
+
+Future<FieldOptionValues?> showUploadMediaScreen(
+  BuildContext context,
+  String viewId,
+  FieldInfo field,
+) {
+  return context.push<FieldOptionValues>(
+    MobileEditPropertyScreen.routeName,
+    extra: {
+      MobileEditPropertyScreen.argViewId: viewId,
+      MobileEditPropertyScreen.argField: field,
     },
   );
 }

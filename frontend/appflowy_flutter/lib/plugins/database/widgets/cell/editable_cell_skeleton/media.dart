@@ -17,11 +17,11 @@ abstract class IEditableMediaCellSkin {
 
   factory IEditableMediaCellSkin.fromStyle(EditableCellStyle style) {
     return switch (style) {
-      EditableCellStyle.desktopGrid => DekstopGridMediaCellSkin(),
+      EditableCellStyle.desktopGrid => const GridMediaCellSkin(),
       EditableCellStyle.desktopRowDetail => DekstopRowDetailMediaCellSkin(),
-      // TODO(Mathias): Implement the rest of the styles
-      EditableCellStyle.mobileGrid => DekstopGridMediaCellSkin(),
-      EditableCellStyle.mobileRowDetail => DekstopGridMediaCellSkin(),
+      EditableCellStyle.mobileGrid => const GridMediaCellSkin(),
+      EditableCellStyle.mobileRowDetail =>
+        const GridMediaCellSkin(isMobileRowDetail: true),
     };
   }
 

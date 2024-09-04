@@ -356,31 +356,19 @@ class _RenderMediaState extends State<RenderMedia> {
     BuildContext context, {
     required MediaFilePB file,
     required Widget child,
-  }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (_) => InteractiveImageViewer(
-            userProfile: context.read<MediaCellBloc>().state.userProfile,
-            imageProvider: AFBlockImageProvider(
-              images: [
-                ImageBlockData(
-                  url: file.url,
-                  type: file.uploadType.toCustomImageType(),
-                ),
-              ],
-              onDeleteImage: (_) => context
-                  .read<MediaCellBloc>()
-                  .add(MediaCellEvent.removeFile(fileId: file.id)),
-            ),
-          ),
-        );
-      },
-      child: child,
-    );
-  }
+  }) =>
+      GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => openInteractiveViewerFromFile(
+          context,
+          file,
+          onDeleteImage: (_) => context
+              .read<MediaCellBloc>()
+              .add(MediaCellEvent.removeFile(fileId: file.id)),
+          userProfile: context.read<MediaCellBloc>().state.userProfile,
+        ),
+        child: child,
+      );
 }
 
 class MediaItemMenu extends StatefulWidget {

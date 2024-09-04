@@ -219,11 +219,14 @@ class _CardContent extends StatelessWidget {
                     size: Size.square(12),
                   ),
                   const HSpace(4),
-                  FlowyText.regular(
-                    LocaleKeys.grid_media_attachmentsHint
-                        .tr(args: ['$attachmentCount']),
-                    fontSize: 11,
-                    color: AFThemeExtension.of(context).secondaryTextColor,
+                  Flexible(
+                    child: FlowyText.regular(
+                      LocaleKeys.grid_media_attachmentsHint
+                          .tr(args: ['$attachmentCount']),
+                      fontSize: 11,
+                      color: AFThemeExtension.of(context).secondaryTextColor,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

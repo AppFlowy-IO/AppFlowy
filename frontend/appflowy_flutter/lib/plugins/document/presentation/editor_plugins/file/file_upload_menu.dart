@@ -40,9 +40,7 @@ class _FileUploadMenuState extends State<FileUploadMenu> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TabBar(
-            onTap: (value) => setState(() {
-              currentTab = value;
-            }),
+            onTap: (value) => setState(() => currentTab = value),
             isScrollable: true,
             padding: EdgeInsets.zero,
             overlayColor: WidgetStatePropertyAll(
@@ -112,6 +110,28 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
   Widget build(BuildContext context) {
     final constraints =
         PlatformExtension.isMobile ? const BoxConstraints(minHeight: 92) : null;
+
+    if (PlatformExtension.isMobile) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: SizedBox(
+          height: 32,
+          width: 300,
+          child: FlowyButton(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+            showDefaultBoxDecorationOnMobile: true,
+            margin: const EdgeInsets.all(5),
+            text: FlowyText(
+              LocaleKeys.document_plugins_file_uploadMobile.tr(),
+              textAlign: TextAlign.center,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+            onTap: () => _uploadFile(context),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.all(4),
