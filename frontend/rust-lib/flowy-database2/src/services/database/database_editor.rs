@@ -77,7 +77,7 @@ impl DatabaseEditor {
     let database_cancellation = Arc::new(RwLock::new(None));
     // Receive database sync state and send to frontend via the notification
     observe_sync_state(&database_id, &database).await;
-    // observe_view_change(&database_id, &database).await;
+    observe_view_change(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
     observe_rows_change(&database_id, &database, &notification_sender).await;
 
