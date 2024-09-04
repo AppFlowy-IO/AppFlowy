@@ -32,7 +32,7 @@ void main() {
         bloc.add(const FieldEditorEvent.switchFieldType(FieldType.RichText));
       },
       verify: (bloc) {
-        assert(bloc.state.field.fieldType == FieldType.RichText);
+        assert(bloc.state.field!.fieldType == FieldType.RichText);
       },
     );
     blocTest<BoardBloc, BoardState>(

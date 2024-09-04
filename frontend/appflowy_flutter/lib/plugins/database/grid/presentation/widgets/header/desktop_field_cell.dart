@@ -86,7 +86,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
               return FieldEditor(
                 viewId: widget.viewId,
                 fieldController: widget.fieldController,
-                field: widget.fieldInfo.field,
+                fieldId: widget.fieldInfo.id,
                 isNewField: widget.isNew,
                 initialPage: widget.isNew
                     ? FieldEditorPage.details

@@ -61,21 +61,25 @@ class _QuickEditFieldState extends State<QuickEditField> {
       create: (_) => FieldEditorBloc(
         viewId: widget.viewId,
         fieldController: widget.fieldController,
-        field: widget.fieldInfo.field,
+        fieldId: widget.fieldInfo.id,
+        textController: controller,
         isNew: false,
       ),
       child: BlocConsumer<FieldEditorBloc, FieldEditorState>(
         listenWhen: (previous, current) =>
-            previous.field.name != current.field.name,
-        listener: (context, state) => controller.text = state.field.name,
+            previous.field!.name != current.field!.name,
+        listener: (context, state) => controller.text = state.field!.name,
         builder: (context, state) {
+          if (state.field == null) {
+            return const SizedBox.shrink();
+          }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const VSpace(16),
               OptionTextField(
                 controller: controller,
-                type: state.field.fieldType,
+                type: state.field!.fieldType,
                 onTextChanged: (text) {
                   context
                       .read<FieldEditorBloc>()
@@ -95,7 +99,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
                   showEditFieldScreen(
                     context,
                     widget.viewId,
-                    state.field,
+                    state.field!,
                   );
                   context.pop();
                 },

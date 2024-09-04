@@ -174,7 +174,7 @@ class _CellTrailing extends StatelessWidget {
   }
 }
 
-class CreateFieldButton extends StatefulWidget {
+class CreateFieldButton extends StatelessWidget {
   const CreateFieldButton({
     super.key,
     required this.viewId,
@@ -184,11 +184,6 @@ class CreateFieldButton extends StatefulWidget {
   final String viewId;
   final void Function(String fieldId) onFieldCreated;
 
-  @override
-  State<CreateFieldButton> createState() => _CreateFieldButtonState();
-}
-
-class _CreateFieldButtonState extends State<CreateFieldButton> {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
@@ -202,10 +197,10 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       hoverColor: AFThemeExtension.of(context).greyHover,
       onTap: () async {
         final result = await FieldBackendService.createField(
-          viewId: widget.viewId,
+          viewId: viewId,
         );
         result.fold(
-          (field) => widget.onFieldCreated(field.id),
+          (field) => onFieldCreated(field.id),
           (err) => Log.error("Failed to create field type option: $err"),
         );
       },

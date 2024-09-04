@@ -204,7 +204,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
       popupBuilder: (BuildContext context) {
         return FieldEditor(
           viewId: widget.viewId,
-          field: widget.fieldInfo.field,
+          fieldId: widget.fieldInfo.id,
           fieldController: widget.fieldController,
           isNewField: false,
         );

@@ -7,6 +7,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -18,17 +19,17 @@ part 'field_editor_bloc.freezed.dart';
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   FieldEditorBloc({
     required this.viewId,
+    required this.fieldId,
     required this.fieldController,
+    this.textController,
     this.onFieldInserted,
-    required FieldPB field,
     required this.isNew,
-  })  : fieldId = field.id,
-        fieldService = FieldBackendService(
+  })  : _fieldService = FieldBackendService(
           viewId: viewId,
-          fieldId: field.id,
+          fieldId: fieldId,
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
-        super(FieldEditorState(field: FieldInfo.initial(field))) {
+        super(const FieldEditorState(field: null)) {
     _dispatch();
     _startListening();
     _init();
@@ -38,7 +39,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final String fieldId;
   final bool isNew;
   final FieldController fieldController;
-  final FieldBackendService fieldService;
+  final TextEditingController? textController;
+  final FieldBackendService _fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final void Function(String newFieldId)? onFieldInserted;
 
@@ -66,13 +68,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               fieldName = fieldType.i18n;
             }
 
-            await fieldService.updateType(
+            await _fieldService.updateType(
               fieldType: fieldType,
               fieldName: fieldName,
             );
           },
           renameField: (newName) async {
-            final result = await fieldService.updateField(name: newName);
+            final result = await _fieldService.updateField(name: newName);
             _logIfError(result);
             emit(state.copyWith(wasRenameManually: true));
           },
@@ -85,36 +87,42 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await fieldService.createBefore();
+            final result = await _fieldService.createBefore();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await fieldService.createAfter();
+            final result = await _fieldService.createAfter();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           toggleFieldVisibility: () async {
+            if (state.field == null) {
+              return;
+            }
             final currentVisibility =
-                state.field.visibility ?? FieldVisibility.AlwaysShown;
+                state.field!.visibility ?? FieldVisibility.AlwaysShown;
             final newVisibility =
                 currentVisibility == FieldVisibility.AlwaysHidden
                     ? FieldVisibility.AlwaysShown
                     : FieldVisibility.AlwaysHidden;
             final result = await fieldSettingsService.updateFieldSettings(
-              fieldId: state.field.id,
+              fieldId: fieldId,
               fieldVisibility: newVisibility,
             );
             _logIfError(result);
           },
           toggleWrapCellContent: () async {
-            final currentWrap = state.field.wrapCellContent ?? false;
+            if (state.field == null) {
+              return;
+            }
+            final currentWrap = state.field!.wrapCellContent ?? false;
             final result = await fieldSettingsService.updateFieldSettings(
-              fieldId: state.field.id,
+              fieldId: state.field!.id,
               wrapCellContent: !currentWrap,
             );
             _logIfError(result);
@@ -141,6 +149,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     if (!isClosed) {
       final field = fieldController.getField(fieldId);
       if (field != null) {
+        textController?.text = field.name;
         add(FieldEditorEvent.didUpdateField(field));
       }
     }
@@ -175,7 +184,7 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required final FieldInfo field,
+    required final FieldInfo? field,
     @Default(false) bool wasRenameManually,
   }) = _FieldEditorState;
 }

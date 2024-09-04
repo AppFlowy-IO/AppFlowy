@@ -82,6 +82,12 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               ),
             );
           },
+          startEditingField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId));
+          },
+          endEditingField: () {
+            emit(state.copyWith(editingFieldId: ""));
+          },
         );
       },
     );
@@ -219,6 +225,13 @@ class RowDetailEvent with _$RowDetailEvent {
   /// Used to hide/show the hidden fields in the row detail page
   const factory RowDetailEvent.toggleHiddenFieldVisibility() =
       _ToggleHiddenFieldVisibility;
+
+  /// Begin editing an event;
+  const factory RowDetailEvent.startEditingField(String fieldId) =
+      _StartEditingField;
+
+  /// End editing an event
+  const factory RowDetailEvent.endEditingField() = _EndEditingField;
 }
 
 @freezed
@@ -228,6 +241,7 @@ class RowDetailState with _$RowDetailState {
     required List<CellContext> visibleCells,
     required bool showHiddenFields,
     required int numHiddenFields,
+    required String editingFieldId,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => const RowDetailState(
@@ -235,5 +249,6 @@ class RowDetailState with _$RowDetailState {
         visibleCells: [],
         showHiddenFields: false,
         numHiddenFields: 0,
+        editingFieldId: "",
       );
 }
