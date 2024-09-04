@@ -86,9 +86,9 @@ class _FieldEditorState extends State<FieldEditor> {
         builder: (context, isNull) {
           return isNull
               ? const SizedBox.shrink()
-              : _currentPage == FieldEditorPage.details
-                  ? _fieldDetails()
-                  : _fieldGeneral();
+              : _currentPage == FieldEditorPage.general
+                  ? _fieldGeneral()
+                  : _fieldDetails();
         },
       ),
     );
@@ -336,32 +336,33 @@ enum FieldAction {
         );
         break;
       case FieldAction.clearData:
-        NavigatorAlertDialog(
-          constraints: const BoxConstraints(
-            maxWidth: 250,
-            maxHeight: 260,
-          ),
-          title: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
-          confirm: () {
+        PopoverContainer.of(context).closeAll();
+        showCancelAndConfirmDialog(
+          context: context,
+          title: LocaleKeys.grid_field_label.tr(),
+          description: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
+          confirmLabel: LocaleKeys.button_confirm.tr(),
+          onConfirm: () {
             FieldBackendService.clearField(
               viewId: viewId,
               fieldId: fieldInfo.id,
             );
           },
-        ).show(context);
-        PopoverContainer.of(context).close();
+        );
         break;
       case FieldAction.delete:
-        NavigatorAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
+        PopoverContainer.of(context).closeAll();
+        showConfirmDeletionDialog(
+          context: context,
+          name: LocaleKeys.grid_field_label.tr(),
+          description: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+          onConfirm: () {
             FieldBackendService.deleteField(
               viewId: viewId,
               fieldId: fieldInfo.id,
             );
           },
-        ).show(context);
-        PopoverContainer.of(context).closeAll();
+        );
         break;
       case FieldAction.wrap:
         context

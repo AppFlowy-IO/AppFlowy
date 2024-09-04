@@ -1294,6 +1294,7 @@
       "isNotEmpty": "Is not empty"
     },
     "field": {
+      "label": "Property",
       "hide": "Hide",
       "show": "Show",
       "insertLeft": "Insert Left",
@@ -1346,7 +1347,7 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "openRowDocument": "Open as a page",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "deleteFieldPromptMessage": "Are you sure? This property and all its data will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
       "format": "Format",
