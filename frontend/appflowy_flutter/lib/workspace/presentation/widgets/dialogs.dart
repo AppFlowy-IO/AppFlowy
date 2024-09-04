@@ -393,7 +393,7 @@ class _MToast extends StatelessWidget {
                     ),
                     const HSpace(8.0),
                   ],
-                  hintText,
+                  Expanded(child: hintText),
                 ],
               )
             : hintText,
