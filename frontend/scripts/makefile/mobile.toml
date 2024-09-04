@@ -67,10 +67,10 @@ script = [
     cd rust-lib/
     if [ "${BUILD_FLAG}" = "debug" ]; then
       echo "🚀 🚀 🚀  Building Android SDK for debug"
-      cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
       echo "🚀 🚀 🚀  Building Android SDK for release"
-      cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
     fi
     cd ../
   """,

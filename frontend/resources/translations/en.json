@@ -300,11 +300,15 @@
     "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
     "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
+    "storageLimitDialogTitleIOS": "You have run out of free storage.",
     "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "aiResponseLimitTitleIOS": "You have run out of free AI responses.",
     "aiResponseLimitDialogTitle": "AI Responses limit reached",
     "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
     "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
+    "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
@@ -1116,7 +1120,7 @@
         },
         "inviteFailedDialogTitle": "Failed to send invite",
         "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
-        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit. Upgrade on Desktop to unlock more features.",
+        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
@@ -1807,7 +1811,9 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
       "clickToCopyTheBlockContent": "Click to copy the block content",
-      "blockContentHasBeenCopied": "The block content has been copied."
+      "blockContentHasBeenCopied": "The block content has been copied.",
+      "parseError": "An error occurred while parsing the {} block.",
+      "copyBlockContent": "Copy block content"
     },
     "mobilePageSelector": {
       "title": "Select page",

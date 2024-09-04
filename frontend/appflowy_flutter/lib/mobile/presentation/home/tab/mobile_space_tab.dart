@@ -200,9 +200,6 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
               viewSection: FolderSpaceType.public.toViewSectionPB,
             ),
           );
-      context.read<FolderBloc>().add(
-            const FolderEvent.expandOrUnExpand(isExpanded: true),
-          );
     }
   }
 

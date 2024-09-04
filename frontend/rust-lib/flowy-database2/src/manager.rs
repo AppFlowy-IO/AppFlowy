@@ -769,15 +769,15 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
         },
         Ok(None) => {
           if self.is_local_user {
+            info!(
+              "build collab: {}:{} with empty encode collab",
+              collab_type, object_id
+            );
             CollabPersistenceImpl {
               persistence: Some(self.persistence.clone()),
             }
             .into()
           } else {
-            error!(
-              "build collab: {}:{} with empty encode collab",
-              collab_type, object_id
-            );
             return Err(DatabaseError::RecordNotFound);
           }
         },
