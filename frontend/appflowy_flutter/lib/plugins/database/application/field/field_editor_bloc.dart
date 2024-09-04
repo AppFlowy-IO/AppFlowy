@@ -189,7 +189,7 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required final FieldInfo? field,
+    @Default(null) FieldInfo? field,
     @Default(false) bool wasRenameManually,
   }) = _FieldEditorState;
 }
