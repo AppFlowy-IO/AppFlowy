@@ -887,18 +887,19 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> createField(
-    FieldType fieldType,
-    String name, {
+    FieldType fieldType, {
+    String? name,
     ViewLayoutPB layout = ViewLayoutPB.Grid,
   }) async {
     if (layout == ViewLayoutPB.Grid) {
       await scrollToRight(find.byType(GridPage));
     }
     await tapNewPropertyButton();
-    await renameField(name);
+    if (name != null) {
+      await renameField(name);
+    }
     await tapSwitchFieldTypeButton();
     await selectFieldType(fieldType);
-    await dismissFieldEditor();
   }
 
   Future<void> tapDatabaseSettingButton() async {
