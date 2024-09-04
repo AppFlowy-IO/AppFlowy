@@ -135,7 +135,7 @@ class _AppFlowyMobileToolbarIconItemState
   }
 
   void _rebuild() {
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
     setState(() {
