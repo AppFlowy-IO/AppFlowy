@@ -110,7 +110,7 @@ fi
 if [ "$verbose" = true ]; then
   dart run build_runner build -d &
 else
-  dart run build_runner build >/dev/null 2>&1 &
+  dart run build_runner build -d >/dev/null 2>&1 &
 fi
 
 # Get the PID of the background process
