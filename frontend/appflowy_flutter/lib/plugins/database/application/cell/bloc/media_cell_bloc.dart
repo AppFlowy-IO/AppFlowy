@@ -26,7 +26,7 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
   void Function()? _onCellChangedFn;
 
   String get databaseId => cellController.viewId;
-
+  String get rowId => cellController.rowId;
   bool get wrapContent => cellController.fieldInfo.wrapCellContent ?? false;
 
   @override

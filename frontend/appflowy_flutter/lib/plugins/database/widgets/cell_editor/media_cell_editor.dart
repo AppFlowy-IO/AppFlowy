@@ -117,7 +117,8 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                       } else {
                         (path, errorMsg) = await saveFileToCloudStorage(
                           file.path,
-                          mediaCellBloc.databaseId,
+                          mediaCellBloc.rowId,
+                          fileType == MediaFileTypePB.Image,
                         );
                       }
 

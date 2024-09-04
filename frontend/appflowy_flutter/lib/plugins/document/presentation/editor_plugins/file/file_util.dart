@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
+import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
@@ -36,16 +37,27 @@ Future<String?> saveFileToLocalStorage(String localFilePath) async {
 
 Future<(String? path, String? errorMessage)> saveFileToCloudStorage(
   String localFilePath,
-  String documentId,
-) async {
+  String documentId, [
+  bool isImage = false,
+]) async {
   final documentService = DocumentService();
   Log.debug("Uploading file from local path: $localFilePath");
   final result = await documentService.uploadFile(
     localFilePath: localFilePath,
     documentId: documentId,
   );
+
   return result.fold(
-    (s) => (s.url, null),
+    (s) async {
+      if (isImage) {
+        await CustomImageCacheManager().putFile(
+          s.url,
+          File(localFilePath).readAsBytesSync(),
+        );
+      }
+
+      return (s.url, null);
+    },
     (err) {
       if (err.isStorageLimitExceeded) {
         return (null, LocaleKeys.sideBar_storageLimitDialogTitle.tr());
