@@ -6,6 +6,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:path/path.dart' as p;
