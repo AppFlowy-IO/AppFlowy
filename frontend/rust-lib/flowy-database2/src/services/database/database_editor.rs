@@ -54,8 +54,6 @@ pub struct DatabaseEditor {
   pub cell_cache: CellCache,
   pub(crate) database_views: Arc<DatabaseViews>,
   #[allow(dead_code)]
-  /// Used to send notification to the frontend.
-  notification_sender: Arc<DebounceNotificationSender>,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   is_opening: ArcSwap<bool>,
@@ -77,7 +75,6 @@ impl DatabaseEditor {
     let database_cancellation = Arc::new(RwLock::new(None));
     // Receive database sync state and send to frontend via the notification
     observe_sync_state(&database_id, &database).await;
-    observe_view_change(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
     observe_rows_change(&database_id, &database, &notification_sender).await;
 
@@ -119,7 +116,6 @@ impl DatabaseEditor {
       database,
       cell_cache,
       database_views,
-      notification_sender,
       collab_builder,
       is_opening: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
@@ -127,6 +123,7 @@ impl DatabaseEditor {
       finalized_rows: Arc::new(Default::default()),
     });
     observe_block_event(&database_id, &this).await;
+    observe_view_change(&database_id, &this).await;
     Ok(this)
   }
 
@@ -528,28 +525,20 @@ impl DatabaseEditor {
   }
 
   pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) -> FlowyResult<()> {
-    let (row, index) = {
-      let mut database = self.database.write().await;
+    let mut database = self.database.write().await;
+    let params = database
+      .duplicate_row(row_id)
+      .await
+      .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
+    let (index, row_order) = database.create_row_in_view(view_id, params).await?;
+    drop(database);
 
-      let params = database
-        .duplicate_row(row_id)
-        .await
-        .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
-
-      let (index, row_order) = database.create_row_in_view(view_id, params).await?;
-      trace!(
-        "duplicate row: {:?} at index:{}, new row:{:?}",
-        row_id,
-        index,
-        row_order
-      );
-      let row = database.get_row(&row_order.id).await;
-      (row, index)
-    };
-
-    for view in self.database_views.editors().await {
-      view.v_did_create_row(&row, index).await;
-    }
+    trace!(
+      "duplicate row: {:?} at index:{}, new row:{:?}",
+      row_id,
+      index,
+      row_order
+    );
 
     Ok(())
   }
@@ -604,9 +593,6 @@ impl DatabaseEditor {
 
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
-      for view in self.database_views.editors().await {
-        view.v_did_create_row(&row_detail.row, index).await;
-      }
       return Ok(Some(row_detail));
     }
 
@@ -691,11 +677,6 @@ impl DatabaseEditor {
     Ok(view_editor.v_get_all_rows().await)
   }
 
-  pub async fn get_all_row_orders(&self, view_id: &str) -> FlowyResult<Vec<RowOrder>> {
-    let orders = self.database.read().await.get_row_orders_for_view(view_id);
-    Ok(orders)
-  }
-
   pub async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
     let database = self.database.read().await;
     if database.contains_row(view_id, row_id) {
@@ -755,7 +736,11 @@ impl DatabaseEditor {
         is_document_empty: Some(row_meta.is_document_empty),
       })
     } else {
-      warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      warn!(
+        "the row:{} is not exist in view:{}",
+        row_id.as_str(),
+        view_id
+      );
       None
     }
   }
@@ -765,14 +750,17 @@ impl DatabaseEditor {
     if database.contains_row(view_id, row_id) {
       database.get_row_detail(row_id).await
     } else {
-      warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      warn!(
+        "the row:{} is not exist in view:{}",
+        row_id.as_str(),
+        view_id
+      );
       None
     }
   }
 
   pub async fn delete_rows(&self, row_ids: &[RowId]) {
     let rows = self.database.write().await.remove_rows(row_ids).await;
-
     for row in rows {
       tracing::trace!("Did delete row:{:?}", row);
       for view in self.database_views.editors().await {
@@ -1357,7 +1345,8 @@ impl DatabaseEditor {
           old_token.cancel();
         }
 
-        let row_orders = self.database.read().await.get_row_orders_for_view(view_id);
+        let view_editor = self.database_views.get_view_editor(view_id).await?;
+        let row_orders = view_editor.get_all_row_orders().await?;
         let cloned_row_orders = row_orders.clone();
         // Collect database details in a single block holding the `read` lock
         let (database_id, fields, is_linked) = {
@@ -1523,6 +1512,19 @@ impl DatabaseEditor {
     Ok(type_option.database_id)
   }
 
+  pub async fn get_row_index(&self, view_id: &str, row_id: &RowId) -> Option<usize> {
+    self.database.read().await.get_row_index(view_id, row_id)
+  }
+
+  pub async fn get_row_order_at_index(&self, view_id: &str, index: u32) -> Option<RowOrder> {
+    self
+      .database
+      .read()
+      .await
+      .get_row_order_at_index(view_id, index)
+      .await
+  }
+
   /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
@@ -1676,9 +1678,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     }
   }
 
-  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
+  async fn get_all_rows(&self, view_id: &str, row_orders: Vec<RowOrder>) -> Vec<Arc<Row>> {
     let view_id = view_id.to_string();
-    let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
     // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
@@ -1705,6 +1706,10 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     }
     trace!("total row details: {}", all_rows.len());
     all_rows.into_iter().map(Arc::new).collect()
+  }
+
+  async fn get_all_row_orders(&self, view_id: &str) -> Vec<RowOrder> {
+    self.database.read().await.get_row_orders_for_view(view_id)
   }
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row> {

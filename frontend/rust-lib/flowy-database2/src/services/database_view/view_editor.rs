@@ -2,18 +2,6 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
-use collab_database::entity::DatabaseView;
-use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
-use collab_database::views::DatabaseLayout;
-use lib_infra::util::timestamp;
-use tokio::sync::{broadcast, RwLock};
-use tracing::instrument;
-
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
-
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
   DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
@@ -41,6 +29,15 @@ use crate::services::filter::{Filter, FilterChangeset, FilterController};
 use crate::services::group::{GroupChangeset, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
+use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
+use collab_database::entity::DatabaseView;
+use collab_database::fields::Field;
+use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::views::{DatabaseLayout, RowOrder};
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::util::timestamp;
+use tokio::sync::{broadcast, RwLock};
+use tracing::instrument;
 
 use super::notify_did_update_calculation;
 use super::view_calculations::make_calculations_controller;
@@ -70,7 +67,7 @@ impl DatabaseViewEditor {
     cell_cache: CellCache,
   ) -> FlowyResult<Self> {
     let (notifier, _) = broadcast::channel(100);
-    af_spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
+    tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
 
     // Filter
     let filter_controller = make_filter_controller(
@@ -116,6 +113,11 @@ impl DatabaseViewEditor {
       calculations_controller,
       notifier,
     })
+  }
+
+  pub async fn get_all_row_orders(&self) -> FlowyResult<Vec<RowOrder>> {
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    Ok(row_orders)
   }
 
   pub async fn close(&self) {
@@ -176,7 +178,6 @@ impl DatabaseViewEditor {
     filter_controller.fill_cells(&mut cells).await;
 
     result.collab_params.cells = cells;
-
     Ok(result)
   }
 
@@ -193,10 +194,8 @@ impl DatabaseViewEditor {
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let mut rows = vec![Arc::new(row.clone())];
       self.v_filter_rows(&mut rows).await;
-
       if let Some(row) = rows.pop() {
         let changesets = controller.did_create_row(&row, index);
-
         for changeset in changesets {
           notify_did_update_group_rows(changeset).await;
         }
@@ -209,7 +208,6 @@ impl DatabaseViewEditor {
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn v_did_delete_row(&self, row: &Row) {
     let deleted_row = row.clone();
-
     // Send the group notification if the current view has groups;
     let result = self
       .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
@@ -230,7 +228,6 @@ impl DatabaseViewEditor {
       }
     }
     let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
-
     send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changes)
       .send();
@@ -238,7 +235,7 @@ impl DatabaseViewEditor {
     // Updating calculations for each of the Rows cells is a tedious task
     // Therefore we spawn a separate task for this
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
+    tokio::spawn(async move {
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
           .did_receive_row_changed(deleted_row)
@@ -323,7 +320,8 @@ impl DatabaseViewEditor {
 
   #[instrument(level = "info", skip(self))]
   pub async fn v_get_all_rows(&self) -> Vec<Arc<Row>> {
-    let mut rows = self.delegate.get_all_rows(&self.view_id).await;
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let mut rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
     self.v_filter_rows(&mut rows).await;
     self.v_sort_rows(&mut rows).await;
     rows
@@ -1111,7 +1109,7 @@ impl DatabaseViewEditor {
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
+    tokio::spawn(async move {
       if let Some(filter_controller) = weak_filter_controller.upgrade() {
         filter_controller
           .did_receive_row_changed(row_id.clone())
@@ -1138,7 +1136,7 @@ impl DatabaseViewEditor {
   async fn gen_did_create_row_view_tasks(&self, preliminary_index: usize, row: Row) {
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
+    tokio::spawn(async move {
       if let Some(sort_controller) = weak_sort_controller.upgrade() {
         sort_controller
           .read()
