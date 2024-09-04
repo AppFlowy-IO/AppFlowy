@@ -34,7 +34,7 @@ void main() {
 
     final editorBloc = FieldEditorBloc(
       viewId: context.gridView.id,
-      fieldId: fieldInfo.id,
+      fieldInfo: fieldInfo,
       fieldController: context.fieldController,
       isNew: false,
     );

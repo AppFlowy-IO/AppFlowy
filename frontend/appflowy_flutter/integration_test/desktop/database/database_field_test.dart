@@ -1,12 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/select/select_option.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:intl/intl.dart';
 
 import '../../shared/database_test_op.dart';
 import '../../shared/util.dart';
@@ -88,7 +89,7 @@ void main() {
       await tester.tapDeletePropertyButton();
 
       // confirm delete
-      await tester.tapDialogOkButton();
+      await tester.tapButtonWithName(LocaleKeys.space_delete.tr());
 
       tester.noFieldWithName('New field 1');
       await tester.pumpAndSettle();

@@ -7,7 +7,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -19,34 +18,32 @@ part 'field_editor_bloc.freezed.dart';
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   FieldEditorBloc({
     required this.viewId,
-    required this.fieldId,
+    required this.fieldInfo,
     required this.fieldController,
-    this.textController,
     this.onFieldInserted,
     required this.isNew,
-    this.field,
   })  : _fieldService = FieldBackendService(
           viewId: viewId,
-          fieldId: fieldId,
+          fieldId: fieldInfo.id,
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
-        super(FieldEditorState(field: field)) {
+        super(FieldEditorState(field: fieldInfo)) {
     _dispatch();
     _startListening();
     _init();
   }
 
   final String viewId;
-  final String fieldId;
+  final FieldInfo fieldInfo;
   final bool isNew;
   final FieldController fieldController;
-  final TextEditingController? textController;
   final FieldBackendService _fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final void Function(String newFieldId)? onFieldInserted;
-  final FieldInfo? field;
 
   late final OnReceiveField _listener;
+
+  String get fieldId => fieldInfo.id;
 
   @override
   Future<void> close() {
@@ -103,11 +100,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             );
           },
           toggleFieldVisibility: () async {
-            if (state.field == null) {
-              return;
-            }
             final currentVisibility =
-                state.field!.visibility ?? FieldVisibility.AlwaysShown;
+                state.field.visibility ?? FieldVisibility.AlwaysShown;
             final newVisibility =
                 currentVisibility == FieldVisibility.AlwaysHidden
                     ? FieldVisibility.AlwaysShown
@@ -119,12 +113,9 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           toggleWrapCellContent: () async {
-            if (state.field == null) {
-              return;
-            }
-            final currentWrap = state.field!.wrapCellContent ?? false;
+            final currentWrap = state.field.wrapCellContent ?? false;
             final result = await fieldSettingsService.updateFieldSettings(
-              fieldId: state.field!.id,
+              fieldId: state.field.id,
               wrapCellContent: !currentWrap,
             );
             _logIfError(result);
@@ -147,14 +138,10 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   }
 
   void _init() async {
-    if (field != null) {
-      textController?.text = field!.name;
-    }
     await Future.delayed(const Duration(milliseconds: 50));
     if (!isClosed) {
       final field = fieldController.getField(fieldId);
       if (field != null) {
-        textController?.text = field.name;
         add(FieldEditorEvent.didUpdateField(field));
       }
     }
@@ -189,7 +176,7 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    @Default(null) FieldInfo? field,
+    required final FieldInfo field,
     @Default(false) bool wasRenameManually,
   }) = _FieldEditorState;
 }

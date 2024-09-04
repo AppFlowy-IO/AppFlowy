@@ -31,23 +31,19 @@ class FieldEditor extends StatefulWidget {
   const FieldEditor({
     super.key,
     required this.viewId,
-    required this.fieldId,
+    required this.fieldInfo,
     required this.fieldController,
     required this.isNewField,
     this.initialPage = FieldEditorPage.details,
     this.onFieldInserted,
-    this.field,
   });
 
   final String viewId;
-  final String fieldId;
+  final FieldInfo fieldInfo;
   final FieldController fieldController;
   final FieldEditorPage initialPage;
   final void Function(String fieldId)? onFieldInserted;
   final bool isNewField;
-
-  /// Optionally provide field beforehand to quickly init state
-  final FieldInfo? field;
 
   @override
   State<StatefulWidget> createState() => _FieldEditorState();
@@ -55,7 +51,8 @@ class FieldEditor extends StatefulWidget {
 
 class _FieldEditorState extends State<FieldEditor> {
   late FieldEditorPage _currentPage;
-  final TextEditingController textController = TextEditingController();
+  late final TextEditingController textController =
+      TextEditingController(text: widget.fieldInfo.name);
 
   @override
   void initState() {
@@ -74,23 +71,14 @@ class _FieldEditorState extends State<FieldEditor> {
     return BlocProvider(
       create: (_) => FieldEditorBloc(
         viewId: widget.viewId,
-        fieldId: widget.fieldId,
+        fieldInfo: widget.fieldInfo,
         fieldController: widget.fieldController,
-        textController: textController,
         onFieldInserted: widget.onFieldInserted,
         isNew: widget.isNewField,
-        field: widget.field,
       ),
-      child: BlocSelector<FieldEditorBloc, FieldEditorState, bool>(
-        selector: (state) => state.field == null,
-        builder: (context, isNull) {
-          return isNull
-              ? const SizedBox.shrink()
-              : _currentPage == FieldEditorPage.general
-                  ? _fieldGeneral()
-                  : _fieldDetails();
-        },
-      ),
+      child: _currentPage == FieldEditorPage.general
+          ? _fieldGeneral()
+          : _fieldDetails(),
     );
   }
 
@@ -139,7 +127,7 @@ class _FieldEditorState extends State<FieldEditor> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: FieldActionCell(
             viewId: widget.viewId,
-            fieldInfo: state.field!,
+            fieldInfo: state.field,
             action: action,
           ),
         );
@@ -436,7 +424,7 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: FieldActionCell(
             viewId: widget.viewId,
-            fieldInfo: state.field!,
+            fieldInfo: state.field,
             action: FieldAction.toggleVisibility,
             popoverMutex: popoverMutex,
           ),
@@ -452,7 +440,7 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
             viewId: widget.viewId,
-            fieldInfo: state.field!,
+            fieldInfo: state.field,
             action: FieldAction.delete,
             popoverMutex: popoverMutex,
           ),
@@ -468,7 +456,7 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
             viewId: widget.viewId,
-            fieldInfo: state.field!,
+            fieldInfo: state.field,
             action: FieldAction.duplicate,
             popoverMutex: popoverMutex,
           ),
@@ -492,13 +480,13 @@ class FieldTypeOptionEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field!.isPrimary) {
+        if (state.field.isPrimary) {
           return const SizedBox.shrink();
         }
         final typeOptionEditor = makeTypeOptionEditor(
           context: context,
           viewId: viewId,
-          field: state.field!.field,
+          field: state.field.field,
           popoverMutex: popoverMutex,
           onTypeOptionUpdated: (Uint8List typeOptionData) {
             context
@@ -607,7 +595,7 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        final bool isPrimary = state.field!.isPrimary;
+        final bool isPrimary = state.field.isPrimary;
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: AppFlowyPopover(
@@ -635,12 +623,12 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
                   }
                 },
                 text: FlowyText.medium(
-                  state.field!.fieldType.i18n,
+                  state.field.fieldType.i18n,
                   lineHeight: 1.0,
                   color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
                 leftIcon: FlowySvg(
-                  state.field!.fieldType.svgData,
+                  state.field.fieldType.svgData,
                   color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
                 rightIcon: FlowySvg(

@@ -72,7 +72,6 @@ import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -627,12 +626,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       (w) => w is FieldActionCell && w.action == FieldAction.delete,
     );
     await tapButton(deleteButton);
-
-    final confirmButton = find.descendant(
-      of: find.byType(NavigatorAlertDialog),
-      matching: find.byType(PrimaryTextButton),
-    );
-    await tapButton(confirmButton);
+    await tapButtonWithName(LocaleKeys.space_delete.tr());
   }
 
   Future<void> scrollRowDetailByOffset(Offset offset) async {

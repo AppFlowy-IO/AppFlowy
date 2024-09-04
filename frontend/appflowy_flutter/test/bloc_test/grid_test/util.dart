@@ -102,7 +102,7 @@ Future<FieldEditorBloc> createFieldEditor({
       return FieldEditorBloc(
         viewId: databaseController.viewId,
         fieldController: databaseController.fieldController,
-        fieldId: field.id,
+        fieldInfo: databaseController.fieldController.getField(field.id)!,
         isNew: true,
       );
     },

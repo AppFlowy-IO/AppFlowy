@@ -230,7 +230,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                       .add(const RowDetailEvent.endEditingField()),
                   popupBuilder: (popoverContext) => FieldEditor(
                     viewId: widget.fieldController.viewId,
-                    fieldId: fieldInfo.field.id,
+                    fieldInfo: fieldInfo,
                     fieldController: widget.fieldController,
                     isNewField: false,
                   ),

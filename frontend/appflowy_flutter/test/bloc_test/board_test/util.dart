@@ -82,7 +82,7 @@ class BoardTestContext {
       FieldEditorBloc(
         viewId: databaseController.viewId,
         fieldController: fieldController,
-        fieldId: fieldInfo.id,
+        fieldInfo: fieldInfo,
         isNew: false,
       );
 

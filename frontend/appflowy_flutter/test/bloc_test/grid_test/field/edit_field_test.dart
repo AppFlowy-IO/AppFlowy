@@ -10,7 +10,7 @@ Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   return FieldEditorBloc(
     viewId: context.gridView.id,
     fieldController: context.fieldController,
-    fieldId: fieldInfo.id,
+    fieldInfo: fieldInfo,
     isNew: false,
   );
 }
@@ -27,7 +27,7 @@ void main() {
     editorBloc.add(const FieldEditorEvent.renameField('Hello world'));
 
     await gridResponseFuture();
-    expect(editorBloc.state.field!.name, equals("Hello world"));
+    expect(editorBloc.state.field.name, equals("Hello world"));
   });
 
   test('switch to text field', () async {
@@ -38,6 +38,6 @@ void main() {
 
     // The default length of the fields is 3. The length of the fields
     // should not change after switching to other field type
-    expect(editorBloc.state.field!.fieldType, equals(FieldType.RichText));
+    expect(editorBloc.state.field.fieldType, equals(FieldType.RichText));
   });
 }
