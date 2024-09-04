@@ -1798,7 +1798,9 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
       "clickToCopyTheBlockContent": "Click to copy the block content",
-      "blockContentHasBeenCopied": "The block content has been copied."
+      "blockContentHasBeenCopied": "The block content has been copied.",
+      "parseError": "An error occurred while parsing the {} block.",
+      "copyBlockContent": "Copy block content"
     },
     "mobilePageSelector": {
       "title": "Select page",
