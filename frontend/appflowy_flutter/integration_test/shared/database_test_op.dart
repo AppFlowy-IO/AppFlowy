@@ -473,7 +473,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
     if (enter) {
       await testTextInput.receiveAction(TextInputAction.done);
-      await pumpAndSettle();
+      await pumpAndSettle(const Duration(milliseconds: 500));
     } else {
       await tapButton(
         find.descendant(
