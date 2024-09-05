@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,11 +9,9 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_builder.dart';
-
 import 'card_cell.dart';
 
 class TextCardCellStyle extends CardCellStyle {
@@ -209,11 +208,14 @@ class _TextCellState extends State<TextCardCell> {
             bindings: {
               const SingleActivator(LogicalKeyboardKey.escape): () =>
                   focusNode.unfocus(),
+              const SimpleActivator(LogicalKeyboardKey.enter): () =>
+                  focusNode.unfocus(),
             },
             child: TextField(
               controller: _textEditingController,
               focusNode: focusNode,
               onEditingComplete: () => focusNode.unfocus(),
+              onSubmitted: (_) => focusNode.unfocus(),
               maxLines: null,
               minLines: 1,
               textInputAction: TextInputAction.done,
@@ -239,4 +241,28 @@ class _TextCellState extends State<TextCardCell> {
       },
     );
   }
+}
+
+class SimpleActivator with Diagnosticable implements ShortcutActivator {
+  const SimpleActivator(
+    this.trigger, {
+    this.includeRepeats = true,
+  });
+
+  final LogicalKeyboardKey trigger;
+  final bool includeRepeats;
+
+  @override
+  bool accepts(KeyEvent event, HardwareKeyboard state) {
+    return (event is KeyDownEvent ||
+            (includeRepeats && event is KeyRepeatEvent)) &&
+        trigger == event.logicalKey;
+  }
+
+  @override
+  String debugDescribeKeys() =>
+      kDebugMode ? trigger.debugName ?? trigger.toStringShort() : '';
+
+  @override
+  Iterable<LogicalKeyboardKey>? get triggers => <LogicalKeyboardKey>[trigger];
 }
