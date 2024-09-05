@@ -191,10 +191,14 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                         padding: const EdgeInsets.all(4.0),
                         child: Row(
                           children: [
-                            const FlowySvg(FlowySvgs.add_s),
+                            const FlowySvg(
+                              FlowySvgs.add_s,
+                              size: Size.square(18),
+                            ),
                             const HSpace(8),
                             FlowyText(
                               LocaleKeys.grid_media_addFileOrImage.tr(),
+                              lineHeight: 1.0,
                             ),
                           ],
                         ),
@@ -437,8 +441,16 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
           ),
         ],
         FlowyButton(
-          leftIcon: const FlowySvg(FlowySvgs.edit_s),
-          text: FlowyText.regular(LocaleKeys.grid_media_rename.tr()),
+          leftIcon: FlowySvg(
+            FlowySvgs.edit_s,
+            color: Theme.of(context).iconTheme.color,
+            size: const Size.square(18),
+          ),
+          leftIconSize: const Size(18, 18),
+          text: FlowyText.regular(
+            LocaleKeys.grid_media_rename.tr(),
+            color: AFThemeExtension.of(context).textColor,
+          ),
           onTap: () {
             nameController.selection = TextSelection(
               baseOffset: 0,

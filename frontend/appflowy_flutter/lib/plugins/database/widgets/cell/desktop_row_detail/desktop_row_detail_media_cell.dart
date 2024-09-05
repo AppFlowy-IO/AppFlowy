@@ -79,8 +79,15 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                         ),
                         onClose: () => cellContainerNotifier.isFocus = false,
                         child: FlowyHover(
+                          style: HoverStyle(
+                            hoverColor:
+                                AFThemeExtension.of(context).lightGreyHover,
+                          ),
                           child: Padding(
-                            padding: const EdgeInsets.all(6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
                             child: FlowyText.medium(
                               LocaleKeys.grid_row_textPlaceholder.tr(),
                               color: Theme.of(context).hintColor,

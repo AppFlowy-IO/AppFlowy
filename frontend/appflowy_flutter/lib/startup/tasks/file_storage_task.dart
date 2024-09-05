@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-storage/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fixnum/fixnum.dart';
 
 import '../startup.dart';
@@ -20,9 +21,7 @@ class FileStorageTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     context.getIt.registerSingleton(
       FileStorageService(),
-      dispose: (service) async {
-        await service.dispose();
-      },
+      dispose: (service) async => service.dispose(),
     );
   }
 

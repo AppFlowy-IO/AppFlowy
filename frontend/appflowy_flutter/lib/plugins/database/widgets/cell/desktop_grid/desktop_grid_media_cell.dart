@@ -48,7 +48,7 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
           if (extraCount > 0) _ExtraInfo(extraCount: extraCount),
         ];
 
-        if (filesToDisplay.isEmpty) {
+        if (filesToDisplay.isEmpty && isMobile) {
           children.add(
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -111,22 +111,6 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
         child: child,
       );
     } else {
-      // child = InkWell(
-      //   onTap: () {
-      //     showMobileBottomSheet(
-      //       context,
-      //       builder: (_) => BlocProvider.value(
-      //         value: context.read<MediaCellBloc>(),
-      //         child: const MobileMediaCellEditor(),
-      //       ),
-      //     );
-      //   },
-      //   hoverColor: Colors.transparent,
-      //   child: Align(
-      //     alignment: AlignmentDirectional.centerStart,
-      //     child: child,
-      //   ),
-      // );
       child = Align(
         alignment: AlignmentDirectional.centerStart,
         child: child,
