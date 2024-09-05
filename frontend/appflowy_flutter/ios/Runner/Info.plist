@@ -47,7 +47,7 @@
 		<true/>
 	</dict>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow access to photos to upload photos from your library.</string>
+	<string>needs access to your photos to let you add images to your documents</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
