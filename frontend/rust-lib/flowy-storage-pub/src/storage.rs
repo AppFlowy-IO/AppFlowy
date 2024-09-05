@@ -72,6 +72,24 @@ pub struct FileProgress {
   pub error: Option<String>,
 }
 
+impl FileProgress {
+  pub fn new_progress(file_url: String, progress: f64) -> Self {
+    FileProgress {
+      file_url,
+      progress,
+      error: None,
+    }
+  }
+
+  pub fn new_error(file_url: String, error: String) -> Self {
+    FileProgress {
+      file_url,
+      progress: 0.0,
+      error: Some(error),
+    }
+  }
+}
+
 impl Display for FileProgress {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "FileProgress: {} - {}", self.file_url, self.progress)

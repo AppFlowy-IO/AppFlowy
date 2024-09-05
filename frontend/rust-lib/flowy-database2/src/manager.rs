@@ -42,7 +42,7 @@ use crate::services::field::translate_type_option::translate::TranslateTypeOptio
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 use tokio::sync::RwLock as TokioRwLock;
-use tokio_retry::strategy::{ExponentialBackoff, FixedInterval};
+use tokio_retry::strategy::ExponentialBackoff;
 use tokio_retry::Retry;
 
 pub trait DatabaseUser: Send + Sync {
