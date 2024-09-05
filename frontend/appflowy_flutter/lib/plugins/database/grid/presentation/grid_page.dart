@@ -19,6 +19,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import 'package:provider/provider.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/row/row_controller.dart';
@@ -354,9 +355,12 @@ class _GridRowsState extends State<_GridRows> {
             scrollController: widget.scrollController.verticalController,
             physics: const ClampingScrollPhysics(),
             buildDefaultDragHandles: false,
-            proxyDecorator: (child, index, animation) => Material(
-              color: Colors.white.withOpacity(.1),
-              child: Opacity(opacity: .5, child: child),
+            proxyDecorator: (child, _, __) => Provider.value(
+              value: context.read<DatabasePluginWidgetBuilderSize>(),
+              child: Material(
+                color: Colors.white.withOpacity(.1),
+                child: Opacity(opacity: .5, child: child),
+              ),
             ),
             onReorder: (fromIndex, newIndex) {
               final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
