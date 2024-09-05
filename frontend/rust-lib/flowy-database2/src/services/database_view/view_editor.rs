@@ -944,7 +944,8 @@ impl DatabaseViewEditor {
       | FieldType::Relation
       | FieldType::Summary
       | FieldType::Translate
-      | FieldType::Time => false,
+      | FieldType::Time
+      | FieldType::Media => false,
       // Checkbox & Url can also be grouped by, but they work differently to select fields
       // and thus don't need to be updated when the type option itself changes
       FieldType::Checkbox | FieldType::URL => false,
