@@ -43,14 +43,7 @@ function DuplicateModal ({ open, onClose }: { open: boolean; onClose: () => void
     loadWorkspaces,
     loadSpaces,
   } = useLoadWorkspaces();
-
-  useEffect(() => {
-    if (!open) {
-      setSelectedWorkspaceId(workspaceList[0]?.id || '');
-      setSelectedSpaceId('');
-    }
-  }, [open, setSelectedSpaceId, setSelectedWorkspaceId, workspaceList]);
-
+  
   useEffect(() => {
     if (open) {
       void loadWorkspaces();
@@ -122,7 +115,7 @@ function DuplicateModal ({ open, onClose }: { open: boolean; onClose: () => void
             maxWidth: 420,
           },
         }}
-        okText={t('publish.openApp')}
+        okText={t('publish.useThisTemplate')}
         cancelText={t('publish.downloadIt')}
         onOk={() => window.open(openAppFlowySchema, '_self')}
         onCancel={() => {

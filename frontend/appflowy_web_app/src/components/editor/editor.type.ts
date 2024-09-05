@@ -17,7 +17,7 @@ import {
   BlockId,
   BlockData,
   DatabaseNodeData,
-  LinkPreviewBlockData, FileBlockData,
+  LinkPreviewBlockData, FileBlockData, GalleryBlockData,
 } from '@/application/collab.type';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
@@ -114,6 +114,12 @@ export interface ImageBlockNode extends BlockNode {
   type: BlockType.ImageBlock;
   blockId: string;
   data: ImageBlockData;
+}
+
+export interface GalleryBlockNode extends BlockNode {
+  type: BlockType.GalleryBlock;
+  blockId: string;
+  data: GalleryBlockData;
 }
 
 export interface OutlineNode extends BlockNode {

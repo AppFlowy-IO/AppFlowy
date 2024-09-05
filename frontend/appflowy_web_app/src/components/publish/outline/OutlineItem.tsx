@@ -75,7 +75,12 @@ function OutlineItem ({ view, level = 0, width }: { view: View; width: number; l
               try {
                 await navigateToView?.(view_id);
               } catch (e) {
-                notify.default(t('publish.hasNotBeenPublished'));
+                if (isSpace) {
+                  notify.warning(t('publish.spaceHasNotBeenPublished'));
+                  return;
+                }
+
+                notify.warning(t('publish.hasNotBeenPublished'));
               }
             }}
             style={{

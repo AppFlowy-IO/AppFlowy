@@ -2360,6 +2360,7 @@
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
+    "spaceHasNotBeenPublished": "Haven't supported publishing a space yet",
     "reportPage": "Report page",
     "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
     "createdWith": "Created with",
@@ -2393,8 +2394,8 @@
     "duplicateTitle": "Where would you like to add",
     "selectWorkspace": "Select a workspace",
     "addTo": "Add to",
-    "duplicateSuccessfully": "Duplicated success. Want to view documents?",
-    "duplicateSuccessfullyDescription": "Don't have the app? Your download will begin automatically after clicking the 'Download'.",
+    "duplicateSuccessfully": "Added to your workspace",
+    "duplicateSuccessfullyDescription": "Don't have AppFlowy installed? The download will start automatically after you click 'Download'.",
     "downloadIt": "Download",
     "openApp": "Open in app",
     "duplicateFailed": "Duplicated failed",
@@ -2403,7 +2404,8 @@
       "one": "1 member",
       "many": "{count} members",
       "other": "{count} members"
-    }
+    },
+    "useThisTemplate": "Use the template"
   },
   "web": {
     "continue": "Continue",
@@ -2411,6 +2413,9 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
+    "continueWithApple": "Continue with Apple",
+    "moreOptions": "More options",
+    "collapse": "Collapse",
     "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
@@ -2534,5 +2539,15 @@
     "uploadSuccessDescription": "The file has been uploaded successfully",
     "uploadFailedDescription": "The file upload failed",
     "uploadingDescription": "The file is being uploaded"
+  },
+  "gallery": {
+    "preview": "Open in full screen",
+    "copy": "Copy",
+    "download": "Download",
+    "prev": "Previous",
+    "next": "Next",
+    "resetZoom": "Reset zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

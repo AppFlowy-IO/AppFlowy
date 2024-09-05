@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Mon, 27 May 2024 06:26:20 GMT
+* Generated on Fri, 06 Sep 2024 02:15:53 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -50,13 +50,19 @@ module.exports = {
   "bg": {
     "body": "var(--bg-body)",
     "base": "var(--bg-base)",
+    "mask": "var(--bg-mask)",
     "tips": "var(--bg-tips)",
-    "brand": "var(--bg-brand)"
+    "brand": "var(--bg-brand)",
+    "header": "var(--bg-header)",
+    "footer": "var(--bg-footer)"
   },
   "function": {
     "error": "var(--function-error)",
+    "error-hover": "var(--function-error-hover)",
     "waring": "var(--function-waring)",
+    "waring-hover": "var(--function-waring-hover)",
     "success": "var(--function-success)",
+    "success-hover": "var(--function-success-hover)",
     "info": "var(--function-info)"
   },
   "tint": {
