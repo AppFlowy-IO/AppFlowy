@@ -47,7 +47,7 @@
 		<true/>
 	</dict>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>needs access to your photos to let you add images to your documents</string>
+	<string>AppFlowy needs access to your photos to let you add images to your documents</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
