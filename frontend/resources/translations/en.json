@@ -2256,11 +2256,12 @@
         "dialogTitle": "Delete account",
         "dialogContent1": "Are you sure you want to permanently delete your account?",
         "dialogContent2": "This action cannot be undone, and will remove access from all workspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
-        "confirmHint1": "Please type in your email address to confirm.",
+        "confirmHint1": "Please type \"DELETEMYACCOUNT\" to confirm.",
         "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
+        "confirmHint3": "DELETEMYACCOUNT",
         "checkToConfirmError": "You must check the box to confirm deletion",
         "failedToGetCurrentUser": "Failed to get current user email",
-        "emailValidationFailed": "Your email address does not match the account email address",
+        "confirmTextValidationFailed": "Your confirmation text does not match \"DELETEMYACCOUNT\"",
         "deleteAccountSuccess": "Account deleted successfully"
       }
     },

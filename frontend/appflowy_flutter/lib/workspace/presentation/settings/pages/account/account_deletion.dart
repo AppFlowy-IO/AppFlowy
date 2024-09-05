@@ -15,6 +15,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 
+const _confirmText = 'DELETEMYACCOUNT';
+
 class AccountDeletionButton extends StatefulWidget {
   const AccountDeletionButton({
     super.key,
@@ -25,12 +27,12 @@ class AccountDeletionButton extends StatefulWidget {
 }
 
 class _AccountDeletionButtonState extends State<AccountDeletionButton> {
-  final TextEditingController emailController = TextEditingController();
+  final textEditingController = TextEditingController();
   final isCheckedNotifier = ValueNotifier(false);
 
   @override
   void dispose() {
-    emailController.dispose();
+    textEditingController.dispose();
     isCheckedNotifier.dispose();
     super.dispose();
   }
@@ -84,12 +86,12 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                       LocaleKeys.newSettings_myAccount_deleteAccount_title.tr(),
                   description: '',
                   builder: (_) => _AccountDeletionDialog(
-                    emailController: emailController,
+                    emailController: textEditingController,
                     isChecked: isCheckedNotifier,
                   ),
                   onDelete: () => deleteMyAccount(
                     context,
-                    emailController.text.trim(),
+                    textEditingController.text.trim(),
                     isCheckedNotifier.value,
                   ),
                 );
@@ -126,7 +128,7 @@ class _AccountDeletionDialog extends StatelessWidget {
         ),
         const VSpace(12.0),
         FlowyTextField(
-          hintText: LocaleKeys.settings_user_email.tr(),
+          hintText: _confirmText,
           controller: emailController,
         ),
         const VSpace(16),
@@ -166,7 +168,7 @@ class _AccountDeletionDialog extends StatelessWidget {
 
 Future<void> deleteMyAccount(
   BuildContext context,
-  String email,
+  String confirmText,
   bool isChecked,
 ) async {
   final bottomPadding = PlatformExtension.isMobile
@@ -185,34 +187,17 @@ Future<void> deleteMyAccount(
     return;
   }
 
-  // fetch the user email from server instead of reading from provider,
-  // this is to avoid the email doesn't match the real user's email
-  final userEmail = await UserBackendService.getCurrentUserProfile()
-      .fold((s) => s.email, (_) => null);
-
   if (!context.mounted) {
     return;
   }
 
-  if (userEmail == null) {
-    showToastNotification(
-      context,
-      type: ToastificationType.error,
-      bottomPadding: bottomPadding,
-      message: LocaleKeys
-          .newSettings_myAccount_deleteAccount_failedToGetCurrentUser
-          .tr(),
-    );
-    return;
-  }
-
-  if (email.isEmpty || email.toLowerCase() != userEmail.toLowerCase()) {
+  if (confirmText.isEmpty || confirmText.toUpperCase() != _confirmText) {
     showToastNotification(
       context,
       type: ToastificationType.warning,
       bottomPadding: bottomPadding,
       message: LocaleKeys
-          .newSettings_myAccount_deleteAccount_emailValidationFailed
+          .newSettings_myAccount_deleteAccount_confirmTextValidationFailed
           .tr(),
     );
     return;
@@ -222,7 +207,7 @@ Future<void> deleteMyAccount(
 
   await UserBackendService.deleteCurrentAccount().fold(
     (s) {
-      Log.info('account deletion success, email: $email');
+      Log.info('account deletion success');
 
       loading.stop();
       showToastNotification(
@@ -249,7 +234,7 @@ Future<void> deleteMyAccount(
       });
     },
     (f) {
-      Log.error('account deletion failed, email: $email, error: $f');
+      Log.error('account deletion failed, error: $f');
 
       loading.stop();
       showToastNotification(
