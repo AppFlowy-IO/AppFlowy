@@ -525,6 +525,40 @@
         }
       }
     },
+    "comparePlanDialog": {
+      "proLabels": {
+        "itemTwo": "最多十个",
+        "itemThree": "无限",
+        "itemFour": "是",
+        "itemFive": "是",
+        "itemSix": "无限",
+        "itemFileUpload": "无限"
+      }
+    },
+    "cancelSurveyDialog": {
+      "questionOne": {
+        "answerOne": "价格太高",
+        "answerTwo": "功能未达预期",
+        "answerThree": "找到更好替代方案"
+      },
+      "questionTwo": {
+        "answerOne": "非常可能",
+        "answerTwo": "稍有可能",
+        "answerThree": "不确定",
+        "answerFour": "不太可能",
+        "answerFive": "非常不可能"
+      },
+      "questionFour": {
+        "answerOne": "极好",
+        "answerTwo": "良好",
+        "answerThree": "一般",
+        "answerFour": "较差",
+        "answerFive": "未满足"
+      }
+    },
+    "common": {
+      "reset": "重置"
+    },
     "menu": {
       "appearance": "外观",
       "language": "语言",
@@ -585,13 +619,33 @@
       "enableNotifications": {
         "label": "启用通知",
         "hint": "关闭以阻止本地通知出现。"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "成功全部标为已读",
+        "success": "成功标为已读"
+      },
+      "action": {
+        "markAsRead": "标为已读",
+        "multipleChoice": "选择更多"
+      },
+      "settings": {
+        "settings": "设置"
+      },
+      "tabs": {
+        "unread": "未读"
+      },
+      "refreshSuccess": "成功刷新通知",
+      "titles": {
+        "notifications": "通知",
+        "reminder": "提醒"
       }
     },
     "appearance": {
       "resetSetting": "重置此设置",
       "fontFamily": {
         "label": "字体系列",
-        "search": "搜索"
+        "search": "搜索",
+        "defaultFont": "系统"
       },
       "themeMode": {
         "label": "主题模式",
@@ -603,6 +657,9 @@
       "documentSettings": {
         "cursorColor": "文档光标颜色",
         "selectionColor": "文档选择颜色",
+        "pickColor": "选择颜色",
+        "colorShade": "色深",
+        "opacity": "透明度",
         "hexEmptyError": "十六进制颜色不能为空",
         "hexLengthError": "十六进制值必须为 6 位数字",
         "hexInvalidError": "十六进制值无效",
@@ -668,10 +725,14 @@
         "guest": "访客",
         "member": "成员",
         "emailSent": "邮件已发送，请检查您的邮箱",
+        "memberLimitExceededUpgrade": "升级",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "添加成员失败",
         "addMemberSuccess": "添加成员成功",
         "removeMember": "移除成员",
-        "areYouSureToRemoveMember": "您确定要删除该成员吗？"
+        "areYouSureToRemoveMember": "您确定要删除该成员吗？",
+        "inviteMemberSuccess": "成功发送邀请",
+        "failedToInviteMember": "邀请成员失败"
       }
     },
     "files": {
@@ -860,6 +921,7 @@
       "isNotEmpty": "不为空"
     },
     "field": {
+      "label": "属性",
       "hide": "隐藏",
       "show": "展示",
       "insertLeft": "左侧插入",
@@ -877,6 +939,8 @@
       "multiSelectFieldName": "多项选择器",
       "urlFieldName": "链接",
       "checklistFieldName": "清单",
+      "summaryFieldName": "AI 总结",
+      "timeFieldName": "时间",
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
       "includeTime": "包含时间",
@@ -1001,6 +1065,12 @@
       "median": "中位数",
       "min": "分钟",
       "sum": "和"
+    },
+    "media": {
+      "rename": "重命名",
+      "download": "下载",
+      "open": "打开",
+      "delete": "删除"
     },
     "singleSelectOptionFilter": {
       "is": "等于",
