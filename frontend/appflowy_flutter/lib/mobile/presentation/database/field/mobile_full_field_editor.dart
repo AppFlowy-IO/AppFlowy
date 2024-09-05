@@ -147,6 +147,8 @@ class FieldOptionValues {
           timeFormat: timeFormat,
           includeTime: includeTime,
         ).writeToBuffer();
+      case FieldType.Media:
+        return MediaTypeOptionPB().writeToBuffer();
       default:
         throw UnimplementedError();
     }
