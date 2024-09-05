@@ -138,7 +138,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
-      height: 44,
+      constraints: const BoxConstraints(minHeight: 44),
       child: Row(
         children: [
           InkWell(
@@ -164,6 +164,8 @@ class _ChecklistItemState extends State<_ChecklistItem> {
               controller: _textController,
               focusNode: _focusNode,
               style: Theme.of(context).textTheme.bodyMedium,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,

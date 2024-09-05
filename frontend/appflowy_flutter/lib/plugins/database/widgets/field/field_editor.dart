@@ -31,7 +31,7 @@ class FieldEditor extends StatefulWidget {
   const FieldEditor({
     super.key,
     required this.viewId,
-    required this.field,
+    required this.fieldInfo,
     required this.fieldController,
     required this.isNewField,
     this.initialPage = FieldEditorPage.details,
@@ -39,7 +39,7 @@ class FieldEditor extends StatefulWidget {
   });
 
   final String viewId;
-  final FieldPB field;
+  final FieldInfo fieldInfo;
   final FieldController fieldController;
   final FieldEditorPage initialPage;
   final void Function(String fieldId)? onFieldInserted;
@@ -51,13 +51,13 @@ class FieldEditor extends StatefulWidget {
 
 class _FieldEditorState extends State<FieldEditor> {
   late FieldEditorPage _currentPage;
-  late final TextEditingController textController;
+  late final TextEditingController textController =
+      TextEditingController(text: widget.fieldInfo.name);
 
   @override
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
-    textController = TextEditingController(text: widget.field.name);
   }
 
   @override
@@ -71,14 +71,14 @@ class _FieldEditorState extends State<FieldEditor> {
     return BlocProvider(
       create: (_) => FieldEditorBloc(
         viewId: widget.viewId,
-        field: widget.field,
+        fieldInfo: widget.fieldInfo,
         fieldController: widget.fieldController,
         onFieldInserted: widget.onFieldInserted,
         isNew: widget.isNewField,
       ),
-      child: _currentPage == FieldEditorPage.details
-          ? _fieldDetails()
-          : _fieldGeneral(),
+      child: _currentPage == FieldEditorPage.general
+          ? _fieldGeneral()
+          : _fieldDetails(),
     );
   }
 
@@ -120,25 +120,27 @@ class _FieldEditorState extends State<FieldEditor> {
     );
   }
 
+  Widget _actionCell(FieldAction action) {
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: FieldActionCell(
+            viewId: widget.viewId,
+            fieldInfo: state.field,
+            action: action,
+          ),
+        );
+      },
+    );
+  }
+
   Widget _fieldDetails() {
     return SizedBox(
       width: 260,
       child: FieldDetailsEditor(
         viewId: widget.viewId,
         textEditingController: textController,
-      ),
-    );
-  }
-
-  Widget _actionCell(FieldAction action) {
-    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      builder: (context, state) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: FieldActionCell(
-          viewId: widget.viewId,
-          fieldInfo: state.field,
-          action: action,
-        ),
       ),
     );
   }
@@ -322,32 +324,33 @@ enum FieldAction {
         );
         break;
       case FieldAction.clearData:
-        NavigatorAlertDialog(
-          constraints: const BoxConstraints(
-            maxWidth: 250,
-            maxHeight: 260,
-          ),
-          title: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
-          confirm: () {
+        PopoverContainer.of(context).closeAll();
+        showCancelAndConfirmDialog(
+          context: context,
+          title: LocaleKeys.grid_field_label.tr(),
+          description: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
+          confirmLabel: LocaleKeys.button_confirm.tr(),
+          onConfirm: () {
             FieldBackendService.clearField(
               viewId: viewId,
               fieldId: fieldInfo.id,
             );
           },
-        ).show(context);
-        PopoverContainer.of(context).close();
+        );
         break;
       case FieldAction.delete:
-        NavigatorAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
+        PopoverContainer.of(context).closeAll();
+        showConfirmDeletionDialog(
+          context: context,
+          name: LocaleKeys.grid_field_label.tr(),
+          description: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+          onConfirm: () {
             FieldBackendService.deleteField(
               viewId: viewId,
               fieldId: fieldInfo.id,
             );
           },
-        ).show(context);
-        PopoverContainer.of(context).close();
+        );
         break;
       case FieldAction.wrap:
         context
@@ -574,7 +577,10 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
 }
 
 class SwitchFieldButton extends StatefulWidget {
-  const SwitchFieldButton({super.key, required this.popoverMutex});
+  const SwitchFieldButton({
+    super.key,
+    required this.popoverMutex,
+  });
 
   final PopoverMutex popoverMutex;
 

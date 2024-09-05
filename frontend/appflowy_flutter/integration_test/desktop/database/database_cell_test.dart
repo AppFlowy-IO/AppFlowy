@@ -1,3 +1,4 @@
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,7 +42,7 @@ void main() {
         name: 'my grid',
         layout: ViewLayoutPB.Grid,
       );
-      await tester.createField(FieldType.RichText, 'description');
+      await tester.createField(FieldType.RichText, name: 'description');
 
       await tester.editCell(
         rowIndex: 0,
@@ -81,7 +82,7 @@ void main() {
       const fieldType = FieldType.Number;
 
       // Create a number field
-      await tester.createField(fieldType, fieldType.name);
+      await tester.createField(fieldType);
 
       await tester.editCell(
         rowIndex: 0,
@@ -157,7 +158,7 @@ void main() {
       const fieldType = FieldType.CreatedTime;
       // Create a create time field
       // The create time field is not editable
-      await tester.createField(fieldType, fieldType.name);
+      await tester.createField(fieldType);
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
 
@@ -175,7 +176,7 @@ void main() {
       const fieldType = FieldType.LastEditedTime;
       // Create a last time field
       // The last time field is not editable
-      await tester.createField(fieldType, fieldType.name);
+      await tester.createField(fieldType);
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
 
@@ -191,7 +192,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.DateTime;
-      await tester.createField(fieldType, fieldType.name);
+      await tester.createField(fieldType);
 
       // Tap the cell to invoke the field editor
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -366,7 +367,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.MultiSelect;
-      await tester.createField(fieldType, fieldType.name);
+      await tester.createField(fieldType, name: fieldType.i18n);
 
       // Tap the cell to invoke the selection option editor
       await tester.tapSelectOptionCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -449,7 +450,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.Checklist;
-      await tester.createField(fieldType, fieldType.name);
+      await tester.createField(fieldType);
 
       // assert that there is no progress bar in the grid
       tester.assertChecklistCellInGrid(rowIndex: 0, percent: null);

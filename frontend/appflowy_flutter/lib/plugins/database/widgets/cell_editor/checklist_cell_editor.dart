@@ -174,6 +174,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
       meta: Platform.isMacOS,
       control: !Platform.isMacOS,
     ): const _SelectTaskIntent(),
+    const SingleActivator(LogicalKeyboardKey.enter):
+        const _EndEditingTaskIntent(),
     const SingleActivator(LogicalKeyboardKey.escape):
         const _EndEditingTaskIntent(),
   };
