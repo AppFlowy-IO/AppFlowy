@@ -8,7 +8,7 @@ use client_api::entity::{
 };
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig, StreamAnswer,
-  StreamComplete,
+  StreamComplete, SubscriptionPlan,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
@@ -216,5 +216,17 @@ where
       .create_chat_context(workspace_id, chat_context)
       .await?;
     Ok(())
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
+    let plans = self
+      .inner
+      .try_get_client()?
+      .get_active_workspace_subscriptions(workspace_id)
+      .await?;
+    Ok(plans)
   }
 }

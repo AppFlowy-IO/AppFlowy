@@ -29,7 +29,7 @@ async fn af_cloud_upload_big_file_test() {
     .unwrap();
 
   let mut rx = rx.unwrap();
-  while let Some(state) = rx.recv().await {
+  while let Ok(state) = rx.recv().await {
     if let FileUploadState::Uploading { progress } = state {
       if progress > 0.1 {
         break;
@@ -52,7 +52,7 @@ async fn af_cloud_upload_big_file_test() {
     .unwrap()
   {
     let timeout_duration = Duration::from_secs(180);
-    while let Some(state) = match timeout(timeout_duration, rx.recv()).await {
+    while let Ok(state) = match timeout(timeout_duration, rx.recv()).await {
       Ok(result) => result,
       Err(_) => {
         panic!("Timed out waiting for file upload completion");
@@ -114,7 +114,7 @@ async fn af_cloud_upload_6_files_test() {
           .await
           .retain(|upload| upload.file_id != file_id);
       }
-      while let Some(value) = receiver.recv().await {
+      while let Ok(value) = receiver.recv().await {
         if let FileUploadState::Finished { file_id } = value {
           cloned_uploads
             .lock()

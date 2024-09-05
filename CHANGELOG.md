@@ -11,6 +11,7 @@
 ### Bug Fixes
 - Removed Wayland header from AppImage build
 - Fixed the issue where pasting web image on mobile failed.
+- Fixed the issue where the name of newly created card in board view didn't show up.
 
 ## Version 0.6.7 - 13/08/2024
 ### New Features

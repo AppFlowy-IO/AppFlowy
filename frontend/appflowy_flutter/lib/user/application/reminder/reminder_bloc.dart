@@ -463,7 +463,7 @@ class ReminderUpdate {
         ? scheduledAt!.isBefore(DateTime.now())
         : a.isAck;
 
-    final meta = a.meta;
+    final meta = {...a.meta};
     if (includeTime != a.includeTime) {
       meta[ReminderMetaKeys.includeTime] = includeTime.toString();
     }

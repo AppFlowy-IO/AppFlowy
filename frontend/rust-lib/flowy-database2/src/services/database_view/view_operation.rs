@@ -4,7 +4,7 @@ use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Row, RowCell, RowDetail, RowId};
-use collab_database::views::{DatabaseLayout, LayoutSetting};
+use collab_database::views::{DatabaseLayout, LayoutSetting, RowOrder};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock as TokioRwLock;
@@ -57,7 +57,8 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   async fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)>;
 
   /// Returns all the rows in the view
-  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>>;
+  async fn get_all_rows(&self, view_id: &str, row_orders: Vec<RowOrder>) -> Vec<Arc<Row>>;
+  async fn get_all_row_orders(&self, view_id: &str) -> Vec<RowOrder>;
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row>;
 

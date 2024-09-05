@@ -22,7 +22,7 @@ use collab_integrate::collab_builder::{
 };
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, LocalAIConfig, MessageCursor,
-  RepeatedChatMessage, StreamAnswer, StreamComplete,
+  RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -88,6 +88,15 @@ impl StorageCloudService for ServerProvider {
     let storage = server.file_storage().ok_or(FlowyError::internal())?;
     storage
       .get_object_url_v1(workspace_id, parent_dir, file_id)
+      .await
+  }
+
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)> {
+    self
+      .get_server()
+      .ok()?
+      .file_storage()?
+      .parse_object_url_v1(url)
       .await
   }
 
@@ -691,6 +700,17 @@ impl ChatCloudService for ServerProvider {
       .get_server()?
       .chat_service()
       .get_local_ai_config(workspace_id)
+      .await
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_workspace_plan(workspace_id)
       .await
   }
 }

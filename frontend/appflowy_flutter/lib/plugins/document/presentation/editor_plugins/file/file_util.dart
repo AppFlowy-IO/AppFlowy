@@ -44,11 +44,15 @@ Future<(String? path, String? errorMessage)> saveFileToCloudStorage(
     localFilePath: localFilePath,
     documentId: documentId,
   );
+
   return result.fold(
     (s) => (s.url, null),
     (err) {
+      final message = Platform.isIOS
+          ? LocaleKeys.sideBar_storageLimitDialogTitleIOS.tr()
+          : LocaleKeys.sideBar_storageLimitDialogTitle.tr();
       if (err.isStorageLimitExceeded) {
-        return (null, LocaleKeys.sideBar_storageLimitDialogTitle.tr());
+        return (null, message);
       }
       return (null, err.msg);
     },

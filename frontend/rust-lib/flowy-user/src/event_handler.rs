@@ -138,6 +138,15 @@ pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Resu
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(manager))]
+pub async fn delete_account_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  manager.delete_account().await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager))]
 pub async fn update_user_profile_handler(
   data: AFPluginData<UpdateUserProfilePayloadPB>,

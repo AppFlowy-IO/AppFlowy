@@ -88,7 +88,7 @@ impl DatabaseFieldTest {
         //
         self
           .editor
-          .switch_to_field_type(&view_id, &field_id, new_field_type)
+          .switch_to_field_type(&view_id, &field_id, new_field_type, None)
           .await
           .unwrap();
       },

@@ -21,10 +21,12 @@ class SignInWithMagicLinkButtons extends StatefulWidget {
 class _SignInWithMagicLinkButtonsState
     extends State<SignInWithMagicLinkButtons> {
   final controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
     controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -37,6 +39,7 @@ class _SignInWithMagicLinkButtonsState
           height: PlatformExtension.isMobile ? 38.0 : 48.0,
           child: FlowyTextField(
             autoFocus: false,
+            focusNode: _focusNode,
             controller: controller,
             borderRadius: BorderRadius.circular(4.0),
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
@@ -49,6 +52,7 @@ class _SignInWithMagicLinkButtonsState
                 ),
             keyboardType: TextInputType.emailAddress,
             onSubmitted: (_) => _sendMagicLink(context, controller.text),
+            onTapOutside: (_) => _focusNode.unfocus(),
           ),
         ),
         const VSpace(12),
