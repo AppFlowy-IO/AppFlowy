@@ -57,61 +57,27 @@ class _FlowyHoverState extends State<FlowyHover> {
     return MouseRegion(
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
-      onHover: (p) {
-        if (_onHover) return;
-        _setOnHover(true);
-      },
-      onEnter: (p) {
-        if (_onHover) return;
-        _setOnHover(true);
-      },
-      onExit: (p) {
-        if (!_onHover) return;
-        _setOnHover(false);
-      },
-      child: _Render(
-        isHovering: _onHover || (widget.isSelected?.call() ?? false),
-        style: widget.style,
-        builder: widget.builder,
-        child: widget.child,
+      onHover: (_) => _setOnHover(true),
+      onEnter: (_) => _setOnHover(true),
+      onExit: (_) => _setOnHover(false),
+      child: FlowyHoverContainer(
+        style: widget.style ??
+            HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
+        applyStyle: _onHover,
+        child: widget.child ?? widget.builder!(context, _onHover),
       ),
     );
   }
 
   void _setOnHover(bool isHovering) {
+    if (isHovering == _onHover) return;
+
     if (widget.buildWhenOnHover?.call() ?? true) {
       setState(() => _onHover = isHovering);
       if (widget.onHover != null) {
         widget.onHover!(isHovering);
       }
     }
-  }
-}
-
-class _Render extends StatelessWidget {
-  const _Render({
-    this.child,
-    this.builder,
-    required this.isHovering,
-    this.style,
-  });
-
-  final Widget? child;
-  final HoverBuilder? builder;
-  final bool isHovering;
-  final HoverStyle? style;
-
-  @override
-  Widget build(BuildContext context) {
-    final childWidget = child ?? builder!(context, isHovering);
-    final hoverStyle = style ??
-        HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary);
-
-    return FlowyHoverContainer(
-      style: hoverStyle,
-      applyStyle: isHovering,
-      child: childWidget,
-    );
   }
 }
 
