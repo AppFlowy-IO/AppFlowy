@@ -357,96 +357,109 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
           ),
         ],
       ),
-      child: FlowyHover(
-        resetHoverOnRebuild: false,
-        onHover: (hovering) => setState(() => isHovering = hovering),
-        child: Stack(
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Corners.s6Radius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 2,
-                  ),
-                ],
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: widget.file.fileType != MediaFileTypePB.Image
+            ? null
+            : () => openInteractiveViewerFromFile(
+                  context,
+                  widget.file,
+                  userProfile: context.read<MediaCellBloc>().state.userProfile,
+                  onDeleteImage: (_) =>
+                      context.read<MediaCellBloc>().deleteFile(widget.file.id),
+                ),
+        child: FlowyHover(
+          isSelected: () => isSelected,
+          resetHoverOnRebuild: false,
+          onHover: (hovering) => setState(() => isHovering = hovering),
+          child: Stack(
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Corners.s6Radius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      height: widget.size,
+                      width: widget.size,
+                      constraints: BoxConstraints(
+                        maxHeight: widget.size < 150 ? 100 : 195,
+                        minHeight: widget.size < 150 ? 100 : 195,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: AFThemeExtension.of(context).greyHover,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Corners.s6Radius,
+                          topRight: Corners.s6Radius,
+                        ),
+                      ),
+                      child: child,
+                    ),
+                    Container(
+                      height: 28,
+                      width: widget.size,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).isLightMode
+                            ? Theme.of(context).cardColor
+                            : AFThemeExtension.of(context).greyHover,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Corners.s6Radius,
+                          bottomRight: Corners.s6Radius,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Center(
+                          child: FlowyText.medium(
+                            widget.file.name,
+                            overflow: TextOverflow.ellipsis,
+                            fontSize: 12,
+                            color:
+                                AFThemeExtension.of(context).secondaryTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  Container(
-                    height: widget.size,
-                    width: widget.size,
-                    constraints: BoxConstraints(
-                      maxHeight: widget.size < 150 ? 100 : 195,
-                      minHeight: widget.size < 150 ? 100 : 195,
-                    ),
-                    clipBehavior: Clip.antiAlias,
+              if (isHovering || isSelected)
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AFThemeExtension.of(context).greyHover,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Corners.s6Radius,
-                        topRight: Corners.s6Radius,
-                      ),
-                    ),
-                    child: child,
-                  ),
-                  Container(
-                    height: 28,
-                    width: widget.size,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).isLightMode
-                          ? Theme.of(context).cardColor
-                          : AFThemeExtension.of(context).greyHover,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Corners.s6Radius,
-                        bottomRight: Corners.s6Radius,
-                      ),
+                      color: Theme.of(context).cardColor,
+                      borderRadius: const BorderRadius.all(Corners.s8Radius),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Center(
-                        child: FlowyText.medium(
-                          widget.file.name,
-                          overflow: TextOverflow.ellipsis,
-                          fontSize: 12,
-                          color:
-                              AFThemeExtension.of(context).secondaryTextColor,
+                      padding: const EdgeInsets.all(3),
+                      child: FlowyIconButton(
+                        onPressed: () {
+                          setState(() => isSelected = true);
+                          controller.show();
+                        },
+                        width: 20,
+                        radius: BorderRadius.circular(0),
+                        icon: FlowySvg(
+                          FlowySvgs.three_dots_s,
+                          color: AFThemeExtension.of(context).textColor,
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            if (isHovering || isSelected)
-              Positioned(
-                top: 5,
-                right: 5,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: const BorderRadius.all(Corners.s8Radius),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(3),
-                    child: FlowyIconButton(
-                      onPressed: () {
-                        setState(() => isSelected = true);
-                        controller.show();
-                      },
-                      width: 20,
-                      radius: BorderRadius.circular(0),
-                      icon: FlowySvg(
-                        FlowySvgs.three_dots_s,
-                        color: AFThemeExtension.of(context).textColor,
-                      ),
-                    ),
-                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
