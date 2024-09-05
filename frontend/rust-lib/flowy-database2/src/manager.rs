@@ -39,10 +39,11 @@ use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
-use tokio::sync::RwLock as TokioRwLock;
-
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
+use tokio::sync::RwLock as TokioRwLock;
+use tokio_retry::strategy::{ExponentialBackoff, FixedInterval};
+use tokio_retry::Retry;
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -212,7 +213,7 @@ impl DatabaseManager {
 
   #[instrument(level = "trace", skip_all, err)]
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    let lock = self.workspace_database()?;
+    let workspace_database = self.workspace_database()?;
     if let Some(database_editor) = self.removing_editor.lock().await.remove(database_id) {
       self
         .editors
@@ -223,12 +224,23 @@ impl DatabaseManager {
     }
 
     trace!("create database editor:{}", database_id);
-    let database = lock
-      .read()
-      .await
-      .get_or_create_database(database_id)
-      .await
-      .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
+    // When the user opens the database from the left-side bar, it may fail because the workspace database
+    // hasn't finished syncing yet. In such cases, get_or_create_database will return None.
+    // The workaround is to add a retry mechanism to attempt fetching the database again.
+    let database = Retry::spawn(
+      ExponentialBackoff::from_millis(2).factor(1000).take(3),
+      || async {
+        trace!("retry to open database:{}", database_id);
+        let database = workspace_database
+          .read()
+          .await
+          .get_or_create_database(database_id)
+          .await
+          .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
+        Ok::<_, FlowyError>(database)
+      },
+    )
+    .await?;
 
     let editor = DatabaseEditor::new(
       self.user.clone(),
