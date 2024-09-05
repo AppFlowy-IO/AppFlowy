@@ -85,8 +85,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           startEditingField: (fieldId) {
             emit(state.copyWith(editingFieldId: fieldId));
           },
+          startEditingNewField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId, newFieldId: fieldId));
+          },
           endEditingField: () {
-            emit(state.copyWith(editingFieldId: ""));
+            emit(state.copyWith(editingFieldId: "", newFieldId: ""));
           },
         );
       },
@@ -230,6 +233,9 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.startEditingField(String fieldId) =
       _StartEditingField;
 
+  const factory RowDetailEvent.startEditingNewField(String fieldId) =
+      _StartEditingNewField;
+
   /// End editing an event
   const factory RowDetailEvent.endEditingField() = _EndEditingField;
 }
@@ -242,6 +248,7 @@ class RowDetailState with _$RowDetailState {
     required bool showHiddenFields,
     required int numHiddenFields,
     required String editingFieldId,
+    required String newFieldId,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => const RowDetailState(
@@ -250,5 +257,6 @@ class RowDetailState with _$RowDetailState {
         showHiddenFields: false,
         numHiddenFields: 0,
         editingFieldId: "",
+        newFieldId: "",
       );
 }

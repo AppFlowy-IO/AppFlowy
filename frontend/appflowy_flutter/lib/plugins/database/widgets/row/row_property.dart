@@ -132,44 +132,6 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final dragHandle = MouseRegion(
-      cursor: Platform.isWindows
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.grab,
-      child: SizedBox(
-        width: 16,
-        height: 30,
-        child: BlocListener<RowDetailBloc, RowDetailState>(
-          listenWhen: (previous, current) =>
-              previous.editingFieldId != current.editingFieldId,
-          listener: (context, state) {
-            if (state.editingFieldId == widget.cellContext.fieldId) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _popoverController.show();
-              });
-            }
-          },
-          child: ValueListenableBuilder(
-            valueListenable: _isFieldHover,
-            builder: (_, isHovering, child) =>
-                isHovering ? child! : const SizedBox.shrink(),
-            child: BlockActionButton(
-              onTap: () => context.read<RowDetailBloc>().add(
-                    RowDetailEvent.startEditingField(
-                      widget.cellContext.fieldId,
-                    ),
-                  ),
-              svg: FlowySvgs.drag_element_s,
-              richMessage: TextSpan(
-                text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
-                style: context.tooltipTextStyle(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
     final cell = widget.cellBuilder.buildStyled(
       widget.cellContext,
       EditableCellStyle.desktopRowDetail,
@@ -206,65 +168,107 @@ class _PropertyCellState extends State<_PropertyCell> {
                 return ReorderableDragStartListener(
                   index: widget.index,
                   enabled: value,
-                  child: dragHandle,
+                  child: _buildDragHandle(context),
                 );
               },
             ),
             const HSpace(4),
-            BlocSelector<RowDetailBloc, RowDetailState, FieldInfo?>(
-              selector: (state) => state.fields.firstWhereOrNull(
-                (fieldInfo) => fieldInfo.field.id == widget.cellContext.fieldId,
-              ),
-              builder: (context, fieldInfo) {
-                if (fieldInfo == null) {
-                  return const SizedBox.shrink();
-                }
-                return AppFlowyPopover(
-                  controller: _popoverController,
-                  constraints: BoxConstraints.loose(const Size(240, 600)),
-                  margin: EdgeInsets.zero,
-                  triggerActions: PopoverTriggerFlags.none,
-                  direction: PopoverDirection.bottomWithLeftAligned,
-                  onClose: () => context
-                      .read<RowDetailBloc>()
-                      .add(const RowDetailEvent.endEditingField()),
-                  popupBuilder: (popoverContext) => FieldEditor(
-                    viewId: widget.fieldController.viewId,
-                    fieldInfo: fieldInfo,
-                    fieldController: widget.fieldController,
-                    isNewField: false,
-                  ),
-                  child: SizedBox(
-                    width: 160,
-                    height: 30,
-                    child: Tooltip(
-                      waitDuration: const Duration(seconds: 1),
-                      preferBelow: false,
-                      verticalOffset: 15,
-                      message: fieldInfo.name,
-                      child: FieldCellButton(
-                        field: fieldInfo.field,
-                        onTap: () => context.read<RowDetailBloc>().add(
-                              RowDetailEvent.startEditingField(
-                                widget.cellContext.fieldId,
-                              ),
-                            ),
-                        radius: BorderRadius.circular(6),
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 6,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            _buildFieldButton(context),
             const HSpace(8),
             Expanded(child: gesture),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDragHandle(BuildContext context) {
+    return MouseRegion(
+      cursor: Platform.isWindows
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.grab,
+      child: SizedBox(
+        width: 16,
+        height: 30,
+        child: BlocListener<RowDetailBloc, RowDetailState>(
+          listenWhen: (previous, current) =>
+              previous.editingFieldId != current.editingFieldId,
+          listener: (context, state) {
+            if (state.editingFieldId == widget.cellContext.fieldId) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _popoverController.show();
+              });
+            }
+          },
+          child: ValueListenableBuilder(
+            valueListenable: _isFieldHover,
+            builder: (_, isHovering, child) =>
+                isHovering ? child! : const SizedBox.shrink(),
+            child: BlockActionButton(
+              onTap: () => context.read<RowDetailBloc>().add(
+                    RowDetailEvent.startEditingField(
+                      widget.cellContext.fieldId,
+                    ),
+                  ),
+              svg: FlowySvgs.drag_element_s,
+              richMessage: TextSpan(
+                text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFieldButton(BuildContext context) {
+    return BlocSelector<RowDetailBloc, RowDetailState, FieldInfo?>(
+      selector: (state) => state.fields.firstWhereOrNull(
+        (fieldInfo) => fieldInfo.field.id == widget.cellContext.fieldId,
+      ),
+      builder: (context, fieldInfo) {
+        if (fieldInfo == null) {
+          return const SizedBox.shrink();
+        }
+        return AppFlowyPopover(
+          controller: _popoverController,
+          constraints: BoxConstraints.loose(const Size(240, 600)),
+          margin: EdgeInsets.zero,
+          triggerActions: PopoverTriggerFlags.none,
+          direction: PopoverDirection.bottomWithLeftAligned,
+          onClose: () => context
+              .read<RowDetailBloc>()
+              .add(const RowDetailEvent.endEditingField()),
+          popupBuilder: (popoverContext) => FieldEditor(
+            viewId: widget.fieldController.viewId,
+            fieldInfo: fieldInfo,
+            fieldController: widget.fieldController,
+            isNewField: context.watch<RowDetailBloc>().state.newFieldId ==
+                widget.cellContext.fieldId,
+          ),
+          child: SizedBox(
+            width: 160,
+            height: 30,
+            child: Tooltip(
+              waitDuration: const Duration(seconds: 1),
+              preferBelow: false,
+              verticalOffset: 15,
+              message: fieldInfo.name,
+              child: FieldCellButton(
+                field: fieldInfo.field,
+                onTap: () => context.read<RowDetailBloc>().add(
+                      RowDetailEvent.startEditingField(
+                        widget.cellContext.fieldId,
+                      ),
+                    ),
+                radius: BorderRadius.circular(6),
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -390,7 +394,7 @@ class CreateRowFieldButton extends StatelessWidget {
           result.fold(
             (field) => context
                 .read<RowDetailBloc>()
-                .add(RowDetailEvent.startEditingField(field.id)),
+                .add(RowDetailEvent.startEditingNewField(field.id)),
             (err) => Log.error("Failed to create field type option: $err"),
           );
         },

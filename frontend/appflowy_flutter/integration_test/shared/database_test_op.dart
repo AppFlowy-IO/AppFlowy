@@ -780,7 +780,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Each field has its own cell, so we can find the corresponding cell by
   /// the field type after create a new field.
-  Future<void> findCellByFieldType(FieldType fieldType) async {
+  void findCellByFieldType(FieldType fieldType) {
     final finder = finderForFieldType(fieldType);
     expect(finder, findsWidgets);
   }

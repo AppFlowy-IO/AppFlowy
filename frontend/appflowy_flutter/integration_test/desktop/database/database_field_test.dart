@@ -154,7 +154,7 @@ void main() {
         await tester.createField(fieldType);
 
         // After update the field type, the cells should be updated
-        await tester.findCellByFieldType(fieldType);
+        tester.findCellByFieldType(fieldType);
         await tester.pumpAndSettle();
       }
     });
