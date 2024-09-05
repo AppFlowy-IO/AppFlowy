@@ -1469,10 +1469,10 @@
       "download": "Download",
       "open": "Open",
       "delete": "Delete",
-      "moreFilesHint": "+{} file(s)",
+      "moreFilesHint": "+{}",
       "showMore": "There are {} more file(s), click to view",
       "addFileOrImage": "Add a file, image, or link",
-      "attachmentsHint": "{} attachment(s)",
+      "attachmentsHint": "{}",
       "addFileMobile": "Add file"
     }
   },

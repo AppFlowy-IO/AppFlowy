@@ -234,67 +234,75 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
       );
     }
 
-    return Stack(
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Corners.s6Radius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 2,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: widget.size,
-                width: widget.size,
-                constraints: BoxConstraints(
-                  maxHeight: widget.size < 150 ? 100 : 195,
-                  minHeight: widget.size < 150 ? 100 : 195,
+    return FlowyHover(
+      resetHoverOnRebuild: false,
+      builder: (_, isHovering) => Stack(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Corners.s6Radius),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 2,
                 ),
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: AFThemeExtension.of(context).greyHover,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Corners.s6Radius,
-                    topRight: Corners.s6Radius,
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  height: widget.size,
+                  width: widget.size,
+                  constraints: BoxConstraints(
+                    maxHeight: widget.size < 150 ? 100 : 195,
+                    minHeight: widget.size < 150 ? 100 : 195,
                   ),
-                ),
-                child: child,
-              ),
-              Container(
-                height: 28,
-                width: widget.size,
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).isLightMode
-                      ? Theme.of(context).cardColor
-                      : AFThemeExtension.of(context).greyHover,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Corners.s6Radius,
-                    bottomRight: Corners.s6Radius,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: AFThemeExtension.of(context).greyHover,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Corners.s6Radius,
+                      topRight: Corners.s6Radius,
+                    ),
                   ),
+                  child: child,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Center(
-                    child: FlowyText.medium(
-                      widget.file.name,
-                      overflow: TextOverflow.ellipsis,
-                      fontSize: 12,
-                      color: AFThemeExtension.of(context).secondaryTextColor,
+                Container(
+                  height: 28,
+                  width: widget.size,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).isLightMode
+                        ? Theme.of(context).cardColor
+                        : AFThemeExtension.of(context).greyHover,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Corners.s6Radius,
+                      bottomRight: Corners.s6Radius,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Center(
+                      child: FlowyText.medium(
+                        widget.file.name,
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 12,
+                        color: AFThemeExtension.of(context).secondaryTextColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Positioned(top: 5, right: 5, child: FileItemMenu(file: widget.file)),
-      ],
+          if (isHovering)
+            Positioned(
+              top: 5,
+              right: 5,
+              child: FileItemMenu(file: widget.file),
+            ),
+        ],
+      ),
     );
   }
 }
