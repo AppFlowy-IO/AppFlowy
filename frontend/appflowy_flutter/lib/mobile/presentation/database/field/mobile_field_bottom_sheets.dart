@@ -158,17 +158,3 @@ Future<String?> showFieldPicker(
     },
   );
 }
-
-Future<FieldOptionValues?> showUploadMediaScreen(
-  BuildContext context,
-  String viewId,
-  FieldInfo field,
-) {
-  return context.push<FieldOptionValues>(
-    MobileEditPropertyScreen.routeName,
-    extra: {
-      MobileEditPropertyScreen.argViewId: viewId,
-      MobileEditPropertyScreen.argField: field,
-    },
-  );
-}

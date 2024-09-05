@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/media_cell_bloc.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.
 import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -21,15 +20,11 @@ import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 
 class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
   final mutex = PopoverMutex();
@@ -359,9 +354,9 @@ class _FileItemMenuState extends State<FileItemMenu> {
                             type: widget.file.uploadType.toCustomImageType(),
                           ),
                         ],
-                        onDeleteImage: (_) => context.read<MediaCellBloc>().add(
-                              MediaCellEvent.removeFile(fileId: widget.file.id),
-                            ),
+                        onDeleteImage: (_) => context
+                            .read<MediaCellBloc>()
+                            .deleteFile(widget.file.id),
                       ),
                     ),
                   );
@@ -398,59 +393,23 @@ class _FileItemMenuState extends State<FileItemMenu> {
                       .document_plugins_file_renameFile_description
                       .tr(),
                   closeOnConfirm: false,
-                  builder: (dialogContext) {
-                    return FileRenameTextField(
-                      nameController: nameController,
-                      errorMessage: errorMessage,
-                      onSubmitted: () => _saveName(context),
-                      disposeController: false,
-                    );
-                  },
+                  builder: (dialogContext) => FileRenameTextField(
+                    nameController: nameController,
+                    errorMessage: errorMessage,
+                    onSubmitted: () => _saveName(context),
+                    disposeController: false,
+                  ),
                   confirmLabel: LocaleKeys.button_save.tr(),
                   onConfirm: () => _saveName(context),
                 );
               },
             ),
             FlowyButton(
-              onTap: () async {
-                if ([
-                  MediaUploadTypePB.NetworkMedia,
-                  MediaUploadTypePB.LocalMedia,
-                ].contains(widget.file.uploadType)) {
-                  /// When the file is a network file or a local file, we can directly open the file.
-                  await afLaunchUrl(Uri.parse(widget.file.url));
-                } else {
-                  final userProfile =
-                      context.read<MediaCellBloc>().state.userProfile;
-                  if (userProfile == null) return;
-
-                  final uri = Uri.parse(widget.file.url);
-                  final imgFile = File(uri.pathSegments.last);
-                  final savePath = await FilePicker().saveFile(
-                    fileName: basename(imgFile.path),
-                  );
-
-                  if (savePath != null) {
-                    final uri = Uri.parse(widget.file.url);
-
-                    final token = jsonDecode(userProfile.token)['access_token'];
-                    final response = await http.get(
-                      uri,
-                      headers: {'Authorization': 'Bearer $token'},
-                    );
-                    if (response.statusCode == 200) {
-                      final imgFile = File(savePath);
-                      await imgFile.writeAsBytes(response.bodyBytes);
-                    } else if (context.mounted) {
-                      showSnapBar(
-                        context,
-                        LocaleKeys.document_plugins_image_imageDownloadFailed
-                            .tr(),
-                      );
-                    }
-                  }
-                }
-              },
+              onTap: () async => downloadMediaFile(
+                context,
+                widget.file,
+                userProfile: context.read<MediaCellBloc>().state.userProfile,
+              ),
               leftIcon: FlowySvg(
                 FlowySvgs.download_s,
                 color: Theme.of(context).iconTheme.color,

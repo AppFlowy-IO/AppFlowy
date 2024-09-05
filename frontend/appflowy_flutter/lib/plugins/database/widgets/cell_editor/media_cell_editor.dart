@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -14,23 +13,17 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/util/xfile_ext.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 
 class MediaCellEditor extends StatefulWidget {
   const MediaCellEditor({super.key});
@@ -98,60 +91,38 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                   ),
                   triggerActions: PopoverTriggerFlags.none,
                   popupBuilder: (popoverContext) => FileUploadMenu(
-                    onInsertLocalFile: (file) async {
-                      if (file.path.isEmpty) return;
+                    onInsertLocalFile: (file) async => insertLocalFile(
+                      context,
+                      file,
+                      userProfile:
+                          context.read<MediaCellBloc>().state.userProfile,
+                      documentId: context.read<MediaCellBloc>().rowId,
+                      onUploadSuccess: (path, isLocalMode) {
+                        final mediaCellBloc = context.read<MediaCellBloc>();
+                        if (mediaCellBloc.isClosed) {
+                          return;
+                        }
 
-                      final fileType = file.fileType.toMediaFileTypePB();
-                      final mediaCellBloc = context.read<MediaCellBloc>();
-
-                      // Check upload type
-                      final userProfile = state.userProfile;
-                      final isLocalMode = (userProfile?.authenticator ??
-                              AuthenticatorPB.Local) ==
-                          AuthenticatorPB.Local;
-
-                      String? path;
-                      String? errorMsg;
-                      if (isLocalMode) {
-                        path = await saveFileToLocalStorage(file.path);
-                      } else {
-                        (path, errorMsg) = await saveFileToCloudStorage(
-                          file.path,
-                          mediaCellBloc.rowId,
-                          fileType == MediaFileTypePB.Image,
+                        mediaCellBloc.add(
+                          MediaCellEvent.addFile(
+                            url: path,
+                            name: file.name,
+                            uploadType: isLocalMode
+                                ? MediaUploadTypePB.LocalMedia
+                                : MediaUploadTypePB.CloudMedia,
+                            fileType: file.fileType.toMediaFileTypePB(),
+                          ),
                         );
-                      }
 
-                      if (errorMsg != null) {
-                        return showSnackBarMessage(context, errorMsg);
-                      }
-
-                      if (mediaCellBloc.isClosed || path == null) {
-                        return;
-                      }
-
-                      mediaCellBloc.add(
-                        MediaCellEvent.addFile(
-                          url: path,
-                          name: file.name,
-                          uploadType: isLocalMode
-                              ? MediaUploadTypePB.LocalMedia
-                              : MediaUploadTypePB.CloudMedia,
-                          fileType: fileType,
-                        ),
-                      );
-
-                      addFilePopoverController.close();
-                    },
+                        addFilePopoverController.close();
+                      },
+                    ),
                     onInsertNetworkFile: (url) {
                       if (url.isEmpty) return;
 
                       final uri = Uri.tryParse(url);
                       if (uri == null) {
-                        return showSnackBarMessage(
-                          context,
-                          'Invalid URL - Please try again',
-                        );
+                        return;
                       }
 
                       final fakeFile = XFile(uri.path);
@@ -366,9 +337,8 @@ class _RenderMediaState extends State<RenderMedia> {
         onTap: () => openInteractiveViewerFromFile(
           context,
           file,
-          onDeleteImage: (_) => context
-              .read<MediaCellBloc>()
-              .add(MediaCellEvent.removeFile(fileId: file.id)),
+          onDeleteImage: (_) =>
+              context.read<MediaCellBloc>().deleteFile(file.id),
           userProfile: context.read<MediaCellBloc>().state.userProfile,
         ),
         child: child,
@@ -421,9 +391,8 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
                       type: widget.file.uploadType.toCustomImageType(),
                     ),
                   ],
-                  onDeleteImage: (_) => context
-                      .read<MediaCellBloc>()
-                      .add(MediaCellEvent.removeFile(fileId: widget.file.id)),
+                  onDeleteImage: (_) =>
+                      context.read<MediaCellBloc>().deleteFile(widget.file.id),
                 ),
               ),
             ),
@@ -478,42 +447,11 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
           },
         ),
         FlowyButton(
-          onTap: () async {
-            if ([MediaUploadTypePB.NetworkMedia, MediaUploadTypePB.LocalMedia]
-                .contains(widget.file.uploadType)) {
-              /// When the file is a network file or a local file, we can directly open the file.
-              await afLaunchUrl(Uri.parse(widget.file.url));
-            } else {
-              final userProfile =
-                  context.read<MediaCellBloc>().state.userProfile;
-              if (userProfile == null) return;
-
-              final uri = Uri.parse(widget.file.url);
-              final imgFile = File(uri.pathSegments.last);
-              final savePath = await FilePicker().saveFile(
-                fileName: basename(imgFile.path),
-              );
-
-              if (savePath != null) {
-                final uri = Uri.parse(widget.file.url);
-
-                final token = jsonDecode(userProfile.token)['access_token'];
-                final response = await http.get(
-                  uri,
-                  headers: {'Authorization': 'Bearer $token'},
-                );
-                if (response.statusCode == 200) {
-                  final imgFile = File(savePath);
-                  await imgFile.writeAsBytes(response.bodyBytes);
-                } else if (context.mounted) {
-                  showSnapBar(
-                    context,
-                    LocaleKeys.document_plugins_image_imageDownloadFailed.tr(),
-                  );
-                }
-              }
-            }
-          },
+          onTap: () async => downloadMediaFile(
+            context,
+            widget.file,
+            userProfile: context.read<MediaCellBloc>().state.userProfile,
+          ),
           leftIcon: FlowySvg(
             FlowySvgs.download_s,
             color: Theme.of(context).iconTheme.color,

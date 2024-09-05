@@ -79,7 +79,6 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
               closeOnConfirm: false,
               builder: (context) {
                 renameContext = context;
-
                 return FileRenameTextField(
                   nameController: nameController,
                   errorMessage: errorMessage,
