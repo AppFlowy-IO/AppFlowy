@@ -149,3 +149,12 @@ pub struct InsertedGroupPB {
   #[pb(index = 2)]
   pub index: i32,
 }
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct GroupRenameNotificationPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub group_id: String,
+}
