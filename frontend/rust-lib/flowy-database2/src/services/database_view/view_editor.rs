@@ -935,17 +935,6 @@ impl DatabaseViewEditor {
     }
 
     match field_type {
-      FieldType::RichText
-      | FieldType::Number
-      | FieldType::DateTime
-      | FieldType::Checklist
-      | FieldType::LastEditedTime
-      | FieldType::CreatedTime
-      | FieldType::Relation
-      | FieldType::Summary
-      | FieldType::Translate
-      | FieldType::Time
-      | FieldType::Media => false,
       // Checkbox & Url can also be grouped by, but they work differently to select fields
       // and thus don't need to be updated when the type option itself changes
       FieldType::Checkbox | FieldType::URL => false,
@@ -973,6 +962,8 @@ impl DatabaseViewEditor {
 
         false
       },
+      // All other FieldTypes
+      _ => false,
     }
   }
 
