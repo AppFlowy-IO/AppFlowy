@@ -12,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DesktopSignInScreen extends StatelessWidget {
-  const DesktopSignInScreen({super.key});
+  const DesktopSignInScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,38 +22,32 @@ class DesktopSignInScreen extends StatelessWidget {
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: PreferredSize(
-            preferredSize:
-                Size.fromHeight(PlatformExtension.isWindows ? 40 : 60),
-            child: PlatformExtension.isWindows
-                ? const WindowTitleBar()
-                : const MoveWindowDetector(),
-          ),
+          appBar: _buildAppBar(),
           body: Center(
             child: AuthFormContainer(
               children: [
+                const Spacer(),
+
                 const VSpace(20),
+
+                // logo and title
                 FlowyLogoTitle(
                   title: LocaleKeys.welcomeText.tr(),
                   logoSize: const Size(60, 60),
                 ),
                 const VSpace(20),
 
+                // magic link sign in
                 const SignInWithMagicLinkButtons(),
-
-                // third-party sign in.
                 const VSpace(20),
 
+                // third-party sign in.
                 if (isAuthEnabled) ...[
                   const _OrDivider(),
                   const VSpace(20),
                   const ThirdPartySignInButtons(),
+                  const VSpace(20),
                 ],
-                const VSpace(20),
-
-                // anonymous sign in
-                const SignInAnonymousButtonV2(),
-                const VSpace(16),
 
                 // sign in agreement
                 const SignInAgreement(),
@@ -64,11 +60,26 @@ class DesktopSignInScreen extends StatelessWidget {
                       )
                     : const VSpace(indicatorMinHeight),
                 const VSpace(20),
+
+                const Spacer(),
+
+                // anonymous sign in
+                const SignInAnonymousButtonV2(),
+                const VSpace(16),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  PreferredSize _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(PlatformExtension.isWindows ? 40 : 60),
+      child: PlatformExtension.isWindows
+          ? const WindowTitleBar()
+          : const MoveWindowDetector(),
     );
   }
 }

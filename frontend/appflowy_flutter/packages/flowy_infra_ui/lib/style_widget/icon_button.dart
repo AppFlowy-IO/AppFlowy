@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_svg/flowy_svg.dart';
-import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
   final double width;
@@ -82,7 +83,6 @@ class FlowyIconButton extends StatelessWidget {
         preferBelow: preferBelow,
         message: tooltipMessage,
         richMessage: richTooltipText,
-        showDuration: Duration.zero,
         child: RawMaterialButton(
           clipBehavior: Clip.antiAlias,
           visualDensity: VisualDensity.compact,

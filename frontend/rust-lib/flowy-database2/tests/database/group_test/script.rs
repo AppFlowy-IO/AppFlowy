@@ -1,6 +1,7 @@
 use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
+use std::time::Duration;
 
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
@@ -91,6 +92,8 @@ impl DatabaseGroupTest {
         group_index,
         row_count,
       } => {
+        // sleep for 2 seconds to wait for the row count to be updated
+        tokio::time::sleep(Duration::from_secs(2)).await;
         assert_eq!(row_count, self.group_at_index(group_index).await.rows.len());
       },
       GroupScript::AssertGroupCount(count) => {

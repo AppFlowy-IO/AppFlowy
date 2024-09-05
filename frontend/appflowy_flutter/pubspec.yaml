@@ -153,6 +153,7 @@ dependencies:
   extended_text_library: ^12.0.0
   sentry_flutter: ^8.7.0
   sentry: ^8.8.0
+  mime: ^1.0.6
 
 dev_dependencies:
   flutter_lints: ^4.0.0
@@ -190,7 +191,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "a64a516"
+      ref: "44989c5"
 
   appflowy_editor_plugins:
     git:

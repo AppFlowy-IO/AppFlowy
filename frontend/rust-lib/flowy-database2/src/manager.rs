@@ -1,7 +1,6 @@
 use anyhow::anyhow;
 use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -40,10 +39,11 @@ use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
-use tokio::sync::RwLock as TokioRwLock;
-
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
+use tokio::sync::RwLock as TokioRwLock;
+use tokio_retry::strategy::ExponentialBackoff;
+use tokio_retry::Retry;
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -127,42 +127,6 @@ impl DatabaseManager {
 
     self.workspace_database.store(Some(workspace_database));
     Ok(())
-  }
-
-  //FIXME: we need to initialize sync plugin for newly created collabs
-  #[allow(dead_code)]
-  fn initialize_plugins<T>(
-    &self,
-    uid: i64,
-    object_id: &str,
-    collab_type: CollabType,
-    collab: Arc<RwLock<T>>,
-  ) -> FlowyResult<Arc<RwLock<T>>>
-  where
-    T: BorrowMut<Collab> + Send + Sync + 'static,
-  {
-    //FIXME: unfortunately UserDatabaseCollabService::build_collab_with_config is broken by
-    //  design as it assumes that we can split collab building process, which we cannot because:
-    //  1. We should not be able to run plugins ie. SyncPlugin over not-fully initialized collab,
-    //     and that's what originally build_collab_with_config did.
-    //  2. We cannot fully initialize collab from UserDatabaseCollabService, because
-    //     WorkspaceDatabase itself requires UserDatabaseCollabService as constructor parameter.
-    // Ideally we should never need to initialize plugins that require collab instance as part of
-    // that collab construction process itself - it means that we should redesign SyncPlugin to only
-    // be fired once a collab is fully initialized.
-    let workspace_id = self
-      .user
-      .workspace_id()
-      .map_err(|err| DatabaseError::Internal(err.into()))?;
-    let object = self
-      .collab_builder
-      .collab_object(&workspace_id, uid, object_id, collab_type)?;
-    let collab = self.collab_builder.finalize(
-      object,
-      CollabBuilderConfig::default().sync_enable(true),
-      collab,
-    )?;
-    Ok(collab)
   }
 
   #[instrument(
@@ -249,7 +213,7 @@ impl DatabaseManager {
 
   #[instrument(level = "trace", skip_all, err)]
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    let lock = self.workspace_database()?;
+    let workspace_database = self.workspace_database()?;
     if let Some(database_editor) = self.removing_editor.lock().await.remove(database_id) {
       self
         .editors
@@ -260,12 +224,23 @@ impl DatabaseManager {
     }
 
     trace!("create database editor:{}", database_id);
-    let database = lock
-      .read()
-      .await
-      .get_or_create_database(database_id)
-      .await
-      .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
+    // When the user opens the database from the left-side bar, it may fail because the workspace database
+    // hasn't finished syncing yet. In such cases, get_or_create_database will return None.
+    // The workaround is to add a retry mechanism to attempt fetching the database again.
+    let database = Retry::spawn(
+      ExponentialBackoff::from_millis(2).factor(1000).take(3),
+      || async {
+        trace!("retry to open database:{}", database_id);
+        let database = workspace_database
+          .read()
+          .await
+          .get_or_create_database(database_id)
+          .await
+          .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
+        Ok::<_, FlowyError>(database)
+      },
+    )
+    .await?;
 
     let editor = DatabaseEditor::new(
       self.user.clone(),
@@ -806,15 +781,15 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
         },
         Ok(None) => {
           if self.is_local_user {
+            info!(
+              "build collab: {}:{} with empty encode collab",
+              collab_type, object_id
+            );
             CollabPersistenceImpl {
               persistence: Some(self.persistence.clone()),
             }
             .into()
           } else {
-            error!(
-              "build collab: {}:{} with empty encode collab",
-              collab_type, object_id
-            );
             return Err(DatabaseError::RecordNotFound);
           }
         },

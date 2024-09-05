@@ -28,7 +28,7 @@ const EditorEditable = ({ editor }: { editor: ReactEditor }) => {
 
           return decoration || [];
         }}
-        className={'px-16 outline-none focus:outline-none max-md:px-4'}
+        className={'outline-none w-[964px] min-w-0 max-w-full max-xl:px-8 max-lg:px-6 focus:outline-none'}
         renderLeaf={Leaf}
         renderElement={renderElement}
         readOnly={readOnly}

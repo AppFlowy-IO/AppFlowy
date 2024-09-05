@@ -24,6 +24,7 @@ atomic_refcell = "0.1"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"], optional = true }
 futures = "0.3.30"
 cfg-if = "1.0.0"
+futures-util = "0.3.30"
 
 [dev-dependencies]
 rand = "0.8.5"

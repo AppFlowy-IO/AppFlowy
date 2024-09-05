@@ -11,7 +11,7 @@ use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
-use tracing::{trace, warn};
+use tracing::{error, trace, warn};
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
   let weak_database = Arc::downgrade(database);
@@ -33,7 +33,6 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<
   });
 }
 
-#[allow(dead_code)]
 pub(crate) async fn observe_rows_change(
   database_id: &str,
   database: &Arc<RwLock<Database>>,
@@ -101,36 +100,71 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLoc
 }
 
 #[allow(dead_code)]
-pub(crate) async fn observe_view_change(database_id: &str, database: &Arc<RwLock<Database>>) {
+pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
-  let weak_database = Arc::downgrade(database);
-  let mut view_change = database.read().await.subscribe_view_change();
+  let weak_database_editor = Arc::downgrade(database_editor);
+  let mut view_change = database_editor
+    .database
+    .read()
+    .await
+    .subscribe_view_change();
   af_spawn(async move {
     while let Ok(view_change) = view_change.recv().await {
-      if weak_database.upgrade().is_none() {
-        break;
-      }
+      match weak_database_editor.upgrade() {
+        None => break,
+        Some(database_editor) => {
+          trace!(
+            "[Database View Observe]: {} view change:{:?}",
+            database_id,
+            view_change
+          );
+          match view_change {
+            DatabaseViewChange::DidCreateView { .. } => {},
+            DatabaseViewChange::DidUpdateView { .. } => {},
+            DatabaseViewChange::DidDeleteView { .. } => {},
+            DatabaseViewChange::LayoutSettingChanged { .. } => {},
+            DatabaseViewChange::DidInsertRowOrders { row_orders } => {
+              trace!("Did insert row orders: {:?}", row_orders);
+              for row in row_orders {
+                if let Err(err) = database_editor.init_database_row(&row.id).await {
+                  error!("Failed to init row: {:?}", err);
+                }
 
-      trace!(
-        "[Database Observe]: {} view change:{:?}",
-        database_id,
-        view_change
-      );
-      match view_change {
-        DatabaseViewChange::DidCreateView { .. } => {},
-        DatabaseViewChange::DidUpdateView { .. } => {},
-        DatabaseViewChange::DidDeleteView { .. } => {},
-        DatabaseViewChange::LayoutSettingChanged { .. } => {},
-        DatabaseViewChange::DidInsertRowOrders { .. } => {},
-        DatabaseViewChange::DidDeleteRowAtIndex { .. } => {},
-        DatabaseViewChange::DidCreateFilters { .. } => {},
-        DatabaseViewChange::DidUpdateFilter { .. } => {},
-        DatabaseViewChange::DidCreateGroupSettings { .. } => {},
-        DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
-        DatabaseViewChange::DidCreateSorts { .. } => {},
-        DatabaseViewChange::DidUpdateSort { .. } => {},
-        DatabaseViewChange::DidCreateFieldOrder { .. } => {},
-        DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
+                for view in database_editor.database_views.editors().await {
+                  if let Some(index) = database_editor.get_row_index(&view.view_id, &row.id).await {
+                    if let Some(row) = database_editor.get_row(&view.view_id, &row.id).await {
+                      view.v_did_create_row(&row, index).await;
+                    }
+                  }
+                }
+              }
+            },
+            DatabaseViewChange::DidDeleteRowAtIndex { .. } => {
+              // for index in index {
+              //   for view in database_editor.database_views.editors().await {
+              //     if let Some(row_order) = database_editor
+              //       .get_row_order_at_index(&view.view_id, index)
+              //       .await
+              //     {
+              //       trace!("Did delete row at index: {:?}", index);
+              //       if let Some(row) = database_editor.get_row(&view.view_id, &row_order.id).await {
+              //         trace!("Did delete row at index2: {:?}", row);
+              //         view.v_did_delete_row(&row).await;
+              //       }
+              //     }
+              //   }
+              // }
+            },
+            DatabaseViewChange::DidCreateFilters { .. } => {},
+            DatabaseViewChange::DidUpdateFilter { .. } => {},
+            DatabaseViewChange::DidCreateGroupSettings { .. } => {},
+            DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
+            DatabaseViewChange::DidCreateSorts { .. } => {},
+            DatabaseViewChange::DidUpdateSort { .. } => {},
+            DatabaseViewChange::DidCreateFieldOrder { .. } => {},
+            DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
+          }
+        },
       }
     }
   });

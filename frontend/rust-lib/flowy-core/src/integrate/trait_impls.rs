@@ -91,6 +91,15 @@ impl StorageCloudService for ServerProvider {
       .await
   }
 
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)> {
+    self
+      .get_server()
+      .ok()?
+      .file_storage()?
+      .parse_object_url_v1(url)
+      .await
+  }
+
   async fn create_upload(
     &self,
     workspace_id: &str,
