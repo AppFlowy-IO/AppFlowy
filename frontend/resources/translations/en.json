@@ -2524,7 +2524,7 @@
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
     "searchInCategory": "Search in {category}",
-    "label": "Template"
+    "label": "Templates"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",
