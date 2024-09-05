@@ -368,6 +368,12 @@ class SingleListenerFocusNode extends FocusNode {
       removeListener(_listener!);
     }
   }
+
+  @override
+  void dispose() {
+    removeAllListener();
+    super.dispose();
+  }
 }
 
 class EditableCellSkinMap {

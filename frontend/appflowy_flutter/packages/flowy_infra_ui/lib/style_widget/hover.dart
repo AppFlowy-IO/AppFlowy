@@ -69,7 +69,12 @@ class _FlowyHoverState extends State<FlowyHover> {
         if (!_onHover) return;
         _setOnHover(false);
       },
-      child: renderWidget(),
+      child: _Render(
+        isHovering: _onHover || (widget.isSelected?.call() ?? false),
+        style: widget.style,
+        builder: widget.builder,
+        child: widget.child,
+      ),
     );
   }
 
@@ -81,30 +86,32 @@ class _FlowyHoverState extends State<FlowyHover> {
       }
     }
   }
+}
 
-  Widget renderWidget() {
-    bool showHover = _onHover;
-    if (!showHover && widget.isSelected != null) {
-      showHover = widget.isSelected!();
-    }
+class _Render extends StatelessWidget {
+  const _Render({
+    this.child,
+    this.builder,
+    required this.isHovering,
+    this.style,
+  });
 
-    final child = widget.child ?? widget.builder!(context, _onHover);
-    final style = widget.style ??
+  final Widget? child;
+  final HoverBuilder? builder;
+  final bool isHovering;
+  final HoverStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final childWidget = child ?? builder!(context, isHovering);
+    final hoverStyle = style ??
         HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary);
-    if (showHover) {
-      return FlowyHoverContainer(
-        style: style,
-        child: child,
-      );
-    } else {
-      return Container(
-        decoration: BoxDecoration(
-          color: style.backgroundColor,
-          borderRadius: style.borderRadius,
-        ),
-        child: child,
-      );
-    }
+
+    return FlowyHoverContainer(
+      style: hoverStyle,
+      applyStyle: isHovering,
+      child: childWidget,
+    );
   }
 }
 
@@ -140,11 +147,13 @@ class HoverStyle {
 class FlowyHoverContainer extends StatelessWidget {
   final HoverStyle style;
   final Widget child;
+  final bool applyStyle;
 
   const FlowyHoverContainer({
     super.key,
     required this.child,
     required this.style,
+    this.applyStyle = false,
   });
 
   @override
@@ -173,7 +182,9 @@ class FlowyHoverContainer extends StatelessWidget {
       margin: style.contentMargin,
       decoration: BoxDecoration(
         border: hoverBorder,
-        color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
+        color: applyStyle
+            ? style.hoverColor ?? Theme.of(context).colorScheme.secondary
+            : style.backgroundColor,
         borderRadius: style.borderRadius,
       ),
       child: Theme(
