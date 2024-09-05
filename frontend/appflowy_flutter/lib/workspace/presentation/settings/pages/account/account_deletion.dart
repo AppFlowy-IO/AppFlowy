@@ -65,9 +65,10 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
             const HSpace(32),
             FlowyTextButton(
               LocaleKeys.button_deleteAccount.tr(),
+              constraints: const BoxConstraints(minHeight: 32),
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
               fillColor: Colors.transparent,
-              radius: Corners.s12Border,
+              radius: Corners.s8Border,
               hoverColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
               fontColor: Theme.of(context).colorScheme.error,
               fontHoverColor: Colors.white,
