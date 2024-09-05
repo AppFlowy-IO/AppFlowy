@@ -214,7 +214,7 @@ class _TextCellState extends State<TextCardCell> {
               controller: _textEditingController,
               focusNode: focusNode,
               onEditingComplete: () => focusNode.unfocus(),
-              maxLines: isEditing ? null : 2,
+              maxLines: null,
               minLines: 1,
               textInputAction: TextInputAction.done,
               readOnly: !isEditing,
