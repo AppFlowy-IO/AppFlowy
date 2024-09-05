@@ -11,7 +11,7 @@ import { ReactComponent as DownArrow } from '$icons/16x/arrow_down.svg';
 
 import { useTranslation } from 'react-i18next';
 
-export function Toolbar({
+export function Toolbar ({
   onNavigate,
   date,
   emptyEvents,
@@ -24,12 +24,12 @@ export function Toolbar({
   return (
     <div className={'sticky left-0 flex items-center justify-between overflow-x-auto overflow-y-hidden'}>
       <div className={'whitespace-nowrap text-sm font-medium'}>{dateStr}</div>
-      <div className={'flex items-center justify-end gap-2'}>
+      <div className={'flex items-center justify-end gap-2 max-sm:gap-1'}>
         <IconButton size={'small'} onClick={() => onNavigate('PREV')}>
           <LeftArrow />
         </IconButton>
         <Button
-          className={'h-6 font-normal'}
+          className={'h-6 font-normal max-sm:min-w-fit'}
           size={'small'}
           variant={'text'}
           color={'inherit'}

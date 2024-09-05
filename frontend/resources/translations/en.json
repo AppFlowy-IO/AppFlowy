@@ -2473,7 +2473,7 @@
     "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
   },
   "template": {
-    "asTemplate": "As template",
+    "asTemplate": "Save as template",
     "name": "Template name",
     "description": "Template Description",
     "about": "Template About",

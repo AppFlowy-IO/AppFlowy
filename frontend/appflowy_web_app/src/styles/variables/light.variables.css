@@ -65,4 +65,5 @@
     --gradient6: linear-gradient(180deg, #036FFA 0%, #00B8E5 100%);
     --gradient7: linear-gradient(38.2deg, #F0C6CF 0%, #DECCE2 40.4754%, #CAD3F9 100%);
     --header: rgba(255, 255, 255, 0.8);
+    --footer: rgba(255, 255, 255, 0.8);
 }

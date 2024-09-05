@@ -164,6 +164,10 @@ export class AFClientService implements AFService {
     return data;
   }
 
+  async getPublishOutline (namespace: string) {
+    return APIService.getPublishOutline(namespace);
+  }
+
   async loginAuth (url: string) {
     try {
       console.log('loginAuth', url);
