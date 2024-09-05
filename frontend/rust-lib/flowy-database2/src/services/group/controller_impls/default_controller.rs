@@ -137,5 +137,12 @@ impl GroupController for DefaultGroupController {
     Ok((Vec::new(), None))
   }
 
+  async fn apply_group_rename(
+    &mut self,
+    _changeset: &GroupChangeset,
+  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)> {
+    Ok((GroupPB::default(), None))
+  }
+
   fn will_create_row(&self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
 }

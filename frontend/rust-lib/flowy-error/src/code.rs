@@ -314,6 +314,9 @@ pub enum ErrorCode {
 
   #[error("Upload part size exceeds the limit")]
   SingleUploadLimitExceeded = 108,
+
+  #[error("Group name is empty")]
+  GroupNameIsEmpty = 109,
 }
 
 impl ErrorCode {

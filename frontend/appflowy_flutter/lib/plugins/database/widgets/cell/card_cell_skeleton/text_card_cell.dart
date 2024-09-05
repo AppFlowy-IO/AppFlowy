@@ -62,7 +62,6 @@ class _TextCellState extends State<TextCardCell> {
   @override
   void initState() {
     super.initState();
-
     _textEditingController = TextEditingController(text: cellBloc.state.content)
       ..addListener(() {
         if (_textEditingController.value.composing.isCollapsed) {
@@ -81,13 +80,15 @@ class _TextCellState extends State<TextCardCell> {
     // If the focusNode lost its focus, the widget's editableNotifier will
     // set to false, which will cause the [EditableRowNotifier] to receive
     // end edit event.
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        widget.editableNotifier?.isCellEditing.value = false;
-        cellBloc.add(const TextCellEvent.enableEdit(false));
-      }
-    });
+    focusNode.addListener(_onFocusChanged);
     _bindEditableNotifier();
+  }
+
+  void _onFocusChanged() {
+    if (!focusNode.hasFocus) {
+      widget.editableNotifier?.isCellEditing.value = false;
+      cellBloc.add(const TextCellEvent.enableEdit(false));
+    }
   }
 
   void _bindEditableNotifier() {
@@ -98,9 +99,8 @@ class _TextCellState extends State<TextCardCell> {
 
       final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
       if (isEditing) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          focusNode.requestFocus();
-        });
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => focusNode.requestFocus());
       }
       cellBloc.add(TextCellEvent.enableEdit(isEditing));
     });

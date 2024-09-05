@@ -9,6 +9,7 @@ import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.da
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/column_header_bloc.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
@@ -341,8 +342,22 @@ class _BoardContentState extends State<_BoardContent> {
                       false
                   ? BoardTrailing(scrollController: scrollController)
                   : const HSpace(40),
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
+              headerBuilder: (_, groupData) => MultiBlocProvider(
+                providers: [
+                  BlocProvider<BoardBloc>.value(
+                    value: context.read<BoardBloc>(),
+                  ),
+                  BlocProvider<ColumnHeaderBloc>(
+                    create: (context) => ColumnHeaderBloc(
+                      databaseController: databaseController,
+                      fieldId: (groupData.customData as GroupData).fieldInfo.id,
+                      group: context
+                          .read<BoardBloc>()
+                          .groupControllers[groupData.headerData.groupId]!
+                          .group,
+                    )..add(const ColumnHeaderEvent.initial()),
+                  ),
+                ],
                 child: BoardColumnHeader(
                   groupData: groupData,
                   margin: config.groupHeaderPadding,

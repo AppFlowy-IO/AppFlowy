@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/column_header_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -64,12 +65,12 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   Widget build(BuildContext context) {
     final boardCustomData = widget.groupData.customData as GroupData;
 
-    return BlocBuilder<BoardBloc, BoardState>(
+    return BlocBuilder<ColumnHeaderBloc, ColumnHeaderState>(
       builder: (context, state) {
         return state.maybeMap(
           orElse: () => const SizedBox.shrink(),
           ready: (state) {
-            if (state.editingHeaderId != null) {
+            if (state.isEditing) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _focusNode.requestFocus();
               });
@@ -77,7 +78,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
             Widget title = Expanded(
               child: FlowyText.medium(
-                widget.groupData.headerData.groupName,
+                state.groupName,
                 overflow: TextOverflow.ellipsis,
               ),
             );
@@ -91,11 +92,11 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTap: () => context.read<BoardBloc>().add(
-                            BoardEvent.startEditingHeader(widget.groupData.id),
-                          ),
+                      onTap: () => context
+                          .read<ColumnHeaderBloc>()
+                          .add(const ColumnHeaderEvent.startEditing()),
                       child: FlowyText.medium(
-                        widget.groupData.headerData.groupName,
+                        state.groupName,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -104,7 +105,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
               );
             }
 
-            if (state.editingHeaderId == widget.groupData.id) {
+            if (state.isEditing) {
               title = _buildTextField(context);
             }
 
@@ -191,9 +192,11 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
     );
   }
 
-  void _saveEdit() => context
-      .read<BoardBloc>()
-      .add(BoardEvent.endEditingHeader(widget.groupData.id, _controller.text));
+  void _saveEdit() {
+    context
+        .read<ColumnHeaderBloc>()
+        .add(ColumnHeaderEvent.endEditing(_controller.text));
+  }
 
   Widget _buildHeaderIcon(GroupData customData) =>
       switch (customData.fieldType) {
@@ -268,8 +271,8 @@ enum GroupOptions {
     switch (this) {
       case rename:
         context
-            .read<BoardBloc>()
-            .add(BoardEvent.startEditingHeader(group.groupId));
+            .read<ColumnHeaderBloc>()
+            .add(const ColumnHeaderEvent.startEditing());
         break;
       case hide:
         context
