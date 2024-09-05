@@ -1,4 +1,6 @@
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -7,6 +9,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
@@ -14,7 +17,6 @@ import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const _kBannerActionHeight = 40.0;
@@ -287,27 +289,36 @@ class _TitleSkin extends IEditableTextCellSkin {
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return TextField(
-      controller: textEditingController,
-      focusNode: focusNode,
-      autofocus: true,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.zero,
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        errorBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
-        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
-        isDense: true,
-        isCollapsed: true,
-      ),
-      onChanged: (text) {
-        if (textEditingController.value.composing.isCollapsed) {
-          bloc.add(TextCellEvent.updateText(text));
-        }
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            focusNode.unfocus(),
+        const SimpleActivator(LogicalKeyboardKey.enter): () =>
+            focusNode.unfocus(),
       },
+      child: TextField(
+        controller: textEditingController,
+        focusNode: focusNode,
+        autofocus: true,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
+        maxLines: null,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.zero,
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+          isDense: true,
+          isCollapsed: true,
+        ),
+        onChanged: (text) {
+          if (textEditingController.value.composing.isCollapsed) {
+            bloc.add(TextCellEvent.updateText(text));
+          }
+        },
+      ),
     );
   }
 }
