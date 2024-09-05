@@ -52,6 +52,7 @@
     "signInWithGithub": "使用 Github 账户登录",
     "signInWithDiscord": "使用 Discord 账户登录",
     "signInWithApple": "使用 Apple 账户登录",
+    "continueAnotherWay": "使用其他方式登录",
     "signUpWithGoogle": "使用 Google 账户注册",
     "signUpWithGithub": "使用 Github 账户注册",
     "signUpWithDiscord": "使用 Discord 账户注册",
@@ -165,6 +166,8 @@
   "newBoardText": "新建看板",
   "chat": {
     "newChat": "AI 对话",
+    "inputMessageHint": "问 @:appName AI",
+    "inputLocalAIMessageHint": "问 @:appName 本地 AI",
     "unsupportedCloudPrompt": "该功能仅在使用 @:appName Cloud 时可用",
     "relatedQuestion": "相关问题",
     "serverUnavailable": "服务暂时不可用，请稍后再试",
@@ -175,7 +178,9 @@
     "question2": "介绍一下 GTD 工作法",
     "question3": "为什么使用 Rust",
     "question4": "使用现有食材制定一份菜谱",
-    "aiMistakePrompt": "AI 可能出错，请验证重要信息"
+    "aiMistakePrompt": "AI 可能出错，请验证重要信息",
+    "chatWithFilePrompt": "你想与文件对话吗？",
+    "questionDetail": "{} 你好！我能怎么帮到你？"
   },
   "trash": {
     "text": "回收站",
@@ -281,7 +286,10 @@
     "justNow": "现在",
     "minutesAgo": "{count} 分钟以前",
     "lastViewed": "最近一次查看",
-    "removeSuccess": "成功移除"
+    "favoriteAt": "已收藏",
+    "emptyFavorite": "无收藏页面",
+    "removeSuccess": "成功移除",
+    "favoriteSpace": "收藏"
   },
   "notifications": {
     "export": {
@@ -338,6 +346,7 @@
     "signInGithub": "使用 Github 账户登录",
     "signInDiscord": "使用 Discord 账户登录",
     "more": "更多",
+    "download": "下载",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -364,9 +373,18 @@
   },
   "settings": {
     "title": "设置",
+    "popupMenuItem": {
+      "settings": "设置",
+      "members": "成员",
+      "trash": "回收站",
+      "helpAndSupport": "帮助与支持"
+    },
     "accountPage": {
       "menuLabel": "我的账户",
       "title": "我的账户",
+      "general": {
+        "changeProfilePicture": "更换头像"
+      },
       "email": {
         "title": "邮箱",
         "actions": {
@@ -425,6 +443,7 @@
         "24HourTime": "24 小时制",
         "dateFormat": {
           "label": "日期格式",
+          "iso": "ISO",
           "dmy": "日/月/年"
         }
       },
@@ -461,6 +480,7 @@
           "resetTooltip": "重置为默认位置"
         },
         "resetDialog": {
+          "title": "你确定吗？",
           "description": "将数据路径重置为默认位置不会删除你的数据。如果你想重新导入当前数据，你应该先复制当前位置的路径。"
         }
       },
@@ -483,9 +503,19 @@
         "title": "清除缓存",
         "description": "如果你遇到图片无法加载或字体无法正确显示的问题，请尝试清除缓存。此操作不会删除你的用户数据。",
         "dialog": {
+          "title": "清除缓存",
           "description": "清除缓存会导致加载时重新下载图像和字体。此操作不会删除或修改你的数据。",
           "successHint": "缓存已清除！"
         }
+      },
+      "data": {
+        "fixYourData": "修复数据",
+        "fixButton": "修复"
+      }
+    },
+    "shortcutsPage": {
+      "keybindings": {
+        "selectAllCodeblock": "全选"
       }
     },
     "planPage": {
