@@ -14,7 +14,6 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -130,48 +129,11 @@ class _PropertyCell extends StatefulWidget {
 
 class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController _popoverController = PopoverController();
-  final PopoverController _fieldPopoverController = PopoverController();
 
   final ValueNotifier<bool> _isFieldHover = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
-    final dragThumb = MouseRegion(
-      cursor: Platform.isWindows
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.grab,
-      child: SizedBox(
-        width: 16,
-        height: 30,
-        child: AppFlowyPopover(
-          controller: _fieldPopoverController,
-          constraints: BoxConstraints.loose(const Size(240, 600)),
-          margin: EdgeInsets.zero,
-          triggerActions: PopoverTriggerFlags.none,
-          direction: PopoverDirection.bottomWithLeftAligned,
-          popupBuilder: (popoverContext) => FieldEditor(
-            viewId: widget.fieldController.viewId,
-            field: widget.fieldController
-                .getField(widget.cellContext.fieldId)!
-                .field,
-            fieldController: widget.fieldController,
-          ),
-          child: ValueListenableBuilder(
-            valueListenable: _isFieldHover,
-            builder: (_, isHovering, child) =>
-                isHovering ? child! : const SizedBox.shrink(),
-            child: BlockActionButton(
-              onTap: () => _fieldPopoverController.show(),
-              svg: FlowySvgs.drag_element_s,
-              richMessage: TextSpan(
-                text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
     final cell = widget.cellBuilder.buildStyled(
       widget.cellContext,
       EditableCellStyle.desktopRowDetail,
@@ -208,57 +170,107 @@ class _PropertyCellState extends State<_PropertyCell> {
                 return ReorderableDragStartListener(
                   index: widget.index,
                   enabled: value,
-                  child: dragThumb,
+                  child: _buildDragHandle(context),
                 );
               },
             ),
             const HSpace(4),
-            BlocSelector<RowDetailBloc, RowDetailState, FieldInfo?>(
-              selector: (state) => state.fields.firstWhereOrNull(
-                (fieldInfo) => fieldInfo.field.id == widget.cellContext.fieldId,
-              ),
-              builder: (context, fieldInfo) {
-                if (fieldInfo == null) {
-                  return const SizedBox.shrink();
-                }
-                return AppFlowyPopover(
-                  controller: _popoverController,
-                  constraints: BoxConstraints.loose(const Size(240, 600)),
-                  margin: EdgeInsets.zero,
-                  triggerActions: PopoverTriggerFlags.none,
-                  direction: PopoverDirection.bottomWithLeftAligned,
-                  popupBuilder: (popoverContext) => FieldEditor(
-                    viewId: widget.fieldController.viewId,
-                    field: fieldInfo.field,
-                    fieldController: widget.fieldController,
-                  ),
-                  child: SizedBox(
-                    width: 160,
-                    height: 30,
-                    child: Tooltip(
-                      waitDuration: const Duration(seconds: 1),
-                      preferBelow: false,
-                      verticalOffset: 15,
-                      message: fieldInfo.name,
-                      child: FieldCellButton(
-                        field: fieldInfo.field,
-                        onTap: () => _popoverController.show(),
-                        radius: BorderRadius.circular(6),
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 6,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            _buildFieldButton(context),
             const HSpace(8),
             Expanded(child: gesture),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDragHandle(BuildContext context) {
+    return MouseRegion(
+      cursor: Platform.isWindows
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.grab,
+      child: SizedBox(
+        width: 16,
+        height: 30,
+        child: BlocListener<RowDetailBloc, RowDetailState>(
+          listenWhen: (previous, current) =>
+              previous.editingFieldId != current.editingFieldId,
+          listener: (context, state) {
+            if (state.editingFieldId == widget.cellContext.fieldId) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _popoverController.show();
+              });
+            }
+          },
+          child: ValueListenableBuilder(
+            valueListenable: _isFieldHover,
+            builder: (_, isHovering, child) =>
+                isHovering ? child! : const SizedBox.shrink(),
+            child: BlockActionButton(
+              onTap: () => context.read<RowDetailBloc>().add(
+                    RowDetailEvent.startEditingField(
+                      widget.cellContext.fieldId,
+                    ),
+                  ),
+              svg: FlowySvgs.drag_element_s,
+              richMessage: TextSpan(
+                text: LocaleKeys.grid_rowPage_fieldDragElementTooltip.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFieldButton(BuildContext context) {
+    return BlocSelector<RowDetailBloc, RowDetailState, FieldInfo?>(
+      selector: (state) => state.fields.firstWhereOrNull(
+        (fieldInfo) => fieldInfo.field.id == widget.cellContext.fieldId,
+      ),
+      builder: (context, fieldInfo) {
+        if (fieldInfo == null) {
+          return const SizedBox.shrink();
+        }
+        return AppFlowyPopover(
+          controller: _popoverController,
+          constraints: BoxConstraints.loose(const Size(240, 600)),
+          margin: EdgeInsets.zero,
+          triggerActions: PopoverTriggerFlags.none,
+          direction: PopoverDirection.bottomWithLeftAligned,
+          onClose: () => context
+              .read<RowDetailBloc>()
+              .add(const RowDetailEvent.endEditingField()),
+          popupBuilder: (popoverContext) => FieldEditor(
+            viewId: widget.fieldController.viewId,
+            fieldInfo: fieldInfo,
+            fieldController: widget.fieldController,
+            isNewField: context.watch<RowDetailBloc>().state.newFieldId ==
+                widget.cellContext.fieldId,
+          ),
+          child: SizedBox(
+            width: 160,
+            height: 30,
+            child: Tooltip(
+              waitDuration: const Duration(seconds: 1),
+              preferBelow: false,
+              verticalOffset: 15,
+              message: fieldInfo.name,
+              child: FieldCellButton(
+                field: fieldInfo.field,
+                onTap: () => context.read<RowDetailBloc>().add(
+                      RowDetailEvent.startEditingField(
+                        widget.cellContext.fieldId,
+                      ),
+                    ),
+                radius: BorderRadius.circular(6),
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -354,7 +366,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
   }
 }
 
-class CreateRowFieldButton extends StatefulWidget {
+class CreateRowFieldButton extends StatelessWidget {
   const CreateRowFieldButton({
     super.key,
     required this.viewId,
@@ -365,59 +377,34 @@ class CreateRowFieldButton extends StatefulWidget {
   final FieldController fieldController;
 
   @override
-  State<CreateRowFieldButton> createState() => _CreateRowFieldButtonState();
-}
-
-class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
-  final PopoverController popoverController = PopoverController();
-  FieldPB? createdField;
-
-  @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      constraints: BoxConstraints.loose(const Size(240, 200)),
-      controller: popoverController,
-      direction: PopoverDirection.topWithLeftAligned,
-      triggerActions: PopoverTriggerFlags.none,
-      margin: EdgeInsets.zero,
-      child: SizedBox(
-        height: 30,
-        child: FlowyButton(
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          text: FlowyText.medium(
-            lineHeight: 1.0,
-            LocaleKeys.grid_field_newProperty.tr(),
-            color: Theme.of(context).hintColor,
-          ),
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onTap: () async {
-            final result = await FieldBackendService.createField(
-              viewId: widget.viewId,
-            );
-            result.fold(
-              (newField) {
-                createdField = newField;
-                popoverController.show();
-              },
-              (r) => Log.error("Failed to create field type option: $r"),
-            );
-          },
-          leftIcon: FlowySvg(
-            FlowySvgs.add_m,
-            color: Theme.of(context).hintColor,
-          ),
+    return SizedBox(
+      height: 30,
+      child: FlowyButton(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        text: FlowyText.medium(
+          lineHeight: 1.0,
+          LocaleKeys.grid_field_newProperty.tr(),
+          color: Theme.of(context).hintColor,
+        ),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        onTap: () async {
+          final result = await FieldBackendService.createField(
+            viewId: viewId,
+          );
+          await Future.delayed(const Duration(milliseconds: 50));
+          result.fold(
+            (field) => context
+                .read<RowDetailBloc>()
+                .add(RowDetailEvent.startEditingNewField(field.id)),
+            (err) => Log.error("Failed to create field type option: $err"),
+          );
+        },
+        leftIcon: FlowySvg(
+          FlowySvgs.add_m,
+          color: Theme.of(context).hintColor,
         ),
       ),
-      popupBuilder: (BuildContext popoverContext) {
-        if (createdField == null) {
-          return const SizedBox.shrink();
-        }
-        return FieldEditor(
-          viewId: widget.viewId,
-          field: createdField!,
-          fieldController: widget.fieldController,
-        );
-      },
     );
   }
 }

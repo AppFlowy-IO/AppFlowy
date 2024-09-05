@@ -13,16 +13,17 @@ const TableCell = memo(
         ref={ref}
         {...attributes}
         style={{
+          fontSize: '15px',
           ...attributes.style,
           backgroundColor:
             rowBackgroundColor || colBackgroundColor ? renderColor(colBackgroundColor || rowBackgroundColor) : undefined,
         }}
-        className={`relative table-cell text-left ${className || ''}`}
+        className={`relative px-1 table-cell text-left ${className || ''}`}
       >
         {children}
       </div>
     );
-  })
+  }),
 );
 
 export default TableCell;

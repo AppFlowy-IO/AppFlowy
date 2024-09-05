@@ -107,7 +107,6 @@ class SingleSettingAction extends StatelessWidget {
             radius: Corners.s8Border,
             hoverColor: hoverColor(context),
             fontColor: fontColor(context),
-            textColor: fontColor(context),
             fontHoverColor: fontHoverColor(context),
             borderColor: borderColor(context),
             fontSize: 12,
@@ -128,6 +127,10 @@ class SingleSettingAction extends StatelessWidget {
   }
 
   Color? hoverColor(BuildContext context) {
+    if (buttonType.isDangerous) {
+      return Theme.of(context).colorScheme.error.withOpacity(0.1);
+    }
+
     if (buttonType.isPrimary) {
       return Theme.of(context).colorScheme.primary.withOpacity(0.9);
     }

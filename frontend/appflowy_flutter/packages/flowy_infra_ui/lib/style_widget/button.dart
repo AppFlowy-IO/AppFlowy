@@ -258,16 +258,32 @@ class FlowyButton extends StatelessWidget {
       child = IntrinsicWidth(child: child);
     }
 
-    final decoration = this.decoration ??
+    var decoration = this.decoration;
+
+    if (decoration == null &&
         (showDefaultBoxDecorationOnMobile &&
-                (Platform.isIOS || Platform.isAndroid)
-            ? BoxDecoration(
-                border: Border.all(
-                color: borderColor ??
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                width: 1.0,
-              ))
-            : null);
+            (Platform.isIOS || Platform.isAndroid))) {
+      decoration = BoxDecoration(
+        color: backgroundColor ?? Theme.of(context).colorScheme.surface,
+      );
+    }
+
+    if (decoration == null && (Platform.isIOS || Platform.isAndroid)) {
+      if (showDefaultBoxDecorationOnMobile) {
+        decoration = BoxDecoration(
+          border: Border.all(
+            color: borderColor ?? Theme.of(context).colorScheme.outline,
+            width: 1.0,
+          ),
+          borderRadius: radius,
+        );
+      } else if (backgroundColor != null) {
+        decoration = BoxDecoration(
+          color: backgroundColor,
+          borderRadius: radius,
+        );
+      }
+    }
 
     return Container(
       decoration: decoration,
@@ -296,7 +312,6 @@ class FlowyTextButton extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     this.hoverColor,
     this.fillColor,
-    this.textColor,
     this.heading,
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -352,7 +367,6 @@ class FlowyTextButton extends StatelessWidget {
   final Widget? heading;
   final Color? hoverColor;
   final Color? fillColor;
-  final Color? textColor;
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
   final String? tooltip;
@@ -375,9 +389,10 @@ class FlowyTextButton extends StatelessWidget {
     children.add(FlowyText(
       text,
       overflow: overflow,
-      color: textColor,
+      color: fontColor ?? Theme.of(context).colorScheme.onPrimary,
       textAlign: TextAlign.center,
       lineHeight: lineHeight,
+      fontSize: fontSize,
     ));
 
     Widget child = Row(

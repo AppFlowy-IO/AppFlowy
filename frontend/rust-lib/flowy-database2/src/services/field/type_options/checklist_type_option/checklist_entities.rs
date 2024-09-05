@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
-use crate::services::field::{SelectOption, TypeOptionCellData, CELL_DATA};
-use collab::core::any_map::AnyMapExtension;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
+use collab::util::AnyMapExt;
+use collab_database::entity::SelectOption;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -64,7 +65,7 @@ impl ChecklistCellData {
 impl From<&Cell> for ChecklistCellData {
   fn from(cell: &Cell) -> Self {
     cell
-      .get_str_value(CELL_DATA)
+      .get_as::<String>(CELL_DATA)
       .map(|data| serde_json::from_str::<ChecklistCellData>(&data).unwrap_or_default())
       .unwrap_or_default()
   }
@@ -73,9 +74,9 @@ impl From<&Cell> for ChecklistCellData {
 impl From<ChecklistCellData> for Cell {
   fn from(cell_data: ChecklistCellData) -> Self {
     let data = serde_json::to_string(&cell_data).unwrap_or_default();
-    new_cell_builder(FieldType::Checklist)
-      .insert_str_value(CELL_DATA, data)
-      .build()
+    let mut cell = new_cell_builder(FieldType::Checklist);
+    cell.insert(CELL_DATA.into(), data.into());
+    cell
   }
 }
 

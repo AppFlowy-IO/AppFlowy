@@ -8,6 +8,7 @@ import 'card_cell_skeleton/card_cell.dart';
 import 'card_cell_skeleton/checkbox_card_cell.dart';
 import 'card_cell_skeleton/checklist_card_cell.dart';
 import 'card_cell_skeleton/date_card_cell.dart';
+import 'card_cell_skeleton/media_card_cell.dart';
 import 'card_cell_skeleton/number_card_cell.dart';
 import 'card_cell_skeleton/relation_card_cell.dart';
 import 'card_cell_skeleton/select_option_card_cell.dart';
@@ -108,6 +109,12 @@ class CardCellBuilder {
           cellContext: cellContext,
         ),
       FieldType.Translate => TranslateCardCell(
+          key: key,
+          style: isStyleOrNull(style),
+          databaseController: databaseController,
+          cellContext: cellContext,
+        ),
+      FieldType.Media => MediaCardCell(
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,

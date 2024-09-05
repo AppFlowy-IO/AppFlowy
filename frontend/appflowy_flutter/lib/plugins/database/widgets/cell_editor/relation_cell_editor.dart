@@ -2,8 +2,15 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/relation_type_option_cubit.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/row/relation_row_detail.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -126,7 +133,7 @@ class _RelationCellEditorContentState
               shrinkWrap: true,
               slivers: [
                 _CellEditorTitle(
-                  databaseName: widget.relatedDatabaseMeta.databaseName,
+                  databaseMeta: widget.relatedDatabaseMeta,
                 ),
                 _SearchField(
                   focusNode: focusNode,
@@ -204,10 +211,10 @@ class _RelationCellEditorContentState
 
 class _CellEditorTitle extends StatelessWidget {
   const _CellEditorTitle({
-    required this.databaseName,
+    required this.databaseMeta,
   });
 
-  final String databaseName;
+  final DatabaseMeta databaseMeta;
 
   @override
   Widget build(BuildContext context) {
@@ -223,21 +230,48 @@ class _CellEditorTitle extends StatelessWidget {
               fontSize: 11,
               color: Theme.of(context).hintColor,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-                vertical: 2,
-              ),
-              child: FlowyText.regular(
-                databaseName,
-                fontSize: 11,
-                overflow: TextOverflow.ellipsis,
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => _openRelatedDatbase(context),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: FlowyText.regular(
+                    databaseMeta.databaseName,
+                    fontSize: 11,
+                    overflow: TextOverflow.ellipsis,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _openRelatedDatbase(BuildContext context) {
+    FolderEventGetView(ViewIdPB(value: databaseMeta.inlineViewId))
+        .send()
+        .then((result) {
+      result.fold(
+        (view) {
+          PopoverContainer.of(context).closeAll();
+          Navigator.of(context).maybePop();
+          getIt<TabsBloc>().add(
+            TabsEvent.openPlugin(
+              plugin: DatabaseTabBarViewPlugin(
+                view: view,
+                pluginType: view.pluginType,
+              ),
+            ),
+          );
+        },
+        (err) => Log.error(err),
+      );
+    });
   }
 }
 

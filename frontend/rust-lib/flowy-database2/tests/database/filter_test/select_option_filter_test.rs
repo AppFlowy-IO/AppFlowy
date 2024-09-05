@@ -43,8 +43,8 @@ async fn grid_filter_multi_select_is_not_empty_test() {
 #[tokio::test]
 async fn grid_filter_multi_select_is_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::MultiSelect);
-  let mut options = test.get_multi_select_type_option(&field.id);
+  let field = test.get_first_field(FieldType::MultiSelect).await;
+  let mut options = test.get_multi_select_type_option(&field.id).await;
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -63,8 +63,8 @@ async fn grid_filter_multi_select_is_test() {
 #[tokio::test]
 async fn grid_filter_multi_select_is_test2() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::MultiSelect);
-  let mut options = test.get_multi_select_type_option(&field.id);
+  let field = test.get_first_field(FieldType::MultiSelect).await;
+  let mut options = test.get_multi_select_type_option(&field.id).await;
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -84,7 +84,7 @@ async fn grid_filter_multi_select_is_test2() {
 async fn grid_filter_single_select_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let expected = 3;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -106,10 +106,10 @@ async fn grid_filter_single_select_is_empty_test() {
 #[tokio::test]
 async fn grid_filter_single_select_is_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::SingleSelect);
-  let mut options = test.get_single_select_type_option(&field.id);
+  let field = test.get_first_field(FieldType::SingleSelect).await;
+  let mut options = test.get_single_select_type_option(&field.id).await;
   let expected = 2;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -131,11 +131,11 @@ async fn grid_filter_single_select_is_test() {
 #[tokio::test]
 async fn grid_filter_single_select_is_test2() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::SingleSelect);
+  let field = test.get_first_field(FieldType::SingleSelect).await;
   let row_details = test.get_rows().await;
-  let mut options = test.get_single_select_type_option(&field.id);
+  let mut options = test.get_single_select_type_option(&field.id).await;
   let option = options.remove(0);
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
 
   let scripts = vec![
     CreateDataFilter {
@@ -152,13 +152,13 @@ async fn grid_filter_single_select_is_test2() {
     },
     AssertNumberOfVisibleRows { expected: 2 },
     UpdateSingleSelectCell {
-      row_id: row_details[1].row.id.clone(),
+      row_id: row_details[1].id.clone(),
       option_id: option.id.clone(),
       changed: None,
     },
     AssertNumberOfVisibleRows { expected: 3 },
     UpdateSingleSelectCell {
-      row_id: row_details[1].row.id.clone(),
+      row_id: row_details[1].id.clone(),
       option_id: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
@@ -173,8 +173,8 @@ async fn grid_filter_single_select_is_test2() {
 #[tokio::test]
 async fn grid_filter_multi_select_contains_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::MultiSelect);
-  let mut options = test.get_multi_select_type_option(&field.id);
+  let field = test.get_first_field(FieldType::MultiSelect).await;
+  let mut options = test.get_multi_select_type_option(&field.id).await;
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,
@@ -193,8 +193,8 @@ async fn grid_filter_multi_select_contains_test() {
 #[tokio::test]
 async fn grid_filter_multi_select_contains_test2() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::MultiSelect);
-  let mut options = test.get_multi_select_type_option(&field.id);
+  let field = test.get_first_field(FieldType::MultiSelect).await;
+  let mut options = test.get_multi_select_type_option(&field.id).await;
   let scripts = vec![
     CreateDataFilter {
       parent_filter_id: None,

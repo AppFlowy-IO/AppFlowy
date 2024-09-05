@@ -64,6 +64,10 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
               case MobileViewItemBottomSheetBodyAction.duplicate:
                 Navigator.pop(context);
                 context.read<ViewBloc>().add(const ViewEvent.duplicate());
+                showToastNotification(
+                  context,
+                  message: LocaleKeys.button_duplicateSuccessfully.tr(),
+                );
                 break;
               case MobileViewItemBottomSheetBodyAction.share:
                 // unimplemented
@@ -79,6 +83,12 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 context
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
+                showToastNotification(
+                  context,
+                  message: !widget.view.isFavorite
+                      ? LocaleKeys.button_favoriteSuccessfully.tr()
+                      : LocaleKeys.button_unfavoriteSuccessfully.tr(),
+                );
                 break;
               case MobileViewItemBottomSheetBodyAction.removeFromRecent:
                 _removeFromRecent(context);
@@ -116,12 +126,18 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
   Future<void> _showConfirmDialog({required VoidCallback onDelete}) async {
     await showFlowyCupertinoConfirmDialog(
       title: LocaleKeys.sideBar_removePageFromRecent.tr(),
-      leftButton: FlowyText.regular(
+      leftButton: FlowyText(
         LocaleKeys.button_cancel.tr(),
-        color: const Color(0xFF1456F0),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFF007AFF),
       ),
-      rightButton: FlowyText.medium(
+      rightButton: FlowyText(
         LocaleKeys.button_delete.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w400,
         color: const Color(0xFFFE0220),
       ),
       onRightButtonPressed: (context) {

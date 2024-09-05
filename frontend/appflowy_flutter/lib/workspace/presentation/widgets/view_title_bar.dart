@@ -79,11 +79,11 @@ class ViewTitleBar extends StatelessWidget {
       final child = FlowyTooltip(
         key: ValueKey(view.id),
         message: view.name,
-        child: _ViewTitle(
+        child: ViewTitle(
           view: view,
           behavior: i == views.length - 1
-              ? _ViewTitleBehavior.editable // only the last one is editable
-              : _ViewTitleBehavior.uneditable, // others are not editable
+              ? ViewTitleBehavior.editable // only the last one is editable
+              : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
             context
                 .read<ViewTitleBarBloc>()
@@ -103,27 +103,28 @@ class ViewTitleBar extends StatelessWidget {
   }
 }
 
-enum _ViewTitleBehavior {
+enum ViewTitleBehavior {
   editable,
   uneditable,
 }
 
-class _ViewTitle extends StatefulWidget {
-  const _ViewTitle({
+class ViewTitle extends StatefulWidget {
+  const ViewTitle({
+    super.key,
     required this.view,
-    this.behavior = _ViewTitleBehavior.editable,
+    this.behavior = ViewTitleBehavior.editable,
     required this.onUpdated,
   });
 
   final ViewPB view;
-  final _ViewTitleBehavior behavior;
+  final ViewTitleBehavior behavior;
   final VoidCallback onUpdated;
 
   @override
-  State<_ViewTitle> createState() => _ViewTitleState();
+  State<ViewTitle> createState() => _ViewTitleState();
 }
 
-class _ViewTitleState extends State<_ViewTitle> {
+class _ViewTitleState extends State<ViewTitle> {
   final popoverController = PopoverController();
   final textEditingController = TextEditingController();
 
@@ -137,7 +138,7 @@ class _ViewTitleState extends State<_ViewTitle> {
 
   @override
   Widget build(BuildContext context) {
-    final isEditable = widget.behavior == _ViewTitleBehavior.editable;
+    final isEditable = widget.behavior == ViewTitleBehavior.editable;
 
     return BlocProvider(
       create: (_) =>

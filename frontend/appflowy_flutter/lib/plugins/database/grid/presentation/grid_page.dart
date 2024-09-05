@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
@@ -9,20 +13,20 @@ import 'package:appflowy/workspace/application/action_navigation/navigation_acti
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import 'package:provider/provider.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/row/row_controller.dart';
 import '../../tab_bar/tab_bar_view.dart';
 import '../../widgets/row/row_detail.dart';
 import '../application/grid_bloc.dart';
+
 import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -154,6 +158,7 @@ class _GridPageState extends State<GridPage> {
             finish: (result) => result.successOrFail.fold(
               (_) => GridShortcuts(
                 child: GridPageContent(
+                  key: ValueKey(widget.view.id),
                   view: widget.view,
                 ),
               ),
@@ -305,22 +310,26 @@ class _GridRowsState extends State<_GridRows> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         return Flexible(
-          child: _WrapScrollView(
-            scrollController: widget.scrollController,
-            contentWidth: GridLayout.headerWidth(state.fields),
-            child: BlocConsumer<GridBloc, GridState>(
-              listenWhen: (previous, current) =>
-                  previous.rowCount != current.rowCount,
-              listener: (context, state) => _evaluateFloatingCalculations(),
-              builder: (context, state) {
-                return ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(
-                    scrollbars: false,
-                  ),
-                  child: _renderList(context, state),
-                );
-              },
-            ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints layoutConstraits) {
+              return _WrapScrollView(
+                scrollController: widget.scrollController,
+                contentWidth: GridLayout.headerWidth(state.fields),
+                child: BlocConsumer<GridBloc, GridState>(
+                  listenWhen: (previous, current) =>
+                      previous.rowCount != current.rowCount,
+                  listener: (context, state) => _evaluateFloatingCalculations(),
+                  builder: (context, state) {
+                    return ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        scrollbars: false,
+                      ),
+                      child: _renderList(context, state, layoutConstraits),
+                    );
+                  },
+                ),
+              );
+            },
           ),
         );
       },
@@ -330,48 +339,28 @@ class _GridRowsState extends State<_GridRows> {
   Widget _renderList(
     BuildContext context,
     GridState state,
+    BoxConstraints layoutConstraints,
   ) {
-    final children = state.rowInfos.mapIndexed((index, rowInfo) {
-      return _renderRow(
-        context,
-        rowInfo.rowId,
-        isDraggable: state.reorderable,
-        index: index,
-      );
-    }).toList()
-      ..add(const GridRowBottomBar(key: Key('grid_footer')));
-
-    if (showFloatingCalculations) {
-      children.add(
-        const SizedBox(
-          key: Key('calculations_bottom_padding'),
-          height: 36,
-        ),
-      );
-    } else {
-      children.add(
-        GridCalculationsRow(
-          key: const Key('grid_calculations'),
-          viewId: widget.viewId,
-        ),
-      );
-    }
-
-    children.add(const SizedBox(key: Key('footer_padding'), height: 10));
-
+    // 1. GridRowBottomBar
+    // 2. GridCalculationsRow
+    // 3. Footer Padding
+    final itemCount = state.rowInfos.length + 3;
     return Stack(
       children: [
         Positioned.fill(
           child: ReorderableListView.builder(
             ///  This is a workaround related to
             ///  https://github.com/flutter/flutter/issues/25652
-            cacheExtent: 5000,
+            cacheExtent: max(layoutConstraints.maxHeight * 2, 500),
             scrollController: widget.scrollController.verticalController,
             physics: const ClampingScrollPhysics(),
             buildDefaultDragHandles: false,
-            proxyDecorator: (child, index, animation) => Material(
-              color: Colors.white.withOpacity(.1),
-              child: Opacity(opacity: .5, child: child),
+            proxyDecorator: (child, _, __) => Provider.value(
+              value: context.read<DatabasePluginWidgetBuilderSize>(),
+              child: Material(
+                color: Colors.white.withOpacity(.1),
+                child: Opacity(opacity: .5, child: child),
+              ),
             ),
             onReorder: (fromIndex, newIndex) {
               final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
@@ -381,8 +370,37 @@ class _GridRowsState extends State<_GridRows> {
                     .add(GridEvent.moveRow(fromIndex, toIndex));
               }
             },
-            itemCount: children.length,
-            itemBuilder: (context, index) => children[index],
+            itemCount: itemCount,
+            itemBuilder: (context, index) {
+              if (index < state.rowInfos.length) {
+                return _renderRow(
+                  context,
+                  state.rowInfos[index].rowId,
+                  isDraggable: state.reorderable,
+                  index: index,
+                );
+              }
+
+              if (index == state.rowInfos.length) {
+                return const GridRowBottomBar(key: Key('grid_footer'));
+              }
+
+              if (index == state.rowInfos.length + 1) {
+                if (showFloatingCalculations) {
+                  return const SizedBox(
+                    key: Key('calculations_bottom_padding'),
+                    height: 36,
+                  );
+                } else {
+                  return GridCalculationsRow(
+                    key: const Key('grid_calculations'),
+                    viewId: widget.viewId,
+                  );
+                }
+              }
+
+              return const SizedBox(key: Key('footer_padding'), height: 10);
+            },
           ),
         ),
         if (showFloatingCalculations) ...[
@@ -415,7 +433,7 @@ class _GridRowsState extends State<_GridRows> {
     );
 
     final child = GridRow(
-      key: ValueKey(rowMeta.id),
+      key: ValueKey(rowId),
       fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,

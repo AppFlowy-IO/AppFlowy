@@ -11,8 +11,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'settings_ai_bloc.freezed.dart';
 
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
-  SettingsAIBloc(this.userProfile, WorkspaceMemberPB? member)
-      : _userListener = UserListener(userProfile: userProfile),
+  SettingsAIBloc(
+    this.userProfile,
+    this.workspaceId,
+    WorkspaceMemberPB? member,
+  )   : _userListener = UserListener(userProfile: userProfile),
         _userService = UserBackendService(userId: userProfile.id),
         super(SettingsAIState(userProfile: userProfile, member: member)) {
     _dispatch();
@@ -36,6 +39,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   final UserListener _userListener;
   final UserProfilePB userProfile;
   final UserBackendService _userService;
+  final String workspaceId;
 
   @override
   Future<void> close() async {
@@ -92,7 +96,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     AIModelPB? model,
   }) {
     final payload = UpdateUserWorkspaceSettingPB(
-      workspaceId: userProfile.workspaceId,
+      workspaceId: workspaceId,
     );
     if (disableSearchIndexing != null) {
       payload.disableSearchIndexing = disableSearchIndexing;
@@ -112,7 +116,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
       );
 
   void _loadUserWorkspaceSetting() {
-    final payload = UserWorkspaceIdPB(workspaceId: userProfile.workspaceId);
+    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
     UserEventGetWorkspaceSetting(payload).send().then((result) {
       result.fold((settings) {
         if (!isClosed) {
@@ -133,7 +137,8 @@ class SettingsAIEvent with _$SettingsAIEvent {
   ) = _DidLoadWorkspaceSetting;
 
   const factory SettingsAIEvent.toggleAISearch() = _toggleAISearch;
-  const factory SettingsAIEvent.refreshMember(WorkspaceMemberPB member) = _RefreshMember;
+  const factory SettingsAIEvent.refreshMember(WorkspaceMemberPB member) =
+      _RefreshMember;
 
   const factory SettingsAIEvent.selectModel(AIModelPB model) = _SelectAIModel;
 

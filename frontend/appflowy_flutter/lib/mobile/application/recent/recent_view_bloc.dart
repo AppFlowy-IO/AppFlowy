@@ -1,7 +1,5 @@
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
-import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_listener.dart';
-import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -113,7 +111,6 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
     );
   }
 
-  final _service = DocumentService();
   final ViewPB view;
   final DocumentListener _documentListener;
   final ViewListener _viewListener;
@@ -124,16 +121,6 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
 
   // for the version under 0.5.5
   Future<(CoverType, String?)> getCoverV1() async {
-    final result = await _service.getDocument(documentId: view.id);
-    final document = result.fold((s) => s.toDocument(), (f) => null);
-    if (document != null) {
-      final coverType = CoverType.fromString(
-        document.root.attributes[DocumentHeaderBlockKeys.coverType],
-      );
-      final coverValue = document
-          .root.attributes[DocumentHeaderBlockKeys.coverDetails] as String?;
-      return (coverType, coverValue);
-    }
     return (CoverType.none, null);
   }
 

@@ -1,18 +1,17 @@
-use std::collections::HashMap;
+use arc_swap::ArcSwapOption;
+use dashmap::DashMap;
 use std::fmt::{Display, Formatter};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::{Arc, Weak};
 
-use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
-use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
@@ -26,12 +25,8 @@ pub enum Server {
   /// Offline mode, no user authentication and the data is stored locally.
   Local = 0,
   /// AppFlowy Cloud server provider.
-  /// The [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Cloud) is still a work in
-  /// progress.
+  /// See: https://github.com/AppFlowy-IO/AppFlowy-Cloud
   AppFlowyCloud = 1,
-  /// Supabase server provider.
-  /// It uses supabase postgresql database to store data and user authentication.
-  Supabase = 2,
 }
 
 impl Server {
@@ -45,7 +40,6 @@ impl Display for Server {
     match self {
       Server::Local => write!(f, "Local"),
       Server::AppFlowyCloud => write!(f, "AppFlowyCloud"),
-      Server::Supabase => write!(f, "Supabase"),
     }
   }
 }
@@ -56,16 +50,16 @@ impl Display for Server {
 /// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  providers: RwLock<HashMap<Server, Arc<dyn AppFlowyServer>>>,
-  pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
+  providers: DashMap<Server, Arc<dyn AppFlowyServer>>,
+  pub(crate) encryption: Arc<dyn AppFlowyEncryption>,
   #[allow(dead_code)]
   pub(crate) store_preferences: Weak<KVStorePreferences>,
-  pub(crate) user_enable_sync: RwLock<bool>,
+  pub(crate) user_enable_sync: AtomicBool,
 
   /// The authenticator type of the user.
-  authenticator: RwLock<Authenticator>,
+  authenticator: AtomicU8,
   user: Arc<dyn ServerUser>,
-  pub(crate) uid: Arc<RwLock<Option<i64>>>,
+  pub(crate) uid: Arc<ArcSwapOption<i64>>,
 }
 
 impl ServerProvider {
@@ -79,10 +73,10 @@ impl ServerProvider {
     let encryption = EncryptionImpl::new(None);
     Self {
       config,
-      providers: RwLock::new(HashMap::new()),
-      user_enable_sync: RwLock::new(true),
-      authenticator: RwLock::new(Authenticator::from(server)),
-      encryption: RwLock::new(Arc::new(encryption)),
+      providers: DashMap::new(),
+      user_enable_sync: AtomicBool::new(true),
+      authenticator: AtomicU8::new(Authenticator::from(server) as u8),
+      encryption: Arc::new(encryption),
       store_preferences,
       uid: Default::default(),
       user,
@@ -90,33 +84,34 @@ impl ServerProvider {
   }
 
   pub fn get_server_type(&self) -> Server {
-    match &*self.authenticator.read() {
+    match Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32) {
       Authenticator::Local => Server::Local,
       Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-      Authenticator::Supabase => Server::Supabase,
     }
   }
 
   pub fn set_authenticator(&self, authenticator: Authenticator) {
     let old_server_type = self.get_server_type();
-    *self.authenticator.write() = authenticator;
+    self
+      .authenticator
+      .store(authenticator as u8, Ordering::Release);
     let new_server_type = self.get_server_type();
 
     if old_server_type != new_server_type {
-      self.providers.write().remove(&old_server_type);
+      self.providers.remove(&old_server_type);
     }
   }
 
   pub fn get_authenticator(&self) -> Authenticator {
-    self.authenticator.read().clone()
+    Authenticator::from(self.authenticator.load(Ordering::Acquire) as i32)
   }
 
   /// Returns a [AppFlowyServer] trait implementation base on the provider_type.
   pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
     let server_type = self.get_server_type();
 
-    if let Some(provider) = self.providers.read().get(&server_type) {
-      return Ok(provider.clone());
+    if let Some(provider) = self.providers.get(&server_type) {
+      return Ok(provider.value().clone());
     }
 
     let server = match server_type {
@@ -131,7 +126,7 @@ impl ServerProvider {
         let config = AFCloudConfiguration::from_env()?;
         let server = Arc::new(AppFlowyCloudServer::new(
           config,
-          *self.user_enable_sync.read(),
+          self.user_enable_sync.load(Ordering::Acquire),
           self.config.device_id.clone(),
           self.config.app_version.clone(),
           self.user.clone(),
@@ -139,25 +134,9 @@ impl ServerProvider {
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
-      Server::Supabase => {
-        let config = SupabaseConfiguration::from_env()?;
-        let uid = self.uid.clone();
-        tracing::trace!("🔑Supabase config: {:?}", config);
-        let encryption = Arc::downgrade(&*self.encryption.read());
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
-          uid,
-          config,
-          *self.user_enable_sync.read(),
-          self.config.device_id.clone(),
-          encryption,
-        )))
-      },
     }?;
 
-    self
-      .providers
-      .write()
-      .insert(server_type.clone(), server.clone());
+    self.providers.insert(server_type.clone(), server.clone());
     Ok(server)
   }
 }
@@ -167,7 +146,6 @@ impl From<Authenticator> for Server {
     match auth_provider {
       Authenticator::Local => Server::Local,
       Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
-      Authenticator::Supabase => Server::Supabase,
     }
   }
 }
@@ -177,7 +155,6 @@ impl From<Server> for Authenticator {
     match ty {
       Server::Local => Authenticator::Local,
       Server::AppFlowyCloud => Authenticator::AppFlowyCloud,
-      Server::Supabase => Authenticator::Supabase,
     }
   }
 }
@@ -190,7 +167,6 @@ impl From<&Authenticator> for Server {
 pub fn current_server_type() -> Server {
   match AuthenticatorType::from_env() {
     AuthenticatorType::Local => Server::Local,
-    AuthenticatorType::Supabase => Server::Supabase,
     AuthenticatorType::AppFlowyCloud => Server::AppFlowyCloud,
   }
 }

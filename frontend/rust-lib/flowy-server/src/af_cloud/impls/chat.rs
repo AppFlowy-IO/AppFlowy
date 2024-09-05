@@ -8,12 +8,11 @@ use client_api::entity::{
 };
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig, StreamAnswer,
-  StreamComplete,
+  StreamComplete, SubscriptionPlan,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -28,29 +27,25 @@ impl<T> ChatCloudService for AFCloudChatCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn create_chat(
+  async fn create_chat(
     &self,
     _uid: &i64,
     workspace_id: &str,
     chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    let workspace_id = workspace_id.to_string();
+  ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
+    let params = CreateChatParams {
+      chat_id,
+      name: "".to_string(),
+      rag_ids: vec![],
+    };
+    try_get_client?
+      .create_chat(workspace_id, params)
+      .await
+      .map_err(FlowyError::from)?;
 
-    FutureResult::new(async move {
-      let params = CreateChatParams {
-        chat_id,
-        name: "".to_string(),
-        rag_ids: vec![],
-      };
-      try_get_client?
-        .create_chat(&workspace_id, params)
-        .await
-        .map_err(FlowyError::from)?;
-
-      Ok(())
-    })
+    Ok(())
   }
 
   async fn create_question(
@@ -221,5 +216,17 @@ where
       .create_chat_context(workspace_id, chat_context)
       .await?;
     Ok(())
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
+    let plans = self
+      .inner
+      .try_get_client()?
+      .get_active_workspace_subscriptions(workspace_id)
+      .await?;
+    Ok(plans)
   }
 }

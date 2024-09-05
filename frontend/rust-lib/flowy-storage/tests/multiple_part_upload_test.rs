@@ -175,5 +175,6 @@ pub async fn create_upload_file_record(
     chunk_size: MIN_CHUNK_SIZE as i32,
     num_chunk: chunked_bytes.offsets.len() as i32,
     created_at: chrono::Utc::now().timestamp(),
+    is_finish: false,
   }
 }

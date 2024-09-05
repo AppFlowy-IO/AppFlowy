@@ -493,6 +493,11 @@ class UserWorkspaceActionResult {
   final UserWorkspaceActionType actionType;
   final bool isLoading;
   final FlowyResult<void, FlowyError>? result;
+
+  @override
+  String toString() {
+    return 'UserWorkspaceActionResult(actionType: $actionType, isLoading: $isLoading, result: $result)';
+  }
 }
 
 @freezed

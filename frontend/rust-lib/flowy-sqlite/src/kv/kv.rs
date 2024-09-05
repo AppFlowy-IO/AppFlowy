@@ -46,8 +46,8 @@ impl KVStorePreferences {
   }
 
   /// Set a object that implements [Serialize] trait of a key
-  pub fn set_object<T: Serialize>(&self, key: &str, value: T) -> Result<(), anyhow::Error> {
-    let value = serde_json::to_string(&value)?;
+  pub fn set_object<T: Serialize>(&self, key: &str, value: &T) -> Result<(), anyhow::Error> {
+    let value = serde_json::to_string(value)?;
     self.set_key_value(key, Some(value))?;
     Ok(())
   }
@@ -175,7 +175,7 @@ mod tests {
       name: "nathan".to_string(),
       age: 30,
     };
-    store.set_object("1", person.clone()).unwrap();
+    store.set_object("1", &person.clone()).unwrap();
     assert_eq!(store.get_object::<Person>("1").unwrap(), person);
   }
 }

@@ -4,6 +4,9 @@ use crate::services::entities::{UserConfig, UserPaths};
 use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
+use arc_swap::ArcSwapOption;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -20,22 +23,22 @@ pub struct AuthenticateUser {
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
   store_preferences: Arc<KVStorePreferences>,
-  session: Arc<parking_lot::RwLock<Option<Session>>>,
+  session: ArcSwapOption<Session>,
 }
 
 impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
-    let session = Arc::new(parking_lot::RwLock::new(None));
-    *session.write() =
-      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences);
+    let session =
+      migrate_session_with_user_uuid(&user_config.session_cache_key, &store_preferences)
+        .map(Arc::new);
     Self {
       user_config,
       database,
       user_paths,
       store_preferences,
-      session,
+      session: ArcSwapOption::from(session),
     }
   }
 
@@ -67,7 +70,7 @@ impl AuthenticateUser {
 
   pub fn workspace_id(&self) -> FlowyResult<String> {
     let session = self.get_session()?;
-    Ok(session.user_workspace.id)
+    Ok(session.user_workspace.id.clone())
   }
 
   pub fn workspace_database_object_id(&self) -> FlowyResult<String> {
@@ -107,49 +110,57 @@ impl AuthenticateUser {
     Ok(())
   }
 
-  pub fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    match &session {
+  pub fn is_collab_on_disk(&self, uid: i64, object_id: &str) -> FlowyResult<bool> {
+    let collab_db = self.database.get_collab_db(uid)?;
+    let read_txn = collab_db.read_txn();
+    Ok(read_txn.is_exist(uid, &object_id))
+  }
+
+  pub fn set_session(&self, session: Option<Arc<Session>>) -> Result<(), FlowyError> {
+    match session {
       None => {
-        let removed_session = self.session.write().take();
-        info!("remove session: {:?}", removed_session);
+        let previous = self.session.swap(session);
+        info!("remove session: {:?}", previous);
         self
           .store_preferences
           .remove(self.user_config.session_cache_key.as_ref());
-        Ok(())
       },
       Some(session) => {
+        self.session.swap(Some(session.clone()));
         info!("Set current session: {:?}", session);
-        self.session.write().replace(session.clone());
         self
           .store_preferences
-          .set_object(&self.user_config.session_cache_key, session.clone())
+          .set_object(&self.user_config.session_cache_key, &session)
           .map_err(internal_error)?;
-        Ok(())
       },
     }
+    Ok(())
   }
 
   pub fn set_user_workspace(&self, user_workspace: UserWorkspace) -> FlowyResult<()> {
-    let mut session = self.get_session()?;
-    session.user_workspace = user_workspace;
-    self.set_session(Some(session))
+    let session = self.get_session()?;
+    self.set_session(Some(Arc::new(Session {
+      user_id: session.user_id,
+      user_uuid: session.user_uuid,
+      user_workspace,
+    })))
   }
 
-  pub fn get_session(&self) -> FlowyResult<Session> {
-    if let Some(session) = (self.session.read()).clone() {
+  pub fn get_session(&self) -> FlowyResult<Arc<Session>> {
+    if let Some(session) = self.session.load_full() {
       return Ok(session);
     }
 
     match self
       .store_preferences
-      .get_object::<Session>(&self.user_config.session_cache_key)
+      .get_object::<Arc<Session>>(&self.user_config.session_cache_key)
     {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
         "User is not logged in",
       )),
       Some(session) => {
-        self.session.write().replace(session.clone());
+        self.session.store(Some(session.clone()));
         Ok(session)
       },
     }

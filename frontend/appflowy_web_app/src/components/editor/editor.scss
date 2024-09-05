@@ -238,7 +238,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 [data-block-type='heading'] {
   .mention-inline .mention-content {
-    @apply ml-6;
+    @apply ml-7;
   }
 
   .level-1, .level-2 {
@@ -260,7 +260,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 
   .mention-content {
-    @apply ml-6;
+    @apply ml-7;
   }
 
 }

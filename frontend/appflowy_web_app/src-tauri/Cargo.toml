@@ -20,7 +20,12 @@ bytes = "1.5.0"
 serde = "1.0"
 serde_json = "1.0.108"
 protobuf = { version = "2.28.0" }
-diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2", "serde_json"] }
+diesel = { version = "2.1.0", features = [
+    "sqlite",
+    "chrono",
+    "r2d2",
+    "serde_json",
+] }
 uuid = { version = "1.5.0", features = ["serde", "v4"] }
 serde_repr = "0.1"
 parking_lot = "0.12"
@@ -52,7 +57,7 @@ collab-user = { version = "0.2" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "7878a018a18553e3d8201e572a0c066c14ba3b35" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "886376e8bd95ef633aa4b3d7a8377f1003764748" }
 
 [dependencies]
 serde_json.workspace = true
@@ -69,9 +74,7 @@ tracing.workspace = true
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
     "use_serde",
 ] }
-flowy-core = { path = "../../rust-lib/flowy-core", features = [
-    "ts",
-] }
+flowy-core = { path = "../../rust-lib/flowy-core", features = ["ts"] }
 flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
 flowy-config = { path = "../../rust-lib/flowy-config", features = ["tauri_ts"] }
 flowy-date = { path = "../../rust-lib/flowy-date", features = ["tauri_ts"] }
@@ -89,9 +92,7 @@ flowy-document = { path = "../../rust-lib/flowy-document", features = [
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = [
     "tauri_ts",
 ] }
-flowy-ai = { path = "../../rust-lib/flowy-ai", features = [
-    "tauri_ts",
-] }
+flowy-ai = { path = "../../rust-lib/flowy-ai", features = ["tauri_ts"] }
 
 uuid = "1.5.0"
 tauri-plugin-deep-link = "0.1.2"
@@ -116,13 +117,13 @@ custom-protocol = ["tauri/custom-protocol"]
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6adf750" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b987647c190b337d0dca2718c93ff918e94b3730" }
 
 # Working directory: frontend
 # To update the commit ID, run:
@@ -130,4 +131,3 @@ collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-
 # ⚠️⚠️⚠️️
 appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "6f064efe232268f8d396edbb4b84d57fbb640f13" }
 appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "6f064efe232268f8d396edbb4b84d57fbb640f13" }
-

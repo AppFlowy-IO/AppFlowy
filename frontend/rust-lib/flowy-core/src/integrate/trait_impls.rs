@@ -1,19 +1,19 @@
-use client_api::entity::search_dto::SearchDocumentResponseItem;
-use flowy_search_pub::cloud::SearchCloudService;
-use std::collections::HashMap;
-use std::path::Path;
-use std::sync::Arc;
-
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
+use client_api::entity::search_dto::SearchDocumentResponseItem;
 use client_api::entity::ChatMessageType;
 use collab::core::origin::{CollabClient, CollabOrigin};
-
+use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
-use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
+use flowy_search_pub::cloud::SearchCloudService;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::path::Path;
+use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{debug, info};
 
@@ -22,11 +22,11 @@ use collab_integrate::collab_builder::{
 };
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, LocalAIConfig, MessageCursor,
-  RepeatedChatMessage, StreamAnswer, StreamComplete,
+  RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseAIService, DatabaseCloudService, DatabaseSnapshot,
-  SummaryRowContent, TranslateRowContent, TranslateRowResponse,
+  DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
+  TranslateRowContent, TranslateRowResponse,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -36,52 +36,49 @@ use flowy_folder_pub::cloud::{
 };
 use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 
 use crate::integrate::server::{Server, ServerProvider};
 
 #[async_trait]
 impl StorageCloudService for ServerProvider {
-  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
-    let server = self.get_server();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.get_object_url(object_id).await
-    })
+  async fn get_object_url(&self, object_id: ObjectIdentity) -> Result<String, FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.get_object_url(object_id).await
   }
 
-  fn put_object(&self, url: String, val: ObjectValue) -> FutureResult<(), FlowyError> {
-    let server = self.get_server();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.put_object(url, val).await
-    })
+  async fn put_object(&self, url: String, val: ObjectValue) -> Result<(), FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.put_object(url, val).await
   }
 
-  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError> {
-    let server = self.get_server();
-    let url = url.to_string();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.delete_object(&url).await
-    })
+  async fn delete_object(&self, url: &str) -> Result<(), FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.delete_object(url).await
   }
 
-  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
-    let server = self.get_server();
-    FutureResult::new(async move {
-      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.get_object(url).await
-    })
+  async fn get_object(&self, url: String) -> Result<ObjectValue, FlowyError> {
+    let storage = self
+      .get_server()?
+      .file_storage()
+      .ok_or(FlowyError::internal())?;
+    storage.get_object(url).await
   }
 
-  fn get_object_url_v1(
+  async fn get_object_url_v1(
     &self,
     workspace_id: &str,
     parent_dir: &str,
@@ -89,7 +86,18 @@ impl StorageCloudService for ServerProvider {
   ) -> FlowyResult<String> {
     let server = self.get_server()?;
     let storage = server.file_storage().ok_or(FlowyError::internal())?;
-    storage.get_object_url_v1(workspace_id, parent_dir, file_id)
+    storage
+      .get_object_url_v1(workspace_id, parent_dir, file_id)
+      .await
+  }
+
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)> {
+    self
+      .get_server()
+      .ok()?
+      .file_storage()?
+      .parse_object_url_v1(url)
+      .await
   }
 
   async fn create_upload(
@@ -167,8 +175,8 @@ impl UserCloudServiceProvider for ServerProvider {
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     if let Ok(server) = self.get_server() {
       server.set_enable_sync(uid, enable_sync);
-      *self.user_enable_sync.write() = enable_sync;
-      *self.uid.write() = Some(uid);
+      self.user_enable_sync.store(enable_sync, Ordering::Release);
+      self.uid.store(Some(uid.into()));
     }
   }
 
@@ -194,7 +202,7 @@ impl UserCloudServiceProvider for ServerProvider {
 
   fn set_encrypt_secret(&self, secret: String) {
     tracing::info!("🔑Set encrypt secret");
-    self.encryption.write().set_secret(secret);
+    self.encryption.set_secret(secret);
   }
 
   /// Returns the [UserCloudService] base on the current [Server].
@@ -210,93 +218,87 @@ impl UserCloudServiceProvider for ServerProvider {
       Server::AppFlowyCloud => AFCloudConfiguration::from_env()
         .map(|config| config.base_url)
         .unwrap_or_default(),
-      Server::Supabase => SupabaseConfiguration::from_env()
-        .map(|config| config.url)
-        .unwrap_or_default(),
     }
   }
 }
 
+#[async_trait]
 impl FolderCloudService for ServerProvider {
-  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let server = self.get_server();
+  async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, Error> {
+    let server = self.get_server()?;
     let name = name.to_string();
-    FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
+    server.folder_service().create_workspace(uid, &name).await
   }
 
-  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+  async fn open_workspace(&self, workspace_id: &str) -> Result<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move { server?.folder_service().open_workspace(&workspace_id).await })
+    let server = self.get_server()?;
+    server.folder_service().open_workspace(&workspace_id).await
   }
 
-  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
-    let server = self.get_server();
-    FutureResult::new(async move { server?.folder_service().get_all_workspace().await })
+  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, Error> {
+    let server = self.get_server()?;
+    server.folder_service().get_all_workspace().await
   }
 
-  fn get_folder_data(
+  async fn get_folder_data(
     &self,
     workspace_id: &str,
     uid: &i64,
-  ) -> FutureResult<Option<FolderData>, Error> {
+  ) -> Result<Option<FolderData>, Error> {
     let uid = *uid;
-    let server = self.get_server();
+    let server = self.get_server()?;
     let workspace_id = workspace_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .get_folder_data(&workspace_id, &uid)
-        .await
-    })
+
+    server
+      .folder_service()
+      .get_folder_data(&workspace_id, &uid)
+      .await
   }
 
-  fn get_folder_snapshots(
+  async fn get_folder_snapshots(
     &self,
     workspace_id: &str,
     limit: usize,
-  ) -> FutureResult<Vec<FolderSnapshot>, Error> {
+  ) -> Result<Vec<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .get_folder_snapshots(&workspace_id, limit)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .get_folder_snapshots(&workspace_id, limit)
+      .await
   }
 
-  fn get_folder_doc_state(
+  async fn get_folder_doc_state(
     &self,
     workspace_id: &str,
     uid: i64,
     collab_type: CollabType,
     object_id: &str,
-  ) -> FutureResult<Vec<u8>, Error> {
+  ) -> Result<Vec<u8>, Error> {
     let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .get_folder_doc_state(&workspace_id, uid, collab_type, &object_id)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .get_folder_doc_state(&workspace_id, uid, collab_type, &object_id)
+      .await
   }
 
-  fn batch_create_folder_collab_objects(
+  async fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
-  ) -> FutureResult<(), Error> {
+  ) -> Result<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .batch_create_folder_collab_objects(&workspace_id, objects)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .batch_create_folder_collab_objects(&workspace_id, objects)
+      .await
   }
 
   fn service_name(&self) -> String {
@@ -306,114 +308,106 @@ impl FolderCloudService for ServerProvider {
       .unwrap_or_default()
   }
 
-  fn publish_view(
+  async fn publish_view(
     &self,
     workspace_id: &str,
     payload: Vec<PublishPayload>,
-  ) -> FutureResult<(), Error> {
+  ) -> Result<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .publish_view(&workspace_id, payload)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .publish_view(&workspace_id, payload)
+      .await
   }
 
-  fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> FutureResult<(), Error> {
+  async fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> Result<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .unpublish_views(&workspace_id, view_ids)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .unpublish_views(&workspace_id, view_ids)
+      .await
   }
 
-  fn get_publish_info(&self, view_id: &str) -> FutureResult<PublishInfoResponse, Error> {
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, Error> {
     let view_id = view_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move { server?.folder_service().get_publish_info(&view_id).await })
+    let server = self.get_server()?;
+    server.folder_service().get_publish_info(&view_id).await
   }
 
-  fn set_publish_namespace(
+  async fn set_publish_namespace(
     &self,
     workspace_id: &str,
     new_namespace: &str,
-  ) -> FutureResult<(), Error> {
+  ) -> Result<(), Error> {
     let workspace_id = workspace_id.to_string();
     let new_namespace = new_namespace.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .set_publish_namespace(&workspace_id, &new_namespace)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .set_publish_namespace(&workspace_id, &new_namespace)
+      .await
   }
 
-  fn get_publish_namespace(&self, workspace_id: &str) -> FutureResult<String, Error> {
+  async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .get_publish_namespace(&workspace_id)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .folder_service()
+      .get_publish_namespace(&workspace_id)
+      .await
   }
 }
 
 #[async_trait]
 impl DatabaseCloudService for ServerProvider {
-  fn get_database_object_doc_state(
+  async fn get_database_encode_collab(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<Option<Vec<u8>>, Error> {
+  ) -> Result<Option<EncodedCollab>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
+    let server = self.get_server()?;
     let database_id = object_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .get_database_object_doc_state(&database_id, collab_type, &workspace_id)
-        .await
-    })
+    server
+      .database_service()
+      .get_database_encode_collab(&database_id, collab_type, &workspace_id)
+      .await
   }
 
-  fn batch_get_database_object_doc_state(
+  async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabDocStateByOid, Error> {
+  ) -> Result<EncodeCollabByOid, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .database_service()
+      .batch_get_database_encode_collab(object_ids, object_ty, &workspace_id)
+      .await
   }
 
-  fn get_database_collab_object_snapshots(
+  async fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,
-  ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
-    let server = self.get_server();
+  ) -> Result<Vec<DatabaseSnapshot>, Error> {
+    let server = self.get_server()?;
     let database_id = object_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .database_service()
-        .get_database_collab_object_snapshots(&database_id, limit)
-        .await
-    })
+
+    server
+      .database_service()
+      .get_database_collab_object_snapshots(&database_id, limit)
+      .await
   }
 }
 
@@ -448,54 +442,52 @@ impl DatabaseAIService for ServerProvider {
   }
 }
 
+#[async_trait]
 impl DocumentCloudService for ServerProvider {
-  fn get_document_doc_state(
+  async fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<u8>, FlowyError> {
+  ) -> Result<Vec<u8>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
-    let server = self.get_server();
-    FutureResult::new(async move {
-      server?
-        .document_service()
-        .get_document_doc_state(&document_id, &workspace_id)
-        .await
-    })
+    let server = self.get_server()?;
+
+    server
+      .document_service()
+      .get_document_doc_state(&document_id, &workspace_id)
+      .await
   }
 
-  fn get_document_snapshots(
+  async fn get_document_snapshots(
     &self,
     document_id: &str,
     limit: usize,
     workspace_id: &str,
-  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
+    let server = self.get_server()?;
     let document_id = document_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .document_service()
-        .get_document_snapshots(&document_id, limit, &workspace_id)
-        .await
-    })
+
+    server
+      .document_service()
+      .get_document_snapshots(&document_id, limit, &workspace_id)
+      .await
   }
 
-  fn get_document_data(
+  async fn get_document_data(
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server();
+    let server = self.get_server()?;
     let document_id = document_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .document_service()
-        .get_document_data(&document_id, &workspace_id)
-        .await
-    })
+
+    server
+      .document_service()
+      .get_document_data(&document_id, &workspace_id)
+      .await
   }
 }
 
@@ -549,6 +541,7 @@ impl CollabCloudPluginProvider for ServerProvider {
                 stream,
                 Some(channel),
                 ws_connect_state,
+                Some(Duration::from_secs(60)),
               );
               plugins.push(Box::new(sync_plugin));
             },
@@ -562,55 +555,27 @@ impl CollabCloudPluginProvider for ServerProvider {
           vec![]
         }
       },
-      CollabPluginProviderContext::Supabase {
-        uid,
-        collab_object,
-        local_collab,
-        local_collab_db,
-      } => {
-        let mut plugins: Vec<Box<dyn CollabPlugin>> = vec![];
-        if let Some(remote_collab_storage) = self
-          .get_server()
-          .ok()
-          .and_then(|provider| provider.collab_storage(&collab_object))
-        {
-          plugins.push(Box::new(SupabaseDBPlugin::new(
-            uid,
-            collab_object,
-            local_collab,
-            1,
-            remote_collab_storage,
-            local_collab_db,
-          )));
-        }
-        plugins
-      },
     }
   }
 
   fn is_sync_enabled(&self) -> bool {
-    *self.user_enable_sync.read()
+    self.user_enable_sync.load(Ordering::Acquire)
   }
 }
 
 #[async_trait]
 impl ChatCloudService for ServerProvider {
-  fn create_chat(
+  async fn create_chat(
     &self,
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    let workspace_id = workspace_id.to_string();
+  ) -> Result<(), FlowyError> {
     let server = self.get_server();
-    let chat_id = chat_id.to_string();
-    let uid = *uid;
-    FutureResult::new(async move {
-      server?
-        .chat_service()
-        .create_chat(&uid, &workspace_id, &chat_id)
-        .await
-    })
+    server?
+      .chat_service()
+      .create_chat(uid, workspace_id, chat_id)
+      .await
   }
 
   async fn create_question(
@@ -735,6 +700,17 @@ impl ChatCloudService for ServerProvider {
       .get_server()?
       .chat_service()
       .get_local_ai_config(workspace_id)
+      .await
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_workspace_plan(workspace_id)
       .await
   }
 }

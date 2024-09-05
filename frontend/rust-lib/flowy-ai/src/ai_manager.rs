@@ -66,6 +66,12 @@ impl AIManager {
     }
   }
 
+  pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+    // Ignore following error
+    let _ = self.local_ai_controller.refresh().await;
+    Ok(())
+  }
+
   pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     trace!("open chat: {}", chat_id);
     self.chats.entry(chat_id.to_string()).or_insert_with(|| {
@@ -86,11 +92,7 @@ impl AIManager {
 
   pub async fn close_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
     trace!("close chat: {}", chat_id);
-
-    if self.local_ai_controller.is_running() {
-      info!("[AI Plugin] notify close chat: {}", chat_id);
-      self.local_ai_controller.close_chat(chat_id);
-    }
+    self.local_ai_controller.close_chat(chat_id);
     Ok(())
   }
 

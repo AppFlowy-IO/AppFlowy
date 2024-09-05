@@ -3,6 +3,7 @@ pub use client_api::entity::ai_dto::{
   AppFlowyOfflineAI, CompletionType, CreateTextChatContext, LLMModel, LocalAIConfig, ModelInfo,
   RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
+pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::{
   ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataContentType,
   ChatMetadataData, MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
@@ -11,7 +12,6 @@ use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
@@ -21,12 +21,12 @@ pub type StreamAnswer = BoxStream<'static, Result<QuestionStreamValue, FlowyErro
 pub type StreamComplete = BoxStream<'static, Result<Bytes, FlowyError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
-  fn create_chat(
+  async fn create_chat(
     &self,
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> Result<(), FlowyError>;
 
   async fn create_question(
     &self,
@@ -99,4 +99,9 @@ pub trait ChatCloudService: Send + Sync + 'static {
   ) -> Result<(), FlowyError> {
     Ok(())
   }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError>;
 }

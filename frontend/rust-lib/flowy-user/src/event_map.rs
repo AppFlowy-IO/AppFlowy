@@ -7,7 +7,7 @@ use flowy_error::FlowyResult;
 use flowy_user_pub::cloud::UserCloudConfig;
 use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
-use lib_infra::future::{to_fut, Fut};
+use lib_infra::async_trait::async_trait;
 
 use crate::event_handler::*;
 use crate::user_manager::UserManager;
@@ -28,6 +28,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
     .event(UserEvent::SignOut, sign_out_handler)
+    .event(UserEvent::DeleteAccount, delete_account_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
@@ -274,40 +275,62 @@ pub enum UserEvent {
 
   #[event(input = "SuccessWorkspaceSubscriptionPB")]
   NotifyDidSwitchPlan = 63,
+
+  #[event()]
+  DeleteAccount = 64,
 }
 
+#[async_trait]
 pub trait UserStatusCallback: Send + Sync + 'static {
   /// When the [Authenticator] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
   fn authenticator_did_changed(&self, _authenticator: Authenticator) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
-  fn did_init(
+  async fn did_init(
     &self,
-    user_id: i64,
-    user_authenticator: &Authenticator,
-    cloud_config: &Option<UserCloudConfig>,
-    user_workspace: &UserWorkspace,
-    device_id: &str,
-  ) -> Fut<FlowyResult<()>>;
+    _user_id: i64,
+    _user_authenticator: &Authenticator,
+    _cloud_config: &Option<UserCloudConfig>,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+    _authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
+    Ok(())
+  }
   /// Will be called after the user signed in.
-  fn did_sign_in(
+  async fn did_sign_in(
     &self,
-    user_id: i64,
-    user_workspace: &UserWorkspace,
-    device_id: &str,
-  ) -> Fut<FlowyResult<()>>;
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+    _authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
+    Ok(())
+  }
   /// Will be called after the user signed up.
-  fn did_sign_up(
+  async fn did_sign_up(
     &self,
-    is_new_user: bool,
-    user_profile: &UserProfile,
-    user_workspace: &UserWorkspace,
-    device_id: &str,
-  ) -> Fut<FlowyResult<()>>;
+    _is_new_user: bool,
+    _user_profile: &UserProfile,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+    _authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
+    Ok(())
+  }
 
-  fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
-  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
+  async fn did_expired(&self, _token: &str, _user_id: i64) -> FlowyResult<()> {
+    Ok(())
+  }
+  async fn open_workspace(
+    &self,
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+    _authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
+    Ok(())
+  }
   fn did_update_network(&self, _reachable: bool) {}
   fn did_update_plans(&self, _plans: Vec<SubscriptionPlan>) {}
   fn did_update_storage_limitation(&self, _can_write: bool) {}
@@ -315,42 +338,4 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
 pub(crate) struct DefaultUserStatusCallback;
-impl UserStatusCallback for DefaultUserStatusCallback {
-  fn did_init(
-    &self,
-    _user_id: i64,
-    _authenticator: &Authenticator,
-    _cloud_config: &Option<UserCloudConfig>,
-    _user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_sign_in(
-    &self,
-    _user_id: i64,
-    _user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_sign_up(
-    &self,
-    _is_new_user: bool,
-    _user_profile: &UserProfile,
-    _user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-}
+impl UserStatusCallback for DefaultUserStatusCallback {}

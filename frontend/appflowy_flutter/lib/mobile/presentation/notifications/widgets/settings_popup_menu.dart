@@ -1,12 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    hide PopupMenuButton, PopupMenuDivider, PopupMenuItem, PopupMenuEntry;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -34,12 +36,7 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
       // todo: replace it with shadows
       shadowColor: const Color(0x68000000),
       elevation: 10,
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: FlowySvg(
-          FlowySvgs.m_settings_more_s,
-        ),
-      ),
+      color: context.popupMenuBackgroundColor,
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<_NotificationSettingsPopupMenuItem>>[
         _buildItem(
@@ -85,6 +82,12 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
             break;
         }
       },
+      child: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: FlowySvg(
+          FlowySvgs.m_settings_more_s,
+        ),
+      ),
     );
   }
 

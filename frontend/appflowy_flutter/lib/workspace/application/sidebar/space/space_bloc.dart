@@ -68,6 +68,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       (event, emit) async {
         await event.when(
           initial: (userProfile, workspaceId, openFirstPage) async {
+            this.openFirstPage = openFirstPage;
+
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
@@ -294,7 +296,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
           },
-          reset: (userProfile, workspaceId) async {
+          reset: (userProfile, workspaceId, openFirstPage) async {
             if (workspaceId == _workspaceId) {
               return;
             }
@@ -305,7 +307,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               SpaceEvent.initial(
                 userProfile,
                 workspaceId,
-                openFirstPage: true,
+                openFirstPage: openFirstPage,
               ),
             );
           },
@@ -353,6 +355,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   String? _workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
+  bool openFirstPage = false;
 
   @override
   Future<void> close() async {
@@ -449,6 +452,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     )..start(
         sectionChanged: (result) async {
           Log.info('did receive section views changed');
+          if (isClosed) {
+            return;
+          }
           add(const SpaceEvent.didReceiveSpaceUpdate());
         },
       );
@@ -556,7 +562,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           return true;
         }
 
-        final viewId = fixedUuid(user.id.toInt(), UuidType.publicSpace);
+        final viewId = fixedUuid(
+          user.id.toInt() + (_workspaceId?.hashCode ?? 0),
+          UuidType.publicSpace,
+        );
         final publicSpace = await _createSpace(
           name: 'Shared',
           icon: builtInSpaceIcons.first,
@@ -729,6 +738,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.reset(
     UserProfilePB userProfile,
     String workspaceId,
+    bool openFirstPage,
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;

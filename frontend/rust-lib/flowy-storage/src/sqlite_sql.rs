@@ -21,6 +21,7 @@ pub struct UploadFileTable {
   pub num_chunk: i32,
   pub upload_id: String,
   pub created_at: i64,
+  pub is_finish: bool,
 }
 
 #[derive(Queryable, Insertable, AsChangeset, Identifiable, Debug)]
@@ -87,6 +88,55 @@ pub fn update_upload_file_upload_id(
   Ok(())
 }
 
+pub fn update_upload_file_completed(mut conn: DBConnection, upload_id: &str) -> FlowyResult<()> {
+  diesel::update(
+    upload_file_table::dsl::upload_file_table.filter(upload_file_table::upload_id.eq(upload_id)),
+  )
+  .set(upload_file_table::is_finish.eq(true))
+  .execute(&mut *conn)?;
+  Ok(())
+}
+
+pub fn is_upload_completed(
+  conn: &mut SqliteConnection,
+  workspace_id: &str,
+  parent_dir: &str,
+  file_id: &str,
+) -> FlowyResult<bool> {
+  let result = upload_file_table::dsl::upload_file_table
+    .filter(
+      upload_file_table::workspace_id
+        .eq(workspace_id)
+        .and(upload_file_table::parent_dir.eq(parent_dir))
+        .and(upload_file_table::file_id.eq(file_id))
+        .and(upload_file_table::is_finish.eq(true)),
+    )
+    .first::<UploadFileTable>(conn)
+    .optional()?;
+  Ok(result.is_some())
+}
+
+pub fn delete_upload_file(mut conn: DBConnection, upload_id: &str) -> FlowyResult<()> {
+  conn.immediate_transaction(|conn| {
+    diesel::delete(
+      upload_file_table::dsl::upload_file_table.filter(upload_file_table::upload_id.eq(upload_id)),
+    )
+    .execute(&mut *conn)?;
+
+    if let Err(err) = diesel::delete(
+      upload_file_part::dsl::upload_file_part.filter(upload_file_part::upload_id.eq(upload_id)),
+    )
+    .execute(&mut *conn)
+    {
+      warn!("Failed to delete upload parts: {:?}", err)
+    }
+
+    Ok::<_, FlowyError>(())
+  })?;
+
+  Ok(())
+}
+
 pub fn insert_upload_part(
   mut conn: DBConnection,
   upload_part: &UploadFilePartTable,
@@ -146,25 +196,4 @@ pub fn select_upload_file(
     .first::<UploadFileTable>(conn)
     .optional()?;
   Ok(result)
-}
-
-pub fn delete_upload_file(mut conn: DBConnection, upload_id: &str) -> FlowyResult<()> {
-  conn.immediate_transaction(|conn| {
-    diesel::delete(
-      upload_file_table::dsl::upload_file_table.filter(upload_file_table::upload_id.eq(upload_id)),
-    )
-    .execute(&mut *conn)?;
-
-    if let Err(err) = diesel::delete(
-      upload_file_part::dsl::upload_file_part.filter(upload_file_part::upload_id.eq(upload_id)),
-    )
-    .execute(&mut *conn)
-    {
-      warn!("Failed to delete upload parts: {:?}", err)
-    }
-
-    Ok::<_, FlowyError>(())
-  })?;
-
-  Ok(())
 }

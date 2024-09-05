@@ -14,6 +14,7 @@ export const getModifier = () => {
 };
 
 export enum HOT_KEY_NAME {
+  CLEAR_CACHE = 'clear-cache',
   LEFT = 'left',
   RIGHT = 'right',
   SELECT_ALL = 'select-all',
@@ -88,6 +89,7 @@ const defaultHotKeys = {
   [HOT_KEY_NAME.LEFT]: ['left'],
   [HOT_KEY_NAME.RIGHT]: ['right'],
   [HOT_KEY_NAME.FIND_REPLACE]: ['mod+f'],
+  [HOT_KEY_NAME.CLEAR_CACHE]: ['mod+shift+r'],
 };
 
 const replaceModifier = (hotkey: string) => {
@@ -128,7 +130,7 @@ export const createHotKeyLabel = (hotkeyName: HOT_KEY_NAME, customHotKeys?: Reco
         .map((key) => {
           return key === ' ' ? 'Space' : key.charAt(0).toUpperCase() + key.slice(1);
         })
-        .join(' + ')
+        .join(' + '),
     )
     .join(' / ');
 };

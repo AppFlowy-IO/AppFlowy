@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::views::{DatabaseLayout, DatabaseView};
+use collab_database::entity::{DatabaseView, SelectOption, SelectOptionColor};
+use collab_database::views::DatabaseLayout;
 use event_integration_test::database_event::TestRowBuilder;
 
 use collab_database::fields::Field;
@@ -8,8 +9,7 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
 use flowy_database2::services::field::{
-  FieldBuilder, NumberFormat, NumberTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption,
+  FieldBuilder, NumberFormat, NumberTypeOption, SingleSelectTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;

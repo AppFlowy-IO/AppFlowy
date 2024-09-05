@@ -1,17 +1,20 @@
-use std::sync::atomic::Ordering;
 use std::sync::{Arc, Weak};
 
 use anyhow::Context;
-use collab::core::collab::{DataSource, MutexCollab};
+use collab::core::collab::DataSource;
+use collab::lock::RwLock;
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_user::core::{MutexUserAwareness, UserAwareness};
-use tracing::{debug, error, info, instrument, trace};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+};
+use collab_user::core::{UserAwareness, UserAwarenessNotifier};
+use dashmap::try_result::TryResult;
+use tracing::{error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_pub::entities::user_awareness_object_id;
+use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 
 use crate::entities::ReminderPB;
 use crate::user_manager::UserManager;
@@ -34,10 +37,10 @@ impl UserManager {
   pub async fn add_reminder(&self, reminder_pb: ReminderPB) -> FlowyResult<()> {
     let reminder = Reminder::from(reminder_pb);
     self
-      .with_awareness((), |user_awareness| {
+      .mut_awareness(|user_awareness| {
         user_awareness.add_reminder(reminder.clone());
       })
-      .await;
+      .await?;
     self
       .collab_interact
       .read()
@@ -51,10 +54,10 @@ impl UserManager {
   ///
   pub async fn remove_reminder(&self, reminder_id: &str) -> FlowyResult<()> {
     self
-      .with_awareness((), |user_awareness| {
+      .mut_awareness(|user_awareness| {
         user_awareness.remove_reminder(reminder_id);
       })
-      .await;
+      .await?;
     self
       .collab_interact
       .read()
@@ -69,12 +72,12 @@ impl UserManager {
   pub async fn update_reminder(&self, reminder_pb: ReminderPB) -> FlowyResult<()> {
     let reminder = Reminder::from(reminder_pb);
     self
-      .with_awareness((), |user_awareness| {
+      .mut_awareness(|user_awareness| {
         user_awareness.update_reminder(&reminder.id, |new_reminder| {
           new_reminder.clone_from(&reminder)
         });
       })
-      .await;
+      .await?;
     self
       .collab_interact
       .read()
@@ -95,117 +98,203 @@ impl UserManager {
   /// - Returns a vector of `Reminder` objects containing all reminders for the user.
   ///
   pub async fn get_all_reminders(&self) -> Vec<Reminder> {
-    self
-      .with_awareness(vec![], |user_awareness| user_awareness.get_all_reminders())
-      .await
+    let reminders = self
+      .mut_awareness(|user_awareness| user_awareness.get_all_reminders())
+      .await;
+    reminders.unwrap_or_default()
   }
 
-  pub async fn initialize_user_awareness(&self, session: &Session) {
-    match self.try_initial_user_awareness(session).await {
-      Ok(_) => {},
-      Err(e) => error!("Failed to initialize user awareness: {:?}", e),
-    }
-  }
-
-  /// Initializes the user's awareness based on the specified data source.
-  ///
-  /// This asynchronous function attempts to initialize the user's awareness from either a local or remote data source.
-  /// Depending on the chosen source, it will either construct the user awareness from an empty dataset or fetch it
-  /// from a remote service. Once obtained, the user's awareness is stored in a shared mutex-protected structure.
-  ///
-  /// # Parameters
-  /// - `session`: The current user's session data.
-  /// - `source`: The source from which the user's awareness data should be obtained, either local or remote.
-  ///
-  /// # Returns
-  /// - Returns `Ok(())` if the user's awareness is successfully initialized.
-  /// - May return errors of type `FlowyError` if any issues arise during the initialization.
+  /// Init UserAwareness for user
+  /// 1. check if user awareness exists on disk. If yes init awareness from disk
+  /// 2. If not, init awareness from server.
   #[instrument(level = "info", skip(self, session), err)]
-  pub(crate) async fn try_initial_user_awareness(&self, session: &Session) -> FlowyResult<()> {
-    if self.is_loading_awareness.load(Ordering::SeqCst) {
-      return Ok(());
-    }
-    self.is_loading_awareness.store(true, Ordering::SeqCst);
-
-    if let Some(old_user_awareness) = self.user_awareness.lock().await.take() {
-      debug!("Closing old user awareness");
-      old_user_awareness.lock().close();
-      drop(old_user_awareness);
-    }
-
+  pub(crate) async fn initial_user_awareness(
+    &self,
+    session: &Session,
+    authenticator: &Authenticator,
+  ) -> FlowyResult<()> {
+    let authenticator = authenticator.clone();
     let object_id =
       user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();
-    trace!("Initializing user awareness {}", object_id);
-    let collab_db = self.get_collab_db(session.user_id)?;
-    let weak_cloud_services = Arc::downgrade(&self.cloud_services);
-    let weak_user_awareness = Arc::downgrade(&self.user_awareness);
-    let weak_builder = self.collab_builder.clone();
-    let cloned_is_loading = self.is_loading_awareness.clone();
-    let session = session.clone();
-    let workspace_id = session.user_workspace.id.clone();
-    tokio::spawn(async move {
-      if cloned_is_loading.load(Ordering::SeqCst) {
-        return Ok(());
+
+    // Try to acquire mutable access to `is_loading_awareness`.
+    // Thread-safety is ensured by DashMap
+    let should_init = match self.is_loading_awareness.try_get_mut(&object_id) {
+      TryResult::Present(mut is_loading) => {
+        if *is_loading {
+          false
+        } else {
+          *is_loading = true;
+          true
+        }
+      },
+      TryResult::Absent => true,
+      TryResult::Locked => {
+        return Err(FlowyError::new(
+          ErrorCode::Internal,
+          format!(
+            "Failed to lock is_loading_awareness for object: {}",
+            object_id
+          ),
+        ));
+      },
+    };
+
+    if should_init {
+      if let Some(old_user_awareness) = self.user_awareness.swap(None) {
+        info!("Closing previous user awareness");
+        old_user_awareness.read().await.close(); // Ensure that old awareness is closed
       }
 
-      if let (Some(cloud_services), Some(user_awareness)) =
-        (weak_cloud_services.upgrade(), weak_user_awareness.upgrade())
-      {
+      let is_exist_on_disk = self
+        .authenticate_user
+        .is_collab_on_disk(session.user_id, &object_id)?;
+      if authenticator.is_local() || is_exist_on_disk {
+        trace!(
+          "Initializing new user awareness from disk:{}, {:?}",
+          object_id,
+          authenticator
+        );
+        let collab_db = self.get_collab_db(session.user_id)?;
+        let doc_state =
+          KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+        let awareness = Self::collab_for_user_awareness(
+          &self.collab_builder.clone(),
+          &session.user_workspace.id,
+          session.user_id,
+          &object_id,
+          collab_db,
+          doc_state,
+          None,
+        )?;
+        info!("User awareness initialized successfully");
+        self.user_awareness.store(Some(awareness));
+        if let Some(mut is_loading) = self.is_loading_awareness.get_mut(&object_id) {
+          *is_loading = false;
+        }
+      } else {
+        info!(
+          "Initializing new user awareness from server:{}, {:?}",
+          object_id, authenticator
+        );
+        self.load_awareness_from_server(session, object_id, authenticator.clone())?;
+      }
+    } else {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        format!(
+          "User awareness is already being loaded for object: {}",
+          object_id
+        ),
+      ));
+    }
+
+    Ok(())
+  }
+
+  /// Initialize UserAwareness from server.
+  /// It will spawn a task in the background in order to no block the caller. This functions is
+  /// designed to be thread safe.
+  fn load_awareness_from_server(
+    &self,
+    session: &Session,
+    object_id: String,
+    authenticator: Authenticator,
+  ) -> FlowyResult<()> {
+    // Clone necessary data
+    let session = session.clone();
+    let collab_db = self.get_collab_db(session.user_id)?;
+    let weak_builder = self.collab_builder.clone();
+    let user_awareness = Arc::downgrade(&self.user_awareness);
+    let cloud_services = self.cloud_services.clone();
+    let authenticate_user = self.authenticate_user.clone();
+    let is_loading_awareness = self.is_loading_awareness.clone();
+
+    // Spawn an async task to fetch or create user awareness
+    tokio::spawn(async move {
+      let set_is_loading_false = || {
+        if let Some(mut is_loading) = is_loading_awareness.get_mut(&object_id) {
+          *is_loading = false;
+        }
+      };
+
+      let create_awareness = if authenticator.is_local() {
+        let doc_state =
+          KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+        Self::collab_for_user_awareness(
+          &weak_builder,
+          &session.user_workspace.id,
+          session.user_id,
+          &object_id,
+          collab_db,
+          doc_state,
+          None,
+        )
+      } else {
         let result = cloud_services
           .get_user_service()?
           .get_user_awareness_doc_state(session.user_id, &session.user_workspace.id, &object_id)
           .await;
 
-        let mut lock_awareness = user_awareness
-          .try_lock()
-          .map_err(|err| FlowyError::internal().with_context(err))?;
-        if lock_awareness.is_some() {
-          return Ok(());
-        }
-
-        let awareness = match result {
+        match result {
           Ok(data) => {
-            trace!("Get user awareness collab from remote: {}", data.len());
-            let collab = Self::collab_for_user_awareness(
-              &workspace_id,
+            trace!("Fetched user awareness collab from remote: {}", data.len());
+            Self::collab_for_user_awareness(
               &weak_builder,
+              &session.user_workspace.id,
               session.user_id,
               &object_id,
               collab_db,
               DataSource::DocStateV1(data),
+              None,
             )
-            .await?;
-            MutexUserAwareness::new(UserAwareness::create(collab, None))
           },
           Err(err) => {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
-              let collab = Self::collab_for_user_awareness(
-                &workspace_id,
+              let doc_state = KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id)
+                .into_data_source();
+              Self::collab_for_user_awareness(
                 &weak_builder,
+                &session.user_workspace.id,
                 session.user_id,
                 &object_id,
                 collab_db,
-                DataSource::Disk,
+                doc_state,
+                None,
               )
-              .await?;
-              MutexUserAwareness::new(UserAwareness::create(collab, None))
             } else {
-              error!("Failed to fetch user awareness: {:?}", err);
-              return Err(err);
+              Err(err)
             }
           },
-        };
+        }
+      };
 
-        trace!("User awareness initialized");
-        lock_awareness.replace(awareness);
+      match create_awareness {
+        Ok(new_user_awareness) => {
+          // Validate session before storing the awareness
+          if let Ok(current_session) = authenticate_user.get_session() {
+            if current_session.user_workspace.id == session.user_workspace.id {
+              if let Some(user_awareness) = user_awareness.upgrade() {
+                info!("User awareness initialized successfully");
+                user_awareness.store(Some(new_user_awareness));
+              } else {
+                error!("Failed to upgrade user awareness");
+              }
+            } else {
+              info!("User awareness is outdated, ignoring");
+            }
+          }
+          set_is_loading_false();
+          Ok(())
+        },
+        Err(err) => {
+          error!("Error while creating user awareness: {:?}", err);
+          set_is_loading_false();
+          Err(err)
+        },
       }
-      Ok(())
     });
-
-    // mark the user awareness as not loading
-    self.is_loading_awareness.store(false, Ordering::SeqCst);
-
     Ok(())
   }
 
@@ -214,29 +303,29 @@ impl UserManager {
   /// This function constructs a collaboration instance based on the given session and raw data,
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
-  async fn collab_for_user_awareness(
-    workspace_id: &str,
+  fn collab_for_user_awareness(
     collab_builder: &Weak<AppFlowyCollabBuilder>,
+    workspace_id: &str,
     uid: i64,
     object_id: &str,
     collab_db: Weak<CollabKVDB>,
     doc_state: DataSource,
-  ) -> Result<Arc<MutexCollab>, FlowyError> {
+    notifier: Option<UserAwarenessNotifier>,
+  ) -> Result<Arc<RwLock<UserAwareness>>, FlowyError> {
     let collab_builder = collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
+    let collab_object =
+      collab_builder.collab_object(workspace_id, uid, object_id, CollabType::UserAwareness)?;
     let collab = collab_builder
-      .build(
-        workspace_id,
-        uid,
-        object_id,
-        CollabType::UserAwareness,
+      .create_user_awareness(
+        collab_object,
         doc_state,
         collab_db,
         CollabBuilderConfig::default().sync_enable(true),
+        notifier,
       )
-      .await
       .context("Build collab for user awareness failed")?;
     Ok(collab)
   }
@@ -252,26 +341,39 @@ impl UserManager {
   /// # Parameters
   /// - `default_value`: A default value to return if the user awareness is `None` and cannot be initialized.
   /// - `f`: The asynchronous closure to execute with the user awareness.
-  async fn with_awareness<F, Output>(&self, default_value: Output, f: F) -> Output
+  async fn mut_awareness<F, Output>(&self, f: F) -> FlowyResult<Output>
   where
-    F: FnOnce(&UserAwareness) -> Output,
+    F: FnOnce(&mut UserAwareness) -> Output,
   {
-    // Check if initialization is needed and perform it if necessary
-    if self.user_awareness.lock().await.is_none() {
-      if let Ok(session) = self.get_session() {
-        self.initialize_user_awareness(&session).await;
-      }
-    }
+    match self.user_awareness.load_full() {
+      None => {
+        info!("User awareness is not loaded when trying to access it");
 
-    let user_awareness = self.user_awareness.lock().await;
-    match &*user_awareness {
-      Some(inner_awareness) => {
-        let inner_awareness_clone = inner_awareness.clone();
-        drop(user_awareness);
-        let result = f(&inner_awareness_clone.lock());
-        result
+        let session = self.get_session()?;
+        let object_id =
+          user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();
+        let is_loading = self
+          .is_loading_awareness
+          .get(&object_id)
+          .map(|r| *r.value())
+          .unwrap_or(false);
+
+        if !is_loading {
+          let user_profile = self.get_user_profile_from_disk(session.user_id).await?;
+          self
+            .initial_user_awareness(&session, &user_profile.authenticator)
+            .await?;
+        }
+
+        Err(FlowyError::new(
+          ErrorCode::InProgress,
+          "User awareness is loading",
+        ))
       },
-      None => default_value,
+      Some(lock) => {
+        let mut user_awareness = lock.write().await;
+        Ok(f(&mut user_awareness))
+      },
     }
   }
 }

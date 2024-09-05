@@ -138,6 +138,15 @@ pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Resu
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(manager))]
+pub async fn delete_account_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  manager.delete_account().await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager))]
 pub async fn update_user_profile_handler(
   data: AFPluginData<UpdateUserProfilePayloadPB>,
@@ -161,7 +170,7 @@ pub async fn set_appearance_setting(
   if setting.theme.is_empty() {
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
-  store_preferences.set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
+  store_preferences.set_object(APPEARANCE_SETTING_CACHE_KEY, &setting)?;
   Ok(())
 }
 
@@ -198,7 +207,7 @@ pub async fn set_date_time_settings(
     setting.timezone_id = "".to_string();
   }
 
-  store_preferences.set_object(DATE_TIME_SETTINGS_CACHE_KEY, setting)?;
+  store_preferences.set_object(DATE_TIME_SETTINGS_CACHE_KEY, &setting)?;
   Ok(())
 }
 
@@ -234,7 +243,7 @@ pub async fn set_notification_settings(
 ) -> Result<(), FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let setting = data.into_inner();
-  store_preferences.set_object(NOTIFICATION_SETTINGS_CACHE_KEY, setting)?;
+  store_preferences.set_object(NOTIFICATION_SETTINGS_CACHE_KEY, &setting)?;
   Ok(())
 }
 
@@ -374,7 +383,7 @@ pub async fn set_encrypt_secret_handler(
           EncryptionType::SelfEncryption(data.encryption_sign),
         )
         .await?;
-      save_cloud_config(data.user_id, &store_preferences, config)?;
+      save_cloud_config(data.user_id, &store_preferences, &config)?;
     },
   }
 
@@ -448,7 +457,7 @@ pub async fn set_cloud_config_handler(
     }
   }
 
-  save_cloud_config(session.user_id, &store_preferences, config.clone())?;
+  save_cloud_config(session.user_id, &store_preferences, &config)?;
 
   let payload = CloudSettingPB {
     enable_sync: config.enable_sync,

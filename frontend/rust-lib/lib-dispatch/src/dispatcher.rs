@@ -3,7 +3,7 @@ use pin_project::pin_project;
 use std::any::Any;
 use std::future::Future;
 use std::pin::Pin;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::task::{Context, Poll};
 use tracing::event;
 
@@ -17,10 +17,10 @@ use crate::{
 };
 
 #[cfg(feature = "local_set")]
-pub trait AFConcurrent {}
+pub trait AFConcurrent: Send {}
 
 #[cfg(feature = "local_set")]
-impl<T> AFConcurrent for T where T: ?Sized {}
+impl<T> AFConcurrent for T where T: Send + ?Sized {}
 
 #[cfg(not(feature = "local_set"))]
 pub trait AFConcurrent: Send + Sync {}
@@ -47,7 +47,7 @@ pub(crate) fn downcast_owned<T: 'static + Send + Sync>(boxed: AFBox) -> Option<T
 }
 
 #[cfg(feature = "local_set")]
-pub(crate) type AFBox = Box<dyn Any>;
+pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
 
 #[cfg(not(feature = "local_set"))]
 pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
@@ -70,11 +70,12 @@ where
 
 pub struct AFPluginDispatcher {
   plugins: AFPluginMap,
-  runtime: Rc<AFPluginRuntime>,
+  #[allow(dead_code)]
+  runtime: Arc<AFPluginRuntime>,
 }
 
 impl AFPluginDispatcher {
-  pub fn new(runtime: Rc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
+  pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
       plugins: plugin_map_or_crash(plugins),
@@ -82,13 +83,62 @@ impl AFPluginDispatcher {
     }
   }
 
+  #[cfg(feature = "local_set")]
   pub async fn async_send<Req>(dispatch: &AFPluginDispatcher, request: Req) -> AFPluginEventResponse
   where
-    Req: Into<AFPluginRequest>,
+    Req: Into<AFPluginRequest> + 'static,
   {
     AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
   }
+  #[cfg(feature = "local_set")]
+  pub async fn async_send_with_callback<Req, Callback>(
+    dispatch: &AFPluginDispatcher,
+    request: Req,
+    callback: Callback,
+  ) -> AFPluginEventResponse
+  where
+    Req: Into<AFPluginRequest> + 'static,
+    Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
+  {
+    Self::boxed_async_send_with_callback(dispatch, request, callback).await
+  }
 
+  #[cfg(feature = "local_set")]
+  pub async fn boxed_async_send_with_callback<Req, Callback>(
+    dispatch: &AFPluginDispatcher,
+    request: Req,
+    callback: Callback,
+  ) -> AFPluginEventResponse
+  where
+    Req: Into<AFPluginRequest> + 'static,
+    Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
+  {
+    let request: AFPluginRequest = request.into();
+    let plugins = dispatch.plugins.clone();
+    let service = Box::new(DispatchService { plugins });
+    tracing::trace!("[dispatch]: Async event: {:?}", &request.event);
+    let service_ctx = DispatchContext {
+      request,
+      callback: Some(Box::new(callback)),
+    };
+
+    let result = tokio::task::spawn_local(async move {
+      service.call(service_ctx).await.unwrap_or_else(|e| {
+        tracing::error!("Dispatch runtime error: {:?}", e);
+        InternalError::Other(format!("{:?}", e)).as_response()
+      })
+    })
+    .await;
+
+    result.unwrap_or_else(|e| {
+      let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+      tracing::error!("{}", msg);
+      let error = InternalError::JoinError(msg);
+      error.as_response()
+    })
+  }
+
+  #[cfg(not(feature = "local_set"))]
   pub async fn async_send_with_callback<Req, Callback>(
     dispatch: &AFPluginDispatcher,
     request: Req,
@@ -107,65 +157,25 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
-    // Spawns a future onto the runtime.
-    //
-    // This spawns the given future onto the runtime's executor, usually a
-    // thread pool. The thread pool is then responsible for polling the future
-    // until it completes.
-    //
-    // The provided future will start running in the background immediately
-    // when `spawn` is called, even if you don't await the returned
-    // `JoinHandle`.
-    let result: Result<AFPluginEventResponse, DispatchError>;
-    #[cfg(feature = "local_set")]
-    {
-      let handle = dispatch.runtime.local.spawn_local(async move {
+    dispatch
+      .runtime
+      .spawn(async move {
         service.call(service_ctx).await.unwrap_or_else(|e| {
           tracing::error!("Dispatch runtime error: {:?}", e);
           InternalError::Other(format!("{:?}", e)).as_response()
         })
-      });
-
-      result = dispatch
-        .runtime
-        .local
-        .run_until(handle)
-        .await
-        .map_err(|e| e.to_string().into())
-    }
-
-    #[cfg(not(feature = "local_set"))]
-    {
-      result = dispatch
-        .runtime
-        .spawn(async move {
-          service.call(service_ctx).await.unwrap_or_else(|e| {
-            tracing::error!("Dispatch runtime error: {:?}", e);
-            InternalError::Other(format!("{:?}", e)).as_response()
-          })
-        })
-        .await;
-    }
-
-    result.unwrap_or_else(|e| {
-      let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-      tracing::error!("{}", msg);
-      let error = InternalError::JoinError(msg);
-      error.as_response()
-    })
+      })
+      .await
+      .unwrap_or_else(|e| {
+        let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+        tracing::error!("{}", msg);
+        let error = InternalError::JoinError(msg);
+        error.as_response()
+      })
   }
 
-  pub fn box_async_send<Req>(
-    dispatch: &AFPluginDispatcher,
-    request: Req,
-  ) -> DispatchFuture<AFPluginEventResponse>
-  where
-    Req: Into<AFPluginRequest> + 'static,
-  {
-    AFPluginDispatcher::boxed_async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
-  }
-
-  pub fn boxed_async_send_with_callback<Req, Callback>(
+  #[cfg(not(feature = "local_set"))]
+  pub async fn boxed_async_send_with_callback<Req, Callback>(
     dispatch: &AFPluginDispatcher,
     request: Req,
     callback: Callback,
@@ -183,59 +193,30 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
-    #[cfg(feature = "local_set")]
-    {
-      let handle = dispatch.runtime.local.spawn_local(async move {
-        service.call(service_ctx).await.unwrap_or_else(|e| {
-          tracing::error!("Dispatch runtime error: {:?}", e);
-          InternalError::Other(format!("{:?}", e)).as_response()
+    let handle = dispatch.runtime.spawn(async move {
+      service.call(service_ctx).await.unwrap_or_else(|e| {
+        tracing::error!("[dispatch]: runtime error: {:?}", e);
+        InternalError::Other(format!("{:?}", e)).as_response()
+      })
+    });
+
+    let runtime = dispatch.runtime.clone();
+    DispatchFuture {
+      fut: Box::pin(async move {
+        let result = runtime.spawn(handle).await.unwrap();
+        result.unwrap_or_else(|e| {
+          let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+          tracing::error!("{}", msg);
+          let error = InternalError::JoinError(msg);
+          error.as_response()
         })
-      });
-
-      let fut = dispatch.runtime.local.run_until(handle);
-      let result = dispatch.runtime.block_on(fut);
-      DispatchFuture {
-        fut: Box::pin(async move {
-          result.unwrap_or_else(|e| {
-            let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-            tracing::error!("{}", msg);
-            let error = InternalError::JoinError(msg);
-            error.as_response()
-          })
-        }),
-      }
-    }
-
-    #[cfg(not(feature = "local_set"))]
-    {
-      let handle = dispatch.runtime.spawn(async move {
-        service
-          .call(crate::service::service::Service)
-          .await
-          .unwrap_or_else(|e| {
-            tracing::error!("[dispatch]: runtime error: {:?}", e);
-            InternalError::Other(format!("{:?}", e)).as_response()
-          })
-      });
-
-      let runtime = dispatch.runtime.clone();
-      DispatchFuture {
-        fut: Box::pin(async move {
-          let result = runtime.run_until(handle).await;
-          result.unwrap_or_else(|e| {
-            let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-            tracing::error!("{}", msg);
-            let error = InternalError::JoinError(msg);
-            error.as_response()
-          })
-        }),
-      }
+      }),
     }
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(feature = "local_set")]
   pub fn sync_send(
-    dispatch: Rc<AFPluginDispatcher>,
+    dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
   ) -> AFPluginEventResponse {
     futures::executor::block_on(AFPluginDispatcher::async_send_with_callback(
@@ -243,15 +224,6 @@ impl AFPluginDispatcher {
       request,
       |_| Box::pin(async {}),
     ))
-  }
-
-  #[track_caller]
-  pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
-  where
-    F: Future + Send + 'static,
-    <F as Future>::Output: Send + 'static,
-  {
-    self.runtime.spawn(future)
   }
 }
 

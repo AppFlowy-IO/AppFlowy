@@ -42,11 +42,12 @@ $today-highlight-bg: transparent;
     border: 1px solid var(--line-divider);
     border-top: none;
     min-width: 1200px;
-    @apply max-sm:w-[650vw];
+    @apply max-sm:w-[600vw];
   }
 
 
 }
+
 
 .rbc-day-bg + .rbc-day-bg {
   border-left-color: var(--line-divider);
@@ -60,13 +61,20 @@ $today-highlight-bg: transparent;
   z-index: 50;
   min-width: 1200px;
 
-  @apply max-sm:w-[650vw];
+  @apply max-sm:w-[600vw];
 
   .rbc-header {
     border: none;
     border-bottom: 1px solid var(--line-divider);
     @apply flex items-end py-2 justify-center font-normal text-text-caption bg-bg-body;
 
+  }
+}
+
+html[thumbnail="true"] {
+  .rbc-month-row, .rbc-month-header {
+    width: 100% !important;
+    min-width: 100% !important;
   }
 }
 

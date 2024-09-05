@@ -1,5 +1,5 @@
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { Button } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

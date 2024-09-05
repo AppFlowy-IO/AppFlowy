@@ -9,12 +9,12 @@ use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged}
 async fn grid_filter_checklist_is_incomplete_test() {
   let mut test = DatabaseFilterTest::new().await;
   let expected = 5;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let option_ids = get_checklist_cell_options(&test).await;
 
   let scripts = vec![
     UpdateChecklistCell {
-      row_id: test.row_details[0].row.id.clone(),
+      row_id: test.rows[0].id.clone(),
       selected_option_ids: option_ids,
     },
     CreateDataFilter {
@@ -37,11 +37,11 @@ async fn grid_filter_checklist_is_incomplete_test() {
 async fn grid_filter_checklist_is_complete_test() {
   let mut test = DatabaseFilterTest::new().await;
   let expected = 2;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let option_ids = get_checklist_cell_options(&test).await;
   let scripts = vec![
     UpdateChecklistCell {
-      row_id: test.row_details[0].row.id.clone(),
+      row_id: test.rows[0].id.clone(),
       selected_option_ids: option_ids,
     },
     CreateDataFilter {
@@ -61,11 +61,8 @@ async fn grid_filter_checklist_is_complete_test() {
 }
 
 async fn get_checklist_cell_options(test: &DatabaseFilterTest) -> Vec<String> {
-  let field = test.get_first_field(FieldType::Checklist);
-  let row_cell = test
-    .editor
-    .get_cell(&field.id, &test.row_details[0].row.id)
-    .await;
+  let field = test.get_first_field(FieldType::Checklist).await;
+  let row_cell = test.editor.get_cell(&field.id, &test.rows[0].id).await;
   row_cell
     .map_or(ChecklistCellData::default(), |cell| {
       ChecklistCellData::from(&cell)

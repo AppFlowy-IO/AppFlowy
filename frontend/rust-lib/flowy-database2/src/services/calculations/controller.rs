@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -5,9 +6,8 @@ use collab_database::fields::Field;
 use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::RwLock as TokioRwLock;
 
-use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
 use crate::entities::{
@@ -19,13 +19,14 @@ use crate::utils::cache::AnyTypeCache;
 
 use super::{Calculation, CalculationChangeset, CalculationsService};
 
+#[async_trait]
 pub trait CalculationsDelegate: Send + Sync + 'static {
-  fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
-  fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>>;
-  fn get_all_calculations(&self, view_id: &str) -> Fut<Arc<Vec<Arc<Calculation>>>>;
-  fn update_calculation(&self, view_id: &str, calculation: Calculation);
-  fn remove_calculation(&self, view_id: &str, calculation_id: &str);
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>>;
+  async fn get_field(&self, field_id: &str) -> Option<Field>;
+  async fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Arc<Calculation>>;
+  async fn get_all_calculations(&self, view_id: &str) -> Arc<Vec<Arc<Calculation>>>;
+  async fn update_calculation(&self, view_id: &str, calculation: Calculation);
+  async fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 }
 
 pub struct CalculationsController {
@@ -33,7 +34,7 @@ pub struct CalculationsController {
   handler_id: String,
   delegate: Box<dyn CalculationsDelegate>,
   calculations_by_field_cache: CalculationsByFieldIdCache,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   calculations_service: CalculationsService,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -45,12 +46,12 @@ impl Drop for CalculationsController {
 }
 
 impl CalculationsController {
-  pub async fn new<T>(
+  pub fn new<T>(
     view_id: &str,
     handler_id: &str,
     delegate: T,
     calculations: Vec<Arc<Calculation>>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
@@ -65,7 +66,7 @@ impl CalculationsController {
       calculations_service: CalculationsService::new(),
       notifier,
     };
-    this.update_cache(calculations).await;
+    this.update_cache(calculations);
     this
   }
 
@@ -130,7 +131,8 @@ impl CalculationsController {
     if let Some(calculation) = calculation {
       self
         .delegate
-        .remove_calculation(&self.view_id, &calculation.id);
+        .remove_calculation(&self.view_id, &calculation.id)
+        .await;
 
       let notification = CalculationChangesetNotificationPB::from_delete(
         &self.view_id,
@@ -165,7 +167,8 @@ impl CalculationsController {
       if !calc_type.is_allowed(new_field_type) {
         self
           .delegate
-          .remove_calculation(&self.view_id, &calculation.id);
+          .remove_calculation(&self.view_id, &calculation.id)
+          .await;
 
         let notification = CalculationChangesetNotificationPB::from_delete(
           &self.view_id,
@@ -201,7 +204,8 @@ impl CalculationsController {
       if let Some(update) = update {
         self
           .delegate
-          .update_calculation(&self.view_id, update.clone());
+          .update_calculation(&self.view_id, update.clone())
+          .await;
 
         let notification = CalculationChangesetNotificationPB::from_update(
           &self.view_id,
@@ -238,7 +242,10 @@ impl CalculationsController {
         let update = self.get_updated_calculation(calculation.clone()).await;
         if let Some(update) = update {
           updates.push(CalculationPB::from(&update));
-          self.delegate.update_calculation(&self.view_id, update);
+          self
+            .delegate
+            .update_calculation(&self.view_id, update)
+            .await;
         }
       }
     }
@@ -252,7 +259,10 @@ impl CalculationsController {
 
         if let Some(update) = update {
           updates.push(CalculationPB::from(&update));
-          self.delegate.update_calculation(&self.view_id, update);
+          self
+            .delegate
+            .update_calculation(&self.view_id, update)
+            .await;
         }
       }
     }
@@ -273,7 +283,7 @@ impl CalculationsController {
       .delegate
       .get_cells_for_field(&self.view_id, &calculation.field_id)
       .await;
-    let field = self.delegate.get_field(&calculation.field_id)?;
+    let field = self.delegate.get_field(&calculation.field_id).await?;
 
     let value =
       self
@@ -299,7 +309,7 @@ impl CalculationsController {
         .get_cells_for_field(&self.view_id, &insert.field_id)
         .await;
 
-      let field = self.delegate.get_field(&insert.field_id)?;
+      let field = self.delegate.get_field(&insert.field_id).await?;
 
       let value = self
         .calculations_service
@@ -331,12 +341,11 @@ impl CalculationsController {
     notification
   }
 
-  async fn update_cache(&self, calculations: Vec<Arc<Calculation>>) {
+  fn update_cache(&self, calculations: Vec<Arc<Calculation>>) {
     for calculation in calculations {
       let field_id = &calculation.field_id;
       self
         .calculations_by_field_cache
-        .write()
         .insert(field_id, calculation.clone());
     }
   }

@@ -1,17 +1,18 @@
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use collab::lock::RwLock;
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
-use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
-
 use flowy_error::FlowyResult;
-use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock as TokioRwLock;
+use tracing::{error, trace};
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
@@ -20,13 +21,14 @@ use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNot
 use crate::services::field::TypeOptionCellExt;
 use crate::services::filter::{Filter, FilterChangeset, FilterInner, FilterResultNotification};
 
+#[async_trait]
 pub trait FilterDelegate: Send + Sync + 'static {
-  fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
-  fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
-  fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
-  fn save_filters(&self, view_id: &str, filters: &[Filter]);
+  async fn get_field(&self, field_id: &str) -> Option<Field>;
+  async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field>;
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<Row>>;
+  async fn get_row(&self, view_id: &str, rows_id: &RowId) -> Option<(usize, Arc<RowDetail>)>;
+  async fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
+  async fn save_filters(&self, view_id: &str, filters: &[Filter]);
 }
 
 pub trait PreFillCellsWithFilter {
@@ -40,7 +42,7 @@ pub struct FilterController {
   result_by_row_id: DashMap<RowId, bool>,
   cell_cache: CellCache,
   filters: RwLock<Vec<Filter>>,
-  task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
 
@@ -55,7 +57,7 @@ impl FilterController {
     view_id: &str,
     handler_id: &str,
     delegate: T,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
@@ -72,15 +74,14 @@ impl FilterController {
 
     let mut need_save = false;
 
-    let mut filters = delegate.get_all_filters(view_id);
+    let mut filters = delegate.get_all_filters(view_id).await;
+    trace!("[Database]: filters: {:?}", filters);
     let mut filtering_field_ids: HashMap<String, Vec<String>> = HashMap::new();
-
     for filter in filters.iter() {
       filter.get_all_filtering_field_ids(&mut filtering_field_ids);
     }
 
     let mut delete_filter_ids = vec![];
-
     for (field_id, filter_ids) in &filtering_field_ids {
       if !field_ids.contains(field_id) {
         need_save = true;
@@ -93,7 +94,7 @@ impl FilterController {
     }
 
     if need_save {
-      delegate.save_filters(view_id, &filters);
+      delegate.save_filters(view_id, &filters).await;
     }
 
     Self {
@@ -106,6 +107,10 @@ impl FilterController {
       task_scheduler,
       notifier,
     }
+  }
+
+  pub async fn has_filters(&self) -> bool {
+    !self.filters.read().await.is_empty()
   }
 
   pub async fn close(&self) {
@@ -126,32 +131,6 @@ impl FilterController {
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
-  }
-
-  pub async fn filter_rows(&self, rows: &mut Vec<Arc<RowDetail>>) {
-    let filters = self.filters.read().await;
-
-    if filters.is_empty() {
-      return;
-    }
-    let field_by_field_id = self.get_field_map().await;
-    rows.iter().for_each(|row_detail| {
-      let _ = filter_row(
-        &row_detail.row,
-        &self.result_by_row_id,
-        &field_by_field_id,
-        &self.cell_cache,
-        &filters,
-      );
-    });
-
-    rows.retain(|row_detail| {
-      self
-        .result_by_row_id
-        .get(&row_detail.row.id)
-        .map(|result| *result)
-        .unwrap_or(false)
-    });
   }
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
@@ -184,8 +163,9 @@ impl FilterController {
               .iter_mut()
               .find_map(|filter| filter.find_filter(&parent_filter_id))
             {
-              // TODO(RS): error handling for inserting filters
-              let _result = parent_filter.insert_filter(new_filter);
+              if let Err(err) = parent_filter.insert_filter(new_filter) {
+                error!("error while inserting filter: {}", err);
+              }
             }
           },
           None => {
@@ -213,7 +193,9 @@ impl FilterController {
           .find_map(|filter| filter.find_filter(&filter_id))
         {
           // TODO(RS): error handling for updating filter data
-          let _result = filter.update_filter_data(data);
+          if let Err(error) = filter.update_filter_data(data) {
+            error!("error while updating filter data: {}", error);
+          }
         }
       },
       FilterChangeset::Delete {
@@ -231,7 +213,7 @@ impl FilterController {
       },
     }
 
-    self.delegate.save_filters(&self.view_id, &filters);
+    self.delegate.save_filters(&self.view_id, &filters).await;
 
     self
       .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
@@ -334,7 +316,10 @@ impl FilterController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = FilterEvent::from_str(predicate).unwrap();
     match event_type {
-      FilterEvent::FilterDidChanged => self.filter_all_rows_handler().await?,
+      FilterEvent::FilterDidChanged => {
+        let mut rows = self.delegate.get_rows(&self.view_id).await;
+        self.filter_rows_and_notify(&mut rows).await?
+      },
       FilterEvent::RowDidChanged(row_id) => self.filter_single_row_handler(row_id).await?,
     }
     Ok(())
@@ -356,7 +341,8 @@ impl FilterController {
         if is_visible {
           if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
             notification.visible_rows.push(
-              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref())).with_index(index as i32),
+              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref().clone()))
+                .with_index(index as i32),
             )
           }
         } else {
@@ -371,47 +357,65 @@ impl FilterController {
     Ok(())
   }
 
-  async fn filter_all_rows_handler(&self) -> FlowyResult<()> {
+  pub async fn filter_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) -> FlowyResult<()> {
     let filters = self.filters.read().await;
-
     let field_by_field_id = self.get_field_map().await;
     let mut visible_rows = vec![];
     let mut invisible_rows = vec![];
-
-    for (index, row_detail) in self
-      .delegate
-      .get_rows(&self.view_id)
-      .await
-      .into_iter()
-      .enumerate()
-    {
+    for (index, row) in rows.iter_mut().enumerate() {
       if let Some(is_visible) = filter_row(
-        &row_detail.row,
+        row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
         &filters,
       ) {
         if is_visible {
-          let row_meta = RowMetaPB::from(row_detail.as_ref());
+          let row_meta = RowMetaPB::from(row.as_ref().clone());
           visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
-          invisible_rows.push(row_detail.row.id.clone());
+          invisible_rows.push(row.id.clone());
         }
       }
     }
 
+    rows.retain(|row| !invisible_rows.iter().any(|id| id == &row.id));
     let notification = FilterResultNotification {
       view_id: self.view_id.clone(),
       invisible_rows,
       visible_rows,
     };
-    tracing::trace!("filter result {:?}", filters);
     let _ = self
       .notifier
       .send(DatabaseViewChanged::FilterNotification(notification));
 
     Ok(())
+  }
+
+  pub async fn filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+    let filters = self.filters.read().await;
+
+    if filters.is_empty() {
+      return;
+    }
+    let field_by_field_id = self.get_field_map().await;
+    rows.iter().for_each(|row| {
+      let _ = filter_row(
+        row,
+        &self.result_by_row_id,
+        &field_by_field_id,
+        &self.cell_cache,
+        &filters,
+      );
+    });
+
+    rows.retain(|row| {
+      self
+        .result_by_row_id
+        .get(&row.id)
+        .map(|result| *result)
+        .unwrap_or(false)
+    });
   }
 
   async fn get_field_map(&self) -> HashMap<String, Field> {

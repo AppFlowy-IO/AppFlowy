@@ -1,16 +1,20 @@
-use anyhow::bail;
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::encoding::serde::{from_any, to_any};
+use collab::preclude::Any;
 use collab_database::database::gen_database_group_id;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct GroupSetting {
   pub id: String,
   pub field_id: String,
+  #[serde(rename = "ty")]
   pub field_type: i64,
+  #[serde(default)]
   pub groups: Vec<Group>,
+  #[serde(default)]
   pub content: String,
 }
 
@@ -44,38 +48,20 @@ impl TryFrom<GroupSettingMap> for GroupSetting {
   type Error = anyhow::Error;
 
   fn try_from(value: GroupSettingMap) -> Result<Self, Self::Error> {
-    match (
-      value.get_str_value(GROUP_ID),
-      value.get_str_value(FIELD_ID),
-      value.get_i64_value(FIELD_TYPE),
-    ) {
-      (Some(id), Some(field_id), Some(field_type)) => {
-        let content = value.get_str_value(CONTENT).unwrap_or_default();
-        let groups = value.try_get_array(GROUPS);
-        Ok(Self {
-          id,
-          field_id,
-          field_type,
-          groups,
-          content,
-        })
-      },
-      _ => {
-        bail!("Invalid group setting data")
-      },
-    }
+    from_any(&Any::from(value)).map_err(|e| e.into())
   }
 }
 
 impl From<GroupSetting> for GroupSettingMap {
   fn from(setting: GroupSetting) -> Self {
-    GroupSettingBuilder::new()
-      .insert_str_value(GROUP_ID, setting.id)
-      .insert_str_value(FIELD_ID, setting.field_id)
-      .insert_i64_value(FIELD_TYPE, setting.field_type)
-      .insert_maps(GROUPS, setting.groups)
-      .insert_str_value(CONTENT, setting.content)
-      .build()
+    let groups = to_any(&setting.groups).unwrap_or_else(|_| Any::Array(Arc::from([])));
+    GroupSettingBuilder::from([
+      (GROUP_ID.into(), setting.id.into()),
+      (FIELD_ID.into(), setting.field_id.into()),
+      (FIELD_TYPE.into(), Any::BigInt(setting.field_type)),
+      (GROUPS.into(), groups),
+      (CONTENT.into(), setting.content.into()),
+    ])
   }
 }
 
@@ -90,22 +76,16 @@ impl TryFrom<GroupMap> for Group {
   type Error = anyhow::Error;
 
   fn try_from(value: GroupMap) -> Result<Self, Self::Error> {
-    match value.get_str_value("id") {
-      None => bail!("Invalid group data"),
-      Some(id) => {
-        let visible = value.get_bool_value("visible").unwrap_or_default();
-        Ok(Self { id, visible })
-      },
-    }
+    from_any(&Any::from(value)).map_err(|e| e.into())
   }
 }
 
 impl From<Group> for GroupMap {
   fn from(group: Group) -> Self {
-    GroupMapBuilder::new()
-      .insert_str_value("id", group.id)
-      .insert_bool_value("visible", group.visible)
-      .build()
+    GroupMapBuilder::from([
+      ("id".into(), group.id.into()),
+      ("visible".into(), group.visible.into()),
+    ])
   }
 }
 
@@ -123,7 +103,7 @@ pub struct GroupData {
   pub field_id: String,
   pub is_default: bool,
   pub is_visible: bool,
-  pub(crate) rows: Vec<RowDetail>,
+  pub(crate) rows: Vec<Row>,
 }
 
 impl GroupData {
@@ -139,18 +119,11 @@ impl GroupData {
   }
 
   pub fn contains_row(&self, row_id: &RowId) -> bool {
-    self
-      .rows
-      .iter()
-      .any(|row_detail| &row_detail.row.id == row_id)
+    self.rows.iter().any(|row| &row.id == row_id)
   }
 
   pub fn remove_row(&mut self, row_id: &RowId) {
-    match self
-      .rows
-      .iter()
-      .position(|row_detail| &row_detail.row.id == row_id)
-    {
+    match self.rows.iter().position(|row| &row.id == row_id) {
       None => {},
       Some(pos) => {
         self.rows.remove(pos);
@@ -158,18 +131,18 @@ impl GroupData {
     }
   }
 
-  pub fn add_row(&mut self, row_detail: RowDetail) {
-    match self.rows.iter().find(|r| r.row.id == row_detail.row.id) {
+  pub fn add_row(&mut self, row: Row) {
+    match self.rows.iter().find(|r| r.id == row.id) {
       None => {
-        self.rows.push(row_detail);
+        self.rows.push(row);
       },
       Some(_) => {},
     }
   }
 
-  pub fn insert_row(&mut self, index: usize, row_detail: RowDetail) {
+  pub fn insert_row(&mut self, index: usize, row: Row) {
     if index < self.rows.len() {
-      self.rows.insert(index, row_detail);
+      self.rows.insert(index, row);
     } else {
       tracing::error!(
         "Insert row index:{} beyond the bounds:{},",
@@ -180,10 +153,7 @@ impl GroupData {
   }
 
   pub fn index_of_row(&self, row_id: &RowId) -> Option<usize> {
-    self
-      .rows
-      .iter()
-      .position(|row_detail| &row_detail.row.id == row_id)
+    self.rows.iter().position(|row| &row.id == row_id)
   }
 
   pub fn number_of_row(&self) -> usize {

@@ -8,7 +8,6 @@ class FlowyTooltip extends StatelessWidget {
     this.message,
     this.richMessage,
     this.preferBelow,
-    this.showDuration,
     this.margin,
     this.verticalOffset,
     this.child,
@@ -17,7 +16,6 @@ class FlowyTooltip extends StatelessWidget {
   final String? message;
   final InlineSpan? richMessage;
   final bool? preferBelow;
-  final Duration? showDuration;
   final EdgeInsetsGeometry? margin;
   final Widget? child;
   final double? verticalOffset;

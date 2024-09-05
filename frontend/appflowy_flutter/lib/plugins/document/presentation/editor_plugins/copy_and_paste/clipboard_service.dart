@@ -100,9 +100,7 @@ class ClipboardService {
 
     for (final item in reader.items) {
       final availableFormats = await item.rawReader!.getAvailableFormats();
-      Log.debug(
-        'availableFormats: $availableFormats',
-      );
+      Log.info('availableFormats: $availableFormats');
     }
 
     final plainText = await reader.readValue(Formats.plainText);
@@ -115,6 +113,8 @@ class ClipboardService {
       image = ('jpeg', await reader.readFile(Formats.jpeg));
     } else if (reader.canProvide(Formats.gif)) {
       image = ('gif', await reader.readFile(Formats.gif));
+    } else if (reader.canProvide(Formats.webp)) {
+      image = ('webp', await reader.readFile(Formats.webp));
     }
 
     return ClipboardServiceData(

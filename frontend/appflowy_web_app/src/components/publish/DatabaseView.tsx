@@ -1,4 +1,5 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/collab.type';
+import { usePublishContext } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Database } from '@/components/database';
 import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
@@ -15,10 +16,11 @@ export interface DatabaseProps {
   viewMeta: ViewMetaProps;
 }
 
-function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
+function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
   const [search, setSearch] = useSearchParams();
   const visibleViewIds = useMemo(() => viewMeta.visibleViewIds || [], [viewMeta]);
 
+  const isTemplateThumb = usePublishContext()?.isTemplateThumb;
   const iidIndex = viewMeta.viewId;
   const viewId = useMemo(() => {
     return search.get('v') || iidIndex;
@@ -26,16 +28,22 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
 
   const handleChangeView = useCallback(
     (viewId: string) => {
-      setSearch({ v: viewId });
+      setSearch(prev => {
+        prev.set('v', viewId);
+        return prev;
+      });
     },
-    [setSearch]
+    [setSearch],
   );
 
   const handleNavigateToRow = useCallback(
     (rowId: string) => {
-      setSearch({ r: rowId });
+      setSearch(prev => {
+        prev.set('r', rowId);
+        return prev;
+      });
     },
-    [setSearch]
+    [setSearch],
   );
 
   const rowId = search.get('r') || undefined;
@@ -46,8 +54,9 @@ function DatabaseView({ viewMeta, ...props }: DatabaseProps) {
     <div
       style={{
         minHeight: 'calc(100vh - 48px)',
+        maxWidth: isTemplateThumb ? '964px' : undefined,
       }}
-      className={'relative flex h-full w-full flex-col px-16 max-md:px-4'}
+      className={'relative flex h-full w-full flex-col px-16 max-xl:px-8 max-lg:px-6'}
     >
       <DatabaseHeader {...viewMeta} />
       <Suspense fallback={<ComponentLoading />}>

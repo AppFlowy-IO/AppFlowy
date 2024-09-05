@@ -2,6 +2,7 @@ use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
+use arc_swap::ArcSwapOption;
 use chrono::{DateTime, Utc};
 use client_api::collab_sync::MsgId;
 use collab::core::collab::DataSource;
@@ -10,7 +11,6 @@ use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{
   RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
 };
-use parking_lot::Mutex;
 use tokio::task::spawn_blocking;
 
 use lib_infra::async_trait::async_trait;
@@ -28,7 +28,7 @@ use crate::AppFlowyEncryption;
 
 pub struct SupabaseCollabStorageImpl<T> {
   server: T,
-  rx: Mutex<Option<RemoteUpdateReceiver>>,
+  rx: ArcSwapOption<RemoteUpdateReceiver>,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
@@ -40,7 +40,7 @@ impl<T> SupabaseCollabStorageImpl<T> {
   ) -> Self {
     Self {
       server,
-      rx: Mutex::new(rx),
+      rx: ArcSwapOption::new(rx.map(Arc::new)),
       encryption,
     }
   }
@@ -186,11 +186,14 @@ where
   }
 
   fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
-    let rx = self.rx.lock().take();
-    if rx.is_none() {
-      tracing::warn!("The receiver is already taken");
+    let rx = self.rx.swap(None);
+    match rx {
+      Some(rx) => Arc::into_inner(rx),
+      None => {
+        tracing::warn!("The receiver is already taken");
+        None
+      },
     }
-    rx
   }
 }
 

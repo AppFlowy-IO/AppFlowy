@@ -3,8 +3,10 @@ use async_trait::async_trait;
 pub use client_api_entity::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
+use serde::Serialize;
+use std::fmt::Display;
 use std::ops::{Deref, DerefMut};
-use tokio::sync::mpsc;
+use tokio::sync::broadcast;
 use tracing::error;
 
 #[async_trait]
@@ -21,7 +23,7 @@ pub trait StorageService: Send + Sync {
     upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), FlowyError>;
 
-  async fn start_upload(&self, chunks: &ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError>;
+  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError>;
 
   async fn resume_upload(
     &self,
@@ -32,17 +34,18 @@ pub trait StorageService: Send + Sync {
 
   async fn subscribe_file_progress(
     &self,
+    parent_idr: &str,
     file_id: &str,
-  ) -> Result<FileProgressReceiver, FlowyError>;
+  ) -> Result<Option<FileProgressReceiver>, FlowyError>;
 }
 
 pub struct FileProgressReceiver {
-  pub rx: mpsc::Receiver<FileUploadState>,
+  pub rx: broadcast::Receiver<FileUploadState>,
   pub file_id: String,
 }
 
 impl Deref for FileProgressReceiver {
-  type Target = mpsc::Receiver<FileUploadState>;
+  type Target = broadcast::Receiver<FileUploadState>;
 
   fn deref(&self) -> &Self::Target {
     &self.rx
@@ -62,31 +65,46 @@ pub enum FileUploadState {
   Finished { file_id: String },
 }
 
+#[derive(Clone, Debug, Serialize)]
+pub struct FileProgress {
+  pub file_url: String,
+  pub progress: f64,
+  pub error: Option<String>,
+}
+
+impl Display for FileProgress {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "FileProgress: {} - {}", self.file_url, self.progress)
+  }
+}
+
 #[derive(Debug)]
 pub struct ProgressNotifier {
-  tx: mpsc::Sender<FileUploadState>,
+  file_id: String,
+  tx: broadcast::Sender<FileUploadState>,
   pub current_value: Option<FileUploadState>,
 }
 
 impl ProgressNotifier {
-  pub fn new() -> (Self, mpsc::Receiver<FileUploadState>) {
-    let (tx, rx) = mpsc::channel(5);
-    (
-      ProgressNotifier {
-        tx,
-        current_value: None,
-      },
-      rx,
-    )
+  pub fn new(file_id: String) -> Self {
+    let (tx, _) = broadcast::channel(100);
+    ProgressNotifier {
+      file_id,
+      tx,
+      current_value: None,
+    }
+  }
+
+  pub fn subscribe(&self) -> FileProgressReceiver {
+    FileProgressReceiver {
+      rx: self.tx.subscribe(),
+      file_id: self.file_id.clone(),
+    }
   }
 
   pub async fn notify(&mut self, progress: FileUploadState) {
     self.current_value = Some(progress.clone());
-    // if self.tx.reserve().await.is_err() {
-    //   return;
-    // }
-
-    if let Err(err) = self.tx.send(progress).await {
+    if let Err(err) = self.tx.send(progress) {
       error!("Failed to send progress notification: {:?}", err);
     }
   }

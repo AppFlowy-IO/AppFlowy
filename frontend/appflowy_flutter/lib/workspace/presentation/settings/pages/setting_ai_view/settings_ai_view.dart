@@ -40,15 +40,17 @@ class SettingsAIView extends StatelessWidget {
     super.key,
     required this.userProfile,
     required this.member,
+    required this.workspaceId,
   });
 
   final UserProfilePB userProfile;
   final WorkspaceMemberPB? member;
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsAIBloc>(
-      create: (_) => SettingsAIBloc(userProfile, member)
+      create: (_) => SettingsAIBloc(userProfile, workspaceId, member)
         ..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
         builder: (context, state) {
@@ -63,6 +65,7 @@ class SettingsAIView extends StatelessWidget {
               _LocalAIOnBoarding(
                 userProfile: userProfile,
                 member: state.member!,
+                workspaceId: workspaceId,
               ),
             );
           }
@@ -127,9 +130,11 @@ class _LocalAIOnBoarding extends StatelessWidget {
   const _LocalAIOnBoarding({
     required this.userProfile,
     required this.member,
+    required this.workspaceId,
   });
   final UserProfilePB userProfile;
   final WorkspaceMemberPB member;
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +142,9 @@ class _LocalAIOnBoarding extends StatelessWidget {
       return BillingGateGuard(
         builder: (context) {
           return BlocProvider(
-            create: (context) => LocalAIOnBoardingBloc(userProfile)
-              ..add(const LocalAIOnBoardingEvent.started()),
+            create: (context) =>
+                LocalAIOnBoardingBloc(userProfile, member, workspaceId)
+                  ..add(const LocalAIOnBoardingEvent.started()),
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {
                 // Show the local AI settings if the user has purchased the AI Local plan

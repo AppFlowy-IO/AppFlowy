@@ -177,7 +177,7 @@ class InteractiveImageToolbar extends StatelessWidget {
                           ? currentImage.isLocal
                               ? FlowySvgs.folder_m
                               : FlowySvgs.m_aa_link_s
-                          : FlowySvgs.import_s,
+                          : FlowySvgs.download_s,
                       onTap: () => _locateOrDownloadImage(context),
                     ),
                   ],

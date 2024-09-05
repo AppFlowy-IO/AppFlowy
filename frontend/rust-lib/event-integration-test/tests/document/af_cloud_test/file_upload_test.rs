@@ -2,6 +2,7 @@ use crate::document::generate_random_bytes;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_storage_pub::storage::FileUploadState;
+use lib_infra::util::md5;
 use std::env::temp_dir;
 use std::sync::Arc;
 use std::time::Duration;
@@ -9,24 +10,26 @@ use tokio::fs;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::Mutex;
+use tokio::time::timeout;
+
 #[tokio::test]
 async fn af_cloud_upload_big_file_test() {
   user_localhost_af_cloud().await;
   let mut test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
   tokio::time::sleep(Duration::from_secs(6)).await;
-
+  let parent_dir = "temp_test";
   let workspace_id = test.get_current_workspace().await.id;
   let (file_path, upload_data) = generate_file_with_bytes_len(15 * 1024 * 1024).await;
   let (created_upload, rx) = test
     .storage_manager
     .storage_service
-    .create_upload(&workspace_id, "temp_test", &file_path, false)
+    .create_upload(&workspace_id, parent_dir, &file_path, false)
     .await
     .unwrap();
 
   let mut rx = rx.unwrap();
-  while let Some(state) = rx.recv().await {
+  while let Ok(state) = rx.recv().await {
     if let FileUploadState::Uploading { progress } = state {
       if progress > 0.1 {
         break;
@@ -42,15 +45,22 @@ async fn af_cloud_upload_big_file_test() {
 
   // Restart the test. It will load unfinished uploads
   let test = EventIntegrationTest::new_with_config(config).await;
-  let mut rx = test
+  if let Some(mut rx) = test
     .storage_manager
-    .subscribe_file_state(&created_upload.file_id)
+    .subscribe_file_state(parent_dir, &created_upload.file_id)
     .await
-    .unwrap();
-
-  while let Some(state) = rx.recv().await {
-    if let FileUploadState::Finished { .. } = state {
-      break;
+    .unwrap()
+  {
+    let timeout_duration = Duration::from_secs(180);
+    while let Ok(state) = match timeout(timeout_duration, rx.recv()).await {
+      Ok(result) => result,
+      Err(_) => {
+        panic!("Timed out waiting for file upload completion");
+      },
+    } {
+      if let FileUploadState::Finished { .. } = state {
+        break;
+      }
     }
   }
 
@@ -62,8 +72,7 @@ async fn af_cloud_upload_big_file_test() {
     .file_storage()
     .unwrap();
   let file = file_service.get_object(created_upload.url).await.unwrap();
-  assert_eq!(file.raw.to_vec(), upload_data);
-
+  assert_eq!(md5(file.raw), md5(upload_data));
   let _ = fs::remove_file(file_path).await;
 }
 
@@ -105,7 +114,7 @@ async fn af_cloud_upload_6_files_test() {
           .await
           .retain(|upload| upload.file_id != file_id);
       }
-      while let Some(value) = receiver.recv().await {
+      while let Ok(value) = receiver.recv().await {
         if let FileUploadState::Finished { file_id } = value {
           cloned_uploads
             .lock()

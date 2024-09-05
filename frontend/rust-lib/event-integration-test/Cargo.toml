@@ -37,7 +37,6 @@ thread-id = "3.3.0"
 bytes.workspace = true
 nanoid = "0.4.0"
 tracing.workspace = true
-parking_lot.workspace = true
 uuid.workspace = true
 collab = { workspace = true }
 collab-document = { workspace = true }

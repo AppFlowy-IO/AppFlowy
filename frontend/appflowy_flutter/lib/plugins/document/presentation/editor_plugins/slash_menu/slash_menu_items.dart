@@ -125,6 +125,21 @@ final numberedListSlashMenuItem = SelectionMenuItem(
   },
 );
 
+// todo list menu item
+final todoListSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_todoList.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_checkbox_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['checkbox', 'todo', 'list', 'to-do', 'task'],
+  handler: (editorState, _, __) {
+    insertCheckboxAfterSelection(editorState);
+  },
+);
+
 // quote menu item
 final quoteSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_quote.tr(),
@@ -134,9 +149,39 @@ final quoteSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['quote', 'refer'],
+  keywords: ['quote', 'refer', 'blockquote', 'citation'],
   handler: (editorState, _, __) {
     insertQuoteAfterSelection(editorState);
+  },
+);
+
+// divider menu item
+final dividerSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_divider.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_divider_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['divider', 'separator', 'line', 'break', 'horizontal line'],
+  handler: (editorState, _, __) {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final path = selection.end.path;
+    final node = editorState.getNodeAtPath(path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+    final insertedPath = delta.isEmpty ? path : path.next;
+    final transaction = editorState.transaction
+      ..insertNode(insertedPath, dividerNode())
+      ..insertNode(insertedPath, paragraphNode())
+      ..afterSelection = Selection.collapsed(Position(path: insertedPath.next));
+    editorState.apply(transaction);
   },
 );
 
@@ -219,7 +264,13 @@ final referencedDocSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['page', 'notes', 'referenced page', 'referenced document'],
+  keywords: [
+    'page',
+    'notes',
+    'referenced page',
+    'referenced document',
+    'link to page',
+  ],
   handler: (editorState, menuService, context) => showLinkToPageMenu(
     editorState,
     menuService,
@@ -347,7 +398,7 @@ SelectionMenuItem toggleListSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['collapsed list', 'toggle list', 'list'],
+  keywords: ['collapsed list', 'toggle list', 'list', 'dropdown'],
   nodeBuilder: (editorState, _) => toggleListBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
@@ -361,7 +412,7 @@ SelectionMenuItem emojiSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['emoji'],
+  keywords: ['emoji', 'reaction', 'emoticon'],
   handler: (editorState, menuService, context) {
     final container = Overlay.of(context);
     menuService.dismiss();
@@ -391,6 +442,56 @@ SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem.node(
   replace: (_, node) => false,
 );
 
+// table menu item
+SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_table.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_simple_table_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['table', 'rows', 'columns', 'data'],
+  handler: (editorState, _, __) async {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+
+    final currentNode = editorState.getNodeAtPath(selection.end.path);
+    if (currentNode == null) {
+      return;
+    }
+
+    final tableNode = TableNode.fromList([
+      ['', ''],
+      ['', ''],
+    ]);
+
+    final transaction = editorState.transaction;
+    final delta = currentNode.delta;
+    if (delta != null && delta.isEmpty) {
+      transaction
+        ..insertNode(selection.end.path, tableNode.node)
+        ..deleteNode(currentNode);
+      transaction.afterSelection = Selection.collapsed(
+        Position(
+          path: selection.end.path + [0, 0],
+        ),
+      );
+    } else {
+      transaction.insertNode(selection.end.path.next, tableNode.node);
+      transaction.afterSelection = Selection.collapsed(
+        Position(
+          path: selection.end.path.next + [0, 0],
+        ),
+      );
+    }
+
+    await editorState.apply(transaction);
+  },
+);
+
 // date or reminder menu item
 SelectionMenuItem dateOrReminderSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
@@ -400,7 +501,7 @@ SelectionMenuItem dateOrReminderSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['insert date', 'date', 'time', 'reminder'],
+  keywords: ['insert date', 'date', 'time', 'reminder', 'schedule'],
   handler: (editorState, menuService, context) =>
       insertDateReference(editorState),
 );
@@ -439,7 +540,7 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
     isSelected: isSelected,
     style: style,
   ),
-  keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload'],
+  keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload', 'attachment'],
   handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
 );
 

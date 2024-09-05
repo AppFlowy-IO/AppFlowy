@@ -419,7 +419,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       imageSlashMenuItem,
       bulletedListSlashMenuItem,
       numberedListSlashMenuItem,
+      todoListSlashMenuItem,
+      dividerSlashMenuItem,
       quoteSlashMenuItem,
+      tableSlashMenuItem,
       referencedDocSlashMenuItem,
       gridSlashMenuItem(documentBloc),
       referencedGridSlashMenuItem,
@@ -496,11 +499,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   void _customizeBlockComponentBackgroundColorDecorator() {
-    if (!context.mounted) {
-      return;
-    }
-    blockComponentBackgroundColorDecorator = (Node node, String colorString) =>
-        buildEditorCustomizedColor(context, node, colorString);
+    blockComponentBackgroundColorDecorator = (Node node, String colorString) {
+      if (mounted && context.mounted) {
+        return buildEditorCustomizedColor(context, node, colorString);
+      }
+      return null;
+    };
   }
 
   void _initEditorL10n() => AppFlowyEditorL10n.current = EditorI18n();

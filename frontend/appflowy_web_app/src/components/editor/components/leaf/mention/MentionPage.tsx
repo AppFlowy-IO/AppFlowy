@@ -6,7 +6,7 @@ import { isFlagEmoji } from '@/utils/emoji';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function MentionPage({ pageId }: { pageId: string }) {
+function MentionPage ({ pageId }: { pageId: string }) {
   const context = useEditorContext();
   const { navigateToView, loadViewMeta } = context;
   const [unPublished, setUnPublished] = useState(false);

@@ -13,7 +13,7 @@ impl AFPluginStateMap {
 
   pub fn insert<T>(&mut self, val: T) -> Option<T>
   where
-    T: 'static + AFConcurrent,
+    T: 'static + Send + Sync,
   {
     self
       .0
