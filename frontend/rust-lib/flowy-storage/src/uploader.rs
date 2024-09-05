@@ -111,13 +111,12 @@ impl FileUploader {
       return None;
     }
 
-    trace!(
-      "[File] Max concurrent uploads: {}, current: {}",
-      self.max_uploads,
-      self
-        .current_uploads
-        .load(std::sync::atomic::Ordering::SeqCst)
-    );
+    let current_uploads = self
+      .current_uploads
+      .load(std::sync::atomic::Ordering::SeqCst);
+    if current_uploads > 0 {
+      trace!("[File] current upload tasks: {}", current_uploads)
+    }
 
     if self
       .current_uploads

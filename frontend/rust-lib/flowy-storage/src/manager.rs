@@ -136,11 +136,10 @@ impl StorageManager {
     let mut conn = self.user_service.sqlite_connection(uid).ok()?;
     let is_finish = is_upload_completed(&mut conn, &workspace_id, &parent_dir, &file_id).ok()?;
 
-    if let Err(err) = self.global_notifier.send(FileProgress {
-      file_url: url.to_string(),
-      progress: if is_finish { 1.0 } else { 0.0 },
-      error: None,
-    }) {
+    if let Err(err) = self.global_notifier.send(FileProgress::new_progress(
+      url.to_string(),
+      if is_finish { 1.0 } else { 0.0 },
+    )) {
       error!("[File] send global notifier failed: {}", err);
     }
 
@@ -594,11 +593,8 @@ async fn start_upload(
             &upload_file.file_id,
           )
           .await?;
-        if let Err(err) = global_notifier.send(FileProgress {
-          file_url,
-          progress,
-          error: None,
-        }) {
+
+        if let Err(err) = global_notifier.send(FileProgress::new_progress(file_url, progress)) {
           error!("[File] send global notifier failed: {}", err);
         }
 
@@ -765,7 +761,6 @@ async fn complete_upload(
     Ok(_) => {
       info!("[File] completed upload file: {}", upload_file.file_id);
       if let Some(mut notifier) = progress_notifiers.get_mut(&upload_file.file_id) {
-        info!("[File]: notify upload:{} finished", upload_file.file_id);
         notifier
           .notify(FileUploadState::Finished {
             file_id: upload_file.file_id.clone(),
@@ -781,11 +776,12 @@ async fn complete_upload(
         )
         .await?;
 
-      if let Err(err) = global_notifier.send(FileProgress {
-        file_url,
-        progress: 1.0,
-        error: None,
-      }) {
+      let progress = FileProgress::new_progress(file_url, 1.0);
+      info!(
+        "[File]: notify upload progress:{}, {}",
+        upload_file.file_id, progress
+      );
+      if let Err(err) = global_notifier.send(progress) {
         error!("[File] send global notifier failed: {}", err);
       }
 

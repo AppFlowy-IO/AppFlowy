@@ -7,7 +7,7 @@ use serde::Serialize;
 use std::fmt::Display;
 use std::ops::{Deref, DerefMut};
 use tokio::sync::broadcast;
-use tracing::error;
+use tracing::warn;
 
 #[async_trait]
 pub trait StorageService: Send + Sync {
@@ -72,6 +72,24 @@ pub struct FileProgress {
   pub error: Option<String>,
 }
 
+impl FileProgress {
+  pub fn new_progress(file_url: String, progress: f64) -> Self {
+    FileProgress {
+      file_url,
+      progress,
+      error: None,
+    }
+  }
+
+  pub fn new_error(file_url: String, error: String) -> Self {
+    FileProgress {
+      file_url,
+      progress: 0.0,
+      error: Some(error),
+    }
+  }
+}
+
 impl Display for FileProgress {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "FileProgress: {} - {}", self.file_url, self.progress)
@@ -105,7 +123,7 @@ impl ProgressNotifier {
   pub async fn notify(&mut self, progress: FileUploadState) {
     self.current_value = Some(progress.clone());
     if let Err(err) = self.tx.send(progress) {
-      error!("Failed to send progress notification: {:?}", err);
+      warn!("Failed to send progress notification: {:?}", err);
     }
   }
 }
