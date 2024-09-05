@@ -79,6 +79,7 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
               lineHeight: 18.0 / 12.0,
               onPressed: () {
                 isCheckedNotifier.value = false;
+                textEditingController.clear();
 
                 showCancelAndDeleteDialog(
                   context: context,
