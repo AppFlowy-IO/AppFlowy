@@ -990,33 +990,32 @@ impl DatabaseEditor {
       }
       let handler = handler.unwrap();
 
-      let new_count: i64;
-      let old_count: i64;
-
       let cell = self.get_cell(field_id, row_id).await;
-      if cell.is_some() {
-        let cell = cell.unwrap();
-        let data = handler
-          .handle_get_boxed_cell_data(&cell, &field)
-          .and_then(|cell_data| cell_data.unbox_or_none())
-          .unwrap_or_else(MediaCellData::default);
+      let new_count = match cell {
+        Some(cell) => {
+          let cell = cell.unwrap();
+          let data = handler
+            .handle_get_boxed_cell_data(&cell, &field)
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(MediaCellData::default);
 
-        new_count = data.files.len() as i64;
-      } else {
-        new_count = 0;
-      }
+          data.files.len() as i64
+        },
+        None => 0,
+      };
 
       let old_cell = old_row.and_then(|row| row.cells.get(field_id).cloned());
-      if let Some(old_cell) = old_cell {
-        let data = handler
-          .handle_get_boxed_cell_data(&old_cell, &field)
-          .and_then(|cell_data| cell_data.unbox_or_none())
-          .unwrap_or_else(MediaCellData::default);
+      let old_count = match (old_cell) {
+        Some(old_cell) => {
+          let data = handler
+            .handle_get_boxed_cell_data(&old_cell, &field)
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(MediaCellData::default);
 
-        old_count = data.files.len() as i64;
-      } else {
-        old_count = 0;
-      }
+          data.files.len() as i64
+        },
+        None => 0,
+      };
 
       if new_count != old_count {
         let attachment_count = self
