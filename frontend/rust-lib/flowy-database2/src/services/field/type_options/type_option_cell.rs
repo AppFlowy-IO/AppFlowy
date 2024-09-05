@@ -14,8 +14,8 @@ use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellP
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
+  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption,
+  NumberTypeOption, RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
   TimestampTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
@@ -489,6 +489,16 @@ impl<'a> TypeOptionCellExt<'a> {
       FieldType::Translate => self
         .field
         .get_type_option::<TranslateTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            field_type,
+            self.cell_data_cache.clone(),
+          )
+        }),
+      FieldType::Media => self
+        .field
+        .get_type_option::<MediaTypeOption>(field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,

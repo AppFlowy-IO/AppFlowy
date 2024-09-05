@@ -136,7 +136,7 @@ function AsTemplate ({
             submitRef.current?.click();
           }} variant={'contained'} color={'primary'}
           >
-            {t('template.asTemplate')}
+            {t('button.save')}
           </Button>
         </div>
 

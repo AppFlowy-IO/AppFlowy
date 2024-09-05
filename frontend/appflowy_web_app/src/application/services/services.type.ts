@@ -9,7 +9,7 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 import * as Y from 'yjs';
-import { DuplicatePublishView, FolderView, User, Workspace } from '@/application/types';
+import { DuplicatePublishView, FolderView, User, View, Workspace } from '@/application/types';
 
 export type AFService = PublishService;
 
@@ -36,6 +36,8 @@ export interface PublishService {
     rows: Y.Map<YDoc>;
     destroy: () => void;
   }>;
+
+  getPublishOutline (namespace: string): Promise<View>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;

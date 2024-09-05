@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
@@ -8,14 +10,11 @@ import 'package:appflowy/plugins/database/application/cell/bloc/checklist_cell_b
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileChecklistCellEditScreen extends StatefulWidget {
-  const MobileChecklistCellEditScreen({
-    super.key,
-  });
+  const MobileChecklistCellEditScreen({super.key});
 
   @override
   State<MobileChecklistCellEditScreen> createState() =>
@@ -48,21 +47,8 @@ class _MobileChecklistCellEditScreenState
   }
 
   Widget _buildHeader(BuildContext context) {
-    const iconWidth = 36.0;
-    const height = 44.0;
     return Stack(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: FlowyIconButton(
-            icon: const FlowySvg(
-              FlowySvgs.close_s,
-              size: Size.square(iconWidth),
-            ),
-            width: iconWidth,
-            onPressed: () => context.pop(),
-          ),
-        ),
         SizedBox(
           height: 44.0,
           child: Align(
@@ -72,7 +58,7 @@ class _MobileChecklistCellEditScreenState
             ),
           ),
         ),
-      ].map((e) => SizedBox(height: height, child: e)).toList(),
+      ],
     );
   }
 }

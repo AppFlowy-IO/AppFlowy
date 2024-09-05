@@ -63,6 +63,9 @@ pub struct RowMetaPB {
 
   #[pb(index = 4, one_of)]
   pub is_document_empty: Option<bool>,
+
+  #[pb(index = 5, one_of)]
+  pub attachment_count: Option<i64>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -78,6 +81,7 @@ impl From<RowOrder> for RowMetaPB {
       document_id: None,
       icon: None,
       is_document_empty: None,
+      attachment_count: None,
     }
   }
 }
@@ -89,6 +93,7 @@ impl From<Row> for RowMetaPB {
       document_id: None,
       icon: None,
       is_document_empty: None,
+      attachment_count: None,
     }
   }
 }
@@ -100,6 +105,7 @@ impl From<RowDetail> for RowMetaPB {
       document_id: Some(row_detail.document_id),
       icon: row_detail.meta.icon_url,
       is_document_empty: Some(row_detail.meta.is_document_empty),
+      attachment_count: Some(row_detail.meta.attachment_count),
     }
   }
 }
@@ -121,6 +127,9 @@ pub struct UpdateRowMetaChangesetPB {
 
   #[pb(index = 5, one_of)]
   pub is_document_empty: Option<bool>,
+
+  #[pb(index = 6, one_of)]
+  pub attachment_count: Option<i64>,
 }
 
 #[derive(Debug)]
@@ -130,6 +139,7 @@ pub struct UpdateRowMetaParams {
   pub icon_url: Option<String>,
   pub cover_url: Option<String>,
   pub is_document_empty: Option<bool>,
+  pub attachment_count: Option<i64>,
 }
 
 impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
@@ -149,6 +159,7 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
       icon_url: self.icon_url,
       cover_url: self.cover_url,
       is_document_empty: self.is_document_empty,
+      attachment_count: self.attachment_count,
     })
   }
 }

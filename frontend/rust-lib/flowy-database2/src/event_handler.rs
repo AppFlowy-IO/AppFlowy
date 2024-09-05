@@ -1,4 +1,4 @@
-use collab_database::rows::RowId;
+use collab_database::rows::{Cell, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
@@ -10,8 +10,8 @@ use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginStat
 use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::field::{
-  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
-  SelectOptionCellChangeset,
+  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, MediaCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt,
 };
 use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
@@ -1294,5 +1294,116 @@ pub(crate) async fn translate_row_handler(
   });
 
   rx.await??;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_media_cell_handler(
+  data: AFPluginData<MediaCellChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: MediaCellChangesetPB = data.into_inner();
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+  let cell_changeset = MediaCellChangeset {
+    inserted_files: params.inserted_files.into_iter().map(Into::into).collect(),
+    removed_ids: params.removed_ids,
+  };
+
+  let database_editor = manager
+    .get_database_editor_with_view_id(&cell_id.view_id)
+    .await?;
+
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      &cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(cell_changeset),
+    )
+    .await?;
+  Ok(())
+}
+
+/// We use a custom handler to rename the media file, as the ordering
+/// of the files must be maintained while renaming a file.
+///
+/// The changeset in [update_media_cell_handler] contains removals and inserts,
+/// and if we were to remove and insert the file, it would mess up the ordering.
+///
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn rename_media_cell_file_handler(
+  data: AFPluginData<RenameMediaChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: RenameMediaChangesetPB = data.into_inner();
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+
+  let database_editor = manager
+    .get_database_editor_with_view_id(&cell_id.view_id)
+    .await?;
+
+  let cell = database_editor
+    .get_cell(&cell_id.field_id, &cell_id.row_id)
+    .await;
+  if cell.is_none() {
+    return Err(FlowyError::record_not_found());
+  }
+
+  let cell = cell.unwrap();
+  let field = database_editor
+    .get_field(&cell_id.field_id)
+    .await
+    .ok_or_else(FlowyError::record_not_found)?;
+  let handler = TypeOptionCellExt::new(&field, None)
+    .get_type_option_cell_data_handler_with_field_type(FieldType::Media);
+  if handler.is_none() {
+    return Err(
+      FlowyError::internal().with_context("Error renaming media file: field type is not Media"),
+    );
+  }
+  let handler = handler.unwrap();
+  let data = handler
+    .handle_get_boxed_cell_data(&cell, &field)
+    .and_then(|cell_data| cell_data.unbox_or_none())
+    .unwrap_or_else(MediaCellData::default);
+
+  let file = data
+    .files
+    .iter()
+    .find(|file| file.id == params.file_id)
+    .ok_or_else(FlowyError::record_not_found)?;
+
+  let new_file = file.rename(params.name);
+  let new_data = MediaCellData {
+    files: data
+      .files
+      .iter()
+      .map(|file| {
+        if file.id == params.file_id {
+          new_file.clone()
+        } else {
+          file.clone()
+        }
+      })
+      .collect(),
+  };
+
+  let result = database_editor
+    .update_cell(
+      &cell_id.view_id,
+      &cell_id.row_id,
+      &cell_id.field_id,
+      Cell::from(&new_data),
+    )
+    .await;
+
+  if result.is_err() {
+    return Err(
+      FlowyError::internal().with_context("Error renaming media file: update cell failed"),
+    );
+  }
+
   Ok(())
 }

@@ -2,6 +2,7 @@ import { usePublishContext } from '@/application/publish';
 import { useCurrentUser } from '@/components/app/app.hooks';
 import { openOrDownload } from '@/components/publish/header/utils';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
+import { getPlatform } from '@/utils/platform';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { debounce } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -15,7 +16,14 @@ import { Duplicate } from './duplicate';
 
 export const HEADER_HEIGHT = 48;
 
-export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
+export function PublishViewHeader ({
+  drawerWidth, onOpenDrawer, openDrawer, onCloseDrawer,
+}: {
+  onOpenDrawer: () => void;
+  drawerWidth: number;
+  openDrawer: boolean;
+  onCloseDrawer: () => void
+}) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
   const crumbs = useMemo(() => {
@@ -28,7 +36,7 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
         const extra = ancestor?.extra ? JSON.parse(ancestor.extra) : {};
 
         icon = extra.icon?.value || ancestor.icon?.value;
-      } catch(e) {
+      } catch (e) {
         // ignore
       }
 
@@ -42,6 +50,9 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
     });
   }, [viewMeta]);
   const [openPopover, setOpenPopover] = React.useState(false);
+  const isMobile = useMemo(() => {
+    return getPlatform().isMobile;
+  }, []);
 
   const debounceClosePopover = useMemo(() => {
     return debounce(() => {
@@ -50,15 +61,20 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
   }, []);
 
   const onKeyDown = useCallback((e: KeyboardEvent) => {
-    switch(true) {
+    switch (true) {
       case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
         e.preventDefault();
-        // setOpen((prev) => !prev);
+        if (openDrawer) {
+          onCloseDrawer();
+        } else {
+          onOpenDrawer();
+        }
+
         break;
       default:
         break;
     }
-  }, []);
+  }, [onCloseDrawer, onOpenDrawer, openDrawer]);
 
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
@@ -69,12 +85,17 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
 
   const handleOpenPopover = useCallback(() => {
     debounceClosePopover.cancel();
-    if(openDrawer) {
+    if (openDrawer) {
       return;
     }
 
     setOpenPopover(true);
   }, [openDrawer, debounceClosePopover]);
+
+  const debounceOpenPopover = useMemo(() => {
+    debounceClosePopover.cancel();
+    return debounce(handleOpenPopover, 100);
+  }, [handleOpenPopover, debounceClosePopover]);
 
   const currentUser = useCurrentUser();
 
@@ -89,22 +110,31 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
       }}
       className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}
     >
-      <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
-        {!openDrawer && openPopover && (
+      <div className={'flex w-full items-center justify-between gap-4 overflow-hidden'}>
+        {!openDrawer && (
           <OutlinePopover
-            onMouseEnter={handleOpenPopover}
-            onMouseLeave={debounceClosePopover}
+            {...isMobile ? undefined : {
+              onMouseEnter: handleOpenPopover,
+              onMouseLeave: debounceClosePopover,
+            }}
             open={openPopover}
             onClose={debounceClosePopover}
+            drawerWidth={drawerWidth}
           >
             <IconButton
-              className={'hidden'}
-              onClick={() => {
-                setOpenPopover(false);
-                onOpenDrawer();
+              {...isMobile ? {
+                onTouchEnd: () => {
+                  setOpenPopover(prev => !prev);
+                },
+              } : {
+                onMouseEnter: debounceOpenPopover,
+                onMouseLeave: debounceClosePopover,
+                onClick: () => {
+                  setOpenPopover(false);
+                  onOpenDrawer();
+                },
               }}
-              onMouseEnter={handleOpenPopover}
-              onMouseLeave={debounceClosePopover}
+
             >
               <SideOutlined className={'h-4 w-4'} />
             </IconButton>

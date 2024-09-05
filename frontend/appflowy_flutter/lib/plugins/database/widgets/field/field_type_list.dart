@@ -24,6 +24,7 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.Summary,
   // FieldType.Time,
   FieldType.Translate,
+  FieldType.Media,
 ];
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {

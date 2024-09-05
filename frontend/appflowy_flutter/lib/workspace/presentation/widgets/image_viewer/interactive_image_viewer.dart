@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_toolbar.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:provider/provider.dart';
 
@@ -187,3 +189,25 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
     _onControllerChanged();
   }
 }
+
+void openInteractiveViewerFromFile(
+  BuildContext context,
+  MediaFilePB file, {
+  required void Function(int) onDeleteImage,
+  UserProfilePB? userProfile,
+}) =>
+    showDialog(
+      context: context,
+      builder: (_) => InteractiveImageViewer(
+        userProfile: userProfile,
+        imageProvider: AFBlockImageProvider(
+          images: [
+            ImageBlockData(
+              url: file.url,
+              type: file.uploadType.toCustomImageType(),
+            ),
+          ],
+          onDeleteImage: onDeleteImage,
+        ),
+      ),
+    );
