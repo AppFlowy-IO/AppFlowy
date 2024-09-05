@@ -94,6 +94,9 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          // AI
          .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
          .event(DatabaseEvent::TranslateRow, translate_row_handler)
+         // Media
+         .event(DatabaseEvent::UpdateMediaCell, update_media_cell_handler)
+         .event(DatabaseEvent::RenameMediaFile, rename_media_cell_file_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -383,6 +386,15 @@ pub enum DatabaseEvent {
   #[event(input = "DatabaseViewRowIdPB")]
   InitRow = 176,
 
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedRowMetaPB")]
+  GetAllRows = 177,
+
   #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
   ExportRawDatabaseData = 178,
+
+  #[event(input = "MediaCellChangesetPB")]
+  UpdateMediaCell = 200,
+
+  #[event(input = "RenameMediaChangesetPB")]
+  RenameMediaFile = 201,
 }

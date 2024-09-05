@@ -1319,6 +1319,7 @@
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
       "timeFieldName": "Time",
+      "mediaFieldName": "Files & media",
       "translateFieldName": "AI Translate",
       "translateTo": "Translate to",
       "numberFormat": "Number format",
@@ -1461,6 +1462,17 @@
       "countEmptyShort": "EMPTY",
       "countNonEmpty": "Count not empty",
       "countNonEmptyShort": "FILLED"
+    },
+    "media": {
+      "rename": "Rename",
+      "download": "Download",
+      "open": "Open",
+      "delete": "Delete",
+      "moreFilesHint": "+{} file(s)",
+      "showMore": "There are {} more file(s), click to view",
+      "addFileOrImage": "Add a file, image, or link",
+      "attachmentsHint": "{} attachment(s)",
+      "addFileMobile": "Add file"
     }
   },
   "document": {
@@ -1672,6 +1684,7 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
+        "uploadMobile": "Pick from files",
         "networkTab": "Embed link",
         "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
@@ -1859,7 +1872,11 @@
       "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
-    "noGroupDesc": "Board views require a property to group by in order to display"
+    "noGroupDesc": "Board views require a property to group by in order to display",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "files"
+    }
   },
   "calendar": {
     "menuName": "Calendar",

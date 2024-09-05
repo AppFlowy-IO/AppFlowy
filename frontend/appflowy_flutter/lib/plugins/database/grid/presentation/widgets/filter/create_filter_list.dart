@@ -78,12 +78,9 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: cells.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return cells[index];
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return VSpace(GridSize.typeOptionSeparatorHeight);
-                  },
+                  itemBuilder: (_, int index) => cells[index],
+                  separatorBuilder: (_, __) =>
+                      VSpace(GridSize.typeOptionSeparatorHeight),
                 ),
               ),
             ];

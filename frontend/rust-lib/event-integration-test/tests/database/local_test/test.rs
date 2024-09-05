@@ -268,6 +268,7 @@ async fn update_row_meta_event_with_url_test() {
     icon_url: Some("icon_url".to_owned()),
     cover_url: None,
     is_document_empty: None,
+    attachment_count: None,
   };
   let error = test.update_row_meta(changeset).await;
   assert!(error.is_none());
@@ -297,6 +298,7 @@ async fn update_row_meta_event_with_cover_test() {
     icon_url: Some("cover url".to_owned()),
     cover_url: None,
     is_document_empty: None,
+    attachment_count: None,
   };
   let error = test.update_row_meta(changeset).await;
   assert!(error.is_none());

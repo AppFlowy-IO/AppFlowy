@@ -76,15 +76,16 @@ async fn export_and_then_import_meta_csv_test() {
               assert_eq!(s, "Google,Facebook");
             }
           },
-          FieldType::Checkbox => {},
-          FieldType::URL => {},
-          FieldType::Checklist => {},
-          FieldType::LastEditedTime => {},
-          FieldType::CreatedTime => {},
-          FieldType::Relation => {},
-          FieldType::Summary => {},
-          FieldType::Time => {},
-          FieldType::Translate => {},
+          FieldType::Checkbox
+          | FieldType::URL
+          | FieldType::Checklist
+          | FieldType::LastEditedTime
+          | FieldType::CreatedTime
+          | FieldType::Relation
+          | FieldType::Summary
+          | FieldType::Time
+          | FieldType::Translate
+          | FieldType::Media => {},
         }
       } else {
         panic!(
@@ -163,13 +164,14 @@ async fn history_database_import_test() {
               assert_eq!(s, "AppFlowy website - https://www.appflowy.io");
             }
           },
-          FieldType::Checklist => {},
-          FieldType::LastEditedTime => {},
-          FieldType::CreatedTime => {},
-          FieldType::Relation => {},
-          FieldType::Summary => {},
-          FieldType::Time => {},
-          FieldType::Translate => {},
+          FieldType::Checklist
+          | FieldType::LastEditedTime
+          | FieldType::CreatedTime
+          | FieldType::Relation
+          | FieldType::Summary
+          | FieldType::Time
+          | FieldType::Translate
+          | FieldType::Media => {},
         }
       } else {
         panic!(
