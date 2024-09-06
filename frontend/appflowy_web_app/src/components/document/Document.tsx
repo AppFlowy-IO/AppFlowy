@@ -23,8 +23,12 @@ export const Document = ({
   viewMeta,
   isTemplateThumb,
 }: DocumentProps) => {
+
   return (
-    <div className={'mb-16 flex h-full w-full flex-col items-center min-h-[500px]'}>
+    <div style={{
+      minHeight: `calc(100vh - 48px)`,
+    }} className={'mb-16 flex h-full w-full flex-col items-center'}
+    >
       <ViewMetaPreview {...viewMeta} />
       <Suspense fallback={<DocumentSkeleton />}>
         <div className={'flex justify-center w-full'}>

@@ -8,10 +8,15 @@ import {
 } from '@/application/database-yjs';
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
+import { notify } from '@/components/_shared/notify';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: string; style?: React.CSSProperties }) {
+function RelationItems ({ style, cell, fieldId }: {
+  cell: RelationCell;
+  fieldId: string;
+  style?: React.CSSProperties
+}) {
   const viewId = useContext(DatabaseContext)?.iidIndex;
   const { field } = useFieldSelector(fieldId);
   const relatedDatabaseId = field ? parseRelationTypeOption(field).database_id : null;
@@ -28,7 +33,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
 
   const [rowIds, setRowIds] = useState([] as string[]);
 
-  // const navigateToRow = useNavigateToRow();
+  const navigateToView = useContext(DatabaseContext)?.navigateToView;
 
   useEffect(() => {
     if (!viewId) return;
@@ -50,7 +55,7 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
 
       setRowIds(ids.filter((id) => rows?.has(id)));
     },
-    [cell.data]
+    [cell.data],
   );
 
   useEffect(() => {
@@ -108,11 +113,18 @@ function RelationItems({ style, cell, fieldId }: { cell: RelationCell; fieldId: 
           return (
             <div
               key={rowId}
-              // onClick={(e) => {
-              //   e.stopPropagation();
-              //   navigateToRow?.(rowId);
-              // }}
-              className={'underline'}
+              onClick={async (e) => {
+                if (!relatedViewId) return;
+                e.stopPropagation();
+                try {
+                  await navigateToView?.(relatedViewId);
+                  // eslint-disable-next-line
+                } catch (e: any) {
+                  notify.error(e.message);
+                }
+              }}
+              className={`underline ${relatedViewId ? 'cursor-pointer hover:text-content-blue-400' : ''}`}
+
             >
               <RelationPrimaryValue fieldId={relatedFieldId} rowDoc={rowDoc} />
             </div>

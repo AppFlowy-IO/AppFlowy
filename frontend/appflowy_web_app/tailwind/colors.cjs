@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Fri, 06 Sep 2024 04:24:51 GMT
+* Generated on Fri, 06 Sep 2024 10:13:48 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -75,6 +75,17 @@ module.exports = {
     "blue": "var(--tint-blue)",
     "orange": "var(--tint-orange)",
     "yellow": "var(--tint-yellow)"
+  },
+  "badge": {
+    "purple": "var(--badge-purple)",
+    "pink": "var(--badge-pink)",
+    "red": "var(--badge-red)",
+    "lime": "var(--badge-lime)",
+    "green": "var(--badge-green)",
+    "aqua": "var(--badge-aqua)",
+    "blue": "var(--badge-blue)",
+    "orange": "var(--badge-orange)",
+    "yellow": "var(--badge-yellow)"
   },
   "scrollbar": {
     "thumb": "var(--scrollbar-thumb)",

@@ -1,13 +1,14 @@
+import { View } from '@/application/types';
 import { AFScroller } from '@/components/_shared/scroller';
-import BreadcrumbItem, { Crumb } from '@/components/publish/header/BreadcrumbItem';
+import BreadcrumbItem from '@/components/publish/header/BreadcrumbItem';
 import React, { useMemo } from 'react';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 
-export function Breadcrumb({ crumbs }: { crumbs: Crumb[] }) {
+export function Breadcrumb ({ crumbs }: { crumbs: View[] }) {
   const renderCrumb = useMemo(() => {
     return crumbs?.map((crumb, index) => {
       const isLast = index === crumbs.length - 1;
-      const key = crumb.rowId ? `${crumb.viewId}-${crumb.rowId}` : `${crumb.viewId}`;
+      const key = `${crumb.view_id}-${index}`;
 
       return (
         <div className={`${isLast ? 'text-text-title' : 'text-text-caption'} flex items-center gap-2`} key={key}>
