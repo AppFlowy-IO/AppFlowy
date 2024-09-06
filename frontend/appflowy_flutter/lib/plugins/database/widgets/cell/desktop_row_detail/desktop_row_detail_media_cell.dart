@@ -10,15 +10,18 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.
 import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_upload_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -26,11 +29,15 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+const _defaultFilesToDisplay = 5;
+
 class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
   final mutex = PopoverMutex();
+  final addFileController = PopoverController();
 
   @override
   void dispose() {
+    addFileController.close();
     mutex.dispose();
   }
 
@@ -46,38 +53,28 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
       child: Builder(
         builder: (context) => BlocBuilder<MediaCellBloc, MediaCellState>(
           builder: (context, state) {
-            final filesToDisplay = state.files.take(4).toList();
-            final extraCount = state.files.length - filesToDisplay.length;
+            final filesToDisplay = state.showAllFiles
+                ? state.files
+                : state.files.take(_defaultFilesToDisplay).toList();
+            final extraCount = state.files.length - _defaultFilesToDisplay;
 
             return SizedBox(
               width: double.infinity,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   if (state.files.isEmpty) {
-                    return GestureDetector(
-                      onTap: () => popoverController.show(),
-                      child: AppFlowyPopover(
-                        mutex: mutex,
-                        controller: popoverController,
-                        asBarrier: true,
-                        constraints: const BoxConstraints(
-                          minWidth: 250,
-                          maxWidth: 250,
-                          maxHeight: 400,
+                    return _AddFileButton(
+                      controller: addFileController,
+                      direction: PopoverDirection.bottomWithLeftAligned,
+                      mutex: mutex,
+                      child: FlowyHover(
+                        style: HoverStyle(
+                          hoverColor:
+                              AFThemeExtension.of(context).lightGreyHover,
                         ),
-                        offset: const Offset(0, 10),
-                        margin: EdgeInsets.zero,
-                        direction: PopoverDirection.bottomWithLeftAligned,
-                        popupBuilder: (_) => BlocProvider.value(
-                          value: context.read<MediaCellBloc>(),
-                          child: const MediaCellEditor(),
-                        ),
-                        onClose: () => cellContainerNotifier.isFocus = false,
-                        child: FlowyHover(
-                          style: HoverStyle(
-                            hoverColor:
-                                AFThemeExtension.of(context).lightGreyHover,
-                          ),
+                        child: GestureDetector(
+                          onTap: addFileController.show,
+                          behavior: HitTestBehavior.translucent,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -99,52 +96,6 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                     runSpacing: 12,
                     spacing: 12,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          AppFlowyPopover(
-                            mutex: mutex,
-                            controller: popoverController,
-                            asBarrier: true,
-                            constraints: const BoxConstraints(
-                              minWidth: 250,
-                              maxWidth: 250,
-                              maxHeight: 400,
-                            ),
-                            offset: const Offset(0, 10),
-                            margin: EdgeInsets.zero,
-                            direction: PopoverDirection.bottomWithLeftAligned,
-                            popupBuilder: (_) => BlocProvider.value(
-                              value: context.read<MediaCellBloc>(),
-                              child: const MediaCellEditor(),
-                            ),
-                            onClose: () =>
-                                cellContainerNotifier.isFocus = false,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
-                              ),
-                              child: FlowyHover(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const FlowySvg(FlowySvgs.edit_s),
-                                      const HSpace(4),
-                                      FlowyText.regular(
-                                        LocaleKeys.button_edit.tr(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                       ...filesToDisplay.map(
                         (file) => _FilePreviewRender(
                           key: ValueKey(file.id),
@@ -153,13 +104,39 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                           mutex: mutex,
                         ),
                       ),
-                      if (extraCount > 0)
-                        _ExtraInfo(
-                          extraCount: extraCount,
-                          controller: popoverController,
+                      SizedBox(
+                        width: size,
+                        height: size / 2,
+                        child: _AddFileButton(
+                          controller: addFileController,
                           mutex: mutex,
-                          cellContainerNotifier: cellContainerNotifier,
+                          child: FlowyHover(
+                            resetHoverOnRebuild: false,
+                            child: GestureDetector(
+                              onTap: addFileController.show,
+                              behavior: HitTestBehavior.translucent,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const FlowySvg(
+                                      FlowySvgs.add_s,
+                                      size: Size.square(24),
+                                    ),
+                                    const VSpace(4),
+                                    FlowyText(
+                                      LocaleKeys.grid_media_addFileOrImage.tr(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
+                      ),
+                      if (extraCount > 0)
+                        _ShowAllFilesButton(extraCount: extraCount),
                     ],
                   );
                 },
@@ -168,6 +145,91 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
           },
         ),
       ),
+    );
+  }
+}
+
+class _AddFileButton extends StatelessWidget {
+  const _AddFileButton({
+    this.mutex,
+    required this.controller,
+    this.direction = PopoverDirection.bottomWithCenterAligned,
+    required this.child,
+  });
+
+  final PopoverController controller;
+  final PopoverMutex? mutex;
+  final PopoverDirection direction;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      triggerActions: PopoverTriggerFlags.none,
+      controller: controller,
+      mutex: mutex,
+      offset: const Offset(0, 10),
+      direction: direction,
+      popupBuilder: (_) => FileUploadMenu(
+        onInsertLocalFile: (file) => insertLocalFile(
+          context,
+          file,
+          userProfile: context.read<MediaCellBloc>().state.userProfile,
+          documentId: context.read<MediaCellBloc>().rowId,
+          onUploadSuccess: (path, isLocalMode) {
+            final mediaCellBloc = context.read<MediaCellBloc>();
+            if (mediaCellBloc.isClosed) {
+              return;
+            }
+
+            mediaCellBloc.add(
+              MediaCellEvent.addFile(
+                url: path,
+                name: file.name,
+                uploadType: isLocalMode
+                    ? MediaUploadTypePB.LocalMedia
+                    : MediaUploadTypePB.CloudMedia,
+                fileType: file.fileType.toMediaFileTypePB(),
+              ),
+            );
+
+            controller.close();
+          },
+        ),
+        onInsertNetworkFile: (url) {
+          if (url.isEmpty) return;
+          final uri = Uri.tryParse(url);
+          if (uri == null) {
+            return;
+          }
+
+          final fakeFile = XFile(uri.path);
+          MediaFileTypePB fileType = fakeFile.fileType.toMediaFileTypePB();
+          fileType = fileType == MediaFileTypePB.Other
+              ? MediaFileTypePB.Link
+              : fileType;
+
+          String name =
+              uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "";
+          if (name.isEmpty && uri.pathSegments.length > 1) {
+            name = uri.pathSegments[uri.pathSegments.length - 2];
+          } else if (name.isEmpty) {
+            name = uri.host;
+          }
+
+          context.read<MediaCellBloc>().add(
+                MediaCellEvent.addFile(
+                  url: url,
+                  name: name,
+                  uploadType: MediaUploadTypePB.NetworkMedia,
+                  fileType: fileType,
+                ),
+              );
+
+          controller.close();
+        },
+      ),
+      child: child,
     );
   }
 }
@@ -478,57 +540,45 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
   }
 }
 
-class _ExtraInfo extends StatelessWidget {
-  const _ExtraInfo({
-    required this.extraCount,
-    required this.controller,
-    required this.mutex,
-    required this.cellContainerNotifier,
-  });
+class _ShowAllFilesButton extends StatelessWidget {
+  const _ShowAllFilesButton({required this.extraCount});
 
   final int extraCount;
-  final PopoverController controller;
-  final PopoverMutex mutex;
-  final CellContainerNotifier cellContainerNotifier;
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      key: const Key('extra_info'),
-      mutex: mutex,
-      controller: controller,
-      triggerActions: PopoverTriggerFlags.none,
-      constraints: const BoxConstraints(
-        minWidth: 250,
-        maxWidth: 250,
-        maxHeight: 400,
-      ),
-      margin: EdgeInsets.zero,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      popupBuilder: (_) => BlocProvider.value(
-        value: context.read<MediaCellBloc>(),
-        child: const MediaCellEditor(),
-      ),
-      onClose: () => cellContainerNotifier.isFocus = false,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: controller.show,
-        child: FlowyHover(
-          resetHoverOnRebuild: false,
-          child: Container(
-            height: 38,
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AFThemeExtension.of(context).greyHover,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FlowyText.regular(
-              LocaleKeys.grid_media_showMore.tr(args: ['$extraCount']),
-              lineHeight: 1,
-            ),
+    final show = context.read<MediaCellBloc>().state.showAllFiles;
+
+    final label = show
+        ? extraCount == 1
+            ? LocaleKeys.grid_media_hideFile.tr()
+            : LocaleKeys.grid_media_hideFiles.tr(args: ['$extraCount'])
+        : extraCount == 1
+            ? LocaleKeys.grid_media_showFile.tr()
+            : LocaleKeys.grid_media_showFiles.tr(args: ['$extraCount']);
+
+    final quarterTurns = show ? 1 : 3;
+
+    return SizedBox(
+      height: 30,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          label,
+          lineHeight: 1.0,
+          color: Theme.of(context).hintColor,
+        ),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        leftIcon: RotatedBox(
+          quarterTurns: quarterTurns,
+          child: FlowySvg(
+            FlowySvgs.arrow_left_s,
+            color: Theme.of(context).hintColor,
           ),
         ),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        onTap: () => context
+            .read<MediaCellBloc>()
+            .add(const MediaCellEvent.toggleShowAllFiles()),
       ),
     );
   }

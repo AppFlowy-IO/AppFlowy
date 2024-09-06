@@ -55,6 +55,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
               children: [
                 if (state.files.isNotEmpty) ...[
                   ReorderableListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     buildDefaultDragHandles: false,
                     itemBuilder: (_, index) => BlocProvider.value(

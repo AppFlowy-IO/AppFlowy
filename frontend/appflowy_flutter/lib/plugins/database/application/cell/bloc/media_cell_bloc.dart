@@ -140,6 +140,9 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
             final result = await DatabaseEventRenameMediaFile(payload).send();
             result.fold((l) => null, (err) => Log.error(err));
           },
+          toggleShowAllFiles: () {
+            emit(state.copyWith(showAllFiles: !state.showAllFiles));
+          },
         );
       },
     );
@@ -199,6 +202,8 @@ class MediaCellEvent with _$MediaCellEvent {
     required String fileId,
     required String name,
   }) = _RenameFile;
+
+  const factory MediaCellEvent.toggleShowAllFiles() = _ToggleShowAllFiles;
 }
 
 @freezed
@@ -207,6 +212,7 @@ class MediaCellState with _$MediaCellState {
     UserProfilePB? userProfile,
     required String fieldName,
     @Default([]) List<MediaFilePB> files,
+    @Default(false) showAllFiles,
   }) = _MediaCellState;
 
   factory MediaCellState.initial(MediaCellController cellController) {

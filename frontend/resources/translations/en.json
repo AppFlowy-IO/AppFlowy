@@ -1470,10 +1470,13 @@
       "open": "Open",
       "delete": "Delete",
       "moreFilesHint": "+{}",
-      "showMore": "There are {} more file(s), click to view",
       "addFileOrImage": "Add a file, image, or link",
       "attachmentsHint": "{}",
-      "addFileMobile": "Add file"
+      "addFileMobile": "Add file",
+      "showFile": "Show 1 file",
+      "showFiles": "Show {} files",
+      "hideFile": "Hide 1 file",
+      "hideFiles": "Hide {} files"
     }
   },
   "document": {
