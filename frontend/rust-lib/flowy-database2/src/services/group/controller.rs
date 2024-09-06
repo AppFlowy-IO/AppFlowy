@@ -168,10 +168,6 @@ where
 
     let group_data = self.context.get_mut_group(group_id)?;
 
-    if group_data.contains_row(&new_row.id) {
-      return None;
-    }
-
     // from the index in the row order array, find the nearest row that's also in the same group
     let index = loop {
       delta = if delta > 0 {
@@ -316,6 +312,13 @@ where
 
     for group_id in group_ids {
       if self.can_group(&group_id, &cell_data) {
+        // make sure that the row isn't already in the group data
+        if let Some((_, group_data)) = self.get_group(&group_id) {
+          if group_data.contains_row(&row.id) {
+            did_insert_into_status_group = true;
+            continue;
+          }
+        }
         if let Some(index_in_group) = self.insert_row_into_group(row, index, &group_id, &all_rows) {
           did_insert_into_status_group = true;
 
