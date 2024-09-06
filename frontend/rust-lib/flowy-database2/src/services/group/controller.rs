@@ -170,11 +170,7 @@ where
 
     // from the index in the row order array, find the nearest row that's also in the same group
     let index = loop {
-      delta = if delta > 0 {
-        delta * -1
-      } else {
-        (delta - 1) * -1
-      };
+      delta = if delta > 0 { -delta } else { -(delta - 1) };
 
       let query_index = index_in_row_order_array as i64 + delta;
 
@@ -196,7 +192,7 @@ where
 
       let row = &all_rows[query_index as usize];
 
-      if let Some(index) = group_data.index_of_row(&row.id.clone().into()) {
+      if let Some(index) = group_data.index_of_row(&row.id.clone()) {
         if delta > 0 {
           break Some(index);
         } else {
