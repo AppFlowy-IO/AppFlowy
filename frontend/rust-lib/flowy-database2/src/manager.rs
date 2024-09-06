@@ -203,18 +203,12 @@ impl DatabaseManager {
   ) -> FlowyResult<Vec<RowMetaPB>> {
     let database = self.get_database_editor_with_view_id(view_id).await?;
     let view_id = view_id.to_string();
-
-    let row_metas = tokio::task::spawn(async move {
-      let mut row_metas: Vec<RowMetaPB> = vec![];
-      for row_id in row_ids {
-        if let Some(row_meta) = database.get_row_meta(&view_id, &row_id).await {
-          row_metas.push(row_meta);
-        }
+    let mut row_metas: Vec<RowMetaPB> = vec![];
+    for row_id in row_ids {
+      if let Some(row_meta) = database.get_row_meta(&view_id, &row_id).await {
+        row_metas.push(row_meta);
       }
-      row_metas
-    })
-    .await?;
-
+    }
     Ok(row_metas)
   }
 

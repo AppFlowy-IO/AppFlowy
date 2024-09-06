@@ -343,7 +343,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       )
     })?;
 
-    let encoded_collab_wrapper = tokio::task::spawn(async move {
+    tokio::task::spawn_blocking(move || {
       let collab_read_txn = collab_db.read_txn();
 
       let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
@@ -404,9 +404,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         database_row_metas,
       }))
     })
-    .await?;
-
-    encoded_collab_wrapper
+    .await?
   }
 
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
