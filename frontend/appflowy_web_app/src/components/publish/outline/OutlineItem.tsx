@@ -53,6 +53,17 @@ function OutlineItem ({ view, level = 0, width }: { view: View; width: number; l
   const { t } = useTranslation();
 
   const navigateToView = useContext(PublishContext)?.toView;
+
+  const toastWarning = useCallback((item: View) => {
+    if (!item.is_published) {
+      if (item.extra?.is_space) {
+        notify.warning(t('publish.spaceHasNotBeenPublished'));
+        return;
+      }
+
+      notify.warning(t('publish.hasNotBeenPublished'));
+    }
+  }, [t]);
   const renderItem = (item: View) => {
     const { icon, layout, name, view_id, extra } = item;
 
@@ -72,15 +83,15 @@ function OutlineItem ({ view, level = 0, width }: { view: View; width: number; l
           {item.children?.length ? getIcon() : null}
           <div
             onClick={async () => {
+              if (!item.is_published) {
+                toastWarning(item);
+                return;
+              }
+
               try {
                 await navigateToView?.(view_id);
               } catch (e) {
-                if (isSpace) {
-                  notify.warning(t('publish.spaceHasNotBeenPublished'));
-                  return;
-                }
-
-                notify.warning(t('publish.hasNotBeenPublished'));
+                toastWarning(item);
               }
             }}
             style={{
