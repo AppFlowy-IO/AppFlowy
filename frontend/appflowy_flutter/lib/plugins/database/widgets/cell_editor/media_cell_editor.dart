@@ -466,19 +466,22 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
         ),
         FlowyButton(
-          onTap: () => context.read<MediaCellBloc>().add(
-                MediaCellEvent.removeFile(
-                  fileId: widget.file.id,
-                ),
-              ),
+          onTap: () => showConfirmDeletionDialog(
+            context: context,
+            name: widget.file.name,
+            description: LocaleKeys.grid_media_deleteFileDescription.tr(),
+            onConfirm: () => context
+                .read<MediaCellBloc>()
+                .add(MediaCellEvent.removeFile(fileId: widget.file.id)),
+          ),
           leftIcon: FlowySvg(
             FlowySvgs.delete_s,
-            color: Theme.of(context).iconTheme.color,
+            color: Theme.of(context).colorScheme.error,
             size: const Size.square(18),
           ),
           text: FlowyText.regular(
             LocaleKeys.button_delete.tr(),
-            color: AFThemeExtension.of(context).textColor,
+            color: Theme.of(context).colorScheme.error,
           ),
           leftIconSize: const Size(18, 18),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,

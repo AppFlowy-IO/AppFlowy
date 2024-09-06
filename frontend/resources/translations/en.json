@@ -1476,7 +1476,8 @@
       "showFile": "Show 1 file",
       "showFiles": "Show {} files",
       "hideFile": "Hide 1 file",
-      "hideFiles": "Hide {} files"
+      "hideFiles": "Hide {} files",
+      "deleteFileDescription": "Are you sure you want to delete this file? This action is irreversible."
     }
   },
   "document": {
