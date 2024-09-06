@@ -1290,11 +1290,19 @@ impl FolderManager {
         .into_iter()
         .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
         .collect::<HashMap<String, Vec<u8>>>();
+        let database_row_metas = v.database_row_metas;
+        let database_row_document_collabs = v
+          .database_row_document_encoded_collabs
+          .into_iter()
+          .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
+          .collect::<HashMap<String, Vec<u8>>>();
 
         let data = PublishDatabaseData {
           database_collab,
           database_row_collabs,
           database_relations,
+          database_row_metas,
+          database_row_document_collabs,
           ..Default::default()
         };
         PublishPayload::Database(PublishDatabasePayload { meta, data })

@@ -311,10 +311,22 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     //  we should use the view_id to get the database_id
     let oid = self.0.get_database_id_with_view_id(view_id).await?;
     let row_oids = self.0.get_database_row_ids_with_view_id(view_id).await?;
+    let row_metas = self
+      .0
+      .get_database_row_metas_with_view_id(view_id, row_oids.clone())
+      .await?;
+    let row_document_ids = row_metas
+      .iter()
+      .filter_map(|meta| meta.document_id.clone())
+      .collect::<Vec<_>>();
     let row_oids = row_oids
       .into_iter()
       .map(|oid| oid.into_inner())
       .collect::<Vec<_>>();
+    let database_row_metas = row_metas
+      .iter()
+      .map(|meta| (meta.id.clone(), serde_json::to_value(meta).unwrap()))
+      .collect::<HashMap<_, _>>();
     let database_metas = self.0.get_all_databases_meta().await;
 
     let uid = user
@@ -331,49 +343,70 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       )
     })?;
 
-    let collab_read_txn = collab_db.read_txn();
+    let encoded_collab_wrapper = tokio::task::spawn(async move {
+      let collab_read_txn = collab_db.read_txn();
 
-    // read the database collab from the db
-    let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
-      FlowyError::internal().with_context(format!("load database collab failed: {}", e))
-    })?;
+      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
+        FlowyError::internal().with_context(format!("load database collab failed: {}", e))
+      })?;
 
-    let database_encoded_collab = database_collab
-        // encode the collab and check the integrity of the collab
-        .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
-        .map_err(|e| {
-          FlowyError::internal().with_context(format!("encode database collab failed: {}", e))
-        })?;
-
-    // read the database rows collab from the db
-    let database_row_collabs = load_collab_by_object_ids(uid, &collab_read_txn, &row_oids);
-    let database_row_encoded_collabs = database_row_collabs
-      .into_iter()
-      .map(|(oid, collab)| {
-        // encode the collab and check the integrity of the collab
-        let encoded_collab = collab
-          .encode_collab_v1(|collab| CollabType::DatabaseRow.validate_require_data(collab))
+      let database_encoded_collab = database_collab
+          // encode the collab and check the integrity of the collab
+          .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
           .map_err(|e| {
-            FlowyError::internal().with_context(format!("encode database row collab failed: {}", e))
+            FlowyError::internal().with_context(format!("encode database collab failed: {}", e))
           })?;
-        Ok((oid, encoded_collab))
-      })
-      .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-    // get the relation info from the database meta
-    let database_relations = database_metas
-      .into_iter()
-      .filter_map(|meta| {
-        let linked_views = meta.linked_views.into_iter().next()?;
-        Some((meta.database_id, linked_views))
-      })
-      .collect::<HashMap<_, _>>();
+      let database_row_encoded_collabs =
+        load_collab_by_object_ids(uid, &collab_read_txn, &row_oids)
+          .into_iter()
+          .map(|(oid, collab)| {
+            collab
+              .encode_collab_v1(|c| CollabType::DatabaseRow.validate_require_data(c))
+              .map(|encoded| (oid, encoded))
+              .map_err(|e| {
+                FlowyError::internal().with_context(format!("Database row collab error: {}", e))
+              })
+          })
+          .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-    Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
-      database_encoded_collab,
-      database_row_encoded_collabs,
-      database_relations,
-    }))
+      let database_relations = database_metas
+        .into_iter()
+        .filter_map(|meta| {
+          meta
+            .linked_views
+            .clone()
+            .into_iter()
+            .next()
+            .map(|lv| (meta.database_id, lv))
+        })
+        .collect::<HashMap<_, _>>();
+
+      let database_row_document_encoded_collabs =
+        load_collab_by_object_ids(uid, &collab_read_txn, &row_document_ids)
+          .into_iter()
+          .map(|(oid, collab)| {
+            collab
+              .encode_collab_v1(|c| CollabType::Document.validate_require_data(c))
+              .map(|encoded| (oid, encoded))
+              .map_err(|e| {
+                FlowyError::internal()
+                  .with_context(format!("Database row document collab error: {}", e))
+              })
+          })
+          .collect::<Result<HashMap<_, _>, FlowyError>>()?;
+
+      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
+        database_encoded_collab,
+        database_row_encoded_collabs,
+        database_row_document_encoded_collabs,
+        database_relations,
+        database_row_metas,
+      }))
+    })
+    .await?;
+
+    encoded_collab_wrapper
   }
 
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
