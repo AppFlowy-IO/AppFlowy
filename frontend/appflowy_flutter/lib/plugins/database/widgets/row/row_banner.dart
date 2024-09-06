@@ -1,4 +1,3 @@
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -17,6 +16,7 @@ import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const _kBannerActionHeight = 40.0;
@@ -273,7 +273,7 @@ class RowActionButton extends StatelessWidget {
           width: 20,
           height: 20,
           icon: const FlowySvg(FlowySvgs.details_horizontal_s),
-          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
