@@ -59,4 +59,5 @@ export interface View {
   layout: ViewLayout;
   extra: ViewExtra | null;
   children: View[];
+  is_published: boolean;
 }

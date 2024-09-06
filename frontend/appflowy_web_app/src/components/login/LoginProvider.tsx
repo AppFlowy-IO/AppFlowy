@@ -67,28 +67,32 @@ function LoginProvider ({ redirectTo }: { redirectTo: string }) {
       variant={'outlined'}
       onClick={() => handleClick(option.value)}
       className={
-        `flex h-[46px] w-[380px] items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium  max-sm:w-full ${option.value === 'apple' ? 'text-black bg-white hover:bg-fill-list-hover' : 'text-text-title'}`
+        `flex h-[46px] w-[380px] items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium  max-sm:w-full text-text-title`
       }
     >
-      <option.Icon className={'h-[20px] w-[20px]'} />
-      {option.label}
+      <option.Icon className={'w-[24px] h-[24px]'} />
+      <div className={'w-auto whitespace-pre'}>{option.label}</div>
+
     </Button>;
   }, [handleClick]);
 
   return (
     <div className={'flex w-full flex-col items-center justify-center gap-[10px]'}>
       {options.slice(0, 2).map(renderOption)}
-      <Button
+      {!expand && <Button
         color={'inherit'}
         size={'small'}
         onClick={() => setExpand(!expand)}
         className={'text-sm w-full flex gap-2 items-center hover:bg-transparent hover:text-text-title font-medium text-text-caption'}
       >
         <Divider className={'flex-1'} />
-        {expand ? t('web.collapse') : t('web.moreOptions')}
+        {t('web.moreOptions')}
         <Divider className={'flex-1'} />
-      </Button>
-      <Collapse in={expand}>{options.slice(2).map(renderOption)}</Collapse>
+      </Button>}
+
+      <Collapse in={expand}>
+        <div className={'gap-[10px] flex-col flex'}>{options.slice(2).map(renderOption)}</div>
+      </Collapse>
     </div>
   );
 }
