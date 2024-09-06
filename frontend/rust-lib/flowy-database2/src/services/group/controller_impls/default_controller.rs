@@ -71,17 +71,21 @@ impl GroupController for DefaultGroupController {
     Ok(())
   }
 
-  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB> {
-    self.group.add_row((*row).clone());
+  async fn did_create_row(
+    &mut self,
+    row: &Row,
+    index: usize,
+  ) -> Option<Vec<GroupRowsNotificationPB>> {
+    self.group.insert_row(index, row.clone());
 
-    vec![GroupRowsNotificationPB::insert(
+    Some(vec![GroupRowsNotificationPB::insert(
       self.group.id.clone(),
       vec![InsertedRowPB {
         row_meta: (*row).clone().into(),
         index: Some(index as i32),
         is_new: true,
       }],
-    )]
+    )])
   }
 
   fn did_update_group_row(
