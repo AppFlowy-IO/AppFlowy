@@ -61,9 +61,9 @@ class _FlowyHoverState extends State<FlowyHover> {
       onEnter: (_) => _setOnHover(true),
       onExit: (_) => _setOnHover(false),
       child: FlowyHoverContainer(
+        isHovering: _onHover || (widget.isSelected?.call() ?? false),
         style: widget.style ??
             HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
-        applyStyle: _onHover,
         child: widget.child ?? widget.builder!(context, _onHover),
       ),
     );
@@ -113,17 +113,27 @@ class HoverStyle {
 class FlowyHoverContainer extends StatelessWidget {
   final HoverStyle style;
   final Widget child;
-  final bool applyStyle;
+  final bool isHovering;
 
   const FlowyHoverContainer({
     super.key,
     required this.child,
     required this.style,
-    this.applyStyle = false,
+    required this.isHovering,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (!isHovering) {
+      return Container(
+        decoration: BoxDecoration(
+          color: style.backgroundColor,
+          borderRadius: style.borderRadius,
+        ),
+        child: child,
+      );
+    }
+
     final hoverBorder = Border.all(
       color: style.borderColor,
       width: style.borderWidth,
@@ -148,9 +158,7 @@ class FlowyHoverContainer extends StatelessWidget {
       margin: style.contentMargin,
       decoration: BoxDecoration(
         border: hoverBorder,
-        color: applyStyle
-            ? style.hoverColor ?? Theme.of(context).colorScheme.secondary
-            : style.backgroundColor,
+        color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
         borderRadius: style.borderRadius,
       ),
       child: Theme(
