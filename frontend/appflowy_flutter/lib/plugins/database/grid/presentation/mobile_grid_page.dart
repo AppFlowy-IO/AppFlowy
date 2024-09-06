@@ -105,8 +105,10 @@ class _MobileGridPageState extends State<MobileGridPage> {
               _openRow(context, widget.initialRowId, true);
               return result.successOrFail.fold(
                 (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
-                (err) => AppFlowyErrorPage(
-                  error: err,
+                (err) => Center(
+                  child: AppFlowyErrorPage(
+                    error: err,
+                  ),
                 ),
               );
             },

@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/service_handler.dart';
+import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
@@ -18,7 +19,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 
 // const _channel = "InlinePageReference";
@@ -177,9 +177,8 @@ class InlinePageReferenceService extends InlineActionsDelegate {
       if (context.mounted) {
         return Dialogs.show(
           context,
-          child: FlowyErrorPage.message(
-            e.msg,
-            howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+          child: AppFlowyErrorPage(
+            error: e,
           ),
         );
       }

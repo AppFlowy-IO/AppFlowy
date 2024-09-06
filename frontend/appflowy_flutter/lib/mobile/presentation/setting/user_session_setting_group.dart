@@ -115,12 +115,13 @@ class _DeleteAccountBottomSheet extends StatefulWidget {
 }
 
 class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
-  final emailController = TextEditingController();
+  final controller = TextEditingController();
   final isChecked = ValueNotifier(false);
 
   @override
   void dispose() {
-    emailController.dispose();
+    controller.dispose();
+    isChecked.dispose();
     super.dispose();
   }
 
@@ -153,10 +154,12 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
           SizedBox(
             height: 36.0,
             child: FlowyTextField(
-              controller: emailController,
+              controller: controller,
               textStyle: const TextStyle(fontSize: 14.0),
               hintStyle: const TextStyle(fontSize: 14.0),
-              hintText: LocaleKeys.settings_user_email.tr(),
+              hintText: LocaleKeys
+                  .newSettings_myAccount_deleteAccount_confirmHint3
+                  .tr(),
             ),
           ),
           const VSpace(18.0),
@@ -167,8 +170,9 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
             textColor: Theme.of(context).colorScheme.error,
             onPressed: () => deleteMyAccount(
               context,
-              emailController.text.trim(),
+              controller.text.trim(),
               isChecked.value,
+              onSuccess: () => Navigator.of(context).pop(),
             ),
           ),
           const VSpace(12.0),
