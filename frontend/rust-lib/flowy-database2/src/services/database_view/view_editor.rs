@@ -196,8 +196,7 @@ impl DatabaseViewEditor {
       let mut rows = vec![Arc::new(row.clone())];
       self.v_filter_rows(&mut rows).await;
       if let Some(row) = rows.pop() {
-        let changesets = controller.did_create_row(&row, index).await;
-        if let Some(changesets) = changesets {
+        if let Some(changesets) = controller.did_create_row(&row, index).await {
           for changeset in changesets {
             if !changeset.is_empty() {
               notify_did_update_group_rows(changeset).await;

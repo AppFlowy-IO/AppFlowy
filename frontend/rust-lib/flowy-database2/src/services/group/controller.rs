@@ -168,6 +168,10 @@ where
 
     let group_data = self.context.get_mut_group(group_id)?;
 
+    if group_data.contains_row(&new_row.id) {
+      return None;
+    }
+
     // from the index in the row order array, find the nearest row that's also in the same group
     let index = loop {
       delta = if delta > 0 {
