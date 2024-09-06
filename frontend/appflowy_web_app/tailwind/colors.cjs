@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Fri, 06 Sep 2024 02:15:53 GMT
+* Generated on Fri, 06 Sep 2024 04:24:51 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -59,8 +59,8 @@ module.exports = {
   "function": {
     "error": "var(--function-error)",
     "error-hover": "var(--function-error-hover)",
-    "waring": "var(--function-waring)",
-    "waring-hover": "var(--function-waring-hover)",
+    "warning": "var(--function-warning)",
+    "warning-hover": "var(--function-warning-hover)",
     "success": "var(--function-success)",
     "success-hover": "var(--function-success-hover)",
     "info": "var(--function-info)"
