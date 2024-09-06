@@ -38,9 +38,9 @@
     --function-error: #fb006d;
     --function-error-hover: #ff4f8a;
     --function-error-opacity: rgba(251, 0, 109, 0.1);
-    --function-waring: #ffd667;
-    --function-waring-hover: #ffdf8f;
-    --function-waring-opacity: rgba(255, 214, 103, 0.1);
+    --function-warning: #ffd667;
+    --function-warning-hover: #ffdf8f;
+    --function-warning-opacity: rgba(255, 214, 103, 0.1);
     --function-success: #66cf80;
     --function-success-hover: #66cf00;
     --function-success-opacity: rgba(102, 207, 128, 0.1);

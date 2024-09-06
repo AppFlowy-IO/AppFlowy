@@ -81,11 +81,10 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
         enqueueSnackbar(message, { variant: 'success' });
       },
       error: (message: string) => {
-        console.log('error', message);
         enqueueSnackbar(message, { variant: 'error' });
       },
       warning: (message: string) => {
-        enqueueSnackbar(message, { variant: 'warning' });
+        enqueueSnackbar(message, { variant: 'warning', autoHideDuration: 500000000000 });
       },
       default: (message: string) => {
         enqueueSnackbar(message, { variant: 'default' });
