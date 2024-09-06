@@ -157,7 +157,9 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
               controller: controller,
               textStyle: const TextStyle(fontSize: 14.0),
               hintStyle: const TextStyle(fontSize: 14.0),
-              hintText: LocaleKeys.settings_user_email.tr(),
+              hintText: LocaleKeys
+                  .newSettings_myAccount_deleteAccount_confirmHint3
+                  .tr(),
             ),
           ),
           const VSpace(18.0),
@@ -170,6 +172,7 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
               context,
               controller.text.trim(),
               isChecked.value,
+              onSuccess: () => Navigator.of(context).pop(),
             ),
           ),
           const VSpace(12.0),

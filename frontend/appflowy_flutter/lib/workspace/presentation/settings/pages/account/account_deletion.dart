@@ -100,6 +100,14 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                     context,
                     textEditingController.text.trim(),
                     isCheckedNotifier.value,
+                    onSuccess: () {
+                      Navigator.of(context).popUntil((route) {
+                        if (route.settings.name == '/') {
+                          return true;
+                        }
+                        return false;
+                      });
+                    },
                   ),
                 );
               },
@@ -173,7 +181,7 @@ class _AccountDeletionDialog extends StatelessWidget {
   }
 }
 
-bool isConfirmTextValid(String text) {
+bool _isConfirmTextValid(String text) {
   // don't convert the text to lower case or upper case,
   //  just check if the text is in the list
   return _acceptableConfirmTexts.contains(text);
@@ -182,8 +190,10 @@ bool isConfirmTextValid(String text) {
 Future<void> deleteMyAccount(
   BuildContext context,
   String confirmText,
-  bool isChecked,
-) async {
+  bool isChecked, {
+  VoidCallback? onSuccess,
+  VoidCallback? onFailure,
+}) async {
   final bottomPadding = PlatformExtension.isMobile
       ? MediaQuery.of(context).viewInsets.bottom
       : 0.0;
@@ -204,7 +214,7 @@ Future<void> deleteMyAccount(
     return;
   }
 
-  if (confirmText.isEmpty || !isConfirmTextValid(confirmText)) {
+  if (confirmText.isEmpty || !_isConfirmTextValid(confirmText)) {
     showToastNotification(
       context,
       type: ToastificationType.warning,
@@ -233,13 +243,7 @@ Future<void> deleteMyAccount(
 
       // delay 1 second to make sure the toast notification is shown
       Future.delayed(const Duration(seconds: 1), () async {
-        // pop to the home screen
-        Navigator.of(context).popUntil((route) {
-          if (route.settings.name == '/') {
-            return true;
-          }
-          return false;
-        });
+        onSuccess?.call();
 
         // restart the application
         await getIt<AuthService>().signOut();
@@ -256,6 +260,8 @@ Future<void> deleteMyAccount(
         bottomPadding: bottomPadding,
         message: f.msg,
       );
+
+      onFailure?.call();
     },
   );
 }
