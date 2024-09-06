@@ -614,10 +614,7 @@ class GroupItem extends AppFlowyGroupItem {
   GroupItem({
     required this.row,
     required this.fieldInfo,
-    bool draggable = true,
-  }) {
-    super.draggable.value = draggable;
-  }
+  });
 
   final RowMetaPB row;
   final FieldInfo fieldInfo;
@@ -706,7 +703,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
       return Log.warn("fieldInfo should not be null");
     }
 
-    final item = GroupItem(row: row, fieldInfo: fieldInfo, draggable: false);
+    final item = GroupItem(row: row, fieldInfo: fieldInfo);
 
     if (index != null) {
       controller.insertGroupItem(group.groupId, index, item);
