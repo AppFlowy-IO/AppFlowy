@@ -20,7 +20,7 @@
     --fill-hover: #52d1f4;
     --fill-pressed: #009fd1;
     --fill-active: #e0f8ff;
-    --fill-list-hover: rgba(31, 35, 41, 6%);
+    --fill-list-hover: #1F23290F;
     --fill-list-active: #f9fafd;
     --content-blue-400: #00bcf0;
     --content-blue-300: #52d1f4;
@@ -32,7 +32,7 @@
     --content-on-tag: #4f4f4f;
     --bg-body: #ffffff;
     --bg-base: #f9fafd;
-    --bg-mask: rgba(0, 0, 0, 0.55);
+    --bg-mask: #0000008C;
     --bg-tips: #e0f8ff;
     --bg-brand: #2c144b;
     --function-error: #fb006d;
@@ -64,6 +64,6 @@
     --gradient5: linear-gradient(56.2deg, #5749CA 0%, #BB4A97 100%);
     --gradient6: linear-gradient(180deg, #036FFA 0%, #00B8E5 100%);
     --gradient7: linear-gradient(38.2deg, #F0C6CF 0%, #DECCE2 40.4754%, #CAD3F9 100%);
-    --header: rgba(255, 255, 255, 0.8);
-    --footer: rgba(255, 255, 255, 0.8);
+    --bg-header: #FFFFFFCC;
+    --bg-footer: #FFFFFFCC;
 }

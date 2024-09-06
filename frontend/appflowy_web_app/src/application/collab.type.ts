@@ -35,6 +35,7 @@ export enum BlockType {
   TableCell = 'table/cell',
   LinkPreview = 'link_preview',
   FileBlock = 'file',
+  GalleryBlock = 'multi_image',
 }
 
 export enum InlineBlockType {
@@ -110,6 +111,19 @@ export interface ImageBlockData extends BlockData {
   align?: AlignType;
   image_type?: ImageType;
   height?: number;
+}
+
+export enum GalleryLayout {
+  Carousel = 0,
+  Grid = 1,
+}
+
+export interface GalleryBlockData extends BlockData {
+  images: {
+    type: ImageType,
+    url: string,
+  }[];
+  layout: GalleryLayout;
 }
 
 export interface OutlineBlockData extends BlockData {

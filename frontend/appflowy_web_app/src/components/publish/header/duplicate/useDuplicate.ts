@@ -49,7 +49,9 @@ export function useDuplicate () {
 export function useLoadWorkspaces () {
   const [spaceLoading, setSpaceLoading] = useState<boolean>(false);
   const [workspaceLoading, setWorkspaceLoading] = useState<boolean>(false);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>('');
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>(() => {
+    return localStorage.getItem('duplicate_selected_workspace') || '';
+  });
   const [selectedSpaceId, setSelectedSpaceId] = useState<string>('');
 
   const [workspaceList, setWorkspaceList] = useState<Workspace[]>([]);
@@ -65,7 +67,10 @@ export function useLoadWorkspaces () {
 
       if (workspaces) {
         setWorkspaceList(workspaces);
-        setSelectedWorkspaceId(workspaces[0].id);
+        setSelectedWorkspaceId(prev => {
+          if (!prev || !workspaces.find(item => item.id === prev)) return workspaces[0].id;
+          return prev;
+        });
       } else {
         setWorkspaceList([]);
         setSelectedWorkspaceId('');

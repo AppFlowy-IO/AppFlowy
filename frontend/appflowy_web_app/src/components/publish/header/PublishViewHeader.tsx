@@ -105,7 +105,7 @@ export function PublishViewHeader ({
     <div
       style={{
         backdropFilter: 'saturate(180%) blur(16px)',
-        background: 'var(--header)',
+        background: 'var(--bg-header)',
         height: HEADER_HEIGHT,
       }}
       className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}

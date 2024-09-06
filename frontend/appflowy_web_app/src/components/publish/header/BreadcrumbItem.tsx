@@ -48,7 +48,12 @@ function BreadcrumbItem ({ crumb, disableClick = false }: { crumb: Crumb; disabl
           try {
             await onNavigateToView?.(viewId);
           } catch (e) {
-            notify.default(t('publish.hasNotBeenPublished'));
+            if (extraObj.is_space) {
+              notify.warning(t('publish.spaceHasNotBeenPublished'));
+              return;
+            }
+
+            notify.warning(t('publish.hasNotBeenPublished'));
           }
         }}
       >

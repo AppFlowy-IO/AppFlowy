@@ -101,6 +101,9 @@ dependencies:
   katex:
     specifier: ^0.16.7
     version: 0.16.10
+  lightgallery:
+    specifier: ^2.7.2
+    version: 2.7.2
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -188,6 +191,9 @@ dependencies:
   react-window:
     specifier: ^1.8.10
     version: 1.8.10(react-dom@18.2.0)(react@18.2.0)
+  react-zoom-pan-pinch:
+    specifier: ^3.6.1
+    version: 3.6.1(react-dom@18.2.0)(react@18.2.0)
   react18-input-otp:
     specifier: ^1.1.2
     version: 1.1.4(react-dom@18.2.0)(react@18.2.0)
@@ -8227,6 +8233,11 @@ packages:
       isomorphic.js: 0.2.5
     dev: false
 
+  /lightgallery@2.7.2:
+    resolution: {integrity: sha512-Ewdcg9UPDqV0HGZeD7wNE4uYejwH2u0fMo5VAr6GHzlPYlhItJvjhLTR0cL0V1HjhMsH39PAom9iv69ewitLWw==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
     engines: {node: '>=10'}
@@ -9820,6 +9831,17 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.1
       memoize-one: 5.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-zoom-pan-pinch@3.6.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-SdPqdk7QDSV7u/WulkFOi+cnza8rEZ0XX4ZpeH7vx3UZEg7DoyuAy3MCmm+BWv/idPQL2Oe73VoC0EhfCN+sZQ==}
+    engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
