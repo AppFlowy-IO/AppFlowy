@@ -15,7 +15,13 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 
-const _confirmText = 'DELETEMYACCOUNT';
+const _confirmText = 'DELETE MY ACCOUNT';
+const _acceptableConfirmTexts = [
+  'delete my account',
+  'deletemyaccount',
+  'DELETE MY ACCOUNT',
+  'DELETEMYACCOUNT',
+];
 
 class AccountDeletionButton extends StatefulWidget {
   const AccountDeletionButton({
@@ -87,7 +93,7 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                       LocaleKeys.newSettings_myAccount_deleteAccount_title.tr(),
                   description: '',
                   builder: (_) => _AccountDeletionDialog(
-                    emailController: textEditingController,
+                    controller: textEditingController,
                     isChecked: isCheckedNotifier,
                   ),
                   onDelete: () => deleteMyAccount(
@@ -107,11 +113,11 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
 
 class _AccountDeletionDialog extends StatelessWidget {
   const _AccountDeletionDialog({
-    required this.emailController,
+    required this.controller,
     required this.isChecked,
   });
 
-  final TextEditingController emailController;
+  final TextEditingController controller;
   final ValueNotifier<bool> isChecked;
 
   @override
@@ -130,7 +136,7 @@ class _AccountDeletionDialog extends StatelessWidget {
         const VSpace(12.0),
         FlowyTextField(
           hintText: _confirmText,
-          controller: emailController,
+          controller: controller,
         ),
         const VSpace(16),
         Row(
@@ -167,6 +173,12 @@ class _AccountDeletionDialog extends StatelessWidget {
   }
 }
 
+bool isConfirmTextValid(String text) {
+  // don't convert the text to lower case or upper case,
+  //  just check if the text is in the list
+  return _acceptableConfirmTexts.contains(text);
+}
+
 Future<void> deleteMyAccount(
   BuildContext context,
   String confirmText,
@@ -192,7 +204,7 @@ Future<void> deleteMyAccount(
     return;
   }
 
-  if (confirmText.isEmpty || confirmText.toUpperCase() != _confirmText) {
+  if (confirmText.isEmpty || !isConfirmTextValid(confirmText)) {
     showToastNotification(
       context,
       type: ToastificationType.warning,
