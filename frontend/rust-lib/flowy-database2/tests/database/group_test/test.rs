@@ -222,7 +222,7 @@ async fn group_create_row_test() {
     AssertRow {
       group_index: 1,
       row_index: 0,
-      row: group1.rows.get(0).unwrap().clone(),
+      row: group1.rows.first().unwrap().clone(),
     },
     AssertRow {
       group_index: 1,
@@ -239,14 +239,14 @@ async fn group_create_row_test() {
       group_index: 1,
       position: OrderObjectPositionPB {
         position: OrderObjectPositionTypePB::Before,
-        object_id: Some(group1.rows.get(0).unwrap().clone().id),
+        object_id: Some(group1.rows.first().unwrap().clone().id),
       },
     },
     CreateRow {
       group_index: 1,
       position: OrderObjectPositionPB {
         position: OrderObjectPositionTypePB::After,
-        object_id: Some(group1.rows.get(0).unwrap().clone().id),
+        object_id: Some(group1.rows.first().unwrap().clone().id),
       },
     },
     CreateRow {
@@ -270,7 +270,7 @@ async fn group_create_row_test() {
     AssertRow {
       group_index: 1,
       row_index: 1,
-      row: group1.rows.get(0).unwrap().clone(),
+      row: group1.rows.first().unwrap().clone(),
     },
     AssertRow {
       group_index: 1,
