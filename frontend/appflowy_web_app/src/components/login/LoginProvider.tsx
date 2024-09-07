@@ -67,7 +67,7 @@ function LoginProvider ({ redirectTo }: { redirectTo: string }) {
       variant={'outlined'}
       onClick={() => handleClick(option.value)}
       className={
-        `flex h-[46px] w-[380px] items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium  max-sm:w-full text-text-title`
+        `flex h-[46px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium  max-sm:w-full text-text-title`
       }
     >
       <option.Icon className={'w-[24px] h-[24px]'} />
@@ -90,8 +90,8 @@ function LoginProvider ({ redirectTo }: { redirectTo: string }) {
         <Divider className={'flex-1'} />
       </Button>}
 
-      <Collapse in={expand}>
-        <div className={'gap-[10px] flex-col flex'}>{options.slice(2).map(renderOption)}</div>
+      <Collapse className={'w-full'} in={expand}>
+        <div className={'gap-[10px] w-full flex-col flex'}>{options.slice(2).map(renderOption)}</div>
       </Collapse>
     </div>
   );

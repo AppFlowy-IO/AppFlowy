@@ -128,7 +128,7 @@ const createServer = async (req: Request) => {
     try {
       if (metaData && metaData.view) {
         const view = metaData.view;
-        const emoji = view.icon.value;
+        const emoji = view.icon?.ty === 0 && view.icon?.value;
         const titleList = [];
 
         if (emoji) {

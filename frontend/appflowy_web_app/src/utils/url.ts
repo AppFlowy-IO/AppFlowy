@@ -7,13 +7,18 @@ export const downloadPage = 'https://appflowy.io/download';
 
 export const openAppFlowySchema = 'appflowy-flutter://';
 
-export function isValidUrl(input: string) {
+export const iosDownloadLink = 'https://testflight.apple.com/join/6CexvkDz';
+export const androidDownloadLink = 'https://play.google.com/store/apps/details?id=io.appflowy.appflowy';
+
+export const desktopDownloadLink = 'https://appflowy.io/download/#pop';
+
+export function isValidUrl (input: string) {
   return isURL(input, { require_protocol: true, require_host: false });
 }
 
 // Process the URL to make sure it's a valid URL
 // If it's not a valid URL(eg: 'appflowy.io' or '192.168.1.2'), we'll add 'https://' to the URL
-export function processUrl(input: string) {
+export function processUrl (input: string) {
   let processedUrl = input;
 
   if (isValidUrl(input)) {
@@ -40,7 +45,7 @@ export function processUrl(input: string) {
   return;
 }
 
-export async function openUrl(url: string, target: string = '_current') {
+export async function openUrl (url: string, target: string = '_current') {
   const platform = getPlatform();
 
   const newUrl = processUrl(url);

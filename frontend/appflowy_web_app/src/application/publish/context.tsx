@@ -4,6 +4,7 @@ import { ViewMeta } from '@/application/db/tables/view_metas';
 import { View } from '@/application/types';
 import { useService } from '@/components/app/app.hooks';
 import { notify } from '@/components/_shared/notify';
+import { findView } from '@/components/publish/header/utils';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,11 +34,6 @@ export const PublishProvider = ({
   publishName: string;
   isTemplateThumb?: boolean;
 }) => {
-  const viewMeta = useLiveQuery(async () => {
-    const name = `${namespace}_${publishName}`;
-
-    return db.view_metas.get(name);
-  }, [namespace, publishName]);
 
   const [outline, setOutline] = useState<View>();
 
@@ -48,6 +44,19 @@ export const PublishProvider = ({
       setSubscribers(new Map());
     };
   }, []);
+
+  const viewMeta = useLiveQuery(async () => {
+    const name = `${namespace}_${publishName}`;
+
+    const view = await db.view_metas.get(name);
+
+    if (!view) return;
+
+    return {
+      ...view,
+      name: findView(outline?.children || [], view.view_id)?.name || view.name,
+    };
+  }, [namespace, publishName, outline]);
 
   useEffect(() => {
     db.view_metas.hook('creating', (primaryKey, obj) => {
@@ -87,7 +96,7 @@ export const PublishProvider = ({
         const res = await service?.getPublishInfo(viewId);
 
         if (!res) {
-          throw new Error('Not found');
+          throw new Error('View has not been published yet');
         }
 
         const { namespace: viewNamespace, publishName } = res;
@@ -106,7 +115,6 @@ export const PublishProvider = ({
 
   const loadOutline = useCallback(async () => {
     if (!service || !namespace) return;
-    console.log('loadOutline', namespace);
     try {
       const res = await service?.getPublishOutline(namespace);
 
