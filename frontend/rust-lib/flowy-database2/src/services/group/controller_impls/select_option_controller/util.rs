@@ -86,12 +86,8 @@ pub fn move_group_row(
   };
 
   // Remove the row in which group contains it
-  if let Some(from_index) = &from_index {
+  if from_index.is_some() {
     changeset.deleted_rows.push(row.id.clone().into_inner());
-    debug!(
-      "[Database Group]: Group:{} remove {} at {}",
-      group.id, row.id, from_index
-    );
     group.remove_row(&row.id);
   }
 
@@ -100,15 +96,10 @@ pub fn move_group_row(
     match to_index {
       None => {
         changeset.inserted_rows.push(inserted_row);
-        debug!("[Database Group]: Group:{} append row:{}", group.id, row.id);
         group.add_row(row.clone());
       },
       Some(to_index) => {
         if to_index < group.number_of_row() {
-          debug!(
-            "[Database Group]: Group:{} insert {} at {} ",
-            group.id, row.id, to_index
-          );
           inserted_row.index = Some(to_index as i32);
           group.insert_row(to_index, row.clone());
         } else {
@@ -116,7 +107,6 @@ pub fn move_group_row(
             "[Database Group]: Move to index: {} is out of bounds",
             to_index
           );
-          debug!("[Database Group]: Group:{} append row:{}", group.id, row.id);
           group.add_row(row.clone());
         }
         changeset.inserted_rows.push(inserted_row);

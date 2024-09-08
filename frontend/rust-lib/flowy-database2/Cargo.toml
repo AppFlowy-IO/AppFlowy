@@ -54,6 +54,7 @@ tokio-retry = "0.3"
 
 [dev-dependencies]
 event-integration-test = { path = "../event-integration-test", default-features = false }
+flowy-database2 = { path = ".", features = ["verbose_log"] }
 
 [build-dependencies]
 flowy-codegen.workspace = true

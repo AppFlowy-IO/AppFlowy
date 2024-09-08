@@ -2026,6 +2026,7 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-database-pub",
+ "flowy-database2",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",

@@ -158,7 +158,7 @@ async fn handle_did_update_row_orders(
   insert_row_orders: Vec<(RowOrder, u32)>,
   delete_row_indexes: Vec<u32>,
 ) {
-  // Purpose: DidUpdateRowOrders is triggered whenever a user performs operations such as
+  // DidUpdateRowOrders is triggered whenever a user performs operations such as
   // deleting, inserting, or moving a row in the database.
   //
   // Before DidUpdateRowOrders is called, the changes (insert/move/delete) have already been
@@ -196,15 +196,6 @@ async fn handle_did_update_row_orders(
         index,
         is_local_change
       );
-      let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
-      if let Some(row) = database_editor
-        .get_row(&database_view.view_id, &row_order.id)
-        .await
-      {
-        database_view
-          .v_did_create_row(&row, index, is_move_row, is_local_change)
-          .await;
-      }
 
       // insert row order
       {
@@ -225,6 +216,16 @@ async fn handle_did_update_row_orders(
             view_row_orders.len()
           );
         }
+      }
+
+      let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
+      if let Some(row) = database_editor
+        .get_row(&database_view.view_id, &row_order.id)
+        .await
+      {
+        database_view
+          .v_did_create_row(&row, index, is_move_row, is_local_change)
+          .await;
       }
 
       // gather changes for notification
