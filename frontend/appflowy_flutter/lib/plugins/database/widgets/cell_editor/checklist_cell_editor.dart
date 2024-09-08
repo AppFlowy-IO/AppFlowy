@@ -138,6 +138,10 @@ class _EndEditingTaskIntent extends Intent {
   const _EndEditingTaskIntent();
 }
 
+class _UpdateTaskDescriptionIntent extends Intent {
+  const _UpdateTaskDescriptionIntent();
+}
+
 /// Represents an existing task
 @visibleForTesting
 class ChecklistItem extends StatefulWidget {
@@ -175,7 +179,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
       control: !Platform.isMacOS,
     ): const _SelectTaskIntent(),
     const SingleActivator(LogicalKeyboardKey.enter):
-        const _EndEditingTaskIntent(),
+        const _UpdateTaskDescriptionIntent(),
     const SingleActivator(LogicalKeyboardKey.escape):
         const _EndEditingTaskIntent(),
   };
@@ -282,6 +286,14 @@ class _ChecklistItemState extends State<ChecklistItem> {
           return;
         },
       ),
+      _UpdateTaskDescriptionIntent:
+          CallbackAction<_UpdateTaskDescriptionIntent>(
+        onInvoke: (_UpdateTaskDescriptionIntent intent) {
+          textFieldFocusNode.unfocus();
+          widget.onSubmitted?.call();
+          return;
+        },
+      ),
       _EndEditingTaskIntent: CallbackAction<_EndEditingTaskIntent>(
         onInvoke: (_EndEditingTaskIntent intent) {
           textFieldFocusNode.unfocus();
@@ -339,29 +351,28 @@ class _NewTaskItemState extends State<NewTaskItem> {
         children: [
           const HSpace(8),
           Expanded(
-            child: TextField(
-              focusNode: widget.focusNode,
-              controller: _textEditingController,
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 6.0,
-                  horizontal: 2.0,
-                ),
-                hintText: LocaleKeys.grid_checklist_addNew.tr(),
-              ),
-              onSubmitted: (taskDescription) {
-                if (taskDescription.isNotEmpty) {
-                  context
-                      .read<ChecklistCellBloc>()
-                      .add(ChecklistCellEvent.createNewTask(taskDescription));
-                  _textEditingController.clear();
-                }
-                widget.focusNode.requestFocus();
+            child: CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.enter): () =>
+                    _createNewTask(context),
               },
-              onChanged: (value) => setState(() {}),
+              child: TextField(
+                focusNode: widget.focusNode,
+                controller: _textEditingController,
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: null,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 6.0,
+                    horizontal: 2.0,
+                  ),
+                  hintText: LocaleKeys.grid_checklist_addNew.tr(),
+                ),
+                onSubmitted: (_) => _createNewTask(context),
+                onChanged: (value) => setState(() {}),
+              ),
             ),
           ),
           FlowyTextButton(
@@ -390,5 +401,16 @@ class _NewTaskItemState extends State<NewTaskItem> {
         ],
       ),
     );
+  }
+
+  void _createNewTask(BuildContext context) {
+    final taskDescription = _textEditingController.text;
+    if (taskDescription.isNotEmpty) {
+      context
+          .read<ChecklistCellBloc>()
+          .add(ChecklistCellEvent.createNewTask(taskDescription));
+      _textEditingController.clear();
+    }
+    widget.focusNode.requestFocus();
   }
 }
