@@ -13,7 +13,9 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -28,12 +30,14 @@ class RowBanner extends StatefulWidget {
     required this.rowController,
     required this.cellBuilder,
     this.allowOpenAsFullPage = true,
+    this.userProfile,
   });
 
   final DatabaseController databaseController;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
   final bool allowOpenAsFullPage;
+  final UserProfilePB? userProfile;
 
   @override
   State<RowBanner> createState() => _RowBannerState();
@@ -65,6 +69,7 @@ class _RowBannerState extends State<RowBanner> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _BannerCover(userProfile: widget.userProfile),
               SizedBox(
                 height: 30,
                 child: _BannerAction(
@@ -120,6 +125,17 @@ class _BannerAction extends StatelessWidget {
                       onTap: () => context
                           .read<RowBannerBloc>()
                           .add(const RowBannerEvent.setIcon('')),
+                    ),
+                  const HSpace(8),
+                  if (state.rowMeta.cover.url.isEmpty)
+                    AddCoverButton(
+                      onTap: () => popoverController.show(),
+                    )
+                  else
+                    RemoveCoverButton(
+                      onTap: () => context
+                          .read<RowBannerBloc>()
+                          .add(const RowBannerEvent.removeCover()),
                     ),
                 ],
               );
@@ -184,6 +200,51 @@ class _BannerTitle extends StatelessWidget {
   }
 }
 
+class _BannerCover extends StatelessWidget {
+  const _BannerCover({required this.userProfile});
+
+  final UserProfilePB? userProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RowBannerBloc, RowBannerState>(
+      buildWhen: (prev, curr) =>
+          prev.rowMeta.cover.url != curr.rowMeta.cover.url,
+      builder: (context, state) {
+        final cover = state.rowMeta.cover;
+        if (cover.url.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 250,
+                  child: Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: AFImage(
+                      url: cover.url,
+                      uploadType: cover.uploadType,
+                      userProfile: userProfile,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class EmojiButton extends StatelessWidget {
   const EmojiButton({
     super.key,
@@ -211,6 +272,29 @@ class EmojiButton extends StatelessWidget {
   }
 }
 
+class AddCoverButton extends StatelessWidget {
+  const AddCoverButton({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 26,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: FlowyText.medium(
+          lineHeight: 1.0,
+          LocaleKeys.document_plugins_cover_addCover.tr(),
+        ),
+        leftIcon: const FlowySvg(FlowySvgs.image_s),
+        onTap: onTap,
+        margin: const EdgeInsets.all(4),
+      ),
+    );
+  }
+}
+
 class AddEmojiButton extends StatelessWidget {
   const AddEmojiButton({super.key, required this.onTap});
 
@@ -227,6 +311,29 @@ class AddEmojiButton extends StatelessWidget {
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
+        onTap: onTap,
+        margin: const EdgeInsets.all(4),
+      ),
+    );
+  }
+}
+
+class RemoveCoverButton extends StatelessWidget {
+  const RemoveCoverButton({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 26,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: FlowyText.medium(
+          lineHeight: 1.0,
+          LocaleKeys.document_plugins_cover_removeCover.tr(),
+        ),
+        leftIcon: const FlowySvg(FlowySvgs.image_s),
         onTap: onTap,
         margin: const EdgeInsets.all(4),
       ),

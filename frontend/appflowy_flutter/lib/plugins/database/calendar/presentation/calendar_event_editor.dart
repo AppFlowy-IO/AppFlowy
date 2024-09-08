@@ -130,6 +130,7 @@ class EventEditorControls extends StatelessWidget {
                   child: RowDetailPage(
                     databaseController: databaseController,
                     rowController: rowController,
+                    userProfile: context.read<CalendarBloc>().userProfile,
                   ),
                 ),
               );

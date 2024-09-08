@@ -6,6 +6,7 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -182,7 +183,7 @@ class MediaCellEvent with _$MediaCellEvent {
   const factory MediaCellEvent.addFile({
     required String url,
     required String name,
-    required MediaUploadTypePB uploadType,
+    required FileUploadTypePB uploadType,
     required MediaFileTypePB fileType,
   }) = _AddFile;
 

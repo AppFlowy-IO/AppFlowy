@@ -742,6 +742,7 @@ impl DatabaseEditor {
         icon: row_meta.icon_url,
         is_document_empty: Some(row_meta.is_document_empty),
         attachment_count: Some(row_meta.attachment_count),
+        cover: row_meta.cover.map(|cover| cover.into()),
       })
     } else {
       warn!(
@@ -783,7 +784,7 @@ impl DatabaseEditor {
     database
       .update_row_meta(row_id, |meta_update| {
         meta_update
-          .insert_cover_if_not_none(changeset.cover_url)
+          .insert_cover_if_not_none(changeset.cover)
           .insert_icon_if_not_none(changeset.icon_url)
           .update_is_document_empty_if_not_none(changeset.is_document_empty)
           .update_attachment_count_if_not_none(changeset.attachment_count);
@@ -1039,7 +1040,7 @@ impl DatabaseEditor {
             UpdateRowMetaParams {
               id: row_id.clone().into_inner(),
               view_id: view_id.to_string(),
-              cover_url: None,
+              cover: None,
               icon_url: None,
               is_document_empty: None,
               attachment_count: Some(new_attachment_count),

@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use collab_database::entity::FileUploadType;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -7,7 +8,7 @@ pub struct MediaFile {
   pub id: String,
   pub name: String,
   pub url: String,
-  pub upload_type: MediaUploadType,
+  pub upload_type: FileUploadType,
   pub file_type: MediaFileType,
 }
 
@@ -31,15 +32,6 @@ impl Display for MediaFile {
       self.id, self.name, self.url, self.upload_type, self.file_type
     )
   }
-}
-
-#[derive(PartialEq, Eq, Serialize, Deserialize, Debug, Default, Clone)]
-#[repr(u8)]
-pub enum MediaUploadType {
-  #[default]
-  LocalMedia = 0,
-  NetworkMedia = 1,
-  CloudMedia = 2,
 }
 
 #[derive(PartialEq, Eq, Serialize, Deserialize, Debug, Default, Clone)]

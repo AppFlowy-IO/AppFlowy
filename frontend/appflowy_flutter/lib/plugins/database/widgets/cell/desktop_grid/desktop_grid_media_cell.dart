@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -11,7 +9,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.
 import 'package:appflowy/plugins/database/widgets/cell_editor/mobile_media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -160,38 +158,16 @@ class _FilePreviewRender extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    if (file.fileType == MediaFileTypePB.Image) {
-      if (file.uploadType == MediaUploadTypePB.NetworkMedia) {
-        child = Image.network(
-          file.url,
-          height: 32,
-          width: 32,
-          fit: BoxFit.cover,
-        );
-      } else if (file.uploadType == MediaUploadTypePB.LocalMedia) {
-        child = Image.file(
-          File(file.url),
-          height: 32,
-          width: 32,
-          fit: BoxFit.cover,
-        );
-      } else {
-        // Cloud
-        child = FlowyNetworkImage(
-          url: file.url,
-          userProfilePB: context.read<MediaCellBloc>().state.userProfile,
-          height: 32,
-          width: 32,
-        );
-      }
-    } else {
-      child = Container(
+    if (file.fileType != MediaFileTypePB.Image) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 2),
         height: 32,
         width: 32,
+        clipBehavior: Clip.antiAlias,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: AFThemeExtension.of(context).greyHover,
+          borderRadius: BorderRadius.circular(4),
         ),
         child: FlowySvg(
           file.fileType.icon,
@@ -201,12 +177,18 @@ class _FilePreviewRender extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.all(2),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      height: 32,
+      width: 32,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
       ),
-      child: child,
+      child: AFImage(
+        url: file.url,
+        uploadType: file.uploadType,
+        userProfile: context.read<MediaCellBloc>().state.userProfile,
+      ),
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -12,7 +10,7 @@ import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart'
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
-import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
@@ -201,23 +199,11 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
   Widget build(BuildContext context) {
     Widget child;
     if (widget.file.fileType == MediaFileTypePB.Image) {
-      if (widget.file.uploadType == MediaUploadTypePB.NetworkMedia) {
-        child = Image.network(
-          widget.file.url,
-          fit: BoxFit.cover,
-        );
-      } else if (widget.file.uploadType == MediaUploadTypePB.LocalMedia) {
-        child = Image.file(
-          File(widget.file.url),
-          fit: BoxFit.cover,
-        );
-      } else {
-        // Cloud
-        child = FlowyNetworkImage(
-          url: widget.file.url,
-          userProfilePB: context.read<MediaCellBloc>().state.userProfile,
-        );
-      }
+      child = AFImage(
+        url: widget.file.url,
+        uploadType: widget.file.uploadType,
+        userProfile: context.read<MediaCellBloc>().state.userProfile,
+      );
     } else {
       child = DecoratedBox(
         decoration: BoxDecoration(color: widget.file.fileType.color),
