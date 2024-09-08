@@ -93,7 +93,7 @@ impl DatabaseGroupTest {
         row_count,
       } => {
         // sleep for 2 seconds to wait for the row count to be updated
-        tokio::time::sleep(Duration::from_secs(2)).await;
+        tokio::time::sleep(Duration::from_secs(3)).await;
         assert_eq!(row_count, self.group_at_index(group_index).await.rows.len());
       },
       GroupScript::AssertGroupCount(count) => {

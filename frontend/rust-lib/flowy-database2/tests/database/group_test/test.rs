@@ -76,6 +76,21 @@ async fn group_move_row_to_other_group_test() {
       row_index: 1,
       row: group.rows.first().unwrap().clone(),
     },
+    // Move the row back to origin group
+    MoveRow {
+      from_group_index: 2,
+      from_row_index: 1,
+      to_group_index: 1,
+      to_row_index: 0,
+    },
+    AssertGroupRowCount {
+      group_index: 2,
+      row_count: 2,
+    },
+    AssertGroupRowCount {
+      group_index: 1,
+      row_count: 2,
+    },
   ];
   test.run_scripts(scripts).await;
 }

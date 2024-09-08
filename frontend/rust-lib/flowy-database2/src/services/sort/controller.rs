@@ -99,7 +99,7 @@ impl SortController {
     }
   }
 
-  pub async fn did_create_row(&self, preliminary_index: usize, row: &Row) {
+  pub async fn did_create_row(&self, preliminary_index: u32, row: &Row) {
     if !self.delegate.filter_row(row).await {
       return;
     }
@@ -172,7 +172,7 @@ impl SortController {
             let notification = InsertRowResult {
               view_id: self.view_id.clone(),
               row: row.clone(),
-              index: row_index,
+              index: row_index as u32,
             };
             self.row_index_cache.insert(row.id, row_index);
             let _ = self

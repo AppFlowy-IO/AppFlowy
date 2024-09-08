@@ -229,7 +229,7 @@ where
     self.context.move_group(from_group_id, to_group_id)
   }
 
-  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB> {
+  fn did_create_row(&mut self, row: &Row, index: u32) -> Vec<GroupRowsNotificationPB> {
     let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
 
     let cell = match row.cells.get(&self.grouping_field_id) {
@@ -316,7 +316,8 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    // early return if the row is not in the default group
+
+    // remove row from its group if it is in a group
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
       let cell_data = <T as TypeOption>::CellData::from(cell);
       if !cell_data.is_cell_empty() {
@@ -325,6 +326,7 @@ where
       }
     }
 
+    // when the deleted row is not in current group. It should be in the no status group
     match self.context.get_mut_no_status_group() {
       None => {
         tracing::error!("Unexpected None value. It should have the no status group");
@@ -357,7 +359,7 @@ where
     if let Some(cell) = cell {
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
-      result.deleted_group = self.delete_group_when_move_row(context.row, &cell_data);
+      result.deleted_group = self.delete_group_after_moving_row(context.row, &cell_data);
       result.row_changesets = self.move_row(context);
     } else {
       tracing::warn!("Unexpected moving group row, changes should not be empty");

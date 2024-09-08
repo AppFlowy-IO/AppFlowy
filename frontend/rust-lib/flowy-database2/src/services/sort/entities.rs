@@ -114,7 +114,7 @@ pub struct ReorderSingleRowResult {
 pub struct InsertRowResult {
   pub view_id: String,
   pub row: Row,
-  pub index: usize,
+  pub index: u32,
 }
 
 #[derive(Debug, Default)]

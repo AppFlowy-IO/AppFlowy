@@ -73,7 +73,7 @@ pub fn move_group_row(
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
   let MoveGroupRowContext {
     row,
-    row_changeset,
+    updated_cells,
     field,
     to_group_id,
     to_row_id,
@@ -125,9 +125,7 @@ pub fn move_group_row(
           row.id,
           group.id
         );
-        row_changeset
-          .cell_by_field_id
-          .insert(field.id.clone(), cell);
+        updated_cells.insert(field.id.clone(), cell);
       }
     }
   }

@@ -71,7 +71,7 @@ impl GroupController for DefaultGroupController {
     Ok(())
   }
 
-  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB> {
+  fn did_create_row(&mut self, row: &Row, index: u32) -> Vec<GroupRowsNotificationPB> {
     self.group.add_row((*row).clone());
 
     vec![GroupRowsNotificationPB::insert(

@@ -488,6 +488,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   GroupController _initializeGroupController(GroupPB group) {
+    group.freeze();
+
     final delegate = GroupControllerDelegateImpl(
       controller: boardController,
       fieldController: fieldController,

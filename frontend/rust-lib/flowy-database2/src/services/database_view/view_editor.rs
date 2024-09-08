@@ -2,6 +2,8 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use super::notify_did_update_calculation;
+use super::view_calculations::make_calculations_controller;
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
   DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
@@ -18,6 +20,7 @@ use crate::services::database_view::view_group::{
   get_cell_for_row, get_cells_for_field, new_group_controller,
 };
 use crate::services::database_view::view_operation::DatabaseViewOperation;
+use crate::services::database_view::view_row::LazyRow;
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
   notify_did_update_filter, notify_did_update_group_rows, notify_did_update_num_of_groups,
@@ -26,7 +29,7 @@ use crate::services::database_view::{
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
-use crate::services::group::{GroupChangeset, GroupController, MoveGroupRowContext, RowChangeset};
+use crate::services::group::{GroupChangeset, GroupController, MoveGroupRowContext, UpdatedCells};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
@@ -39,9 +42,6 @@ use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
 use tracing::instrument;
 
-use super::notify_did_update_calculation;
-use super::view_calculations::make_calculations_controller;
-
 pub struct DatabaseViewEditor {
   database_id: String,
   pub view_id: String,
@@ -50,6 +50,7 @@ pub struct DatabaseViewEditor {
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   calculations_controller: Arc<CalculationsController>,
+  pub(crate) row_orders: RwLock<Vec<LazyRow>>,
   pub notifier: DatabaseViewChangedNotifier,
 }
 
@@ -111,8 +112,13 @@ impl DatabaseViewEditor {
       filter_controller,
       sort_controller,
       calculations_controller,
+      row_orders: Default::default(),
       notifier,
     })
+  }
+
+  pub async fn set_row_orders(&self, row_orders: Vec<RowOrder>) {
+    *self.row_orders.write().await = row_orders.into_iter().map(LazyRow::new).collect();
   }
 
   pub async fn get_all_row_orders(&self) -> FlowyResult<Vec<RowOrder>> {
@@ -189,11 +195,13 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_did_create_row(&self, row: &Row, index: usize) {
+  pub async fn v_did_create_row(&self, row: &Row, index: u32) {
     // Send the group notification if the current view has groups
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let mut rows = vec![Arc::new(row.clone())];
+      // filter out rows if it doesn't pass the filter
       self.v_filter_rows(&mut rows).await;
+
       if let Some(row) = rows.pop() {
         let changesets = controller.did_create_row(&row, index);
         for changeset in changesets {
@@ -206,31 +214,29 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
-  pub async fn v_did_delete_row(&self, row: &Row) {
+  pub async fn v_did_delete_row(&self, row: &Row, is_move_row: bool, is_local_change: bool) {
     let deleted_row = row.clone();
-    // Send the group notification if the current view has groups;
-    let result = self
-      .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
-      .await;
 
-    if let Some(result) = result {
-      tracing::trace!("Delete row in view changeset: {:?}", result);
-      for changeset in result.row_changesets {
-        notify_did_update_group_rows(changeset).await;
-      }
-      if let Some(deleted_group) = result.deleted_group {
-        let payload = GroupChangesPB {
-          view_id: self.view_id.clone(),
-          deleted_groups: vec![deleted_group.group_id],
-          ..Default::default()
-        };
-        notify_did_update_num_of_groups(&self.view_id, payload).await;
+    if !is_move_row || !is_local_change {
+      // Send the group notification if the current view has groups;
+      let result = self
+        .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
+        .await;
+
+      if let Some(result) = result {
+        for changeset in result.row_changesets {
+          notify_did_update_group_rows(changeset).await;
+        }
+        if let Some(deleted_group) = result.deleted_group {
+          let payload = GroupChangesPB {
+            view_id: self.view_id.clone(),
+            deleted_groups: vec![deleted_group.group_id],
+            ..Default::default()
+          };
+          notify_did_update_num_of_groups(&self.view_id, payload).await;
+        }
       }
     }
-    let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
-      .payload(changes)
-      .send();
 
     // Updating calculations for each of the Rows cells is a tedious task
     // Therefore we spawn a separate task for this
@@ -247,6 +253,7 @@ impl DatabaseViewEditor {
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
+  #[instrument(level = "trace", skip_all)]
   pub async fn v_did_update_row(&self, old_row: &Option<Row>, row: &Row, field_id: Option<String>) {
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let field = self
@@ -327,18 +334,22 @@ impl DatabaseViewEditor {
     rows
   }
 
+  pub async fn v_get_row(&self, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {
+    self.delegate.get_row_detail(&self.view_id, row_id).await
+  }
+
   pub async fn v_move_group_row(
     &self,
     row: &Row,
-    row_changeset: &mut RowChangeset,
     to_group_id: &str,
     to_row_id: Option<RowId>,
-  ) {
+  ) -> UpdatedCells {
+    let mut updated_cells = UpdatedCells::new();
     let result = self
       .mut_group_controller(|group_controller, field| {
         let move_row_context = MoveGroupRowContext {
           row,
-          row_changeset,
+          updated_cells: &mut updated_cells,
           field: &field,
           to_group_id,
           to_row_id,
@@ -362,6 +373,8 @@ impl DatabaseViewEditor {
         notify_did_update_group_rows(changeset).await;
       }
     }
+
+    updated_cells
   }
 
   /// Only call once after database view editor initialized
@@ -469,7 +482,6 @@ impl DatabaseViewEditor {
     drop(group_controller);
 
     let mut changes = RowsChangePB::default();
-
     if let Some(field) = old_field {
       for row_id in row_ids {
         if let Some(row) = self.delegate.remove_row(&row_id).await {
@@ -548,9 +560,7 @@ impl DatabaseViewEditor {
     };
 
     self.delegate.insert_sort(&self.view_id, sort.clone()).await;
-
     let mut sort_controller = self.sort_controller.write().await;
-
     let notification = if is_exist {
       sort_controller
         .apply_changeset(SortChangeset::from_update(sort.clone()))
@@ -1133,7 +1143,7 @@ impl DatabaseViewEditor {
     });
   }
 
-  async fn gen_did_create_row_view_tasks(&self, preliminary_index: usize, row: Row) {
+  async fn gen_did_create_row_view_tasks(&self, preliminary_index: u32, row: Row) {
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
     tokio::spawn(async move {

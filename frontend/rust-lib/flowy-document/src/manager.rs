@@ -470,7 +470,7 @@ async fn doc_state_from_document_data(
   // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
   let encoded_collab = tokio::task::spawn_blocking(move || {
     let collab = Collab::new_with_origin(CollabOrigin::Empty, doc_id, vec![], false);
-    let document = Document::open_with(collab, Some(data)).map_err(internal_error)?;
+    let document = Document::create_with_data(collab, data).map_err(internal_error)?;
     let encode_collab = document.encode_collab()?;
     Ok::<_, FlowyError>(encode_collab)
   })

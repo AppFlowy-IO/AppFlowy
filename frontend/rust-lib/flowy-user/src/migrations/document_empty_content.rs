@@ -87,7 +87,7 @@ where
   // If the document is not exist, we don't need to migrate it.
   if load_collab(user_id, write_txn, &view.id).is_err() {
     let collab = Collab::new_with_origin(origin.clone(), &view.id, vec![], false);
-    let document = Document::open_with(collab, Some(default_document_data(&view.id)))?;
+    let document = Document::create_with_data(collab, default_document_data(&view.id))?;
     let encode = document.encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
     write_txn.flush_doc(
       user_id,

@@ -975,7 +975,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1000,13 +1000,14 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
  "collab",
  "collab-entity",
+ "csv",
  "dashmap 5.5.3",
  "futures",
  "getrandom 0.2.10",
@@ -1029,7 +1030,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1049,7 +1050,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1068,7 +1069,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1111,7 +1112,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1191,7 +1192,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b987647c190b337d0dca2718c93ff918e94b3730#b987647c190b337d0dca2718c93ff918e94b3730"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6bc5d24f34ffb998fc080c423d9bb78a016c3a6a#6bc5d24f34ffb998fc080c423d9bb78a016c3a6a"
 dependencies = [
  "anyhow",
  "collab",
@@ -1446,7 +1447,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1462,9 +1463,9 @@ dependencies = [
 
 [[package]]
 name = "csv"
-version = "1.2.2"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "626ae34994d3d8d668f4269922248239db4ae42d538b14c398b74a52208e8086"
+checksum = "ac574ff4d437a7b5ad237ef331c17ccca63c46479e5b5453eb8e10bb99a759fe"
 dependencies = [
  "csv-core",
  "itoa 1.0.6",
@@ -1474,9 +1475,9 @@ dependencies = [
 
 [[package]]
 name = "csv-core"
-version = "0.1.10"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90"
+checksum = "5efa2b3d7902f4b634a20cae3c9c4e6209dc4779feb6863329607560143efa70"
 dependencies = [
  "memchr",
 ]
@@ -2217,6 +2218,7 @@ dependencies = [
  "strum",
  "strum_macros 0.25.2",
  "tokio",
+ "tokio-retry",
  "tokio-util",
  "tracing",
  "url",

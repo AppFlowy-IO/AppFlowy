@@ -50,6 +50,10 @@ class GroupController {
             }
 
             for (final insertedRow in changeset.insertedRows) {
+              if (newItems.any((rowPB) => rowPB.id == insertedRow.rowMeta.id)) {
+                continue;
+              }
+
               final index = insertedRow.hasIndex() ? insertedRow.index : null;
               if (insertedRow.hasIndex() &&
                   newItems.length > insertedRow.index) {
@@ -80,11 +84,13 @@ class GroupController {
               }
             }
 
-            group.freeze();
             group = group.rebuild((group) {
               group.rows.clear();
               group.rows.addAll(newItems);
             });
+            group.freeze();
+            Log.debug(
+                "Build GroupPB:${group.groupId}: items: ${group.rows.length}");
             onGroupChanged(group);
           },
           (err) => Log.error(err),
@@ -93,8 +99,8 @@ class GroupController {
     );
   }
 
-  Future<void> dispose() {
-    return _listener.stop();
+  Future<void> dispose() async {
+    await _listener.stop();
   }
 }
 
