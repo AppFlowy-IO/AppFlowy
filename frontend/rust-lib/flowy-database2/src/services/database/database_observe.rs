@@ -13,7 +13,7 @@ use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
-use tracing::{error, info, trace, warn};
+use tracing::{error, trace, warn};
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
   let weak_database = Arc::downgrade(database);
@@ -202,13 +202,6 @@ async fn handle_did_update_row_orders(
         let mut view_row_orders = database_view.row_orders.write().await;
         if view_row_orders.len() >= index as usize {
           view_row_orders.insert(index as usize, row_order.clone());
-          info!(
-            "[RowOrder]: view row orders after:{:?}",
-            view_row_orders
-              .iter()
-              .map(|x| x.id.to_string())
-              .collect::<Vec<String>>()
-          );
         } else {
           warn!(
             "[RowOrder]: insert row at index:{} out of range:{}",
@@ -252,8 +245,6 @@ async fn handle_did_update_row_orders(
         let lazy_row = view_row_orders.remove(index);
         // Update changeset in RowsChangePB
         let row_id = lazy_row.id.to_string();
-        trace!("[RowOrder]: try to delete row:{}", lazy_row.id);
-
         let mut row_change = database_view_rows
           .entry(database_view.view_id.clone())
           .or_default();
@@ -262,7 +253,7 @@ async fn handle_did_update_row_orders(
         // notify the view
         if let Some(row) = database_view.row_by_row_id.get(lazy_row.id.as_str()) {
           trace!(
-            "[RowOrder]: Did delete row:{} at index:{}, is_move_row: {}, is_local:{}",
+            "[RowOrder]: delete row:{} at index:{}, is_move_row: {}, is_local:{}",
             row.id,
             index,
             row_change.is_move_row,

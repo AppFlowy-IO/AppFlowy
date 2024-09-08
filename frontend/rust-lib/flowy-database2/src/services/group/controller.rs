@@ -4,11 +4,11 @@ use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowId};
+use flowy_error::{FlowyError, FlowyResult};
 use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-
-use flowy_error::{FlowyError, FlowyResult};
+use tracing::trace;
 
 use crate::entities::{
   FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
@@ -310,6 +310,7 @@ where
   }
 
   fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
+    trace!("[RowOrder]: group did_delete_row: {:?}", row.id);
     let mut result = DidMoveGroupRowResult {
       deleted_group: None,
       row_changesets: vec![],

@@ -43,7 +43,7 @@ use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
-use tracing::instrument;
+use tracing::{instrument, trace};
 
 pub struct DatabaseViewEditor {
   database_id: String,
@@ -1250,7 +1250,7 @@ impl DatabaseViewEditor {
 async fn handle_mut_group_result(view_id: &str, result: Option<DidMoveGroupRowResult>) {
   if let Some(result) = result {
     if let Some(deleted_group) = result.deleted_group {
-      tracing::trace!("Delete group after moving the row: {:?}", deleted_group);
+      trace!("Delete group after moving the row: {:?}", deleted_group);
       let payload = GroupChangesPB {
         view_id: view_id.to_string(),
         deleted_groups: vec![deleted_group.group_id],
@@ -1259,6 +1259,7 @@ async fn handle_mut_group_result(view_id: &str, result: Option<DidMoveGroupRowRe
       notify_did_update_num_of_groups(view_id, payload).await;
     }
     for changeset in result.row_changesets {
+      trace!("[RowOrder]: group row changeset: {:?}", changeset);
       notify_did_update_group_rows(changeset).await;
     }
   }
