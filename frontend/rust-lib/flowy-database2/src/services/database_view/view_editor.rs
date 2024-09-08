@@ -20,7 +20,6 @@ use crate::services::database_view::view_group::{
   get_cell_for_row, get_cells_for_field, new_group_controller,
 };
 use crate::services::database_view::view_operation::DatabaseViewOperation;
-use crate::services::database_view::view_row::LazyRow;
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
   notify_did_update_filter, notify_did_update_group_rows, notify_did_update_num_of_groups,
@@ -30,7 +29,9 @@ use crate::services::database_view::{
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
-use crate::services::group::{GroupChangeset, GroupController, MoveGroupRowContext, UpdatedCells};
+use crate::services::group::{
+  DidMoveGroupRowResult, GroupChangeset, GroupController, MoveGroupRowContext, UpdatedCells,
+};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
@@ -38,6 +39,7 @@ use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};
+use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
@@ -51,7 +53,13 @@ pub struct DatabaseViewEditor {
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   calculations_controller: Arc<CalculationsController>,
-  pub(crate) row_orders: RwLock<Vec<LazyRow>>,
+  /// Use lazy_rows as cache that represents the row's order for given view
+  /// It can't get the row id when deleting a row. it only returns the deleted index.
+  /// So using this cache to get the row id by index
+  ///
+  /// Check out this link (https://github.com/y-crdt/y-crdt/issues/341) for more information.
+  pub(crate) row_orders: RwLock<Vec<RowOrder>>,
+  pub(crate) row_by_row_id: DashMap<String, Arc<Row>>,
   pub notifier: DatabaseViewChangedNotifier,
 }
 
@@ -114,12 +122,13 @@ impl DatabaseViewEditor {
       sort_controller,
       calculations_controller,
       row_orders: Default::default(),
+      row_by_row_id: Default::default(),
       notifier,
     })
   }
 
   pub async fn set_row_orders(&self, row_orders: Vec<RowOrder>) {
-    *self.row_orders.write().await = row_orders.into_iter().map(LazyRow::new).collect();
+    *self.row_orders.write().await = row_orders;
   }
 
   pub async fn get_all_row_orders(&self) -> FlowyResult<Vec<RowOrder>> {
@@ -196,18 +205,21 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_did_create_row(&self, row: &Row, index: u32) {
+  pub async fn v_did_create_row(&self, row: &Row, index: u32, is_move_row: bool) {
     // Send the group notification if the current view has groups
-    if let Some(controller) = self.group_controller.write().await.as_mut() {
-      let mut rows = vec![Arc::new(row.clone())];
-      // filter out rows if it doesn't pass the filter
-      self.v_filter_rows(&mut rows).await;
 
-      if let Some(row) = rows.pop() {
-        if let Some(changesets) = controller.did_create_row(&row, index).await {
-          for changeset in changesets {
-            if !changeset.is_empty() {
-              notify_did_update_group_rows(changeset).await;
+    if !is_move_row {
+      if let Some(controller) = self.group_controller.write().await.as_mut() {
+        let mut rows = vec![Arc::new(row.clone())];
+        // filter out rows if it doesn't pass the filter
+        self.v_filter_rows(&mut rows).await;
+
+        if let Some(row) = rows.pop() {
+          if let Some(changesets) = controller.did_create_row(&row, index).await {
+            for changeset in changesets {
+              if !changeset.is_empty() {
+                notify_did_update_group_rows(changeset).await;
+              }
             }
           }
         }
@@ -221,25 +233,16 @@ impl DatabaseViewEditor {
   pub async fn v_did_delete_row(&self, row: &Row, is_move_row: bool, is_local_change: bool) {
     let deleted_row = row.clone();
 
+    // Only update group rows
+    // 1. when the row is deleted locally. If the row is moved, we don't need to send the group
+    // notification. Because it's handled by the move_group_row function
+    // 2. when the row is deleted remotely
     if !is_move_row || !is_local_change {
       // Send the group notification if the current view has groups;
       let result = self
         .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
         .await;
-
-      if let Some(result) = result {
-        for changeset in result.row_changesets {
-          notify_did_update_group_rows(changeset).await;
-        }
-        if let Some(deleted_group) = result.deleted_group {
-          let payload = GroupChangesPB {
-            view_id: self.view_id.clone(),
-            deleted_groups: vec![deleted_group.group_id],
-            ..Default::default()
-          };
-          notify_did_update_num_of_groups(&self.view_id, payload).await;
-        }
-      }
+      handle_mut_group_result(&self.view_id, result).await;
     }
 
     // Updating calculations for each of the Rows cells is a tedious task
@@ -362,22 +365,7 @@ impl DatabaseViewEditor {
       })
       .await;
 
-    if let Some(result) = result {
-      if let Some(delete_group) = result.deleted_group {
-        tracing::trace!("Delete group after moving the row: {:?}", delete_group);
-        let changes = GroupChangesPB {
-          view_id: self.view_id.clone(),
-          deleted_groups: vec![delete_group.group_id],
-          ..Default::default()
-        };
-        notify_did_update_num_of_groups(&self.view_id, changes).await;
-      }
-
-      for changeset in result.row_changesets {
-        notify_did_update_group_rows(changeset).await;
-      }
-    }
-
+    handle_mut_group_result(&self.view_id, result).await;
     updated_cells
   }
 
@@ -1255,5 +1243,22 @@ impl DatabaseViewEditor {
           .await;
       }
     });
+  }
+}
+
+async fn handle_mut_group_result(view_id: &str, result: Option<DidMoveGroupRowResult>) {
+  if let Some(result) = result {
+    if let Some(deleted_group) = result.deleted_group {
+      tracing::trace!("Delete group after moving the row: {:?}", deleted_group);
+      let payload = GroupChangesPB {
+        view_id: view_id.to_string(),
+        deleted_groups: vec![deleted_group.group_id],
+        ..Default::default()
+      };
+      notify_did_update_num_of_groups(view_id, payload).await;
+    }
+    for changeset in result.row_changesets {
+      notify_did_update_group_rows(changeset).await;
+    }
   }
 }

@@ -158,6 +158,8 @@ impl DatabaseGroupTest {
         let row = self.row_at_index(group_index, row_index).await;
         let row_ids = vec![RowId::from(row.id)];
         self.editor.delete_rows(&row_ids).await;
+        // sleep for 1 second to wait for the row observation callback
+        tokio::time::sleep(Duration::from_secs(1)).await;
       },
       GroupScript::UpdateGroupedCell {
         from_group_index,

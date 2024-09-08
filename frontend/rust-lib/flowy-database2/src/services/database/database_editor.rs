@@ -829,28 +829,8 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
-    let database = self.database.read().await;
-    if database.contains_row(view_id, row_id) {
-      database.get_row_detail(row_id).await
-    } else {
-      warn!(
-        "the row:{} is not exist in view:{}",
-        row_id.as_str(),
-        view_id
-      );
-      None
-    }
-  }
-
   pub async fn delete_rows(&self, row_ids: &[RowId]) {
     let _ = self.database.write().await.remove_rows(row_ids).await;
-    // for row in rows {
-    //   trace!("Did delete row:{:?}", row);
-    //   for view in self.database_views.editors().await {
-    //     view.v_did_delete_row(&row, true).await;
-    //   }
-    // }
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
@@ -1416,39 +1396,16 @@ impl DatabaseEditor {
     }
   }
 
-  // Only used in test
-  #[cfg(debug_assertions)]
-  pub async fn open_database_view(&self, view_id: &str) -> FlowyResult<DatabasePB> {
-    info!("Open database: {}, view: {}", self.database_id, view_id);
-    let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-    let row_orders = view_editor.get_all_row_orders().await?;
-    view_editor.set_row_orders(row_orders.clone()).await;
-
-    let rows = self
-      .get_all_rows(view_id)
-      .await?
-      .into_iter()
-      .map(|order| RowMetaPB::from(order.as_ref().clone()))
-      .collect::<Vec<RowMetaPB>>();
-    let view_layout = self.database.read().await.get_database_view_layout(view_id);
-    let fields = self
-      .database
-      .read()
-      .await
-      .get_all_field_orders()
-      .into_iter()
-      .map(FieldIdPB::from)
-      .collect::<Vec<_>>();
-    Ok(DatabasePB {
-      id: self.database_id.clone(),
-      fields,
-      rows,
-      layout_type: view_layout.into(),
-      is_linked: self.database.read().await.is_inline_view(view_id),
-    })
-  }
-
-  pub async fn async_open_database_view(&self, view_id: &str) -> FlowyResult<DatabasePB> {
+  /// Open database view
+  /// When opening database view, it will load database rows from remote if they are not exist in local disk.
+  /// After load all rows, it will apply filters and sorts to the rows.
+  ///
+  /// If notify_finish is not None, it will send a notification to the sender when the opening process is complete.
+  pub async fn open_database_view(
+    &self,
+    view_id: &str,
+    notify_finish: Option<tokio::sync::oneshot::Sender<()>>,
+  ) -> FlowyResult<DatabasePB> {
     info!("Open database: {}, view: {}", self.database_id, view_id);
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
@@ -1505,6 +1462,12 @@ impl DatabaseEditor {
           const CHUNK_SIZE: usize = 10;
           let apply_filter_and_sort =
             |mut loaded_rows: Vec<Arc<Row>>, view_editor: Arc<DatabaseViewEditor>| async move {
+              for loaded_row in loaded_rows.iter() {
+                view_editor
+                  .row_by_row_id
+                  .insert(loaded_row.id.to_string(), loaded_row.clone());
+              }
+
               if view_editor.has_filters().await {
                 trace!("[Database]: filtering rows:{}", loaded_rows.len());
                 view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
@@ -1522,11 +1485,8 @@ impl DatabaseEditor {
               None => break,
               Some(database) => {
                 for lazy_row in chunk_row_orders {
-                  if let Some(database_row) = database
-                    .read()
-                    .await
-                    .init_database_row(lazy_row.row_id())
-                    .await
+                  if let Some(database_row) =
+                    database.read().await.init_database_row(&lazy_row.id).await
                   {
                     if let Some(row) = database_row.read().await.get_row() {
                       loaded_rows.push(Arc::new(row));
@@ -1546,6 +1506,9 @@ impl DatabaseEditor {
 
           info!("[Database]: Finish loading rows: {}", loaded_rows.len());
           apply_filter_and_sort(loaded_rows.clone(), view_editor).await;
+          if let Some(notify_finish) = notify_finish {
+            let _ = notify_finish.send(());
+          }
         });
 
         Ok::<_, FlowyError>(DatabasePB {
