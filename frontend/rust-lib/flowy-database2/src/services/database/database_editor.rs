@@ -260,6 +260,12 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn rename_group(&self, view_id: &str, changeset: GroupChangeset) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
+    view_editor.v_rename_group(changeset).await?;
+    Ok(())
+  }
+
   pub async fn modify_view_filters(
     &self,
     view_id: &str,

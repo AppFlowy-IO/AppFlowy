@@ -71,17 +71,21 @@ impl GroupController for DefaultGroupController {
     Ok(())
   }
 
-  fn did_create_row(&mut self, row: &Row, index: u32) -> Vec<GroupRowsNotificationPB> {
-    self.group.add_row((*row).clone());
+  async fn did_create_row(
+    &mut self,
+    row: &Row,
+    index: u32,
+  ) -> Option<Vec<GroupRowsNotificationPB>> {
+    self.group.insert_row(index as usize, row.clone());
 
-    vec![GroupRowsNotificationPB::insert(
+    Some(vec![GroupRowsNotificationPB::insert(
       self.group.id.clone(),
       vec![InsertedRowPB {
         row_meta: (*row).clone().into(),
         index: Some(index as i32),
         is_new: true,
       }],
-    )]
+    )])
   }
 
   fn did_update_group_row(
@@ -135,6 +139,13 @@ impl GroupController for DefaultGroupController {
     _changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)> {
     Ok((Vec::new(), None))
+  }
+
+  async fn apply_group_rename(
+    &mut self,
+    _changeset: &GroupChangeset,
+  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)> {
+    Ok((GroupPB::default(), None))
   }
 
   fn will_create_row(&self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}

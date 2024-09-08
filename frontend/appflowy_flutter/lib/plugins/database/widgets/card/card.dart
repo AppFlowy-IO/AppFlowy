@@ -151,13 +151,11 @@ class _RowCardState extends State<RowCard> {
       triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(140, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
-      popupBuilder: (_) {
-        return RowActionMenu.board(
-          viewId: _cardBloc.viewId,
-          rowId: _cardBloc.rowController.rowId,
-          groupId: widget.groupId,
-        );
-      },
+      popupBuilder: (_) => RowActionMenu.board(
+        viewId: _cardBloc.viewId,
+        rowId: _cardBloc.rowController.rowId,
+        groupId: widget.groupId,
+      ),
       child: RowCardContainer(
         buildAccessoryWhen: () => state.isEditing == false,
         accessories: accessories ?? [],

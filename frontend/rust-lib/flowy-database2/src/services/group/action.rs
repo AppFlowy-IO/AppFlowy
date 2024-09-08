@@ -137,7 +137,8 @@ pub trait GroupController: Send + Sync {
   /// Returns a changeset payload to be sent as a notification.
   ///
   /// * `row_detail`: the newly-created row
-  fn did_create_row(&mut self, row: &Row, index: u32) -> Vec<GroupRowsNotificationPB>;
+  async fn did_create_row(&mut self, row: &Row, index: u32)
+    -> Option<Vec<GroupRowsNotificationPB>>;
 
   /// Called after a row's cell data is changed, this moves the row to the
   /// correct group. It may also insert a new group and/or remove an old group.
@@ -191,6 +192,16 @@ pub trait GroupController: Send + Sync {
     &mut self,
     changesets: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)>;
+
+  /// Updates the name of a group.
+  ///
+  /// Returns a non-empty `TypeOptionData` when the change require a change
+  /// in the field type option data.
+  ///
+  async fn apply_group_rename(
+    &mut self,
+    changeset: &GroupChangeset,
+  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)>;
 
   /// Called before the row was created.
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);

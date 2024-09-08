@@ -1,12 +1,13 @@
 import { PublishContext, usePublishContext } from '@/application/publish';
 import { View } from '@/application/types';
-import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import SpaceIcon from '@/components/publish/header/SpaceIcon';
 import { renderColor } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
+import { Tooltip } from '@mui/material';
 import React, { useCallback, useContext, useEffect } from 'react';
 import { ReactComponent as ChevronDownIcon } from '@/assets/chevron_down.svg';
+import { ReactComponent as PublishIcon } from '@/assets/publish.svg';
 import { useTranslation } from 'react-i18next';
 
 function OutlineItem ({ view, level = 0, width }: { view: View; width: number; level?: number }) {
@@ -53,7 +54,9 @@ function OutlineItem ({ view, level = 0, width }: { view: View; width: number; l
   const { t } = useTranslation();
 
   const navigateToView = useContext(PublishContext)?.toView;
-  const renderItem = (item: View) => {
+  const [hovered, setHovered] = React.useState(false);
+
+  const renderItem = useCallback((item: View) => {
     const { icon, layout, name, view_id, extra } = item;
 
     const isSpace = extra?.is_space;
@@ -70,18 +73,26 @@ function OutlineItem ({ view, level = 0, width }: { view: View; width: number; l
           }
         >
           {item.children?.length ? getIcon() : null}
+
           <div
             onClick={async () => {
+              if (isSpace || !item.is_published) {
+                setIsExpanded(prev => !prev);
+                return;
+              }
+
               try {
                 await navigateToView?.(view_id);
               } catch (e) {
-                notify.default(t('publish.hasNotBeenPublished'));
+                // do nothing
               }
             }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
             style={{
               paddingLeft: item.children?.length ? 0 : 1.125 * (level + 1) + 'rem',
             }}
-            className={'flex flex-1 cursor-pointer items-center gap-1.5 overflow-hidden'}
+            className={`flex flex-1 cursor-pointer select-none items-center gap-1.5 overflow-hidden`}
           >
             {isSpace && extra ?
               <span
@@ -100,14 +111,32 @@ function OutlineItem ({ view, level = 0, width }: { view: View; width: number; l
               </div>
             }
 
-            <div className={'flex-1 truncate'}>{name}</div>
+            <Tooltip title={name} enterDelay={1000} enterNextDelay={1000}>
+              <div className={'flex-1 truncate'}>{name}</div>
+            </Tooltip>
+            {hovered && !item.is_published && !isSpace && (
+              <Tooltip
+                disableInteractive
+                title={isSpace ? t('publish.spaceHasNotBeenPublished') : t('publish.hasNotBeenPublished')}
+              >
+                <div
+                  className={'text-text-caption ml-2 mr-4 cursor-pointer hover:bg-fill-list-hover rounded h-5 w-5 flex items-center justify-center'}
+                >
+                  <PublishIcon className={'h-4 w-4'} />
+                </div>
+              </Tooltip>
+            )}
           </div>
         </div>
       </div>
     );
-  };
+  }, [hovered, getIcon, level, navigateToView, selected, t, width]);
 
   const children = view.children || [];
+
+  if (!children.length && !view.is_published) {
+    return null;
+  }
 
   return (
     <div className={'flex h-fit w-full flex-col'}>

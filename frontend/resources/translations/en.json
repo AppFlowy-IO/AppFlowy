@@ -942,7 +942,7 @@
       "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
@@ -2251,16 +2251,17 @@
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
-        "description": "Permanently delete your account and remove access from all teamspaces.",
+        "description": "Permanently delete your account and remove access from all workspaces.",
         "deleteMyAccount": "Delete my account",
         "dialogTitle": "Delete account",
         "dialogContent1": "Are you sure you want to permanently delete your account?",
-        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
-        "confirmHint1": "Please type in your email address to confirm.",
+        "dialogContent2": "This action cannot be undone, and will remove access from all workspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
+        "confirmHint1": "Please type \"DELETE MY ACCOUNT\" to confirm.",
         "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
+        "confirmHint3": "DELETE MY ACCOUNT",
         "checkToConfirmError": "You must check the box to confirm deletion",
         "failedToGetCurrentUser": "Failed to get current user email",
-        "emailValidationFailed": "Your email address does not match the account email address",
+        "confirmTextValidationFailed": "Your confirmation text does not match \"DELETE MY ACCOUNT\"",
         "deleteAccountSuccess": "Account deleted successfully"
       }
     },
@@ -2304,7 +2305,7 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
     "doNotAllow": "Don't Allow",
@@ -2360,6 +2361,7 @@
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
+    "spaceHasNotBeenPublished": "Haven't supported publishing a space yet",
     "reportPage": "Report page",
     "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
     "createdWith": "Created with",
@@ -2393,8 +2395,8 @@
     "duplicateTitle": "Where would you like to add",
     "selectWorkspace": "Select a workspace",
     "addTo": "Add to",
-    "duplicateSuccessfully": "Duplicated success. Want to view documents?",
-    "duplicateSuccessfullyDescription": "Don't have the app? Your download will begin automatically after clicking the 'Download'.",
+    "duplicateSuccessfully": "Added to your workspace",
+    "duplicateSuccessfullyDescription": "Don't have AppFlowy installed? The download will start automatically after you click 'Download'.",
     "downloadIt": "Download",
     "openApp": "Open in app",
     "duplicateFailed": "Duplicated failed",
@@ -2403,7 +2405,8 @@
       "one": "1 member",
       "many": "{count} members",
       "other": "{count} members"
-    }
+    },
+    "useThisTemplate": "Use the template"
   },
   "web": {
     "continue": "Continue",
@@ -2411,6 +2414,9 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
+    "continueWithApple": "Continue with Apple ",
+    "moreOptions": "More options",
+    "collapse": "Collapse",
     "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
@@ -2534,5 +2540,15 @@
     "uploadSuccessDescription": "The file has been uploaded successfully",
     "uploadFailedDescription": "The file upload failed",
     "uploadingDescription": "The file is being uploaded"
+  },
+  "gallery": {
+    "preview": "Open in full screen",
+    "copy": "Copy",
+    "download": "Download",
+    "prev": "Previous",
+    "next": "Next",
+    "resetZoom": "Reset zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

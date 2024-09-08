@@ -23,13 +23,11 @@ export function OutlinePopover ({
   drawerWidth: number;
 }) {
   const viewMeta = usePublishContext()?.viewMeta;
-
   const content = useMemo(() => {
     return (
       <div
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-
         className={'flex h-fit max-h-[590px] flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}
       >
         <Outline width={drawerWidth} />

@@ -1,6 +1,8 @@
+import { PublishViewInfo } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
-import { useCurrentUser } from '@/components/app/app.hooks';
-import { openOrDownload } from '@/components/publish/header/utils';
+import { View } from '@/application/types';
+import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
+import { findAncestors, findView, openOrDownload } from '@/components/publish/header/utils';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { getPlatform } from '@/utils/platform';
 import { Divider, IconButton, Tooltip } from '@mui/material';
@@ -26,29 +28,38 @@ export function PublishViewHeader ({
 }) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
+  const outline = usePublishContext()?.outline;
   const crumbs = useMemo(() => {
-    const ancestors = viewMeta?.ancestor_views.slice(1) || [];
+    if (!viewMeta || !outline) return [];
+    const ancestors = findAncestors(outline.children, viewMeta?.view_id);
 
-    return ancestors.map((ancestor) => {
-      let icon;
+    if (ancestors) return ancestors;
+    if (!viewMeta?.ancestor_views) return [];
+    const parseToView = (ancestor: PublishViewInfo): View => {
+      let extra = null;
 
       try {
-        const extra = ancestor?.extra ? JSON.parse(ancestor.extra) : {};
-
-        icon = extra.icon?.value || ancestor.icon?.value;
+        extra = ancestor.extra ? JSON.parse(ancestor.extra) : null;
       } catch (e) {
-        // ignore
+        // do nothing
       }
 
       return {
-        viewId: ancestor.view_id,
+        view_id: ancestor.view_id,
         name: ancestor.name,
-        icon: icon,
+        icon: ancestor.icon,
         layout: ancestor.layout,
-        extra: ancestor.extra,
+        extra,
+        is_published: true,
+        children: [],
       };
-    });
-  }, [viewMeta]);
+    };
+
+    const currentView = parseToView(viewMeta);
+
+    return viewMeta?.ancestor_views.slice(1).map(item => findView(outline.children, item.view_id) || parseToView(item)) || [currentView];
+  }, [viewMeta, outline]);
+
   const [openPopover, setOpenPopover] = React.useState(false);
   const isMobile = useMemo(() => {
     return getPlatform().isMobile;
@@ -97,23 +108,19 @@ export function PublishViewHeader ({
     return debounce(handleOpenPopover, 100);
   }, [handleOpenPopover, debounceClosePopover]);
 
-  const currentUser = useCurrentUser();
-
-  const isAppFlowyUser = currentUser?.email?.endsWith('@appflowy.io');
-
   return (
     <div
       style={{
         backdropFilter: 'saturate(180%) blur(16px)',
-        background: 'var(--header)',
+        background: 'var(--bg-header)',
         height: HEADER_HEIGHT,
       }}
-      className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}
+      className={'appflowy-top-bar transform-gpu sticky top-0 z-10 flex px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-4 overflow-hidden'}>
-        {!openDrawer && (
+        {!openDrawer && !isMobile && (
           <OutlinePopover
-            {...isMobile ? undefined : {
+            {...{
               onMouseEnter: handleOpenPopover,
               onMouseLeave: debounceClosePopover,
             }}
@@ -122,11 +129,7 @@ export function PublishViewHeader ({
             drawerWidth={drawerWidth}
           >
             <IconButton
-              {...isMobile ? {
-                onTouchEnd: () => {
-                  setOpenPopover(prev => !prev);
-                },
-              } : {
+              {...{
                 onMouseEnter: debounceOpenPopover,
                 onMouseLeave: debounceClosePopover,
                 onClick: () => {
@@ -136,19 +139,20 @@ export function PublishViewHeader ({
               }}
 
             >
-              <SideOutlined className={'h-4 w-4'} />
+              <SideOutlined className={'h-4 w-4 text-text-caption'} />
             </IconButton>
           </OutlinePopover>
         )}
 
         <div className={'h-full flex-1 overflow-hidden'}>
-          <Breadcrumb crumbs={crumbs} />
+          {!viewMeta ? <div className={'h-[48px] flex items-center'}><BreadcrumbSkeleton /></div> : <Breadcrumb
+            crumbs={crumbs}
+          />}
         </div>
 
         <div className={'flex items-center gap-2'}>
-
           <MoreActions />
-          {isAppFlowyUser && <Duplicate />}
+          <Duplicate />
           <Divider
             orientation={'vertical'}
             className={'mx-2'}

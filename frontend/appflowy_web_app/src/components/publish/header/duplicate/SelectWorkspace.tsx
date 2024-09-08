@@ -15,7 +15,7 @@ export interface SelectWorkspaceProps {
   loading?: boolean;
 }
 
-function stringAvatar(name: string) {
+function stringAvatar (name: string) {
   return {
     sx: {
       bgcolor: stringToColor(name),
@@ -24,7 +24,7 @@ function stringAvatar(name: string) {
   };
 }
 
-function SelectWorkspace({ loading, value, onChange, workspaceList }: SelectWorkspaceProps) {
+function SelectWorkspace ({ loading, value, onChange, workspaceList }: SelectWorkspaceProps) {
   const { t } = useTranslation();
   const email = useContext(AFConfigContext)?.currentUser?.email || '';
   const selectedWorkspace = useMemo(() => {
@@ -58,7 +58,7 @@ function SelectWorkspace({ loading, value, onChange, workspaceList }: SelectWork
         </div>
       );
     },
-    [t]
+    [t],
   );
 
   return (
@@ -120,6 +120,7 @@ function SelectWorkspace({ loading, value, onChange, workspaceList }: SelectWork
                     onClick={() => {
                       onChange?.(workspace.id);
                       setSelectOpen(false);
+                      localStorage.setItem('duplicate_selected_workspace', workspace.id);
                     }}
                     className={'w-full px-3 py-2'}
                     variant={'text'}

@@ -52,6 +52,10 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
+  signInApple (_params: { redirectTo: string }): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
   signInMagicLink (_params: { email: string; redirectTo: string }): Promise<void> {
     return Promise.reject('Method not implemented');
   }

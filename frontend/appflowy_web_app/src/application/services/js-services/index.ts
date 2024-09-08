@@ -192,6 +192,11 @@ export class AFClientService implements AFService {
   }
 
   @withSignIn()
+  async signInApple (_: { redirectTo: string }) {
+    return APIService.signInApple(AUTH_CALLBACK_URL);
+  }
+
+  @withSignIn()
   async signInGithub (_: { redirectTo: string }) {
     return APIService.signInGithub(AUTH_CALLBACK_URL);
   }

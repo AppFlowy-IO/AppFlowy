@@ -47,9 +47,13 @@ export function useDuplicate () {
 }
 
 export function useLoadWorkspaces () {
+  const currentUser = useContext(AFConfigContext)?.currentUser;
+  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated && Boolean(currentUser) || false;
   const [spaceLoading, setSpaceLoading] = useState<boolean>(false);
   const [workspaceLoading, setWorkspaceLoading] = useState<boolean>(false);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>('');
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>(() => {
+    return localStorage.getItem('duplicate_selected_workspace') || '';
+  });
   const [selectedSpaceId, setSelectedSpaceId] = useState<string>('');
 
   const [workspaceList, setWorkspaceList] = useState<Workspace[]>([]);
@@ -59,13 +63,17 @@ export function useLoadWorkspaces () {
   const service = useContext(AFConfigContext)?.service;
 
   const loadWorkspaces = useCallback(async () => {
+    if (!isAuthenticated) return;
     setWorkspaceLoading(true);
     try {
       const workspaces = await service?.getWorkspaces();
 
       if (workspaces) {
         setWorkspaceList(workspaces);
-        setSelectedWorkspaceId(workspaces[0].id);
+        setSelectedWorkspaceId(prev => {
+          if (!prev || !workspaces.find(item => item.id === prev)) return workspaces[0].id;
+          return prev;
+        });
       } else {
         setWorkspaceList([]);
         setSelectedWorkspaceId('');
@@ -75,10 +83,11 @@ export function useLoadWorkspaces () {
     } finally {
       setWorkspaceLoading(false);
     }
-  }, [service]);
+  }, [service, isAuthenticated]);
 
   const loadSpaces = useCallback(
     async (selectedWorkspaceId: string) => {
+      if (!isAuthenticated) return;
       setSpaceLoading(true);
       try {
         const folder = await service?.getWorkspaceFolder(selectedWorkspaceId);
@@ -108,7 +117,7 @@ export function useLoadWorkspaces () {
         setSpaceLoading(false);
       }
     },
-    [service],
+    [service, isAuthenticated],
   );
 
   return {

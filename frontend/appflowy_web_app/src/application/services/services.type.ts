@@ -51,6 +51,7 @@ export interface PublishService {
   signInGoogle: (params: { redirectTo: string }) => Promise<void>;
   signInGithub: (params: { redirectTo: string }) => Promise<void>;
   signInDiscord: (params: { redirectTo: string }) => Promise<void>;
+  signInApple: (params: { redirectTo: string }) => Promise<void>;
 
   getWorkspaces: () => Promise<Workspace[]>;
   getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;

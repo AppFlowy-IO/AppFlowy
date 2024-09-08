@@ -39,8 +39,13 @@ export interface DuplicatePublishView {
   viewId: string;
 }
 
+export enum ViewIconType {
+  Emoji = 0,
+  Icon = 1,
+}
+
 export interface ViewIcon {
-  ty: number;
+  ty: ViewIconType;
   value: string;
 }
 
@@ -59,4 +64,5 @@ export interface View {
   layout: ViewLayout;
   extra: ViewExtra | null;
   children: View[];
+  is_published: boolean;
 }

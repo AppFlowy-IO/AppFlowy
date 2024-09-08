@@ -69,8 +69,10 @@ class _MobileBoardPageState extends State<MobileBoardPage> {
           loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
-          error: (err) => AppFlowyErrorPage(
-            error: err.error,
+          error: (err) => Center(
+            child: AppFlowyErrorPage(
+              error: err.error,
+            ),
           ),
           ready: (data) => const _BoardContent(),
           orElse: () => const SizedBox.shrink(),
