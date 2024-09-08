@@ -1,16 +1,19 @@
+use async_trait::async_trait;
+use collab::preclude::encoding::serde::from_any;
+use collab::preclude::Any;
+use collab::util::AnyMapExt;
+use collab_database::database::Database;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
+use fancy_regex::Regex;
+use flowy_error::FlowyResult;
+use lazy_static::lazy_static;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Deserializer, Serialize};
 use std::cmp::Ordering;
 use std::default::Default;
 use std::str::FromStr;
-
-use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::{new_cell_builder, Cell};
-use fancy_regex::Regex;
-use lazy_static::lazy_static;
-use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
-
-use flowy_error::FlowyResult;
+use tracing::info;
 
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
@@ -25,10 +28,22 @@ use crate::services::sort::SortCondition;
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NumberTypeOption {
+  #[serde(default, deserialize_with = "number_format_from_i64")]
   pub format: NumberFormat,
+  #[serde(default)]
   pub scale: u32,
+  #[serde(default)]
   pub symbol: String,
+  #[serde(default)]
   pub name: String,
+}
+
+fn number_format_from_i64<'de, D>(deserializer: D) -> Result<NumberFormat, D::Error>
+where
+  D: Deserializer<'de>,
+{
+  let value = i64::deserialize(deserializer)?;
+  Ok(NumberFormat::from(value))
 }
 
 #[derive(Clone, Debug, Default)]
@@ -40,17 +55,23 @@ impl TypeOptionCellData for NumberCellData {
   }
 }
 
+impl AsRef<str> for NumberCellData {
+  fn as_ref(&self) -> &str {
+    &self.0
+  }
+}
+
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
+    Self(cell.get_as(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<NumberCellData> for Cell {
   fn from(data: NumberCellData) -> Self {
-    new_cell_builder(FieldType::Number)
-      .insert_str_value(CELL_DATA, data.0)
-      .build()
+    let mut cell = new_cell_builder(FieldType::Number);
+    cell.insert(CELL_DATA.into(), data.0.into());
+    cell
   }
 }
 
@@ -75,30 +96,18 @@ impl TypeOption for NumberTypeOption {
 
 impl From<TypeOptionData> for NumberTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let format = data
-      .get_i64_value("format")
-      .map(NumberFormat::from)
-      .unwrap_or_default();
-    let scale = data.get_i64_value("scale").unwrap_or_default() as u32;
-    let symbol = data.get_str_value("symbol").unwrap_or_default();
-    let name = data.get_str_value("name").unwrap_or_default();
-    Self {
-      format,
-      scale,
-      symbol,
-      name,
-    }
+    from_any(&Any::from(data)).unwrap()
   }
 }
 
 impl From<NumberTypeOption> for TypeOptionData {
   fn from(data: NumberTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_i64_value("format", data.format.value())
-      .insert_i64_value("scale", data.scale as i64)
-      .insert_str_value("name", data.name)
-      .insert_str_value("symbol", data.symbol)
-      .build()
+    TypeOptionDataBuilder::from([
+      ("format".into(), Any::BigInt(data.format.value())),
+      ("scale".into(), Any::BigInt(data.scale as i64)),
+      ("name".into(), data.name.into()),
+      ("symbol".into(), data.symbol.into()),
+    ])
   }
 }
 
@@ -120,21 +129,21 @@ impl NumberTypeOption {
     Self::default()
   }
 
-  fn format_cell_data(&self, num_cell_data: &NumberCellData) -> FlowyResult<NumberCellFormat> {
+  fn format_cell_data<T: AsRef<str>>(&self, num_cell_data: T) -> FlowyResult<NumberCellFormat> {
     match self.format {
       NumberFormat::Num => {
         if SCIENTIFIC_NOTATION_REGEX
-          .is_match(&num_cell_data.0)
+          .is_match(num_cell_data.as_ref())
           .unwrap()
         {
-          match Decimal::from_scientific(&num_cell_data.0.to_lowercase()) {
+          match Decimal::from_scientific(&num_cell_data.as_ref().to_lowercase()) {
             Ok(value, ..) => Ok(NumberCellFormat::from_decimal(value)),
             Err(_) => Ok(NumberCellFormat::new()),
           }
         } else {
           // Test the input string is start with dot and only contains number.
           // If it is, add a 0 before the dot. For example, ".123" -> "0.123"
-          let num_str = match START_WITH_DOT_NUM_REGEX.captures(&num_cell_data.0) {
+          let num_str = match START_WITH_DOT_NUM_REGEX.captures(num_cell_data.as_ref()) {
             Ok(Some(captures)) => match captures.get(0).map(|m| m.as_str().to_string()) {
               Some(s) => {
                 format!("0{}", s)
@@ -144,7 +153,7 @@ impl NumberTypeOption {
             // Extract the number from the string.
             // For example, "123abc" -> "123". check out the number_type_option_input_test test for
             // more examples.
-            _ => match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
+            _ => match EXTRACT_NUM_REGEX.captures(num_cell_data.as_ref()) {
               Ok(Some(captures)) => captures
                 .get(0)
                 .map(|m| m.as_str().to_string())
@@ -161,7 +170,7 @@ impl NumberTypeOption {
       },
       _ => {
         // If the format is not number, use the format string to format the number.
-        NumberCellFormat::from_format_str(&num_cell_data.0, &self.format)
+        NumberCellFormat::from_format_str(num_cell_data.as_ref(), &self.format)
       },
     }
   }
@@ -172,21 +181,77 @@ impl NumberTypeOption {
   }
 }
 
-impl TypeOptionTransform for NumberTypeOption {}
+#[async_trait]
+impl TypeOptionTransform for NumberTypeOption {
+  async fn transform_type_option(
+    &mut self,
+    view_id: &str,
+    field_id: &str,
+    old_type_option_field_type: FieldType,
+    _old_type_option_data: TypeOptionData,
+    _new_type_option_field_type: FieldType,
+    database: &mut Database,
+  ) {
+    match old_type_option_field_type {
+      FieldType::RichText => {
+        let rows = database
+          .get_cells_for_field(view_id, field_id)
+          .await
+          .into_iter()
+          .filter_map(|row| row.cell.map(|cell| (row.row_id, cell)))
+          .collect::<Vec<_>>();
+
+        info!(
+          "Transforming RichText to NumberTypeOption, updating {} row's cell content",
+          rows.len()
+        );
+        for (row_id, cell_data) in rows {
+          if let Ok(num_cell) = self
+            .parse_cell(&cell_data)
+            .and_then(|num_cell_data| self.format_cell_data(num_cell_data))
+          {
+            database
+              .update_row(row_id, |row| {
+                row.update_cells(|cell| {
+                  cell.insert(field_id, NumberCellData::from(num_cell.to_string()));
+                });
+              })
+              .await;
+          }
+        }
+      },
+      _ => {
+        // do nothing
+      },
+    }
+  }
+}
 
 impl CellDataDecoder for NumberTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     let num_cell_data = self.parse_cell(cell)?;
     Ok(NumberCellData::from(
-      self.format_cell_data(&num_cell_data)?.to_string(),
+      self.format_cell_data(num_cell_data)?.to_string(),
     ))
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    match self.format_cell_data(&cell_data) {
+    match self.format_cell_data(cell_data) {
       Ok(cell_data) => cell_data.to_string(),
       Err(_) => "".to_string(),
     }
+  }
+
+  fn decode_cell_with_transform(
+    &self,
+    cell: &Cell,
+    _from_field_type: FieldType,
+    _field: &Field,
+  ) -> Option<<Self as TypeOption>::CellData> {
+    let num_cell = Self::CellData::from(cell);
+    Some(Self::CellData::from(
+      self.format_cell_data(num_cell).ok()?.to_string(),
+    ))
   }
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {

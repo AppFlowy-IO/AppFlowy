@@ -70,6 +70,7 @@ Future<T?> showMobileBottomSheet<T>(
   backgroundColor ??= Theme.of(context).brightness == Brightness.light
       ? const Color(0xFFF7F8FB)
       : const Color(0xFF23262B);
+  barrierColor ??= Colors.black.withOpacity(0.3);
 
   return showModalBottomSheet<T>(
     context: context,
@@ -226,10 +227,14 @@ class BottomSheetHeader extends StatelessWidget {
                 ),
               ),
             Align(
-              child: FlowyText(
-                title,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 250),
+                child: FlowyText(
+                  title,
+                  fontSize: 17.0,
+                  fontWeight: FontWeight.w500,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
             if (showDoneButton)

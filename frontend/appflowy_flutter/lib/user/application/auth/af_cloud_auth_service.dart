@@ -121,6 +121,8 @@ extension ProviderTypePBExtension on ProviderTypePB {
         return ProviderTypePB.Google;
       case 'discord':
         return ProviderTypePB.Discord;
+      case 'apple':
+        return ProviderTypePB.Apple;
       default:
         throw UnimplementedError();
     }

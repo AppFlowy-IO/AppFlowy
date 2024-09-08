@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Datelike, Days, Duration, Local, NaiveDateTime};
 use collab_database::database::timestamp;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
@@ -53,15 +53,14 @@ pub type DateGroupController =
 
 pub type DateGroupControllerContext = GroupControllerContext<DateGroupConfiguration>;
 
+#[async_trait]
 impl GroupCustomize for DateGroupController {
   type GroupTypeOption = DateTypeOption;
 
   fn placeholder_cell(&self) -> Option<Cell> {
-    Some(
-      new_cell_builder(FieldType::DateTime)
-        .insert_str_value("data", "")
-        .build(),
-    )
+    let mut cell = new_cell_builder(FieldType::DateTime);
+    cell.insert("data".into(), "".into());
+    Some(cell)
   }
 
   fn can_group(
@@ -74,7 +73,7 @@ impl GroupCustomize for DateGroupController {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    _row_detail: &RowDetail,
+    _row: &Row,
     _old_cell_data: Option<&<Self::GroupTypeOption as TypeOption>::CellProtobufType>,
     _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
@@ -87,7 +86,7 @@ impl GroupCustomize for DateGroupController {
     {
       let group = make_group_from_date_cell(&_cell_data.into(), &setting_content);
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowMetaPB::from(_row_detail));
+      new_group.group.rows.push(RowMetaPB::from(_row.clone()));
       inserted_group = Some(new_group);
     }
 
@@ -120,7 +119,7 @@ impl GroupCustomize for DateGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_detail: &RowDetail,
+    row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
@@ -128,17 +127,15 @@ impl GroupCustomize for DateGroupController {
     self.context.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       if group.id == get_date_group_id(&cell_data.into(), &setting_content) {
-        if !group.contains_row(&row_detail.row.id) {
+        if !group.contains_row(&row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
-          group.add_row(row_detail.clone());
+            .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+          group.add_row(row.clone());
         }
-      } else if group.contains_row(&row_detail.row.id) {
-        group.remove_row(&row_detail.row.id);
-        changeset
-          .deleted_rows
-          .push(row_detail.row.id.clone().into_inner());
+      } else if group.contains_row(&row.id) {
+        group.remove_row(&row.id);
+        changeset.deleted_rows.push(row.id.clone().into_inner());
       }
 
       if !changeset.is_empty() {
@@ -214,7 +211,7 @@ impl GroupCustomize for DateGroupController {
     deleted_group
   }
 
-  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  async fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     self.context.delete_group(group_id)?;
     Ok(None)
   }

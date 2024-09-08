@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart' hide Icon;
+
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
@@ -14,8 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarSpaceHeader extends StatefulWidget {
@@ -64,6 +64,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               .read<SpaceBloc>()
               .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
           child: FlowyHoverContainer(
+            isHovering: isHovered,
             style: style,
             child: _buildSpaceName(),
           ),
@@ -105,20 +106,17 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
   }
 
   Widget _buildChild() {
-    final color = Theme.of(context).isLightMode ? Colors.white : Colors.black;
     final textSpan = TextSpan(
       children: [
         TextSpan(
           text: '${LocaleKeys.space_quicklySwitch.tr()}\n',
-          style:
-              Theme.of(context).tooltipTheme.textStyle!.copyWith(color: color),
+          style: context.tooltipTextStyle(),
         ),
         TextSpan(
           text: Platform.isMacOS ? '⌘+O' : 'Ctrl+O',
-          style: Theme.of(context)
-              .tooltipTheme
-              .textStyle!
-              .copyWith(color: Theme.of(context).hintColor),
+          style: context
+              .tooltipTextStyle()
+              ?.copyWith(color: Theme.of(context).hintColor),
         ),
       ],
     );
@@ -145,20 +143,23 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               onAction: _onAction,
             ),
             const HSpace(8.0),
-            ViewAddButton(
-              parentViewId: widget.space.id,
-              onEditing: (_) {},
-              onSelected: (
-                pluginBuilder,
-                name,
-                initialDataBytes,
-                openAfterCreated,
-                createNewView,
-              ) {
-                if (createNewView) {
-                  widget.onAdded(pluginBuilder.layoutType!);
-                }
-              },
+            FlowyTooltip(
+              message: LocaleKeys.sideBar_addAPage.tr(),
+              child: ViewAddButton(
+                parentViewId: widget.space.id,
+                onEditing: (_) {},
+                onSelected: (
+                  pluginBuilder,
+                  name,
+                  initialDataBytes,
+                  openAfterCreated,
+                  createNewView,
+                ) {
+                  if (createNewView) {
+                    widget.onAdded(pluginBuilder.layoutType!);
+                  }
+                },
+              ),
             ),
           ],
         ),
@@ -172,8 +173,19 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         await _showRenameDialog();
         break;
       case SpaceMoreActionType.changeIcon:
-        final (String icon, String iconColor) = data;
-        context.read<SpaceBloc>().add(SpaceEvent.changeIcon(icon, iconColor));
+        final (IconGroup? group, Icon? icon, String? iconColor) = data;
+
+        final groupName = group?.name;
+        final iconName = icon?.name;
+        final name = groupName != null && iconName != null
+            ? '$groupName/$iconName'
+            : null;
+        context.read<SpaceBloc>().add(
+              SpaceEvent.changeIcon(
+                name,
+                iconColor,
+              ),
+            );
         break;
       case SpaceMoreActionType.manage:
         _showManageSpaceDialog(context);

@@ -16,13 +16,10 @@ class AppFlowyCloudPage extends StatelessWidget {
       appBar: FlowyAppBar(
         titleText: LocaleKeys.settings_menu_cloudSettings.tr(),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: SettingCloud(
-          restartAppFlowy: () async {
-            await runAppFlowy();
-          },
-        ),
+      body: SettingCloud(
+        restartAppFlowy: () async {
+          await runAppFlowy();
+        },
       ),
     );
   }

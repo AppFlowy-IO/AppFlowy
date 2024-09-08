@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -33,9 +34,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -197,6 +196,7 @@ class HomeSideBar extends StatelessWidget {
                               userProfile,
                               state.currentWorkspace?.workspaceId ??
                                   workspaceSetting.workspaceId,
+                              true,
                             ),
                           );
                     }
@@ -277,7 +277,6 @@ class _SidebarState extends State<_Sidebar> {
   @override
   Widget build(BuildContext context) {
     const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 8);
-    final userState = context.read<UserWorkspaceBloc>().state;
     return MouseRegion(
       onEnter: (_) => _isHovered.value = true,
       onExit: (_) => _isHovered.value = false,
@@ -299,15 +298,19 @@ class _SidebarState extends State<_Sidebar> {
               ),
             ),
             // user or workspace, setting
-            Container(
-              height: HomeSizes.workspaceSectionHeight,
-              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-              child:
-                  // if the workspaces are empty, show the user profile instead
-                  userState.isCollabWorkspaceOn &&
-                          userState.workspaces.isNotEmpty
-                      ? SidebarWorkspace(userProfile: widget.userProfile)
-                      : SidebarUser(userProfile: widget.userProfile),
+            BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+              builder: (context, state) {
+                return Container(
+                  height: HomeSizes.workspaceSectionHeight,
+                  padding:
+                      menuHorizontalInset - const EdgeInsets.only(right: 6),
+                  child:
+                      // if the workspaces are empty, show the user profile instead
+                      state.isCollabWorkspaceOn && state.workspaces.isNotEmpty
+                          ? SidebarWorkspace(userProfile: widget.userProfile)
+                          : SidebarUser(userProfile: widget.userProfile),
+                );
+              },
             ),
             if (FeatureFlag.search.isOn) ...[
               const VSpace(6),
@@ -332,10 +335,7 @@ class _SidebarState extends State<_Sidebar> {
                     child: child,
                   );
                 },
-                child: const Divider(
-                  color: Color(0x141F2329),
-                  height: 0.5,
-                ),
+                child: const FlowyDivider(),
               ),
             ),
 
@@ -345,7 +345,7 @@ class _SidebarState extends State<_Sidebar> {
             Padding(
               padding: menuHorizontalInset +
                   const EdgeInsets.symmetric(horizontal: 4.0),
-              child: const Divider(height: 0.5, color: Color(0x141F2329)),
+              child: const FlowyDivider(),
             ),
             const VSpace(8),
 
@@ -358,9 +358,6 @@ class _SidebarState extends State<_Sidebar> {
               child: const SidebarFooter(),
             ),
             const VSpace(14),
-
-            // toast
-            // const SidebarToast(),
           ],
         ),
       ),
@@ -405,13 +402,16 @@ class _SidebarState extends State<_Sidebar> {
         : Expanded(
             child: Padding(
               padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(right: 6),
+              child: FlowyScrollbar(
                 controller: _scrollController,
-                physics: const ClampingScrollPhysics(),
-                child: SidebarSpace(
-                  userProfile: widget.userProfile,
-                  isHoverEnabled: !_isScrolling,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(right: 6),
+                  controller: _scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  child: SidebarSpace(
+                    userProfile: widget.userProfile,
+                    isHoverEnabled: !_isScrolling,
+                  ),
                 ),
               ),
             ),
@@ -457,12 +457,28 @@ class _SidebarSearchButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: () => CommandPalette.of(context).toggle(),
-      leftIcon: const FlowySvg(FlowySvgs.search_s),
-      iconPadding: 12.0,
-      margin: const EdgeInsets.only(left: 8.0),
-      text: FlowyText.regular(LocaleKeys.search_label.tr()),
+    return FlowyTooltip(
+      richMessage: TextSpan(
+        children: [
+          TextSpan(
+            text: '${LocaleKeys.search_sidebarSearchIcon.tr()}\n',
+            style: context.tooltipTextStyle(),
+          ),
+          TextSpan(
+            text: Platform.isMacOS ? '⌘+P' : 'Ctrl+P',
+            style: context
+                .tooltipTextStyle()
+                ?.copyWith(color: Theme.of(context).hintColor),
+          ),
+        ],
+      ),
+      child: FlowyButton(
+        onTap: () => CommandPalette.of(context).toggle(),
+        leftIcon: const FlowySvg(FlowySvgs.search_s),
+        iconPadding: 12.0,
+        margin: const EdgeInsets.only(left: 8.0),
+        text: FlowyText.regular(LocaleKeys.search_label.tr()),
+      ),
     );
   }
 }

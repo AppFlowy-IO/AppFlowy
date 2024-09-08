@@ -38,6 +38,8 @@ class FlowyTextField extends StatefulWidget {
   final bool isDense;
   final bool readOnly;
   final Color? enableBorderColor;
+  final BorderRadius? borderRadius;
+  final Function(PointerDownEvent)? onTapOutside;
 
   const FlowyTextField({
     super.key,
@@ -74,6 +76,8 @@ class FlowyTextField extends StatefulWidget {
     this.isDense = true,
     this.readOnly = false,
     this.enableBorderColor,
+    this.borderRadius,
+    this.onTapOutside,
   });
 
   @override
@@ -159,6 +163,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: _onSubmitted,
       onEditingComplete: widget.onEditingComplete,
+      onTapOutside: widget.onTapOutside,
       minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
@@ -180,7 +185,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
                   (widget.maxLines == null || widget.maxLines! > 1) ? 12 : 0,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: Corners.s8Border,
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
               borderSide: BorderSide(
                 color: widget.enableBorderColor ??
                     Theme.of(context).colorScheme.outline,
@@ -202,7 +207,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             suffixText: widget.showCounter ? _suffixText() : "",
             counterText: "",
             focusedBorder: OutlineInputBorder(
-              borderRadius: Corners.s8Border,
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
               borderSide: BorderSide(
                 color: widget.readOnly
                     ? widget.enableBorderColor ??
@@ -214,13 +219,13 @@ class FlowyTextFieldState extends State<FlowyTextField> {
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
               ),
-              borderRadius: Corners.s8Border,
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
               ),
-              borderRadius: Corners.s8Border,
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
             ),
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.suffixIcon,

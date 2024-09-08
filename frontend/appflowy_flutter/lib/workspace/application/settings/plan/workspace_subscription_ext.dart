@@ -4,7 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbserver.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-extension SubscriptionLabels on WorkspaceSubscriptionInfoPB {
+extension SubscriptionInfoHelpers on WorkspaceSubscriptionInfoPB {
   String get label => switch (plan) {
         WorkspacePlanPB.FreePlan =>
           LocaleKeys.settings_planPage_planUsage_currentPlan_freeTitle.tr(),
@@ -24,6 +24,14 @@ extension SubscriptionLabels on WorkspaceSubscriptionInfoPB {
           LocaleKeys.settings_planPage_planUsage_currentPlan_teamInfo.tr(),
         _ => 'N/A',
       };
+
+  bool get isBillingPortalEnabled {
+    if (plan != WorkspacePlanPB.FreePlan || addOns.isNotEmpty) {
+      return true;
+    }
+
+    return false;
+  }
 }
 
 extension AllSubscriptionLabels on SubscriptionPlanPB {

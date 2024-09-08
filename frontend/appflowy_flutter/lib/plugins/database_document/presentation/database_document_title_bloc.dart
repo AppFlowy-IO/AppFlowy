@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
@@ -87,6 +89,8 @@ class DatabaseDocumentTitleBloc
       viewId: view.id,
       rowCache: databaseController.rowCache,
     );
+    unawaited(rowController.initialize());
+
     final primaryFieldId =
         await FieldBackendService.getPrimaryField(viewId: view.id).fold(
       (primaryField) => primaryField.id,

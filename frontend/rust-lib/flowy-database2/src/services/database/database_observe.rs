@@ -1,8 +1,9 @@
 use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
 use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
-use crate::services::database::UpdatedRow;
+use crate::services::database::{DatabaseEditor, UpdatedRow};
+use collab::lock::RwLock;
 use collab_database::blocks::BlockEvent;
-use collab_database::database::MutexDatabase;
+use collab_database::database::Database;
 use collab_database::fields::FieldChange;
 use collab_database::rows::{RowChange, RowId};
 use collab_database::views::DatabaseViewChange;
@@ -10,11 +11,11 @@ use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
-use tracing::{trace, warn};
+use tracing::{error, trace, warn};
 
-pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<Database>>) {
   let weak_database = Arc::downgrade(database);
-  let mut sync_state = database.lock().subscribe_sync_state();
+  let mut sync_state = database.read().await.subscribe_sync_state();
   let database_id = database_id.to_string();
   af_spawn(async move {
     while let Some(sync_state) = sync_state.next().await {
@@ -32,16 +33,15 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<MutexDa
   });
 }
 
-#[allow(dead_code)]
 pub(crate) async fn observe_rows_change(
   database_id: &str,
-  database: &Arc<MutexDatabase>,
+  database: &Arc<RwLock<Database>>,
   notification_sender: &Arc<DebounceNotificationSender>,
 ) {
   let notification_sender = notification_sender.clone();
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut row_change = database.lock().subscribe_row_change();
+  let mut row_change = database.read().await.subscribe_row_change();
   af_spawn(async move {
     while let Ok(row_change) = row_change.recv().await {
       if let Some(database) = weak_database.upgrade() {
@@ -59,7 +59,7 @@ pub(crate) async fn observe_rows_change(
             let cell_id = format!("{}:{}", row_id, field_id);
             notify_cell(&notification_sender, &cell_id);
 
-            let views = database.lock().get_all_database_views_meta();
+            let views = database.read().await.get_all_database_views_meta();
             for view in views {
               notify_row(&notification_sender, &view.id, &field_id, &row_id);
             }
@@ -75,10 +75,10 @@ pub(crate) async fn observe_rows_change(
   });
 }
 #[allow(dead_code)]
-pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLock<Database>>) {
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut field_change = database.lock().subscribe_field_change();
+  let mut field_change = database.read().await.subscribe_field_change();
   af_spawn(async move {
     while let Ok(field_change) = field_change.recv().await {
       if weak_database.upgrade().is_none() {
@@ -100,49 +100,87 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<Mutex
 }
 
 #[allow(dead_code)]
-pub(crate) async fn observe_view_change(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
-  let weak_database = Arc::downgrade(database);
-  let mut view_change = database.lock().subscribe_view_change();
+  let weak_database_editor = Arc::downgrade(database_editor);
+  let mut view_change = database_editor
+    .database
+    .read()
+    .await
+    .subscribe_view_change();
   af_spawn(async move {
     while let Ok(view_change) = view_change.recv().await {
-      if weak_database.upgrade().is_none() {
-        break;
-      }
+      match weak_database_editor.upgrade() {
+        None => break,
+        Some(database_editor) => {
+          trace!(
+            "[Database View Observe]: {} view change:{:?}",
+            database_id,
+            view_change
+          );
+          match view_change {
+            DatabaseViewChange::DidCreateView { .. } => {},
+            DatabaseViewChange::DidUpdateView { .. } => {},
+            DatabaseViewChange::DidDeleteView { .. } => {},
+            DatabaseViewChange::LayoutSettingChanged { .. } => {},
+            DatabaseViewChange::DidInsertRowOrders { row_orders } => {
+              trace!("Did insert row orders: {:?}", row_orders);
+              for row in row_orders {
+                if let Err(err) = database_editor.init_database_row(&row.id).await {
+                  error!("Failed to init row: {:?}", err);
+                }
 
-      trace!(
-        "[Database Observe]: {} view change:{:?}",
-        database_id,
-        view_change
-      );
-      match view_change {
-        DatabaseViewChange::DidCreateView { .. } => {},
-        DatabaseViewChange::DidUpdateView { .. } => {},
-        DatabaseViewChange::DidDeleteView { .. } => {},
-        DatabaseViewChange::LayoutSettingChanged { .. } => {},
-        DatabaseViewChange::DidInsertRowOrders { .. } => {},
-        DatabaseViewChange::DidDeleteRowAtIndex { .. } => {},
-        DatabaseViewChange::DidCreateFilters { .. } => {},
-        DatabaseViewChange::DidUpdateFilter { .. } => {},
-        DatabaseViewChange::DidCreateGroupSettings { .. } => {},
-        DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
-        DatabaseViewChange::DidCreateSorts { .. } => {},
-        DatabaseViewChange::DidUpdateSort { .. } => {},
-        DatabaseViewChange::DidCreateFieldOrder { .. } => {},
-        DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
+                for view in database_editor.database_views.editors().await {
+                  if let Some(index) = database_editor.get_row_index(&view.view_id, &row.id).await {
+                    if let Some(row) = database_editor.get_row(&view.view_id, &row.id).await {
+                      view.v_did_create_row(&row, index).await;
+                    }
+                  }
+                }
+              }
+            },
+            DatabaseViewChange::DidDeleteRowAtIndex { .. } => {
+              // for index in index {
+              //   for view in database_editor.database_views.editors().await {
+              //     if let Some(row_order) = database_editor
+              //       .get_row_order_at_index(&view.view_id, index)
+              //       .await
+              //     {
+              //       trace!("Did delete row at index: {:?}", index);
+              //       if let Some(row) = database_editor.get_row(&view.view_id, &row_order.id).await {
+              //         trace!("Did delete row at index2: {:?}", row);
+              //         view.v_did_delete_row(&row).await;
+              //       }
+              //     }
+              //   }
+              // }
+            },
+            DatabaseViewChange::DidCreateFilters { .. } => {},
+            DatabaseViewChange::DidUpdateFilter { .. } => {},
+            DatabaseViewChange::DidCreateGroupSettings { .. } => {},
+            DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
+            DatabaseViewChange::DidCreateSorts { .. } => {},
+            DatabaseViewChange::DidUpdateSort { .. } => {},
+            DatabaseViewChange::DidCreateFieldOrder { .. } => {},
+            DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
+          }
+        },
       }
     }
   });
 }
 
-#[allow(dead_code)]
-pub(crate) async fn observe_block_event(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
-  let weak_database = Arc::downgrade(database);
-  let mut block_event_rx = database.lock().subscribe_block_event();
+  let mut block_event_rx = database_editor
+    .database
+    .read()
+    .await
+    .subscribe_block_event();
+  let database_editor = Arc::downgrade(database_editor);
   af_spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
-      if weak_database.upgrade().is_none() {
+      if database_editor.upgrade().is_none() {
         break;
       }
 

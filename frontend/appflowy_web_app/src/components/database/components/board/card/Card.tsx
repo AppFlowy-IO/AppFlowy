@@ -43,7 +43,7 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
       style={{
         minHeight: '38px',
       }}
-      className='relative flex flex-col gap-2 rounded-lg border border-line-border p-3 text-xs shadow-sm'
+      className="relative shadow-sm flex flex-col gap-2 overflow-hidden rounded-[8px] border border-line-divider p-3 text-xs"
     >
       {showFields.map((field, index) => {
         return <CardField index={index} key={field.fieldId} rowId={rowId} fieldId={field.fieldId} />;

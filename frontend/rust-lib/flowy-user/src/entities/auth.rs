@@ -181,17 +181,16 @@ pub struct OauthProviderDataPB {
   pub oauth_url: String,
 }
 
+#[repr(u8)]
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthenticatorPB {
   Local = 0,
-  Supabase = 1,
   AppFlowyCloud = 2,
 }
 
 impl From<Authenticator> for AuthenticatorPB {
   fn from(auth_type: Authenticator) -> Self {
     match auth_type {
-      Authenticator::Supabase => AuthenticatorPB::Supabase,
       Authenticator::Local => AuthenticatorPB::Local,
       Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
     }
@@ -201,7 +200,6 @@ impl From<Authenticator> for AuthenticatorPB {
 impl From<AuthenticatorPB> for Authenticator {
   fn from(pb: AuthenticatorPB) -> Self {
     match pb {
-      AuthenticatorPB::Supabase => Authenticator::Supabase,
       AuthenticatorPB::Local => Authenticator::Local,
       AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
     }

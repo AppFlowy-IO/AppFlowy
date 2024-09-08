@@ -15,6 +15,7 @@ $today-highlight-bg: transparent;
 
 .rbc-date-cell, .rbc-header {
   min-width: 97px;
+  font-size: 14px;
 }
 
 .rbc-date-cell.rbc-now {
@@ -26,19 +27,27 @@ $today-highlight-bg: transparent;
   }
 }
 
+.rbc-calendar {
+  height: fit-content;
+  @apply w-full overflow-x-scroll;
+  @include mixin.scrollbar-style;
+
+}
+
 .rbc-month-view {
   border: none;
-  @apply h-full overflow-auto;
+  height: fit-content;
 
   .rbc-month-row {
     border: 1px solid var(--line-divider);
     border-top: none;
-    min-width: 700px;
+    min-width: 1200px;
+    @apply max-sm:w-[600vw];
   }
 
-  @include mixin.scrollbar-style;
 
 }
+
 
 .rbc-day-bg + .rbc-day-bg {
   border-left-color: var(--line-divider);
@@ -50,13 +59,22 @@ $today-highlight-bg: transparent;
   top: 0;
   background: var(--bg-body);
   z-index: 50;
-  min-width: 700px;
+  min-width: 1200px;
+
+  @apply max-sm:w-[600vw];
 
   .rbc-header {
     border: none;
     border-bottom: 1px solid var(--line-divider);
     @apply flex items-end py-2 justify-center font-normal text-text-caption bg-bg-body;
 
+  }
+}
+
+html[thumbnail="true"] {
+  .rbc-month-row, .rbc-month-header {
+    width: 100% !important;
+    min-width: 100% !important;
   }
 }
 

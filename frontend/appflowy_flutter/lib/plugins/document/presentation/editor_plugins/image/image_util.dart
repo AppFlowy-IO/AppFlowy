@@ -2,14 +2,17 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/file_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
 Future<String?> saveImageToLocalStorage(String localImagePath) async {
@@ -42,14 +45,6 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
   String localImagePath,
   String documentId,
 ) async {
-  final size = localImagePath.fileSize;
-  if (size == null || size > 10 * 1024 * 1024) {
-    // 10MB
-    return (
-      null,
-      LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr(),
-    );
-  }
   final documentService = DocumentService();
   Log.debug("Uploading image local path: $localImagePath");
   final result = await documentService.uploadFile(
@@ -65,11 +60,60 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
       return (s.url, null);
     },
     (err) {
-      if (err.code == ErrorCode.FileStorageLimitExceeded) {
-        return (null, LocaleKeys.sideBar_storageLimitDialogTitle.tr());
+      final message = Platform.isIOS
+          ? LocaleKeys.sideBar_storageLimitDialogTitleIOS.tr()
+          : LocaleKeys.sideBar_storageLimitDialogTitle.tr();
+      if (err.isStorageLimitExceeded) {
+        return (null, message);
       } else {
         return (null, err.msg);
       }
     },
   );
+}
+
+Future<List<ImageBlockData>> extractAndUploadImages(
+  BuildContext context,
+  List<String?> urls,
+  bool isLocalMode,
+) async {
+  final List<ImageBlockData> images = [];
+
+  bool hasError = false;
+  for (final url in urls) {
+    if (url == null || url.isEmpty) {
+      continue;
+    }
+
+    String? path;
+    String? errorMsg;
+    CustomImageType imageType = CustomImageType.local;
+
+    // If the user is using local authenticator, we save the image to local storage
+    if (isLocalMode) {
+      path = await saveImageToLocalStorage(url);
+    } else {
+      // Else we save the image to cloud storage
+      (path, errorMsg) = await saveImageToCloudStorage(
+        url,
+        context.read<DocumentBloc>().documentId,
+      );
+      imageType = CustomImageType.internal;
+    }
+
+    if (path != null && errorMsg == null) {
+      images.add(ImageBlockData(url: path, type: imageType));
+    } else {
+      hasError = true;
+    }
+  }
+
+  if (context.mounted && hasError) {
+    showSnackBarMessage(
+      context,
+      LocaleKeys.document_imageBlock_error_multipleImagesFailed.tr(),
+    );
+  }
+
+  return images;
 }

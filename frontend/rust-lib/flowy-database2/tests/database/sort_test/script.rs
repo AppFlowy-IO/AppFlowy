@@ -117,10 +117,10 @@ impl DatabaseSortTest {
       },
       SortScript::AssertCellContentOrder { field_id, orders } => {
         let mut cells = vec![];
-        let rows = self.editor.get_rows(&self.view_id).await.unwrap();
-        let field = self.editor.get_field(&field_id).unwrap();
-        for row_detail in rows {
-          if let Some(cell) = row_detail.row.cells.get(&field_id) {
+        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
+        for row in rows {
+          if let Some(cell) = row.cells.get(&field_id) {
             let content = stringify_cell(cell, &field);
             cells.push(content);
           } else {

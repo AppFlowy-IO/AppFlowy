@@ -64,11 +64,7 @@ class MobileHomeTrashPage extends StatelessWidget {
               ],
             ),
             body: state.objects.isEmpty
-                ? FlowyMobileStateContainer.info(
-                    emoji: '🗑️',
-                    title: LocaleKeys.trash_mobile_empty.tr(),
-                    description: LocaleKeys.trash_mobile_emptyDescription.tr(),
-                  )
+                ? const _EmptyTrashBin()
                 : _DeletedFilesListView(state),
           );
         },
@@ -80,6 +76,41 @@ class MobileHomeTrashPage extends StatelessWidget {
 enum _TrashActionType {
   restoreAll,
   deleteAll,
+}
+
+class _EmptyTrashBin extends StatelessWidget {
+  const _EmptyTrashBin();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const FlowySvg(
+            FlowySvgs.m_empty_trash_xl,
+            size: Size.square(46),
+          ),
+          const VSpace(16.0),
+          FlowyText.medium(
+            LocaleKeys.trash_mobile_empty.tr(),
+            fontSize: 18.0,
+            textAlign: TextAlign.center,
+          ),
+          const VSpace(8.0),
+          FlowyText.regular(
+            LocaleKeys.trash_mobile_emptyDescription.tr(),
+            fontSize: 17.0,
+            maxLines: 10,
+            textAlign: TextAlign.center,
+            lineHeight: 1.3,
+            color: Theme.of(context).hintColor,
+          ),
+          const VSpace(kBottomNavigationBarHeight + 36.0),
+        ],
+      ),
+    );
+  }
 }
 
 class _TrashActionAllButton extends StatelessWidget {

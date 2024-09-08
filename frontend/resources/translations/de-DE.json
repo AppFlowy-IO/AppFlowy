@@ -153,12 +153,13 @@
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
   "newDocumentText": "Neues Dokument",
-  "newGridText": "Neues Raster",
+  "newGridText": "Neue Datentabelle",
   "newCalendarText": "Neuer Kalender",
   "newBoardText": "Neues Board",
   "chat": {
     "newChat": "Neuer Chat",
     "inputMessageHint": "Nachricht an @:appName AI",
+    "inputLocalAIMessageHint": "Nachricht an @:appName Lokale KI",
     "unsupportedCloudPrompt": "Diese Funktion ist nur bei Verwendung der @:appName Cloud verfügbar",
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
@@ -169,7 +170,17 @@
     "question2": "Erkläre mir die GTD-Methode",
     "question3": "Warum sollte ich Rust verwenden?",
     "question4": "Gebe mir ein Rezept mit dem, was in meiner Küche ist",
-    "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen."
+    "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen.",
+    "chatWithFilePrompt": "Möchtest du mit der Datei chatten?",
+    "indexFileSuccess": "Datei erfolgreich indiziert",
+    "inputActionNoPages": "Keine Seitenergebnisse",
+    "referenceSource": "{} Quelle gefunden",
+    "referenceSources": "{} Quellen gefunden",
+    "clickToMention": "Klicke hier, um eine Seite zu erwähnen",
+    "uploadFile": "Lade PDF-, md- oder txt-Dateien in den Chat hoch",
+    "questionTitle": "Ideen",
+    "questionDetail": "Hallo {}! Wie kann ich dir heute helfen?",
+    "indexingFile": "Indizierung {}"
   },
   "trash": {
     "text": "Papierkorb",
@@ -269,7 +280,7 @@
     "addAPage": "Seite hinzufügen",
     "addAPageToPrivate": "Eine Seite zum privaten Bereich hinzufügen.",
     "addAPageToWorkspace": "Eine Seite zum Arbeitsbereich hinzufügen",
-    "recent": "Zuletzt",
+    "recent": "Kürzlich",
     "today": "Heute",
     "thisWeek": "Diese Woche",
     "others": "Andere",
@@ -281,11 +292,24 @@
     "emptyRecentDescription": "Kürzlich aufgerufene Dokumente werden hier, zur vereinfachten Auffindbarkeit, angezeigt.",
     "emptyFavorite": "Keine favorisierten Dokumente",
     "emptyFavoriteDescription": "Beginne mit der Erkundung und markiere Dokumente als Favoriten. Diese werden hier für den schnellen Zugriff aufgelistet!",
-    "removePageFromRecent": "Diese Seite aus „Zuletzt angesehen“ entfernen?",
+    "removePageFromRecent": "Diese Seite aus „Kürzlich“ entfernen?",
     "removeSuccess": "Erfolgreich entfernt",
     "favoriteSpace": "Favoriten",
-    "RecentSpace": "Zuletzt angesehen",
-    "Spaces": "Gemeinsam genutzte Bereiche",
+    "RecentSpace": "Kürzlich",
+    "Spaces": "Bereiche",
+    "upgradeToPro": "Upgrade auf Pro",
+    "upgradeToAIMax": "Schalte unbegrenzte KI frei",
+    "storageLimitDialogTitle": "Dein freier Speicherplatz ist aufgebraucht. Upgrade deinen Plan, um unbegrenzten Speicherplatz freizuschalten.",
+    "aiResponseLimitTitle": "Du hast keine kostenlosen KI-Antworten mehr. Upgrade auf den Pro-Plan oder kaufe ein KI-Add-on, um unbegrenzte Antworten freizuschalten",
+    "aiResponseLimitDialogTitle": "Limit für KI-Antworten erreicht",
+    "aiResponseLimit": "Du hast keine kostenlosen KI-Antworten mehr zur Verfügung.\n\nGehe zu Einstellungen -> Plan -> Klicke auf KI Max oder Pro Plan, um mehr KI-Antworten zu erhalten",
+    "askOwnerToUpgradeToPro": "Dein Arbeitsbereich hat nicht mehr genügend freien Speicherplatz. Bitte den Eigentümer deines Arbeitsbereichs, auf den Pro-Plan hochzustufen.",
+    "askOwnerToUpgradeToAIMax": "In deinem Arbeitsbereich sind die kostenlosen KI-Antworten aufgebraucht. Bitte den Eigentümer deines Arbeitsbereichs, den Plan zu wechseln oder KI-Add-ons zu erwerben.",
+    "purchaseStorageSpace": "Speicherplatz kaufen",
+    "purchaseAIResponse": "Kaufen ",
+    "askOwnerToUpgradeToLocalAI": "Bitte den Arbeitsbereichsbesitzer, KI auf dem Gerät zu aktivieren.",
+    "upgradeToAILocal": "KI offline auf Ihrem Gerät",
+    "upgradeToAILocalDesc": "Chatte mit PDFs, verbessere deine Schreibfähigkeiten und fülle Tabellen automatisch mithilfe lokaler KI aus.",
     "public": "Öffentlich",
     "clickToHidePublic": "Hier klicken, um den öffentlichen Bereich auszublenden.\nHier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "addAPageToPublic": "Eine Seite zur öffentlichen Domäne hinzufügen."
@@ -327,12 +351,15 @@
     "update": "Update",
     "share": "Teilen",
     "removeFromFavorites": "Aus den Favoriten entfernen",
-    "removeFromRecent": "Aus „Zuletzt angesehen“ entfernen",
+    "removeFromRecent": "Aus „Kürzlich“ entfernen",
     "addToFavorites": "Zu den Favoriten hinzufügen",
+    "favoriteSuccessfully": "Erfolgreich favorisiert",
+    "unfavoriteSuccessfully": "Erfolgreich entfavorisiert",
     "rename": "Umbenennen",
     "helpCenter": "Hilfe Center",
     "add": "Hinzufügen",
     "yes": "Ja",
+    "no": "Nein",
     "clear": "Leeren",
     "remove": "Entfernen",
     "dontRemove": "Nicht entfernen",
@@ -347,7 +374,10 @@
     "signInDiscord": "Mit einem Discord Benutzerkonto anmelden",
     "more": "Mehr",
     "create": "Erstellen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "submit": "Einreichen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -412,6 +442,14 @@
           "light": "Hell",
           "dark": "Dunkel"
         }
+      },
+      "resetCursorColor": {
+        "title": "Farbe des Dokumentcursors zurücksetzen",
+        "description": "Möchtest du die Cursorfarbe wirklich zurücksetzen?"
+      },
+      "resetSelectionColor": {
+        "title": "Dokumentauswahlfarbe zurücksetzen",
+        "description": "Möchtest du die Auswahlfarbe wirklich zurücksetzen?"
       },
       "theme": {
         "title": "Design",
@@ -633,6 +671,30 @@
         "aiSettingsDescription": "Wähle oder konfiguriere KI-Modelle, die in @:appName verwendet werden. Für eine optimale Leistung empfehlen wir die Verwendung der Standardmodelloptionen",
         "loginToEnableAIFeature": "KI-Funktionen werden erst nach der Anmeldung bei @:appName Cloud aktiviert. Wenn du kein @:appName-Konto hast, gehe zu „Mein Konto“, um dich zu registrieren",
         "llmModel": "Sprachmodell",
+        "llmModelType": "Sprachmodelltyp",
+        "downloadLLMPrompt": "Herunterladen {}",
+        "downloadAppFlowyOfflineAI": "Durch das Herunterladen des KI-Offlinepakets kann KI auf deinem Gerät ausgeführt werden. Möchtest du fortfahren?",
+        "downloadLLMPromptDetail": "Das Herunterladen des lokalen Modells {} beansprucht bis zu {} Speicherplatz. Möchtest du fortfahren?",
+        "downloadAIModelButton": "KI-Modell herunterladen",
+        "downloadingModel": "wird heruntergeladen",
+        "localAILoaded": "Lokales KI-Modell erfolgreich hinzugefügt und einsatzbereit",
+        "localAIStart": "Der lokale KI-Chat beginnt …",
+        "localAILoading": "Das lokale KI-Chat-Modell wird geladen …",
+        "localAIStopped": "Lokale KI wurde gestoppt",
+        "failToLoadLocalAI": "Lokale KI konnte nicht gestartet werden",
+        "restartLocalAI": "Lokale KI neustarten",
+        "disableLocalAITitle": "Lokale KI deaktivieren",
+        "disableLocalAIDescription": "Möchtest du die lokale KI deaktivieren?",
+        "localAIToggleTitle": "Umschalten zum Aktivieren oder Deaktivieren der lokalen KI",
+        "offlineAIInstruction1": "Folge der",
+        "offlineAIInstruction2": "Anweisung",
+        "offlineAIInstruction3": "um Offline-KI zu aktivieren.",
+        "offlineAIDownload1": "Wenn du die AppFlowy KI noch nicht heruntergeladen hast,",
+        "offlineAIDownload2": "lade",
+        "offlineAIDownload3": "sie zuerst herunter",
+        "activeOfflineAI": "Aktiv",
+        "downloadOfflineAI": "Herunterladen",
+        "openModelDirectory": "Ordner öffnen",
         "title": "KI-API-Schlüssel"
       }
     },
@@ -643,14 +705,18 @@
         "title": "Zusammenfassung der Plannutzung",
         "storageLabel": "Speicher",
         "storageUsage": "{} von {} GB",
+        "unlimitedStorageLabel": "Unbegrenzter Speicherplatz",
         "collaboratorsLabel": "Gastmitarbeiter",
         "collaboratorsUsage": "{} von {}",
         "aiResponseLabel": "KI-Antworten",
         "aiResponseUsage": "{} von {}",
+        "unlimitedAILabel": "Unbegrenzte Antworten",
         "proBadge": "Pro",
+        "aiMaxBadge": "KI Max",
+        "aiOnDeviceBadge": "KI On-Device",
         "memberProToggle": "Unbegrenzte Mitgliederzahl",
-        "guestCollabToggle": "10 Gastmitarbeiter",
-        "storageUnlimited": "Unbegrenzter Speicherplatz mit deinem Pro-Plan",
+        "aiMaxToggle": "Unbegrenzte KI-Antworten",
+        "aiOnDeviceToggle": "KI auf dem Gerät für ultimative Privatsphäre",
         "aiCredit": {
           "title": "@:appName KI-Guthaben hinzufügen",
           "price": "{}",
@@ -669,6 +735,7 @@
           "proInfo": "Perfekt für kleine und mittlere Teams mit bis zu 10 Mitgliedern.",
           "teamInfo": "Perfekt für alle produktiven und gut organisierten Teams.",
           "upgrade": "Vergleichen &\n Upgraden",
+          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft.",
           "freeProOne": "Gemeinsamer Arbeitsbereich",
           "freeProTwo": "Bis zu 3 Mitglieder (inkl. Eigentümer)",
           "freeProThree": "Unbegrenzte Anzahl an Gästen (nur anzeigen)",
@@ -684,15 +751,35 @@
           "professionalProFive": "6 Monate Änderungshistorie",
           "professionalConOne": "Unbegrenzte Anzahl an Gastmitarbeitern (Bearbeitungszugriff)",
           "professionalConTwo": "Unbegrenzte KI-Antworten",
-          "professionalConThree": "1 Jahr Änderungshistorie",
-          "canceledInfo": "Dein Plan wurde gekündigt und du wirst am {} auf den kostenlosen Plan herabgestuft."
+          "professionalConThree": "1 Jahr Änderungshistorie"
+        },
+        "addons": {
+          "title": "Add-ons",
+          "addLabel": "Hinzufügen",
+          "activeLabel": "Hinzugefügt",
+          "aiMax": {
+            "title": "KI Max",
+            "description": "Schalte unbegrenzte KI frei",
+            "price": "{}",
+            "priceInfo": "pro Benutzer und Monat",
+            "billingInfo": "jährliche Abrechnung oder {} bei monatlicher Abrechnung"
+          },
+          "aiOnDevice": {
+            "title": "KI On-Device",
+            "description": "KI offline auf deinem Gerät",
+            "price": "{}",
+            "priceInfo": "pro Benutzer und Monat",
+            "billingInfo": "jährliche Abrechnung oder {} bei monatlicher Abrechnung"
+          }
         },
         "deal": {
           "bannerLabel": "Neujahrsangebot!",
           "title": "Erweiter dein Team!",
           "info": "Upgraden und 10 % auf Pro- und Team-Pläne sparen! Steiger die Produktivität deines Arbeitsplatzes mit leistungsstarken neuen Funktionen, einschließlich @:appName KI.",
           "viewPlans": "Pläne anzeigen"
-        }
+        },
+        "guestCollabToggle": "10 Gastmitarbeiter",
+        "storageUnlimited": "Unbegrenzter Speicherplatz mit deinem Pro-Plan"
       }
     },
     "billingPage": {
@@ -710,7 +797,36 @@
         "title": "Zahlungsdetails",
         "methodLabel": "Zahlungsmethode",
         "methodButtonLabel": "Zahlungsmethode bearbeiten"
-      }
+      },
+      "addons": {
+        "title": "Add-ons",
+        "addLabel": "Hinzufügen",
+        "removeLabel": "Entfernen",
+        "renewLabel": "Erneuern",
+        "aiMax": {
+          "label": "KI Max",
+          "description": "Schalte unbegrenzte KI Antworten und erweiterte Modelle frei",
+          "activeDescription": "Nächste Rechnung fällig am {}",
+          "canceledDescription": "KI Max ist verfügbar bis {}"
+        },
+        "aiOnDevice": {
+          "label": "KI On-Device",
+          "description": "Schalte unbegrenzte KI Antworten offline auf deinem Gerät frei",
+          "activeDescription": "Nächste Rechnung fällig am {}",
+          "canceledDescription": "KI On-Device ist verfügbar bis {}"
+        },
+        "removeDialog": {
+          "title": "Entfernen {}",
+          "description": "Möchtest du den {plan} wirklich entfernen? Du verlierst dann sofort den Zugriff auf die Funktionen und Vorteile des {plan}."
+        }
+      },
+      "currentPeriodBadge": "AKTUELL",
+      "changePeriod": "Zeitraum ändern",
+      "planPeriod": "{} Zeitraum",
+      "monthlyInterval": "Monatlich",
+      "monthlyPriceInfo": "pro Sitzplatz, monatliche Abrechnung",
+      "annualInterval": "Jährlich",
+      "annualPriceInfo": "pro Sitzplatz, jährliche Abrechnung"
     },
     "comparePlanDialog": {
       "title": "Plan vergleichen & auswählen",
@@ -719,8 +835,8 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "Du wirst am Ende des Abrechnungszeitraums automatisch herabgestuft",
-        "current": "Aktuell"
+        "current": "Aktuell",
+        "downgradeDisabledTooltip": "Du wirst am Ende des Abrechnungszeitraums automatisch herabgestuft"
       },
       "freePlan": {
         "title": "Kostenlos",
@@ -738,30 +854,37 @@
         "itemOne": "Arbeitsbereiche",
         "itemTwo": "Mitglieder",
         "itemThree": "Gäste",
-        "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
         "itemFour": "Gäste",
-        "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
+        "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
+        "intelligentSearch": "Intelligente Suche",
+        "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
         "itemSeven": "Mobile App",
+        "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
+        "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
         "itemEight": "AI-Antworten",
         "tooltipEight": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird."
       },
       "freeLabels": {
         "itemOne": "pro Arbeitsbereich berechnet",
         "itemTwo": "3",
+        "itemThree": "5 GB",
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "ja",
+        "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "1.000 lebenslang"
       },
       "proLabels": {
         "itemOne": "pro Arbeitsbereich berechnet",
         "itemTwo": "bis zu 10",
+        "itemThree": "unbegrenzt",
         "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
         "itemFive": "unbegrenzt",
         "itemSix": "ja",
+        "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "10.000 monatlich"
       },
@@ -773,6 +896,43 @@
         "title": "Bist du sicher, dass du deinen Plan herabstufen willst?",
         "description": "Wenn du deinen Plan herabstufst, kehrst du zum kostenfreien Plan zurück. Mitglieder können den Zugang zu Arbeitsbereichen verlieren und du musst möglicherweise Speicherplatz freigeben, um die Speichergrenzen des kostenfreien Tarifs einzuhalten.",
         "downgradeLabel": "Downgrade Plan"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Schade dich gehen zu sehen",
+      "description": "Wir bedauern, dass du gehst. Wir würden uns über dein Feedback freuen, das uns hilft @:appName zu verbessern. Bitte nehme dir einen Moment Zeit, um ein paar Fragen zu beantworten.",
+      "commonOther": "Andere",
+      "otherHint": "Schreibe deine Antwort hier",
+      "questionOne": {
+        "question": "Was hat dich dazu veranlasst, dein @:appName Pro-Abonnement zu kündigen?",
+        "answerOne": "Kosten zu hoch",
+        "answerTwo": "Die Funktionen entsprachen nicht den Erwartungen",
+        "answerThree": "Habe eine bessere Alternative gefunden",
+        "answerFour": "Habe es nicht oft genug genutzt, um die Kosten zu rechtfertigen",
+        "answerFive": "Serviceproblem oder technische Schwierigkeiten"
+      },
+      "questionTwo": {
+        "question": "Wie wahrscheinlich ist es, dass du in Zukunft ein erneutes Abonnement von @:appName Pro in Betracht ziehst?",
+        "answerOne": "Sehr wahrscheinlich",
+        "answerTwo": "Ziemlich wahrscheinlich",
+        "answerThree": "Nicht sicher",
+        "answerFour": "Unwahrscheinlich",
+        "answerFive": "Sehr unwahrscheinlich"
+      },
+      "questionThree": {
+        "question": "Welche Pro-Funktion hast du während deines Abonnements am meisten geschätzt?",
+        "answerOne": "Zusammenarbeit mehrerer Benutzer",
+        "answerTwo": "Längerer Versionsverlauf",
+        "answerThree": "Unbegrenzte KI-Antworten",
+        "answerFour": "Zugriff auf lokale KI-Modelle"
+      },
+      "questionFour": {
+        "question": "Wie würdest du deine allgemeine Erfahrung mit @:appName beschreiben?",
+        "answerOne": "Großartig",
+        "answerTwo": "Gut",
+        "answerThree": "Durchschnitt",
+        "answerFour": "Unterdurchschnittlich",
+        "answerFive": "Nicht zufrieden"
       }
     },
     "common": {
@@ -840,6 +1000,46 @@
       "showNotificationsIcon": {
         "label": "Benachrichtigungssymbol anzeigen",
         "hint": "Deaktiviere diese Option, um das Benachrichtigungssymbol in der Seitenleiste auszublenden."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Alle Benachrichtigungen erfolgreich archiviert",
+        "success": "Benachrichtigung erfolgreich archiviert"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Alle erfolgreich als gelesen markiert",
+        "success": "Erfolgreich als gelesen markiert"
+      },
+      "action": {
+        "markAsRead": "Als gelesen markieren",
+        "multipleChoice": "Mehrfachauswahl",
+        "archive": "Archiv"
+      },
+      "settings": {
+        "settings": "Einstellungen",
+        "markAllAsRead": "Alles als gelesen markieren",
+        "archiveAll": "Alles archivieren"
+      },
+      "emptyInbox": {
+        "title": "Noch keine Benachrichtigungen",
+        "description": "Du wirst hier über @Erwähnungen benachrichtigt"
+      },
+      "emptyUnread": {
+        "title": "Keine ungelesenen Benachrichtigungen",
+        "description": "Du bist auf dem Laufenden!"
+      },
+      "emptyArchived": {
+        "title": "Keine archivierten Benachrichtigungen",
+        "description": "Du hast noch keine Benachrichtigungen archiviert"
+      },
+      "tabs": {
+        "inbox": "Posteingang",
+        "unread": "Ungelesen",
+        "archived": "Archiviert"
+      },
+      "refreshSuccess": "Benachrichtigungen erfolgreich aktualisiert",
+      "titles": {
+        "notifications": "Benachrichtigungen",
+        "reminder": "Erinnerung"
       }
     },
     "appearance": {
@@ -937,7 +1137,12 @@
           "one": "{} Mitglied",
           "other": "{} Mitglieder"
         },
+        "inviteFailedDialogTitle": "Einladung konnte nicht gesendet werden",
+        "inviteFailedMemberLimit": "Das Mitgliederlimit wurde erreicht. Bitte führe ein Upgrade durch, um weitere Mitglieder einzuladen.",
         "memberLimitExceeded": "Du hast die maximal zulässige Mitgliederzahl für dein Benutzerkonto erreicht. Benötigst du weitere Mitglieder, um deine Arbeit fortsetzen zu können, erstelle auf Github bitte eine entsprechende Anfrage.",
+        "memberLimitExceededUpgrade": "upgrade",
+        "memberLimitExceededPro": "Mitgliederlimit erreicht. Wenn du mehr Mitglieder benötigst, kontaktiere",
+        "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "Mitglied konnte nicht hinzugefügt werden!",
         "addMemberSuccess": "Mitglied erfolgreich hinzugefügt",
         "removeMember": "Mitglied entfernen",
@@ -992,8 +1197,8 @@
       "tooltipSelectIcon": "Symbol auswählen",
       "selectAnIcon": "Ein Symbol auswählen",
       "pleaseInputYourOpenAIKey": "Bitte gebe den AI-Schlüssel ein",
-      "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein",
-      "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen"
+      "clickToLogout": "Klicken, um den aktuellen Nutzer auszulogen",
+      "pleaseInputYourStabilityAIKey": "Bitte gebe den Stability AI Schlüssel ein"
     },
     "mobile": {
       "personalInfo": "Persönliche Informationen",
@@ -1257,7 +1462,7 @@
       "tagName": "Tag-Name"
     },
     "checklist": {
-      "taskHint": "Aufgbenbeschreibbung",
+      "taskHint": "Aufgabenbeschreibung",
       "addNew": "Füge eine Aufgabe hinzu",
       "submitNewTask": "Erstellen",
       "hideComplete": "Blende abgeschlossene Aufgaben aus",
@@ -1279,7 +1484,7 @@
       "linkedRowListLabel": "{count} verknüpfte Zeilen",
       "unlinkedRowListLabel": "Eine weitere Zeile verknüpfen"
     },
-    "menuName": "Raster",
+    "menuName": "Datentabelle",
     "referencedGridPrefix": "Sicht von",
     "calculate": "berechnet",
     "calculationTypeLabel": {
@@ -1308,15 +1513,15 @@
         "createANewBoard": "Ein neues Board erstellen"
       },
       "grid": {
-        "selectAGridToLinkTo": "Ein Raster zum Verknüpfen auswählen",
-        "createANewGrid": "Ein neues Raster erstellen"
+        "selectAGridToLinkTo": "Eine Datentabelle zum Verknüpfen auswählen",
+        "createANewGrid": "Eine neue Datentabelle erstellen"
       },
       "calendar": {
         "selectACalendarToLinkTo": "Einen Kalender zum Verknüpfen auswählen",
         "createANewCalendar": "Einen neuen Kalender erstellen"
       },
       "document": {
-        "selectADocumentToLinkTo": "Ein Raster zum Verknüpfen auswählen"
+        "selectADocumentToLinkTo": "Eine Datentabelle zum Verknüpfen auswählen"
       }
     },
     "selectionMenu": {
@@ -1325,7 +1530,7 @@
     },
     "plugins": {
       "referencedBoard": "Referenziertes Board",
-      "referencedGrid": "Referenziertes Raster",
+      "referencedGrid": "Referenzierte Datentabelle",
       "referencedCalendar": "Referenzierter Kalender",
       "referencedDocument": "Referenziertes Dokument",
       "autoGeneratorMenuItemName": "AI-Autor",
@@ -1404,10 +1609,28 @@
         "depth": "Tiefe"
       },
       "image": {
-        "copiedToPasteBoard": "Der Bildlink wurde in die Zwischenablage kopiert",
         "addAnImage": "Ein Bild hinzufügen",
+        "copiedToPasteBoard": "Der Bildlink wurde in die Zwischenablage kopiert",
+        "addAnImageDesktop": "Bild(er) hier ablegen oder klicken, um Bild(er) hinzuzufügen",
+        "addAnImageMobile": "Klicke, um ein oder mehrere Bilder hinzuzufügen",
+        "dropImageToInsert": "Zum Einfügen Bilder hier ablegen",
         "imageUploadFailed": "Bild hochladen gescheitert",
+        "imageDownloadFailed": "Das Hochladen des Bilds ist fehlgeschlagen. Bitte versuche es erneut.",
+        "imageDownloadFailedToken": "Das Hochladen des Bilds ist aufgrund eines fehlenden Benutzertokens fehlgeschlagen. Bitte versuche es erneut.",
         "errorCode": "Fehlercode"
+      },
+      "photoGallery": {
+        "name": "Fotogallerie",
+        "imageKeyword": "Bild",
+        "imageGalleryKeyword": "Bildergalerie",
+        "photoKeyword": "Foto",
+        "photoBrowserKeyword": "Fotobrowser",
+        "galleryKeyword": "Galerie",
+        "addImageTooltip": "Bild hinzufügen",
+        "changeLayoutTooltip": "Layout ändern",
+        "browserLayout": "Browser",
+        "gridLayout": "Datentabelle",
+        "deleteBlockTooltip": "Ganze Galerie löschen"
       },
       "math": {
         "copiedToPasteBoard": "Die mathematische Gleichung wurde in die Zwischenablage kopiert"
@@ -1452,6 +1675,26 @@
         "invalidVideoUrl": "Die Quell-URL wird noch nicht unterstützt.",
         "invalidVideoUrlYouTube": "YouTube wird noch nicht unterstützt.",
         "supportedFormats": "Unterstützte Formate: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "Datei",
+        "uploadTab": "Hochladen",
+        "networkTab": "Link integrieren",
+        "placeholderText": "Klicke oder ziehe eine Datei hoch, um sie hochzuladen",
+        "placeholderDragging": "Lege die hochzuladende Datei hier ab",
+        "dropFileToUpload": "Lege die hochzuladende Datei hier ab",
+        "fileUploadHint": "Lege die hochzuladende Datei hier ab\noder klicke, um eine Datei auszuwählen.",
+        "networkHint": "Gebe einen Link zu einer Datei ein",
+        "networkUrlInvalid": "Ungültige URL. Bitte korrigiere die URL und versuche es erneut.",
+        "networkAction": "Dateilink einbetten",
+        "fileTooBigError": "Die Dateigröße ist zu groß. Bitte lade eine Datei mit einer Größe von weniger als 10 MB hoch.",
+        "renameFile": {
+          "title": "Datei umbenennen",
+          "description": "Gebe den neuen Namen für diese Datei ein",
+          "nameEmptyError": "Der Dateiname darf nicht leer bleiben."
+        },
+        "uploadedAt": "Hochgeladen am {}",
+        "linkedAt": "Link hinzugefügt am {}"
       }
     },
     "outlineBlock": {
@@ -1487,7 +1730,8 @@
         "invalidImageSize": "Die Bildgröße muss kleiner als 5 MB sein",
         "invalidImageFormat": "Das Bildformat wird nicht unterstützt. Unterstützte Formate: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "Ungültige Bild-URL",
-        "noImage": "Keine Datei oder Verzeichnis"
+        "noImage": "Keine Datei oder Verzeichnis",
+        "multipleImagesFailed": "Ein oder mehrere Bilder konnten nicht hochgeladen werden. Bitte versuche es erneut."
       },
       "embedLink": {
         "label": "Eingebetteter Link",
@@ -1498,14 +1742,29 @@
       },
       "searchForAnImage": "Nach einem Bild suchen",
       "pleaseInputYourOpenAIKey": "biitte den AI Schlüssel in der Einstellungsseite eingeben",
-      "pleaseInputYourStabilityAIKey": "biitte den Stability AI Schlüssel in der Einstellungsseite eingeben",
       "saveImageToGallery": "Bild speichern",
       "failedToAddImageToGallery": "Das Bild konnte nicht zur Galerie hinzugefügt werden",
       "successToAddImageToGallery": "Das Bild wurde zur Galerie hinzugefügt werden",
       "unableToLoadImage": "Das Bild konnte nicht geladen werden",
       "maximumImageSize": "Die maximal unterstützte Upload-Bildgröße beträgt 10 MB",
       "uploadImageErrorImageSizeTooBig": "Die Bildgröße muss weniger als 10 MB betragen",
-      "imageIsUploading": "Bild wird hochgeladen"
+      "imageIsUploading": "Bild wird hochgeladen",
+      "openFullScreen": "Im Vollbildmodus öffnen",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Vorheriges Bild",
+          "nextImageTooltip": "Nächstes Bild",
+          "zoomOutTooltip": "Rauszoomen",
+          "zoomInTooltip": "Hineinzoomen",
+          "changeZoomLevelTooltip": "Zoomstufe ändern",
+          "openLocalImage": "Bild öffnen",
+          "downloadImage": "Bild herunterladen",
+          "closeViewer": "Interaktive Anzeige schließen",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Bild löschen"
+        }
+      },
+      "pleaseInputYourStabilityAIKey": "biitte den Stability AI Schlüssel in der Einstellungsseite eingeben"
     },
     "codeBlock": {
       "language": {
@@ -1713,7 +1972,8 @@
       "medium": "Mittel",
       "mediumDark": "Mitteldunkel",
       "dark": "Dunkel"
-    }
+    },
+    "openSourceIconsFrom": "Open-Source-Icons von"
   },
   "inlineActions": {
     "noResults": "Keine Ergebnisse",
@@ -2049,6 +2309,7 @@
     "createNewSpace": "Eine neue Domäne erstellen",
     "createSpaceDescription": "Erstellen mehrere öffentliche und private Domänen, um deine Arbeit besser zu organisieren.",
     "spaceName": "Name der Domäne",
+    "spaceNamePlaceholder": "z.B. Marketing, Entwicklung, Personalabteilung",
     "permission": "Berechtigung",
     "publicPermission": "Öffentlich",
     "publicPermissionDescription": "Alle Mitglieder des Arbeitsbereichs mit Vollzugriff",
@@ -2090,7 +2351,32 @@
     "noAccessToVisit": "Kein Zugriff auf diese Seite...",
     "createWithAppFlowy": "Erstelle eine Website mit AppFlowy",
     "fastWithAI": "Schnell und einfach mit KI.",
-    "tryItNow": "Probiere es jetzt"
+    "tryItNow": "Probiere es jetzt",
+    "onlyGridViewCanBePublished": "Nur die Datentabellenansicht kann veröffentlicht werden",
+    "database": {
+      "zero": "{} ausgewählte Ansichten veröffentlichen",
+      "one": "{} ausgewählte Ansicht veröffentlichen",
+      "many": "{} ausgewählte Ansichten veröffentlichen",
+      "other": "{} ausgewählte Ansichten veröffentlichen"
+    },
+    "mustSelectPrimaryDatabase": "Die primäre Ansicht muss ausgewählt sein",
+    "noDatabaseSelected": "Keine Datenbank ausgewählt, bitte wähle mindestens eine Datenbank aus.",
+    "unableToDeselectPrimaryDatabase": "Die Auswahl der primären Datenbank kann nicht aufgehoben werden.",
+    "saveThisPage": "Diese Seite speichern",
+    "duplicateTitle": "Wo möchten Sie hinzufügen",
+    "selectWorkspace": "Einen Arbeitsbereich auswählen",
+    "addTo": "Hinzufügen zu",
+    "duplicateSuccessfully": "Duplizierung erfolgreich. Möchtest du die Dokumente anzeigen?",
+    "duplicateSuccessfullyDescription": "Du hast die App nicht? Dein Download beginnt automatisch, nachdem du auf „Herunterladen“ geklickt hast.",
+    "downloadIt": "Herunterladen",
+    "openApp": "In App öffnen",
+    "duplicateFailed": "Duplizierung fehlgeschlagen",
+    "membersCount": {
+      "zero": "Keine Mitglieder",
+      "one": "1 Mitglied",
+      "many": "{count} Mitglieder",
+      "other": "{count} Mitglieder"
+    }
   },
   "web": {
     "continue": "Weiter",
@@ -2104,5 +2390,55 @@
     "privacyPolicy": "Datenschutzrichtlinie",
     "signInError": "Anmeldefehler",
     "login": "Registrieren oder anmelden"
+  },
+  "globalComment": {
+    "comments": "Kommentare",
+    "addComment": "Einen Kommentar hinzufügen",
+    "reactedBy": "Reaktion von",
+    "addReaction": "Reaktion hinzufügen",
+    "reactedByMore": "und {count} andere",
+    "showSeconds": {
+      "one": "vor 1 Sekunde",
+      "other": "vor {count} Sekunden",
+      "zero": "Soeben",
+      "many": "vor {count} Sekunden"
+    },
+    "showMinutes": {
+      "one": "vor 1 Minute",
+      "other": "vor {count} Minuten",
+      "many": "vor {count} Minuten"
+    },
+    "showHours": {
+      "one": "vor 1 Stunde",
+      "other": "vor {count} Stunden",
+      "many": "vor {count} Stunden"
+    },
+    "showDays": {
+      "one": "vor 1 Tag",
+      "other": "vor {count} Tagen",
+      "many": "vor {count} Tagen"
+    },
+    "showMonths": {
+      "one": "vor 1 Monat",
+      "other": "vor {count} Monaten",
+      "many": "vor {count} Monaten"
+    },
+    "showYears": {
+      "one": "vor 1 Jahr",
+      "other": "vor {count} Jahren",
+      "many": "vor {count} Jahren"
+    },
+    "reply": "Antworten",
+    "deleteComment": "Kommentar löschen",
+    "youAreNotOwner": "Du bist nicht der Verfasser dieses Kommentars",
+    "confirmDeleteDescription": "Möchtest du diesen Kommentar wirklich löschen?",
+    "hasBeenDeleted": "Gelöscht",
+    "replyingTo": "Antwort auf",
+    "noAccessDeleteComment": "Du bist nicht berechtigt, diesen Kommentar zu löschen",
+    "collapse": "Zusammenklappen",
+    "readMore": "Mehr lesen",
+    "failedToAddComment": "Kommentar konnte nicht hinzugefügt werden",
+    "commentAddedSuccessfully": "Kommentar erfolgreich hinzugefügt.",
+    "commentAddedSuccessTip": "Du hast gerade einen Kommentar hinzugefügt oder darauf geantwortet. Möchtest du nach oben springen, um die neuesten Kommentare zu sehen?"
   }
 }

@@ -4,9 +4,11 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -63,15 +65,18 @@ class BlockOptionButton extends StatelessWidget {
       },
       onSelected: (action, controller) {
         if (action is OptionActionWrapper) {
-          _onSelectAction(action.inner);
+          _onSelectAction(context, action.inner);
           controller.close();
         }
       },
-      buildChild: (controller) => _buildOptionButton(controller),
+      buildChild: (controller) => _buildOptionButton(context, controller),
     );
   }
 
-  Widget _buildOptionButton(PopoverController controller) {
+  Widget _buildOptionButton(
+    BuildContext context,
+    PopoverController controller,
+  ) {
     return BlockActionButton(
       svg: FlowySvgs.drag_element_s,
       richMessage: TextSpan(
@@ -79,9 +84,11 @@ class BlockOptionButton extends StatelessWidget {
           TextSpan(
             // todo: customize the color to highlight the text.
             text: LocaleKeys.document_plugins_optionAction_click.tr(),
+            style: context.tooltipTextStyle(),
           ),
           TextSpan(
             text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
+            style: context.tooltipTextStyle(),
           ),
         ],
       ),
@@ -115,7 +122,7 @@ class BlockOptionButton extends StatelessWidget {
     );
   }
 
-  void _onSelectAction(OptionAction action) {
+  void _onSelectAction(BuildContext context, OptionAction action) {
     final node = blockComponentContext.node;
     final transaction = editorState.transaction;
     switch (action) {
@@ -123,10 +130,7 @@ class BlockOptionButton extends StatelessWidget {
         transaction.deleteNode(node);
         break;
       case OptionAction.duplicate:
-        transaction.insertNode(
-          node.path.next,
-          node.copyWith(),
-        );
+        _duplicateBlock(context, transaction, node);
         break;
       case OptionAction.turnInto:
         break;
@@ -143,5 +147,103 @@ class BlockOptionButton extends StatelessWidget {
         throw UnimplementedError();
     }
     editorState.apply(transaction);
+  }
+
+  void _duplicateBlock(
+    BuildContext context,
+    Transaction transaction,
+    Node node,
+  ) {
+    // 1. verify the node integrity
+    final type = node.type;
+    final builder =
+        context.read<EditorState>().renderer.blockComponentBuilder(type);
+
+    if (builder == null) {
+      Log.error('Block type $type is not supported');
+      return;
+    }
+
+    final valid = builder.validate(node);
+    if (!valid) {
+      Log.error('Block type $type is not valid');
+    }
+
+    // 2. duplicate the node
+    //  the _copyBlock will fix the table block
+    final newNode = _copyBlock(context, node);
+
+    // 3. insert the node to the next of the current node
+    transaction.insertNode(
+      node.path.next,
+      newNode,
+    );
+  }
+
+  Node _copyBlock(BuildContext context, Node node) {
+    Node copiedNode = node.copyWith();
+
+    final type = node.type;
+    final builder =
+        context.read<EditorState>().renderer.blockComponentBuilder(type);
+
+    if (builder == null) {
+      Log.error('Block type $type is not supported');
+    } else {
+      final valid = builder.validate(node);
+      if (!valid) {
+        Log.error('Block type $type is not valid');
+        if (node.type == TableBlockKeys.type) {
+          copiedNode = _fixTableBlock(node);
+        }
+      }
+    }
+
+    return copiedNode;
+  }
+
+  Node _fixTableBlock(Node node) {
+    if (node.type != TableBlockKeys.type) {
+      return node;
+    }
+
+    // the table node should contains colsLen and rowsLen
+    final colsLen = node.attributes[TableBlockKeys.colsLen];
+    final rowsLen = node.attributes[TableBlockKeys.rowsLen];
+    if (colsLen == null || rowsLen == null) {
+      return node;
+    }
+
+    final newChildren = <Node>[];
+    final children = node.children;
+
+    // based on the colsLen and rowsLen, iterate the children and fix the data
+    for (var i = 0; i < rowsLen; i++) {
+      for (var j = 0; j < colsLen; j++) {
+        final cell = children
+            .where(
+              (n) =>
+                  n.attributes[TableCellBlockKeys.rowPosition] == i &&
+                  n.attributes[TableCellBlockKeys.colPosition] == j,
+            )
+            .firstOrNull;
+        if (cell != null) {
+          newChildren.add(cell.copyWith());
+        } else {
+          newChildren.add(
+            tableCellNode('', i, j),
+          );
+        }
+      }
+    }
+
+    return node.copyWith(
+      children: newChildren,
+      attributes: {
+        ...node.attributes,
+        TableBlockKeys.colsLen: colsLen,
+        TableBlockKeys.rowsLen: rowsLen,
+      },
+    );
   }
 }

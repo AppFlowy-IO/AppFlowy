@@ -1,9 +1,10 @@
 import { usePublishContext } from '@/application/publish';
 import { EditorLayoutStyle } from '@/components/editor/EditorContext';
 import { ViewMetaCover } from '@/components/view-meta';
+import { getFontFamily } from '@/utils/font';
 import { useEffect, useMemo } from 'react';
 
-export function useViewMeta() {
+export function useViewMeta () {
   const viewMeta = usePublishContext()?.viewMeta;
 
   const extra = useMemo(() => {
@@ -21,7 +22,7 @@ export function useViewMeta() {
       lineHeightLayout: extra?.lineHeightLayout,
     };
   }, [extra]);
-  
+
   const layout = viewMeta?.layout;
   const style = useMemo(() => {
     const fontSizeMap = {
@@ -56,11 +57,7 @@ export function useViewMeta() {
 
   useEffect(() => {
     if (!layoutStyle.font) return;
-    void window.WebFont?.load({
-      google: {
-        families: [layoutStyle.font],
-      },
-    });
+    void getFontFamily(layoutStyle.font);
   }, [layoutStyle.font]);
 
   const icon = viewMeta?.icon || undefined;

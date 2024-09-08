@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
@@ -58,7 +58,7 @@ extension AppFlowyWorkspace on WidgetTester {
     );
     expect(iconButton, findsOneWidget);
     await tapButton(iconButton);
-    final iconPicker = find.byType(FlowyIconPicker);
+    final iconPicker = find.byType(FlowyIconEmojiPicker);
     expect(iconPicker, findsOneWidget);
     await tapButton(find.findTextInFlowyText(icon));
   }

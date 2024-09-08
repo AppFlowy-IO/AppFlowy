@@ -534,8 +534,8 @@
       "tooltipSelectIcon": "選擇圖示",
       "selectAnIcon": "選擇圖示",
       "pleaseInputYourOpenAIKey": "請輸入您的 AI 金鑰",
-      "pleaseInputYourStabilityAIKey": "請輸入您的 Stability AI 金鑰",
-      "clickToLogout": "點選以登出目前使用者"
+      "clickToLogout": "點選以登出目前使用者",
+      "pleaseInputYourStabilityAIKey": "請輸入您的 Stability AI 金鑰"
     },
     "mobile": {
       "personalInfo": "個人資料",
@@ -885,8 +885,8 @@
         "defaultColor": "預設"
       },
       "image": {
-        "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
         "addAnImage": "新增圖片",
+        "copiedToPasteBoard": "圖片連結已複製到剪貼簿",
         "imageUploadFailed": "圖片上傳失敗",
         "errorCode": "錯誤代碼"
       },
@@ -966,14 +966,14 @@
       },
       "searchForAnImage": "搜尋圖片",
       "pleaseInputYourOpenAIKey": "請在設定頁面輸入您的 AI 金鑰",
-      "pleaseInputYourStabilityAIKey": "請在設定頁面輸入您的 Stability AI 金鑰",
       "saveImageToGallery": "儲存圖片",
       "failedToAddImageToGallery": "無法將圖片新增到相簿",
       "successToAddImageToGallery": "圖片已成功新增到相簿",
       "unableToLoadImage": "無法載入圖片",
       "maximumImageSize": "支援的最大上傳圖片大小為 10MB",
       "uploadImageErrorImageSizeTooBig": "圖片大小必須小於 10MB",
-      "imageIsUploading": "圖片上傳中"
+      "imageIsUploading": "圖片上傳中",
+      "pleaseInputYourStabilityAIKey": "請在設定頁面輸入您的 Stability AI 金鑰"
     },
     "codeBlock": {
       "language": {

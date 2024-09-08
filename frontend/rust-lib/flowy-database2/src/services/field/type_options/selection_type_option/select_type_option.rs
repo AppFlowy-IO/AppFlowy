@@ -1,18 +1,19 @@
-use std::str::FromStr;
-
+use async_trait::async_trait;
 use bytes::Bytes;
+use collab_database::database::Database;
+use collab_database::entity::{SelectOption, SelectOptionColor};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
-
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use std::str::FromStr;
 
 use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, MultiSelectTypeOption, SelectOption, SelectOptionCellData,
-  SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption, TypeOptionCellDataSerde,
-  TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  make_selected_options, MultiSelectTypeOption, SelectOptionCellData, SelectOptionIds,
+  SingleSelectTypeOption, StringCellData, TypeOption, TypeOptionCellDataSerde, TypeOptionTransform,
+  SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -68,20 +69,30 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   fn mut_options(&mut self) -> &mut Vec<SelectOption>;
 }
 
+#[async_trait]
 impl<T> TypeOptionTransform for T
 where
   T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + CellDataDecoder,
 {
-  fn transform_type_option(
+  async fn transform_type_option(
     &mut self,
-    _old_type_option_field_type: FieldType,
-    _old_type_option_data: TypeOptionData,
+    view_id: &str,
+    field_id: &str,
+    old_type_option_field_type: FieldType,
+    old_type_option_data: TypeOptionData,
+    new_type_option_field_type: FieldType,
+    database: &mut Database,
   ) {
     SelectOptionTypeOptionTransformHelper::transform_type_option(
       self,
-      &_old_type_option_field_type,
-      _old_type_option_data,
-    );
+      view_id,
+      field_id,
+      &old_type_option_field_type,
+      old_type_option_data,
+      new_type_option_field_type,
+      database,
+    )
+    .await;
   }
 }
 
@@ -101,6 +112,15 @@ where
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     match from_field_type {
+      FieldType::RichText => {
+        let text_cell = StringCellData::from(cell).into_inner();
+        let mut transformed_ids = Vec::new();
+        let options = self.options();
+        if let Some(option) = options.iter().find(|option| option.name == text_cell) {
+          transformed_ids.push(option.id.clone());
+        }
+        Some(SelectOptionIds::from(transformed_ids))
+      },
       FieldType::Checkbox => {
         let cell_content = CheckboxCellDataPB::from(cell).to_string();
         let mut transformed_ids = Vec::new();
@@ -110,7 +130,6 @@ where
         }
         Some(SelectOptionIds::from(transformed_ids))
       },
-      FieldType::RichText => Some(SelectOptionIds::from(cell)),
       FieldType::SingleSelect | FieldType::MultiSelect => Some(SelectOptionIds::from(cell)),
       _ => None,
     }

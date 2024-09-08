@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/utils/color_converter.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'dandelion.dart';
@@ -87,6 +86,9 @@ class FlowyColorScheme {
     required this.toggleButtonBGColor,
     required this.calendarWeekendBGColor,
     required this.gridRowCountColor,
+    required this.borderColor,
+    required this.scrollbarColor,
+    required this.scrollbarHoverColor,
   });
 
   final Color surface;
@@ -144,6 +146,11 @@ class FlowyColorScheme {
   final Color calendarWeekendBGColor;
   //grid bottom count color
   final Color gridRowCountColor;
+
+  final Color borderColor;
+
+  final Color scrollbarColor;
+  final Color scrollbarHoverColor;
 
   factory FlowyColorScheme.fromJson(Map<String, dynamic> json) =>
       _$FlowyColorSchemeFromJson(json);

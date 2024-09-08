@@ -13,7 +13,7 @@ protobuf.workspace = true
 tracing.workspace = true
 bytes.workspace = true
 serde = { workspace = true, features = ["derive"] }
-dashmap = "5.5"
+dashmap.workspace = true
 tokio-util = "0.7"
 tokio = { workspace = true, features = ["time"] }
 

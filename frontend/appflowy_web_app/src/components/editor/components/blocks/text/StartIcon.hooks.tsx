@@ -43,7 +43,7 @@ export function useStartIcon(node: TextNode) {
     const classList = ['text-block-icon relative w-[24px]'];
 
     if (block.type === BlockType.QuoteBlock) {
-      classList.push('h-full');
+      classList.push('h-full min-w-[24px]');
     } else {
       classList.push('h-6');
     }

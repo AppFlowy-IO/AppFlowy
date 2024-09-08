@@ -14,8 +14,8 @@ use client_api::ws::{
 };
 use client_api::{Client, ClientConfiguration};
 
-use flowy_chat_pub::cloud::ChatCloudService;
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_ai_pub::cloud::ChatCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
@@ -214,6 +214,16 @@ impl AppFlowyServer for AppFlowyCloudServer {
       inner: server,
       user: self.user.clone(),
     })
+  }
+
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+    Some(Arc::new(AFCloudDatabaseCloudServiceImpl {
+      inner: server,
+      user: self.user.clone(),
+    }))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {

@@ -77,7 +77,7 @@ class _SpaceNameTextField extends StatelessWidget {
   });
 
   final void Function(String name) onNameChanged;
-  final void Function(String icon, String color) onIconChanged;
+  final void Function(String? icon, String? color) onIconChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +99,7 @@ class _SpaceNameTextField extends StatelessWidget {
               SizedBox.square(
                 dimension: 40,
                 child: SpaceIconPopup(
+                  space: space,
                   cornerRadius: 12,
                   icon: space?.spaceIcon,
                   iconColor: space?.spaceIconColor,

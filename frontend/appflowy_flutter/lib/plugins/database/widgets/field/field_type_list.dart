@@ -24,6 +24,7 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.Summary,
   // FieldType.Time,
   FieldType.Translate,
+  FieldType.Media,
 ];
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
@@ -75,9 +76,7 @@ class FieldTypeCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
-          fieldType.i18n,
-        ),
+        text: FlowyText.medium(fieldType.i18n, lineHeight: 1.0),
         onTap: () => onSelectField(fieldType),
         leftIcon: FlowySvg(
           fieldType.svgData,

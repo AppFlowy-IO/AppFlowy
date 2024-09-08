@@ -118,6 +118,8 @@ class WorkspaceDataManager {
     final List<ViewPB> unlistedChildViews = [];
     // Views whose parent is not in allViews
     final List<ViewPB> orphanViews = [];
+    // Row pages
+    final List<ViewPB> rowPageViews = [];
 
     try {
       if (workspace == null || allViews == null) {
@@ -145,6 +147,11 @@ class WorkspaceDataManager {
           continue;
         }
 
+        if (parentView.id == view.id) {
+          rowPageViews.add(view);
+          continue;
+        }
+
         final childViewsOfParent =
             await ViewBackendService.getChildViews(viewId: parentView.id)
                 .getOrThrow();
@@ -165,7 +172,11 @@ class WorkspaceDataManager {
     }
 
     for (final view in orphanViews) {
-      Log.debug('[workspace] orphanViews: ${view.toProto3Json()}');
+      Log.info('[workspace] orphanViews: ${view.toProto3Json()}');
+    }
+
+    for (final view in rowPageViews) {
+      Log.info('[workspace] rowPageViews: ${view.toProto3Json()}');
     }
 
     if (!dryRun && unlistedChildViews.isNotEmpty) {

@@ -33,8 +33,10 @@ uuid.workspace = true
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
 client-api.workspace = true
-flowy-chat = { workspace = true }
-flowy-chat-pub = { workspace = true }
+flowy-ai = { workspace = true }
+flowy-ai-pub = { workspace = true }
+appflowy-local-ai = { version = "0.1.0" }
+
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }
@@ -42,8 +44,9 @@ bytes.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 console-subscriber = { version = "0.2", optional = true }
-parking_lot.workspace = true
 anyhow.workspace = true
+dashmap.workspace = true
+arc-swap.workspace = true
 base64 = "0.21.5"
 
 lib-infra = { workspace = true }
@@ -65,7 +68,7 @@ dart = [
     "flowy-search/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-chat/dart",
+    "flowy-ai/dart",
     "flowy-storage/dart",
 ]
 ts = [
@@ -74,7 +77,7 @@ ts = [
     "flowy-search/tauri_ts",
     "flowy-database2/ts",
     "flowy-config/tauri_ts",
-    "flowy-chat/tauri_ts",
+    "flowy-ai/tauri_ts",
     "flowy-storage/tauri_ts",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
@@ -82,5 +85,6 @@ openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 # Enable/Disable AppFlowy Verbose Log Configuration
 verbose_log = [
     "flowy-document/verbose_log",
+    "flowy-database2/verbose_log",
     "client-api/sync_verbose_log"
 ]

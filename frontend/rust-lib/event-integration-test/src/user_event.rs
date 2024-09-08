@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
 use bytes::Bytes;
-
 use flowy_folder::entities::{RepeatedViewPB, WorkspacePB};
-use nanoid::nanoid;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
 use tracing::error;
@@ -72,7 +71,12 @@ impl EventIntegrationTest {
     .unwrap();
 
     let request = AFPluginRequest::new(UserEvent::SignUp).payload(payload);
-    let user_profile = AFPluginDispatcher::async_send(&self.appflowy_core.dispatcher(), request)
+    let user_profile = self
+      .local_set
+      .run_until(AFPluginDispatcher::async_send(
+        &self.appflowy_core.dispatcher(),
+        request,
+      ))
       .await
       .parse::<UserProfilePB, FlowyError>()
       .unwrap()
@@ -101,21 +105,6 @@ impl EventIntegrationTest {
     }
   }
 
-  pub async fn supabase_party_sign_up(&self) -> UserProfilePB {
-    let map = third_party_sign_up_param(Uuid::new_v4().to_string());
-    let payload = OauthSignInPB {
-      map,
-      authenticator: AuthenticatorPB::Supabase,
-    };
-
-    EventBuilder::new(self.clone())
-      .event(UserEvent::OauthSignIn)
-      .payload(payload)
-      .async_send()
-      .await
-      .parse::<UserProfilePB>()
-  }
-
   pub async fn sign_out(&self) {
     EventBuilder::new(self.clone())
       .event(UserEvent::SignOut)
@@ -124,7 +113,7 @@ impl EventIntegrationTest {
   }
 
   pub fn set_auth_type(&self, auth_type: AuthenticatorPB) {
-    *self.authenticator.write() = auth_type;
+    self.authenticator.store(auth_type as u8, Ordering::Release);
   }
 
   pub async fn init_anon_user(&self) -> UserProfilePB {
@@ -166,33 +155,6 @@ impl EventIntegrationTest {
     let payload = OauthSignInPB {
       map,
       authenticator: AuthenticatorPB::AppFlowyCloud,
-    };
-
-    let user_profile = EventBuilder::new(self.clone())
-      .event(UserEvent::OauthSignIn)
-      .payload(payload)
-      .async_send()
-      .await
-      .try_parse::<UserProfilePB>()?;
-
-    Ok(user_profile)
-  }
-
-  pub async fn supabase_sign_up_with_uuid(
-    &self,
-    uuid: &str,
-    email: Option<String>,
-  ) -> FlowyResult<UserProfilePB> {
-    let mut map = HashMap::new();
-    map.insert(USER_UUID.to_string(), uuid.to_string());
-    map.insert(USER_DEVICE_ID.to_string(), uuid.to_string());
-    map.insert(
-      USER_EMAIL.to_string(),
-      email.unwrap_or_else(|| format!("{}@appflowy.io", nanoid!(10))),
-    );
-    let payload = OauthSignInPB {
-      map,
-      authenticator: AuthenticatorPB::Supabase,
     };
 
     let user_profile = EventBuilder::new(self.clone())

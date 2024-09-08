@@ -17,6 +17,7 @@ diesel::table! {
         author_type -> BigInt,
         author_id -> Text,
         reply_message_id -> Nullable<BigInt>,
+        metadata -> Nullable<Text>,
     }
 }
 
@@ -25,8 +26,8 @@ diesel::table! {
         chat_id -> Text,
         created_at -> BigInt,
         name -> Text,
-        local_model_path -> Text,
-        local_model_name -> Text,
+        local_files -> Text,
+        metadata -> Text,
         local_enabled -> Bool,
         sync_to_cloud -> Bool,
     }
@@ -63,6 +64,7 @@ diesel::table! {
         num_chunk -> Integer,
         upload_id -> Text,
         created_at -> BigInt,
+        is_finish -> Bool,
     }
 }
 

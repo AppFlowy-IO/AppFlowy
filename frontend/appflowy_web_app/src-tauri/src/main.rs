@@ -21,7 +21,7 @@ extern crate dotenv;
 fn main() {
   tauri_plugin_deep_link::prepare(DEEP_LINK_SCHEME);
 
-  let flowy_core = init_flowy_core();
+  let flowy_core = init_appflowy_core();
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![invoke_request])
     .manage(flowy_core)

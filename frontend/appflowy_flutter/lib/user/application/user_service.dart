@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -9,17 +7,22 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class IUserBackendService {
   Future<FlowyResult<void, FlowyError>> cancelSubscription(
     String workspaceId,
     SubscriptionPlanPB plan,
+    String? reason,
   );
   Future<FlowyResult<PaymentLinkPB, FlowyError>> createSubscription(
     String workspaceId,
     SubscriptionPlanPB plan,
   );
 }
+
+const _baseBetaUrl = 'https://beta.appflowy.com';
+const _baseProdUrl = 'https://appflowy.com';
 
 class UserBackendService implements IUserBackendService {
   UserBackendService({required this.userId});
@@ -255,18 +258,23 @@ class UserBackendService implements IUserBackendService {
       ..recurringInterval = RecurringIntervalPB.Year
       ..workspaceSubscriptionPlan = plan
       ..successUrl =
-          '${getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url}/web/payment-success?plan=${plan.toRecognizable()}';
+          '${kDebugMode ? _baseBetaUrl : _baseProdUrl}/after-payment?plan=${plan.toRecognizable()}';
     return UserEventSubscribeWorkspace(request).send();
   }
 
   @override
   Future<FlowyResult<void, FlowyError>> cancelSubscription(
     String workspaceId,
-    SubscriptionPlanPB plan,
-  ) {
+    SubscriptionPlanPB plan, [
+    String? reason,
+  ]) {
     final request = CancelWorkspaceSubscriptionPB()
       ..workspaceId = workspaceId
       ..plan = plan;
+
+    if (reason != null) {
+      request.reason = reason;
+    }
 
     return UserEventCancelWorkspaceSubscription(request).send();
   }
@@ -282,5 +290,10 @@ class UserBackendService implements IUserBackendService {
       ..recurringInterval = interval;
 
     return UserEventUpdateWorkspaceSubscriptionPaymentPeriod(request).send();
+  }
+
+  // NOTE: This function is irreversible and will delete the current user's account.
+  static Future<FlowyResult<void, FlowyError>> deleteCurrentAccount() {
+    return UserEventDeleteAccount().send();
   }
 }

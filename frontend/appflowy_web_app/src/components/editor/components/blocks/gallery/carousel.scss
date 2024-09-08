@@ -1,0 +1,48 @@
+.images-carousel {
+  .carousel-container {
+    @apply h-[600px] max-sm:h-[360px];
+  }
+
+  .lg-thumb-item {
+    display: flex;
+  }
+
+  .lg-toolbar {
+    display: none;
+  }
+
+
+  .lg-backdrop, .lg-outer .lg-thumb-outer {
+    background: var(--bg-body);
+  }
+
+  .lg-outer .lg-thumb-outer {
+    max-height: 100px;
+  }
+
+  .lg-outer.lg-animate-thumb .lg-thumb {
+    @apply max-sm:top-[-46px] top-[-50px];
+  }
+
+  .lg-outer .lg-thumb-item {
+    @apply rounded-[8px];
+    img {
+      @apply rounded-[6px];
+    }
+  }
+
+  .lg-outer .lg-thumb-item.active, .lg-outer .lg-thumb-item:hover {
+    border: 2px solid var(--content-blue-400);
+    padding: 2px;
+  }
+
+
+  .lg-next, .lg-prev {
+    background: transparent;
+    color: var(--text-caption);
+    @apply max-md:hidden;
+    &:hover:not(.disabled) {
+      color: var(--text-title);
+    }
+  }
+}

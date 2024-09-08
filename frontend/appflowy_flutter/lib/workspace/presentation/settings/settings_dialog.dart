@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/settings_ai_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
@@ -25,7 +25,7 @@ class SettingsDialog extends StatelessWidget {
     required this.dismissDialog,
     required this.didLogout,
     required this.restartApp,
-    this.initPage, 
+    this.initPage,
   }) : super(key: ValueKey(user.id));
 
   final VoidCallback dismissDialog;
@@ -39,6 +39,7 @@ class SettingsDialog extends StatelessWidget {
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
+        context.read<UserWorkspaceBloc>().state.currentWorkspaceMember,
         initPage: initPage,
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
@@ -60,6 +61,7 @@ class SettingsDialog extends StatelessWidget {
                           .add(SettingsDialogEvent.setSelectedPage(index)),
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
+                      isBillingEnabled: state.isBillingEnabled,
                       member: context
                           .read<UserWorkspaceBloc>()
                           .state
@@ -118,7 +120,11 @@ class SettingsDialog extends StatelessWidget {
         return const SettingsShortcutsView();
       case SettingsPage.ai:
         if (user.authenticator == AuthenticatorPB.AppFlowyCloud) {
-          return SettingsAIView(userProfile: user);
+          return SettingsAIView(
+            userProfile: user,
+            member: member,
+            workspaceId: workspaceId,
+          );
         } else {
           return const AIFeatureOnlySupportedWhenUsingAppFlowyCloud();
         }

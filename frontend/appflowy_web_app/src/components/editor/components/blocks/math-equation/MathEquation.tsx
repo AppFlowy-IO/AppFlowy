@@ -1,4 +1,4 @@
-import KatexMath from '@/components/_shared/katex-math/KatexMath';
+import { KatexMath } from '@/components/_shared/katex-math';
 import { notify } from '@/components/_shared/notify';
 import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';

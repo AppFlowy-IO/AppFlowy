@@ -181,6 +181,7 @@ class _AddOptionButton extends StatelessWidget {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           text: FlowyText.medium(
+            lineHeight: 1.0,
             LocaleKeys.grid_field_addSelectOption.tr(),
           ),
           onTap: () {

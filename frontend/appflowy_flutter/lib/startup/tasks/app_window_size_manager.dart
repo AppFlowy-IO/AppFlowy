@@ -35,7 +35,7 @@ class WindowSizeManager {
 
   Future<Size> getSize() async {
     final defaultWindowSize = jsonEncode(
-      {WindowSizeManager.height: 600.0, WindowSizeManager.width: 800.0},
+      {WindowSizeManager.height: minWindowHeight, WindowSizeManager.width: minWindowWidth},
     );
     final windowSize = await getIt<KeyValueStorage>().get(KVKeys.windowSize);
     final size = json.decode(

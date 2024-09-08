@@ -1,10 +1,11 @@
+use collab::preclude::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, RowId};
-
 use flowy_error::FlowyResult;
 use lib_infra::box_any::BoxAny;
 
@@ -13,8 +14,8 @@ use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellP
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
+  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption,
+  NumberTypeOption, RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
   TimestampTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
@@ -91,17 +92,43 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   fn handle_is_cell_empty(&self, cell: &Cell, field: &Field) -> bool;
 }
 
+#[derive(Debug)]
 struct CellDataCacheKey(u64);
 impl CellDataCacheKey {
   pub fn new(field_rev: &Field, decoded_field_type: FieldType, cell: &Cell) -> Self {
     let mut hasher = DefaultHasher::new();
     if let Some(type_option_data) = field_rev.get_any_type_option(decoded_field_type) {
-      type_option_data.hash(&mut hasher);
+      map_hash(&type_option_data, &mut hasher);
     }
     hasher.write(field_rev.id.as_bytes());
     hasher.write_u8(decoded_field_type as u8);
-    cell.hash(&mut hasher);
+    map_hash(cell, &mut hasher);
     Self(hasher.finish())
+  }
+}
+
+fn any_hash<H: Hasher>(any: &Any, hasher: &mut H) {
+  //FIXME: this is very bad idea for hash calculation
+  match any {
+    Any::Null | Any::Undefined => hasher.write_u8(0),
+    Any::Bool(v) => v.hash(hasher),
+    Any::Number(v) => v.to_be_bytes().hash(hasher),
+    Any::BigInt(v) => v.hash(hasher),
+    Any::String(v) => v.hash(hasher),
+    Any::Buffer(v) => v.hash(hasher),
+    Any::Array(v) => {
+      for v in v.iter() {
+        any_hash(v, hasher);
+      }
+    },
+    Any::Map(v) => map_hash(v, hasher),
+  }
+}
+
+fn map_hash<H: Hasher>(map: &HashMap<String, Any>, hasher: &mut H) {
+  for (k, v) in map.iter() {
+    k.hash(hasher);
+    any_hash(v, hasher);
   }
 }
 
@@ -158,23 +185,22 @@ where
 
   fn get_cell_data_from_cache(&self, cell: &Cell, field: &Field) -> Option<T::CellData> {
     let key = self.get_cell_data_cache_key(cell, field);
-
-    let cell_data_cache = self.cell_data_cache.as_ref()?.read();
-
-    cell_data_cache.get(key.as_ref()).cloned()
+    let cell_data_cache = self.cell_data_cache.as_ref()?;
+    let cell = cell_data_cache.get::<T::CellData>(key.as_ref())?;
+    Some(cell.value().clone())
   }
 
   fn set_cell_data_in_cache(&self, cell: &Cell, cell_data: T::CellData, field: &Field) {
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
       let key = CellDataCacheKey::new(field, field_type, cell);
-      tracing::trace!(
-        "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
-        field_type,
-        cell,
-        cell_data
-      );
-      cell_data_cache.write().insert(key.as_ref(), cell_data);
+      // tracing::trace!(
+      //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
+      //   field_type,
+      //   cell,
+      //   cell_data
+      // );
+      cell_data_cache.insert(key.as_ref(), cell_data);
     }
   }
 
@@ -470,6 +496,16 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
+      FieldType::Media => self
+        .field
+        .get_type_option::<MediaTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            field_type,
+            self.cell_data_cache.clone(),
+          )
+        }),
     }
   }
 
@@ -479,107 +515,27 @@ impl<'a> TypeOptionCellExt<'a> {
   }
 }
 
+/// when return true, the to_field_type must implement [CellDataDecoder]'s decode_cell_with_transform
 pub fn is_type_option_cell_transformable(
   from_field_type: FieldType,
   to_field_type: FieldType,
 ) -> bool {
   matches!(
     (from_field_type, to_field_type),
+    // Checkbox
     (FieldType::Checkbox, FieldType::SingleSelect)
       | (FieldType::Checkbox, FieldType::MultiSelect)
+    // SingleSelect or MultiSelect
       | (FieldType::SingleSelect, FieldType::MultiSelect)
       | (FieldType::MultiSelect, FieldType::SingleSelect)
+    // Text
+      | (FieldType::RichText, FieldType::SingleSelect)
+      | (FieldType::RichText, FieldType::MultiSelect)
+      | (FieldType::RichText, FieldType::URL)
+      | (FieldType::RichText, FieldType::Number)
+      | (FieldType::RichText, FieldType::DateTime)
       | (_, FieldType::RichText)
   )
-}
-
-pub fn transform_type_option(
-  old_field_type: FieldType,
-  new_field_type: FieldType,
-  old_type_option_data: Option<TypeOptionData>,
-  new_type_option_data: TypeOptionData,
-) -> TypeOptionData {
-  if let Some(old_type_option_data) = old_type_option_data {
-    let mut transform_handler =
-      get_type_option_transform_handler(new_type_option_data, new_field_type);
-    transform_handler.transform(old_field_type, old_type_option_data);
-    transform_handler.to_type_option_data()
-  } else {
-    new_type_option_data
-  }
-}
-
-/// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait.
-pub trait TypeOptionTransformHandler {
-  fn transform(
-    &mut self,
-    old_type_option_field_type: FieldType,
-    old_type_option_data: TypeOptionData,
-  );
-
-  fn to_type_option_data(&self) -> TypeOptionData;
-}
-
-impl<T> TypeOptionTransformHandler for T
-where
-  T: TypeOptionTransform + Clone,
-{
-  fn transform(
-    &mut self,
-    old_type_option_field_type: FieldType,
-    old_type_option_data: TypeOptionData,
-  ) {
-    self.transform_type_option(old_type_option_field_type, old_type_option_data)
-  }
-
-  fn to_type_option_data(&self) -> TypeOptionData {
-    self.clone().into()
-  }
-}
-
-fn get_type_option_transform_handler(
-  type_option_data: TypeOptionData,
-  field_type: FieldType,
-) -> Box<dyn TypeOptionTransformHandler> {
-  match field_type {
-    FieldType::RichText => {
-      Box::new(RichTextTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::Number => {
-      Box::new(NumberTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::DateTime => {
-      Box::new(DateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::LastEditedTime | FieldType::CreatedTime => {
-      Box::new(TimestampTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::SingleSelect => Box::new(SingleSelectTypeOption::from(type_option_data))
-      as Box<dyn TypeOptionTransformHandler>,
-    FieldType::MultiSelect => {
-      Box::new(MultiSelectTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::Checkbox => {
-      Box::new(CheckboxTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::URL => {
-      Box::new(URLTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::Checklist => {
-      Box::new(ChecklistTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::Relation => {
-      Box::new(RelationTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::Summary => Box::new(SummarizationTypeOption::from(type_option_data))
-      as Box<dyn TypeOptionTransformHandler>,
-    FieldType::Time => {
-      Box::new(TimeTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-    FieldType::Translate => {
-      Box::new(TranslateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-    },
-  }
 }
 
 pub type BoxCellData = BoxAny;

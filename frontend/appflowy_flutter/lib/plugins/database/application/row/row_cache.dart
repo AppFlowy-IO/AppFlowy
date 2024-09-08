@@ -44,7 +44,8 @@ class RowCache {
       for (final fieldInfo in fieldInfos) {
         _cellMemCache.removeCellWithFieldId(fieldInfo.id);
       }
-      _changedNotifier.receive(const ChangedReason.fieldDidChange());
+
+      _changedNotifier?.receive(const ChangedReason.fieldDidChange());
     });
   }
 
@@ -53,7 +54,9 @@ class RowCache {
   final CellMemCache _cellMemCache;
   final RowLifeCycle _rowLifeCycle;
   final RowFieldsDelegate _fieldDelegate;
-  final RowChangesetNotifier _changedNotifier;
+  RowChangesetNotifier? _changedNotifier;
+  bool _isInitialRows = false;
+  final List<RowsVisibilityChangePB> _pendingVisibilityChanges = [];
 
   /// Returns a unmodifiable list of RowInfo
   UnmodifiableListView<RowInfo> get rowInfos {
@@ -67,7 +70,8 @@ class RowCache {
   }
 
   CellMemCache get cellCache => _cellMemCache;
-  ChangedReason get changeReason => _changedNotifier.reason;
+  ChangedReason get changeReason =>
+      _changedNotifier?.reason ?? const InitialListState();
 
   RowInfo? getRow(RowId rowId) {
     return _rowList.get(rowId);
@@ -78,12 +82,32 @@ class RowCache {
       final rowInfo = buildGridRow(row);
       _rowList.add(rowInfo);
     }
-    _changedNotifier.receive(const ChangedReason.setInitialRows());
+    _isInitialRows = true;
+    _changedNotifier?.receive(const ChangedReason.setInitialRows());
+
+    for (final changeset in _pendingVisibilityChanges) {
+      applyRowsVisibility(changeset);
+    }
+    _pendingVisibilityChanges.clear();
+  }
+
+  void setRowMeta(RowMetaPB rowMeta) {
+    var rowInfo = _rowList.get(rowMeta.id);
+    if (rowInfo != null) {
+      rowInfo.updateRowMeta(rowMeta);
+    } else {
+      rowInfo = buildGridRow(rowMeta);
+      _rowList.add(rowInfo);
+    }
+
+    _changedNotifier?.receive(const ChangedReason.didFetchRow());
   }
 
   void dispose() {
+    _rowList.dispose();
     _rowLifeCycle.onRowDisposed();
-    _changedNotifier.dispose();
+    _changedNotifier?.dispose();
+    _changedNotifier = null;
     _cellMemCache.dispose();
   }
 
@@ -94,13 +118,17 @@ class RowCache {
   }
 
   void applyRowsVisibility(RowsVisibilityChangePB changeset) {
-    _hideRows(changeset.invisibleRows);
-    _showRows(changeset.visibleRows);
+    if (_isInitialRows) {
+      _hideRows(changeset.invisibleRows);
+      _showRows(changeset.visibleRows);
+    } else {
+      _pendingVisibilityChanges.add(changeset);
+    }
   }
 
   void reorderAllRows(List<String> rowIds) {
     _rowList.reorderWithRowIds(rowIds);
-    _changedNotifier.receive(const ChangedReason.reorderRows());
+    _changedNotifier?.receive(const ChangedReason.reorderRows());
   }
 
   void reorderSingleRow(ReorderSingleRowPB reorderRow) {
@@ -111,7 +139,7 @@ class RowCache {
         reorderRow.oldIndex,
         reorderRow.newIndex,
       );
-      _changedNotifier.receive(
+      _changedNotifier?.receive(
         ChangedReason.reorderSingleRow(
           reorderRow,
           rowInfo,
@@ -124,7 +152,7 @@ class RowCache {
     for (final rowId in deletedRowIds) {
       final deletedRow = _rowList.remove(rowId);
       if (deletedRow != null) {
-        _changedNotifier.receive(ChangedReason.delete(deletedRow));
+        _changedNotifier?.receive(ChangedReason.delete(deletedRow));
       }
     }
   }
@@ -134,7 +162,7 @@ class RowCache {
       final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
       if (insertedIndex != null) {
-        _changedNotifier.receive(ChangedReason.insert(insertedIndex));
+        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
       }
     }
   }
@@ -155,11 +183,13 @@ class RowCache {
       }
     }
 
-    final updatedIndexs =
-        _rowList.updateRows(updatedList, (rowId) => buildGridRow(rowId));
+    final updatedIndexs = _rowList.updateRows(
+      rowMetas: updatedList,
+      builder: (rowId) => buildGridRow(rowId),
+    );
 
     if (updatedIndexs.isNotEmpty) {
-      _changedNotifier.receive(ChangedReason.update(updatedIndexs));
+      _changedNotifier?.receive(ChangedReason.update(updatedIndexs));
     }
   }
 
@@ -167,7 +197,7 @@ class RowCache {
     for (final rowId in invisibleRows) {
       final deletedRow = _rowList.remove(rowId);
       if (deletedRow != null) {
-        _changedNotifier.receive(ChangedReason.delete(deletedRow));
+        _changedNotifier?.receive(ChangedReason.delete(deletedRow));
       }
     }
   }
@@ -177,14 +207,16 @@ class RowCache {
       final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
       if (insertedIndex != null) {
-        _changedNotifier.receive(ChangedReason.insert(insertedIndex));
+        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
       }
     }
   }
 
   void onRowsChanged(void Function(ChangedReason) onRowChanged) {
-    _changedNotifier.addListener(() {
-      onRowChanged(_changedNotifier.reason);
+    _changedNotifier?.addListener(() {
+      if (_changedNotifier != null) {
+        onRowChanged(_changedNotifier!.reason);
+      }
     });
   }
 
@@ -197,17 +229,19 @@ class RowCache {
         final rowInfo = _rowList.get(rowId);
         if (rowInfo != null) {
           final cellDataMap = _makeCells(rowInfo.rowMeta);
-          onRowChanged(cellDataMap, _changedNotifier.reason);
+          if (_changedNotifier != null) {
+            onRowChanged(cellDataMap, _changedNotifier!.reason);
+          }
         }
       }
     }
 
-    _changedNotifier.addListener(listenerHandler);
+    _changedNotifier?.addListener(listenerHandler);
     return listenerHandler;
   }
 
   void removeRowListener(VoidCallback callback) {
-    _changedNotifier.removeListener(callback);
+    _changedNotifier?.removeListener(callback);
   }
 
   List<CellContext> loadCells(RowMetaPB rowMeta) {
@@ -215,7 +249,8 @@ class RowCache {
     if (rowInfo == null) {
       _loadRow(rowMeta.id);
     }
-    return _makeCells(rowMeta);
+    final cells = _makeCells(rowMeta);
+    return cells;
   }
 
   Future<void> _loadRow(RowId rowId) async {
@@ -225,9 +260,7 @@ class RowCache {
         final rowInfo = _rowList.get(rowMetaPB.id);
         final rowIndex = _rowList.indexOfRow(rowMetaPB.id);
         if (rowInfo != null && rowIndex != null) {
-          final updatedRowInfo = rowInfo.copyWith(rowMeta: rowMetaPB);
-          _rowList.remove(rowMetaPB.id);
-          _rowList.insert(rowIndex, updatedRowInfo);
+          rowInfo.rowMetaNotifier.value = rowMetaPB;
 
           final UpdatedIndexMap updatedIndexs = UpdatedIndexMap();
           updatedIndexs[rowMetaPB.id] = UpdatedIndex(
@@ -235,7 +268,7 @@ class RowCache {
             rowId: rowMetaPB.id,
           );
 
-          _changedNotifier.receive(ChangedReason.update(updatedIndexs));
+          _changedNotifier?.receive(ChangedReason.update(updatedIndexs));
         }
       },
       (err) => Log.error(err),
@@ -277,19 +310,43 @@ class RowChangesetNotifier extends ChangeNotifier {
       reorderRows: (_) => notifyListeners(),
       reorderSingleRow: (_) => notifyListeners(),
       setInitialRows: (_) => notifyListeners(),
+      didFetchRow: (_) => notifyListeners(),
     );
   }
 }
 
-@unfreezed
-class RowInfo with _$RowInfo {
-  const RowInfo._();
-  factory RowInfo({
-    required UnmodifiableListView<FieldInfo> fields,
+class RowInfo {
+  RowInfo({
+    required this.fields,
     required RowMetaPB rowMeta,
-  }) = _RowInfo;
+  })  : rowMetaNotifier = ValueNotifier<RowMetaPB>(rowMeta),
+        rowIconNotifier = ValueNotifier<String>(rowMeta.icon),
+        rowDocumentNotifier = ValueNotifier<bool>(
+          !(rowMeta.hasIsDocumentEmpty() ? rowMeta.isDocumentEmpty : true),
+        );
 
-  String get rowId => rowMeta.id;
+  final UnmodifiableListView<FieldInfo> fields;
+  final ValueNotifier<RowMetaPB> rowMetaNotifier;
+  final ValueNotifier<String> rowIconNotifier;
+  final ValueNotifier<bool> rowDocumentNotifier;
+
+  String get rowId => rowMetaNotifier.value.id;
+
+  RowMetaPB get rowMeta => rowMetaNotifier.value;
+
+  /// Updates the RowMeta and automatically updates the related notifiers.
+  void updateRowMeta(RowMetaPB newMeta) {
+    rowMetaNotifier.value = newMeta;
+    rowIconNotifier.value = newMeta.icon;
+    rowDocumentNotifier.value = !newMeta.isDocumentEmpty;
+  }
+
+  /// Dispose of the notifiers when they are no longer needed.
+  void dispose() {
+    rowMetaNotifier.dispose();
+    rowIconNotifier.dispose();
+    rowDocumentNotifier.dispose();
+  }
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;
@@ -305,6 +362,7 @@ class ChangedReason with _$ChangedReason {
   const factory ChangedReason.update(UpdatedIndexMap indexs) = _Update;
   const factory ChangedReason.fieldDidChange() = _FieldDidChange;
   const factory ChangedReason.initial() = InitialListState;
+  const factory ChangedReason.didFetchRow() = _DidFetchRow;
   const factory ChangedReason.reorderRows() = _ReorderRows;
   const factory ChangedReason.reorderSingleRow(
     ReorderSingleRowPB reorderRow,

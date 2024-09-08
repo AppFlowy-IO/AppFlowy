@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     hide UploadImageMenu, ResizableImage;
@@ -36,13 +36,15 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_image_addAnImage.tr(),
+        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
       );
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Image');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_image.tr(),
+      );
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
       expect(
@@ -84,13 +86,15 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_image_addAnImage.tr(),
+        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
       );
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
       await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName('Image');
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_image.tr(),
+      );
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
       expect(
@@ -137,13 +141,15 @@ void main() {
 
         // create a new document
         await tester.createNewPageWithNameUnderParent(
-          name: LocaleKeys.document_plugins_image_addAnImage.tr(),
+          name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
         );
 
         // tap the first line of the document
         await tester.editor.tapLineOfEditorAt(0);
         await tester.editor.showSlashMenu();
-        await tester.editor.tapSlashMenuItemWithName('Image');
+        await tester.editor.tapSlashMenuItemWithName(
+          LocaleKeys.document_slashMenu_name_image.tr(),
+        );
         expect(find.byType(CustomImageBlockComponent), findsOneWidget);
         expect(find.byType(ImagePlaceholder), findsOneWidget);
         expect(
@@ -160,6 +166,70 @@ void main() {
         );
         expect(find.byType(UnsplashImageWidget), findsOneWidget);
       });
+    });
+
+    testWidgets('insert two images from local file at once', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      // create a new document
+      await tester.createNewPageWithNameUnderParent(
+        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
+      );
+
+      // tap the first line of the document
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.showSlashMenu();
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_name_image.tr(),
+      );
+      expect(find.byType(CustomImageBlockComponent), findsOneWidget);
+      expect(find.byType(ImagePlaceholder), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ImagePlaceholder),
+          matching: find.byType(AppFlowyPopover),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(UploadImageMenu), findsOneWidget);
+
+      final firstImage =
+          await rootBundle.load('assets/test/images/sample.jpeg');
+      final secondImage =
+          await rootBundle.load('assets/test/images/sample.gif');
+      final tempDirectory = await getTemporaryDirectory();
+
+      final firstImagePath = p.join(tempDirectory.path, 'sample.jpeg');
+      final firstFile = File(firstImagePath)
+        ..writeAsBytesSync(firstImage.buffer.asUint8List());
+
+      final secondImagePath = p.join(tempDirectory.path, 'sample.gif');
+      final secondFile = File(secondImagePath)
+        ..writeAsBytesSync(secondImage.buffer.asUint8List());
+
+      mockPickFilePaths(paths: [firstImagePath, secondImagePath]);
+
+      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, '0');
+      await tester.tapButtonWithName(
+        LocaleKeys.document_imageBlock_upload_placeholder.tr(),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ResizableImage), findsNWidgets(2));
+
+      final firstNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
+      expect(firstNode.type, ImageBlockKeys.type);
+      expect(firstNode.attributes[ImageBlockKeys.url], isNotEmpty);
+
+      final secondNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
+      expect(secondNode.type, ImageBlockKeys.type);
+      expect(secondNode.attributes[ImageBlockKeys.url], isNotEmpty);
+
+      // remove the temp files
+      await Future.wait([firstFile.delete(), secondFile.delete()]);
     });
   });
 }

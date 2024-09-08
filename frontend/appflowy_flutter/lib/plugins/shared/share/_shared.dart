@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,27 +41,12 @@ class ShareMenuButton extends StatelessWidget {
               tabs: tabs,
             ),
           ),
-          child: const _ShareButton(),
+          child: PrimaryRoundedButton(
+            text: LocaleKeys.shareAction_buttonText.tr(),
+            figmaLineHeight: 16,
+          ),
         ),
       ),
-    );
-  }
-}
-
-class _ShareButton extends StatelessWidget {
-  const _ShareButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return RoundedTextButton(
-      title: LocaleKeys.shareAction_buttonText.tr(),
-      padding: const EdgeInsets.symmetric(horizontal: 14.0),
-      fontSize: 14.0,
-      fontWeight: FontWeight.w500,
-      borderRadius: const BorderRadius.all(
-        Radius.circular(10.0),
-      ),
-      textColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
 }

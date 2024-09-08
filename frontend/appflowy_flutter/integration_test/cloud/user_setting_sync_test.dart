@@ -2,8 +2,6 @@
 
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/account_user_profile.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
@@ -18,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -47,13 +47,12 @@ void main() {
       await tester.openSettingsPage(SettingsPage.account);
 
       await tester.enterUserName(name);
-      await tester.tapEscButton();
+      await tester.pumpAndSettle(const Duration(seconds: 6));
+      await tester.logout();
 
-      // wait 2 seconds for the sync to finish
       await tester.pumpAndSettle(const Duration(seconds: 2));
     });
   });
-
   testWidgets('get user icon and name from server', (tester) async {
     await tester.initializeAppFlowy(
       cloudType: AuthenticatorType.appflowyCloudSelfHost,
@@ -68,7 +67,7 @@ void main() {
 
     // Verify name
     final profileSetting =
-        tester.widget(find.byType(UserProfileSetting)) as UserProfileSetting;
+        tester.widget(find.byType(AccountUserProfile)) as AccountUserProfile;
 
     expect(profileSetting.name, name);
   });

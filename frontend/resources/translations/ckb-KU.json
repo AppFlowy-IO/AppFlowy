@@ -481,8 +481,8 @@
       "tooltipSelectIcon": "هەڵبژاەدنی وێنۆچكه‌",
       "selectAnIcon": "هەڵبژاردنی وێنۆچكه‌",
       "pleaseInputYourOpenAIKey": "تکایە کلیلی AI ـەکەت بنووسە",
-      "pleaseInputYourStabilityAIKey": "تکایە جێگیری کلیلی  AI ـەکەت بنووسە",
-      "clickToLogout": "بۆ دەرچوون لە بەکارهێنەری ئێستا کلیک بکە"
+      "clickToLogout": "بۆ دەرچوون لە بەکارهێنەری ئێستا کلیک بکە",
+      "pleaseInputYourStabilityAIKey": "تکایە جێگیری کلیلی  AI ـەکەت بنووسە"
     },
     "mobile": {
       "personalInfo": "زانیاری کەسی",
@@ -742,7 +742,6 @@
       "autoGeneratorCantGetOpenAIKey": "نەتوانرا کلیلی AI بەدەست بهێنرێت",
       "autoGeneratorRewrite": "دووبارە نووسینەوە",
       "smartEdit": "یاریدەدەری زیرەک",
-      "openAI": "AI ژیری دەستکرد",
       "smartEditFixSpelling": "ڕاستکردنەوەی نووسین",
       "warning": "⚠️ وەڵامەکانی AI دەتوانن هەڵە یان چەواشەکارانە بن",
       "smartEditSummarize": "کورتەنووسی",
@@ -805,7 +804,8 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "بۆ دروستکردنی خشتەی ناوەڕۆک سەردێڕەکان داخڵ بکە"
-      }
+      },
+      "openAI": "AI ژیری دەستکرد"
     },
     "textBlock": {
       "placeholder": "بۆ فەرمانەکان '/' بنووسە"

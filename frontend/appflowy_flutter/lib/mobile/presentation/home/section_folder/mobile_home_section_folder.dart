@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_pane.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
@@ -43,53 +43,82 @@ class MobileSectionFolder extends StatelessWidget {
                   onPressed: () => context
                       .read<FolderBloc>()
                       .add(const FolderEvent.expandOrUnExpand()),
-                  onAdded: () {
-                    context.read<SidebarSectionsBloc>().add(
-                          SidebarSectionsEvent.createRootViewInSection(
-                            name: LocaleKeys.menuAppHeader_defaultNewPageName
-                                .tr(),
-                            index: 0,
-                            viewSection: spaceType.toViewSectionPB,
-                          ),
-                        );
-                    context.read<FolderBloc>().add(
-                          const FolderEvent.expandOrUnExpand(isExpanded: true),
-                        );
-                  },
+                  onAdded: () => _createNewPage(context),
                 ),
               ),
               if (state.isExpanded)
-                ...views.map(
-                  (view) => MobileViewItem(
-                    key: ValueKey(
-                      '${FolderSpaceType.private.name} ${view.id}',
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: HomeSpaceViewSizes.leftPadding,
+                  ),
+                  child: _Pages(
+                    views: views,
                     spaceType: spaceType,
-                    isFirstChild: view.id == views.first.id,
-                    view: view,
-                    level: 0,
-                    leftPadding: HomeSpaceViewSizes.leftPadding,
-                    isFeedback: false,
-                    onSelected: context.pushView,
-                    endActionPane: (context) {
-                      final view = context.read<ViewBloc>().state.view;
-                      return buildEndActionPane(
-                        context,
-                        [
-                          MobilePaneActionType.more,
-                          if (view.layout == ViewLayoutPB.Document)
-                            MobilePaneActionType.add,
-                        ],
-                        spaceType: spaceType,
-                        needSpace: false,
-                      );
-                    },
                   ),
                 ),
             ],
           );
         },
       ),
+    );
+  }
+
+  void _createNewPage(BuildContext context) {
+    context.read<SidebarSectionsBloc>().add(
+          SidebarSectionsEvent.createRootViewInSection(
+            name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+            index: 0,
+            viewSection: spaceType.toViewSectionPB,
+          ),
+        );
+    context.read<FolderBloc>().add(
+          const FolderEvent.expandOrUnExpand(isExpanded: true),
+        );
+  }
+}
+
+class _Pages extends StatelessWidget {
+  const _Pages({
+    required this.views,
+    required this.spaceType,
+  });
+
+  final List<ViewPB> views;
+  final FolderSpaceType spaceType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: views
+          .map(
+            (view) => MobileViewItem(
+              key: ValueKey(
+                '${FolderSpaceType.private.name} ${view.id}',
+              ),
+              spaceType: spaceType,
+              isFirstChild: view.id == views.first.id,
+              view: view,
+              level: 0,
+              leftPadding: HomeSpaceViewSizes.leftPadding,
+              isFeedback: false,
+              onSelected: context.pushView,
+              endActionPane: (context) {
+                final view = context.read<ViewBloc>().state.view;
+                return buildEndActionPane(
+                  context,
+                  [
+                    MobilePaneActionType.more,
+                    if (view.layout == ViewLayoutPB.Document)
+                      MobilePaneActionType.add,
+                  ],
+                  spaceType: spaceType,
+                  needSpace: false,
+                  spaceRatio: 5,
+                );
+              },
+            ),
+          )
+          .toList(),
     );
   }
 }

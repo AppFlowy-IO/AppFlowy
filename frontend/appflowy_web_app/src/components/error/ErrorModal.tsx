@@ -4,10 +4,10 @@ import { Button } from '@mui/material';
 
 export const ErrorModal = ({ message, onClose }: { message: string; onClose: () => void }) => {
   return (
-    <div className={'fixed inset-0 z-10 flex items-center justify-center bg-white/30 backdrop-blur-sm'}>
+    <div className={'fixed inset-0 z-10 flex items-center justify-center bg-bg-mask backdrop-blur-sm'}>
       <div
         className={
-          'border-shade-5 relative flex flex-col items-center gap-8 rounded-xl border bg-white px-16 py-8 shadow-md'
+          'border-shade-5 relative flex flex-col items-center gap-8 rounded-xl border border-line-divider bg-bg-body px-16 py-8 shadow-md'
         }
       >
         <button

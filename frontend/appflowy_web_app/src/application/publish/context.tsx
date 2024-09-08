@@ -1,7 +1,10 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta } from '@/application/collab.type';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { View } from '@/application/types';
+import { useService } from '@/components/app/app.hooks';
+import { notify } from '@/components/_shared/notify';
+import { findView } from '@/components/publish/header/utils';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,12 +12,13 @@ import { useNavigate } from 'react-router-dom';
 export interface PublishContextType {
   namespace: string;
   publishName: string;
+  isTemplateThumb?: boolean;
   viewMeta?: ViewMeta;
   toView: (viewId: string) => Promise<void>;
   loadViewMeta: LoadViewMeta;
   getViewRowsMap?: GetViewRowsMap;
-
   loadView: LoadView;
+  outline?: View;
 }
 
 export const PublishContext = createContext<PublishContextType | null>(null);
@@ -23,16 +27,16 @@ export const PublishProvider = ({
   children,
   namespace,
   publishName,
+  isTemplateThumb,
 }: {
   children: React.ReactNode;
   namespace: string;
   publishName: string;
+  isTemplateThumb?: boolean;
 }) => {
-  const viewMeta = useLiveQuery(async () => {
-    const name = `${namespace}_${publishName}`;
 
-    return db.view_metas.get(name);
-  }, [namespace, publishName]);
+  const [outline, setOutline] = useState<View>();
+
   const [subscribers, setSubscribers] = useState<Map<string, (meta: ViewMeta) => void>>(new Map());
 
   useEffect(() => {
@@ -40,6 +44,20 @@ export const PublishProvider = ({
       setSubscribers(new Map());
     };
   }, []);
+
+  const viewMeta = useLiveQuery(async () => {
+    const name = `${namespace}_${publishName}`;
+
+    const view = await db.view_metas.get(name);
+
+    if (!view) return;
+
+    return {
+      ...view,
+      name: findView(outline?.children || [], view.view_id)?.name || view.name,
+    };
+  }, [namespace, publishName, outline]);
+
   useEffect(() => {
     db.view_metas.hook('creating', (primaryKey, obj) => {
       const subscriber = subscribers.get(primaryKey);
@@ -69,7 +87,8 @@ export const PublishProvider = ({
 
   const prevViewMeta = useRef(viewMeta);
 
-  const service = useContext(AFConfigContext)?.service;
+  const service = useService();
+
   const navigate = useNavigate();
   const toView = useCallback(
     async (viewId: string) => {
@@ -77,18 +96,37 @@ export const PublishProvider = ({
         const res = await service?.getPublishInfo(viewId);
 
         if (!res) {
-          throw new Error('Not found');
+          throw new Error('View has not been published yet');
         }
 
-        const { namespace, publishName } = res;
+        const { namespace: viewNamespace, publishName } = res;
 
-        navigate(`/${namespace}/${publishName}`);
+        prevViewMeta.current = undefined;
+        navigate(`/${viewNamespace}/${publishName}`, {
+          replace: true,
+        });
+        return;
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    [navigate, service]
+    [navigate, service],
   );
+
+  const loadOutline = useCallback(async () => {
+    if (!service || !namespace) return;
+    try {
+      const res = await service?.getPublishOutline(namespace);
+
+      if (!res) {
+        throw new Error('Publish outline not found');
+      }
+
+      setOutline(res);
+    } catch (e) {
+      notify.error('Publish outline not found');
+    }
+  }, [namespace, service]);
 
   const loadViewMeta = useCallback(
     async (viewId: string, callback?: (meta: ViewMeta) => void) => {
@@ -124,7 +162,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [service]
+    [service],
   );
 
   const getViewRowsMap = useCallback(
@@ -148,7 +186,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [service]
+    [service],
   );
 
   const loadView = useCallback(
@@ -173,7 +211,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [service]
+    [service],
   );
 
   useEffect(() => {
@@ -185,6 +223,10 @@ export const PublishProvider = ({
     prevViewMeta.current = viewMeta;
   }, [viewMeta]);
 
+  useEffect(() => {
+    void loadOutline();
+  }, [loadOutline]);
+
   return (
     <PublishContext.Provider
       value={{
@@ -195,6 +237,8 @@ export const PublishProvider = ({
         toView,
         namespace,
         publishName,
+        isTemplateThumb,
+        outline,
       }}
     >
       {children}
@@ -202,6 +246,6 @@ export const PublishProvider = ({
   );
 };
 
-export function usePublishContext() {
+export function usePublishContext () {
   return useContext(PublishContext);
 }

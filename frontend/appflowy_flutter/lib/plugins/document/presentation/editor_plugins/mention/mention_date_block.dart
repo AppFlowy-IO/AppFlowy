@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
@@ -27,6 +25,8 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/non_secure.dart';
 
@@ -37,6 +37,7 @@ class MentionDateBlock extends StatefulWidget {
     required this.date,
     required this.index,
     required this.node,
+    this.textStyle,
     this.reminderId,
     this.reminderOption,
     this.includeTime = false,
@@ -54,6 +55,8 @@ class MentionDateBlock extends StatefulWidget {
   final ReminderOption? reminderOption;
 
   final bool includeTime;
+
+  final TextStyle? textStyle;
 
   @override
   State<MentionDateBlock> createState() => _MentionDateBlockState();
@@ -76,8 +79,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     if (parsedDate == null) {
       return const SizedBox.shrink();
     }
-
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
 
     return MultiBlocProvider(
       providers: [
@@ -163,97 +164,54 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   _updateReminder(reminderOption, reminder),
             );
 
+            Color? color;
+            if (reminder != null) {
+              if (reminder.type == ReminderType.today) {
+                color = Theme.of(context).isLightMode
+                    ? const Color(0xFFFE0299)
+                    : Theme.of(context).colorScheme.error;
+              }
+            }
+            final textStyle = widget.textStyle?.copyWith(
+              color: color,
+              leadingDistribution: TextLeadingDistribution.even,
+            );
+
+            // when font size equals 14, the icon size is 16.0.
+            // scale the icon size based on the font size.
+            final iconSize = (widget.textStyle?.fontSize ?? 14.0) / 14.0 * 16.0;
+
             return GestureDetector(
               onTapDown: (details) {
-                if (widget.editorState.editable) {
-                  if (PlatformExtension.isMobile) {
-                    showMobileBottomSheet(
-                      context,
-                      builder: (_) => DraggableScrollableSheet(
-                        expand: false,
-                        snap: true,
-                        initialChildSize: 0.7,
-                        minChildSize: 0.4,
-                        snapSizes: const [0.4, 0.7, 1.0],
-                        builder: (_, controller) => Material(
-                          color:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                          child: ListView(
-                            controller: controller,
-                            children: [
-                              ColoredBox(
-                                color: Theme.of(context).colorScheme.surface,
-                                child: const Center(child: DragHandle()),
-                              ),
-                              const MobileDateHeader(),
-                              MobileAppFlowyDatePicker(
-                                selectedDay: parsedDate,
-                                timeStr: timeStr,
-                                dateStr: parsedDate != null
-                                    ? options.dateFormat
-                                        .formatDate(parsedDate!, _includeTime)
-                                    : null,
-                                includeTime: options.includeTime,
-                                use24hFormat: options.timeFormat ==
-                                    UserTimeFormatPB.TwentyFourHour,
-                                rebuildOnDaySelected: true,
-                                rebuildOnTimeChanged: true,
-                                timeFormat: options.timeFormat.simplified,
-                                selectedReminderOption: widget.reminderOption,
-                                onDaySelected: options.onDaySelected,
-                                onStartTimeChanged: (time) => options
-                                    .onStartTimeChanged
-                                    ?.call(time ?? ""),
-                                onIncludeTimeChanged:
-                                    options.onIncludeTimeChanged,
-                                liveDateFormatter: (selected) =>
-                                    appearance.dateFormat.formatDate(
-                                  selected,
-                                  false,
-                                  appearance.timeFormat,
-                                ),
-                                onReminderSelected: (option) =>
-                                    _updateReminder(option, reminder),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  } else {
-                    DatePickerMenu(
-                      context: context,
-                      editorState: widget.editorState,
-                    ).show(details.globalPosition, options: options);
-                  }
-                }
+                _showDatePicker(
+                  context: context,
+                  offset: details.globalPosition,
+                  reminder: reminder,
+                  timeStr: timeStr,
+                  options: options,
+                );
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FlowySvg(
-                        widget.reminderId != null
-                            ? FlowySvgs.clock_alarm_s
-                            : FlowySvgs.date_s,
-                        size: const Size.square(18.0),
-                        color: reminder?.isAck == true
-                            ? Theme.of(context).colorScheme.error
-                            : null,
-                      ),
-                      const HSpace(2),
-                      FlowyText(
-                        formattedDate,
-                        fontSize: fontSize,
-                        color: reminder?.isAck == true
-                            ? Theme.of(context).colorScheme.error
-                            : null,
-                      ),
-                    ],
-                  ),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '@$formattedDate',
+                      style: textStyle,
+                      strutStyle: textStyle != null
+                          ? StrutStyle.fromTextStyle(textStyle)
+                          : null,
+                    ),
+                    const HSpace(4),
+                    FlowySvg(
+                      widget.reminderId != null
+                          ? FlowySvgs.reminder_clock_s
+                          : FlowySvgs.date_s,
+                      size: Size.square(iconSize),
+                      color: textStyle?.color,
+                    ),
+                  ],
                 ),
               ),
             );
@@ -350,6 +308,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               ReminderUpdate(
                 id: widget.reminderId!,
                 scheduledAt: reminderOption.fromDate(parsedDate!),
+                date: parsedDate!,
               ),
             ),
           );
@@ -375,11 +334,118 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
               meta: {
                 ReminderMetaKeys.includeTime: false.toString(),
                 ReminderMetaKeys.blockId: widget.node.id,
+                ReminderMetaKeys.createdAt:
+                    DateTime.now().millisecondsSinceEpoch.toString(),
               },
               scheduledAt: Int64(parsedDate!.millisecondsSinceEpoch ~/ 1000),
               isAck: parsedDate!.isBefore(DateTime.now()),
             ),
           ),
         );
+  }
+
+  void _showDatePicker({
+    required BuildContext context,
+    required DatePickerOptions options,
+    required Offset offset,
+    String? timeStr,
+    ReminderPB? reminder,
+  }) {
+    if (!widget.editorState.editable) {
+      return;
+    }
+    if (PlatformExtension.isMobile) {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+      showMobileBottomSheet(
+        context,
+        builder: (_) => DraggableScrollableSheet(
+          expand: false,
+          snap: true,
+          initialChildSize: 0.7,
+          minChildSize: 0.4,
+          snapSizes: const [0.4, 0.7, 1.0],
+          builder: (_, controller) => _DatePickerBottomSheet(
+            controller: controller,
+            parsedDate: parsedDate,
+            timeStr: timeStr,
+            options: options,
+            includeTime: _includeTime,
+            reminderOption: widget.reminderOption,
+            onReminderSelected: (option) => _updateReminder(
+              option,
+              reminder,
+            ),
+          ),
+        ),
+      );
+    } else {
+      DatePickerMenu(
+        context: context,
+        editorState: widget.editorState,
+      ).show(offset, options: options);
+    }
+  }
+}
+
+class _DatePickerBottomSheet extends StatelessWidget {
+  const _DatePickerBottomSheet({
+    required this.controller,
+    required this.parsedDate,
+    required this.timeStr,
+    required this.options,
+    required this.includeTime,
+    this.reminderOption,
+    required this.onReminderSelected,
+  });
+
+  final ScrollController controller;
+  final DateTime? parsedDate;
+  final String? timeStr;
+  final DatePickerOptions options;
+  final bool includeTime;
+  final ReminderOption? reminderOption;
+  final void Function(ReminderOption) onReminderSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final appearance = context.read<AppearanceSettingsCubit>().state;
+
+    return Material(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: ListView(
+        controller: controller,
+        children: [
+          ColoredBox(
+            color: Theme.of(context).colorScheme.surface,
+            child: const Center(child: DragHandle()),
+          ),
+          const MobileDateHeader(),
+          MobileAppFlowyDatePicker(
+            selectedDay: parsedDate,
+            timeStr: timeStr,
+            dateStr: parsedDate != null
+                ? options.dateFormat.formatDate(parsedDate!, includeTime)
+                : null,
+            includeTime: options.includeTime,
+            use24hFormat: options.timeFormat == UserTimeFormatPB.TwentyFourHour,
+            rebuildOnDaySelected: true,
+            rebuildOnTimeChanged: true,
+            timeFormat: options.timeFormat.simplified,
+            selectedReminderOption: reminderOption,
+            onDaySelected: options.onDaySelected,
+            onStartTimeChanged: (time) =>
+                options.onStartTimeChanged?.call(time ?? ""),
+            onIncludeTimeChanged: options.onIncludeTimeChanged,
+            liveDateFormatter: (selected) => appearance.dateFormat.formatDate(
+              selected,
+              false,
+              appearance.timeFormat,
+            ),
+            onReminderSelected: onReminderSelected,
+          ),
+        ],
+      ),
+    );
   }
 }

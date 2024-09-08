@@ -5,15 +5,15 @@ use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
 use anyhow::Error;
+use arc_swap::ArcSwapOption;
 use client_api::collab_sync::ServerCollabMessage;
-use flowy_chat_pub::cloud::ChatCloudService;
-use parking_lot::RwLock;
+use flowy_ai_pub::cloud::ChatCloudService;
 use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]
 use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
 use crate::default_impl::DefaultChatCloudServiceImpl;
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_storage_pub::cloud::StorageCloudService;
@@ -93,6 +93,8 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// An `Arc` wrapping the `DatabaseCloudService` interface.
   fn database_service(&self) -> Arc<dyn DatabaseCloudService>;
 
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>>;
+
   /// Facilitates cloud-based document management. This service offers operations for updating documents,
   /// fetching snapshots, and accessing primary document data in an asynchronous manner.
   ///
@@ -152,23 +154,23 @@ pub trait AppFlowyServer: Send + Sync + 'static {
 }
 
 pub struct EncryptionImpl {
-  secret: RwLock<Option<String>>,
+  secret: ArcSwapOption<String>,
 }
 
 impl EncryptionImpl {
   pub fn new(secret: Option<String>) -> Self {
     Self {
-      secret: RwLock::new(secret),
+      secret: ArcSwapOption::from(secret.map(Arc::new)),
     }
   }
 }
 
 impl AppFlowyEncryption for EncryptionImpl {
   fn get_secret(&self) -> Option<String> {
-    self.secret.read().clone()
+    self.secret.load().as_ref().map(|s| s.to_string())
   }
 
   fn set_secret(&self, secret: String) {
-    *self.secret.write() = Some(secret);
+    self.secret.store(Some(secret.into()));
   }
 }

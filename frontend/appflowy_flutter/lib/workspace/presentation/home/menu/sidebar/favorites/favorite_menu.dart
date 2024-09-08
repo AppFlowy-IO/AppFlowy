@@ -137,6 +137,7 @@ class _FavoriteGroups extends StatelessWidget {
       state.otherViews,
       LocaleKeys.sideBar_others.tr(),
     );
+
     return Container(
       width: minWidth - 2 * _kHorizontalPadding,
       constraints: const BoxConstraints(
@@ -149,15 +150,18 @@ class _FavoriteGroups extends StatelessWidget {
           children: [
             if (today.isNotEmpty) ...[
               ...today,
-              const VSpace(8),
-              const Divider(height: 1),
-              const VSpace(8),
             ],
             if (thisWeek.isNotEmpty) ...[
+              if (today.isNotEmpty) ...[
+                const FlowyDivider(),
+                const VSpace(16),
+              ],
               ...thisWeek,
-              const VSpace(8),
-              const Divider(height: 1),
-              const VSpace(8),
+            ],
+            if ((thisWeek.isNotEmpty || today.isNotEmpty) &&
+                others.isNotEmpty) ...[
+              const FlowyDivider(),
+              const VSpace(16),
             ],
             ...others.isNotEmpty && (today.isNotEmpty || thisWeek.isNotEmpty)
                 ? others
@@ -182,13 +186,10 @@ class _FavoriteGroups extends StatelessWidget {
     return [
       if (views.isNotEmpty) ...[
         if (showHeader)
-          SizedBox(
-            height: 24,
-            child: FlowyText(
-              title,
-              fontSize: 12.0,
-              color: Theme.of(context).hintColor,
-            ),
+          FlowyText(
+            title,
+            fontSize: 12.0,
+            color: Theme.of(context).hintColor,
           ),
         const VSpace(2),
         _FavoriteGroupedViews(views: views),

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NotificationDialog extends StatefulWidget {
@@ -64,12 +63,10 @@ class _NotificationDialogState extends State<NotificationDialog>
         builder: (context, filterState) =>
             BlocBuilder<ReminderBloc, ReminderState>(
           builder: (context, state) {
-            final List<ReminderPB> pastReminders = state.pastReminders
-                .where((r) => filterState.showUnreadsOnly ? !r.isRead : true)
-                .sortByScheduledAt();
-
-            final List<ReminderPB> upcomingReminders =
+            final reminders = state.reminders.sortByScheduledAt();
+            final upcomingReminders =
                 state.upcomingReminders.sortByScheduledAt();
+            final hasUnreads = reminders.any((r) => !r.isRead);
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -82,14 +79,14 @@ class _NotificationDialogState extends State<NotificationDialog>
                     controller: _controller,
                     children: [
                       NotificationsView(
-                        shownReminders: pastReminders,
+                        shownReminders: reminders,
                         reminderBloc: _reminderBloc,
                         views: widget.views,
                         onDelete: _onDelete,
                         onAction: _onAction,
                         onReadChanged: _onReadChanged,
                         actionBar: InboxActionBar(
-                          hasUnreads: state.hasUnreads,
+                          hasUnreads: hasUnreads,
                           showUnreadsOnly: filterState.showUnreadsOnly,
                         ),
                       ),

@@ -1,10 +1,5 @@
 {
   "type": "page",
-  "data": {
-    "delta": [
-      {"insert": ""}
-    ]
-  },
   "children": [
     {
       "type": "heading",

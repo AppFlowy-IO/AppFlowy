@@ -173,12 +173,15 @@ class LayoutDateField extends StatelessWidget {
                   return SizedBox(
                     height: GridSize.popoverItemHeight,
                     child: FlowyButton(
-                      text: FlowyText.medium(fieldInfo.name),
+                      text: FlowyText.medium(
+                        fieldInfo.name,
+                        lineHeight: 1.0,
+                      ),
                       onTap: () {
                         onUpdated(fieldInfo.id);
                         popoverMutex.close();
                       },
-                      leftIcon: const FlowySvg(FlowySvgs.grid_s),
+                      leftIcon: const FlowySvg(FlowySvgs.date_s),
                       rightIcon: fieldInfo.id == fieldId
                           ? const FlowySvg(FlowySvgs.check_s)
                           : null,
@@ -206,6 +209,7 @@ class LayoutDateField extends StatelessWidget {
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
           text: FlowyText.medium(
+            lineHeight: 1.0,
             LocaleKeys.calendar_settings_layoutDateField.tr(),
           ),
         ),
@@ -307,6 +311,7 @@ class FirstDayOfWeek extends StatelessWidget {
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
           text: FlowyText.medium(
+            lineHeight: 1.0,
             LocaleKeys.calendar_settings_firstDayOfWeek.tr(),
           ),
         ),
@@ -367,7 +372,10 @@ class StartFromButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(title),
+        text: FlowyText.medium(
+          title,
+          lineHeight: 1.0,
+        ),
         onTap: () => onTap(dayIndex),
         rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
       ),

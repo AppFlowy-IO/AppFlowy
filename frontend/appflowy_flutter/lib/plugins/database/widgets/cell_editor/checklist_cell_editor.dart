@@ -174,6 +174,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
       meta: Platform.isMacOS,
       control: !Platform.isMacOS,
     ): const _SelectTaskIntent(),
+    const SingleActivator(LogicalKeyboardKey.enter):
+        const _EndEditingTaskIntent(),
     const SingleActivator(LogicalKeyboardKey.escape):
         const _EndEditingTaskIntent(),
   };
@@ -372,7 +374,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
                 ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primaryContainer,
             fontColor: Theme.of(context).colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             onPressed: _textEditingController.text.isEmpty
                 ? null
                 : () {

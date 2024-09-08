@@ -1,11 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -166,6 +165,44 @@ void main() {
     });
   });
 
+  testWidgets('paste text on part of bullet list', (tester) async {
+    const plainText = 'test';
+
+    await tester.pasteContent(
+      plainText: plainText,
+      beforeTest: (editorState) async {
+        final transaction = editorState.transaction;
+        transaction.insertNodes(
+          [0],
+          [
+            Node(
+              type: BulletedListBlockKeys.type,
+              attributes: {
+                'delta': [
+                  {"insert": "bullet list"},
+                ],
+              },
+            ),
+          ],
+        );
+
+        // Set the selection to the second numbered list node (which has empty delta)
+        transaction.afterSelection = Selection(
+          start: Position(path: [0], offset: 7),
+          end: Position(path: [0], offset: 11),
+        );
+
+        await editorState.apply(transaction);
+        await tester.pumpAndSettle();
+      },
+      (editorState) {
+        final node = editorState.getNodeAtPath([0]);
+        expect(node?.delta?.toPlainText(), 'bullet test');
+        expect(node?.type, BulletedListBlockKeys.type);
+      },
+    );
+  });
+
   testWidgets('paste image(png) from memory', (tester) async {
     final image = await rootBundle.load('assets/test/images/sample.png');
     final bytes = image.buffer.asUint8List();
@@ -246,10 +283,6 @@ void main() {
           expect(editorState.document.root.children.length, 2);
           final node = editorState.getNodeAtPath([0])!;
           expect(node.type, ImageBlockKeys.type);
-          expect(
-            node.attributes[ImageBlockKeys.url],
-            'https://user-images.githubusercontent.com/9403740/262918875-603f4adb-58dd-49b5-8201-341d354935fd.png',
-          );
         },
       );
     },

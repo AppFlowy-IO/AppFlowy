@@ -1,4 +1,4 @@
-use flowy_core::AppFlowyCore;
+use crate::init::MutexAppFlowyCore;
 use lib_dispatch::prelude::{
   AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest, StatusCode,
 };
@@ -38,8 +38,8 @@ pub async fn invoke_request(
   app_handler: AppHandle<Wry>,
 ) -> AFTauriResponse {
   let request: AFPluginRequest = request.into();
-  let state: State<AppFlowyCore> = app_handler.state();
-  let dispatcher = state.inner().dispatcher();
-  let response = AFPluginDispatcher::async_send(dispatcher.as_ref(), request).await;
+  let state: State<MutexAppFlowyCore> = app_handler.state();
+  let dispatcher = state.0.lock().unwrap().dispatcher();
+  let response = AFPluginDispatcher::sync_send(dispatcher, request);
   response.into()
 }

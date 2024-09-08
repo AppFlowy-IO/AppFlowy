@@ -72,6 +72,7 @@ class MobileFavoriteFolder extends StatelessWidget {
                         MobilePaneActionType.more,
                       ],
                       spaceType: FolderSpaceType.favorite,
+                      spaceRatio: 5,
                     ),
                   ),
                 ),

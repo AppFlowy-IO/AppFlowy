@@ -1,33 +1,53 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'chat_message_service.dart';
 
 part 'chat_ai_message_bloc.freezed.dart';
 
 class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
   ChatAIMessageBloc({
     dynamic message,
+    String? refSourceJsonString,
     required this.chatId,
     required this.questionId,
-  }) : super(ChatAIMessageState.initial(message)) {
+  }) : super(
+          ChatAIMessageState.initial(
+            message,
+            messageReferenceSource(refSourceJsonString),
+          ),
+        ) {
     if (state.stream != null) {
-      _subscription = state.stream!.listen((text) {
-        if (isClosed) {
-          return;
-        }
-
-        if (text.startsWith("data:")) {
-          add(ChatAIMessageEvent.newText(text.substring(5)));
-        } else if (text.startsWith("error:")) {
-          add(ChatAIMessageEvent.receiveError(text.substring(5)));
-        }
-      });
+      state.stream!.listen(
+        onData: (text) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.updateText(text));
+          }
+        },
+        onError: (error) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.receiveError(error.toString()));
+          }
+        },
+        onAIResponseLimit: () {
+          if (!isClosed) {
+            add(const ChatAIMessageEvent.onAIResponseLimit());
+          }
+        },
+        onMetadata: (sources) {
+          if (!isClosed) {
+            add(ChatAIMessageEvent.receiveSources(sources));
+          }
+        },
+      );
 
       if (state.stream!.error != null) {
         Future.delayed(const Duration(milliseconds: 300), () {
@@ -42,11 +62,16 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
       (event, emit) async {
         await event.when(
           initial: () async {},
-          newText: (newText) {
-            emit(state.copyWith(text: state.text + newText, error: null));
+          updateText: (newText) {
+            emit(
+              state.copyWith(
+                text: newText,
+                messageState: const MessageState.ready(),
+              ),
+            );
           },
           receiveError: (error) {
-            emit(state.copyWith(error: error));
+            emit(state.copyWith(messageState: MessageState.onError(error)));
           },
           retry: () {
             if (questionId is! Int64) {
@@ -55,8 +80,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             }
             emit(
               state.copyWith(
-                retryState: const LoadingState.loading(),
-                error: null,
+                messageState: const MessageState.loading(),
               ),
             );
 
@@ -64,7 +88,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               chatId: chatId,
               messageId: questionId,
             );
-            ChatEventGetAnswerForQuestion(payload).send().then((result) {
+            AIEventGetAnswerForQuestion(payload).send().then((result) {
               if (!isClosed) {
                 result.fold(
                   (answer) {
@@ -82,8 +106,21 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             emit(
               state.copyWith(
                 text: text,
-                error: null,
-                retryState: const LoadingState.finish(),
+                messageState: const MessageState.ready(),
+              ),
+            );
+          },
+          onAIResponseLimit: () {
+            emit(
+              state.copyWith(
+                messageState: const MessageState.onAIResponseLimit(),
+              ),
+            );
+          },
+          receiveSources: (List<ChatMessageRefSource> sources) {
+            emit(
+              state.copyWith(
+                sources: sources,
               ),
             );
           },
@@ -92,13 +129,6 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     );
   }
 
-  @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
-  }
-
-  StreamSubscription<AnswerStreamElement>? _subscription;
   final String chatId;
   final Int64? questionId;
 }
@@ -106,26 +136,42 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
 @freezed
 class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.initial() = Initial;
-  const factory ChatAIMessageEvent.newText(String text) = _NewText;
+  const factory ChatAIMessageEvent.updateText(String text) = _UpdateText;
   const factory ChatAIMessageEvent.receiveError(String error) = _ReceiveError;
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
+  const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
+  const factory ChatAIMessageEvent.receiveSources(
+    List<ChatMessageRefSource> sources,
+  ) = _ReceiveMetadata;
 }
 
 @freezed
 class ChatAIMessageState with _$ChatAIMessageState {
   const factory ChatAIMessageState({
     AnswerStream? stream,
-    String? error,
     required String text,
-    required LoadingState retryState,
+    required MessageState messageState,
+    required List<ChatMessageRefSource> sources,
   }) = _ChatAIMessageState;
 
-  factory ChatAIMessageState.initial(dynamic text) {
+  factory ChatAIMessageState.initial(
+    dynamic text,
+    List<ChatMessageRefSource> sources,
+  ) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
-      retryState: const LoadingState.finish(),
+      messageState: const MessageState.ready(),
+      sources: sources,
     );
   }
+}
+
+@freezed
+class MessageState with _$MessageState {
+  const factory MessageState.onError(String error) = _Error;
+  const factory MessageState.onAIResponseLimit() = _AIResponseLimit;
+  const factory MessageState.ready() = _Ready;
+  const factory MessageState.loading() = _Loading;
 }

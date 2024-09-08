@@ -1,3 +1,4 @@
+use collab_database::entity::SelectOption;
 use collab_database::rows::RowId;
 
 use flowy_derive::ProtoBuf;
@@ -5,7 +6,6 @@ use flowy_error::{ErrorCode, FlowyError};
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::SelectOptionPB;
-use crate::services::field::SelectOption;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct ChecklistCellDataPB {

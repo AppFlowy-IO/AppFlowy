@@ -7,7 +7,7 @@ use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged}
 #[tokio::test]
 async fn grid_filter_time_is_equal_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let expected = 1;
   let scripts = vec![
     CreateDataFilter {
@@ -30,7 +30,7 @@ async fn grid_filter_time_is_equal_test() {
 #[tokio::test]
 async fn grid_filter_time_is_less_than_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let expected = 1;
   let scripts = vec![
     CreateDataFilter {
@@ -54,7 +54,7 @@ async fn grid_filter_time_is_less_than_test() {
 #[tokio::test]
 async fn grid_filter_time_is_less_than_or_equal_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let expected = 1;
   let scripts = vec![
     CreateDataFilter {
@@ -77,7 +77,7 @@ async fn grid_filter_time_is_less_than_or_equal_test() {
 #[tokio::test]
 async fn grid_filter_time_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let expected = 6;
   let scripts = vec![
     CreateDataFilter {
@@ -100,7 +100,7 @@ async fn grid_filter_time_is_empty_test() {
 #[tokio::test]
 async fn grid_filter_time_is_not_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let row_count = test.row_details.len();
+  let row_count = test.rows.len();
   let expected = 1;
   let scripts = vec![
     CreateDataFilter {

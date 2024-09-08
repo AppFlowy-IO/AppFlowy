@@ -3,8 +3,8 @@ import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -27,6 +27,8 @@ class MobileViewPage extends StatefulWidget {
     required this.viewLayout,
     this.title,
     this.arguments,
+    this.fixedTitle,
+    this.showMoreButton = true,
   });
 
   /// view id
@@ -34,6 +36,10 @@ class MobileViewPage extends StatefulWidget {
   final ViewLayoutPB viewLayout;
   final String? title;
   final Map<String, dynamic>? arguments;
+  final bool showMoreButton;
+
+  // only used in row page
+  final String? fixedTitle;
 
   @override
   State<MobileViewPage> createState() => _MobileViewPageState();
@@ -47,9 +53,17 @@ class _MobileViewPageState extends State<MobileViewPage> {
   final ValueNotifier<double> _appBarOpacity = ValueNotifier(1.0);
 
   @override
+  void initState() {
+    super.initState();
+
+    getIt<ReminderBloc>().add(const ReminderEvent.started());
+  }
+
+  @override
   void dispose() {
     _appBarOpacity.dispose();
     _scrollNotificationObserver = null;
+
     super.dispose();
   }
 
@@ -78,8 +92,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
                     ViewBloc(view: view)..add(const ViewEvent.initial()),
               ),
               BlocProvider.value(
-                value: getIt<ReminderBloc>()
-                  ..add(const ReminderEvent.started()),
+                value: getIt<ReminderBloc>(),
               ),
               if (view.layout.isDocumentView)
                 BlocProvider(
@@ -125,7 +138,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
               return child;
             },
           )
-        : child;
+        : SafeArea(child: child);
     return Scaffold(
       extendBodyBehindAppBar: isDocument,
       appBar: appBar,
@@ -157,6 +170,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
         return plugin.widgetBuilder.buildWidget(
           shrinkWrap: false,
           context: PluginContext(userProfile: state.userProfilePB),
+          data: {
+            MobileDocumentScreen.viewFixedTitle: widget.fixedTitle,
+          },
         );
       },
       (error) {
@@ -209,13 +225,19 @@ class _MobileViewPageState extends State<MobileViewPage> {
       ]);
     }
 
-    actions.addAll([
-      MobileViewPageMoreButton(
-        view: view,
-        isImmersiveMode: isImmersiveMode,
-        appBarOpacity: _appBarOpacity,
-      ),
-    ]);
+    if (widget.showMoreButton) {
+      actions.addAll([
+        MobileViewPageMoreButton(
+          view: view,
+          isImmersiveMode: isImmersiveMode,
+          appBarOpacity: _appBarOpacity,
+        ),
+      ]);
+    } else {
+      actions.addAll([
+        const HSpace(18.0),
+      ]);
+    }
 
     return actions;
   }
@@ -225,19 +247,20 @@ class _MobileViewPageState extends State<MobileViewPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (icon != null && icon.isNotEmpty)
-          ConstrainedBox(
-            constraints: const BoxConstraints.tightFor(width: 34.0),
-            child: EmojiText(
-              emoji: '$icon ',
-              fontSize: 22.0,
-            ),
+        if (icon != null && icon.isNotEmpty) ...[
+          FlowyText.emoji(
+            icon,
+            fontSize: 15.0,
+            figmaLineHeight: 18.0,
           ),
+          const HSpace(4),
+        ],
         Expanded(
           child: FlowyText.medium(
-            view?.name ?? widget.title ?? '',
+            widget.fixedTitle ?? view?.name ?? widget.title ?? '',
             fontSize: 15.0,
             overflow: TextOverflow.ellipsis,
+            figmaLineHeight: 18.0,
           ),
         ),
       ],

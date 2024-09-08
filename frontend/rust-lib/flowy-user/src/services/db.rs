@@ -1,9 +1,11 @@
 use std::path::{Path, PathBuf};
-use std::{collections::HashMap, fs, io, sync::Arc, time::Duration};
+use std::{fs, io, sync::Arc};
 
 use chrono::{Days, Local};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
 use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;
@@ -15,7 +17,6 @@ use flowy_sqlite::{
 use flowy_user_pub::entities::{UserProfile, UserWorkspace};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
-use parking_lot::RwLock;
 use tracing::{error, event, info, instrument};
 
 use crate::services::sqlite_sql::user_sql::UserTable;
@@ -29,8 +30,8 @@ pub trait UserDBPath: Send + Sync + 'static {
 
 pub struct UserDB {
   paths: Box<dyn UserDBPath>,
-  sqlite_map: RwLock<HashMap<i64, Database>>,
-  collab_db_map: RwLock<HashMap<i64, Arc<CollabKVDB>>>,
+  sqlite_map: DashMap<i64, Database>,
+  collab_db_map: DashMap<i64, Arc<CollabKVDB>>,
 }
 
 impl UserDB {
@@ -112,18 +113,14 @@ impl UserDB {
 
   /// Close the database connection for the user.
   pub(crate) fn close(&self, user_id: i64) -> Result<(), FlowyError> {
-    if let Some(mut sqlite_dbs) = self.sqlite_map.try_write_for(Duration::from_millis(300)) {
-      if sqlite_dbs.remove(&user_id).is_some() {
-        tracing::trace!("close sqlite db for user {}", user_id);
-      }
+    if self.sqlite_map.remove(&user_id).is_some() {
+      tracing::trace!("close sqlite db for user {}", user_id);
     }
 
-    if let Some(mut collab_dbs) = self.collab_db_map.try_write_for(Duration::from_millis(300)) {
-      if let Some(db) = collab_dbs.remove(&user_id) {
-        tracing::trace!("close collab db for user {}", user_id);
-        let _ = db.flush();
-        drop(db);
-      }
+    if let Some((_, db)) = self.collab_db_map.remove(&user_id) {
+      tracing::trace!("close collab db for user {}", user_id);
+      let _ = db.flush();
+      drop(db);
     }
     Ok(())
   }
@@ -148,18 +145,18 @@ impl UserDB {
     db_path: impl AsRef<Path>,
     user_id: i64,
   ) -> Result<Arc<ConnectionPool>, FlowyError> {
-    if let Some(database) = self.sqlite_map.read().get(&user_id) {
-      return Ok(database.get_pool());
+    match self.sqlite_map.entry(user_id) {
+      Entry::Occupied(e) => Ok(e.get().get_pool()),
+      Entry::Vacant(e) => {
+        tracing::debug!("open sqlite db {} at path: {:?}", user_id, db_path.as_ref());
+        let db = flowy_sqlite::init(&db_path).map_err(|e| {
+          FlowyError::internal().with_context(format!("open user db failed, {:?}", e))
+        })?;
+        let pool = db.get_pool();
+        e.insert(db);
+        Ok(pool)
+      },
     }
-
-    let mut write_guard = self.sqlite_map.write();
-    tracing::debug!("open sqlite db {} at path: {:?}", user_id, db_path.as_ref());
-    let db = flowy_sqlite::init(&db_path)
-      .map_err(|e| FlowyError::internal().with_context(format!("open user db failed, {:?}", e)))?;
-    let pool = db.get_pool();
-    write_guard.insert(user_id.to_owned(), db);
-    drop(write_guard);
-    Ok(pool)
   }
 
   pub fn get_user_profile(
@@ -195,28 +192,27 @@ impl UserDB {
     collab_db_path: impl AsRef<Path>,
     uid: i64,
   ) -> Result<Arc<CollabKVDB>, PersistenceError> {
-    if let Some(collab_db) = self.collab_db_map.read().get(&uid) {
-      return Ok(collab_db.clone());
-    }
+    match self.collab_db_map.entry(uid) {
+      Entry::Occupied(e) => Ok(e.get().clone()),
+      Entry::Vacant(e) => {
+        info!(
+          "open collab db for user {} at path: {:?}",
+          uid,
+          collab_db_path.as_ref()
+        );
+        let db = match CollabKVDB::open(&collab_db_path) {
+          Ok(db) => Ok(db),
+          Err(err) => {
+            error!("open collab db error, {:?}", err);
+            Err(err)
+          },
+        }?;
 
-    let mut write_guard = self.collab_db_map.write();
-    info!(
-      "open collab db for user {} at path: {:?}",
-      uid,
-      collab_db_path.as_ref()
-    );
-    let db = match CollabKVDB::open(&collab_db_path) {
-      Ok(db) => Ok(db),
-      Err(err) => {
-        error!("open collab db error, {:?}", err);
-        Err(err)
+        let db = Arc::new(db);
+        e.insert(db.clone());
+        Ok(db)
       },
-    }?;
-
-    let db = Arc::new(db);
-    write_guard.insert(uid.to_owned(), db.clone());
-    drop(write_guard);
-    Ok(db)
+    }
   }
 }
 

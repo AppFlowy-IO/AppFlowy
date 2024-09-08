@@ -78,12 +78,9 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: cells.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return cells[index];
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return VSpace(GridSize.typeOptionSeparatorHeight);
-                  },
+                  itemBuilder: (_, int index) => cells[index],
+                  separatorBuilder: (_, __) =>
+                      VSpace(GridSize.typeOptionSeparatorHeight),
                 ),
               ),
             ];
@@ -163,6 +160,7 @@ class GridFilterPropertyCell extends StatelessWidget {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(
+        lineHeight: 1.0,
         fieldInfo.field.name,
         color: AFThemeExtension.of(context).textColor,
       ),

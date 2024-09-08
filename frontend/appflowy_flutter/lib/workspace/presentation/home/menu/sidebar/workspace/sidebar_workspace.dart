@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -28,6 +29,15 @@ class SidebarWorkspace extends StatefulWidget {
 class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   Loading? loadingIndicator;
 
+  final ValueNotifier<bool> onHover = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    onHover.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
@@ -39,19 +49,38 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
         if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
-        return Row(
-          children: [
-            Expanded(
-              child: SidebarSwitchWorkspaceButton(
-                userProfile: widget.userProfile,
-                currentWorkspace: currentWorkspace,
-              ),
+        return MouseRegion(
+          onEnter: (_) => onHover.value = true,
+          onExit: (_) => onHover.value = false,
+          child: ValueListenableBuilder(
+            valueListenable: onHover,
+            builder: (_, onHover, child) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: onHover
+                      ? Theme.of(context).colorScheme.secondary
+                      : Colors.transparent,
+                ),
+                child: child,
+              );
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: SidebarSwitchWorkspaceButton(
+                    userProfile: widget.userProfile,
+                    currentWorkspace: currentWorkspace,
+                  ),
+                ),
+                UserSettingButton(userProfile: widget.userProfile),
+                const HSpace(8.0),
+                const NotificationButton(),
+                const HSpace(4.0),
+              ],
             ),
-            UserSettingButton(userProfile: widget.userProfile),
-            const HSpace(8.0),
-            const NotificationButton(),
-            const HSpace(12.0),
-          ],
+          ),
         );
       },
     );
@@ -198,9 +227,10 @@ class _SidebarSwitchWorkspaceButtonState
           ),
         );
       },
-      child: FlowyButton(
+      child: FlowyIconTextButton(
         margin: EdgeInsets.zero,
-        text: SizedBox(
+        hoverColor: Colors.transparent,
+        textBuilder: (onHover) => SizedBox(
           height: 30,
           child: Row(
             children: [
@@ -212,6 +242,7 @@ class _SidebarSwitchWorkspaceButtonState
                 emojiSize: 18,
                 enableEdit: false,
                 borderRadius: 8.0,
+                figmaLineHeight: 21.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         widget.currentWorkspace.workspaceId,
@@ -229,6 +260,10 @@ class _SidebarSwitchWorkspaceButtonState
                 ),
               ),
               const HSpace(4),
+              if (onHover)
+                const FlowySvg(
+                  FlowySvgs.workspace_drop_down_menu_show_s,
+                ),
             ],
           ),
         ),

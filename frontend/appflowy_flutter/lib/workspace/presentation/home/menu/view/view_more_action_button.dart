@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
@@ -19,12 +19,14 @@ class ViewMoreActionButton extends StatelessWidget {
     required this.onEditing,
     required this.onAction,
     required this.spaceType,
+    required this.isExpanded,
   });
 
   final ViewPB view;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType type, dynamic data) onAction;
   final FolderSpaceType spaceType;
+  final bool isExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,10 @@ class ViewMoreActionButton extends StatelessWidget {
       ]);
 
       // Chat doesn't change collapse
-      if (view.layout != ViewLayoutPB.Chat) {
+      // Only show collapse all pages if the view has child views
+      if (view.layout != ViewLayoutPB.Chat &&
+          view.childViews.isNotEmpty &&
+          isExpanded) {
         actionTypes.add(ViewMoreActionType.collapseAllPages);
         actionTypes.add(ViewMoreActionType.divider);
       }
@@ -156,10 +161,10 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(364, 356)),
-      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (_) => FlowyIconPicker(
-        onSelected: (result) => onTap(controller, result),
+      popupBuilder: (_) => FlowyIconEmojiPicker(
+        onSelectedEmoji: (result) => onTap(controller, result),
       ),
       child: child,
     );
@@ -204,7 +209,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   Widget _buildDivider() {
     return const Padding(
       padding: EdgeInsets.all(8.0),
-      child: Divider(height: 1.0),
+      child: FlowyDivider(),
     );
   }
 
@@ -237,18 +242,27 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: FlowyButton(
+      child: FlowyIconTextButton(
         margin: const EdgeInsets.symmetric(horizontal: 6),
-        leftIcon: inner.leftIcon,
-        rightIcon: inner.rightIcon,
-        iconPadding: 10.0,
-        text: FlowyText.regular(
-          inner.name,
-          color: inner == ViewMoreActionType.delete
+        onTap: onTap,
+        // show the error color when delete is hovered
+        leftIconBuilder: (onHover) => FlowySvg(
+          inner.leftIconSvg,
+          color: inner == ViewMoreActionType.delete && onHover
               ? Theme.of(context).colorScheme.error
               : null,
         ),
-        onTap: onTap,
+        rightIconBuilder: (_) => inner.rightIcon,
+        iconPadding: 10.0,
+        textBuilder: (onHover) => FlowyText.regular(
+          inner.name,
+          fontSize: 14.0,
+          lineHeight: 1.0,
+          figmaLineHeight: 18.0,
+          color: inner == ViewMoreActionType.delete && onHover
+              ? Theme.of(context).colorScheme.error
+              : null,
+        ),
       ),
     );
   }

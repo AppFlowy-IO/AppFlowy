@@ -166,10 +166,14 @@ impl EventIntegrationTest {
       .await;
   }
 
-  pub fn get_folder_data(&self) -> FolderData {
-    let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
-    let folder_lock_guard = mutex_folder.read();
-    let folder = folder_lock_guard.as_ref().unwrap();
+  pub async fn get_folder_data(&self) -> FolderData {
+    let mutex_folder = self
+      .appflowy_core
+      .folder_manager
+      .get_mutex_folder()
+      .clone()
+      .unwrap();
+    let folder = mutex_folder.read().await;
     let workspace_id = self.appflowy_core.user_manager.workspace_id().unwrap();
     folder.get_folder_data(&workspace_id).clone().unwrap()
   }

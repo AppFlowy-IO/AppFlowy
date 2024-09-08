@@ -193,6 +193,7 @@ class _GridGroupCell extends StatelessWidget {
           text: FlowyText.medium(
             name,
             color: AFThemeExtension.of(context).textColor,
+            lineHeight: 1.0,
           ),
           leftIcon: icon != null
               ? FlowySvg(

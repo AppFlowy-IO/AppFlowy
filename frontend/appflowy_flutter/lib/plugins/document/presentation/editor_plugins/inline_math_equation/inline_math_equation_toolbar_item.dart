@@ -5,11 +5,13 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+const _kInlineMathEquationToolbarItemId = 'editor.inline_math_equation';
+
 final ToolbarItem inlineMathEquationItem = ToolbarItem(
-  id: 'editor.inline_math_equation',
+  id: _kInlineMathEquationToolbarItemId,
   group: 2,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState, highlightColor, _) {
+  builder: (context, editorState, highlightColor, _, tooltipBuilder) {
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
     final isHighlight = nodes.allSatisfyInSelection(selection, (delta) {
@@ -17,7 +19,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
         (attributes) => attributes[InlineMathEquationKeys.formula] != null,
       );
     });
-    return SVGIconItemWidget(
+    final child = SVGIconItemWidget(
       iconBuilder: (_) => FlowySvg(
         FlowySvgs.math_lg,
         size: const Size.square(16),
@@ -25,7 +27,6 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
       ),
       isHighlight: isHighlight,
       highlightColor: highlightColor,
-      tooltip: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       onPressed: () async {
         final selection = editorState.selection;
         if (selection == null || selection.isCollapsed) {
@@ -71,5 +72,16 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
         await editorState.apply(transaction);
       },
     );
+
+    if (tooltipBuilder != null) {
+      return tooltipBuilder(
+        context,
+        _kInlineMathEquationToolbarItemId,
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        child,
+      );
+    }
+
+    return child;
   },
 );

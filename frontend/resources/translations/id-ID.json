@@ -9,6 +9,7 @@
   "title": "Judul",
   "youCanAlso": "Anda juga bisa",
   "and": "Dan",
+  "failedToOpenUrl": "Gagal membuka url: {}",
   "blockActions": {
     "addBelowTooltip": "Klik untuk menambahkan di bawah",
     "addAboveCmd": "Alt+klik",
@@ -35,17 +36,39 @@
     "loginButtonText": "Masuk",
     "loginStartWithAnonymous": "Mulai dengan sesi anonim",
     "continueAnonymousUser": "Lanjutkan dengan sesi anonim",
+    "anonymous": "Anonim",
     "buttonText": "Masuk",
     "signingInText": "Sedang masuk",
     "forgotPassword": "Lupa kata sandi?",
     "emailHint": "Surat elektronik",
     "passwordHint": "Kata sandi",
     "dontHaveAnAccount": "Belum punya akun?",
+    "createAccount": "Membuat akun",
     "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
     "unmatchedPasswordError": "Kata sandi konfirmasi tidak sesuai dengan kata sandi awal",
     "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Mohon jangan tutup halaman ini",
     "or": "ATAU",
+    "signInWithGoogle": "Lanjutkan dengan Google",
+    "signInWithGithub": "Lanjutkan dengan GitHub",
+    "signInWithDiscord": "Lanjutkan dengan Discord",
+    "signInWithApple": "Lanjutkan dengan Apple",
+    "continueAnotherWay": "Lanjutkan dengan cara lain",
+    "signUpWithGoogle": "Mendaftar dengan Google",
+    "signUpWithGithub": "Mendaftar dengan GitHub",
+    "signUpWithDiscord": "Mendaftar dengan Discord",
     "signInWith": "Masuk dengan:",
+    "signInWithEmail": "Lanjutkan dengan Email",
+    "signInWithMagicLink": "Lanjut",
+    "signUpWithMagicLink": "Mendaftar dengan Magic Link",
+    "pleaseInputYourEmail": "Masukkan alamat email Anda",
+    "settings": "Pengaturan",
+    "magicLinkSent": "Magic Link terkirim!",
+    "invalidEmail": "Masukkan alamat email yang valid",
+    "alreadyHaveAnAccount": "Sudah memiliki akun?",
+    "logIn": "Masuk",
+    "generalError": "Ada yang salah. Mohon coba kembali nanti",
+    "limitRateError": "Demi keamanan, Anda hanya dapat meminta magic link setiap 60 detik",
+    "magicLinkSentDescription": "Magic Link sudah terkirim ke email Anda. Klik pada tautan untuk menyelesaikan proses masuk Anda. Tautan akan kedaluwarsa setelah 5 menit.",
     "LogInWithGoogle": "Masuk dengan Google",
     "LogInWithGithub": "Masuk dengan Github",
     "LogInWithDiscord": "Masuk dengan Discord",
@@ -377,8 +400,8 @@
       "tooltipSelectIcon": "Pilih ikon",
       "selectAnIcon": "Pilih ikon",
       "pleaseInputYourOpenAIKey": "silakan masukkan kunci AI Anda",
-      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
-      "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
+      "clickToLogout": "Klik untuk keluar dari pengguna saat ini",
+      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda"
     },
     "mobile": {
       "personalInfo": "Informasi pribadi",
@@ -653,8 +676,8 @@
         "defaultColor": "Bawaan"
       },
       "image": {
-        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip",
-        "addAnImage": "Tambah gambar"
+        "addAnImage": "Tambah gambar",
+        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip"
       },
       "outline": {
         "addHeadingToCreateOutline": "Tambahkan judul untuk membuat daftar isi."

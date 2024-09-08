@@ -13,7 +13,7 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
   Widget? leadingWidget,
   Widget? trailingWidget,
   String? fontFamily,
-  EdgeInsets padding = const EdgeInsets.symmetric(vertical: 4),
+  EdgeInsets padding = const EdgeInsets.symmetric(vertical: 6),
 }) {
   final fontFamilyUsed = fontFamily != null
       ? getGoogleFontSafely(fontFamily).fontFamily ?? defaultFontFamily

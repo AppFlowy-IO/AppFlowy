@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,7 +12,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -172,6 +169,7 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
           workspace: widget.workspace,
           iconSize: 22,
           fontSize: 16,
+          figmaLineHeight: 32.0,
           enableEdit: true,
           onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                 UserWorkspaceEvent.updateWorkspaceIcon(
@@ -250,10 +248,10 @@ class _WorkspaceInfo extends StatelessWidget {
               FlowyText.medium(
                 workspace.name,
                 fontSize: 14.0,
+                figmaLineHeight: 17.0,
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),
-              if (Platform.isMacOS) const VSpace(2.0),
               // workspace members count
               FlowyText.regular(
                 state.isLoading
@@ -263,6 +261,7 @@ class _WorkspaceInfo extends StatelessWidget {
                         members.length,
                       ),
                 fontSize: 10.0,
+                figmaLineHeight: 12.0,
                 color: Theme.of(context).hintColor,
               ),
             ],

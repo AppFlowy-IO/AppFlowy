@@ -1,4 +1,7 @@
 import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
@@ -6,6 +9,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
@@ -15,8 +19,6 @@ import 'package:appflowy/util/text_direction.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const _kBannerActionHeight = 40.0;
@@ -229,6 +231,7 @@ class AddEmojiButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.document_plugins_cover_addIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
@@ -251,6 +254,7 @@ class RemoveEmojiButton extends StatelessWidget {
       child: FlowyButton(
         useIntrinsicWidth: true,
         text: FlowyText.medium(
+          lineHeight: 1.0,
           LocaleKeys.document_plugins_cover_removeIcon.tr(),
         ),
         leftIcon: const FlowySvg(FlowySvgs.emoji_s),
@@ -277,7 +281,7 @@ class RowActionButton extends StatelessWidget {
           width: 20,
           height: 20,
           icon: const FlowySvg(FlowySvgs.details_horizontal_s),
-          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -298,66 +302,75 @@ class _TitleSkin extends IEditableTextCellSkin {
     FocusNode focusNode,
     TextEditingController textEditingController,
   ) {
-    return BlocBuilder<TextCellBloc, TextCellState>(
-      buildWhen: (p, c) {
-        final cText = c.content.isNotEmpty
-            ? c.content
-            : LocaleKeys.grid_row_titlePlaceholder.tr();
-        final cTextDirection = getTextDirectionBaseOnContext(
-          context,
-          cText,
-          lastDirection: lastDirection,
-        );
-
-        return lastDirection != cTextDirection;
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            focusNode.unfocus(),
+        const SimpleActivator(LogicalKeyboardKey.enter): () =>
+            focusNode.unfocus(),
       },
-      builder: (context, state) {
-        final text = textEditingController.text.isNotEmpty
-            ? textEditingController.text
-            : LocaleKeys.grid_row_titlePlaceholder.tr();
-        lastDirection = getTextDirectionBaseOnContext(
-          context,
-          text,
-          lastDirection: lastDirection,
-        );
+      child: BlocBuilder<TextCellBloc, TextCellState>(
+        buildWhen: (p, c) {
+          final cText = c.content.isNotEmpty
+              ? c.content
+              : LocaleKeys.grid_row_titlePlaceholder.tr();
+          final cTextDirection = getTextDirectionBaseOnContext(
+            context,
+            cText,
+            lastDirection: lastDirection,
+          );
 
-        return Row(
-          textDirection: lastDirection,
-          children: [
-            if (emojiWidget != null) emojiWidget!,
-            const HSpace(4),
-            Expanded(
-              child: TextField(
-                controller: textEditingController,
-                focusNode: focusNode,
-                autofocus: true,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontSize: 28),
-                textDirection: lastDirection,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.zero,
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
-                  hintTextDirection: lastDirection,
-                  isDense: true,
-                  isCollapsed: true,
+          return lastDirection != cTextDirection;
+        },
+        builder: (context, state) {
+          final text = textEditingController.text.isNotEmpty
+              ? textEditingController.text
+              : LocaleKeys.grid_row_titlePlaceholder.tr();
+          lastDirection = getTextDirectionBaseOnContext(
+            context,
+            text,
+            lastDirection: lastDirection,
+          );
+
+          return Row(
+            textDirection: lastDirection,
+            children: [
+              if (emojiWidget != null) emojiWidget!,
+              const HSpace(4),
+              Expanded(
+                child: TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  autofocus: true,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontSize: 28),
+                  maxLines: null,
+                  textDirection: lastDirection,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+                    hintTextDirection: lastDirection,
+                    isDense: true,
+                    isCollapsed: true,
+                  ),
+                  onChanged: (text) {
+                    if (textEditingController.value.composing.isCollapsed) {
+                      bloc.add(TextCellEvent.updateText(text));
+                    }
+                  },
                 ),
-                onChanged: (text) {
-                  if (textEditingController.value.composing.isCollapsed) {
-                    bloc.add(TextCellEvent.updateText(text));
-                  }
-                },
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }

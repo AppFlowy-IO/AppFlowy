@@ -1,50 +1,98 @@
+import { PublishViewInfo } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
-import { openOrDownload } from '@/components/publish/header/utils';
+import { View } from '@/application/types';
+import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
+import { findAncestors, findView, openOrDownload } from '@/components/publish/header/utils';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
+import { getPlatform } from '@/utils/platform';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { debounce } from 'lodash-es';
-import React, { useCallback, useMemo } from 'react';
-import OutlinePopover from '@/components/publish/outline/OutlinePopover';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { OutlinePopover } from '@/components/publish/outline';
 import { useTranslation } from 'react-i18next';
 import Breadcrumb from './Breadcrumb';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import MoreActions from './MoreActions';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
+import { Duplicate } from './duplicate';
 
 export const HEADER_HEIGHT = 48;
 
-export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: () => void; openDrawer: boolean }) {
+export function PublishViewHeader ({
+  drawerWidth, onOpenDrawer, openDrawer, onCloseDrawer,
+}: {
+  onOpenDrawer: () => void;
+  drawerWidth: number;
+  openDrawer: boolean;
+  onCloseDrawer: () => void
+}) {
   const { t } = useTranslation();
   const viewMeta = usePublishContext()?.viewMeta;
+  const outline = usePublishContext()?.outline;
   const crumbs = useMemo(() => {
-    const ancestors = viewMeta?.ancestor_views.slice(1) || [];
+    if (!viewMeta || !outline) return [];
+    const ancestors = findAncestors(outline.children, viewMeta?.view_id);
 
-    return ancestors.map((ancestor) => {
-      let icon;
+    if (ancestors) return ancestors;
+    if (!viewMeta?.ancestor_views) return [];
+    const parseToView = (ancestor: PublishViewInfo): View => {
+      let extra = null;
 
       try {
-        const extra = ancestor?.extra ? JSON.parse(ancestor.extra) : {};
-
-        icon = extra.icon?.value || ancestor.icon?.value;
+        extra = ancestor.extra ? JSON.parse(ancestor.extra) : null;
       } catch (e) {
-        // ignore
+        // do nothing
       }
 
       return {
-        viewId: ancestor.view_id,
+        view_id: ancestor.view_id,
         name: ancestor.name,
-        icon: icon,
+        icon: ancestor.icon,
         layout: ancestor.layout,
-        extra: ancestor.extra,
+        extra,
+        is_published: true,
+        children: [],
       };
-    });
-  }, [viewMeta]);
+    };
+
+    const currentView = parseToView(viewMeta);
+
+    return viewMeta?.ancestor_views.slice(1).map(item => findView(outline.children, item.view_id) || parseToView(item)) || [currentView];
+  }, [viewMeta, outline]);
+
   const [openPopover, setOpenPopover] = React.useState(false);
+  const isMobile = useMemo(() => {
+    return getPlatform().isMobile;
+  }, []);
 
   const debounceClosePopover = useMemo(() => {
     return debounce(() => {
       setOpenPopover(false);
     }, 200);
   }, []);
+
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    switch (true) {
+      case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
+        e.preventDefault();
+        if (openDrawer) {
+          onCloseDrawer();
+        } else {
+          onOpenDrawer();
+        }
+
+        break;
+      default:
+        break;
+    }
+  }, [onCloseDrawer, onOpenDrawer, openDrawer]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onKeyDown]);
 
   const handleOpenPopover = useCallback(() => {
     debounceClosePopover.cancel();
@@ -55,44 +103,61 @@ export function PublishViewHeader({ onOpenDrawer, openDrawer }: { onOpenDrawer: 
     setOpenPopover(true);
   }, [openDrawer, debounceClosePopover]);
 
+  const debounceOpenPopover = useMemo(() => {
+    debounceClosePopover.cancel();
+    return debounce(handleOpenPopover, 100);
+  }, [handleOpenPopover, debounceClosePopover]);
+
   return (
     <div
       style={{
         backdropFilter: 'saturate(180%) blur(16px)',
-        background: 'var(--header)',
+        background: 'var(--bg-header)',
         height: HEADER_HEIGHT,
       }}
-      className={'appflowy-top-bar sticky top-0 z-10 flex px-5'}
+      className={'appflowy-top-bar transform-gpu sticky top-0 z-10 flex px-5'}
     >
-      <div className={'flex w-full items-center justify-between gap-2 overflow-hidden'}>
-        {!openDrawer && (
+      <div className={'flex w-full items-center justify-between gap-4 overflow-hidden'}>
+        {!openDrawer && !isMobile && (
           <OutlinePopover
-            onMouseEnter={handleOpenPopover}
-            onMouseLeave={debounceClosePopover}
+            {...{
+              onMouseEnter: handleOpenPopover,
+              onMouseLeave: debounceClosePopover,
+            }}
             open={openPopover}
             onClose={debounceClosePopover}
+            drawerWidth={drawerWidth}
           >
             <IconButton
-              className={'hidden'}
-              onClick={() => {
-                setOpenPopover(false);
-                onOpenDrawer();
+              {...{
+                onMouseEnter: debounceOpenPopover,
+                onMouseLeave: debounceClosePopover,
+                onClick: () => {
+                  setOpenPopover(false);
+                  onOpenDrawer();
+                },
               }}
-              onMouseEnter={handleOpenPopover}
-              onMouseLeave={debounceClosePopover}
+
             >
-              <SideOutlined className={'h-4 w-4'} />
+              <SideOutlined className={'h-4 w-4 text-text-caption'} />
             </IconButton>
           </OutlinePopover>
         )}
 
         <div className={'h-full flex-1 overflow-hidden'}>
-          <Breadcrumb crumbs={crumbs} />
+          {!viewMeta ? <div className={'h-[48px] flex items-center'}><BreadcrumbSkeleton /></div> : <Breadcrumb
+            crumbs={crumbs}
+          />}
         </div>
 
         <div className={'flex items-center gap-2'}>
           <MoreActions />
-          <Divider orientation={'vertical'} className={'mx-2'} flexItem />
+          <Duplicate />
+          <Divider
+            orientation={'vertical'}
+            className={'mx-2'}
+            flexItem
+          />
           <Tooltip title={t('publish.downloadApp')}>
             <button onClick={openOrDownload}>
               <Logo className={'h-6 w-6'} />

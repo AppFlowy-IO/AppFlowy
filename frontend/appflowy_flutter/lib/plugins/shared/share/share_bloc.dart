@@ -179,6 +179,14 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
         (s) => FlowyResult.success(s.data),
         (f) => FlowyResult.failure(f),
       );
+    } else if (type == ShareType.rawDatabaseData) {
+      final exportResult = await BackendExportService.exportDatabaseAsRawData(
+        view.id,
+      );
+      result = exportResult.fold(
+        (s) => FlowyResult.success(s.data),
+        (f) => FlowyResult.failure(f),
+      );
     } else {
       result = await documentExporter.export(type.documentExportType);
     }
@@ -189,6 +197,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             case ShareType.markdown:
             case ShareType.html:
             case ShareType.csv:
+            case ShareType.json:
+            case ShareType.rawDatabaseData:
               File(path).writeAsStringSync(s);
               return FlowyResult.success(type);
             default:
@@ -208,9 +218,11 @@ enum ShareType {
   html,
   text,
   link,
+  json,
 
   // only available in database
-  csv;
+  csv,
+  rawDatabaseData;
 
   static List<ShareType> get unimplemented => [link];
 
@@ -222,10 +234,16 @@ enum ShareType {
         return DocumentExportType.html;
       case ShareType.text:
         return DocumentExportType.text;
+      case ShareType.json:
+        return DocumentExportType.json;
       case ShareType.csv:
         throw UnsupportedError('DocumentShareType.csv is not supported');
       case ShareType.link:
         throw UnsupportedError('DocumentShareType.link is not supported');
+      case ShareType.rawDatabaseData:
+        throw UnsupportedError(
+          'DocumentShareType.rawDatabaseData is not supported',
+        );
     }
   }
 }

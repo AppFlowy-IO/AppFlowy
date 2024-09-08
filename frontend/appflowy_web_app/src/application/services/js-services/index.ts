@@ -1,4 +1,5 @@
 import { YDoc } from '@/application/collab.type';
+import { GlobalComment, Reaction } from '@/application/comment.type';
 import {
   deleteView,
   getPublishView,
@@ -7,19 +8,19 @@ import {
 } from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
 import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '@/application/services/js-services/fetch';
-import {
-  initAPIService,
-  signInGoogle,
-  signInWithMagicLink,
-  signInGithub,
-  signInDiscord,
-  signInWithUrl,
-} from '@/application/services/js-services/wasm/client_api';
+import { APIService } from '@/application/services/js-services/http';
+
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
 import { afterAuth, AUTH_CALLBACK_URL, withSignIn } from '@/application/session/sign_in';
+import {
+  TemplateCategoryFormValues,
+  TemplateCreatorFormValues,
+  UploadTemplatePayload,
+} from '@/application/template.type';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
+import { DuplicatePublishView } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -40,19 +41,15 @@ export class AFClientService implements AFService {
 
   private cacheDatabaseRowFolder: Map<string, Y.Map<YDoc>> = new Map();
 
-  constructor(config: AFServiceConfig) {
-    initAPIService({
-      ...config.cloudConfig,
-      deviceId: this.deviceId,
-      clientId: this.clientId,
-    });
+  constructor (config: AFServiceConfig) {
+    APIService.initAPIService(config.cloudConfig);
   }
 
-  getClientId() {
+  getClientId () {
     return this.clientId;
   }
 
-  async getPublishViewMeta(namespace: string, publishName: string) {
+  async getPublishViewMeta (namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
     const isLoaded = this.publishViewLoaded.has(name);
@@ -64,7 +61,7 @@ export class AFClientService implements AFService {
         namespace,
         publishName,
       },
-      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
     );
 
     if (!viewMeta) {
@@ -74,7 +71,7 @@ export class AFClientService implements AFService {
     return viewMeta;
   }
 
-  async getPublishView(namespace: string, publishName: string) {
+  async getPublishView (namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
     const isLoaded = this.publishViewLoaded.has(name);
@@ -99,7 +96,7 @@ export class AFClientService implements AFService {
         namespace,
         publishName,
       },
-      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
     );
 
     if (!isLoaded) {
@@ -111,7 +108,7 @@ export class AFClientService implements AFService {
     return doc;
   }
 
-  async getPublishDatabaseViewRows(namespace: string, publishName: string) {
+  async getPublishDatabaseViewRows (namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
     if (!this.publishViewLoaded.has(name) || !this.cacheDatabaseRowDocMap.has(name)) {
@@ -141,7 +138,7 @@ export class AFClientService implements AFService {
     };
   }
 
-  async getPublishInfo(viewId: string) {
+  async getPublishInfo (viewId: string) {
     if (this.publishViewInfo.has(viewId)) {
       return this.publishViewInfo.get(viewId) as {
         namespace: string;
@@ -167,10 +164,14 @@ export class AFClientService implements AFService {
     return data;
   }
 
-  async loginAuth(url: string) {
+  async getPublishOutline (namespace: string) {
+    return APIService.getPublishOutline(namespace);
+  }
+
+  async loginAuth (url: string) {
     try {
       console.log('loginAuth', url);
-      await signInWithUrl(url);
+      await APIService.signInWithUrl(url);
       emit(EventType.SESSION_VALID);
       afterAuth();
       return;
@@ -181,22 +182,137 @@ export class AFClientService implements AFService {
   }
 
   @withSignIn()
-  async signInMagicLink({ email }: { email: string; redirectTo: string }) {
-    return await signInWithMagicLink(email, AUTH_CALLBACK_URL);
+  async signInMagicLink ({ email }: { email: string; redirectTo: string }) {
+    return await APIService.signInWithMagicLink(email, AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInGoogle(_: { redirectTo: string }) {
-    return await signInGoogle(AUTH_CALLBACK_URL);
+  async signInGoogle (_: { redirectTo: string }) {
+    return APIService.signInGoogle(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInGithub(_: { redirectTo: string }) {
-    return await signInGithub(AUTH_CALLBACK_URL);
+  async signInApple (_: { redirectTo: string }) {
+    return APIService.signInApple(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInDiscord(_: { redirectTo: string }) {
-    return await signInDiscord(AUTH_CALLBACK_URL);
+  async signInGithub (_: { redirectTo: string }) {
+    return APIService.signInGithub(AUTH_CALLBACK_URL);
   }
+
+  @withSignIn()
+  async signInDiscord (_: { redirectTo: string }) {
+    return APIService.signInDiscord(AUTH_CALLBACK_URL);
+  }
+
+  async getWorkspaces () {
+    const data = APIService.getWorkspaces();
+
+    return data;
+  }
+
+  async getWorkspaceFolder (workspaceId: string) {
+    const data = await APIService.getWorkspaceFolder(workspaceId);
+
+    return data;
+  }
+
+  async getCurrentUser () {
+    const data = await APIService.getCurrentUser();
+
+    return data;
+  }
+
+  async duplicatePublishView (params: DuplicatePublishView) {
+    return APIService.duplicatePublishView(params.workspaceId, {
+      dest_view_id: params.spaceViewId,
+      published_view_id: params.viewId,
+      published_collab_type: params.collabType,
+    });
+  }
+
+  createCommentOnPublishView (viewId: string, content: string, replyCommentId: string | undefined): Promise<void> {
+    return APIService.createGlobalCommentOnPublishView(viewId, content, replyCommentId);
+  }
+
+  deleteCommentOnPublishView (viewId: string, commentId: string): Promise<void> {
+    return APIService.deleteGlobalCommentOnPublishView(viewId, commentId);
+  }
+
+  getPublishViewGlobalComments (viewId: string): Promise<GlobalComment[]> {
+    return APIService.getPublishViewComments(viewId);
+  }
+
+  getPublishViewReactions (viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
+    return APIService.getReactions(viewId, commentId);
+  }
+
+  addPublishViewReaction (viewId: string, commentId: string, reactionType: string): Promise<void> {
+    return APIService.addReaction(viewId, commentId, reactionType);
+  }
+
+  removePublishViewReaction (viewId: string, commentId: string, reactionType: string): Promise<void> {
+    return APIService.removeReaction(viewId, commentId, reactionType);
+  }
+
+  async getTemplateCategories () {
+    return APIService.getTemplateCategories();
+  }
+
+  async getTemplateCreators () {
+    return APIService.getTemplateCreators();
+  }
+
+  async createTemplate (template: UploadTemplatePayload) {
+    return APIService.createTemplate(template);
+  }
+
+  async updateTemplate (id: string, template: UploadTemplatePayload) {
+    return APIService.updateTemplate(id, template);
+  }
+
+  async getTemplateById (id: string) {
+    return APIService.getTemplateById(id);
+  }
+
+  async getTemplates (params: {
+    categoryId?: string;
+    nameContains?: string;
+  }) {
+    return APIService.getTemplates(params);
+  }
+
+  async deleteTemplate (id: string) {
+    return APIService.deleteTemplate(id);
+  }
+
+  async addTemplateCategory (category: TemplateCategoryFormValues) {
+    return APIService.addTemplateCategory(category);
+  }
+
+  async updateTemplateCategory (categoryId: string, category: TemplateCategoryFormValues) {
+    return APIService.updateTemplateCategory(categoryId, category);
+  }
+
+  async deleteTemplateCategory (categoryId: string) {
+    return APIService.deleteTemplateCategory(categoryId);
+  }
+
+  async updateTemplateCreator (creatorId: string, creator: TemplateCreatorFormValues) {
+    return APIService.updateTemplateCreator(creatorId, creator);
+  }
+
+  async createTemplateCreator (creator: TemplateCreatorFormValues) {
+    return APIService.createTemplateCreator(creator);
+  }
+
+  async deleteTemplateCreator (creatorId: string) {
+    return APIService.deleteTemplateCreator(creatorId);
+  }
+
+  async uploadFileToCDN (file: File) {
+    return APIService.uploadFileToCDN(file);
+  }
+
 }

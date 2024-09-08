@@ -260,6 +260,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
         child: FlowyText.regular(
           widget.view.name,
           fontSize: 16.0,
+          figmaLineHeight: 20.0,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -297,12 +298,17 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 18.0,
+            figmaLineHeight: 20.0,
+            optimizeEmojiAlign: true,
           )
         : Opacity(
             opacity: 0.7,
-            child: widget.view.defaultIcon(),
+            child: widget.view.defaultIcon(size: const Size.square(18)),
           );
-    return SizedBox(width: 18.0, child: icon);
+    return SizedBox(
+      width: 18.0,
+      child: icon,
+    );
   }
 
   // > button or · button

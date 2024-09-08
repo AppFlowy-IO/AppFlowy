@@ -1,13 +1,14 @@
+use collab_database::entity::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
+use std::time::Duration;
 
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
 use flowy_database2::services::field::{
-  edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
-  SingleSelectTypeOption,
+  edit_single_select_type_option, SelectTypeOptionSharedAction, SingleSelectTypeOption,
 };
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -91,6 +92,8 @@ impl DatabaseGroupTest {
         group_index,
         row_count,
       } => {
+        // sleep for 2 seconds to wait for the row count to be updated
+        tokio::time::sleep(Duration::from_secs(2)).await;
         assert_eq!(row_count, self.group_at_index(group_index).await.rows.len());
       },
       GroupScript::AssertGroupCount(count) => {
@@ -159,7 +162,7 @@ impl DatabaseGroupTest {
         let from_group = self.group_at_index(from_group_index).await;
         let to_group = self.group_at_index(to_group_index).await;
         let field_id = from_group.field_id;
-        let field = self.editor.get_field(&field_id).unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
         let field_type = FieldType::from(field.field_type);
 
         let cell = if to_group.is_default {
@@ -203,7 +206,7 @@ impl DatabaseGroupTest {
       } => {
         let from_group = self.group_at_index(from_group_index).await;
         let field_id = from_group.field_id;
-        let field = self.editor.get_field(&field_id).unwrap();
+        let field = self.editor.get_field(&field_id).await.unwrap();
         let field_type = FieldType::from(field.field_type);
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
@@ -309,6 +312,7 @@ impl DatabaseGroupTest {
     self
       .inner
       .get_fields()
+      .await
       .into_iter()
       .find(|field| {
         let ft = FieldType::from(field.field_type);

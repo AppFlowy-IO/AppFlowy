@@ -257,8 +257,8 @@ pub enum ErrorCode {
   #[error("AppFlowy data folder import error")]
   AppFlowyDataFolderImportError = 89,
 
-  #[error("Cloud request payload too large")]
-  CloudRequestPayloadTooLarge = 90,
+  #[error("payload too large")]
+  PayloadTooLarge = 90,
 
   #[error("Workspace limit exceeded")]
   WorkspaceLimitExceeded = 91,
@@ -298,6 +298,25 @@ pub enum ErrorCode {
 
   #[error("Response timeout")]
   ResponseTimeout = 103,
+
+  #[error("Unsupported file format")]
+  UnsupportedFileFormat = 104,
+
+  #[error("AI offline not started")]
+  AIOfflineNotInstalled = 105,
+
+  #[error("Invalid Request")]
+  InvalidRequest = 106,
+
+  #[error("In progress")]
+  // when client receives InProgress, it should retry
+  InProgress = 107,
+
+  #[error("Upload part size exceeds the limit")]
+  SingleUploadLimitExceeded = 108,
+
+  #[error("Group name is empty")]
+  GroupNameIsEmpty = 109,
 }
 
 impl ErrorCode {

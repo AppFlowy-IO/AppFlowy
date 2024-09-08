@@ -1,10 +1,10 @@
 use std::time::Duration;
 
-use flowy_database2::entities::FieldType;
+use flowy_database2::entities::{FieldType, MediaCellChangeset};
 use flowy_database2::services::field::{
-  ChecklistCellChangeset, DateCellChangeset, DateCellData, MultiSelectTypeOption,
-  RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption, StringCellData,
-  TimeCellData, URLCellData,
+  ChecklistCellChangeset, DateCellChangeset, DateCellData, MediaFile, MediaFileType,
+  MediaUploadType, MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset,
+  SingleSelectTypeOption, StringCellData, TimeCellData, URLCellData,
 };
 use lib_infra::box_any::BoxAny;
 
@@ -14,11 +14,11 @@ use crate::database::cell_test::script::DatabaseCellTest;
 #[tokio::test]
 async fn grid_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let fields = test.get_fields();
-  let rows = &test.row_details;
+  let fields = test.get_fields().await;
+  let rows = &test.rows;
 
   let mut scripts = vec![];
-  for row_detail in rows.iter() {
+  for row in rows.iter() {
     for field in &fields {
       let field_type = FieldType::from(field.field_type);
       if field_type == FieldType::LastEditedTime || field_type == FieldType::CreatedTime {
@@ -57,13 +57,23 @@ async fn grid_cell_update() {
           inserted_row_ids: vec!["abcdefabcdef".to_string().into()],
           ..Default::default()
         }),
+        FieldType::Media => BoxAny::new(MediaCellChangeset {
+          inserted_files: vec![MediaFile {
+            id: "abcdefghijk".to_string(),
+            name: "link".to_string(),
+            url: "https://www.appflowy.io".to_string(),
+            file_type: MediaFileType::Link,
+            upload_type: MediaUploadType::NetworkMedia,
+          }],
+          removed_ids: vec![],
+        }),
         _ => BoxAny::new("".to_string()),
       };
 
       scripts.push(UpdateCell {
         view_id: test.view_id.clone(),
         field_id: field.id.clone(),
-        row_id: row_detail.row.id.clone(),
+        row_id: row.id.clone(),
         changeset: cell_changeset,
         is_err: false,
       });
@@ -76,7 +86,7 @@ async fn grid_cell_update() {
 #[tokio::test]
 async fn text_cell_data_test() {
   let test = DatabaseCellTest::new().await;
-  let text_field = test.get_first_field(FieldType::RichText);
+  let text_field = test.get_first_field(FieldType::RichText).await;
 
   let cells = test
     .editor
@@ -100,7 +110,7 @@ async fn text_cell_data_test() {
 #[tokio::test]
 async fn url_cell_data_test() {
   let test = DatabaseCellTest::new().await;
-  let url_field = test.get_first_field(FieldType::URL);
+  let url_field = test.get_first_field(FieldType::URL).await;
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &url_field.id)
@@ -122,7 +132,7 @@ async fn url_cell_data_test() {
 #[tokio::test]
 async fn update_updated_at_field_on_other_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let updated_at_field = test.get_first_field(FieldType::LastEditedTime);
+  let updated_at_field = test.get_first_field(FieldType::LastEditedTime).await;
 
   let text_field = test
     .fields
@@ -134,7 +144,7 @@ async fn update_updated_at_field_on_other_cell_update() {
   test
     .run_script(UpdateCell {
       view_id: test.view_id.clone(),
-      row_id: test.row_details[0].row.id.clone(),
+      row_id: test.rows[0].id.clone(),
       field_id: text_field.id.clone(),
       changeset: BoxAny::new("change".to_string()),
       is_err: false,
@@ -204,7 +214,7 @@ async fn update_updated_at_field_on_other_cell_update() {
 #[tokio::test]
 async fn time_cell_data_test() {
   let test = DatabaseCellTest::new().await;
-  let time_field = test.get_first_field(FieldType::Time);
+  let time_field = test.get_first_field(FieldType::Time).await;
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &time_field.id)

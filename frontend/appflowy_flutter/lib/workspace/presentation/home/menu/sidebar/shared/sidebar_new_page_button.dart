@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,10 +12,27 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SidebarNewPageButton extends StatelessWidget {
+class SidebarNewPageButton extends StatefulWidget {
   const SidebarNewPageButton({
     super.key,
   });
+
+  @override
+  State<SidebarNewPageButton> createState() => _SidebarNewPageButtonState();
+}
+
+class _SidebarNewPageButtonState extends State<SidebarNewPageButton> {
+  @override
+  void initState() {
+    super.initState();
+    createNewPageNotifier.addListener(_createNewPage);
+  }
+
+  @override
+  void dispose() {
+    createNewPageNotifier.removeListener(_createNewPage);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +40,7 @@ class SidebarNewPageButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       height: HomeSizes.newPageSectionHeight,
       child: FlowyButton(
-        onTap: () async => _createNewPage(context),
+        onTap: () async => _createNewPage(),
         leftIcon: const FlowySvg(
           FlowySvgs.new_app_m,
           blendMode: null,
@@ -38,7 +56,7 @@ class SidebarNewPageButton extends StatelessWidget {
     );
   }
 
-  Future<void> _createNewPage(BuildContext context) async {
+  Future<void> _createNewPage() async {
     return createViewAndShowRenameDialogIfNeeded(
       context,
       LocaleKeys.newPageText.tr(),

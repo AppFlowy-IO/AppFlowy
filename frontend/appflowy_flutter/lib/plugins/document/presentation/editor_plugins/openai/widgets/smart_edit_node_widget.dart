@@ -12,7 +12,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -118,10 +117,6 @@ class _SmartEditBlockComponentWidgetState
       triggerActions: PopoverTriggerFlags.none,
       margin: EdgeInsets.zero,
       constraints: BoxConstraints(maxWidth: width),
-      decoration: FlowyDecoration.decoration(
-        Colors.transparent,
-        Colors.transparent,
-      ),
       child: const SizedBox(
         width: double.infinity,
       ),

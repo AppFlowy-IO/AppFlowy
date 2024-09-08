@@ -6,6 +6,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/account.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -41,17 +42,17 @@ void main() {
 
       // Scroll to sign-out
       await tester.scrollUntilVisible(
-        find.byType(SignInOutButton),
+        find.byType(AccountSignInOutButton),
         100,
         scrollable: find.findSettingsScrollable(),
       );
-      await tester.tapButton(find.byType(SignInOutButton));
+      await tester.tapButton(find.byType(AccountSignInOutButton));
 
-      tester.expectToSeeText(LocaleKeys.button_confirm.tr());
-      await tester.tapButtonWithName(LocaleKeys.button_confirm.tr());
+      tester.expectToSeeText(LocaleKeys.button_ok.tr());
+      await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
 
       // Go to the sign in page again
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       tester.expectToSeeGoogleLoginButton();
     });
 
@@ -67,11 +68,11 @@ void main() {
 
       // Scroll to sign-in
       await tester.scrollUntilVisible(
-        find.byType(SignInOutButton),
+        find.byType(AccountSignInOutButton),
         100,
         scrollable: find.findSettingsScrollable(),
       );
-      await tester.tapButton(find.byType(SignInOutButton));
+      await tester.tapButton(find.byType(AccountSignInOutButton));
 
       tester.expectToSeeGoogleLoginButton();
     });

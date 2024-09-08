@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/media.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/translate.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -38,6 +39,7 @@ abstract class TypeOptionEditorFactory {
       FieldType.Summary => const SummaryTypeOptionEditorFactory(),
       FieldType.Time => const TimeTypeOptionEditorFactory(),
       FieldType.Translate => const TranslateTypeOptionEditorFactory(),
+      FieldType.Media => const MediaTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),
     };
   }

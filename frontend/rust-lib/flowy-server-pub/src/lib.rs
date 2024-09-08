@@ -28,15 +28,12 @@ if_wasm! {
     }
 }
 
-pub mod supabase_config;
-
 pub const CLOUT_TYPE_STR: &str = "APPFLOWY_CLOUD_ENV_CLOUD_TYPE";
 
 #[derive(Deserialize_repr, Debug, Clone, PartialEq, Eq)]
 #[repr(u8)]
 pub enum AuthenticatorType {
   Local = 0,
-  Supabase = 1,
   AppFlowyCloud = 2,
 }
 
@@ -50,7 +47,6 @@ impl AuthenticatorType {
   fn from_str(s: &str) -> Self {
     match s {
       "0" => AuthenticatorType::Local,
-      "1" => AuthenticatorType::Supabase,
       "2" => AuthenticatorType::AppFlowyCloud,
       _ => AuthenticatorType::Local,
     }

@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
 import 'package:async/async.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
+import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class StyledScrollbar extends StatefulWidget {
@@ -120,11 +119,6 @@ class ScrollbarState extends State<StyledScrollbar> {
             ? false
             : contentExtent > _viewExtent && contentExtent > 0;
 
-        // Handle color
-        var handleColor = widget.handleColor ??
-            (Theme.of(context).brightness == Brightness.dark
-                ? AFThemeExtension.of(context).lightGreyHover
-                : AFThemeExtension.of(context).greyHover);
         // Track color
         var trackColor = widget.trackColor ??
             (Theme.of(context).brightness == Brightness.dark
@@ -161,18 +155,24 @@ class ScrollbarState extends State<StyledScrollbar> {
                 onHorizontalDragUpdate: _handleHorizontalDrag,
                 // HANDLE SHAPE
                 child: MouseHoverBuilder(
-                  builder: (_, isHovered) => Container(
-                    width: widget.axis == Axis.vertical
-                        ? widget.size
-                        : handleExtent,
-                    height: widget.axis == Axis.horizontal
-                        ? widget.size
-                        : handleExtent,
-                    decoration: BoxDecoration(
-                      color: handleColor.withOpacity(isHovered ? 1 : .85),
-                      borderRadius: Corners.s3Border,
-                    ),
-                  ),
+                  builder: (_, isHovered) {
+                    final handleColor =
+                        Theme.of(context).scrollbarTheme.thumbColor?.resolve(
+                              isHovered ? {WidgetState.dragged} : {},
+                            );
+                    return Container(
+                      width: widget.axis == Axis.vertical
+                          ? widget.size
+                          : handleExtent,
+                      height: widget.axis == Axis.horizontal
+                          ? widget.size
+                          : handleExtent,
+                      decoration: BoxDecoration(
+                        color: handleColor,
+                        borderRadius: Corners.s3Border,
+                      ),
+                    );
+                  },
                 ),
               ),
             )
