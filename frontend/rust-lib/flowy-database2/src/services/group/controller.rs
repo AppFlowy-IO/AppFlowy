@@ -154,6 +154,57 @@ where
     changeset.deleted_rows.extend(deleted_row_ids);
     Some(changeset)
   }
+
+  fn insert_row_into_group(
+    &mut self,
+    new_row: &Row,
+    index_in_row_order_array: usize,
+    group_id: &str,
+    all_rows: &[Arc<Row>],
+  ) -> Option<usize> {
+    let mut delta: i64 = 0;
+    let mut left_reached = false;
+    let mut right_reached = false;
+
+    let group_data = self.context.get_mut_group(group_id)?;
+
+    // from the index in the row order array, find the nearest row that's also in the same group
+    let index = loop {
+      delta = if delta > 0 { -delta } else { -(delta - 1) };
+
+      let query_index = index_in_row_order_array as i64 + delta;
+
+      if query_index < 0 {
+        if right_reached && left_reached {
+          break None;
+        } else {
+          left_reached = true;
+          continue;
+        }
+      } else if query_index >= all_rows.len() as i64 {
+        if right_reached && left_reached {
+          break None;
+        } else {
+          right_reached = true;
+          continue;
+        }
+      }
+
+      let row = &all_rows[query_index as usize];
+
+      if let Some(index) = group_data.index_of_row(&row.id.clone()) {
+        if delta > 0 {
+          break Some(index);
+        } else {
+          break Some(index + 1);
+        }
+      }
+    }?;
+
+    group_data.insert_row(index, new_row.clone());
+
+    Some(index)
+  }
 }
 
 #[async_trait]
@@ -229,54 +280,71 @@ where
     self.context.move_group(from_group_id, to_group_id)
   }
 
-  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB> {
-    let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
-
+  async fn did_create_row(
+    &mut self,
+    row: &Row,
+    index: usize,
+  ) -> Option<Vec<GroupRowsNotificationPB>> {
     let cell = match row.cells.get(&self.grouping_field_id) {
-      None => self.placeholder_cell(),
-      Some(cell) => Some(cell.clone()),
+      None => self.placeholder_cell()?,
+      Some(cell) => cell.clone(),
     };
 
-    if let Some(cell) = cell {
-      let cell_data = <T as TypeOption>::CellData::from(&cell);
+    let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
 
-      let mut suitable_group_ids = vec![];
+    let cell_data = <T as TypeOption>::CellData::from(&cell);
 
-      for group in self.get_all_groups() {
-        if self.can_group(&group.id, &cell_data) {
-          suitable_group_ids.push(group.id.clone());
-          let changeset = GroupRowsNotificationPB::insert(
-            group.id.clone(),
-            vec![InsertedRowPB {
-              row_meta: (*row).clone().into(),
-              index: Some(index as i32),
-              is_new: true,
-            }],
-          );
-          changesets.push(changeset);
-        }
-      }
-      if !suitable_group_ids.is_empty() {
-        for group_id in suitable_group_ids.iter() {
-          if let Some(group) = self.context.get_mut_group(group_id) {
-            group.add_row((*row).clone());
+    let mut did_insert_into_status_group = false;
+
+    let all_rows = self.delegate.get_all_rows(&self.context.view_id).await;
+
+    let group_ids = self
+      .context
+      .groups()
+      .into_iter()
+      .filter(|group| group.id != self.grouping_field_id)
+      .map(|group| group.id.clone())
+      .collect::<Vec<_>>();
+
+    for group_id in group_ids {
+      if self.can_group(&group_id, &cell_data) {
+        // make sure that the row isn't already in the group data
+        if let Some((_, group_data)) = self.get_group(&group_id) {
+          if group_data.contains_row(&row.id) {
+            did_insert_into_status_group = true;
+            continue;
           }
         }
-      } else if let Some(no_status_group) = self.context.get_mut_no_status_group() {
-        no_status_group.add_row((*row).clone());
-        let changeset = GroupRowsNotificationPB::insert(
-          no_status_group.id.clone(),
-          vec![InsertedRowPB {
-            row_meta: (*row).clone().into(),
-            index: Some(index as i32),
-            is_new: true,
-          }],
-        );
-        changesets.push(changeset);
+        if let Some(index_in_group) = self.insert_row_into_group(row, index, &group_id, &all_rows) {
+          did_insert_into_status_group = true;
+
+          changesets.push(GroupRowsNotificationPB::insert(
+            group_id.clone(),
+            vec![InsertedRowPB {
+              row_meta: (*row).clone().into(),
+              index: Some(index_in_group as i32),
+              is_new: true,
+            }],
+          ))
+        }
       }
     }
 
-    changesets
+    if !did_insert_into_status_group {
+      let group_id = self.grouping_field_id.clone();
+      if let Some(index_in_group) = self.insert_row_into_group(row, index, &group_id, &all_rows) {
+        changesets.push(GroupRowsNotificationPB::insert(
+          self.grouping_field_id.clone(),
+          vec![InsertedRowPB {
+            row_meta: (*row).clone().into(),
+            index: Some(index_in_group as i32),
+            is_new: true,
+          }],
+        ))
+      }
+    }
+
+    Some(changesets)
   }
 
   fn did_update_group_row(
