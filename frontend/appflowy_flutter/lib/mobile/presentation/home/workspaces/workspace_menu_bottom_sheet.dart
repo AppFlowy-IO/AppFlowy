@@ -138,17 +138,21 @@ class _WorkspaceMenuItem extends StatelessWidget {
             height: 60,
             showTopBorder: showTopBorder,
             showBottomBorder: false,
-            leftIcon: WorkspaceIcon(
-              enableEdit: false,
-              iconSize: 26,
-              fontSize: 16.0,
-              workspace: workspace,
-              onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                    UserWorkspaceEvent.updateWorkspaceIcon(
-                      workspace.workspaceId,
-                      result.emoji,
+            leftIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: WorkspaceIcon(
+                enableEdit: false,
+                iconSize: 26,
+                fontSize: 16.0,
+                figmaLineHeight: 16.0,
+                workspace: workspace,
+                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.updateWorkspaceIcon(
+                        workspace.workspaceId,
+                        result.emoji,
+                      ),
                     ),
-                  ),
+              ),
             ),
             trailing: workspace.workspaceId == currentWorkspace.workspaceId
                 ? const FlowySvg(

@@ -2,7 +2,6 @@ use crate::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartRespo
 use async_trait::async_trait;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use lib_infra::future::FutureResult;
 use mime::Mime;
 
 #[async_trait]
@@ -15,7 +14,7 @@ pub trait StorageCloudService: Send + Sync {
   /// # Returns
   /// - `Ok()`
   /// - `Err(Error)`: An error occurred during the operation.
-  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError>;
+  async fn get_object_url(&self, object_id: ObjectIdentity) -> Result<String, FlowyError>;
 
   /// Creates a new storage object.
   ///
@@ -25,7 +24,7 @@ pub trait StorageCloudService: Send + Sync {
   /// # Returns
   /// - `Ok()`
   /// - `Err(Error)`: An error occurred during the operation.
-  fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError>;
+  async fn put_object(&self, url: String, object_value: ObjectValue) -> Result<(), FlowyError>;
 
   /// Deletes a storage object by its URL.
   ///
@@ -35,7 +34,7 @@ pub trait StorageCloudService: Send + Sync {
   /// # Returns
   /// - `Ok()`
   /// - `Err(Error)`: An error occurred during the operation.
-  fn delete_object(&self, url: &str) -> FutureResult<(), FlowyError>;
+  async fn delete_object(&self, url: &str) -> Result<(), FlowyError>;
 
   /// Fetches a storage object by its URL.
   ///
@@ -45,13 +44,15 @@ pub trait StorageCloudService: Send + Sync {
   /// # Returns
   /// - `Ok(File)`: The returned file object.
   /// - `Err(Error)`: An error occurred during the operation.
-  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
-  fn get_object_url_v1(
+  async fn get_object(&self, url: String) -> Result<ObjectValue, FlowyError>;
+  async fn get_object_url_v1(
     &self,
     workspace_id: &str,
     parent_dir: &str,
     file_id: &str,
   ) -> FlowyResult<String>;
+
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)>;
 
   async fn create_upload(
     &self,
@@ -79,13 +80,6 @@ pub trait StorageCloudService: Send + Sync {
     file_id: &str,
     parts: Vec<CompletedPartRequest>,
   ) -> Result<(), FlowyError>;
-}
-
-pub trait FileStoragePlan: Send + Sync + 'static {
-  fn storage_size(&self) -> FutureResult<u64, FlowyError>;
-  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError>;
-
-  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FlowyError>;
 }
 
 pub struct ObjectIdentity {

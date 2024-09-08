@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -16,33 +18,37 @@ class CreateSpacePopup extends StatefulWidget {
 
 class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = LocaleKeys.space_defaultSpaceName.tr();
-  String spaceIcon = builtInSpaceIcons.first;
-  String spaceIconColor = builtInSpaceColors.first;
+  String? spaceIcon = kDefaultSpaceIconId;
+  String? spaceIconColor = builtInSpaceColors.first;
   SpacePermission spacePermission = SpacePermission.publicToAll;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-      width: 500,
+      width: 524,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           FlowyText(
             LocaleKeys.space_createNewSpace.tr(),
             fontSize: 18.0,
+            figmaLineHeight: 24.0,
           ),
-          const VSpace(6.0),
-          FlowyText.regular(
+          const VSpace(2.0),
+          FlowyText(
             LocaleKeys.space_createSpaceDescription.tr(),
             fontSize: 14.0,
+            fontWeight: FontWeight.w300,
             color: Theme.of(context).hintColor,
+            figmaLineHeight: 18.0,
             maxLines: 2,
           ),
           const VSpace(16.0),
           SizedBox.square(
             dimension: 56,
             child: SpaceIconPopup(
+              
               onIconChanged: (icon, iconColor) {
                 spaceIcon = icon;
                 spaceIconColor = iconColor;
@@ -76,8 +82,9 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
     context.read<SpaceBloc>().add(
           SpaceEvent.create(
             name: spaceName,
-            icon: spaceIcon,
-            iconColor: spaceIconColor,
+            // fixme: space issue
+            icon: spaceIcon!,
+            iconColor: spaceIconColor!,
             permission: spacePermission,
             createNewPageByDefault: true,
           ),
@@ -106,14 +113,16 @@ class _SpaceNameTextField extends StatelessWidget {
           LocaleKeys.space_spaceName.tr(),
           fontSize: 14.0,
           color: Theme.of(context).hintColor,
+          figmaLineHeight: 18.0,
         ),
         const VSpace(6.0),
         SizedBox(
           height: 40,
           child: FlowyTextField(
-            hintText: LocaleKeys.space_spaceName.tr(),
+            hintText: LocaleKeys.space_spaceNamePlaceholder.tr(),
             onChanged: onChanged,
             onSubmitted: onSubmitted,
+            enableBorderColor: context.enableBorderColor,
           ),
         ),
       ],

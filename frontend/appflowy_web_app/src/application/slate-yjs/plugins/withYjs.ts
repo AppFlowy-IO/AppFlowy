@@ -24,43 +24,44 @@ const localChanges = new WeakMap<YjsEditor, LocalChange[]>();
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const YjsEditor = {
-  connected(editor: YjsEditor): boolean {
+  connected (editor: YjsEditor): boolean {
     return connectSet.has(editor);
   },
 
-  connect(editor: YjsEditor): void {
+  connect (editor: YjsEditor): void {
     editor.connect();
   },
 
-  disconnect(editor: YjsEditor): void {
+  disconnect (editor: YjsEditor): void {
     editor.disconnect();
   },
 
-  applyRemoteEvents(editor: YjsEditor, events: Array<YEvent>, transaction: Transaction): void {
+  applyRemoteEvents (editor: YjsEditor, events: Array<YEvent>, transaction: Transaction): void {
     editor.applyRemoteEvents(events, transaction);
   },
 
-  localChanges(editor: YjsEditor): LocalChange[] {
+  localChanges (editor: YjsEditor): LocalChange[] {
     return localChanges.get(editor) ?? [];
   },
 
-  storeLocalChange(editor: YjsEditor, op: Operation): void {
+  storeLocalChange (editor: YjsEditor, op: Operation): void {
     editor.storeLocalChange(op);
   },
 
-  flushLocalChanges(editor: YjsEditor): void {
+  flushLocalChanges (editor: YjsEditor): void {
     editor.flushLocalChanges();
   },
 };
 
-export function withYjs<T extends Editor>(
+export function withYjs<T extends Editor> (
   editor: T,
   doc: Y.Doc,
   opts?: {
     localOrigin: CollabOrigin;
-  }
+    readSummary?: boolean;
+  },
 ): T & YjsEditor {
-  const { localOrigin = CollabOrigin.Local } = opts ?? {};
+  const { localOrigin = CollabOrigin.Local, readSummary } = opts ?? {};
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
@@ -73,7 +74,11 @@ export function withYjs<T extends Editor>(
       return;
     }
 
-    e.children = content.children;
+    if (readSummary) {
+      e.children = content.children.slice(0, 10);
+    } else {
+      e.children = content.children;
+    }
 
     Editor.normalize(editor, { force: true });
   };

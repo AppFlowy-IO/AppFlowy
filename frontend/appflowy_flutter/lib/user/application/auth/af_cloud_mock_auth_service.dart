@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/material.dart';
 
 /// Only used for testing.
 class AppFlowyCloudMockAuthService implements AuthService {
@@ -19,7 +20,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
   final String userEmail;
 
   final BackendAuthService _appFlowyAuthService =
-      BackendAuthService(AuthenticatorPB.Supabase);
+      BackendAuthService(AuthenticatorPB.AppFlowyCloud);
 
   @override
   Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
@@ -64,12 +65,18 @@ class AppFlowyCloudMockAuthService implements AuthService {
         );
         Log.info("UserEventOauthSignIn with payload: $payload");
         return UserEventOauthSignIn(payload).send().then((value) {
-          value.fold((l) => null, (err) => Log.error(err));
+          value.fold(
+            (l) => null,
+            (err) {
+              debugPrint("Error: $err");
+              Log.error(err);
+            },
+          );
           return value;
         });
       },
       (r) {
-        Log.error(r);
+        debugPrint("Error: $r");
         return FlowyResult.failure(r);
       },
     );

@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/cell_listener.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/domain/row_meta_listener.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -61,10 +60,8 @@ class CellController<T, D> {
   final CellDataPersistence<D> _cellDataPersistence;
 
   CellListener? _cellListener;
-  RowMetaListener? _rowMetaListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
 
@@ -75,8 +72,9 @@ class CellController<T, D> {
   FieldInfo get fieldInfo => _fieldController.getField(_cellContext.fieldId)!;
   FieldType get fieldType =>
       _fieldController.getField(_cellContext.fieldId)!.fieldType;
-  RowMetaPB? get rowMeta => _rowCache.getRow(rowId)?.rowMeta;
-  String? get icon => rowMeta?.icon;
+  ValueNotifier<String>? get icon => _rowCache.getRow(rowId)?.rowIconNotifier;
+  ValueNotifier<bool>? get hasDocument =>
+      _rowCache.getRow(rowId)?.rowDocumentNotifier;
   CellMemCache get _cellCache => _rowCache.cellCache;
 
   /// casting method for painless type coersion
@@ -107,23 +105,12 @@ class CellController<T, D> {
       fieldId,
       onFieldChanged: _onFieldChangedListener,
     );
-
-    // 3. If the field is primary listen to row meta changes.
-    if (fieldInfo.field.isPrimary) {
-      _rowMetaListener = RowMetaListener(_cellContext.rowId);
-      _rowMetaListener?.start(
-        callback: (newRowMeta) {
-          _onRowMetaChanged?.call();
-        },
-      );
-    }
   }
 
   /// Add a new listener
   VoidCallback? addListener({
     required void Function(T?) onCellChanged,
     void Function(FieldInfo fieldInfo)? onFieldChanged,
-    VoidCallback? onRowMetaChanged,
   }) {
     /// an adaptor for the onCellChanged listener
     void onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
@@ -135,8 +122,6 @@ class CellController<T, D> {
         onFieldChanged: onFieldChanged,
       );
     }
-
-    _onRowMetaChanged = onRowMetaChanged;
 
     // Return the function pointer that can be used when calling removeListener.
     return onCellChangedFn;
@@ -233,9 +218,6 @@ class CellController<T, D> {
   }
 
   Future<void> dispose() async {
-    await _rowMetaListener?.stop();
-    _rowMetaListener = null;
-
     await _cellListener?.stop();
     _cellListener = null;
 
@@ -249,7 +231,6 @@ class CellController<T, D> {
     _saveDataOperation?.cancel();
     _cellDataNotifier?.dispose();
     _cellDataNotifier = null;
-    _onRowMetaChanged = null;
   }
 }
 

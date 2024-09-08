@@ -1,6 +1,6 @@
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
-use flowy_chat::entities::CompletionTypePB;
+use flowy_ai::entities::CompletionTypePB;
 
 use std::time::Duration;
 

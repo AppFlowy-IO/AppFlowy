@@ -18,11 +18,12 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror = "1.0"
 tokio = { workspace = true, features = ["sync"] }
-parking_lot.workspace = true
 lazy_static = "1.4.0"
 bytes = { workspace = true, features = ["serde"] }
 tokio-retry = "0.3"
 anyhow.workspace = true
+arc-swap.workspace = true
+dashmap.workspace = true
 uuid.workspace = true
 chrono = { workspace = true, default-features = false, features = ["clock", "serde"] }
 collab = { workspace = true }
@@ -30,6 +31,7 @@ collab-plugins = { workspace = true }
 collab-document = { workspace = true }
 collab-entity = { workspace = true }
 collab-folder = { workspace = true }
+collab-database = { workspace = true }
 hex = "0.4.3"
 postgrest = "1.0"
 lib-infra = { workspace = true }
@@ -43,7 +45,7 @@ flowy-search-pub = { workspace = true }
 flowy-encrypt = { workspace = true }
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
-flowy-chat-pub = { workspace = true }
+flowy-ai-pub = { workspace = true }
 mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"

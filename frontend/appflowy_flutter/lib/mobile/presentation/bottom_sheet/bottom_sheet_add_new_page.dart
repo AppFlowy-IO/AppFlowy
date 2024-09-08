@@ -24,9 +24,10 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.icon_document_s,
-            size: Size.square(18),
+            size: Size.square(20),
           ),
           showTopBorder: false,
+          showBottomBorder: false,
           onTap: () => onAction(ViewLayoutPB.Document),
         ),
         FlowyOptionTile.text(
@@ -34,9 +35,10 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.icon_grid_s,
-            size: Size.square(18),
+            size: Size.square(20),
           ),
           showTopBorder: false,
+          showBottomBorder: false,
           onTap: () => onAction(ViewLayoutPB.Grid),
         ),
         FlowyOptionTile.text(
@@ -44,9 +46,10 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.icon_board_s,
-            size: Size.square(18),
+            size: Size.square(20),
           ),
           showTopBorder: false,
+          showBottomBorder: false,
           onTap: () => onAction(ViewLayoutPB.Board),
         ),
         FlowyOptionTile.text(
@@ -54,9 +57,10 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.icon_calendar_s,
-            size: Size.square(18),
+            size: Size.square(20),
           ),
           showTopBorder: false,
+          showBottomBorder: false,
           onTap: () => onAction(ViewLayoutPB.Calendar),
         ),
         FlowyOptionTile.text(
@@ -64,9 +68,10 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
           height: 52.0,
           leftIcon: const FlowySvg(
             FlowySvgs.chat_ai_page_s,
-            size: Size.square(18),
+            size: Size.square(20),
           ),
           showTopBorder: false,
+          showBottomBorder: false,
           onTap: () => onAction(ViewLayoutPB.Chat),
         ),
       ],

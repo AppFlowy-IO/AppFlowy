@@ -1,4 +1,4 @@
-import { AFConfigContext } from '@/components/app/AppConfig';
+import { AFConfigContext } from '@/components/app/app.hooks';
 import { CircularProgress } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 

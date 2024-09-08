@@ -1,12 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_toggle_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/downloading.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/downloading_model.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/init_local_ai.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/plugin_state.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -67,53 +68,53 @@ class LocalAIChatSetting extends StatelessWidget {
               tapBodyToExpand: false,
               tapHeaderToExpand: false,
             ),
-            header: const LocalAIChatSettingHeader(),
+            header: const SizedBox.shrink(),
             collapsed: const SizedBox.shrink(),
             expanded: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              // child: _LocalLLMInfoWidget(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: FlowyText.medium(
-                          LocaleKeys.settings_aiPage_keys_llmModel.tr(),
-                          fontSize: 14,
-                        ),
-                      ),
-                      const Spacer(),
-                      BlocBuilder<LocalAIChatSettingBloc,
-                          LocalAIChatSettingState>(
-                        builder: (context, state) {
-                          return state.fetchModelInfoState.when(
-                            loading: () => Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: FlowyText(
-                                      LocaleKeys
-                                          .settings_aiPage_keys_fetchLocalModel
-                                          .tr(),
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  const CircularProgressIndicator.adaptive(),
-                                ],
+                  BlocBuilder<LocalAIChatSettingBloc, LocalAIChatSettingState>(
+                    builder: (context, state) {
+                      // If the progress indicator is startOfflineAIApp, then don't show the LLM model.
+                      if (state.progressIndicator ==
+                          const LocalAIProgress.startOfflineAIApp()) {
+                        return const SizedBox.shrink();
+                      } else {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: FlowyText.medium(
+                                LocaleKeys.settings_aiPage_keys_llmModel.tr(),
+                                fontSize: 14,
                               ),
                             ),
-                            finish: (err) {
-                              return (err == null)
+                            const Spacer(),
+                            state.aiModelProgress.when(
+                              init: () => const SizedBox.shrink(),
+                              loading: () {
+                                return const Expanded(
+                                  child: Row(
+                                    children: [
+                                      Spacer(),
+                                      CircularProgressIndicator.adaptive(),
+                                    ],
+                                  ),
+                                );
+                              },
+                              finish: (err) => (err == null)
                                   ? const _SelectLocalModelDropdownMenu()
-                                  : const SizedBox.shrink();
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                                  : const SizedBox.shrink(),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
-                  const IntrinsicHeight(child: _LocalLLMInfoWidget()),
+                  const IntrinsicHeight(child: _LocalAIStateWidget()),
                 ],
               ),
             ),
@@ -189,7 +190,6 @@ class _SelectLocalModelDropdownMenu extends StatelessWidget {
                     context,
                     value: llm,
                     label: llm.chatModel,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                 )
                 .toList(),
@@ -200,8 +200,8 @@ class _SelectLocalModelDropdownMenu extends StatelessWidget {
   }
 }
 
-class _LocalLLMInfoWidget extends StatelessWidget {
-  const _LocalLLMInfoWidget();
+class _LocalAIStateWidget extends StatelessWidget {
+  const _LocalAIStateWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -210,15 +210,8 @@ class _LocalLLMInfoWidget extends StatelessWidget {
         final error = errorFromState(state);
         if (error == null) {
           // If the error is null, handle selected llm model.
-          if (state.localAIInfo != null) {
-            final child = state.localAIInfo!.when(
-              requestDownloadInfo: (
-                LocalModelResourcePB llmResource,
-                LLMModelPB llmModel,
-              ) {
-                _showDownloadDialog(context, llmResource, llmModel);
-                return const SizedBox.shrink();
-              },
+          if (state.progressIndicator != null) {
+            final child = state.progressIndicator!.when(
               showDownload: (
                 LocalModelResourcePB llmResource,
                 LLMModelPB llmModel,
@@ -240,7 +233,14 @@ class _LocalLLMInfoWidget extends StatelessWidget {
                 );
               },
               finishDownload: () => const InitLocalAIIndicator(),
-              checkPluginState: () => const CheckPluginStateIndicator(),
+              checkPluginState: () => const PluginStateIndicator(),
+              startOfflineAIApp: () => OpenOrDownloadOfflineAIApp(
+                onRetry: () {
+                  context
+                      .read<LocalAIChatSettingBloc>()
+                      .add(const LocalAIChatSettingEvent.refreshAISetting());
+                },
+              ),
             );
 
             return Padding(
@@ -253,9 +253,12 @@ class _LocalLLMInfoWidget extends StatelessWidget {
         } else {
           return Opacity(
             opacity: 0.5,
-            child: FlowyText(
-              error.msg,
-              maxLines: 10,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: FlowyText(
+                error.msg,
+                maxLines: 10,
+              ),
             ),
           );
         }
@@ -263,44 +266,11 @@ class _LocalLLMInfoWidget extends StatelessWidget {
     );
   }
 
-  void _showDownloadDialog(
-    BuildContext context,
-    LocalModelResourcePB llmResource,
-    LLMModelPB llmModel,
-  ) {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          useRootNavigator: false,
-          builder: (dialogContext) {
-            return _LLMModelDownloadDialog(
-              llmResource: llmResource,
-              onOkPressed: () {
-                context.read<LocalAIChatSettingBloc>().add(
-                      LocalAIChatSettingEvent.startDownloadModel(
-                        llmModel,
-                      ),
-                    );
-              },
-              onCancelPressed: () {
-                context.read<LocalAIChatSettingBloc>().add(
-                      const LocalAIChatSettingEvent.cancelDownload(),
-                    );
-              },
-            );
-          },
-        );
-      },
-      debugLabel: 'localModel.download',
-    );
-  }
-
   FlowyError? errorFromState(LocalAIChatSettingState state) {
-    final err = state.fetchModelInfoState.when(
+    final err = state.aiModelProgress.when(
       loading: () => null,
       finish: (err) => err,
+      init: () {},
     );
 
     if (err == null) {
@@ -314,39 +284,48 @@ class _LocalLLMInfoWidget extends StatelessWidget {
   }
 }
 
-class _LLMModelDownloadDialog extends StatelessWidget {
-  const _LLMModelDownloadDialog({
-    required this.llmResource,
-    required this.onOkPressed,
-    required this.onCancelPressed,
-  });
-  final LocalModelResourcePB llmResource;
-  final VoidCallback onOkPressed;
-  final VoidCallback onCancelPressed;
+void _showDownloadDialog(
+  BuildContext context,
+  LocalModelResourcePB llmResource,
+  LLMModelPB llmModel,
+) {
+  if (llmResource.pendingResources.isEmpty) {
+    return;
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return NavigatorOkCancelDialog(
-      title: LocaleKeys.settings_aiPage_keys_downloadLLMPrompt.tr(
+  final res = llmResource.pendingResources.first;
+  String desc = "";
+  switch (res.resType) {
+    case PendingResourceTypePB.AIModel:
+      desc = LocaleKeys.settings_aiPage_keys_downloadLLMPromptDetail.tr(
         args: [
           llmResource.pendingResources[0].name,
+          llmResource.pendingResources[0].fileSize,
         ],
-      ),
-      message: llmResource.pendingResources[0].fileSize == 0
-          ? ""
-          : LocaleKeys.settings_aiPage_keys_downloadLLMPromptDetail.tr(
-              args: [
-                llmResource.pendingResources[0].name,
-                llmResource.pendingResources[0].fileSize.toString(),
-              ],
-            ),
-      okTitle: LocaleKeys.button_confirm.tr(),
-      cancelTitle: LocaleKeys.button_cancel.tr(),
-      onOkPressed: onOkPressed,
-      onCancelPressed: onCancelPressed,
-      titleUpperCase: false,
-    );
+      );
+      break;
+    case PendingResourceTypePB.OfflineApp:
+      desc = LocaleKeys.settings_aiPage_keys_downloadAppFlowyOfflineAI.tr();
+      break;
   }
+
+  showConfirmDialog(
+    context: context,
+    style: ConfirmPopupStyle.cancelAndOk,
+    title: LocaleKeys.settings_aiPage_keys_downloadLLMPrompt.tr(
+      args: [res.name],
+    ),
+    description: desc,
+    confirmLabel: LocaleKeys.button_confirm.tr(),
+    onConfirm: () => context.read<LocalAIChatSettingBloc>().add(
+          LocalAIChatSettingEvent.startDownloadModel(
+            llmModel,
+          ),
+        ),
+    onCancel: () => context.read<LocalAIChatSettingBloc>().add(
+          const LocalAIChatSettingEvent.cancelDownload(),
+        ),
+  );
 }
 
 class _ShowDownloadIndicator extends StatelessWidget {
@@ -378,29 +357,7 @@ class _ShowDownloadIndicator extends StatelessWidget {
                     color: Color(0xFF005483),
                   ),
                   onTap: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      useRootNavigator: false,
-                      builder: (dialogContext) {
-                        return _LLMModelDownloadDialog(
-                          llmResource: llmResource,
-                          onOkPressed: () {
-                            context.read<LocalAIChatSettingBloc>().add(
-                                  LocalAIChatSettingEvent.startDownloadModel(
-                                    llmModel,
-                                  ),
-                                );
-                          },
-                          onCancelPressed: () {
-                            context.read<LocalAIChatSettingBloc>().add(
-                                  const LocalAIChatSettingEvent
-                                      .cancelDownload(),
-                                );
-                          },
-                        );
-                      },
-                    );
+                    _showDownloadDialog(context, llmResource, llmModel);
                   },
                 ),
               ),

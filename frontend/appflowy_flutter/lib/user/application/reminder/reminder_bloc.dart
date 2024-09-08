@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
@@ -17,11 +18,14 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   ReminderBloc() : super(ReminderState()) {
+    Log.info('ReminderBloc created');
+
     _actionBloc = getIt<ActionNavigationBloc>();
     _reminderService = const ReminderService();
     timer = _periodicCheck();
@@ -37,55 +41,59 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     on<ReminderEvent>(
       (event, emit) async {
         await event.when(
-          markAllRead: () async {
-            final unreadReminders =
-                state.pastReminders.where((reminder) => !reminder.isRead);
-
-            final reminders = [...state.reminders];
-            final updatedReminders = <ReminderPB>[];
-            for (final reminder in unreadReminders) {
-              reminders.remove(reminder);
-
-              reminder.isRead = true;
-              await _reminderService.updateReminder(reminder: reminder);
-
-              updatedReminders.add(reminder);
-            }
-
-            reminders.addAll(updatedReminders);
-            emit(state.copyWith(reminders: reminders));
-          },
           started: () async {
-            final remindersOrFailure = await _reminderService.fetchReminders();
+            Log.info('Start fetching reminders');
 
-            remindersOrFailure.fold(
-              (reminders) => emit(state.copyWith(reminders: reminders)),
-              (error) => Log.error(error),
+            final result = await _reminderService.fetchReminders();
+
+            result.fold(
+              (reminders) {
+                Log.info('Fetched reminders on startup: ${reminders.length}');
+                emit(state.copyWith(reminders: reminders));
+              },
+              (error) => Log.error('Failed to fetch reminders: $error'),
             );
           },
           remove: (reminderId) async {
-            final unitOrFailure =
-                await _reminderService.removeReminder(reminderId: reminderId);
+            final result = await _reminderService.removeReminder(
+              reminderId: reminderId,
+            );
 
-            unitOrFailure.fold(
+            result.fold(
               (_) {
+                Log.info('Removed reminder: $reminderId');
                 final reminders = [...state.reminders];
                 reminders.removeWhere((e) => e.id == reminderId);
                 emit(state.copyWith(reminders: reminders));
               },
-              (error) => Log.error(error),
+              (error) => Log.error(
+                'Failed to remove reminder($reminderId): $error',
+              ),
             );
           },
           add: (reminder) async {
-            final unitOrFailure =
-                await _reminderService.addReminder(reminder: reminder);
+            // check the timestamp in the reminder
+            if (reminder.createdAt == null) {
+              reminder.freeze();
+              reminder = reminder.rebuild((update) {
+                update.meta[ReminderMetaKeys.createdAt] =
+                    DateTime.now().millisecondsSinceEpoch.toString();
+              });
+            }
 
-            return unitOrFailure.fold(
+            final result = await _reminderService.addReminder(
+              reminder: reminder,
+            );
+
+            return result.fold(
               (_) {
+                Log.info('Added reminder: ${reminder.id}');
+                Log.info('Before adding reminder: ${state.reminders.length}');
                 final reminders = [...state.reminders, reminder];
+                Log.info('After adding reminder: ${reminders.length}');
                 emit(state.copyWith(reminders: reminders));
               },
-              (error) => Log.error(error),
+              (error) => Log.error('Failed to add reminder: $error'),
             );
           },
           addById: (reminderId, objectId, scheduledAt, meta) async => add(
@@ -102,8 +110,9 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             ),
           ),
           update: (updateObject) async {
-            final reminder = state.reminders
-                .firstWhereOrNull((r) => r.id == updateObject.id);
+            final reminder = state.reminders.firstWhereOrNull(
+              (r) => r.id == updateObject.id,
+            );
 
             if (reminder == null) {
               return;
@@ -111,18 +120,23 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
             final newReminder = updateObject.merge(a: reminder);
             final failureOrUnit = await _reminderService.updateReminder(
-              reminder: updateObject.merge(a: reminder),
+              reminder: newReminder,
             );
+
+            Log.info('Updating reminder: ${reminder.id}');
 
             failureOrUnit.fold(
               (_) {
+                Log.info('Updated reminder: ${reminder.id}');
                 final index =
                     state.reminders.indexWhere((r) => r.id == reminder.id);
                 final reminders = [...state.reminders];
                 reminders.replaceRange(index, index + 1, [newReminder]);
                 emit(state.copyWith(reminders: reminders));
               },
-              (error) => Log.error(error),
+              (error) => Log.error(
+                'Failed to update reminder(${reminder.id}): $error',
+              ),
             );
           },
           pressReminder: (reminderId, path, view) {
@@ -171,9 +185,165 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               );
             }
           },
+          markAsRead: (reminderIds) async {
+            final reminders = await _onMarkAsRead(reminderIds: reminderIds);
+
+            Log.info('Marked reminders as read: $reminderIds');
+
+            emit(
+              state.copyWith(
+                reminders: reminders,
+              ),
+            );
+          },
+          archive: (reminderIds) async {
+            final reminders = await _onArchived(
+              isArchived: true,
+              reminderIds: reminderIds,
+            );
+
+            Log.info('Archived reminders: $reminderIds');
+
+            emit(
+              state.copyWith(
+                reminders: reminders,
+              ),
+            );
+          },
+          markAllRead: () async {
+            final reminders = await _onMarkAsRead();
+
+            Log.info('Marked all reminders as read');
+
+            emit(
+              state.copyWith(
+                reminders: reminders,
+              ),
+            );
+          },
+          archiveAll: () async {
+            final reminders = await _onArchived(isArchived: true);
+
+            Log.info('Archived all reminders');
+
+            emit(
+              state.copyWith(
+                reminders: reminders,
+              ),
+            );
+          },
+          unarchiveAll: () async {
+            final reminders = await _onArchived(isArchived: false);
+            emit(
+              state.copyWith(
+                reminders: reminders,
+              ),
+            );
+          },
+          refresh: () async {
+            final result = await _reminderService.fetchReminders();
+
+            result.fold(
+              (reminders) {
+                Log.info('Fetched reminders on refresh: ${reminders.length}');
+                emit(state.copyWith(reminders: reminders));
+              },
+              (error) => Log.error('Failed to fetch reminders: $error'),
+            );
+          },
         );
       },
     );
+  }
+
+  /// Mark the reminder as read
+  ///
+  /// If the [reminderIds] is null, all unread reminders will be marked as read
+  /// Otherwise, only the reminders with the given IDs will be marked as read
+  Future<List<ReminderPB>> _onMarkAsRead({
+    List<String>? reminderIds,
+  }) async {
+    final Iterable<ReminderPB> remindersToUpdate;
+
+    if (reminderIds != null) {
+      remindersToUpdate = state.reminders.where(
+        (reminder) => reminderIds.contains(reminder.id) && !reminder.isRead,
+      );
+    } else {
+      // Get all reminders that are not matching the isArchived flag
+      remindersToUpdate = state.reminders.where(
+        (reminder) => !reminder.isRead,
+      );
+    }
+
+    for (final reminder in remindersToUpdate) {
+      reminder.isRead = true;
+
+      await _reminderService.updateReminder(reminder: reminder);
+      Log.info('Mark reminder ${reminder.id} as read');
+    }
+
+    return state.reminders.map((e) {
+      if (reminderIds != null && !reminderIds.contains(e.id)) {
+        return e;
+      }
+
+      if (e.isRead) {
+        return e;
+      }
+
+      e.freeze();
+      return e.rebuild((update) {
+        update.isRead = true;
+      });
+    }).toList();
+  }
+
+  /// Archive or unarchive reminders
+  ///
+  /// If the [reminderIds] is null, all reminders will be archived
+  /// Otherwise, only the reminders with the given IDs will be archived or unarchived
+  Future<List<ReminderPB>> _onArchived({
+    required bool isArchived,
+    List<String>? reminderIds,
+  }) async {
+    final Iterable<ReminderPB> remindersToUpdate;
+
+    if (reminderIds != null) {
+      remindersToUpdate = state.reminders.where(
+        (reminder) =>
+            reminderIds.contains(reminder.id) &&
+            reminder.isArchived != isArchived,
+      );
+    } else {
+      // Get all reminders that are not matching the isArchived flag
+      remindersToUpdate = state.reminders.where(
+        (reminder) => reminder.isArchived != isArchived,
+      );
+    }
+
+    for (final reminder in remindersToUpdate) {
+      reminder.isRead = isArchived;
+      reminder.meta[ReminderMetaKeys.isArchived] = isArchived.toString();
+      await _reminderService.updateReminder(reminder: reminder);
+      Log.info('Reminder ${reminder.id} is archived: $isArchived');
+    }
+
+    return state.reminders.map((e) {
+      if (reminderIds != null && !reminderIds.contains(e.id)) {
+        return e;
+      }
+
+      if (e.isArchived == isArchived) {
+        return e;
+      }
+
+      e.freeze();
+      return e.rebuild((update) {
+        update.isRead = isArchived;
+        update.meta[ReminderMetaKeys.isArchived] = isArchived.toString();
+      });
+    }).toList();
   }
 
   Timer _periodicCheck() {
@@ -239,14 +409,31 @@ class ReminderEvent with _$ReminderEvent {
   // Update a reminder (eg. isAck, isRead, etc.)
   const factory ReminderEvent.update(ReminderUpdate update) = _Update;
 
-  // Mark all unread reminders as read
+  // Event to mark specific reminders as read, takes a list of reminder IDs
+  const factory ReminderEvent.markAsRead(List<String> reminderIds) =
+      _MarkAsRead;
+
+  // Event to mark all unread reminders as read
   const factory ReminderEvent.markAllRead() = _MarkAllRead;
 
+  // Event to archive specific reminders, takes a list of reminder IDs
+  const factory ReminderEvent.archive(List<String> reminderIds) = _Archive;
+
+  // Event to archive all reminders
+  const factory ReminderEvent.archiveAll() = _ArchiveAll;
+
+  // Event to unarchive all reminders
+  const factory ReminderEvent.unarchiveAll() = _UnarchiveAll;
+
+  // Event to handle reminder press action
   const factory ReminderEvent.pressReminder({
     required String reminderId,
     @Default(null) int? path,
     @Default(null) ViewPB? view,
   }) = _PressReminder;
+
+  // Event to refresh reminders
+  const factory ReminderEvent.refresh() = _Refresh;
 }
 
 /// Object used to merge updates with
@@ -259,6 +446,8 @@ class ReminderUpdate {
     this.isRead,
     this.scheduledAt,
     this.includeTime,
+    this.isArchived,
+    this.date,
   });
 
   final String id;
@@ -266,15 +455,25 @@ class ReminderUpdate {
   final bool? isRead;
   final DateTime? scheduledAt;
   final bool? includeTime;
+  final bool? isArchived;
+  final DateTime? date;
 
   ReminderPB merge({required ReminderPB a}) {
     final isAcknowledged = isAck == null && scheduledAt != null
         ? scheduledAt!.isBefore(DateTime.now())
         : a.isAck;
 
-    final meta = a.meta;
+    final meta = {...a.meta};
     if (includeTime != a.includeTime) {
       meta[ReminderMetaKeys.includeTime] = includeTime.toString();
+    }
+
+    if (isArchived != a.isArchived) {
+      meta[ReminderMetaKeys.isArchived] = isArchived.toString();
+    }
+
+    if (date != a.date && date != null) {
+      meta[ReminderMetaKeys.date] = date!.millisecondsSinceEpoch.toString();
     }
 
     return ReminderPB(
@@ -327,7 +526,7 @@ class ReminderState {
   }
 
   late final List<ReminderPB> _reminders;
-  List<ReminderPB> get reminders => _reminders;
+  List<ReminderPB> get reminders => _reminders.unique((e) => e.id);
 
   late final List<ReminderPB> pastReminders;
   late final List<ReminderPB> upcomingReminders;

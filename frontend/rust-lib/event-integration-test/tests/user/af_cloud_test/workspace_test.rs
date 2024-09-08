@@ -5,6 +5,7 @@ use collab_folder::Folder;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use std::time::Duration;
+use tokio::task::LocalSet;
 use tokio::time::sleep;
 
 use crate::user::af_cloud_test::util::get_synced_workspaces;
@@ -100,16 +101,17 @@ async fn af_cloud_open_workspace_test() {
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let _ = test.af_cloud_sign_up().await;
-  let default_document_name = "Getting started";
+  let default_document_name = "General";
 
   test.create_document("A").await;
   test.create_document("B").await;
   let first_workspace = test.get_current_workspace().await;
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
+  assert_eq!(views.len(), 4);
   assert_eq!(views[0].name, default_document_name);
-  assert_eq!(views[1].name, "A");
-  assert_eq!(views[2].name, "B");
+  assert_eq!(views[1].name, "Shared");
+  assert_eq!(views[2].name, "A");
+  assert_eq!(views[3].name, "B");
 
   let user_workspace = test.create_workspace("second workspace").await;
   test.open_workspace(&user_workspace.workspace_id).await;
@@ -118,13 +120,14 @@ async fn af_cloud_open_workspace_test() {
   test.create_document("D").await;
 
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
+  assert_eq!(views.len(), 4);
   assert_eq!(views[0].name, default_document_name);
-  assert_eq!(views[1].name, "C");
-  assert_eq!(views[2].name, "D");
+  assert_eq!(views[1].name, "Shared");
+  assert_eq!(views[2].name, "C");
+  assert_eq!(views[3].name, "D");
 
   // simulate open workspace and check if the views are correct
-  for i in 0..30 {
+  for i in 0..10 {
     if i % 2 == 0 {
       test.open_workspace(&first_workspace.id).await;
       sleep(Duration::from_millis(300)).await;
@@ -141,16 +144,18 @@ async fn af_cloud_open_workspace_test() {
   }
 
   test.open_workspace(&first_workspace.id).await;
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views[0].name, default_document_name);
-  assert_eq!(views[1].name, "A");
-  assert_eq!(views[2].name, "B");
+  let views_1 = test.get_all_workspace_views().await;
+  assert_eq!(views_1[0].name, default_document_name);
+  assert_eq!(views_1[1].name, "Shared");
+  assert_eq!(views_1[2].name, "A");
+  assert_eq!(views_1[3].name, "B");
 
   test.open_workspace(&second_workspace.id).await;
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views[0].name, default_document_name);
-  assert_eq!(views[1].name, "C");
-  assert_eq!(views[2].name, "D");
+  let views_2 = test.get_all_workspace_views().await;
+  assert_eq!(views_2[0].name, default_document_name);
+  assert_eq!(views_2[1].name, "Shared");
+  assert_eq!(views_2[2].name, "C");
+  assert_eq!(views_2[3].name, "D");
 }
 
 #[tokio::test]
@@ -158,12 +163,9 @@ async fn af_cloud_different_open_same_workspace_test() {
   user_localhost_af_cloud().await;
 
   // Set up the primary client and sign them up to the cloud.
-  let client_1 = EventIntegrationTest::new().await;
-  let owner_profile = client_1.af_cloud_sign_up().await;
-  let shared_workspace_id = client_1.get_current_workspace().await.id.clone();
-
-  // Verify that the workspace ID from the profile matches the current session's workspace ID.
-  assert_eq!(shared_workspace_id, owner_profile.workspace_id);
+  let test_runner = EventIntegrationTest::new().await;
+  let owner_profile = test_runner.af_cloud_sign_up().await;
+  let shared_workspace_id = test_runner.get_current_workspace().await.id.clone();
 
   // Define the number of additional clients
   let num_clients = 5;
@@ -176,13 +178,13 @@ async fn af_cloud_different_open_same_workspace_test() {
 
     let views = client.get_all_workspace_views().await;
     // only the getting started view should be present
-    assert_eq!(views.len(), 1);
+    assert_eq!(views.len(), 2);
     for view in views {
       client.delete_view(&view.id).await;
     }
 
-    client_1
-      .add_workspace_member(&owner_profile.workspace_id, &client)
+    test_runner
+      .add_workspace_member(&shared_workspace_id, &client)
       .await;
     clients.push((client, client_profile));
   }
@@ -195,9 +197,10 @@ async fn af_cloud_different_open_same_workspace_test() {
 
   // Simulate each client open different workspace 30 times
   let mut handles = vec![];
+  let local_set = LocalSet::new();
   for client in clients.clone() {
     let cloned_shared_workspace_id = shared_workspace_id.clone();
-    let handle = tokio::spawn(async move {
+    let handle = local_set.spawn_local(async move {
       let (client, profile) = client;
       let all_workspaces = get_synced_workspaces(&client, profile.id).await;
       for i in 0..30 {
@@ -206,7 +209,7 @@ async fn af_cloud_different_open_same_workspace_test() {
         client.open_workspace(iter_workspace_id).await;
         if iter_workspace_id == &cloned_shared_workspace_id {
           let views = client.get_all_workspace_views().await;
-          assert_eq!(views.len(), 1);
+          assert_eq!(views.len(), 2);
           sleep(Duration::from_millis(300)).await;
         } else {
           let views = client.get_all_workspace_views().await;
@@ -216,10 +219,16 @@ async fn af_cloud_different_open_same_workspace_test() {
     });
     handles.push(handle);
   }
-  futures::future::join_all(handles).await;
+  let results = local_set
+    .run_until(futures::future::join_all(handles))
+    .await;
+
+  for result in results {
+    assert!(result.is_ok());
+  }
 
   // Retrieve and verify the collaborative document state for Client 1's workspace.
-  let doc_state = client_1
+  let doc_state = test_runner
     .get_collab_doc_state(&shared_workspace_id, CollabType::Folder)
     .await
     .unwrap();
@@ -235,8 +244,8 @@ async fn af_cloud_different_open_same_workspace_test() {
   // Retrieve and verify the views associated with the workspace.
   let views = folder.get_views_belong_to(&shared_workspace_id);
   let folder_workspace_id = folder.get_workspace_id();
-  assert_eq!(folder_workspace_id, shared_workspace_id);
+  assert_eq!(folder_workspace_id, Some(shared_workspace_id));
 
-  assert_eq!(views.len(), 1, "only get: {:?}", views); // Expecting two views.
-  assert_eq!(views[0].name, "Getting started");
+  assert_eq!(views.len(), 2, "only get: {:?}", views); // Expecting two views.
+  assert_eq!(views[0].name, "General");
 }

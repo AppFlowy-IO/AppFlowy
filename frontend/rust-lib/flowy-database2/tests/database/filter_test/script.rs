@@ -194,7 +194,7 @@ impl DatabaseFilterTest {
       } => {
         self.subscribe_view_changed().await;
         self.assert_future_changed(changed).await;
-        let field = self.get_first_field(field_type);
+        let field = self.get_first_field(field_type).await;
         let params = FilterChangeset::Insert {
           parent_filter_id,
           data: FilterInner::Data {
@@ -301,7 +301,7 @@ impl DatabaseFilterTest {
         }
       },
       FilterScript::AssertNumberOfVisibleRows { expected } => {
-        let grid = self.editor.get_database_data(&self.view_id).await.unwrap();
+        let grid = self.editor.open_database_view(&self.view_id).await.unwrap();
         assert_eq!(grid.rows.len(), expected);
       },
       FilterScript::Wait { millisecond } => {

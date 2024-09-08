@@ -37,6 +37,14 @@ class RowBackendService {
     return DatabaseEventCreateRow(payload).send();
   }
 
+  Future<FlowyResult<void, FlowyError>> initRow(RowId rowId) async {
+    final payload = DatabaseViewRowIdPB()
+      ..viewId = viewId
+      ..rowId = rowId;
+
+    return DatabaseEventInitRow(payload).send();
+  }
+
   Future<FlowyResult<RowMetaPB, FlowyError>> createRowBefore(RowId rowId) {
     return createRow(
       viewId: viewId,
@@ -57,7 +65,7 @@ class RowBackendService {
     required String viewId,
     required String rowId,
   }) {
-    final payload = RowIdPB()
+    final payload = DatabaseViewRowIdPB()
       ..viewId = viewId
       ..rowId = rowId;
 
@@ -65,7 +73,7 @@ class RowBackendService {
   }
 
   Future<FlowyResult<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {
-    final payload = RowIdPB.create()
+    final payload = DatabaseViewRowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
 
@@ -111,7 +119,7 @@ class RowBackendService {
     String viewId,
     RowId rowId,
   ) {
-    final payload = RowIdPB(
+    final payload = DatabaseViewRowIdPB(
       viewId: viewId,
       rowId: rowId,
     );

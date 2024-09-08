@@ -1,66 +1,110 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-import 'chat_input.dart';
+import 'chat_input/chat_input.dart';
+
+class WelcomeQuestion {
+  WelcomeQuestion({
+    required this.text,
+    required this.iconData,
+  });
+  final String text;
+  final FlowySvgData iconData;
+}
 
 class ChatWelcomePage extends StatelessWidget {
-  ChatWelcomePage({required this.onSelectedQuestion, super.key});
+  ChatWelcomePage({
+    required this.userProfile,
+    required this.onSelectedQuestion,
+    super.key,
+  });
 
   final void Function(String) onSelectedQuestion;
+  final UserProfilePB userProfile;
 
-  final List<String> items = [
-    LocaleKeys.chat_question1.tr(),
-    LocaleKeys.chat_question2.tr(),
-    LocaleKeys.chat_question3.tr(),
-    LocaleKeys.chat_question4.tr(),
+  final List<WelcomeQuestion> items = [
+    WelcomeQuestion(
+      text: LocaleKeys.chat_question1.tr(),
+      iconData: FlowySvgs.chat_lightbulb_s,
+    ),
+    WelcomeQuestion(
+      text: LocaleKeys.chat_question2.tr(),
+      iconData: FlowySvgs.chat_scholar_s,
+    ),
+    WelcomeQuestion(
+      text: LocaleKeys.chat_question3.tr(),
+      iconData: FlowySvgs.chat_question_s,
+    ),
+    WelcomeQuestion(
+      text: LocaleKeys.chat_question4.tr(),
+      iconData: FlowySvgs.chat_feather_s,
+    ),
   ];
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: 1.0,
       duration: const Duration(seconds: 3),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const FlowySvg(
-            FlowySvgs.flowy_ai_chat_logo_s,
-            size: Size.square(44),
-          ),
-          const SizedBox(height: 40),
-          Wrap(
-            children: items
-                .map(
-                  (i) => WelcomeQuestion(
-                    question: i,
-                    onSelected: onSelectedQuestion,
-                  ),
-                )
-                .toList(),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Spacer(),
+            Opacity(
+              opacity: 0.8,
+              child: FlowyText(
+                fontSize: 15,
+                LocaleKeys.chat_questionDetail.tr(args: [userProfile.name]),
+              ),
+            ),
+            const VSpace(18),
+            Opacity(
+              opacity: 0.6,
+              child: FlowyText(
+                LocaleKeys.chat_questionTitle.tr(),
+              ),
+            ),
+            const VSpace(8),
+            Wrap(
+              direction: Axis.vertical,
+              spacing: isMobile ? 12.0 : 0.0,
+              children: items
+                  .map(
+                    (i) => WelcomeQuestionWidget(
+                      question: i,
+                      onSelected: onSelectedQuestion,
+                    ),
+                  )
+                  .toList(),
+            ),
+            const VSpace(20),
+          ],
+        ),
       ),
     );
   }
 }
 
-class WelcomeQuestion extends StatelessWidget {
-  const WelcomeQuestion({
+class WelcomeQuestionWidget extends StatelessWidget {
+  const WelcomeQuestionWidget({
     required this.question,
     required this.onSelected,
     super.key,
   });
 
   final void Function(String) onSelected;
-  final String question;
+  final WelcomeQuestion question;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => onSelected(question),
+      onTap: () => onSelected(question.text),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         child: FlowyHover(
@@ -70,12 +114,18 @@ class WelcomeQuestion extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                FlowySvg(
+                  question.iconData,
+                  size: const Size.square(18),
+                  blendMode: null,
+                ),
+                const HSpace(16),
                 FlowyText(
-                  question,
+                  question.text,
                   maxLines: null,
                 ),
               ],

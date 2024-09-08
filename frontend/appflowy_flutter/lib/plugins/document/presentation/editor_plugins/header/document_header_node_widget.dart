@@ -5,16 +5,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -351,11 +351,12 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
           constraints: BoxConstraints.loose(const Size(360, 380)),
+          margin: EdgeInsets.zero,
           child: child,
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
-            return FlowyIconPicker(
-              onSelected: (result) {
+            return FlowyIconEmojiPicker(
+              onSelectedEmoji: (result) {
                 widget.onIconOrCoverChanged(icon: result.emoji);
                 _popoverController.close();
               },
@@ -482,9 +483,12 @@ class DocumentCoverState extends State<DocumentCover> {
                                   UploadImageType.url,
                                   UploadImageType.unsplash,
                                 ],
-                                onSelectedLocalImage: (path) async {
+                                onSelectedLocalImages: (paths) async {
                                   context.pop();
-                                  widget.onChangeCover(CoverType.file, path);
+                                  widget.onChangeCover(
+                                    CoverType.file,
+                                    paths.first,
+                                  );
                                 },
                                 onSelectedAIImage: (_) {
                                   throw UnimplementedError();
@@ -608,9 +612,9 @@ class DocumentCoverState extends State<DocumentCover> {
                   UploadImageType.url,
                   UploadImageType.unsplash,
                 ],
-                onSelectedLocalImage: (path) {
+                onSelectedLocalImages: (paths) {
                   popoverController.close();
-                  onCoverChanged(CoverType.file, path);
+                  onCoverChanged(CoverType.file, paths.first);
                 },
                 onSelectedAIImage: (_) {
                   throw UnimplementedError();
@@ -721,10 +725,11 @@ class _DocumentIconState extends State<DocumentIcon> {
         controller: _popoverController,
         offset: const Offset(0, 8),
         constraints: BoxConstraints.loose(const Size(360, 380)),
+        margin: EdgeInsets.zero,
         child: child,
         popupBuilder: (BuildContext popoverContext) {
-          return FlowyIconPicker(
-            onSelected: (result) {
+          return FlowyIconEmojiPicker(
+            onSelectedEmoji: (result) {
               widget.onChangeIcon(result.emoji);
               _popoverController.close();
             },

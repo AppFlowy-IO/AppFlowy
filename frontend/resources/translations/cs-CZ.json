@@ -379,8 +379,8 @@
       "tooltipSelectIcon": "Vyberte ikonu",
       "selectAnIcon": "Vyberte ikonu",
       "pleaseInputYourOpenAIKey": "Prosím vložte svůj AI klíč",
-      "pleaseInputYourStabilityAIKey": "Prosím vložte svůj Stability AI klíč",
-      "clickToLogout": "Klin"
+      "clickToLogout": "Klin",
+      "pleaseInputYourStabilityAIKey": "Prosím vložte svůj Stability AI klíč"
     },
     "mobile": {
       "personalInfo": "Osobní informace",
@@ -678,8 +678,8 @@
         "defaultColor": "Výchozí"
       },
       "image": {
-        "copiedToPasteBoard": "Odkaz na obrázek byl zkopírován do schránky",
-        "addAnImage": "Přidat obrázek"
+        "addAnImage": "Přidat obrázek",
+        "copiedToPasteBoard": "Odkaz na obrázek byl zkopírován do schránky"
       },
       "outline": {
         "addHeadingToCreateOutline": "Přidáním nadpisů vytvoříte obsah dokumentu"
@@ -736,11 +736,11 @@
       },
       "searchForAnImage": "Hledat obrázek",
       "pleaseInputYourOpenAIKey": "zadejte prosím svůj AI klíč v Nastavení",
-      "pleaseInputYourStabilityAIKey": "prosím vložte svůjStability AI klíč v Nastavení",
       "saveImageToGallery": "Uložit obrázek",
       "failedToAddImageToGallery": "Nepodařilo se přidat obrázek do galerie",
       "successToAddImageToGallery": "Obrázek byl úspěšně přidán do galerie",
-      "unableToLoadImage": "Nepodařilo se nahrát obrázek"
+      "unableToLoadImage": "Nepodařilo se nahrát obrázek",
+      "pleaseInputYourStabilityAIKey": "prosím vložte svůjStability AI klíč v Nastavení"
     },
     "codeBlock": {
       "language": {

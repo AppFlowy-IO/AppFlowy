@@ -1,7 +1,8 @@
+use async_trait::async_trait;
 use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -38,6 +39,7 @@ impl DefaultGroupController {
   }
 }
 
+#[async_trait]
 impl GroupController for DefaultGroupController {
   fn get_grouping_field_id(&self) -> &str {
     &self.field_id
@@ -51,14 +53,14 @@ impl GroupController for DefaultGroupController {
     Some((0, self.group.clone()))
   }
 
-  fn fill_groups(&mut self, rows: &[&RowDetail], _field: &Field) -> FlowyResult<()> {
+  fn fill_groups(&mut self, rows: &[&Row], _field: &Field) -> FlowyResult<()> {
     rows.iter().for_each(|row| {
       self.group.add_row((*row).clone());
     });
     Ok(())
   }
 
-  fn create_group(
+  async fn create_group(
     &mut self,
     _name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
@@ -69,17 +71,13 @@ impl GroupController for DefaultGroupController {
     Ok(())
   }
 
-  fn did_create_row(
-    &mut self,
-    row_detail: &RowDetail,
-    index: usize,
-  ) -> Vec<GroupRowsNotificationPB> {
-    self.group.add_row((*row_detail).clone());
+  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB> {
+    self.group.add_row((*row).clone());
 
     vec![GroupRowsNotificationPB::insert(
       self.group.id.clone(),
       vec![InsertedRowPB {
-        row_meta: (*row_detail).clone().into(),
+        row_meta: (*row).clone().into(),
         index: Some(index as i32),
         is_new: true,
       }],
@@ -88,8 +86,8 @@ impl GroupController for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    _old_row_detail: &Option<RowDetail>,
-    _row_detail: &RowDetail,
+    _old_row: &Option<Row>,
+    _new_row: &Row,
     _field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     Ok(DidUpdateGroupRowResult {
@@ -125,15 +123,25 @@ impl GroupController for DefaultGroupController {
     Ok(None)
   }
 
-  fn delete_group(&mut self, _group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
+  async fn delete_group(
+    &mut self,
+    _group_id: &str,
+  ) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
     Ok((vec![], None))
   }
 
-  fn apply_group_changeset(
+  async fn apply_group_changeset(
     &mut self,
     _changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)> {
     Ok((Vec::new(), None))
+  }
+
+  async fn apply_group_rename(
+    &mut self,
+    _changeset: &GroupChangeset,
+  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)> {
+    Ok((GroupPB::default(), None))
   }
 
   fn will_create_row(&self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}

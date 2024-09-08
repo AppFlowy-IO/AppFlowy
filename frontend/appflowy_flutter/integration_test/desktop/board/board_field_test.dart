@@ -25,7 +25,7 @@ void main() {
       const fieldName = "test change field";
       await tester.createField(
         FieldType.RichText,
-        fieldName,
+        name: fieldName,
         layout: ViewLayoutPB.Board,
       );
       await tester.tapButton(card1);
@@ -49,7 +49,7 @@ void main() {
       const fieldName = "Time";
       await tester.createField(
         FieldType.Time,
-        fieldName,
+        name: fieldName,
         layout: ViewLayoutPB.Board,
       );
       await tester.tapButton(card1);

@@ -46,8 +46,8 @@ impl KVStorePreferences {
   }
 
   /// Set a object that implements [Serialize] trait of a key
-  pub fn set_object<T: Serialize>(&self, key: &str, value: T) -> Result<(), anyhow::Error> {
-    let value = serde_json::to_string(&value)?;
+  pub fn set_object<T: Serialize>(&self, key: &str, value: &T) -> Result<(), anyhow::Error> {
+    let value = serde_json::to_string(value)?;
     self.set_key_value(key, Some(value))?;
     Ok(())
   }
@@ -63,12 +63,19 @@ impl KVStorePreferences {
   }
 
   /// Get a bool value of a key
-  pub fn get_bool(&self, key: &str) -> bool {
+  pub fn get_bool_or_default(&self, key: &str) -> bool {
     self
       .get_key_value(key)
       .and_then(|kv| kv.value)
       .and_then(|v| v.parse::<bool>().ok())
       .unwrap_or(false)
+  }
+
+  pub fn get_bool(&self, key: &str) -> Option<bool> {
+    self
+      .get_key_value(key)
+      .and_then(|kv| kv.value)
+      .and_then(|v| v.parse::<bool>().ok())
   }
 
   /// Get a i64 value of a key
@@ -157,8 +164,8 @@ mod tests {
     assert_eq!(store.get_str("2"), None);
 
     store.set_bool("1", true).unwrap();
-    assert!(store.get_bool("1"));
-    assert!(!store.get_bool("2"));
+    assert!(store.get_bool_or_default("1"));
+    assert!(!store.get_bool_or_default("2"));
 
     store.set_i64("1", 1).unwrap();
     assert_eq!(store.get_i64("1").unwrap(), 1);
@@ -168,7 +175,7 @@ mod tests {
       name: "nathan".to_string(),
       age: 30,
     };
-    store.set_object("1", person.clone()).unwrap();
+    store.set_object("1", &person.clone()).unwrap();
     assert_eq!(store.get_object::<Person>("1").unwrap(), person);
   }
 }

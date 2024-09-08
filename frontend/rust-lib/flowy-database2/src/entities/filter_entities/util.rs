@@ -14,6 +14,8 @@ use crate::entities::{
 };
 use crate::services::filter::{Filter, FilterChangeset, FilterInner};
 
+use super::MediaFilterPB;
+
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq, Copy)]
 #[repr(u8)]
 pub enum FilterType {
@@ -117,6 +119,10 @@ impl From<&Filter> for FilterPB {
             .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
+          FieldType::Media => condition_and_content
+            .cloned::<MediaFilterPB>()
+            .unwrap()
+            .try_into(),
         };
 
         Self {
@@ -169,6 +175,9 @@ impl TryFrom<FilterDataPB> for FilterInner {
       },
       FieldType::Translate => {
         BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Media => {
+        BoxAny::new(MediaFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
     };
 

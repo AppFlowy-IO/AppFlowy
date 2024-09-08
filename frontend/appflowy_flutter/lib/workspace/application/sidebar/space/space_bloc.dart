@@ -68,6 +68,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       (event, emit) async {
         await event.when(
           initial: (userProfile, workspaceId, openFirstPage) async {
+            this.openFirstPage = openFirstPage;
+
             _initial(userProfile, workspaceId);
 
             final (spaces, publicViews, privateViews) = await _getSpaces();
@@ -183,6 +185,21 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               } catch (e) {
                 Log.error('Failed to migrating cover: $e');
               }
+            } else if (icon == null) {
+              try {
+                final extra = space.extra;
+                final Map<String, dynamic> current = extra.isNotEmpty == true
+                    ? jsonDecode(extra)
+                    : <String, dynamic>{};
+                current.remove(ViewExtKeys.spaceIconKey);
+                current.remove(ViewExtKeys.spaceIconColorKey);
+                await ViewBackendService.updateView(
+                  viewId: space.id,
+                  extra: jsonEncode(current),
+                );
+              } catch (e) {
+                Log.error('Failed to migrating cover: $e');
+              }
             }
 
             if (permission != null) {
@@ -279,7 +296,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
           },
-          reset: (userProfile, workspaceId) async {
+          reset: (userProfile, workspaceId, openFirstPage) async {
             if (workspaceId == _workspaceId) {
               return;
             }
@@ -290,7 +307,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               SpaceEvent.initial(
                 userProfile,
                 workspaceId,
-                openFirstPage: true,
+                openFirstPage: openFirstPage,
               ),
             );
           },
@@ -338,6 +355,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   String? _workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
+  bool openFirstPage = false;
 
   @override
   Future<void> close() async {
@@ -434,6 +452,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     )..start(
         sectionChanged: (result) async {
           Log.info('did receive section views changed');
+          if (isClosed) {
+            return;
+          }
           add(const SpaceEvent.didReceiveSpaceUpdate());
         },
       );
@@ -541,7 +562,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
           return true;
         }
 
-        final viewId = fixedUuid(user.id.toInt(), UuidType.publicSpace);
+        final viewId = fixedUuid(
+          user.id.toInt() + (_workspaceId?.hashCode ?? 0),
+          UuidType.publicSpace,
+        );
         final publicSpace = await _createSpace(
           name: 'Shared',
           icon: builtInSpaceIcons.first,
@@ -691,8 +715,10 @@ class SpaceEvent with _$SpaceEvent {
     required bool createNewPageByDefault,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
-  const factory SpaceEvent.changeIcon(String icon, String iconColor) =
-      _ChangeIcon;
+  const factory SpaceEvent.changeIcon(
+    String? icon,
+    String? iconColor,
+  ) = _ChangeIcon;
   const factory SpaceEvent.duplicate() = _Duplicate;
   const factory SpaceEvent.update({
     String? name,
@@ -712,6 +738,7 @@ class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.reset(
     UserProfilePB userProfile,
     String workspaceId,
+    bool openFirstPage,
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;

@@ -7,9 +7,13 @@ interface Props {
   open: boolean;
   onClose: () => void;
   placement?: PopperPlacementType;
+  PaperProps?: {
+    className?: string;
+  };
+
 }
 
-export const RichTooltip = ({ placement = 'top', open, onClose, content, children }: Props) => {
+export const RichTooltip = ({ placement = 'top', open, onClose, content, children, PaperProps }: Props) => {
   const [childNode, setChildNode] = React.useState<HTMLElement | null>(null);
   const [, setTransitioning] = React.useState(false);
 
@@ -26,7 +30,7 @@ export const RichTooltip = ({ placement = 'top', open, onClose, content, childre
         anchorEl={childNode}
         placement={placement}
         transition
-        style={{ zIndex: 1200 }}
+        style={{ zIndex: 1500 }}
         modifiers={[
           {
             name: 'flip',
@@ -48,7 +52,8 @@ export const RichTooltip = ({ placement = 'top', open, onClose, content, childre
           >
             <Paper className={'bg-transparent shadow-none'}>
               <ClickAwayListener onClickAway={onClose}>
-                <Paper className={'m-2 rounded-md border border-line-divider bg-bg-body'}>
+                <Paper
+                  className={'m-2 rounded-md border border-line-divider bg-bg-body overflow-hidden'}  {...PaperProps}>
                   <Box>{content}</Box>
                 </Paper>
               </ClickAwayListener>

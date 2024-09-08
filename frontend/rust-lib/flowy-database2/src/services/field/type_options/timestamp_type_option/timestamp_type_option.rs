@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 
 use chrono::{DateTime, Local, Offset};
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::Any;
+use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -44,16 +45,16 @@ impl TypeOption for TimestampTypeOption {
 impl From<TypeOptionData> for TimestampTypeOption {
   fn from(data: TypeOptionData) -> Self {
     let date_format = data
-      .get_i64_value("date_format")
+      .get_as::<i64>("date_format")
       .map(DateFormat::from)
       .unwrap_or_default();
     let time_format = data
-      .get_i64_value("time_format")
+      .get_as::<i64>("time_format")
       .map(TimeFormat::from)
       .unwrap_or_default();
-    let include_time = data.get_bool_value("include_time").unwrap_or_default();
+    let include_time = data.get_as::<bool>("include_time").unwrap_or_default();
     let field_type = data
-      .get_i64_value("field_type")
+      .get_as::<i64>("field_type")
       .map(FieldType::from)
       .unwrap_or(FieldType::LastEditedTime);
     Self {
@@ -67,12 +68,18 @@ impl From<TypeOptionData> for TimestampTypeOption {
 
 impl From<TimestampTypeOption> for TypeOptionData {
   fn from(option: TimestampTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_i64_value("date_format", option.date_format.value())
-      .insert_i64_value("time_format", option.time_format.value())
-      .insert_bool_value("include_time", option.include_time)
-      .insert_i64_value("field_type", option.field_type.value())
-      .build()
+    TypeOptionDataBuilder::from([
+      (
+        "date_format".into(),
+        Any::BigInt(option.date_format.value()),
+      ),
+      (
+        "time_format".into(),
+        Any::BigInt(option.time_format.value()),
+      ),
+      ("include_time".into(), Any::Bool(option.include_time)),
+      ("field_type".into(), Any::BigInt(option.field_type.value())),
+    ])
   }
 }
 

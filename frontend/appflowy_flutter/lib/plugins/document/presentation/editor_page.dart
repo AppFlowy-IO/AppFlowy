@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/forma
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_shortcuts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
@@ -130,8 +129,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<ToolbarItem> toolbarItems = [
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    ...headingItems
-      ..forEach((e) => e.isActive = onlyShowInSingleSelectionAndTextType),
+    headingsToolbarItem
+      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     ...markdownFormatItems..forEach((e) => e.isActive = showInAnyTextType),
     quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     bulletedListItem
@@ -146,7 +145,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customizeFontToolbarItem,
   ];
 
-  late final List<SelectionMenuItem> slashMenuItems;
+  late List<SelectionMenuItem> slashMenuItems;
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // code block
@@ -154,6 +153,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
         // callout block
         insertNewLineInCalloutBlock,
+
+        // quote block
+        insertNewLineInQuoteBlock,
 
         // toggle list
         formatGreaterToToggleList,
@@ -282,7 +284,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusManager = currFocusManager;
       focusManager?.loseFocusNotifier.addListener(_loseFocus);
     }
+
     super.didChangeDependencies();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+
+    slashMenuItems = _customSlashMenuItems();
   }
 
   @override
@@ -352,6 +362,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           },
           child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
         ),
+        dropTargetStyle: AppFlowyDropTargetStyle(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          margin: const EdgeInsets.only(left: 44),
+        ),
       ),
     );
 
@@ -383,38 +397,48 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
+        tooltipBuilder: (context, id, message, child) =>
+            widget.styleCustomizer.buildToolbarItemTooltip(
+          context,
+          id,
+          message,
+          child,
+        ),
         child: editor,
       ),
     );
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
-    final items = [...standardSelectionMenuItems];
-    final imageItem = items
-        .firstWhereOrNull((e) => e.name == AppFlowyEditorL10n.current.image);
-    if (imageItem != null) {
-      final imageItemIndex = items.indexOf(imageItem);
-      if (imageItemIndex != -1) {
-        items[imageItemIndex] = customImageMenuItem;
-      }
-    }
     return [
-      ...items,
-      inlineGridMenuItem(documentBloc),
-      referencedGridMenuItem,
-      inlineBoardMenuItem(documentBloc),
-      referencedBoardMenuItem,
-      inlineCalendarMenuItem(documentBloc),
-      referencedCalendarMenuItem,
-      referencedDocumentMenuItem,
-      calloutItem,
-      outlineItem,
-      mathEquationItem,
-      codeBlockItem(LocaleKeys.document_selectionMenu_codeBlock.tr()),
-      toggleListBlockItem,
-      emojiMenuItem,
-      autoGeneratorMenuItem,
-      dateMenuItem,
+      aiWriterSlashMenuItem,
+      textSlashMenuItem,
+      heading1SlashMenuItem,
+      heading2SlashMenuItem,
+      heading3SlashMenuItem,
+      imageSlashMenuItem,
+      bulletedListSlashMenuItem,
+      numberedListSlashMenuItem,
+      todoListSlashMenuItem,
+      dividerSlashMenuItem,
+      quoteSlashMenuItem,
+      tableSlashMenuItem,
+      referencedDocSlashMenuItem,
+      gridSlashMenuItem(documentBloc),
+      referencedGridSlashMenuItem,
+      kanbanSlashMenuItem(documentBloc),
+      referencedKanbanSlashMenuItem,
+      calendarSlashMenuItem(documentBloc),
+      referencedCalendarSlashMenuItem,
+      calloutSlashMenuItem,
+      outlineSlashMenuItem,
+      mathEquationSlashMenuItem,
+      codeBlockSlashMenuItem,
+      toggleListSlashMenuItem,
+      emojiSlashMenuItem,
+      dateOrReminderSlashMenuItem,
+      photoGallerySlashMenuItem,
+      fileSlashMenuItem,
     ];
   }
 
@@ -475,8 +499,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   void _customizeBlockComponentBackgroundColorDecorator() {
-    blockComponentBackgroundColorDecorator = (Node node, String colorString) =>
-        buildEditorCustomizedColor(context, node, colorString);
+    blockComponentBackgroundColorDecorator = (Node node, String colorString) {
+      if (mounted && context.mounted) {
+        return buildEditorCustomizedColor(context, node, colorString);
+      }
+      return null;
+    };
   }
 
   void _initEditorL10n() => AppFlowyEditorL10n.current = EditorI18n();
@@ -507,6 +535,10 @@ Color? buildEditorCustomizedColor(
   Node node,
   String colorString,
 ) {
+  if (!context.mounted) {
+    return null;
+  }
+
   // the color string is from FlowyTint.
   final tintColor = FlowyTint.values.firstWhereOrNull(
     (e) => e.id == colorString,

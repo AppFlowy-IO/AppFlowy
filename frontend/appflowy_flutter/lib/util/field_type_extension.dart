@@ -24,6 +24,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Summary => LocaleKeys.grid_field_summaryFieldName.tr(),
         FieldType.Time => LocaleKeys.grid_field_timeFieldName.tr(),
         FieldType.Translate => LocaleKeys.grid_field_translateFieldName.tr(),
+        FieldType.Media => LocaleKeys.grid_field_mediaFieldName.tr(),
         _ => throw UnimplementedError(),
       };
 
@@ -36,12 +37,13 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checkbox => FlowySvgs.checkbox_s,
         FieldType.URL => FlowySvgs.url_s,
         FieldType.Checklist => FlowySvgs.checklist_s,
-        FieldType.LastEditedTime => FlowySvgs.last_modified_s,
-        FieldType.CreatedTime => FlowySvgs.created_at_s,
+        FieldType.LastEditedTime => FlowySvgs.last_edited_time_s,
+        FieldType.CreatedTime => FlowySvgs.created_time_s,
         FieldType.Relation => FlowySvgs.relation_s,
         FieldType.Summary => FlowySvgs.ai_summary_s,
         FieldType.Time => FlowySvgs.timer_start_s,
         FieldType.Translate => FlowySvgs.ai_translate_s,
+        FieldType.Media => FlowySvgs.media_s,
         _ => throw UnimplementedError(),
       };
 
@@ -66,6 +68,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Summary => const Color(0xFFBECCFF),
         FieldType.Time => const Color(0xFFFDEDA7),
         FieldType.Translate => const Color(0xFFBECCFF),
+        FieldType.Media => const Color(0xFFFCBEBE),
         _ => throw UnimplementedError(),
       };
 

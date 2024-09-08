@@ -37,13 +37,13 @@ impl DatabaseRowTest {
         self
           .row_by_row_id
           .insert(row_detail.row.id.to_string(), row_detail.into());
-        self.row_details = self.get_rows().await;
+        self.rows = self.get_rows().await;
       },
       RowScript::UpdateTextCell { row_id, content } => {
         self.update_text_cell(row_id, &content).await.unwrap();
       },
       RowScript::AssertRowCount(expected_row_count) => {
-        assert_eq!(expected_row_count, self.row_details.len());
+        assert_eq!(expected_row_count, self.rows.len());
       },
     }
   }

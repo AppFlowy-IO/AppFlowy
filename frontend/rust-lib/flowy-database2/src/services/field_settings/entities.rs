@@ -1,4 +1,5 @@
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::Any;
+use collab::util::AnyMapExt;
 use collab_database::views::{DatabaseLayout, FieldSettingsMap, FieldSettingsMapBuilder};
 
 use crate::entities::FieldVisibility;
@@ -25,16 +26,11 @@ impl FieldSettings {
     field_settings: &FieldSettingsMap,
   ) -> Self {
     let visibility = field_settings
-      .get_i64_value(VISIBILITY)
+      .get_as::<i64>(VISIBILITY)
       .map(Into::into)
       .unwrap_or_else(|| default_field_visibility(layout_type));
-    let width = field_settings
-      .get_i64_value(WIDTH)
-      .map(|value| value as i32)
-      .unwrap_or(DEFAULT_WIDTH);
-    let wrap_cell_content = field_settings
-      .get_bool_value(WRAP_CELL_CONTENT)
-      .unwrap_or(true);
+    let width = field_settings.get_as::<i32>(WIDTH).unwrap_or(DEFAULT_WIDTH);
+    let wrap_cell_content: bool = field_settings.get_as(WRAP_CELL_CONTENT).unwrap_or(true);
 
     Self {
       field_id: field_id.to_string(),
@@ -47,10 +43,16 @@ impl FieldSettings {
 
 impl From<FieldSettings> for FieldSettingsMap {
   fn from(field_settings: FieldSettings) -> Self {
-    FieldSettingsMapBuilder::new()
-      .insert_i64_value(VISIBILITY, field_settings.visibility.into())
-      .insert_i64_value(WIDTH, field_settings.width as i64)
-      .insert_bool_value(WRAP_CELL_CONTENT, field_settings.wrap_cell_content)
-      .build()
+    FieldSettingsMapBuilder::from([
+      (
+        VISIBILITY.into(),
+        Any::BigInt(i64::from(field_settings.visibility)),
+      ),
+      (WIDTH.into(), Any::BigInt(field_settings.width as i64)),
+      (
+        WRAP_CELL_CONTENT.into(),
+        Any::Bool(field_settings.wrap_cell_content),
+      ),
+    ])
   }
 }

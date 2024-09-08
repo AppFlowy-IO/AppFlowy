@@ -59,6 +59,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
         children: [
           FlowyText.medium(
             space.name,
+            fontSize: 16.0,
           ),
           const HSpace(6.0),
           if (space.spacePermission == SpacePermission.private)
@@ -68,16 +69,19 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
             ),
         ],
       ),
+      margin: const EdgeInsets.symmetric(horizontal: 12.0),
       iconPadding: 10,
       leftIcon: SpaceIcon(
         dimension: 24,
         space: space,
+        svgSize: 14,
+        textDimension: 18.0,
         cornerRadius: 6.0,
       ),
-      leftIconSize: const Size.square(20),
+      leftIconSize: const Size.square(24),
       rightIcon: isSelected
           ? const FlowySvg(
-              FlowySvgs.workspace_selected_s,
+              FlowySvgs.m_blue_check_s,
               blendMode: null,
             )
           : null,

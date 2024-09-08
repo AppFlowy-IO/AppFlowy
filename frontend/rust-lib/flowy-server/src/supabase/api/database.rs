@@ -2,12 +2,10 @@ use anyhow::Error;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
-  TranslateRowContent, TranslateRowResponse,
-};
-use flowy_error::FlowyError;
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+
 use lib_dispatch::prelude::af_spawn;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
@@ -25,6 +23,7 @@ impl<T> SupabaseDatabaseServiceImpl<T> {
   }
 }
 
+#[async_trait]
 impl<T> DatabaseCloudService for SupabaseDatabaseServiceImpl<T>
 where
   T: SupabaseServerService,
@@ -97,23 +96,5 @@ where
 
       Ok(snapshots)
     })
-  }
-
-  fn summary_database_row(
-    &self,
-    _workspace_id: &str,
-    _object_id: &str,
-    _summary_row: SummaryRowContent,
-  ) -> FutureResult<String, FlowyError> {
-    FutureResult::new(async move { Ok("".to_string()) })
-  }
-
-  fn translate_database_row(
-    &self,
-    _workspace_id: &str,
-    _translate_row: TranslateRowContent,
-    _language: &str,
-  ) -> FutureResult<TranslateRowResponse, FlowyError> {
-    FutureResult::new(async move { Ok(TranslateRowResponse::default()) })
   }
 }

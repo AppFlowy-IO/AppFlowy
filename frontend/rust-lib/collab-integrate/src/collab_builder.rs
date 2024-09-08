@@ -1,13 +1,21 @@
+use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
 use anyhow::Error;
-use collab::core::collab::{DataSource, MutexCollab};
-use collab::preclude::CollabBuilder;
+use arc_swap::{ArcSwap, ArcSwapOption};
+use collab::core::collab::DataSource;
+use collab::core::collab_plugin::CollabPersistence;
+use collab::preclude::{Collab, CollabBuilder};
+use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabase};
+use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
 use collab_entity::{CollabObject, CollabType};
+use collab_folder::{Folder, FolderData, FolderNotify};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
+
 if_native! {
 use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
 }
@@ -17,17 +25,19 @@ use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 }
 
 pub use crate::plugin_provider::CollabCloudPluginProvider;
+use collab::lock::RwLock;
+use collab_plugins::local_storage::kv::doc::CollabKVAction;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
+use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
 use lib_infra::{if_native, if_wasm};
-use parking_lot::{Mutex, RwLock};
-use tracing::{instrument, trace};
+use tracing::{error, instrument, trace, warn};
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
   Local,
   AppFlowyCloud,
-  Supabase,
 }
 
 pub enum CollabPluginProviderContext {
@@ -35,13 +45,7 @@ pub enum CollabPluginProviderContext {
   AppFlowyCloud {
     uid: i64,
     collab_object: CollabObject,
-    local_collab: Weak<MutexCollab>,
-  },
-  Supabase {
-    uid: i64,
-    collab_object: CollabObject,
-    local_collab: Weak<MutexCollab>,
-    local_collab_db: Weak<CollabKVDB>,
+    local_collab: Weak<RwLock<dyn BorrowMut<Collab> + Send + Sync + 'static>>,
   },
 }
 
@@ -52,13 +56,7 @@ impl Display for CollabPluginProviderContext {
       CollabPluginProviderContext::AppFlowyCloud {
         uid: _,
         collab_object,
-        local_collab: _,
-      } => collab_object.to_string(),
-      CollabPluginProviderContext::Supabase {
-        uid: _,
-        collab_object,
-        local_collab: _,
-        local_collab_db: _,
+        ..
       } => collab_object.to_string(),
     };
     write!(f, "{}", str)
@@ -72,10 +70,10 @@ pub trait WorkspaceCollabIntegrate: Send + Sync {
 
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabConnectReachability,
-  plugin_provider: RwLock<Arc<dyn CollabCloudPluginProvider>>,
-  snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
+  plugin_provider: ArcSwap<Arc<dyn CollabCloudPluginProvider>>,
+  snapshot_persistence: ArcSwapOption<Arc<dyn SnapshotPersistence + 'static>>,
   #[cfg(not(target_arch = "wasm32"))]
-  rocksdb_backup: Mutex<Option<Arc<dyn RocksdbBackup>>>,
+  rocksdb_backup: ArcSwapOption<Arc<dyn RocksdbBackup>>,
   workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
 }
 
@@ -86,7 +84,7 @@ impl AppFlowyCollabBuilder {
   ) -> Self {
     Self {
       network_reachability: CollabConnectReachability::new(),
-      plugin_provider: RwLock::new(Arc::new(storage_provider)),
+      plugin_provider: ArcSwap::new(Arc::new(Arc::new(storage_provider))),
       snapshot_persistence: Default::default(),
       #[cfg(not(target_arch = "wasm32"))]
       rocksdb_backup: Default::default(),
@@ -95,12 +93,14 @@ impl AppFlowyCollabBuilder {
   }
 
   pub fn set_snapshot_persistence(&self, snapshot_persistence: Arc<dyn SnapshotPersistence>) {
-    *self.snapshot_persistence.lock() = Some(snapshot_persistence);
+    self
+      .snapshot_persistence
+      .store(Some(snapshot_persistence.into()));
   }
 
   #[cfg(not(target_arch = "wasm32"))]
   pub fn set_rocksdb_backup(&self, rocksdb_backup: Arc<dyn RocksdbBackup>) {
-    *self.rocksdb_backup.lock() = Some(rocksdb_backup);
+    self.rocksdb_backup.store(Some(rocksdb_backup.into()));
   }
 
   pub fn update_network(&self, reachable: bool) {
@@ -115,12 +115,23 @@ impl AppFlowyCollabBuilder {
     }
   }
 
-  fn collab_object(
+  pub fn collab_object(
     &self,
+    workspace_id: &str,
     uid: i64,
     object_id: &str,
     collab_type: CollabType,
   ) -> Result<CollabObject, Error> {
+    // Compare the workspace_id with the currently opened workspace_id. Return an error if they do not match.
+    // This check is crucial in asynchronous code contexts where the workspace_id might change during operation.
+    let actual_workspace_id = self.workspace_integrate.workspace_id()?;
+    if workspace_id != actual_workspace_id {
+      return Err(anyhow::anyhow!(
+        "workspace_id not match when build collab. expect workspace_id: {}, actual workspace_id: {}",
+        workspace_id,
+        actual_workspace_id
+      ));
+    }
     let device_id = self.workspace_integrate.device_id()?;
     let workspace_id = self.workspace_integrate.workspace_id()?;
     Ok(CollabObject::new(
@@ -132,188 +143,193 @@ impl AppFlowyCollabBuilder {
     ))
   }
 
-  /// Creates a new collaboration builder with the default configuration.
-  ///
-  /// This function will initiate the creation of a [MutexCollab] object if it does not already exist.
-  /// To check for the existence of the object prior to creation, you should utilize a transaction
-  /// returned by the [read_txn] method of the [CollabKVDB]. Then, invoke the [is_exist] method
-  /// to confirm the object's presence.
-  ///
-  /// # Parameters
-  /// - `uid`: The user ID associated with the collaboration.
-  /// - `object_id`: A string reference representing the ID of the object.
-  /// - `object_type`: The type of the collaboration, defined by the [CollabType] enum.
-  /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
-  /// - `collab_db`: A weak reference to the [CollabKVDB].
-  ///
   #[allow(clippy::too_many_arguments)]
-  pub async fn build(
+  #[instrument(
+    level = "trace",
+    skip(self, data_source, collab_db, builder_config, data)
+  )]
+  pub fn create_document(
     &self,
-    workspace_id: &str,
-    uid: i64,
-    object_id: &str,
-    object_type: CollabType,
-    collab_doc_state: DataSource,
+    object: CollabObject,
+    data_source: DataSource,
     collab_db: Weak<CollabKVDB>,
-    build_config: CollabBuilderConfig,
-  ) -> Result<Arc<MutexCollab>, Error> {
-    self.build_with_config(
-      workspace_id,
-      uid,
-      object_id,
-      object_type,
-      collab_db,
-      collab_doc_state,
-      build_config,
-    )
+    builder_config: CollabBuilderConfig,
+    data: Option<DocumentData>,
+  ) -> Result<Arc<RwLock<Document>>, Error> {
+    let expected_collab_type = CollabType::Document;
+    assert_eq!(object.collab_type, expected_collab_type);
+    let mut collab = self.build_collab(&object, &collab_db, data_source)?;
+    collab.enable_undo_redo();
+
+    let document = Document::open_with(collab, data)?;
+    let document = Arc::new(RwLock::new(document));
+    self.finalize(object, builder_config, document)
   }
 
-  /// Creates a new collaboration builder with the custom configuration.
-  ///
-  /// This function will initiate the creation of a [MutexCollab] object if it does not already exist.
-  /// To check for the existence of the object prior to creation, you should utilize a transaction
-  /// returned by the [read_txn] method of the [CollabKVDB]. Then, invoke the [is_exist] method
-  /// to confirm the object's presence.
-  ///
-  /// # Parameters
-  /// - `uid`: The user ID associated with the collaboration.
-  /// - `object_id`: A string reference representing the ID of the object.
-  /// - `object_type`: The type of the collaboration, defined by the [CollabType] enum.
-  /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
-  /// - `collab_db`: A weak reference to the [CollabKVDB].
-  ///
   #[allow(clippy::too_many_arguments)]
-  #[instrument(level = "trace", skip(self, collab_db, collab_doc_state, build_config))]
-  pub fn build_with_config(
+  #[instrument(
+    level = "trace",
+    skip(self, object, doc_state, collab_db, builder_config, folder_notifier)
+  )]
+  pub fn create_folder(
     &self,
-    workspace_id: &str,
-    uid: i64,
-    object_id: &str,
-    object_type: CollabType,
+    object: CollabObject,
+    doc_state: DataSource,
     collab_db: Weak<CollabKVDB>,
-    collab_doc_state: DataSource,
-    build_config: CollabBuilderConfig,
-  ) -> Result<Arc<MutexCollab>, Error> {
-    let collab = CollabBuilder::new(uid, object_id)
-      .with_doc_state(collab_doc_state)
+    builder_config: CollabBuilderConfig,
+    folder_notifier: Option<FolderNotify>,
+    folder_data: Option<FolderData>,
+  ) -> Result<Arc<RwLock<Folder>>, Error> {
+    let expected_collab_type = CollabType::Folder;
+    assert_eq!(object.collab_type, expected_collab_type);
+    let collab = self.build_collab(&object, &collab_db, doc_state)?;
+    let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
+    let folder = Arc::new(RwLock::new(folder));
+    self.finalize(object, builder_config, folder)
+  }
+
+  #[allow(clippy::too_many_arguments)]
+  #[instrument(
+    level = "trace",
+    skip(self, object, doc_state, collab_db, builder_config, notifier)
+  )]
+  pub fn create_user_awareness(
+    &self,
+    object: CollabObject,
+    doc_state: DataSource,
+    collab_db: Weak<CollabKVDB>,
+    builder_config: CollabBuilderConfig,
+    notifier: Option<UserAwarenessNotifier>,
+  ) -> Result<Arc<RwLock<UserAwareness>>, Error> {
+    let expected_collab_type = CollabType::UserAwareness;
+    assert_eq!(object.collab_type, expected_collab_type);
+    let collab = self.build_collab(&object, &collab_db, doc_state)?;
+    let user_awareness = UserAwareness::open(collab, notifier);
+    let user_awareness = Arc::new(RwLock::new(user_awareness));
+    self.finalize(object, builder_config, user_awareness)
+  }
+
+  #[allow(clippy::too_many_arguments)]
+  #[instrument(level = "trace", skip_all)]
+  pub fn create_workspace_database(
+    &self,
+    object: CollabObject,
+    collab: Collab,
+    _collab_db: Weak<CollabKVDB>,
+    builder_config: CollabBuilderConfig,
+    collab_service: impl DatabaseCollabService,
+  ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
+    let expected_collab_type = CollabType::WorkspaceDatabase;
+    assert_eq!(object.collab_type, expected_collab_type);
+    let workspace = WorkspaceDatabase::open(&object.object_id, collab, collab_service);
+    let workspace = Arc::new(RwLock::new(workspace));
+    self.finalize(object, builder_config, workspace)
+  }
+
+  pub fn build_collab(
+    &self,
+    object: &CollabObject,
+    collab_db: &Weak<CollabKVDB>,
+    data_source: DataSource,
+  ) -> Result<Collab, Error> {
+    let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
       .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
 
-    // Compare the workspace_id with the currently opened workspace_id. Return an error if they do not match.
-    // This check is crucial in asynchronous code contexts where the workspace_id might change during operation.
-    let actual_workspace_id = self.workspace_integrate.workspace_id()?;
-    if workspace_id != actual_workspace_id {
-      return Err(anyhow::anyhow!(
-        "workspace_id not match when build collab. expect workspace_id: {}, actual workspace_id: {}",
-        workspace_id,
-        actual_workspace_id
-      ));
-    }
     let persistence_config = CollabPersistenceConfig::default();
+    let db_plugin = RocksdbDiskPlugin::new_with_config(
+      object.uid,
+      object.object_id.to_string(),
+      object.collab_type.clone(),
+      collab_db.clone(),
+      persistence_config.clone(),
+    );
+    collab.add_plugin(Box::new(db_plugin));
+    collab.initialize();
+    Ok(collab)
+  }
 
-    #[cfg(target_arch = "wasm32")]
-    {
-      collab.lock().add_plugin(Box::new(IndexeddbDiskPlugin::new(
-        uid,
-        object_id.to_string(),
-        object_type.clone(),
-        collab_db.clone(),
-      )));
-    }
+  pub fn finalize<T>(
+    &self,
+    object: CollabObject,
+    build_config: CollabBuilderConfig,
+    collab: Arc<RwLock<T>>,
+  ) -> Result<Arc<RwLock<T>>, Error>
+  where
+    T: BorrowMut<Collab> + Send + Sync + 'static,
+  {
+    let mut write_collab = collab.try_write()?;
+    if build_config.sync_enable {
+      trace!("🚀finalize collab:{}", object);
+      let plugin_provider = self.plugin_provider.load_full();
+      let provider_type = plugin_provider.provider_type();
+      let span =
+        tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object.object_id);
+      let _enter = span.enter();
+      match provider_type {
+        CollabPluginProviderType::AppFlowyCloud => {
+          let local_collab = Arc::downgrade(&collab);
+          let plugins = plugin_provider.get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+            uid: object.uid,
+            collab_object: object,
+            local_collab,
+          });
 
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-      collab
-        .lock()
-        .add_plugin(Box::new(RocksdbDiskPlugin::new_with_config(
-          uid,
-          object_id.to_string(),
-          object_type.clone(),
-          collab_db.clone(),
-          persistence_config.clone(),
-          None,
-        )));
-    }
-
-    let arc_collab = Arc::new(collab);
-
-    {
-      let collab_object = self.collab_object(uid, object_id, object_type.clone())?;
-      if build_config.sync_enable {
-        let provider_type = self.plugin_provider.read().provider_type();
-        let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
-        let _enter = span.enter();
-        match provider_type {
-          CollabPluginProviderType::AppFlowyCloud => {
-            let local_collab = Arc::downgrade(&arc_collab);
-            let plugins =
-              self
-                .plugin_provider
-                .read()
-                .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-                  uid,
-                  collab_object,
-                  local_collab,
-                });
-
-            for plugin in plugins {
-              arc_collab.lock().add_plugin(plugin);
-            }
-          },
-          CollabPluginProviderType::Supabase => {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-              trace!("init supabase collab plugins");
-              let local_collab = Arc::downgrade(&arc_collab);
-              let local_collab_db = collab_db.clone();
-              let plugins =
-                self
-                  .plugin_provider
-                  .read()
-                  .get_plugins(CollabPluginProviderContext::Supabase {
-                    uid,
-                    collab_object,
-                    local_collab,
-                    local_collab_db,
-                  });
-              for plugin in plugins {
-                arc_collab.lock().add_plugin(plugin);
-              }
-            }
-          },
-          CollabPluginProviderType::Local => {},
-        }
+          // at the moment when we get the lock, the collab object is not yet exposed outside
+          for plugin in plugins {
+            write_collab.borrow().add_plugin(plugin);
+          }
+        },
+        CollabPluginProviderType::Local => {},
       }
     }
 
-    if build_config.auto_initialize {
-      #[cfg(target_arch = "wasm32")]
-      futures::executor::block_on(arc_collab.lock().initialize());
+    (*write_collab).borrow_mut().initialize();
+    drop(write_collab);
+    Ok(collab)
+  }
 
-      #[cfg(not(target_arch = "wasm32"))]
-      arc_collab.lock().initialize();
+  /// Remove all updates in disk and write the final state vector to disk.
+  pub fn flush_collab_if_not_exist<T>(
+    &self,
+    uid: i64,
+    object_id: &str,
+    collab_db: Weak<CollabKVDB>,
+    collab_type: &CollabType,
+    collab: &T,
+  ) -> Result<(), Error>
+  where
+    T: BorrowMut<Collab> + Send + Sync + 'static,
+  {
+    if let Some(collab_db) = collab_db.upgrade() {
+      let write_txn = collab_db.write_txn();
+      let is_not_exist_on_disk = !write_txn.is_exist(uid, object_id);
+      if is_not_exist_on_disk {
+        trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
+        let collab: &Collab = collab.borrow();
+        let encode_collab =
+          collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
+        write_txn.flush_doc(
+          uid,
+          object_id,
+          encode_collab.state_vector.to_vec(),
+          encode_collab.doc_state.to_vec(),
+        )?;
+        write_txn.commit_transaction()?;
+      }
     }
 
-    trace!("collab initialized: {}:{}", object_type, object_id);
-    Ok(arc_collab)
+    Ok(())
   }
 }
 
 pub struct CollabBuilderConfig {
   pub sync_enable: bool,
-  /// If auto_initialize is false, the collab object will not be initialized automatically.
-  /// You need to call collab.initialize() manually.
-  ///
-  /// Default is true.
-  pub auto_initialize: bool,
 }
 
 impl Default for CollabBuilderConfig {
   fn default() -> Self {
-    Self {
-      sync_enable: true,
-      auto_initialize: true,
-    }
+    Self { sync_enable: true }
   }
 }
 
@@ -322,9 +338,50 @@ impl CollabBuilderConfig {
     self.sync_enable = sync_enable;
     self
   }
+}
 
-  pub fn auto_initialize(mut self, auto_initialize: bool) -> Self {
-    self.auto_initialize = auto_initialize;
-    self
+pub struct KVDBCollabPersistenceImpl {
+  pub db: Weak<CollabKVDB>,
+  pub uid: i64,
+}
+
+impl KVDBCollabPersistenceImpl {
+  pub fn new(db: Weak<CollabKVDB>, uid: i64) -> Self {
+    Self { db, uid }
+  }
+
+  pub fn into_data_source(self) -> DataSource {
+    DataSource::Disk(Some(Box::new(self)))
+  }
+}
+
+impl CollabPersistence for KVDBCollabPersistenceImpl {
+  fn load_collab_from_disk(&self, collab: &mut Collab) {
+    if let Some(collab_db) = self.db.upgrade() {
+      let object_id = collab.object_id().to_string();
+      let rocksdb_read = collab_db.read_txn();
+
+      if rocksdb_read.is_exist(self.uid, &object_id) {
+        let mut txn = collab.transact_mut();
+        match rocksdb_read.load_doc_with_txn(self.uid, &object_id, &mut txn) {
+          Ok(update_count) => {
+            trace!(
+              "did load collab:{}-{} from disk, update_count:{}",
+              self.uid,
+              object_id,
+              update_count
+            );
+          },
+          Err(err) => {
+            error!("🔴 load doc:{} failed: {}", object_id, err);
+          },
+        }
+        drop(rocksdb_read);
+        txn.commit();
+        drop(txn);
+      }
+    } else {
+      warn!("collab_db is dropped");
+    }
   }
 }

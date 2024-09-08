@@ -301,7 +301,7 @@ script = ["""
 [tasks.code_generation]
 script_runner = "@shell"
 script = ["""
-  sh scripts/code_generation/generate.sh
+  ./scripts/code_generation/generate.sh
   """]
 
 [tasks.code_generation.windows]

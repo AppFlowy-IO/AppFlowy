@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{Collab, Update};
@@ -107,17 +104,13 @@ impl EventIntegrationTest {
 }
 
 pub fn assert_document_data_equal(doc_state: &[u8], doc_id: &str, expected: DocumentData) {
-  let collab = MutexCollab::new(Collab::new_with_origin(
-    CollabOrigin::Server,
-    doc_id,
-    vec![],
-    false,
-  ));
-  collab.lock().with_origin_transact_mut(|txn| {
+  let mut collab = Collab::new_with_origin(CollabOrigin::Server, doc_id, vec![], false);
+  {
     let update = Update::decode_v1(doc_state).unwrap();
-    txn.apply_update(update);
-  });
-  let document = Document::open(Arc::new(collab)).unwrap();
+    let mut txn = collab.transact_mut();
+    txn.apply_update(update).unwrap();
+  };
+  let document = Document::open(collab).unwrap();
   let actual = document.get_document_data().unwrap();
   assert_eq!(actual, expected);
 }

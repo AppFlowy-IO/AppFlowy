@@ -222,6 +222,7 @@ class TabBarItemButton extends StatelessWidget {
             ),
             text: FlowyText(
               view.name,
+              lineHeight: 1.0,
               fontSize: FontSizes.s11,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
@@ -290,4 +291,9 @@ enum TabBarViewAction implements ActionCell {
 
   @override
   Widget? rightIcon(Color iconColor) => null;
+
+  @override
+  Color? textColor(BuildContext context) {
+    return null;
+  }
 }

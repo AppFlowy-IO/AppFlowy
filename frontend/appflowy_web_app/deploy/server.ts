@@ -68,14 +68,25 @@ const createServer = async (req: Request) => {
 
   logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
 
-  if (reqUrl.pathname === '/after-payment') {
+  if (['/after-payment', '/login', '/as-template'].includes(reqUrl.pathname)) {
     timer();
     const htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = load(htmlData);
 
-    $('title').text('Payment Success | AppFlowy');
-    $('link[rel="icon"]').attr('href', '/appflowy.svg');
-    setOrUpdateMetaTag($, 'meta[name="description"]', 'name', 'Payment success on AppFlowy');
+    let title, description;
+
+    if (reqUrl.pathname === '/after-payment') {
+      title = 'Payment Success | AppFlowy';
+      description = 'Payment success on AppFlowy';
+    }
+
+    if (reqUrl.pathname === '/login') {
+      title = 'Login | AppFlowy';
+      description = 'Login to AppFlowy';
+    }
+
+    if (title) $('title').text(title);
+    if (description) setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);
 
     return new Response($.html(), {
       headers: { 'Content-Type': 'text/html' },
@@ -117,7 +128,7 @@ const createServer = async (req: Request) => {
     try {
       if (metaData && metaData.view) {
         const view = metaData.view;
-        const emoji = view.icon.value;
+        const emoji = view.icon?.ty === 0 && view.icon?.value;
         const titleList = [];
 
         if (emoji) {

@@ -1,12 +1,12 @@
+use arc_swap::ArcSwapOption;
 use flowy_search_pub::cloud::SearchCloudService;
-use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
-use parking_lot::RwLock;
+use dashmap::DashMap;
 
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
@@ -55,7 +55,7 @@ impl PgPoolMode {
   }
 }
 
-pub type CollabUpdateSenderByOid = RwLock<HashMap<String, RemoteUpdateSender>>;
+pub type CollabUpdateSenderByOid = DashMap<String, RemoteUpdateSender>;
 /// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
 /// It contains the configuration of the supabase server and the postgres server.
 pub struct SupabaseServer {
@@ -63,15 +63,15 @@ pub struct SupabaseServer {
   config: SupabaseConfiguration,
   device_id: String,
   #[allow(dead_code)]
-  uid: Arc<RwLock<Option<i64>>>,
+  uid: Arc<ArcSwapOption<i64>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
-  restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
+  restful_postgres: Arc<ArcSwapOption<RESTfulPostgresServer>>,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl SupabaseServer {
   pub fn new(
-    uid: Arc<RwLock<Option<i64>>>,
+    uid: Arc<ArcSwapOption<i64>>,
     config: SupabaseConfiguration,
     enable_sync: bool,
     device_id: String,
@@ -90,7 +90,7 @@ impl SupabaseServer {
       config,
       device_id,
       collab_update_sender,
-      restful_postgres: Arc::new(RwLock::new(restful_postgres)),
+      restful_postgres: Arc::new(ArcSwapOption::from(restful_postgres)),
       encryption,
       uid,
     }
@@ -102,12 +102,18 @@ impl AppFlowyServer for SupabaseServer {
     tracing::info!("{} supabase sync: {}", uid, enable);
 
     if enable {
-      if self.restful_postgres.read().is_none() {
-        let postgres = RESTfulPostgresServer::new(self.config.clone(), self.encryption.clone());
-        *self.restful_postgres.write() = Some(Arc::new(postgres));
-      }
+      self.restful_postgres.rcu(|old| match old {
+        Some(existing) => Some(existing.clone()),
+        None => {
+          let postgres = Arc::new(RESTfulPostgresServer::new(
+            self.config.clone(),
+            self.encryption.clone(),
+          ));
+          Some(postgres)
+        },
+      });
     } else {
-      *self.restful_postgres.write() = None;
+      self.restful_postgres.store(None);
     }
   }
 
@@ -144,6 +150,10 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
+    None
+  }
+
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
     Arc::new(SupabaseDocumentServiceImpl::new(SupabaseServerServiceImpl(
       self.restful_postgres.clone(),
@@ -154,7 +164,6 @@ impl AppFlowyServer for SupabaseServer {
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
     self
       .collab_update_sender
-      .write()
       .insert(collab_object.object_id.clone(), tx);
 
     Some(Arc::new(SupabaseCollabStorageImpl::new(

@@ -34,10 +34,12 @@ class DocumentImmersiveCover extends StatefulWidget {
     super.key,
     required this.view,
     required this.userProfilePB,
+    this.fixedTitle,
   });
 
   final ViewPB view;
   final UserProfilePB userProfilePB;
+  final String? fixedTitle;
 
   @override
   State<DocumentImmersiveCover> createState() => _DocumentImmersiveCoverState();
@@ -90,19 +92,22 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
               );
             }
 
-            return Stack(
-              children: [
-                _buildCover(context, state),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24.0),
-                    child: iconAndTitle,
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Stack(
+                children: [
+                  _buildCover(context, state),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: iconAndTitle,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
@@ -138,6 +143,18 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         context.read<DocumentPageStyleBloc>().state.fontFamily;
     if (documentFontFamily != null && fontFamily != documentFontFamily) {
       fontFamily = getGoogleFontSafely(documentFontFamily).fontFamily;
+    }
+
+    if (widget.fixedTitle != null) {
+      return FlowyText(
+        widget.fixedTitle!,
+        fontSize: 28.0,
+        fontWeight: FontWeight.w700,
+        fontFamily: fontFamily,
+        color:
+            state.cover.isNone || state.cover.isPresets ? null : Colors.white,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     return AutoSizeTextField(

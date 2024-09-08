@@ -32,8 +32,8 @@ async fn export_and_then_import_meta_csv_test() {
   let result = test.import(csv_1.clone(), format).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
-  let fields = database.get_fields(&result.view_id, None);
-  let rows = database.get_rows(&result.view_id).await.unwrap();
+  let fields = database.get_fields(&result.view_id, None).await;
+  let rows = database.get_all_rows(&result.view_id).await.unwrap();
   assert_eq!(fields[0].field_type, 0);
   assert_eq!(fields[1].field_type, 1);
   assert_eq!(fields[2].field_type, 2);
@@ -46,8 +46,8 @@ async fn export_and_then_import_meta_csv_test() {
   assert_eq!(fields[9].field_type, 9);
 
   for field in fields {
-    for (index, row_detail) in rows.iter().enumerate() {
-      if let Some(cell) = row_detail.row.cells.get(&field.id) {
+    for (index, row) in rows.iter().enumerate() {
+      if let Some(cell) = row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
         let s = stringify_cell(cell, &field);
         match &field_type {
@@ -76,20 +76,21 @@ async fn export_and_then_import_meta_csv_test() {
               assert_eq!(s, "Google,Facebook");
             }
           },
-          FieldType::Checkbox => {},
-          FieldType::URL => {},
-          FieldType::Checklist => {},
-          FieldType::LastEditedTime => {},
-          FieldType::CreatedTime => {},
-          FieldType::Relation => {},
-          FieldType::Summary => {},
-          FieldType::Time => {},
-          FieldType::Translate => {},
+          FieldType::Checkbox
+          | FieldType::URL
+          | FieldType::Checklist
+          | FieldType::LastEditedTime
+          | FieldType::CreatedTime
+          | FieldType::Relation
+          | FieldType::Summary
+          | FieldType::Time
+          | FieldType::Translate
+          | FieldType::Media => {},
         }
       } else {
         panic!(
           "Can not found the cell with id: {} in {:?}",
-          field.id, row_detail.row.cells
+          field.id, row.cells
         );
       }
     }
@@ -111,8 +112,8 @@ async fn history_database_import_test() {
   let result = test.import(csv.to_string(), format).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
-  let fields = database.get_fields(&result.view_id, None);
-  let rows = database.get_rows(&result.view_id).await.unwrap();
+  let fields = database.get_fields(&result.view_id, None).await;
+  let rows = database.get_all_rows(&result.view_id).await.unwrap();
   assert_eq!(fields[0].field_type, 0);
   assert_eq!(fields[1].field_type, 1);
   assert_eq!(fields[2].field_type, 2);
@@ -123,8 +124,8 @@ async fn history_database_import_test() {
   assert_eq!(fields[7].field_type, 7);
 
   for field in fields {
-    for (index, row_detail) in rows.iter().enumerate() {
-      if let Some(cell) = row_detail.row.cells.get(&field.id) {
+    for (index, row) in rows.iter().enumerate() {
+      if let Some(cell) = row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
         let s = stringify_cell(cell, &field);
         match &field_type {
@@ -163,18 +164,19 @@ async fn history_database_import_test() {
               assert_eq!(s, "AppFlowy website - https://www.appflowy.io");
             }
           },
-          FieldType::Checklist => {},
-          FieldType::LastEditedTime => {},
-          FieldType::CreatedTime => {},
-          FieldType::Relation => {},
-          FieldType::Summary => {},
-          FieldType::Time => {},
-          FieldType::Translate => {},
+          FieldType::Checklist
+          | FieldType::LastEditedTime
+          | FieldType::CreatedTime
+          | FieldType::Relation
+          | FieldType::Summary
+          | FieldType::Time
+          | FieldType::Translate
+          | FieldType::Media => {},
         }
       } else {
         panic!(
           "Can not found the cell with id: {} in {:?}",
-          field.id, row_detail.row.cells
+          field.id, row.cells
         );
       }
     }

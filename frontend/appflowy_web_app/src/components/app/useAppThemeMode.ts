@@ -2,21 +2,32 @@ import { useEffect, useState, createContext } from 'react';
 
 export const ThemeModeContext = createContext<
   | {
-      isDark: boolean;
-      setDark: (isDark: boolean) => void;
-    }
+  isDark: boolean;
+  setDark: (isDark: boolean) => void;
+}
   | undefined
 >(undefined);
 
-export function useAppThemeMode() {
+export function useAppThemeMode () {
+  const fixedTheme = window.location.search.includes('theme') ? new URLSearchParams(window.location.search).get('theme') : null;
   const [isDark, setIsDark] = useState<boolean>(() => {
+    if (fixedTheme === 'light') {
+      return false;
+    }
+
+    if (fixedTheme === 'dark') {
+      return true;
+    }
+
     const darkMode = localStorage.getItem('dark-mode');
 
     return darkMode === 'true';
   });
 
   useEffect(() => {
-    function detectColorScheme() {
+    if (fixedTheme) return;
+
+    function detectColorScheme () {
       const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
       setIsDark(darkModeMediaQuery.matches);
@@ -30,7 +41,7 @@ export function useAppThemeMode() {
     return () => {
       window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', detectColorScheme);
     };
-  }, []);
+  }, [fixedTheme]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-dark-mode', isDark ? 'true' : 'false');

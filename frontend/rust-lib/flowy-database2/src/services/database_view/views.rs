@@ -1,15 +1,14 @@
+use collab_database::database::Database;
 use std::collections::HashMap;
 use std::sync::Arc;
-
-use collab_database::database::MutexDatabase;
-use nanoid::nanoid;
-use tokio::sync::{broadcast, RwLock};
-
-use flowy_error::{FlowyError, FlowyResult};
 
 use crate::services::cell::CellCache;
 use crate::services::database::DatabaseRowEvent;
 use crate::services::database_view::{DatabaseViewEditor, DatabaseViewOperation};
+use collab::lock::RwLock;
+use flowy_error::FlowyResult;
+use nanoid::nanoid;
+use tokio::sync::broadcast;
 
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
@@ -17,7 +16,7 @@ pub type EditorByViewId = HashMap<String, Arc<DatabaseViewEditor>>;
 
 pub struct DatabaseViews {
   #[allow(dead_code)]
-  database: Arc<MutexDatabase>,
+  database: Arc<RwLock<Database>>,
   cell_cache: CellCache,
   view_operation: Arc<dyn DatabaseViewOperation>,
   view_editors: Arc<RwLock<EditorByViewId>>,
@@ -25,7 +24,7 @@ pub struct DatabaseViews {
 
 impl DatabaseViews {
   pub async fn new(
-    database: Arc<MutexDatabase>,
+    database: Arc<RwLock<Database>>,
     cell_cache: CellCache,
     view_operation: Arc<dyn DatabaseViewOperation>,
     view_editors: Arc<RwLock<EditorByViewId>>,
@@ -59,13 +58,10 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
-    let mut editor_map = self.view_editors.try_write().map_err(|err| {
-      FlowyError::internal().with_context(format!(
-        "fail to acquire the lock of editor_by_view_id: {}",
-        err
-      ))
-    })?;
-    let database_id = self.database.lock().get_database_id();
+    //FIXME: not thread-safe
+    let mut editor_map = self.view_editors.write().await;
+    let database_id = self.database.read().await.get_database_id();
+    //FIXME: that method below is not Send+Sync
     let editor = Arc::new(
       DatabaseViewEditor::new(
         database_id,

@@ -21,27 +21,42 @@ on:
 
 env:
   FLUTTER_VERSION: "3.22.0"
-  RUST_TOOLCHAIN: "1.77.2"
+  RUST_TOOLCHAIN: "1.80.1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ macos-14 ]
-    runs-on: ${{ matrix.os }}
+  build-self-hosted:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - uses: futureware-tech/simulator-action@v3
+        id: simulator-action
+        with:
+          model: "iPhone 15"
+          shutdown_after_job: false
+
+  build-macos:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: macos-13
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
 
       - name: Install Rust toolchain
-        id: rust_toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -49,8 +64,7 @@ jobs:
           override: true
           profile: minimal
 
-      - name: Install flutter
-        id: flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
@@ -59,13 +73,13 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.os }}
+          prefix-key: macos-latest
           workspaces: |
             frontend/rust-lib
 
       - uses: davidB/rust-cargo-make@v1
         with:
-          version: "0.36.6"
+          version: "0.37.15"
 
       - name: Install prerequisites
         working-directory: frontend
@@ -85,7 +99,7 @@ jobs:
       - uses: futureware-tech/simulator-action@v3
         id: simulator-action
         with:
-          model: 'iPhone 15'
+          model: "iPhone 15"
           shutdown_after_job: false
 
       # - name: Run AppFlowy on simulator

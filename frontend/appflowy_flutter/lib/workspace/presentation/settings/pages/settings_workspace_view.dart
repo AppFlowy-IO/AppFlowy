@@ -357,6 +357,7 @@ class _WorkspaceIconSetting extends StatelessWidget {
           workspace: workspace!,
           iconSize: workspace!.icon.isNotEmpty == true ? 46 : 20,
           fontSize: 16.0,
+          figmaLineHeight: 46,
           enableEdit: true,
           onSelected: (r) => context
               .read<WorkspaceSettingsBloc>()
@@ -879,16 +880,7 @@ class _FontSelectorDropdownState extends State<_FontSelectorDropdown> {
           maxHeight: 150,
           maxWidth: constraints.maxWidth - 90,
         ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.10),
-              blurRadius: 6,
-            ),
-          ],
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
         popupBuilder: (_) => _FontListPopup(
           currentFont: appearance.font,
           scrollController: _scrollController,

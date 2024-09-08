@@ -1,10 +1,10 @@
 use crate::util::receive_with_timeout;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
-use flowy_chat::entities::ChatMessageListPB;
-use flowy_chat::notification::ChatNotification;
+use flowy_ai::entities::ChatMessageListPB;
+use flowy_ai::notification::ChatNotification;
 
-use flowy_chat_pub::cloud::ChatMessageType;
+use flowy_ai_pub::cloud::ChatMessageType;
 
 use std::time::Duration;
 
@@ -20,11 +20,12 @@ async fn af_cloud_create_chat_message_test() {
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
     let _ = chat_service
-      .save_question(
+      .create_question(
         &current_workspace.id,
         &chat_id,
         &format!("hello world {}", i),
         ChatMessageType::System,
+        &[],
       )
       .await
       .unwrap();
@@ -75,11 +76,12 @@ async fn af_cloud_load_remote_system_message_test() {
   let chat_service = test.server_provider.get_server().unwrap().chat_service();
   for i in 0..10 {
     let _ = chat_service
-      .save_question(
+      .create_question(
         &current_workspace.id,
         &chat_id,
         &format!("hello server {}", i),
         ChatMessageType::System,
+        &[],
       )
       .await
       .unwrap();

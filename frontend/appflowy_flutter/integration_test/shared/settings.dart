@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/account_user_profile.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
@@ -12,17 +12,23 @@ import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../desktop/board/board_hide_groups_test.dart';
-
 import 'base.dart';
 import 'common_operations.dart';
 
 extension AppFlowySettings on WidgetTester {
   /// Open settings page
   Future<void> openSettings() async {
+    final settingsDialog = find.byType(SettingsDialog);
+    // tap empty area to close the settings page
+    while (settingsDialog.evaluate().isNotEmpty) {
+      await tapAt(Offset.zero);
+      await pumpAndSettle();
+    }
+
     final settingsButton = find.byType(UserSettingButton);
     expect(settingsButton, findsOneWidget);
     await tapButton(settingsButton);
-    final settingsDialog = find.byType(SettingsDialog);
+
     expect(settingsDialog, findsOneWidget);
     return;
   }
@@ -71,14 +77,14 @@ extension AppFlowySettings on WidgetTester {
   Future<void> enterUserName(String name) async {
     // Enable editing username
     final editUsernameFinder = find.descendant(
-      of: find.byType(UserProfileSetting),
+      of: find.byType(AccountUserProfile),
       matching: find.byFlowySvg(FlowySvgs.edit_s),
     );
-    await tap(editUsernameFinder);
+    await tap(editUsernameFinder, warnIfMissed: false);
     await pumpAndSettle();
 
     final userNameFinder = find.descendant(
-      of: find.byType(UserProfileSetting),
+      of: find.byType(AccountUserProfile),
       matching: find.byType(FlowyTextField),
     );
     await enterText(userNameFinder, name);

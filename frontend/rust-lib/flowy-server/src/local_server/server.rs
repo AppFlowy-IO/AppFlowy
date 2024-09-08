@@ -1,10 +1,9 @@
 use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
-use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::FolderCloudService;
@@ -28,7 +27,7 @@ pub trait LocalServerDB: Send + Sync + 'static {
 
 pub struct LocalServer {
   local_db: Arc<dyn LocalServerDB>,
-  stop_tx: RwLock<Option<mpsc::Sender<()>>>,
+  stop_tx: Option<mpsc::Sender<()>>,
 }
 
 impl LocalServer {
@@ -40,7 +39,7 @@ impl LocalServer {
   }
 
   pub async fn stop(&self) {
-    let sender = self.stop_tx.read().clone();
+    let sender = self.stop_tx.clone();
     if let Some(stop_tx) = sender {
       let _ = stop_tx.send(()).await;
     }
@@ -73,6 +72,10 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    None
+  }
+
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
     None
   }
 }

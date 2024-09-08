@@ -36,6 +36,7 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
+    "anonymous": "Anonymous",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -48,8 +49,10 @@
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
     "signInWithGoogle": "Continue with Google",
-    "signInWithGithub": "Continue with Github",
+    "signInWithGithub": "Continue with GitHub",
     "signInWithDiscord": "Continue with Discord",
+    "signInWithApple": "Continue with Apple",
+    "continueAnotherWay": "Continue another way",
     "signUpWithGoogle": "Sign up with Google",
     "signUpWithGithub": "Sign up with Github",
     "signUpWithDiscord": "Sign up with Discord",
@@ -141,8 +144,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "unfavorite": "Remove from favorites",
-    "favorite": "Add to favorites",
+    "unfavorite": "Remove from Favorites",
+    "favorite": "Add to Favorites",
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
@@ -158,7 +161,8 @@
   "newBoardText": "New board",
   "chat": {
     "newChat": "AI Chat",
-    "inputMessageHint": "Message @:appName AI",
+    "inputMessageHint": "Ask @:appName AI",
+    "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Related",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
@@ -169,7 +173,17 @@
     "question2": "Explain the GTD method",
     "question3": "Why use Rust",
     "question4": "Recipe with what's in my kitchen",
-    "aiMistakePrompt": "AI can make mistakes. Check important info."
+    "aiMistakePrompt": "AI can make mistakes. Check important info.",
+    "chatWithFilePrompt": "Do you want to chat with the file?",
+    "indexFileSuccess": "Indexing file successfully",
+    "inputActionNoPages": "No page results",
+    "referenceSource": "{} source found",
+    "referenceSources": "{} sources found",
+    "clickToMention": "Click to mention a page",
+    "uploadFile": "Upload PDFs, md or txt files to chat with",
+    "questionTitle": "Ideas",
+    "questionDetail": "Hi {}! How can I help you today?",
+    "indexingFile": "Indexing {}"
   },
   "trash": {
     "text": "Trash",
@@ -190,8 +204,8 @@
     },
     "mobile": {
       "actions": "Trash Actions",
-      "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file",
+      "empty": "No pages or spaces in Trash",
+      "emptyDescription": "Move things you don't need to the Trash.",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
     },
@@ -269,28 +283,37 @@
     "recent": "Recent",
     "today": "Today",
     "thisWeek": "This week",
-    "others": "Other favorites",
+    "others": "Earlier favorites",
     "justNow": "just now",
     "minutesAgo": "{count} minutes ago",
     "lastViewed": "Last viewed",
-    "favoriteAt": "Favorited at",
-    "emptyRecent": "No Recent Documents",
-    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
-    "emptyFavorite": "No Favorite Documents",
-    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "favoriteAt": "Favorited",
+    "emptyRecent": "No Recent Pages",
+    "emptyRecentDescription": "As you view pages, they will appear here for easy retrieval.",
+    "emptyFavorite": "No Favorite Pages",
+    "emptyFavoriteDescription": "Mark pages as favorites—they'll be listed here for quick access!",
     "removePageFromRecent": "Remove this page from the Recent?",
     "removeSuccess": "Removed successfully",
     "favoriteSpace": "Favorites",
     "RecentSpace": "Recent",
     "Spaces": "Spaces",
-    "upgradeToPro": "Upgrade to Pro Plan",
+    "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
-    "storageLimitDialogTitle": "You are running out of storage space. Upgrade to Pro Plan to get more storage",
-    "aiResponseLitmitDialogTitle": "You are running out of AI responses. Upgrade to Pro Plan or AI Max to get more AI responses",
-    "aiResponseLitmit": "You are running out of AI responses. Go to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
+    "storageLimitDialogTitleIOS": "You have run out of free storage.",
+    "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "aiResponseLimitTitleIOS": "You have run out of free AI responses.",
+    "aiResponseLimitDialogTitle": "AI Responses limit reached",
+    "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
+    "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
+    "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
+    "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
-    "upgradeToAILocal": "AI offline on your device"
+    "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
+    "upgradeToAILocal": "Run local models on your device for ultimate privacy",
+    "upgradeToAILocalDesc": "Chat with PDFs, improve your writing, and auto-fill tables using local AI"
   },
   "notifications": {
     "export": {
@@ -328,9 +351,12 @@
     "putback": "Put Back",
     "update": "Update",
     "share": "Share",
-    "removeFromFavorites": "Remove from favorites",
-    "removeFromRecent": "Remove from recent",
-    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "removeFromRecent": "Remove from Recent",
+    "addToFavorites": "Add to Favorites",
+    "favoriteSuccessfully": "Favorited success",
+    "unfavoriteSuccessfully": "Unfavorited success",
+    "duplicateSuccessfully": "Duplicated successfully",
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
@@ -346,11 +372,15 @@
     "deleteAccount": "Delete account",
     "back": "Back",
     "signInGoogle": "Continue with Google",
-    "signInGithub": "Continue with Github",
+    "signInGithub": "Continue with GitHub",
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "download": "Download"
   },
   "label": {
     "welcome": "Welcome!",
@@ -374,6 +404,12 @@
   },
   "settings": {
     "title": "Settings",
+    "popupMenuItem": {
+      "settings": "Settings",
+      "members": "Members",
+      "trash": "Trash",
+      "helpAndSupport": "Help & Support"
+    },
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",
@@ -638,13 +674,15 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Select or configure Ai models used on @:appName. For best performance we recommend using the default model options",
+        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT 4-o, Claude 3,5, Llama 3.1, and Mistral 7B",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
+        "downloadAppFlowyOfflineAI": "Downloading AI offline package will enable AI to run on your device. Do you want to continue?",
         "downloadLLMPromptDetail": "Downloading {} local model will take up to {} of storage. Do you want to continue?",
-        "downloadAIModelButton": "Download AI model",
+        "downloadBigFilePrompt": "It may take around 10 minutes to complete the download",
+        "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
         "localAIStart": "Local AI Chat is starting...",
@@ -652,9 +690,18 @@
         "localAIStopped": "Local AI stopped",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
-        "disableLocalAIDialog": "Do you want to disable local AI?",
+        "disableLocalAITitle": "Disable local AI",
+        "disableLocalAIDescription": "Do you want to disable local AI?",
         "localAIToggleTitle": "Toggle to enable or disable local AI",
-        "fetchLocalModel": "Fetch local model configuration"
+        "offlineAIInstruction1": "Follow the",
+        "offlineAIInstruction2": "instruction",
+        "offlineAIInstruction3": "to enable offline AI.",
+        "offlineAIDownload1": "If you have not downloaded the AppFlowy AI, please",
+        "offlineAIDownload2": "download",
+        "offlineAIDownload3": "it first",
+        "activeOfflineAI": "Active",
+        "downloadOfflineAI": "Download",
+        "openModelDirectory": "Open folder"
       }
     },
     "planPage": {
@@ -672,10 +719,10 @@
         "unlimitedAILabel": "Unlimited responses",
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
-        "aiOnDeviceBadge": "AI On-device",
+        "aiOnDeviceBadge": "AI On-device for Mac",
         "memberProToggle": "More members & unlimited AI",
-        "aiMaxToggle": "Unlimited AI responses",
-        "aiOnDeviceToggle": "On-device AI for ultimate privacy",
+        "aiMaxToggle": "Unlimited AI and access to advanced models",
+        "aiOnDeviceToggle": "Local AI for ultimate privacy",
         "aiCredit": {
           "title": "Add @:appName AI Credit",
           "price": "{}",
@@ -690,7 +737,7 @@
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
-          "freeInfo": "Perfect for individuals or small teams up to 3 members.",
+          "freeInfo": "Perfect for individuals up to 2 members to organize everything",
           "proInfo": "Perfect for small and medium teams up to 10 members.",
           "teamInfo": "Perfect for all productive and well-organized teams..",
           "upgrade": "Change plan",
@@ -702,17 +749,16 @@
           "activeLabel": "Added",
           "aiMax": {
             "title": "AI Max",
-            "description": "Unlock unlimited AI",
+            "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "/user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "Per user per month billed annually"
           },
           "aiOnDevice": {
-            "title": "AI On-device",
-            "description": "AI offline on your device",
+            "title": "AI On-device for Mac",
+            "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
-            "priceInfo": "/user per month",
-            "billingInfo": "billed annually or {} billed monthly"
+            "priceInfo": "Per user per month billed annually",
+            "recommend": "Recommend M1 or newer"
           }
         },
         "deal": {
@@ -751,10 +797,10 @@
           "canceledDescription": "AI Max will be available until {}"
         },
         "aiOnDevice": {
-          "label": "AI On-device",
-          "description": "Unlock unlimited AI offline on your device",
+          "label": "AI On-device for Mac",
+          "description": "Unlock unlimited AI On-device on your device",
           "activeDescription": "Next invoice due on {}",
-          "canceledDescription": "AI On-device will be available until {}"
+          "canceledDescription": "AI On-device for Mac will be available until {}"
         },
         "removeDialog": {
           "title": "Remove {}",
@@ -776,20 +822,19 @@
       "actions": {
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
-        "downgradeDisabledTooltip": "You will automatically downgrade at the end of the billing cycle",
         "current": "Current"
       },
       "freePlan": {
         "title": "Free",
-        "description": "For individuals and small groups to organize everything",
+        "description": "For individuals up to 2 members to organize everything",
         "price": "{}",
-        "priceInfo": "free forever"
+        "priceInfo": "Free forever"
       },
       "proPlan": {
         "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "/user per month billed annually\n\n{} billed monthly"
+        "priceInfo": "Per user per month \nbilled annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -798,27 +843,30 @@
         "itemFour": "Real-time collaboration",
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
+        "itemFileUpload": "File uploads",
         "tooltipSix": "Lifetime means the number of responses never reset",
-        "itemSeven": "Custom namespace",
+        "intelligentSearch": "Intelligent search",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 3",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
-        "itemSeven": ""
+        "itemFileUpload": "Up to 7 MB",
+        "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 10",
-        "itemThree": "unlimited",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 10",
+        "itemThree": "Unlimited",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "unlimited",
-        "itemSeven": ""
+        "itemSix": "Unlimited",
+        "itemFileUpload": "Unlimited",
+        "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
         "title": "You are now on the {} plan!",
@@ -828,6 +876,43 @@
         "title": "Are you sure you want to downgrade your plan?",
         "description": "Downgrading your plan will revert you back to the Free plan. Members may lose access to this workspace and you may need to free up space to meet the storage limits of the Free plan.",
         "downgradeLabel": "Downgrade plan"
+      }
+    },
+    "cancelSurveyDialog": {
+      "title": "Sorry to see you go",
+      "description": "We're sorry to see you go. We'd love to hear your feedback to help us improve @:appName. Please take a moment to answer a few questions.",
+      "commonOther": "Other",
+      "otherHint": "Write your answer here",
+      "questionOne": {
+        "question": "What prompted you to cancel your @:appName Pro subscription?",
+        "answerOne": "Cost too high",
+        "answerTwo": "Features did not meet expectations",
+        "answerThree": "Found a better alternative",
+        "answerFour": "Did not use it enough to justify the expense",
+        "answerFive": "Service issue or technical difficulties"
+      },
+      "questionTwo": {
+        "question": "How likely are you to consider re-subscribing to @:appName Pro in the future?",
+        "answerOne": "Very likely",
+        "answerTwo": "Somewhat likely",
+        "answerThree": "Not sure",
+        "answerFour": "Unlikely",
+        "answerFive": "Very unlikely"
+      },
+      "questionThree": {
+        "question": "Which Pro feature did you value the most during your subscription?",
+        "answerOne": "Multi-user collaboration",
+        "answerTwo": "Longer time version history",
+        "answerThree": "Unlimited AI responses",
+        "answerFour": "Access to local AI models"
+      },
+      "questionFour": {
+        "question": "How would you describe your overall experience with @:appName?",
+        "answerOne": "Great",
+        "answerTwo": "Good",
+        "answerThree": "Average",
+        "answerFour": "Below average",
+        "answerFive": "Unsatisfied"
       }
     },
     "common": {
@@ -857,7 +942,7 @@
       "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
@@ -895,6 +980,46 @@
       "showNotificationsIcon": {
         "label": "Show notifications icon",
         "hint": "Toggle off to hide the notification icon in the sidebar."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Archived all notifications successfully",
+        "success": "Archived notification successfully"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Marked all as read successfully",
+        "success": "Marked as read successfully"
+      },
+      "action": {
+        "markAsRead": "Mark as read",
+        "multipleChoice": "Select more",
+        "archive": "Archive"
+      },
+      "settings": {
+        "settings": "Settings",
+        "markAllAsRead": "Mark all as read",
+        "archiveAll": "Archive all"
+      },
+      "emptyInbox": {
+        "title": "Inbox Zero!",
+        "description": "Set reminders to receive notifications here."
+      },
+      "emptyUnread": {
+        "title": "No unread notifications",
+        "description": "You're all caught up!"
+      },
+      "emptyArchived": {
+        "title": "No archived",
+        "description": "Archived notifications will appear here."
+      },
+      "tabs": {
+        "inbox": "Inbox",
+        "unread": "Unread",
+        "archived": "Archived"
+      },
+      "refreshSuccess": "Notifications refreshed successfully",
+      "titles": {
+        "notifications": "Notifications",
+        "reminder": "Reminder"
       }
     },
     "appearance": {
@@ -978,6 +1103,8 @@
         "user": "User",
         "role": "Role",
         "removeFromWorkspace": "Remove from Workspace",
+        "removeFromWorkspaceSuccess": "Remove from workspace successfully",
+        "removeFromWorkspaceFailed": "Remove from workspace failed",
         "owner": "Owner",
         "guest": "Guest",
         "member": "Member",
@@ -991,6 +1118,9 @@
           "one": "{} member",
           "other": "{} members"
         },
+        "inviteFailedDialogTitle": "Failed to send invite",
+        "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
+        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
@@ -1000,7 +1130,9 @@
         "removeMember": "Remove Member",
         "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
         "inviteMemberSuccess": "The invitation has been sent successfully",
-        "failedToInviteMember": "Failed to invite member"
+        "failedToInviteMember": "Failed to invite member",
+        "workspaceMembersError": "Oops, something went wrong",
+        "workspaceMembersErrorDescription": "We couldn't load the member list at this time. Please try again later"
       }
     },
     "files": {
@@ -1049,7 +1181,6 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your AI key",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "mobile": {
@@ -1167,6 +1298,7 @@
       "isNotEmpty": "Is not empty"
     },
     "field": {
+      "label": "Property",
       "hide": "Hide",
       "show": "Show",
       "insertLeft": "Insert Left",
@@ -1188,6 +1320,7 @@
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
       "timeFieldName": "Time",
+      "mediaFieldName": "Files & media",
       "translateFieldName": "AI Translate",
       "translateTo": "Translate to",
       "numberFormat": "Number format",
@@ -1218,7 +1351,8 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "openRowDocument": "Open as a page",
+      "deleteFieldPromptMessage": "Are you sure? This property and all its data will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
       "format": "Format",
@@ -1349,6 +1483,17 @@
       "countEmptyShort": "EMPTY",
       "countNonEmpty": "Count not empty",
       "countNonEmptyShort": "FILLED"
+    },
+    "media": {
+      "rename": "Rename",
+      "download": "Download",
+      "open": "Open",
+      "delete": "Delete",
+      "moreFilesHint": "+{} file(s)",
+      "showMore": "There are {} more file(s), click to view",
+      "addFileOrImage": "Add a file, image, or link",
+      "attachmentsHint": "{} attachment(s)",
+      "addFileMobile": "Add file"
     }
   },
   "document": {
@@ -1372,6 +1517,37 @@
       },
       "document": {
         "selectADocumentToLinkTo": "Select a Document to link to"
+      },
+      "name": {
+        "text": "Text",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "image": "Image",
+        "bulletedList": "Bulleted List",
+        "numberedList": "Numbered List",
+        "todoList": "To-do List",
+        "doc": "Doc",
+        "linkedDoc": "Link to page",
+        "grid": "Grid",
+        "linkedGrid": "Linked Grid",
+        "kanban": "Kanban",
+        "linkedKanban": "Linked Kanban",
+        "calendar": "Calendar",
+        "linkedCalendar": "Linked Calendar",
+        "quote": "Quote",
+        "divider": "Divider",
+        "table": "Table",
+        "callout": "Callout",
+        "outline": "Outline",
+        "mathEquation": "Math Equation",
+        "code": "Code",
+        "toggleList": "Toggle list",
+        "emoji": "Emoji",
+        "aiWriter": "AI Writer",
+        "dateOrReminder": "Date or Reminder",
+        "photoGallery": "Photo Gallery",
+        "file": "File"
       }
     },
     "selectionMenu": {
@@ -1390,9 +1566,9 @@
       "autoGeneratorHintText": "Ask AI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get AI key",
       "autoGeneratorRewrite": "Rewrite",
-      "smartEdit": "AI Assistants",
+      "smartEdit": "Ask AI",
       "aI": "AI",
-      "smartEditFixSpelling": "Fix spelling",
+      "smartEditFixSpelling": "Fix spelling & grammar",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
       "smartEditImproveWriting": "Improve writing",
@@ -1459,10 +1635,28 @@
         "depth": "Depth"
       },
       "image": {
+        "addAnImage": "Add images",
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image",
+        "addAnImageDesktop": "Add an image",
+        "addAnImageMobile": "Click to add one or more images",
+        "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
+        "imageDownloadFailed": "Image upload failed, please try again",
+        "imageDownloadFailedToken": "Image upload failed due to missing user token, please try again",
         "errorCode": "Error code"
+      },
+      "photoGallery": {
+        "name": "Photo gallery",
+        "imageKeyword": "image",
+        "imageGalleryKeyword": "image gallery",
+        "photoKeyword": "photo",
+        "photoBrowserKeyword": "photo browser",
+        "galleryKeyword": "gallery",
+        "addImageTooltip": "Add image",
+        "changeLayoutTooltip": "Change layout",
+        "browserLayout": "Browser",
+        "gridLayout": "Grid",
+        "deleteBlockTooltip": "Delete whole gallery"
       },
       "math": {
         "copiedToPasteBoard": "The math equation has been copied to the clipboard"
@@ -1507,6 +1701,27 @@
         "invalidVideoUrl": "The source URL is not supported yet.",
         "invalidVideoUrlYouTube": "YouTube is not supported yet.",
         "supportedFormats": "Supported formats: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
+      },
+      "file": {
+        "name": "File",
+        "uploadTab": "Upload",
+        "uploadMobile": "Pick from files",
+        "networkTab": "Embed link",
+        "placeholderText": "Upload or embed a file",
+        "placeholderDragging": "Drop the file to upload",
+        "dropFileToUpload": "Drop the file to upload",
+        "fileUploadHint": "Drop a file here to upload\nor click to browse",
+        "networkHint": "Paste a file link",
+        "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
+        "networkAction": "Embed file link",
+        "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
+        "renameFile": {
+          "title": "Rename file",
+          "description": "Enter the new name for this file",
+          "nameEmptyError": "File name cannot be left empty."
+        },
+        "uploadedAt": "Uploaded on {}",
+        "linkedAt": "Link added on {}"
       }
     },
     "outlineBlock": {
@@ -1519,7 +1734,7 @@
       "placeholder": "Untitled"
     },
     "imageBlock": {
-      "placeholder": "Click to add image",
+      "placeholder": "Click to add image(s)",
       "upload": {
         "label": "Upload",
         "placeholder": "Click to upload image"
@@ -1542,7 +1757,8 @@
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
         "invalidImageUrl": "Invalid image URL",
-        "noImage": "No such file or directory"
+        "noImage": "No such file or directory",
+        "multipleImagesFailed": "One or more images failed to upload, please try again"
       },
       "embedLink": {
         "label": "Embed link",
@@ -1553,14 +1769,28 @@
       },
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
-      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
       "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
-      "imageIsUploading": "Image is uploading"
+      "imageIsUploading": "Image is uploading",
+      "openFullScreen": "Open in full screen",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "Previous image",
+          "nextImageTooltip": "Next image",
+          "zoomOutTooltip": "Zoom out",
+          "zoomInTooltip": "Zoom in",
+          "changeZoomLevelTooltip": "Change zoom level",
+          "openLocalImage": "Open image",
+          "downloadImage": "Download image",
+          "closeViewer": "Close interactive viewer",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "Delete image"
+        }
+      }
     },
     "codeBlock": {
       "language": {
@@ -1568,7 +1798,7 @@
         "placeholder": "Select language",
         "auto": "Auto"
       },
-      "copyTooltip": "Copy contents of the code block",
+      "copyTooltip": "Copy",
       "searchLanguageHint": "Search for a language",
       "codeCopiedSnackbar": "Code copied to clipboard!"
     },
@@ -1593,7 +1823,8 @@
         "tooltip": "Click to open page"
       },
       "deleted": "Deleted",
-      "deletedContent": "This content does not exist or has been deleted"
+      "deletedContent": "This content does not exist or has been deleted",
+      "noAccess": "No Access"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
@@ -1601,7 +1832,9 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
       "clickToCopyTheBlockContent": "Click to copy the block content",
-      "blockContentHasBeenCopied": "The block content has been copied."
+      "blockContentHasBeenCopied": "The block content has been copied.",
+      "parseError": "An error occurred while parsing the {} block.",
+      "copyBlockContent": "Copy block content"
     },
     "mobilePageSelector": {
       "title": "Select page",
@@ -1660,7 +1893,11 @@
       "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
-    "noGroupDesc": "Board views require a property to group by in order to display"
+    "noGroupDesc": "Board views require a property to group by in order to display",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "files"
+    }
   },
   "calendar": {
     "menuName": "Calendar",
@@ -1706,10 +1943,13 @@
   "errorDialog": {
     "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "howToFixFallbackHint1": "We're sorry for the inconvenience! Submit an issue on our ",
+    "howToFixFallbackHint2": " page that describes your error.",
     "github": "View on GitHub"
   },
   "search": {
     "label": "Search",
+    "sidebarSearchIcon": "Search and quickly jump to a page",
     "placeholder": {
       "actions": "Search actions..."
     }
@@ -1749,16 +1989,16 @@
     "remove": "Remove emoji",
     "categories": {
       "smileys": "Smileys & Emotion",
-      "people": "People & Body",
-      "animals": "Animals & Nature",
-      "food": "Food & Drink",
-      "activities": "Activities",
-      "places": "Travel & Places",
-      "objects": "Objects",
-      "symbols": "Symbols",
-      "flags": "Flags",
-      "nature": "Nature",
-      "frequentlyUsed": "Frequently Used"
+      "people": "people",
+      "animals": "nature",
+      "food": "foods",
+      "activities": "activities",
+      "places": "places",
+      "objects": "objects",
+      "symbols": "symbols",
+      "flags": "flags",
+      "nature": "nature",
+      "frequentlyUsed": "frequently Used"
     },
     "skinTone": {
       "default": "Default",
@@ -1767,7 +2007,8 @@
       "medium": "Medium",
       "mediumDark": "Medium-Dark",
       "dark": "Dark"
-    }
+    },
+    "openSourceIconsFrom": "Open source icons from"
   },
   "inlineActions": {
     "noResults": "No results",
@@ -1858,7 +2099,10 @@
   },
   "error": {
     "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues.",
+    "syncError": "Data is not synced from another device",
+    "syncErrorHint": "Please reopen this page on the device where it was last edited, then open it again on the current device.",
+    "clickToCopy": "Click to copy error code"
   },
   "editor": {
     "bold": "Bold",
@@ -2027,10 +2271,18 @@
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
+        "description": "Permanently delete your account and remove access from all workspaces.",
         "deleteMyAccount": "Delete my account",
         "dialogTitle": "Delete account",
         "dialogContent1": "Are you sure you want to permanently delete your account?",
-        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+        "dialogContent2": "This action cannot be undone, and will remove access from all workspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
+        "confirmHint1": "Please type \"DELETE MY ACCOUNT\" to confirm.",
+        "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
+        "confirmHint3": "DELETE MY ACCOUNT",
+        "checkToConfirmError": "You must check the box to confirm deletion",
+        "failedToGetCurrentUser": "Failed to get current user email",
+        "confirmTextValidationFailed": "Your confirmation text does not match \"DELETE MY ACCOUNT\"",
+        "deleteAccountSuccess": "Account deleted successfully"
       }
     },
     "workplace": {
@@ -2073,7 +2325,7 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
     "doNotAllow": "Don't Allow",
@@ -2103,6 +2355,7 @@
     "createNewSpace": "Create a new space",
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
+    "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
     "permission": "Permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",
@@ -2123,10 +2376,12 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
+    "spaceHasNotBeenPublished": "Haven't supported publishing a space yet",
     "reportPage": "Report page",
     "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
     "createdWith": "Created with",
@@ -2134,7 +2389,8 @@
     "copy": {
       "codeBlock": "The content of code block has been copied to the clipboard",
       "imageBlock": "The image link has been copied to the clipboard",
-      "mathBlock": "The math equation has been copied to the clipboard"
+      "mathBlock": "The math equation has been copied to the clipboard",
+      "fileBlock": "The file link has been copied to the clipboard"
     },
     "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
     "publishSuccessfully": "Published successfully",
@@ -2150,11 +2406,27 @@
       "zero": "Publish {} selected view",
       "one": "Publish {} selected views",
       "many": "Publish {} selected views",
-      "other":"Publish {} selected views"
+      "other": "Publish {} selected views"
     },
-    "mustSelectPrimaryDatabase": "The primary database must be selected",
+    "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
-    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database"
+    "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
+    "saveThisPage": "Start with this template",
+    "duplicateTitle": "Where would you like to add",
+    "selectWorkspace": "Select a workspace",
+    "addTo": "Add to",
+    "duplicateSuccessfully": "Added to your workspace",
+    "duplicateSuccessfullyDescription": "Don't have AppFlowy installed? The download will start automatically after you click 'Download'.",
+    "downloadIt": "Download",
+    "openApp": "Open in app",
+    "duplicateFailed": "Duplicated failed",
+    "membersCount": {
+      "zero": "No members",
+      "one": "1 member",
+      "many": "{count} members",
+      "other": "{count} members"
+    },
+    "useThisTemplate": "Use the template"
   },
   "web": {
     "continue": "Continue",
@@ -2162,11 +2434,141 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
-    "signInAgreement": "By clicking \"Continue\" above, you confirm that\nyou have read, understood, and agreed to\nAppFlowy's",
+    "continueWithApple": "Continue with Apple ",
+    "moreOptions": "More options",
+    "collapse": "Collapse",
+    "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
-    "login": "Sign up or log in"
+    "login": "Sign up or log in",
+    "fileBlock": {
+      "uploadedAt": "Uploaded on {time}",
+      "linkedAt": "Link added on {time}",
+      "empty": "Upload or embed a file"
+    }
+  },
+  "globalComment": {
+    "comments": "Comments",
+    "addComment": "Add a comment",
+    "reactedBy": "reacted by",
+    "addReaction": "Add reaction",
+    "reactedByMore": "and {count} others",
+    "showSeconds": {
+      "one": "1 second ago",
+      "other": "{count} seconds ago",
+      "zero": "Just now",
+      "many": "{count} seconds ago"
+    },
+    "showMinutes": {
+      "one": "1 minute ago",
+      "other": "{count} minutes ago",
+      "many": "{count} minutes ago"
+    },
+    "showHours": {
+      "one": "1 hour ago",
+      "other": "{count} hours ago",
+      "many": "{count} hours ago"
+    },
+    "showDays": {
+      "one": "1 day ago",
+      "other": "{count} days ago",
+      "many": "{count} days ago"
+    },
+    "showMonths": {
+      "one": "1 month ago",
+      "other": "{count} months ago",
+      "many": "{count} months ago"
+    },
+    "showYears": {
+      "one": "1 year ago",
+      "other": "{count} years ago",
+      "many": "{count} years ago"
+    },
+    "reply": "Reply",
+    "deleteComment": "Delete comment",
+    "youAreNotOwner": "You are not the owner of this comment",
+    "confirmDeleteDescription": "Are you sure you want to delete this comment?",
+    "hasBeenDeleted": "Deleted",
+    "replyingTo": "Replying to",
+    "noAccessDeleteComment": "You're not allowed to delete this comment",
+    "collapse": "Collapse",
+    "readMore": "Read more",
+    "failedToAddComment": "Failed to add comment",
+    "commentAddedSuccessfully": "Comment added successfully.",
+    "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
+  },
+  "template": {
+    "asTemplate": "Save as template",
+    "name": "Template name",
+    "description": "Template Description",
+    "about": "Template About",
+    "preview": "Template Preview",
+    "categories": "Template Categories",
+    "isNewTemplate": "PIN to New template",
+    "featured": "PIN to Featured",
+    "relatedTemplates": "Related Templates",
+    "requiredField": "{field} is required",
+    "addCategory": "Add \"{category}\"",
+    "addNewCategory": "Add new category",
+    "addNewCreator": "Add new creator",
+    "deleteCategory": "Delete category",
+    "editCategory": "Edit category",
+    "editCreator": "Edit creator",
+    "category": {
+      "name": "Category name",
+      "icon": "Category icon",
+      "bgColor": "Category background color",
+      "priority": "Category priority",
+      "desc": "Category description",
+      "type": "Category type",
+      "icons": "Category Icons",
+      "colors": "Category Colors",
+      "byUseCase": "By Use Case",
+      "byFeature": "By Feature",
+      "deleteCategory": "Delete category",
+      "deleteCategoryDescription": "Are you sure you want to delete this category?",
+      "typeToSearch": "Type to search categories..."
+    },
+    "creator": {
+      "label": "Template Creator",
+      "name": "Creator name",
+      "avatar": "Creator avatar",
+      "accountLinks": "Creator account links",
+      "uploadAvatar": "Click to upload avatar",
+      "deleteCreator": "Delete creator",
+      "deleteCreatorDescription": "Are you sure you want to delete this creator?",
+      "typeToSearch": "Type to search creators..."
+    },
+    "uploadSuccess": "Template uploaded successfully",
+    "uploadSuccessDescription": "Your template has been uploaded successfully. You can now view it in the template gallery.",
+    "viewTemplate": "View template",
+    "deleteTemplate": "Delete template",
+    "deleteTemplateDescription": "Are you sure you want to delete this template?",
+    "addRelatedTemplate": "Add related template",
+    "removeRelatedTemplate": "Remove related template",
+    "uploadAvatar": "Upload avatar",
+    "searchInCategory": "Search in {category}",
+    "label": "Templates"
+  },
+  "fileDropzone": {
+    "dropFile": "Click or drag file to this area to upload",
+    "uploading": "Uploading...",
+    "uploadFailed": "Upload failed",
+    "uploadSuccess": "Upload success",
+    "uploadSuccessDescription": "The file has been uploaded successfully",
+    "uploadFailedDescription": "The file upload failed",
+    "uploadingDescription": "The file is being uploaded"
+  },
+  "gallery": {
+    "preview": "Open in full screen",
+    "copy": "Copy",
+    "download": "Download",
+    "prev": "Previous",
+    "next": "Next",
+    "resetZoom": "Reset zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

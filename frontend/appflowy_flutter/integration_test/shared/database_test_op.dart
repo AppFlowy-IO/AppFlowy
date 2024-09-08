@@ -41,6 +41,7 @@ import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/media.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/number.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/select_option.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
@@ -51,6 +52,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_edi
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
@@ -75,7 +77,6 @@ import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -485,7 +486,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
     if (enter) {
       await testTextInput.receiveAction(TextInputAction.done);
-      await pumpAndSettle();
+      await pumpAndSettle(const Duration(milliseconds: 500));
     } else {
       await tapButton(
         find.descendant(
@@ -638,12 +639,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       (w) => w is FieldActionCell && w.action == FieldAction.delete,
     );
     await tapButton(deleteButton);
-
-    final confirmButton = find.descendant(
-      of: find.byType(NavigatorAlertDialog),
-      matching: find.byType(PrimaryTextButton),
-    );
-    await tapButton(confirmButton);
+    await tapButtonWithName(LocaleKeys.space_delete.tr());
   }
 
   Future<void> scrollRowDetailByOffset(Offset offset) async {
@@ -797,7 +793,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Each field has its own cell, so we can find the corresponding cell by
   /// the field type after create a new field.
-  Future<void> findCellByFieldType(FieldType fieldType) async {
+  void findCellByFieldType(FieldType fieldType) {
     final finder = finderForFieldType(fieldType);
     expect(finder, findsWidgets);
   }
@@ -868,6 +864,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(finder, matcher);
   }
 
+  Future<void> findMediaCellEditor(dynamic matcher) async {
+    final finder = find.byType(MediaCellEditor);
+    expect(finder, matcher);
+  }
+
   Future<void> findSelectOptionEditor(dynamic matcher) async {
     final finder = find.byType(SelectOptionCellEditor);
     expect(finder, matcher);
@@ -898,18 +899,19 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> createField(
-    FieldType fieldType,
-    String name, {
+    FieldType fieldType, {
+    String? name,
     ViewLayoutPB layout = ViewLayoutPB.Grid,
   }) async {
     if (layout == ViewLayoutPB.Grid) {
       await scrollToRight(find.byType(GridPage));
     }
     await tapNewPropertyButton();
-    await renameField(name);
+    if (name != null) {
+      await renameField(name);
+    }
     await tapSwitchFieldTypeButton();
     await selectFieldType(fieldType);
-    await dismissFieldEditor();
   }
 
   Future<void> tapDatabaseSettingButton() async {
@@ -1617,6 +1619,8 @@ Finder finderForFieldType(FieldType fieldType) {
       return find.byType(EditableURLCell, skipOffstage: false);
     case FieldType.Time:
       return find.byType(EditableTimeCell, skipOffstage: false);
+    case FieldType.Media:
+      return find.byType(EditableMediaCell, skipOffstage: false);
     default:
       throw Exception('Unknown field type: $fieldType');
   }

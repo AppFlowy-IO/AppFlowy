@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
@@ -7,14 +9,10 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/wid
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/text_field.dart';
-import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
-import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,8 +43,12 @@ Node autoCompletionNode({
 
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
-  iconData: Icons.generating_tokens,
-  keywords: ['ai', 'openai' 'writer', 'autogenerator'],
+  iconBuilder: (editorState, onSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.menu_item_ai_writer_s,
+    isSelected: onSelected,
+    style: style,
+  ),
+  keywords: ['ai', 'openai', 'writer', 'ai writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
     final node = autoCompletionNode(start: editorState.selection!);
     return node;
@@ -130,14 +132,20 @@ class _AutoCompletionBlockComponentState
     _unsubscribeSelectionGesture();
     controller.dispose();
     textFieldFocusNode.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    if (PlatformExtension.isMobile) {
+      return const SizedBox.shrink();
+    }
+    
+    final child = Card(
       elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       color: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.all(10),
@@ -164,6 +172,11 @@ class _AutoCompletionBlockComponentState
         ),
       ),
     );
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 40),
+      child: child,
+    );
   }
 
   Widget _buildInputWidget(BuildContext context) {
@@ -181,9 +194,8 @@ class _AutoCompletionBlockComponentState
     final transaction = editorState.transaction..deleteNode(widget.node);
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(
-        recordUndo: false,
-      ),
+      options: const ApplyOptions(recordUndo: false),
+      withUpdateSelection: false,
     );
   }
 
@@ -230,6 +242,7 @@ class _AutoCompletionBlockComponentState
         if (mounted) {
           if (error.isLimitExceeded) {
             showAILimitDialog(context, error.message);
+            await _onDiscard();
           } else {
             showSnackBarMessage(
               context,
@@ -417,12 +430,10 @@ class _AutoCompletionBlockComponentState
             // show dialog
             showDialog(
               context: context,
-              builder: (context) {
-                return DiscardDialog(
-                  onConfirm: () => _onDiscard(),
-                  onCancel: () {},
-                );
-              },
+              builder: (_) => DiscardDialog(
+                onConfirm: _onDiscard,
+                onCancel: () {},
+              ),
             );
           } else if (controller.text.isEmpty) {
             _onExit();
@@ -445,9 +456,7 @@ class _AutoCompletionBlockComponentState
 }
 
 class AutoCompletionHeader extends StatelessWidget {
-  const AutoCompletionHeader({
-    super.key,
-  });
+  const AutoCompletionHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -471,23 +480,34 @@ class AutoCompletionInputFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        PrimaryTextButton(
-          LocaleKeys.button_generate.tr(),
-          onPressed: onGenerate,
+        PrimaryRoundedButton(
+          text: LocaleKeys.button_generate.tr(),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 10.0,
+          ),
+          radius: 8.0,
+          onTap: onGenerate,
         ),
         const Space(10, 0),
-        SecondaryTextButton(
-          LocaleKeys.button_cancel.tr(),
-          onPressed: onExit,
+        OutlinedRoundedButton(
+          text: LocaleKeys.button_cancel.tr(),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 10.0,
+          ),
+          onTap: onExit,
         ),
-        Expanded(
+        Flexible(
           child: Container(
             alignment: Alignment.centerRight,
             child: FlowyText.regular(
               LocaleKeys.document_plugins_warning.tr(),
               color: Theme.of(context).hintColor,
               overflow: TextOverflow.ellipsis,
+              fontSize: 12,
             ),
           ),
         ),
@@ -512,19 +532,23 @@ class AutoCompletionFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        PrimaryTextButton(
-          LocaleKeys.button_keep.tr(),
-          onPressed: onKeep,
+        PrimaryRoundedButton(
+          text: LocaleKeys.button_keep.tr(),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 9.0,
+          ),
+          onTap: onKeep,
         ),
-        const Space(10, 0),
-        SecondaryTextButton(
-          LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
-          onPressed: onRewrite,
+        const HSpace(10),
+        OutlinedRoundedButton(
+          text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+          onTap: onRewrite,
         ),
-        const Space(10, 0),
-        SecondaryTextButton(
-          LocaleKeys.button_discard.tr(),
-          onPressed: onDiscard,
+        const HSpace(10),
+        OutlinedRoundedButton(
+          text: LocaleKeys.button_discard.tr(),
+          onTap: onDiscard,
         ),
       ],
     );

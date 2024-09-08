@@ -80,6 +80,7 @@ class DatabaseViewLayoutCell extends StatelessWidget {
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
+            lineHeight: 1.0,
             databaseLayout.layoutName,
             color: AFThemeExtension.of(context).textColor,
           ),

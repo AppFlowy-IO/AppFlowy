@@ -55,38 +55,57 @@ pub struct RowMetaPB {
   #[pb(index = 1)]
   pub id: String,
 
-  #[pb(index = 2)]
-  pub document_id: String,
+  #[pb(index = 2, one_of)]
+  pub document_id: Option<String>,
 
   #[pb(index = 3, one_of)]
   pub icon: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub cover: Option<String>,
+  pub is_document_empty: Option<bool>,
 
-  #[pb(index = 5)]
-  pub is_document_empty: bool,
+  #[pb(index = 5, one_of)]
+  pub attachment_count: Option<i64>,
 }
 
-impl std::convert::From<&RowDetail> for RowMetaPB {
-  fn from(row_detail: &RowDetail) -> Self {
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedRowMetaPB {
+  #[pb(index = 1)]
+  pub items: Vec<RowMetaPB>,
+}
+
+impl From<RowOrder> for RowMetaPB {
+  fn from(data: RowOrder) -> Self {
     Self {
-      id: row_detail.row.id.to_string(),
-      document_id: row_detail.document_id.clone(),
-      icon: row_detail.meta.icon_url.clone(),
-      cover: row_detail.meta.cover_url.clone(),
-      is_document_empty: row_detail.meta.is_document_empty,
+      id: data.id.into_inner(),
+      document_id: None,
+      icon: None,
+      is_document_empty: None,
+      attachment_count: None,
     }
   }
 }
-impl std::convert::From<RowDetail> for RowMetaPB {
+
+impl From<Row> for RowMetaPB {
+  fn from(data: Row) -> Self {
+    Self {
+      id: data.id.into_inner(),
+      document_id: None,
+      icon: None,
+      is_document_empty: None,
+      attachment_count: None,
+    }
+  }
+}
+
+impl From<RowDetail> for RowMetaPB {
   fn from(row_detail: RowDetail) -> Self {
     Self {
       id: row_detail.row.id.to_string(),
-      document_id: row_detail.document_id,
+      document_id: Some(row_detail.document_id),
       icon: row_detail.meta.icon_url,
-      cover: row_detail.meta.cover_url,
-      is_document_empty: row_detail.meta.is_document_empty,
+      is_document_empty: Some(row_detail.meta.is_document_empty),
+      attachment_count: Some(row_detail.meta.attachment_count),
     }
   }
 }
@@ -108,6 +127,9 @@ pub struct UpdateRowMetaChangesetPB {
 
   #[pb(index = 5, one_of)]
   pub is_document_empty: Option<bool>,
+
+  #[pb(index = 6, one_of)]
+  pub attachment_count: Option<i64>,
 }
 
 #[derive(Debug)]
@@ -117,6 +139,7 @@ pub struct UpdateRowMetaParams {
   pub icon_url: Option<String>,
   pub cover_url: Option<String>,
   pub is_document_empty: Option<bool>,
+  pub attachment_count: Option<i64>,
 }
 
 impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
@@ -136,6 +159,7 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
       icon_url: self.icon_url,
       cover_url: self.cover_url,
       is_document_empty: self.is_document_empty,
+      attachment_count: self.attachment_count,
     })
   }
 }
@@ -213,18 +237,6 @@ pub struct OptionalRowPB {
   pub row: Option<RowPB>,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedRowPB {
-  #[pb(index = 1)]
-  pub items: Vec<RowPB>,
-}
-
-impl std::convert::From<Vec<RowPB>> for RepeatedRowPB {
-  fn from(items: Vec<RowPB>) -> Self {
-    Self { items }
-  }
-}
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct InsertedRowPB {
   #[pb(index = 1)]
@@ -298,7 +310,7 @@ impl From<UpdatedRow> for UpdatedRowPB {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowIdPB {
+pub struct DatabaseViewRowIdPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -315,7 +327,7 @@ pub struct RowIdParams {
   pub group_id: Option<String>,
 }
 
-impl TryInto<RowIdParams> for RowIdPB {
+impl TryInto<RowIdParams> for DatabaseViewRowIdPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {

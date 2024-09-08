@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lib-dispatch = { workspace = true }
 flowy-storage-pub.workspace = true
 serde_json.workspace = true
 serde.workspace = true
@@ -22,6 +23,10 @@ chrono = "0.4.33"
 flowy-notification = { workspace = true }
 flowy-derive.workspace = true
 protobuf = { workspace = true }
+dashmap.workspace = true
+strum_macros = "0.25.2"
+allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+futures-util = "0.3.30"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

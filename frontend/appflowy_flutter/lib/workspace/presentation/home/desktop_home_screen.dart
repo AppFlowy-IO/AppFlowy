@@ -1,6 +1,3 @@
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -27,12 +24,14 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:flowy_infra_ui/style_widget/container.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
-
+import '../widgets/sidebar_resizer.dart';
 import 'home_layout.dart';
 import 'home_stack.dart';
 
@@ -57,6 +56,7 @@ class DesktopHomeScreen extends StatelessWidget {
           (workspaceSettingPB) => workspaceSettingPB as WorkspaceSettingPB,
           (error) => null,
         );
+
         final userProfile = snapshots.data?[1].fold(
           (userProfilePB) => userProfilePB as UserProfilePB,
           (error) => null,
@@ -68,13 +68,20 @@ class DesktopHomeScreen extends StatelessWidget {
           return const WorkspaceFailedScreen();
         }
 
+        Sentry.configureScope(
+          (scope) => scope.setUser(
+            SentryUser(
+              id: userProfile.id.toString(),
+            ),
+          ),
+        );
+
         return AFFocusManager(
           child: MultiBlocProvider(
             key: ValueKey(userProfile.id),
             providers: [
               BlocProvider.value(
-                value: getIt<ReminderBloc>()
-                  ..add(const ReminderEvent.started()),
+                value: getIt<ReminderBloc>(),
               ),
               BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
               BlocProvider<HomeBloc>(
@@ -164,7 +171,9 @@ class DesktopHomeScreen extends StatelessWidget {
       userProfile: userProfile,
       workspaceSetting: workspaceSetting,
     );
-    final homeMenuResizer = _buildHomeMenuResizer(context, layout: layout);
+
+    final homeMenuResizer =
+        layout.showMenu ? const SidebarResizer() : const SizedBox.shrink();
     final editPanel = _buildEditPanel(context, layout: layout);
 
     return _layoutWidgets(
@@ -218,39 +227,6 @@ class DesktopHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHomeMenuResizer(
-    BuildContext context, {
-    required HomeLayout layout,
-  }) {
-    if (!layout.showMenu) {
-      return const SizedBox.shrink();
-    }
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.resizeLeftRight,
-      child: GestureDetector(
-        dragStartBehavior: DragStartBehavior.down,
-        onHorizontalDragStart: (details) => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.editPanelResizeStart()),
-        onHorizontalDragUpdate: (details) => context
-            .read<HomeSettingBloc>()
-            .add(HomeSettingEvent.editPanelResized(details.localPosition.dx)),
-        onHorizontalDragEnd: (details) => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.editPanelResizeEnd()),
-        onHorizontalDragCancel: () => context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.editPanelResizeEnd()),
-        behavior: HitTestBehavior.translucent,
-        child: SizedBox(
-          width: 10,
-          height: MediaQuery.of(context).size.height,
-        ),
-      ),
-    );
-  }
-
   Widget _layoutWidgets({
     required HomeLayout layout,
     required Widget sidebar,
@@ -296,7 +272,7 @@ class DesktopHomeScreen extends StatelessWidget {
             )
             .positioned(left: 0, top: 0, width: layout.menuWidth, bottom: 0),
         homeMenuResizer
-            .positioned(left: layout.menuWidth - 5)
+            .positioned(left: layout.menuWidth)
             .animate(layout.animDuration, Curves.easeOutQuad),
       ],
     );

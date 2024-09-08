@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
@@ -16,6 +16,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'setting/settings_popup_menu.dart';
 
 class MobileHomePageHeader extends StatelessWidget {
   const MobileHomePageHeader({
@@ -44,15 +46,10 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                GestureDetector(
-                  onTap: () => context.push(
-                    MobileHomeSettingPage.routeName,
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: FlowySvg(FlowySvgs.m_setting_m),
-                  ),
+                HomePageSettingsPopupMenu(
+                  userProfile: userProfile,
                 ),
+                const HSpace(8.0),
               ],
             ),
           );
@@ -113,8 +110,10 @@ class _MobileWorkspace extends StatelessWidget {
         if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
-        return GestureDetector(
-          onTap: () {
+        return AnimatedGestureDetector(
+          scaleFactor: 0.99,
+          alignment: Alignment.centerLeft,
+          onTapUp: () {
             context.read<UserWorkspaceBloc>().add(
                   const UserWorkspaceEvent.fetchWorkspaces(),
                 );
@@ -130,6 +129,7 @@ class _MobileWorkspace extends StatelessWidget {
                   fontSize: 16.0,
                   enableEdit: false,
                   alignment: Alignment.centerLeft,
+                  figmaLineHeight: 16.0,
                   onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                         UserWorkspaceEvent.updateWorkspaceIcon(
                           currentWorkspace.workspaceId,
@@ -143,7 +143,7 @@ class _MobileWorkspace extends StatelessWidget {
                   : const HSpace(8),
               FlowyText.semibold(
                 currentWorkspace.name,
-                fontSize: 16.0,
+                fontSize: 20.0,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -162,9 +162,10 @@ class _MobileWorkspace extends StatelessWidget {
       showHeader: true,
       showDragHandle: true,
       showCloseButton: true,
+      useRootNavigator: true,
       title: LocaleKeys.workspace_menuTitle.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (_) {
+      builder: (sheetContext) {
         return BlocProvider.value(
           value: context.read<UserWorkspaceBloc>(),
           child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
@@ -179,7 +180,7 @@ class _MobileWorkspace extends StatelessWidget {
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
                 onWorkspaceSelected: (workspace) {
-                  context.pop();
+                  Navigator.of(sheetContext).pop();
 
                   if (workspace == currentWorkspace) {
                     return;

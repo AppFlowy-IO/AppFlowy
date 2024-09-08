@@ -13,7 +13,7 @@ on:
       - release/*
     paths:
       - frontend/**
-    types: [opened, synchronize, reopened, unlocked, ready_for_review]
+    types: [ opened, synchronize, reopened, unlocked, ready_for_review ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

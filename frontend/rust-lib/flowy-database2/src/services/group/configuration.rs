@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -10,7 +11,6 @@ use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
-use lib_infra::future::Fut;
 
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
@@ -18,12 +18,14 @@ use crate::services::group::{
   default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
 };
 
+#[async_trait]
 pub trait GroupContextDelegate: Send + Sync + 'static {
-  fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>>;
+  async fn get_group_setting(&self, view_id: &str) -> Option<Arc<GroupSetting>>;
 
-  fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Fut<Vec<RowSingleCellData>>;
+  async fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Vec<RowSingleCellData>;
 
-  fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>>;
+  async fn save_configuration(&self, view_id: &str, group_setting: GroupSetting)
+    -> FlowyResult<()>;
 }
 
 impl<T> std::fmt::Display for GroupControllerContext<T> {

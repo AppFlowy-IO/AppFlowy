@@ -97,7 +97,12 @@ class SelectLanguageButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 30,
-      child: FlowyButton(text: FlowyText(language)),
+      child: FlowyButton(
+        text: FlowyText(
+          language,
+          lineHeight: 1.0,
+        ),
+      ),
     );
   }
 }
@@ -159,7 +164,10 @@ class LanguageCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(languageTypeToLanguage(languageType)),
+        text: FlowyText.medium(
+          languageTypeToLanguage(languageType),
+          lineHeight: 1.0,
+        ),
         rightIcon: checkmark,
         onTap: () => onSelected(languageType),
       ),

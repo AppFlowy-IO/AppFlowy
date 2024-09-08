@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, RowDetail, RowId};
+use collab_database::rows::{Cell, Row, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -36,7 +36,7 @@ pub struct GeneratedGroups {
 }
 
 pub struct MoveGroupRowContext<'a> {
-  pub row_detail: &'a RowDetail,
+  pub row: &'a Row,
   pub row_changeset: &'a mut RowChangeset,
   pub field: &'a Field,
   pub to_group_id: &'a str,

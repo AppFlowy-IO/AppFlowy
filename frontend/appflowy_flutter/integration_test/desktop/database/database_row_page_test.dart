@@ -1,3 +1,6 @@
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
@@ -121,15 +124,24 @@ void main() {
         FieldType.Checkbox,
       ]) {
         await tester.tapRowDetailPageCreatePropertyButton();
-        await tester.renameField(fieldType.name);
 
         // Open the type option menu
         await tester.tapSwitchFieldTypeButton();
 
         await tester.selectFieldType(fieldType);
 
+        final field = find.descendant(
+          of: find.byType(RowDetailPage),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is FieldCellButton &&
+                widget.field.name == fieldType.i18n,
+          ),
+        );
+        expect(field, findsOneWidget);
+
         // After update the field type, the cells should be updated
-        await tester.findCellByFieldType(fieldType);
+        tester.findCellByFieldType(fieldType);
         await tester.scrollRowDetailByOffset(const Offset(0, -50));
       }
     });

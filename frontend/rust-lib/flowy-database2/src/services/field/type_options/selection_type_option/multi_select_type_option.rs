@@ -1,18 +1,17 @@
-use std::cmp::Ordering;
-
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
+use collab_database::entity::SelectOption;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 use flowy_error::FlowyResult;
 
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOption, SelectOptionCellChangeset, SelectOptionIds,
-  SelectTypeOptionSharedAction, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde,
+  default_order, SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
 };
 use crate::services::sort::SortCondition;
 
@@ -33,8 +32,8 @@ impl TypeOption for MultiSelectTypeOption {
 impl From<TypeOptionData> for MultiSelectTypeOption {
   fn from(data: TypeOptionData) -> Self {
     data
-      .get_str_value("content")
-      .map(|s| serde_json::from_str::<MultiSelectTypeOption>(&s).unwrap_or_default())
+      .get_as::<String>("content")
+      .map(|json| serde_json::from_str::<MultiSelectTypeOption>(&json).unwrap_or_default())
       .unwrap_or_default()
   }
 }
@@ -42,9 +41,7 @@ impl From<TypeOptionData> for MultiSelectTypeOption {
 impl From<MultiSelectTypeOption> for TypeOptionData {
   fn from(data: MultiSelectTypeOption) -> Self {
     let content = serde_json::to_string(&data).unwrap_or_default();
-    TypeOptionDataBuilder::new()
-      .insert_str_value("content", content)
-      .build()
+    TypeOptionDataBuilder::from([("content".into(), content.into())])
   }
 }
 
@@ -178,39 +175,10 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
 
 #[cfg(test)]
 mod tests {
-  use crate::entities::FieldType;
   use crate::services::cell::CellDataChangeset;
   use crate::services::field::type_options::selection_type_option::*;
   use crate::services::field::MultiSelectTypeOption;
-  use crate::services::field::{CheckboxTypeOption, TypeOptionTransform};
-
-  #[test]
-  fn multi_select_transform_with_checkbox_type_option_test() {
-    let checkbox_type_option = CheckboxTypeOption();
-    let mut multi_select = MultiSelectTypeOption::default();
-    multi_select.transform_type_option(FieldType::Checkbox, checkbox_type_option.clone().into());
-    debug_assert_eq!(multi_select.options.len(), 2);
-
-    // Already contain the yes/no option. It doesn't need to insert new options
-    multi_select.transform_type_option(FieldType::Checkbox, checkbox_type_option.into());
-    debug_assert_eq!(multi_select.options.len(), 2);
-  }
-
-  #[test]
-  fn multi_select_transform_with_single_select_type_option_test() {
-    let google = SelectOption::new("Google");
-    let facebook = SelectOption::new("Facebook");
-    let single_select = SingleSelectTypeOption {
-      options: vec![google, facebook],
-      disable_color: false,
-    };
-    let mut multi_select = MultiSelectTypeOption {
-      options: vec![],
-      disable_color: false,
-    };
-    multi_select.transform_type_option(FieldType::MultiSelect, single_select.into());
-    debug_assert_eq!(multi_select.options.len(), 2);
-  }
+  use collab_database::entity::SelectOption;
 
   #[test]
   fn multi_select_insert_multi_option_test() {

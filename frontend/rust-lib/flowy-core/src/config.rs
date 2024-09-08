@@ -6,7 +6,6 @@ use semver::Version;
 use tracing::{error, info};
 
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_user::services::entities::URL_SAFE_ENGINE;
 use lib_infra::file_util::copy_dir_recursive;
 use lib_infra::util::OperatingSystem;
@@ -85,13 +84,7 @@ impl AppFlowyCoreConfig {
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
     let storage_path = match &cloud_config {
-      None => {
-        let supabase_config = SupabaseConfiguration::from_env().ok();
-        match &supabase_config {
-          None => custom_application_path,
-          Some(config) => make_user_data_folder(&custom_application_path, &config.url),
-        }
-      },
+      None => custom_application_path,
       Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
     };
     let log_filter = create_log_filter("info".to_owned(), vec![], OperatingSystem::from(&platform));

@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -103,6 +104,11 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
         deletedViewIndex = deletedView.index;
       }
     });
+
+    if (context.userProfile == null) {
+      Log.error("User profile is null when opening AI Chat plugin");
+      return const SizedBox();
+    }
 
     return BlocProvider<ViewInfoBloc>.value(
       value: bloc,

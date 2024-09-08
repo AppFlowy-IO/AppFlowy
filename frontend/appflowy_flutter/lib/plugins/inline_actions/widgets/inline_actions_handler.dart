@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -12,13 +9,16 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// All heights are in physical pixels
 const double _groupTextHeight = 14; // 12 height + 2 bottom spacing
 const double _groupBottomSpacing = 6;
 const double _itemHeight = 30; // 26 height + 4 vertical spacing (2*2)
 
-const double _menuHeight = 300;
+const double kInlineMenuHeight = 300;
+const double kInlineMenuWidth = 400;
 const double _contentHeight = 260;
 
 extension _StartWithsSort on List<InlineActionsResult> {
@@ -49,7 +49,7 @@ extension _StartWithsSort on List<InlineActionsResult> {
       );
 }
 
-const _invalidSearchesAmount = 20;
+const _invalidSearchesAmount = 10;
 
 class InlineActionsHandler extends StatefulWidget {
   const InlineActionsHandler({
@@ -81,8 +81,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   final _focusNode = FocusNode(debugLabel: 'inline_actions_menu_handler');
   final _scrollController = ScrollController();
 
-  Timer? _debounce;
-
   late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
   late int startOffset;
@@ -90,8 +88,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   String _search = '';
   set search(String search) {
     _search = search;
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 200), _doSearch);
+    _doSearch();
   }
 
   Future<void> _doSearch() async {
@@ -109,10 +106,13 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         : 0;
 
     if (invalidCounter >= _invalidSearchesAmount) {
+      widget.onDismiss();
+
       // Workaround to bring focus back to editor
       await widget.editorState
           .updateSelectionWithReason(widget.editorState.selection);
-      return widget.onDismiss();
+
+      return;
     }
 
     _resetSelection();
@@ -143,7 +143,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   void dispose() {
     _scrollController.dispose();
     _focusNode.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
@@ -153,7 +152,10 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       focusNode: _focusNode,
       onKeyEvent: onKeyEvent,
       child: Container(
-        constraints: BoxConstraints.loose(const Size(200, _menuHeight)),
+        constraints: const BoxConstraints(
+          maxHeight: kInlineMenuHeight,
+          minWidth: kInlineMenuWidth,
+        ),
         decoration: BoxDecoration(
           color: widget.style.backgroundColor,
           borderRadius: BorderRadius.circular(6.0),

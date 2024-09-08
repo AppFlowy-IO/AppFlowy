@@ -20,11 +20,12 @@ async fn get_default_board_field_settings() {
   let mut test = FieldSettingsTest::new_board().await;
   let non_primary_field_ids: Vec<String> = test
     .get_fields()
+    .await
     .into_iter()
     .filter(|field| !field.is_primary)
     .map(|field| field.id)
     .collect();
-  let primary_field_id = test.get_first_field(FieldType::RichText).id;
+  let primary_field_id = test.get_first_field(FieldType::RichText).await.id;
   test
     .assert_field_settings(
       non_primary_field_ids.clone(),
@@ -47,11 +48,12 @@ async fn get_default_calendar_field_settings() {
   let mut test = FieldSettingsTest::new_calendar().await;
   let non_primary_field_ids: Vec<String> = test
     .get_fields()
+    .await
     .into_iter()
     .filter(|field| !field.is_primary)
     .map(|field| field.id)
     .collect();
-  let primary_field_id = test.get_first_field(FieldType::RichText).id;
+  let primary_field_id = test.get_first_field(FieldType::RichText).await.id;
   test
     .assert_field_settings(
       non_primary_field_ids.clone(),
@@ -74,11 +76,12 @@ async fn update_field_settings_test() {
   let mut test = FieldSettingsTest::new_board().await;
   let non_primary_field_ids: Vec<String> = test
     .get_fields()
+    .await
     .into_iter()
     .filter(|field| !field.is_primary)
     .map(|field| field.id)
     .collect();
-  let primary_field_id = test.get_first_field(FieldType::RichText).id;
+  let primary_field_id = test.get_first_field(FieldType::RichText).await.id;
 
   test
     .assert_field_settings(

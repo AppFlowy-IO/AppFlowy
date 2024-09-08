@@ -1,51 +1,51 @@
 use client_api::entity::ai_dto::{CompletionType, LocalAIConfig, RepeatedRelatedQuestion};
 use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
-use flowy_chat_pub::cloud::{ChatCloudService, ChatMessage, StreamAnswer, StreamComplete};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessage, ChatMessageMetadata, StreamAnswer, StreamComplete,
+  SubscriptionPlan,
+};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
-use std::path::PathBuf;
+use serde_json::Value;
+use std::collections::HashMap;
+use std::path::Path;
 
 pub(crate) struct DefaultChatCloudServiceImpl;
 
 #[async_trait]
 impl ChatCloudService for DefaultChatCloudServiceImpl {
-  fn create_chat(
+  async fn create_chat(
     &self,
     _uid: &i64,
     _workspace_id: &str,
     _chat_id: &str,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  fn save_question(
+  async fn create_question(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message: &str,
     _message_type: ChatMessageType,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+    _metadata: &[ChatMessageMetadata],
+  ) -> Result<ChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  fn save_answer(
+  async fn create_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message: &str,
     _question_id: i64,
-  ) -> FutureResult<ChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+    _metadata: Option<serde_json::Value>,
+  ) -> Result<ChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  async fn ask_question(
+  async fn stream_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
@@ -54,30 +54,26 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  fn get_chat_messages(
+  async fn get_chat_messages(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _offset: MessageCursor,
     _limit: u64,
-  ) -> FutureResult<RepeatedChatMessage, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<RepeatedChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  fn get_related_message(
+  async fn get_related_message(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
     _message_id: i64,
-  ) -> FutureResult<RepeatedRelatedQuestion, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
-    })
+  ) -> Result<RepeatedRelatedQuestion, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
-  async fn generate_answer(
+  async fn get_answer(
     &self,
     _workspace_id: &str,
     _chat_id: &str,
@@ -98,13 +94,24 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
   async fn index_file(
     &self,
     _workspace_id: &str,
-    _file_path: PathBuf,
+    _file_path: &Path,
     _chat_id: &str,
+    _metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("indexing file is not supported in local server."))
   }
 
   async fn get_local_ai_config(&self, _workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
+    Err(
+      FlowyError::not_support()
+        .with_context("Get local ai config is not supported in local server."),
+    )
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
     Err(
       FlowyError::not_support()
         .with_context("Get local ai config is not supported in local server."),

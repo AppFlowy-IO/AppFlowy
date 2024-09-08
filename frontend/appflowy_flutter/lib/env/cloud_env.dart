@@ -21,9 +21,6 @@ Future<void> _setAuthenticatorType(AuthenticatorType ty) async {
     case AuthenticatorType.local:
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
       break;
-    case AuthenticatorType.supabase:
-      await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 1.toString());
-      break;
     case AuthenticatorType.appflowyCloud:
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 2.toString());
       break;
@@ -63,8 +60,6 @@ Future<AuthenticatorType> getAuthenticatorType() async {
   switch (value ?? "0") {
     case "0":
       return AuthenticatorType.local;
-    case "1":
-      return AuthenticatorType.supabase;
     case "2":
       return AuthenticatorType.appflowyCloud;
     case "3":
@@ -93,28 +88,11 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
   final env = getIt<AppFlowyCloudSharedEnv>();
-  if (env.authenticatorType == AuthenticatorType.supabase) {
-    return env.supabaseConfig.isValid;
-  }
-
   if (env.authenticatorType.isAppFlowyCloudEnabled) {
     return env.appflowyCloudConfig.isValid;
   }
 
   return false;
-}
-
-/// Checks if Supabase is enabled.
-///
-/// This getter evaluates if Supabase should be enabled based on the
-/// current integration mode and cloud type setting.
-///
-/// Returns:
-/// A boolean value indicating whether Supabase is enabled. It returns `true`
-/// if the application is in release or develop mode and the current cloud type
-/// is `CloudType.supabase`. Otherwise, it returns `false`.
-bool get isSupabaseEnabled {
-  return currentCloudType().isSupabaseEnabled;
 }
 
 /// Determines if AppFlowy Cloud is enabled.
@@ -124,7 +102,6 @@ bool get isAppFlowyCloudEnabled {
 
 enum AuthenticatorType {
   local,
-  supabase,
   appflowyCloud,
   appflowyCloudSelfHost,
   // The 'appflowyCloudDevelop' type is used for develop purposes only.
@@ -137,14 +114,10 @@ enum AuthenticatorType {
       this == AuthenticatorType.appflowyCloudDevelop ||
       this == AuthenticatorType.appflowyCloud;
 
-  bool get isSupabaseEnabled => this == AuthenticatorType.supabase;
-
   int get value {
     switch (this) {
       case AuthenticatorType.local:
         return 0;
-      case AuthenticatorType.supabase:
-        return 1;
       case AuthenticatorType.appflowyCloud:
         return 2;
       case AuthenticatorType.appflowyCloudSelfHost:
@@ -158,8 +131,6 @@ enum AuthenticatorType {
     switch (value) {
       case 0:
         return AuthenticatorType.local;
-      case 1:
-        return AuthenticatorType.supabase;
       case 2:
         return AuthenticatorType.appflowyCloud;
       case 3:
@@ -197,25 +168,15 @@ Future<void> useLocalServer() async {
   await _setAuthenticatorType(AuthenticatorType.local);
 }
 
-Future<void> useSupabaseCloud({
-  required String url,
-  required String anonKey,
-}) async {
-  await _setAuthenticatorType(AuthenticatorType.supabase);
-  await setSupabaseServer(url, anonKey);
-}
-
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
 class AppFlowyCloudSharedEnv {
   AppFlowyCloudSharedEnv({
     required AuthenticatorType authenticatorType,
     required this.appflowyCloudConfig,
-    required this.supabaseConfig,
   }) : _authenticatorType = authenticatorType;
 
   final AuthenticatorType _authenticatorType;
   final AppFlowyCloudConfiguration appflowyCloudConfig;
-  final SupabaseConfiguration supabaseConfig;
 
   AuthenticatorType get authenticatorType => _authenticatorType;
 
@@ -229,10 +190,6 @@ class AppFlowyCloudSharedEnv {
           ? await getAppFlowyCloudConfig(authenticatorType)
           : AppFlowyCloudConfiguration.defaultConfig();
 
-      final supabaseCloudConfig = authenticatorType.isSupabaseEnabled
-          ? await getSupabaseCloudConfig()
-          : SupabaseConfiguration.defaultConfig();
-
       // In the backend, the value '2' represents the use of AppFlowy Cloud. However, in the frontend,
       // we distinguish between [AuthenticatorType.appflowyCloudSelfHost] and [AuthenticatorType.appflowyCloud].
       // When the cloud type is [AuthenticatorType.appflowyCloudSelfHost] in the frontend, it should be
@@ -244,7 +201,6 @@ class AppFlowyCloudSharedEnv {
       return AppFlowyCloudSharedEnv(
         authenticatorType: authenticatorType,
         appflowyCloudConfig: appflowyCloudConfig,
-        supabaseConfig: supabaseCloudConfig,
       );
     } else {
       // Using the cloud settings from the .env file.
@@ -257,7 +213,6 @@ class AppFlowyCloudSharedEnv {
       return AppFlowyCloudSharedEnv(
         authenticatorType: AuthenticatorType.fromValue(Env.authenticatorType),
         appflowyCloudConfig: appflowyCloudConfig,
-        supabaseConfig: SupabaseConfiguration.defaultConfig(),
       );
     }
   }
@@ -265,8 +220,7 @@ class AppFlowyCloudSharedEnv {
   @override
   String toString() {
     return 'authenticator: $_authenticatorType\n'
-        'appflowy: ${appflowyCloudConfig.toJson()}\n'
-        'supabase: ${supabaseConfig.toJson()})\n';
+        'appflowy: ${appflowyCloudConfig.toJson()}\n';
   }
 }
 
@@ -353,23 +307,4 @@ Future<void> setSupabaseServer(
   } else {
     await getIt<KeyValueStorage>().set(KVKeys.kSupabaseAnonKey, anonKey);
   }
-}
-
-Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
-  final url = await _getSupabaseUrl();
-  final anonKey = await _getSupabaseAnonKey();
-  return SupabaseConfiguration(
-    url: url,
-    anon_key: anonKey,
-  );
-}
-
-Future<String> _getSupabaseUrl() async {
-  final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseURL);
-  return result ?? '';
-}
-
-Future<String> _getSupabaseAnonKey() async {
-  final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseAnonKey);
-  return result ?? '';
 }

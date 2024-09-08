@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use bytes::Bytes;
-use collab::core::any_map::AnyMapExtension;
+use collab::util::AnyMapExt;
 use collab_database::rows::{new_cell_builder, Cell};
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -21,16 +21,16 @@ impl TypeOptionCellData for CheckboxCellDataPB {
 
 impl From<&Cell> for CheckboxCellDataPB {
   fn from(cell: &Cell) -> Self {
-    let value = cell.get_str_value(CELL_DATA).unwrap_or_default();
+    let value: String = cell.get_as(CELL_DATA).unwrap_or_default();
     CheckboxCellDataPB::from_str(&value).unwrap_or_default()
   }
 }
 
 impl From<CheckboxCellDataPB> for Cell {
   fn from(data: CheckboxCellDataPB) -> Self {
-    new_cell_builder(FieldType::Checkbox)
-      .insert_str_value(CELL_DATA, data.to_string())
-      .build()
+    let mut cell = new_cell_builder(FieldType::Checkbox);
+    cell.insert(CELL_DATA.into(), data.to_string().into());
+    cell
   }
 }
 

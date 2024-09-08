@@ -17,7 +17,7 @@ flowy-search-pub = { workspace = true }
 flowy-sqlite = { workspace = true }
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
-parking_lot.workspace = true
+arc-swap.workspace = true
 unicode-segmentation = "1.10"
 tracing.workspace = true
 flowy-error = { path = "../flowy-error", features = [

@@ -68,9 +68,11 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   CalloutBlockComponentBuilder({
     super.configuration,
     required this.defaultColor,
+    required this.inlinePadding,
   });
 
   final Color defaultColor;
+  final EdgeInsets inlinePadding;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -79,6 +81,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
       key: node.key,
       node: node,
       defaultColor: defaultColor,
+      inlinePadding: inlinePadding,
       configuration: configuration,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
@@ -105,9 +108,11 @@ class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
     required this.defaultColor,
+    required this.inlinePadding,
   });
 
   final Color defaultColor;
+  final EdgeInsets inlinePadding;
 
   @override
   State<CalloutBlockComponentWidget> createState() =>
@@ -176,6 +181,7 @@ class _CalloutBlockComponentWidgetState
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: backgroundColor,
       ),
+      padding: widget.inlinePadding,
       width: double.infinity,
       alignment: alignment,
       child: Row(
@@ -183,29 +189,25 @@ class _CalloutBlockComponentWidgetState
         mainAxisSize: MainAxisSize.min,
         textDirection: textDirection,
         children: [
+          if (PlatformExtension.isDesktopOrWeb) const HSpace(4.0),
           // the emoji picker button for the note
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 8.0,
-              left: 4.0,
-              right: 4.0,
-            ),
-            child: EmojiPickerButton(
-              key: ValueKey(
-                emoji.toString(),
-              ), // force to refresh the popover state
-              title: '',
-              emoji: emoji,
-              emojiSize: 16.0,
-              onSubmitted: (emoji, controller) {
-                setEmoji(emoji);
-                controller?.close();
-              },
-            ),
+          EmojiPickerButton(
+            key: ValueKey(
+              emoji.toString(),
+            ), // force to refresh the popover state
+            enable: editorState.editable,
+            title: '',
+            emoji: emoji,
+            emojiSize: 15.0,
+            onSubmitted: (emoji, controller) {
+              setEmoji(emoji);
+              controller?.close();
+            },
           ),
+          if (PlatformExtension.isDesktopOrWeb) const HSpace(4.0),
           Flexible(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: buildCalloutBlockComponent(context, textDirection),
             ),
           ),
@@ -247,24 +249,21 @@ class _CalloutBlockComponentWidgetState
     BuildContext context,
     TextDirection textDirection,
   ) {
-    return Padding(
-      padding: padding,
-      child: AppFlowyRichText(
-        key: forwardKey,
-        delegate: this,
-        node: widget.node,
-        editorState: editorState,
-        placeholderText: placeholderText,
-        textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-          textStyle,
-        ),
-        placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-          placeholderTextStyle,
-        ),
-        textDirection: textDirection,
-        cursorColor: editorState.editorStyle.cursorColor,
-        selectionColor: editorState.editorStyle.selectionColor,
+    return AppFlowyRichText(
+      key: forwardKey,
+      delegate: this,
+      node: widget.node,
+      editorState: editorState,
+      placeholderText: placeholderText,
+      textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+        textStyle,
       ),
+      placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+        placeholderTextStyle,
+      ),
+      textDirection: textDirection,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
     );
   }
 

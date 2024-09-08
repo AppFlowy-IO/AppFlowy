@@ -1,8 +1,8 @@
 import { expect } from '@jest/globals';
 import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '../fetch';
-import { APIService } from '@/application/services/js-services/wasm';
+import { APIService } from '@/application/services/js-services/http';
 
-jest.mock('@/application/services/js-services/wasm', () => {
+jest.mock('@/application/services/js-services/http', () => {
   return {
     APIService: {
       getPublishView: jest.fn(),

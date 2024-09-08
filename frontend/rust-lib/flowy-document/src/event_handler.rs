@@ -42,7 +42,7 @@ pub(crate) async fn get_encode_collab_handler(
   let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let state = manager.get_encoded_collab_with_view_id(&doc_id).await?;
+  let state = manager.get_encoded_collab_with_view_id(&doc_id)?;
   data_result_ok(EncodedCollabPB {
     state_vector: Vec::from(state.state_vector),
     doc_state: Vec::from(state.doc_state),
@@ -74,8 +74,8 @@ pub(crate) async fn open_document_handler(
   let doc_id = params.document_id;
   manager.open_document(&doc_id).await?;
 
-  let document = manager.get_document(&doc_id).await?;
-  let document_data = document.lock().get_document_data()?;
+  let document = manager.editable_document(&doc_id).await?;
+  let document_data = document.read().await.get_document_data()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
@@ -103,6 +103,17 @@ pub(crate) async fn get_document_data_handler(
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
+pub(crate) async fn get_document_text_handler(
+  data: AFPluginData<OpenDocumentPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<DocumentTextPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let text = manager.get_document_text(&doc_id).await?;
+  data_result_ok(DocumentTextPB { text })
+}
+
 // Handler for applying an action to a document
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPB>,
@@ -111,12 +122,12 @@ pub(crate) async fn apply_action_handler(
   let manager = upgrade_document(manager)?;
   let params: ApplyActionParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.editable_document(&doc_id).await?;
   let actions = params.actions;
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying actions: {:?}", doc_id, actions);
   }
-  document.lock().apply_action(actions);
+  document.write().await.apply_action(actions)?;
   Ok(())
 }
 
@@ -128,9 +139,9 @@ pub(crate) async fn create_text_handler(
   let manager = upgrade_document(manager)?;
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
-  let document = document.lock();
-  document.create_text(&params.text_id, params.delta);
+  let document = manager.editable_document(&doc_id).await?;
+  let mut document = document.write().await;
+  document.apply_text_delta(&params.text_id, params.delta);
   Ok(())
 }
 
@@ -142,10 +153,10 @@ pub(crate) async fn apply_text_delta_handler(
   let manager = upgrade_document(manager)?;
   let params: TextDeltaParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
+  let document = manager.editable_document(&doc_id).await?;
   let text_id = params.text_id;
   let delta = params.delta;
-  let document = document.lock();
+  let mut document = document.write().await;
   if cfg!(feature = "verbose_log") {
     tracing::trace!("{} applying delta: {:?}", doc_id, delta);
   }
@@ -183,8 +194,8 @@ pub(crate) async fn redo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
-  let document = document.lock();
+  let document = manager.editable_document(&doc_id).await?;
+  let mut document = document.write().await;
   let redo = document.redo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -202,8 +213,8 @@ pub(crate) async fn undo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
-  let document = document.lock();
+  let document = manager.editable_document(&doc_id).await?;
+  let mut document = document.write().await;
   let undo = document.undo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -221,11 +232,10 @@ pub(crate) async fn can_undo_redo_handler(
   let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id).await?;
-  let document = document.lock();
+  let document = manager.editable_document(&doc_id).await?;
+  let document = document.read().await;
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
-  drop(document);
   data_result_ok(DocumentRedoUndoResponsePB {
     can_redo,
     can_undo,
@@ -377,8 +387,7 @@ pub async fn convert_document_handler(
   let manager = upgrade_document(manager)?;
   let params: ConvertDocumentParams = data.into_inner().try_into()?;
 
-  let document = manager.get_document(&params.document_id).await?;
-  let document_data = document.lock().get_document_data()?;
+  let document_data = manager.get_document_data(&params.document_id).await?;
   let parser = DocumentDataParser::new(Arc::new(document_data), params.range);
 
   if !params.parse_types.any_enabled() {
@@ -443,10 +452,17 @@ pub(crate) async fn upload_file_handler(
   } = params.try_into_inner()?;
 
   let manager = upgrade_document(manager)?;
-  let upload = manager
-    .upload_file(workspace_id, &document_id, &local_file_path)
-    .await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  let cloned_local_file_path = local_file_path.clone();
+  tokio::spawn(async move {
+    let result = manager
+      .upload_file(workspace_id, &document_id, &cloned_local_file_path)
+      .await;
 
+    let _ = tx.send(result);
+    Ok::<(), FlowyError>(())
+  });
+  let upload = rx.await??;
   data_result_ok(UploadedFilePB {
     url: upload.url,
     local_file_path,

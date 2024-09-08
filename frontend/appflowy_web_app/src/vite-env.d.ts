@@ -13,7 +13,8 @@ interface Window {
   toast: {
     success: (message: string) => void;
     error: (message: string) => void;
-    info: (message: string) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    info: (props: any) => void;
     clear: () => void;
     default: (message: string) => void;
     warning: (message: string) => void;

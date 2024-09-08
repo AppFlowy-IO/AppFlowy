@@ -227,7 +227,7 @@ impl<'a> CellBuilder<'a> {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
         match field_type {
-          FieldType::RichText => {
+          FieldType::RichText | FieldType::Translate | FieldType::Summary => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
           },
           FieldType::Number => {
@@ -267,11 +267,8 @@ impl<'a> CellBuilder<'a> {
           FieldType::Relation => {
             cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
-          FieldType::Summary => {
-            cells.insert(field_id, insert_text_cell(cell_str, field));
-          },
-          FieldType::Translate => {
-            cells.insert(field_id, insert_text_cell(cell_str, field));
+          FieldType::Media => {
+            cells.insert(field_id, (&MediaCellData::from(cell_str)).into());
           },
           FieldType::Time => {
             if let Ok(time) = cell_str.parse::<i64>() {

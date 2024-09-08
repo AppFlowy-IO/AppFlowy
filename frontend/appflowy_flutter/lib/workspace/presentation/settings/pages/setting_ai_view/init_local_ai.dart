@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -38,20 +38,23 @@ class InitLocalAIIndicator extends StatelessWidget {
                   ],
                 );
               case RunningStatePB.Running:
-                return Row(
-                  children: [
-                    const HSpace(8),
-                    const FlowySvg(
-                      FlowySvgs.download_success_s,
-                      color: Color(0xFF2E7D32),
-                    ),
-                    const HSpace(6),
-                    FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
-                      fontSize: 11,
-                      color: const Color(0xFF1E4620),
-                    ),
-                  ],
+                return SizedBox(
+                  height: 30,
+                  child: Row(
+                    children: [
+                      const HSpace(8),
+                      const FlowySvg(
+                        FlowySvgs.download_success_s,
+                        color: Color(0xFF2E7D32),
+                      ),
+                      const HSpace(6),
+                      FlowyText(
+                        LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
+                        fontSize: 11,
+                        color: const Color(0xFF1E4620),
+                      ),
+                    ],
+                  ),
                 );
               case RunningStatePB.Stopped:
                 return Row(

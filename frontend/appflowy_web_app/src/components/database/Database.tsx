@@ -29,7 +29,7 @@ export interface Database2Props {
   iidIndex: string;
 }
 
-function Database({
+function Database ({
   doc,
   getViewRowsMap,
   navigateToView,
@@ -91,7 +91,7 @@ function Database({
           {rowId ? (
             <DatabaseRow rowId={rowId} />
           ) : (
-            <div className='appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden'>
+            <div className="appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden">
               <DatabaseViews
                 visibleViewIds={visibleViewIds}
                 iidIndex={iidIndex}

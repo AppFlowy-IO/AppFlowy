@@ -16,18 +16,22 @@ class NumberedListIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle =
-        context.read<EditorState>().editorStyle.textStyleConfiguration.text;
+        context.read<EditorState>().editorStyle.textStyleConfiguration;
+    final fontSize = textStyle.text.fontSize ?? 16.0;
+    final height = textStyle.text.height ?? textStyle.lineHeight;
+    final size = fontSize * height;
     return Container(
-      constraints: const BoxConstraints(
-        minWidth: 22,
-        minHeight: 22,
+      constraints: BoxConstraints(
+        minWidth: size,
+        minHeight: size,
       ),
       margin: const EdgeInsets.only(right: 8.0),
       alignment: Alignment.center,
       child: Center(
         child: Text(
           node.levelString,
-          style: textStyle,
+          style: textStyle.text,
+          strutStyle: StrutStyle.fromTextStyle(textStyle.text),
           textDirection: textDirection,
         ),
       ),

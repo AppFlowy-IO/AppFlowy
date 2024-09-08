@@ -6,7 +6,8 @@ use crate::services::field::{
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::Any;
+use collab::util::AnyMapExt;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -33,11 +34,11 @@ impl From<TypeOptionData> for TimeTypeOption {
   fn from(data: TypeOptionData) -> Self {
     Self {
       time_type: data
-        .get_i64_value(TIME_TYPE)
+        .get_as::<i64>(TIME_TYPE)
         .map(TimeType::from)
         .unwrap_or_default(),
       precision: data
-        .get_i64_value(PRECISION)
+        .get_as::<i64>(PRECISION)
         .map(TimePrecision::from)
         .unwrap_or_default(),
     }
@@ -46,10 +47,10 @@ impl From<TypeOptionData> for TimeTypeOption {
 
 impl From<TimeTypeOption> for TypeOptionData {
   fn from(data: TimeTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_i64_value(TIME_TYPE, data.time_type.value())
-      .insert_i64_value(PRECISION, data.precision.value())
-      .build()
+    TypeOptionDataBuilder::from([
+      (TIME_TYPE.into(), Any::BigInt(data.time_type.value())),
+      (PRECISION.into(), Any::BigInt(data.precision.value())),
+    ])
   }
 }
 

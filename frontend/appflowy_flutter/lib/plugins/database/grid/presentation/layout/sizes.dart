@@ -6,6 +6,7 @@ class GridSize {
 
   static double get scrollBarSize => 8 * scale;
   static double get headerHeight => 40 * scale;
+  static double get buttonHeight => 38 * scale;
   static double get footerHeight => 40 * scale;
   static double get horizontalHeaderPadding =>
       PlatformExtension.isDesktop ? 40 * scale : 16 * scale;
@@ -15,6 +16,7 @@ class GridSize {
   static double get popoverItemHeight => 26 * scale;
   static double get typeOptionSeparatorHeight => 4 * scale;
   static double get newPropertyButtonWidth => 140 * scale;
+  static double get mobileNewPropertyButtonWidth => 200 * scale;
 
   static EdgeInsets get cellContentInsets => EdgeInsets.symmetric(
         horizontal: GridSize.cellHPadding,

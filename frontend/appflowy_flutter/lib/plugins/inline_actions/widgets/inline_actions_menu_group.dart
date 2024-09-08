@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -92,11 +93,15 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: SizedBox(
-        width: 200,
+        width: kInlineMenuWidth,
         child: FlowyButton(
+          expand: true,
           isSelected: widget.isSelected,
           leftIcon: widget.item.icon?.call(widget.isSelected),
-          text: FlowyText.regular(widget.item.label),
+          text: FlowyText.regular(
+            widget.item.label,
+            figmaLineHeight: 18,
+          ),
           onTap: _onPressed,
         ),
       ),

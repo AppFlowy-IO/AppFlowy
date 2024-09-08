@@ -1,15 +1,16 @@
-use std::cmp::Ordering;
-use std::fmt::Debug;
-
+use async_trait::async_trait;
 use bytes::Bytes;
+use collab_database::database::Database;
 use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use protobuf::ProtobufError;
+use std::cmp::Ordering;
+use std::fmt::Debug;
 
 use flowy_error::FlowyResult;
 
 use crate::entities::{
-  CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
+  CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType, MediaTypeOptionPB,
   MultiSelectTypeOptionPB, NumberTypeOptionPB, RelationTypeOptionPB, RichTextTypeOptionPB,
   SingleSelectTypeOptionPB, SummarizationTypeOptionPB, TimeTypeOptionPB, TimestampTypeOptionPB,
   TranslateTypeOptionPB, URLTypeOptionPB,
@@ -19,8 +20,9 @@ use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption, TimestampTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption, NumberTypeOption,
+  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
+  TimestampTypeOption, URLTypeOption,
 };
 use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
@@ -92,7 +94,8 @@ pub trait TypeOptionCellData {
   }
 }
 
-pub trait TypeOptionTransform: TypeOption {
+#[async_trait]
+pub trait TypeOptionTransform: TypeOption + Send + Sync {
   /// Transform the TypeOption from one field type to another
   /// For example, when switching from `Checkbox` type option to `Single-Select`
   /// type option, adding the `Yes` option if the `Single-select` type-option doesn't contain it.
@@ -104,10 +107,14 @@ pub trait TypeOptionTransform: TypeOption {
   /// * `old_type_option_field_type`: the FieldType of the passed-in TypeOption
   /// * `old_type_option_data`: the data that can be parsed into corresponding `TypeOption`.
   ///
-  fn transform_type_option(
+  async fn transform_type_option(
     &mut self,
+    _view_id: &str,
+    _field_id: &str,
     _old_type_option_field_type: FieldType,
     _old_type_option_data: TypeOptionData,
+    _new_type_option_field_type: FieldType,
+    _database: &mut Database,
   ) {
   }
 }
@@ -191,6 +198,9 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
     FieldType::Translate => {
       TranslateTypeOptionPB::try_from(bytes).map(|pb| TranslateTypeOption::from(pb).into())
     },
+    FieldType::Media => {
+      MediaTypeOptionPB::try_from(bytes).map(|pb| MediaTypeOption::from(pb).into())
+    },
   }
 }
 
@@ -268,6 +278,12 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
+    FieldType::Media => {
+      let media_type_option: MediaTypeOption = type_option.into();
+      MediaTypeOptionPB::from(media_type_option)
+        .try_into()
+        .unwrap()
+    },
   }
 }
 
@@ -290,5 +306,6 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::Summary => SummarizationTypeOption::default().into(),
     FieldType::Translate => TranslateTypeOption::default().into(),
     FieldType::Time => TimeTypeOption::default().into(),
+    FieldType::Media => MediaTypeOption::default().into(),
   }
 }

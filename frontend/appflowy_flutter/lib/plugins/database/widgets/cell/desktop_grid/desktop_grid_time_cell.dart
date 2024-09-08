@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/time_cell_editor.d
 import 'package:appflowy/plugins/database/application/cell/bloc/time_cell_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';

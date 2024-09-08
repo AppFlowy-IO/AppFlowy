@@ -25,21 +25,17 @@ class _MobileHomeSpaceState extends State<MobileHomeSpace>
     final workspaceId =
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
             '';
-    return Scrollbar(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: HomeSpaceViewSizes.mHorizontalPadding,
-            right: HomeSpaceViewSizes.mHorizontalPadding,
-            top: HomeSpaceViewSizes.mVerticalPadding,
-            bottom: HomeSpaceViewSizes.mVerticalPadding +
-                MediaQuery.of(context).padding.bottom,
-          ),
-          child: MobileFolders(
-            user: widget.userProfile,
-            workspaceId: workspaceId,
-            showFavorite: false,
-          ),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: HomeSpaceViewSizes.mVerticalPadding,
+          bottom: HomeSpaceViewSizes.mVerticalPadding +
+              MediaQuery.of(context).padding.bottom,
+        ),
+        child: MobileFolders(
+          user: widget.userProfile,
+          workspaceId: workspaceId,
+          showFavorite: false,
         ),
       ),
     );

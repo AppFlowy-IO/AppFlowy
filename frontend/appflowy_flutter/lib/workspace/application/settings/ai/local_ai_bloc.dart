@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-chat/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
@@ -19,7 +19,7 @@ class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await ChatEventGetLocalAIState().send();
+        final result = await AIEventGetLocalAIState().send();
         _handleResult(emit, result);
       },
       toggle: () async {
@@ -29,7 +29,7 @@ class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
           ),
         );
         unawaited(
-          ChatEventToggleLocalAI().send().then(
+          AIEventToggleLocalAI().send().then(
             (result) {
               if (!isClosed) {
                 add(LocalAIToggleEvent.handleResult(result));

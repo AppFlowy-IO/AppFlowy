@@ -1,8 +1,5 @@
 import { BaseRange, NodeEntry, Text, Path } from 'slate';
-
-const Prism = window.Prism;
-
-Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/';
+import Prism, { Grammar } from 'prismjs';
 
 const push_string = (
   token: string | Prism.Token,
@@ -86,7 +83,7 @@ export const decorateCode = ([node, path]: NodeEntry, language: string) => {
     return ranges;
   }
 
-  const highlightCode = (code: string, language: string) => {
+  const highlightCode = (code: string, language: Grammar) => {
     try {
       const tokens = Prism.tokenize(code, language);
 

@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
@@ -7,7 +6,6 @@ import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.d
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -22,7 +20,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
-      await insertReferenceDatabase(tester, ViewLayoutPB.Grid);
+      await insertLinkedDatabase(tester, ViewLayoutPB.Grid);
 
       // validate the referenced grid is inserted
       expect(
@@ -50,7 +48,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
-      await insertReferenceDatabase(tester, ViewLayoutPB.Board);
+      await insertLinkedDatabase(tester, ViewLayoutPB.Board);
 
       // validate the referenced board is inserted
       expect(
@@ -66,7 +64,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
-      await insertReferenceDatabase(tester, ViewLayoutPB.Calendar);
+      await insertLinkedDatabase(tester, ViewLayoutPB.Calendar);
 
       // validate the referenced grid is inserted
       expect(
@@ -129,7 +127,7 @@ void main() {
 }
 
 /// Insert a referenced database of [layout] into the document
-Future<void> insertReferenceDatabase(
+Future<void> insertLinkedDatabase(
   WidgetTester tester,
   ViewLayoutPB layout,
 ) async {
@@ -150,7 +148,7 @@ Future<void> insertReferenceDatabase(
   // insert a referenced view
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
-    layout.referencedMenuName,
+    layout.slashMenuLinkedName,
   );
 
   final linkToPageMenu = find.byType(InlineActionsHandler);
@@ -176,16 +174,9 @@ Future<void> createInlineDatabase(
   await tester.editor.tapLineOfEditorAt(0);
   // insert a referenced view
   await tester.editor.showSlashMenu();
-  final name = switch (layout) {
-    ViewLayoutPB.Grid => LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
-    ViewLayoutPB.Board =>
-      LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
-    ViewLayoutPB.Calendar =>
-      LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr(),
-    _ => '',
-  };
   await tester.editor.tapSlashMenuItemWithName(
-    name,
+    layout.slashMenuName,
+    offset: 100,
   );
   await tester.pumpAndSettle();
 

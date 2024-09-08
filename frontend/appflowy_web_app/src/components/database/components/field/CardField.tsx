@@ -1,10 +1,12 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
 import { FieldType, useCellSelector, useFieldSelector } from '@/application/database-yjs';
+import { TextCell } from '@/application/database-yjs/cell.type';
 import Cell from '@/components/database/components/cell/Cell';
+import { PrimaryCell } from '@/components/database/components/cell/primary';
 import React, { CSSProperties, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
+export function CardField ({ rowId, fieldId }: { rowId: string; fieldId: string; index: number }) {
   const { t } = useTranslation();
   const { field } = useFieldSelector(fieldId);
   const cell = useCellSelector({
@@ -21,7 +23,7 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
       textAlign: 'left',
     };
 
-    if ([FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
+    if (isPrimary || [FieldType.Relation, FieldType.SingleSelect, FieldType.MultiSelect].includes(Number(type))) {
       Object.assign(styleProperties, {
         breakWord: 'break-word',
         whiteSpace: 'normal',
@@ -44,12 +46,19 @@ function CardField({ rowId, fieldId }: { rowId: string; fieldId: string; index: 
     return styleProperties;
   }, [isPrimary, type]);
 
-  if (isPrimary && !cell?.data) {
-    return (
-      <div className={'text-text-caption'} style={style}>
-        {t('grid.row.titlePlaceholder')}
-      </div>
-    );
+  if (isPrimary) {
+    if (!cell?.data) {
+      return (
+        <div className={'text-text-caption'} style={style}>
+          {t('grid.row.titlePlaceholder')}
+        </div>
+      );
+    } else {
+      return <PrimaryCell showDocumentIcon readOnly cell={cell as TextCell} rowId={rowId} fieldId={fieldId}
+                          style={style}
+      />;
+    }
+
   }
 
   if (Number(type) === FieldType.Checkbox) {

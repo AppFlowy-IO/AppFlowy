@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "ユーザー",
   "welcomeText": "Welcome to @:appName",
+  "welcomeTo": "ようこそ",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "新着情報を受け取る",
   "letsGoButtonText": "Let's Go",
@@ -39,6 +40,8 @@
     "dontHaveAnAccount": "まだアカウントをお持ちではないですか？",
     "repeatPasswordEmptyError": "パスワード（確認用）を空にはできません",
     "unmatchedPasswordError": "パスワード（確認用）が一致しません",
+    "syncPromptMessage": "データの同期に時間がかかる場合があります。ページを閉じないでください。",
+    "magicLinkSent": "マジックリンクが送信されました！",
     "LogInWithGoogle": "Googleでログイン",
     "LogInWithGithub": "GitHubでログイン",
     "LogInWithDiscord": "Discordでログイン",
@@ -47,6 +50,7 @@
   "workspace": {
     "chooseWorkspace": "ワークスベースを選択",
     "create": "ワークスペースを作成する",
+    "reset": "ワークスペースをリセットする",
     "hint": "ワークスペース",
     "notFoundError": "ワークスペースがみつかりません",
     "errorActions": {

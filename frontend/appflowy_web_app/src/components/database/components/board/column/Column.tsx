@@ -32,7 +32,7 @@ export const Column = memo(
             rowId: row.id,
           };
         }) || [],
-      [rows]
+      [rows],
     );
     const { rowHeight, onResize } = useMeasureHeight({ forceUpdate, rows: measureRows });
 
@@ -54,7 +54,7 @@ export const Column = memo(
 
         return <ListItem fieldId={fieldId} onResize={onResizeCallback} item={item} style={style} />;
       },
-      [fieldId, onResize]
+      [fieldId, onResize],
     );
 
     const getItemSize = useCallback(
@@ -65,13 +65,18 @@ export const Column = memo(
         if (!row) return 0;
         return rowHeight(index);
       },
-      [rowHeight, rows]
+      [rowHeight, rows],
     );
     const rowCount = rows?.length || 0;
 
     return (
-      <div key={id} className='column flex w-[230px] flex-col gap-4'>
-        <div className='column-header flex h-[24px] items-center text-xs font-medium'>{header}</div>
+      <div key={id} className="column flex w-[230px] flex-col gap-4">
+        <div
+          className="column-header flex overflow-hidden items-center gap-2 text-sm font-medium whitespace-nowrap"
+        >
+          <div className={'max-w-[180px] w-auto overflow-hidden'}>{header}</div>
+          <span className={'text-text-caption font-medium'}>{rowCount}</span>
+        </div>
 
         <div className={'w-full flex-1 overflow-hidden'}>
           <AutoSizer>
@@ -95,5 +100,5 @@ export const Column = memo(
       </div>
     );
   },
-  (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
+  (prev, next) => JSON.stringify(prev) === JSON.stringify(next),
 );

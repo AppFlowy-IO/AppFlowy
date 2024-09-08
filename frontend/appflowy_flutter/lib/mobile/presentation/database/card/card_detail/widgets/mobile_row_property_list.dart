@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -6,7 +8,6 @@ import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.d
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileRowPropertyList extends StatelessWidget {
@@ -87,6 +88,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                 fieldInfo.name,
                 overflow: TextOverflow.ellipsis,
                 fontSize: 14,
+                figmaLineHeight: 16.0,
                 color: Theme.of(context).hintColor,
               ),
             ),

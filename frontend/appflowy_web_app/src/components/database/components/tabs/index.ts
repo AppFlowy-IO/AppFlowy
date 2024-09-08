@@ -1,2 +1,2 @@
 export * from './DatabaseTabs';
-export * from './ViewTabs';
+export * from 'src/components/_shared/tabs/ViewTabs';

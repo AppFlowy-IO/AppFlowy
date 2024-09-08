@@ -3,8 +3,6 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/account.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
@@ -19,6 +18,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +42,7 @@ void main() {
       await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
-      // reanme the name of the anon user
+      // rename the name of the anon user
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.account);
       await tester.pumpAndSettle();
@@ -51,12 +51,12 @@ void main() {
 
       // Scroll to sign-in
       await tester.scrollUntilVisible(
-        find.byType(SignInOutButton),
+        find.byType(AccountSignInOutButton),
         100,
         scrollable: find.findSettingsScrollable(),
       );
 
-      await tester.tapButton(find.byType(SignInOutButton));
+      await tester.tapButton(find.byType(AccountSignInOutButton));
 
       // sign up with Google
       await tester.tapGoogleLoginInButton();
@@ -68,7 +68,7 @@ void main() {
 
       // Scroll to sign-out
       await tester.scrollUntilVisible(
-        find.byType(SignInOutButton),
+        find.byType(AccountSignInOutButton),
         100,
         scrollable: find.findSettingsScrollable(),
       );
@@ -85,7 +85,7 @@ void main() {
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.account);
       final userNameInput =
-          tester.widget(find.byType(UserProfileSetting)) as UserProfileSetting;
+          tester.widget(find.byType(AccountUserProfile)) as AccountUserProfile;
       expect(userNameInput.name, 'Me');
     });
   });

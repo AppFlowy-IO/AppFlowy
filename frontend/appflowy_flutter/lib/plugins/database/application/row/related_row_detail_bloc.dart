@@ -23,9 +23,9 @@ class RelatedRowDetailPageBloc
   @override
   Future<void> close() {
     state.whenOrNull(
-      ready: (databaseController, rowController) {
-        rowController.dispose();
-        databaseController.dispose();
+      ready: (databaseController, rowController) async {
+        await rowController.dispose();
+        await databaseController.dispose();
       },
     );
     return super.close();
@@ -35,9 +35,11 @@ class RelatedRowDetailPageBloc
     on<RelatedRowDetailPageEvent>((event, emit) async {
       event.when(
         didInitialize: (databaseController, rowController) {
+          rowController.initialize();
+
           state.maybeWhen(
-            ready: (_, oldRowController) {
-              oldRowController.dispose();
+            ready: (_, oldRowController) async {
+              await oldRowController.dispose();
               emit(
                 RelatedRowDetailPageState.ready(
                   databaseController: databaseController,
@@ -93,6 +95,7 @@ class RelatedRowDetailPageBloc
       viewId: inlineView.id,
       rowCache: databaseController.rowCache,
     );
+
     add(
       RelatedRowDetailPageEvent.didInitialize(
         databaseController,

@@ -38,6 +38,7 @@ class _LanguageSettingGroupState extends State<LanguageSettingGroup> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FlowyText(
+                    lineHeight: 1.0,
                     languageFromLocale(locale),
                     color: theme.colorScheme.onSurface,
                   ),
