@@ -127,6 +127,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
       onRowsUpdated: (rows, reason) {
+        // TODO(nathan): separate different reasons
         if (!isClosed) {
           add(
             GridEvent.didLoadRows(databaseController.rowCache.rowInfos, reason),

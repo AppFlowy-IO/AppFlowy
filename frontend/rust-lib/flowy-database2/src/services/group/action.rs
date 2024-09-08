@@ -60,7 +60,7 @@ pub trait GroupCustomize: Send + Sync {
   fn move_row(&mut self, context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB>;
 
   /// Returns None if there is no need to delete the group when corresponding row get removed
-  fn delete_group_when_move_row(
+  fn delete_group_after_moving_row(
     &mut self,
     _row: &Row,
     _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
@@ -137,11 +137,7 @@ pub trait GroupController: Send + Sync {
   /// Returns a changeset payload to be sent as a notification.
   ///
   /// * `row_detail`: the newly-created row
-  async fn did_create_row(
-    &mut self,
-    row: &Row,
-    index: usize,
-  ) -> Option<Vec<GroupRowsNotificationPB>>;
+  fn did_create_row(&mut self, row: &Row, index: usize) -> Vec<GroupRowsNotificationPB>;
 
   /// Called after a row's cell data is changed, this moves the row to the
   /// correct group. It may also insert a new group and/or remove an old group.

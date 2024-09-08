@@ -1,16 +1,16 @@
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::CollabType;
+use nanoid::nanoid;
+use semver::Version;
 use std::env::temp_dir;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
-
-use nanoid::nanoid;
-use semver::Version;
 use tokio::select;
 use tokio::task::LocalSet;
 use tokio::time::sleep;
@@ -157,13 +157,15 @@ pub fn document_data_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -
 }
 
 pub fn document_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> Document {
-  Document::open_with_options(
+  let collab = Collab::new_with_source(
     CollabOrigin::Empty,
-    DataSource::DocStateV1(doc_state),
     doc_id,
+    DataSource::DocStateV1(doc_state),
     vec![],
+    true,
   )
-  .unwrap()
+  .unwrap();
+  Document::open(collab).unwrap()
 }
 
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {

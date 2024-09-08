@@ -394,10 +394,6 @@ impl FilterController {
 
   pub async fn filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
     let filters = self.filters.read().await;
-
-    if filters.is_empty() {
-      return;
-    }
     let field_by_field_id = self.get_field_map().await;
     rows.iter().for_each(|row| {
       let _ = filter_row(
@@ -532,7 +528,7 @@ fn apply_filter(
         },
       };
       if *field_type != FieldType::from(field.field_type) {
-        tracing::error!("field type of filter doesn't match field type of field");
+        error!("field type of filter doesn't match field type of field");
         return Some(false);
       }
       let cell = row.cells.get(field_id).cloned();

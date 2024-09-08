@@ -37,7 +37,7 @@ pub(crate) async fn get_database_data_handler(
     .await?;
   let database_editor = manager.get_database_editor(&database_id).await?;
   let data = database_editor
-    .async_open_database_view(view_id.as_ref())
+    .open_database_view(view_id.as_ref(), None)
     .await?;
   trace!(
     "layout: {:?}, rows: {}, fields: {}",

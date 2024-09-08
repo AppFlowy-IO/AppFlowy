@@ -161,7 +161,10 @@ impl AppFlowyCollabBuilder {
     let mut collab = self.build_collab(&object, &collab_db, data_source)?;
     collab.enable_undo_redo();
 
-    let document = Document::open_with(collab, data)?;
+    let document = match data {
+      None => Document::open(collab)?,
+      Some(data) => Document::create_with_data(collab, data)?,
+    };
     let document = Arc::new(RwLock::new(document));
     self.finalize(object, builder_config, document)
   }

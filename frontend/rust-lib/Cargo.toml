@@ -141,13 +141,13 @@ rocksdb = { git = "https://github.com/rust-rocksdb/rust-rocksdb", rev = "1710120
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { path = "../AppFlowy-Collab/collab" }
-collab-entity = { path = "../AppFlowy-Collab/collab-entity" }
-collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
-collab-document = { path = "../AppFlowy-Collab/collab-document" }
-collab-database = { path = "../AppFlowy-Collab/collab-database" }
-collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
-collab-user = { path = "../AppFlowy-Collab/collab-user" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
 
 # Working directory: frontend
 # To update the commit ID, run:

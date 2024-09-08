@@ -7,19 +7,24 @@ use collab_database::rows::RowId;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast::Receiver;
 
+use crate::database::database_editor::DatabaseEditorTest;
 use flowy_database2::entities::{
-  CreateRowPayloadPB, DeleteSortPayloadPB, ReorderSortPayloadPB, UpdateSortPayloadPB,
+  CreateRowPayloadPB, DeleteSortPayloadPB, FieldType, ReorderSortPayloadPB, UpdateSortPayloadPB,
 };
 use flowy_database2::services::cell::stringify_cell;
 use flowy_database2::services::database_view::DatabaseViewChanged;
+use flowy_database2::services::filter::{FilterChangeset, FilterInner};
 use flowy_database2::services::sort::SortCondition;
-
-use crate::database::database_editor::DatabaseEditorTest;
+use lib_infra::box_any::BoxAny;
 
 pub enum SortScript {
   InsertSort {
     field: Field,
     condition: SortCondition,
+  },
+  InsertFilter {
+    field_type: FieldType,
+    data: BoxAny,
   },
   ReorderSort {
     from_sort_id: String,
@@ -82,6 +87,22 @@ impl DatabaseSortTest {
           condition: condition.into(),
         };
         let _ = self.editor.create_or_update_sort(params).await.unwrap();
+      },
+      SortScript::InsertFilter { field_type, data } => {
+        let field = self.get_first_field(field_type).await;
+        let params = FilterChangeset::Insert {
+          parent_filter_id: None,
+          data: FilterInner::Data {
+            field_id: field.id,
+            field_type,
+            condition_and_content: data,
+          },
+        };
+        self
+          .editor
+          .modify_view_filters(&self.view_id, params)
+          .await
+          .unwrap();
       },
       SortScript::ReorderSort {
         from_sort_id,

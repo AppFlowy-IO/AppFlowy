@@ -154,7 +154,7 @@ impl GroupCustomize for URLGroupController {
     group_changeset
   }
 
-  fn delete_group_when_move_row(
+  fn delete_group_after_moving_row(
     &mut self,
     _row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
