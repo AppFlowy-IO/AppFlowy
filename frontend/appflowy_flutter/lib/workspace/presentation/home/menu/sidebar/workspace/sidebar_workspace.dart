@@ -232,53 +232,73 @@ class _SidebarSwitchWorkspaceButtonState
           ),
         );
       },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () => _popoverController.show(),
-          child: SizedBox(
-            height: 30,
-            child: Row(
-              children: [
-                const HSpace(4.0),
-                WorkspaceIcon(
-                  workspace: widget.currentWorkspace,
-                  iconSize: 24,
-                  fontSize: 16,
-                  emojiSize: 18,
-                  enableEdit: false,
-                  borderRadius: 8.0,
-                  figmaLineHeight: 21.0,
-                  onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                        UserWorkspaceEvent.updateWorkspaceIcon(
-                          widget.currentWorkspace.workspaceId,
-                          result.emoji,
-                        ),
+      child: _SideBarSwitchWorkspaceButtonChild(
+        currentWorkspace: widget.currentWorkspace,
+        popoverController: _popoverController,
+        isHover: widget.isHover,
+      ),
+    );
+  }
+}
+
+class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
+  const _SideBarSwitchWorkspaceButtonChild({
+    required this.popoverController,
+    required this.currentWorkspace,
+    required this.isHover,
+  });
+
+  final PopoverController popoverController;
+  final UserWorkspacePB currentWorkspace;
+  final bool isHover;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => popoverController.show(),
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          height: 30,
+          child: Row(
+            children: [
+              const HSpace(4.0),
+              WorkspaceIcon(
+                workspace: currentWorkspace,
+                iconSize: 24,
+                fontSize: 16,
+                emojiSize: 18,
+                enableEdit: false,
+                borderRadius: 8.0,
+                figmaLineHeight: 21.0,
+                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.updateWorkspaceIcon(
+                        currentWorkspace.workspaceId,
+                        result.emoji,
                       ),
+                    ),
+              ),
+              const HSpace(8),
+              Flexible(
+                child: FlowyText.medium(
+                  currentWorkspace.name,
+                  color:
+                      isHover ? Theme.of(context).colorScheme.onSurface : null,
+                  overflow: TextOverflow.ellipsis,
+                  withTooltip: true,
+                  fontSize: 15.0,
                 ),
-                const HSpace(8),
-                Flexible(
-                  child: FlowyText.medium(
-                    widget.currentWorkspace.name,
-                    color: widget.isHover
-                        ? Theme.of(context).colorScheme.onSurface
-                        : null,
-                    overflow: TextOverflow.ellipsis,
-                    withTooltip: true,
-                    fontSize: 15.0,
-                  ),
+              ),
+              if (isHover) ...[
+                const HSpace(4),
+                FlowySvg(
+                  FlowySvgs.workspace_drop_down_menu_show_s,
+                  color:
+                      isHover ? Theme.of(context).colorScheme.onSurface : null,
                 ),
-                if (widget.isHover) ...[
-                  const HSpace(4),
-                  FlowySvg(
-                    FlowySvgs.workspace_drop_down_menu_show_s,
-                    color: widget.isHover
-                        ? Theme.of(context).colorScheme.onSurface
-                        : null,
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
         ),
       ),
