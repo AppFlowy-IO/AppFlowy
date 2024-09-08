@@ -117,13 +117,13 @@ custom-protocol = ["tauri/custom-protocol"]
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "6bc5d24f34ffb998fc080c423d9bb78a016c3a6a" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ee6028e4ed0b45294f27fe89bda241b770bf5625" }
 
 # Working directory: frontend
 # To update the commit ID, run:

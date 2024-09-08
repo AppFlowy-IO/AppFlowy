@@ -90,7 +90,8 @@ class GroupController {
             });
             group.freeze();
             Log.debug(
-                "Build GroupPB:${group.groupId}: items: ${group.rows.length}");
+              "Build GroupPB:${group.groupId}: items: ${group.rows.length}",
+            );
             onGroupChanged(group);
           },
           (err) => Log.error(err),
