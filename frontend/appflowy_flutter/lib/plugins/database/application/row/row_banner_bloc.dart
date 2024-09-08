@@ -87,9 +87,6 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   void _listenRowMetaChanged() {
     _metaListener.start(
       callback: (rowMeta) {
-        debugPrint(
-          "[DEBUG] row meta changed - Cover(${rowMeta.cover.url})",
-        );
         if (!isClosed) {
           add(RowBannerEvent.didReceiveRowMeta(rowMeta));
         }
