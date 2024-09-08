@@ -371,6 +371,8 @@ class _NewTaskItemState extends State<NewTaskItem> {
                   hintText: LocaleKeys.grid_checklist_addNew.tr(),
                 ),
                 onSubmitted: (_) => _createNewTask(context),
+                // setState to check whether the input is empty, and enable/
+                // disable the create button accordingly
                 onChanged: (value) => setState(() {}),
               ),
             ),
