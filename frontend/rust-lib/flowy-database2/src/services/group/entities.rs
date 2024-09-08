@@ -133,13 +133,15 @@ impl GroupData {
 
   pub fn add_row(&mut self, row: Row) {
     match self.rows.iter().find(|r| r.id == row.id) {
-      None => self.rows.push(row),
+      None => {
+        self.rows.push(row);
+      },
       Some(_) => {},
     }
   }
 
   pub fn insert_row(&mut self, index: usize, row: Row) {
-    if index <= self.rows.len() {
+    if index < self.rows.len() {
       self.rows.insert(index, row);
     } else {
       tracing::error!(

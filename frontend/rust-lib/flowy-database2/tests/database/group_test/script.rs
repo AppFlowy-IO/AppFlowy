@@ -3,9 +3,7 @@ use collab_database::fields::Field;
 use collab_database::rows::RowId;
 use std::time::Duration;
 
-use flowy_database2::entities::{
-  CreateRowPayloadPB, FieldType, GroupPB, OrderObjectPositionPB, RowMetaPB,
-};
+use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -38,7 +36,6 @@ pub enum GroupScript {
   },
   CreateRow {
     group_index: usize,
-    position: OrderObjectPositionPB,
   },
   DeleteRow {
     group_index: usize,
@@ -134,18 +131,16 @@ impl DatabaseGroupTest {
         row_index,
         row,
       } => {
+        //
         let group = self.group_at_index(group_index).await;
         let compare_row = group.rows.get(row_index).unwrap().clone();
         assert_eq!(row.id, compare_row.id);
       },
-      GroupScript::CreateRow {
-        group_index,
-        position,
-      } => {
+      GroupScript::CreateRow { group_index } => {
         let group = self.group_at_index(group_index).await;
         let params = CreateRowPayloadPB {
           view_id: self.view_id.clone(),
-          row_position: position,
+          row_position: Default::default(),
           group_id: Some(group.group_id),
           data: Default::default(),
         };
