@@ -272,7 +272,7 @@ async fn handle_did_update_row_orders(
             .v_did_delete_row(&row, row_change.is_move_row, is_local_change)
             .await;
         } else {
-          warn!("[RowOrder]: row not found: {} in cache", lazy_row.id);
+          error!("[RowOrder]: row not found: {} in cache", lazy_row.id);
         }
       } else {
         warn!(
@@ -287,7 +287,7 @@ async fn handle_did_update_row_orders(
   // 3. notify the view
   for entry in database_view_rows.into_iter() {
     let (view_id, changes) = entry;
-    trace!("[RowOrder]: changes {}", changes);
+    trace!("[RowOrder]: {}", changes);
     send_notification(&view_id, DatabaseNotification::DidUpdateRow)
       .payload(changes)
       .send();

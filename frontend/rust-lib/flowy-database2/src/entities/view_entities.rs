@@ -37,27 +37,43 @@ impl RowsChangePB {
     Default::default()
   }
 }
-
 impl Display for RowsChangePB {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    let inserted_rows = self
-      .inserted_rows
-      .iter()
-      .map(|row| format!("{}:{:?}", row.row_meta.id, row.index))
-      .collect::<Vec<String>>()
-      .join(", ");
-    let deleted_rows = self.deleted_rows.join(", ");
-    let updated_rows = self
-      .updated_rows
-      .iter()
-      .map(|row| row.row_id.to_string())
-      .collect::<Vec<String>>()
-      .join(", ");
+    let mut parts = Vec::new();
 
-    f.write_fmt(format_args!(
-      "Inserted rows: {}, Deleted rows: {}, Updated rows: {}, is_move_row: {}",
-      inserted_rows, deleted_rows, updated_rows, self.is_move_row
-    ))
+    // Conditionally add inserted rows if not empty
+    if !self.inserted_rows.is_empty() {
+      let inserted_rows = self
+        .inserted_rows
+        .iter()
+        .map(|row| format!("{}:{:?}", row.row_meta.id, row.index))
+        .collect::<Vec<String>>()
+        .join(", ");
+      parts.push(format!("Inserted rows: {}", inserted_rows));
+    }
+
+    // Conditionally add deleted rows if not empty
+    if !self.deleted_rows.is_empty() {
+      let deleted_rows = self.deleted_rows.join(", ");
+      parts.push(format!("Deleted rows: {}", deleted_rows));
+    }
+
+    // Conditionally add updated rows if not empty
+    if !self.updated_rows.is_empty() {
+      let updated_rows = self
+        .updated_rows
+        .iter()
+        .map(|row| row.row_id.to_string())
+        .collect::<Vec<String>>()
+        .join(", ");
+      parts.push(format!("Updated rows: {}", updated_rows));
+    }
+
+    // Always add is_move_row
+    parts.push(format!("is_move_row: {}", self.is_move_row));
+
+    // Join the parts together and write them to the formatter
+    f.write_str(&parts.join(", "))
   }
 }
 

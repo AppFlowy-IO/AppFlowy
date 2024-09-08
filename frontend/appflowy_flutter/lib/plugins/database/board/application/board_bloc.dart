@@ -93,9 +93,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       (event, emit) async {
         await event.when(
           initial: () async {
+            emit(BoardState.initial(viewId));
             _startListening();
             await _openDatabase(emit);
-            emit(BoardState.initial(viewId));
           },
           createRow: (groupId, position, title, targetRowId) async {
             final primaryField = databaseController.fieldController.fieldInfos

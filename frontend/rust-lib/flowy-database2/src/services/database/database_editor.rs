@@ -1467,6 +1467,7 @@ impl DatabaseEditor {
                   .insert(loaded_row.id.to_string(), loaded_row.clone());
               }
 
+              tokio::time::sleep(Duration::from_millis(500)).await;
               if view_editor.has_filters().await {
                 trace!("[Database]: filtering rows:{}", loaded_rows.len());
                 view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
@@ -1504,7 +1505,6 @@ impl DatabaseEditor {
           }
 
           info!("[Database]: Finish loading rows: {}", loaded_rows.len());
-          tokio::time::sleep(Duration::from_millis(500)).await;
           apply_filter_and_sort(loaded_rows.clone(), view_editor).await;
 
           if let Some(notify_finish) = notify_finish {
