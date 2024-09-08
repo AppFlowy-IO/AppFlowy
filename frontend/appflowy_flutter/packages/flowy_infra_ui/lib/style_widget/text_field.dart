@@ -39,6 +39,7 @@ class FlowyTextField extends StatefulWidget {
   final bool readOnly;
   final Color? enableBorderColor;
   final BorderRadius? borderRadius;
+  final void Function()? onTap;
 
   const FlowyTextField({
     super.key,
@@ -76,6 +77,7 @@ class FlowyTextField extends StatefulWidget {
     this.readOnly = false,
     this.enableBorderColor,
     this.borderRadius,
+    this.onTap,
   });
 
   @override
@@ -161,6 +163,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: _onSubmitted,
       onEditingComplete: widget.onEditingComplete,
+      onTap: widget.onTap,
       minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,

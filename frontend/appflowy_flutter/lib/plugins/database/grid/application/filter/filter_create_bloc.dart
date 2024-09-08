@@ -109,7 +109,6 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: DateFilterConditionPB.DateIs,
           timestamp: timestamp,
-          fieldType: field.fieldType,
         );
       case FieldType.MultiSelect:
         return _filterBackendSvc.insertSelectOptionFilter(
