@@ -327,6 +327,7 @@ class NewTaskItem extends StatefulWidget {
 
 class _NewTaskItemState extends State<NewTaskItem> {
   final _textEditingController = TextEditingController();
+  bool _isCreateButtonEnabled = false;
 
   @override
   void initState() {
@@ -371,26 +372,26 @@ class _NewTaskItemState extends State<NewTaskItem> {
                   hintText: LocaleKeys.grid_checklist_addNew.tr(),
                 ),
                 onSubmitted: (_) => _createNewTask(context),
-                // setState to check whether the input is empty, and enable/
-                // disable the create button accordingly
-                onChanged: (value) => setState(() {}),
+                onChanged: (value) => setState(
+                  () => _isCreateButtonEnabled =
+                      _textEditingController.text.isNotEmpty,
+                ),
               ),
             ),
           ),
           FlowyTextButton(
             LocaleKeys.grid_checklist_submitNewTask.tr(),
             fontSize: 11,
-            fillColor: _textEditingController.text.isEmpty
-                ? Theme.of(context).disabledColor
-                : Theme.of(context).colorScheme.primary,
-            hoverColor: _textEditingController.text.isEmpty
-                ? Theme.of(context).disabledColor
-                : Theme.of(context).colorScheme.primaryContainer,
+            fillColor: _isCreateButtonEnabled
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).disabledColor,
+            hoverColor: _isCreateButtonEnabled
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).disabledColor,
             fontColor: Theme.of(context).colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            onPressed: _textEditingController.text.isEmpty
-                ? null
-                : () {
+            onPressed: _isCreateButtonEnabled
+                ? () {
                     context.read<ChecklistCellBloc>().add(
                           ChecklistCellEvent.createNewTask(
                             _textEditingController.text,
@@ -398,7 +399,8 @@ class _NewTaskItemState extends State<NewTaskItem> {
                         );
                     widget.focusNode.requestFocus();
                     _textEditingController.clear();
-                  },
+                  }
+                : null,
           ),
         ],
       ),
