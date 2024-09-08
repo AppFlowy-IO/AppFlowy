@@ -64,8 +64,8 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               .read<SpaceBloc>()
               .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
           child: FlowyHoverContainer(
-            isHovering: isHovered,
             style: style,
+            applyStyle: isHovered,
             child: _buildSpaceName(),
           ),
         );
