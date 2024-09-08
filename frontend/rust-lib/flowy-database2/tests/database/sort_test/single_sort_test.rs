@@ -1,7 +1,7 @@
-use flowy_database2::entities::FieldType;
-use flowy_database2::services::sort::SortCondition;
-
 use crate::database::sort_test::script::{DatabaseSortTest, SortScript::*};
+use flowy_database2::entities::{CheckboxFilterConditionPB, CheckboxFilterPB, FieldType};
+use flowy_database2::services::sort::SortCondition;
+use lib_infra::box_any::BoxAny;
 
 #[tokio::test]
 async fn sort_text_by_ascending_test() {
@@ -19,6 +19,16 @@ async fn sort_text_by_ascending_test() {
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
       orders: vec!["A", "AE", "AE", "C", "CB", "DA", ""],
+    },
+    InsertFilter {
+      field_type: FieldType::Checkbox,
+      data: BoxAny::new(CheckboxFilterPB {
+        condition: CheckboxFilterConditionPB::IsChecked,
+      }),
+    },
+    AssertCellContentOrder {
+      field_id: text_field.id.clone(),
+      orders: vec!["A", "AE", ""],
     },
   ];
   test.run_scripts(scripts).await;

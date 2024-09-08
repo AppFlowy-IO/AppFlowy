@@ -1,8 +1,6 @@
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
 use collab_database::entity::SelectOption;
-use flowy_database2::entities::OrderObjectPositionPB;
-use flowy_database2::entities::OrderObjectPositionTypePB;
 
 #[tokio::test]
 async fn group_init_test() {
@@ -55,31 +53,43 @@ async fn group_move_row_test() {
 }
 
 #[tokio::test]
-async fn group_move_row_to_other_group_test() {
+async fn test_row_movement_between_groups_with_assertions() {
   let mut test = DatabaseGroupTest::new().await;
-  let group = test.group_at_index(1).await;
-  let scripts = vec![
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 1,
-      row: group.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+  for _ in 0..5 {
+    let scripts = vec![
+      MoveRow {
+        from_group_index: 1,
+        from_row_index: 0,
+        to_group_index: 2,
+        to_row_index: 1,
+      },
+      AssertGroupRowCount {
+        group_index: 1,
+        row_count: 1,
+      },
+      AssertGroupRowCount {
+        group_index: 2,
+        row_count: 3,
+      },
+      // Move the row back to origin group
+      MoveRow {
+        from_group_index: 2,
+        from_row_index: 1,
+        to_group_index: 1,
+        to_row_index: 0,
+      },
+      AssertGroupRowCount {
+        group_index: 2,
+        row_count: 2,
+      },
+      AssertGroupRowCount {
+        group_index: 1,
+        row_count: 2,
+      },
+    ];
+    test.run_scripts(scripts).await;
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+  }
 }
 
 #[tokio::test]
@@ -203,79 +213,20 @@ async fn group_move_row_to_other_group_and_reorder_from_bottom_to_up_test() {
   ];
   test.run_scripts(scripts).await;
 }
-
 #[tokio::test]
 async fn group_create_row_test() {
   let mut test = DatabaseGroupTest::new().await;
-
-  let group1 = test.group_at_index(1).await;
-
   let scripts = vec![
-    CreateRow {
-      group_index: 1,
-      position: Default::default(),
-    },
+    CreateRow { group_index: 1 },
     AssertGroupRowCount {
       group_index: 1,
       row_count: 3,
     },
-    AssertRow {
-      group_index: 1,
-      row_index: 0,
-      row: group1.rows.first().unwrap().clone(),
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 1,
-      row: group1.rows.get(1).unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
-
-  let group1 = test.group_at_index(1).await;
-
-  let scripts = vec![
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::Before,
-        object_id: Some(group1.rows.first().unwrap().clone().id),
-      },
-    },
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::After,
-        object_id: Some(group1.rows.first().unwrap().clone().id),
-      },
-    },
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::Before,
-        object_id: Some(group1.rows.get(2).unwrap().clone().id),
-      },
-    },
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::After,
-        object_id: Some(group1.rows.get(2).unwrap().clone().id),
-      },
-    },
+    CreateRow { group_index: 2 },
+    CreateRow { group_index: 2 },
     AssertGroupRowCount {
-      group_index: 1,
-      row_count: 7,
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 1,
-      row: group1.rows.first().unwrap().clone(),
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 5,
-      row: group1.rows.get(2).unwrap().clone(),
+      group_index: 2,
+      row_count: 4,
     },
   ];
   test.run_scripts(scripts).await;

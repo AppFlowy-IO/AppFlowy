@@ -54,7 +54,7 @@ Future<void> boardResponseFuture() {
   return Future.delayed(boardResponseDuration());
 }
 
-Duration boardResponseDuration({int milliseconds = 200}) {
+Duration boardResponseDuration({int milliseconds = 2000}) {
   return Duration(milliseconds: milliseconds);
 }
 

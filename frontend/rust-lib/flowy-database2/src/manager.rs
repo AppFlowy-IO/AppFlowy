@@ -265,7 +265,8 @@ impl DatabaseManager {
     let workspace_database = lock.read().await;
     if let Some(database_id) = workspace_database.get_database_id_with_view_id(view_id) {
       if self.editors.lock().await.get(&database_id).is_none() {
-        self.open_database(&database_id).await?;
+        let database = self.open_database(&database_id).await?;
+        database.as_ref().open_database_view(view_id, None).await?;
       }
     }
     Ok(())
