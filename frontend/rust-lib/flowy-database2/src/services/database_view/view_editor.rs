@@ -205,22 +205,23 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_did_create_row(&self, row: &Row, index: u32, is_move_row: bool) {
+  pub async fn v_did_create_row(
+    &self,
+    row: &Row,
+    index: u32,
+    is_move_row: bool,
+    is_local_change: bool,
+  ) {
     // Send the group notification if the current view has groups
 
-    if !is_move_row {
+    if !is_move_row || !is_local_change {
       if let Some(controller) = self.group_controller.write().await.as_mut() {
         let mut rows = vec![Arc::new(row.clone())];
-        // filter out rows if it doesn't pass the filter
         self.v_filter_rows(&mut rows).await;
-
         if let Some(row) = rows.pop() {
-          if let Some(changesets) = controller.did_create_row(&row, index).await {
-            for changeset in changesets {
-              if !changeset.is_empty() {
-                notify_did_update_group_rows(changeset).await;
-              }
-            }
+          let changesets = controller.did_create_row(&row, index as usize);
+          for changeset in changesets {
+            notify_did_update_group_rows(changeset).await;
           }
         }
       }

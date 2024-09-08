@@ -6,7 +6,7 @@
 </h1>
 
 <p align="center">
-You are in charge of your data and customizations.
+AppFlowy is the AI workspace where you achieve more without losing control of your data
 </p>
 
 <p align="center">
@@ -19,20 +19,35 @@ You are in charge of your data and customizations.
 
 <p align="center">
     <a href="https://www.appflowy.io"><b>Website</b></a> •
+    <a href="https://forum.appflowy.io/"><b>Forum</b></a> •
     <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
+    <a href="https://www.reddit.com/r/AppFlowy"><b>Reddit</b></a> •
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664610-fc209a97-815e-4716-af07-d94a859d1907.png" alt="AppFlowy Docs & Notes & Wikis" width="1000px" /></p>
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664628-5def2450-914a-4b2d-b907-92b7476b9863.png" alt="AppFlowy Databases for Tasks and Projects" width="1000px" /></p>
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664642-22e26c1b-5eae-4635-9aa6-b12ecf1c3c46.png" alt="AppFlowy Kanban Board for To-Dos" width="1000px" /></p>
-<p align="center"><img src="https://github.com/AppFlowy-IO/AppFlowy/assets/12026239/6be93d2b-a5c5-48a9-b7cf-c599d5f5140c" alt="AppFlowy Calendars for Plan and Manage Content" width="1000px" /></p>
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664657-dc5291f3-67b0-4a43-a818-640e92735deb.png" alt="AppFlowy OpenAI GPT Writers" width="1000px" /></p>
+<p align="center"><img src="https://appflowy.io/_next/static/media/tasks.796c753e.png" alt="AppFlowy Kanban Board for To-dos"  /></p>
+<p align="center"><img src="https://appflowy.io/_next/static/media/Grid.9e30484b.png" alt="AppFlowy Databases for Tasks and Projects"  /></p>
+<p align="center"><img src="https://appflowy.io/_next/static/media/sites.a8d5b2b9.png" alt="AppFlowy Sites for Beautiful documentation"  /></p>
+<p align="center"><img src="https://appflowy.io/_next/static/media/ai.e1460982.png" alt="AppFlowy AI" /></p>
+<p align="center"><img src="https://appflowy.io/_next/static/media/template.9ea13c3b.png" alt="AppFlowy Templates"  /></p>
+
+<p align="center">
+    <img src="https://appflowy.io/_next/static/media/home.b7ebab00.png" alt="Work across devices" width="350px">
+    <img src="https://appflowy.io/_next/static/media/ai_chat.09fc526e.png" alt="Ask AI" width="350px">
+    <img src="https://appflowy.io/_next/static/media/doc.d37c302c.png" alt="Capture anything" width="350px">
+    <img src="https://appflowy.io/_next/static/media/toolbar.d4029705.png" alt="Quickly take notes" width="350px">
+    <img src="https://appflowy.io/_next/static/media/block.e023dd25.png" alt="Perform and look great" width="350px">
+    <img src="https://appflowy.io/_next/static/media/database_card_view.880a4c12.png" alt="Designed and built for mobile" width="350px">
+</p>
 
 ## User Installation
 
-- [Windows/Mac/Linux](https://docs.appflowy.io/docs/appflowy/install-appflowy/installation-methods/mac-windows-linux-packages)
-- [Docker](https://docs.appflowy.io/docs/appflowy/install-appflowy/installation-methods/installing-with-docker)
+- [Download AppFlowy Desktop (macOS, Windows, and Linux)](https://github.com/AppFlowy-IO/AppFlowy/releases)
+- Other channels: [FlatHub](https://flathub.org/apps/io.appflowy.AppFlowy), [Snapcraft](https://snapcraft.io/appflowy), [Sourceforge](https://sourceforge.net/projects/appflowy/)
+- Available on
+  - App Store: iPhone
+  - Play Store: Android 10 or above; ARMv7 is not supported
+- [Self-hosting AppFlowy](https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 
 ## Built With

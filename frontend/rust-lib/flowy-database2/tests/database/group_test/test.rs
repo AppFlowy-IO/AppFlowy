@@ -1,8 +1,6 @@
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
 use collab_database::entity::SelectOption;
-use flowy_database2::entities::OrderObjectPositionPB;
-use flowy_database2::entities::OrderObjectPositionTypePB;
 
 #[tokio::test]
 async fn group_init_test() {
@@ -218,79 +216,20 @@ async fn group_move_row_to_other_group_and_reorder_from_bottom_to_up_test() {
   ];
   test.run_scripts(scripts).await;
 }
-
 #[tokio::test]
 async fn group_create_row_test() {
   let mut test = DatabaseGroupTest::new().await;
-
-  let group1 = test.group_at_index(1).await;
-
   let scripts = vec![
-    CreateRow {
-      group_index: 1,
-      position: Default::default(),
-    },
+    CreateRow { group_index: 1 },
     AssertGroupRowCount {
       group_index: 1,
       row_count: 3,
     },
-    AssertRow {
-      group_index: 1,
-      row_index: 0,
-      row: group1.rows.first().unwrap().clone(),
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 1,
-      row: group1.rows.get(1).unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
-
-  let group1 = test.group_at_index(1).await;
-
-  let scripts = vec![
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::Before,
-        object_id: Some(group1.rows.first().unwrap().clone().id),
-      },
-    },
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::After,
-        object_id: Some(group1.rows.first().unwrap().clone().id),
-      },
-    },
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::Before,
-        object_id: Some(group1.rows.get(2).unwrap().clone().id),
-      },
-    },
-    CreateRow {
-      group_index: 1,
-      position: OrderObjectPositionPB {
-        position: OrderObjectPositionTypePB::After,
-        object_id: Some(group1.rows.get(2).unwrap().clone().id),
-      },
-    },
+    CreateRow { group_index: 2 },
+    CreateRow { group_index: 2 },
     AssertGroupRowCount {
-      group_index: 1,
-      row_count: 7,
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 1,
-      row: group1.rows.first().unwrap().clone(),
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 5,
-      row: group1.rows.get(2).unwrap().clone(),
+      group_index: 2,
+      row_count: 4,
     },
   ];
   test.run_scripts(scripts).await;

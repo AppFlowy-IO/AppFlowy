@@ -202,7 +202,7 @@ async fn handle_did_update_row_orders(
         .await
       {
         database_view
-          .v_did_create_row(&row, index, is_move_row)
+          .v_did_create_row(&row, index, is_move_row, is_local_change)
           .await;
       }
 
