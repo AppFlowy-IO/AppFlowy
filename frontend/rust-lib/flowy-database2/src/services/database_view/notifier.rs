@@ -1,8 +1,9 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
   CalculationChangesetNotificationPB, DatabaseViewSettingPB, FilterChangesetNotificationPB,
-  GroupChangesPB, GroupRowsNotificationPB, InsertedRowPB, ReorderAllRowsPB, ReorderSingleRowPB,
-  RowMetaPB, RowsChangePB, RowsVisibilityChangePB, SortChangesetNotificationPB,
+  GroupChangesPB, GroupRenameNotificationPB, GroupRowsNotificationPB, InsertedRowPB,
+  ReorderAllRowsPB, ReorderSingleRowPB, RowMetaPB, RowsChangePB, RowsVisibilityChangePB,
+  SortChangesetNotificationPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
@@ -134,6 +135,15 @@ pub async fn notify_did_update_sort(notification: SortChangesetNotificationPB) {
 pub(crate) async fn notify_did_update_num_of_groups(view_id: &str, changeset: GroupChangesPB) {
   send_notification(view_id, DatabaseNotification::DidUpdateNumOfGroups)
     .payload(changeset)
+    .send();
+}
+
+pub(crate) async fn notify_did_rename_group(
+  view_id: &str,
+  notification: GroupRenameNotificationPB,
+) {
+  send_notification(view_id, DatabaseNotification::DidRenameGroup)
+    .payload(notification)
     .send();
 }
 

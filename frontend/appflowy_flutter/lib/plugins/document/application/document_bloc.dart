@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/document/application/doc_sync_state_listener.dart';
 import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_collab_adapter.dart';
@@ -32,7 +34,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Position,
         paragraphNode;
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

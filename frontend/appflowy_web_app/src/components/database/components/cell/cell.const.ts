@@ -11,3 +11,16 @@ export const SelectOptionColorMap = {
   [SelectOptionColor.Aqua]: '--tint-aqua',
   [SelectOptionColor.Blue]: '--tint-blue',
 };
+
+export const SelectOptionBadgeColorMap = {
+  [SelectOptionColor.Purple]: '--badge-purple',
+  [SelectOptionColor.Pink]: '--badge-pink',
+  [SelectOptionColor.LightPink]: '--badge-red',
+  [SelectOptionColor.Orange]: '--badge-orange',
+  [SelectOptionColor.Yellow]: '--badge-yellow',
+  [SelectOptionColor.Lime]: '--badge-lime',
+  [SelectOptionColor.Green]: '--badge-green',
+  [SelectOptionColor.Aqua]: '--badge-aqua',
+  [SelectOptionColor.Blue]: '--badge-blue',
+
+};

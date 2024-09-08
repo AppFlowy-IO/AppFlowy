@@ -12,9 +12,6 @@ import { ReactComponent as SunIcon } from '@/assets/sun.svg';
 import { ReactComponent as LoginIcon } from '@/assets/login.svg';
 import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as Logo } from '@/assets/logo.svg';
-import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
-
 import { useNavigate } from 'react-router-dom';
 
 function MoreActions () {
@@ -110,18 +107,6 @@ function MoreActions () {
               </button>
             ))}
 
-            <div
-              onClick={() => {
-                window.open('https://appflowy.io', '_blank');
-              }}
-              className={
-                'flex w-full cursor-pointer items-center justify-center py-2 text-sm text-text-title opacity-50'
-              }
-            >
-              Powered by
-              <Logo className={'ml-3 h-4 w-4'} />
-              <AppflowyLogo className={'w-20'} />
-            </div>
           </div>
         </Popover>
       )}

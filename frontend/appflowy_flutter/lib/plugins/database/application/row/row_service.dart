@@ -38,7 +38,7 @@ class RowBackendService {
   }
 
   Future<FlowyResult<void, FlowyError>> initRow(RowId rowId) async {
-    final payload = RowIdPB()
+    final payload = DatabaseViewRowIdPB()
       ..viewId = viewId
       ..rowId = rowId;
 
@@ -65,7 +65,7 @@ class RowBackendService {
     required String viewId,
     required String rowId,
   }) {
-    final payload = RowIdPB()
+    final payload = DatabaseViewRowIdPB()
       ..viewId = viewId
       ..rowId = rowId;
 
@@ -73,7 +73,7 @@ class RowBackendService {
   }
 
   Future<FlowyResult<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {
-    final payload = RowIdPB.create()
+    final payload = DatabaseViewRowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
 
@@ -119,7 +119,7 @@ class RowBackendService {
     String viewId,
     RowId rowId,
   ) {
-    final payload = RowIdPB(
+    final payload = DatabaseViewRowIdPB(
       viewId: viewId,
       rowId: rowId,
     );

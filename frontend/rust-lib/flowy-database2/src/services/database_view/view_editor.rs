@@ -2,22 +2,10 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
-use collab_database::entity::DatabaseView;
-use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
-use collab_database::views::DatabaseLayout;
-use lib_infra::util::timestamp;
-use tokio::sync::{broadcast, RwLock};
-use tracing::instrument;
-
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
-
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
   DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
-  GroupChangesPB, GroupPB, LayoutSettingChangeset, LayoutSettingParams,
+  GroupChangesPB, GroupPB, GroupRenameNotificationPB, LayoutSettingChangeset, LayoutSettingParams,
   RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
@@ -36,14 +24,24 @@ use crate::services::database_view::{
   notify_did_update_setting, notify_did_update_sort, DatabaseLayoutDepsResolver,
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
+use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
 use crate::services::group::{GroupChangeset, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
+use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
+use collab_database::entity::DatabaseView;
+use collab_database::fields::Field;
+use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::views::{DatabaseLayout, RowOrder};
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::util::timestamp;
+use tokio::sync::{broadcast, RwLock};
+use tracing::instrument;
 
-use super::notify_did_update_calculation;
 use super::view_calculations::make_calculations_controller;
+use super::{notify_did_rename_group, notify_did_update_calculation};
 
 pub struct DatabaseViewEditor {
   database_id: String,
@@ -70,7 +68,7 @@ impl DatabaseViewEditor {
     cell_cache: CellCache,
   ) -> FlowyResult<Self> {
     let (notifier, _) = broadcast::channel(100);
-    af_spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
+    tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
 
     // Filter
     let filter_controller = make_filter_controller(
@@ -116,6 +114,11 @@ impl DatabaseViewEditor {
       calculations_controller,
       notifier,
     })
+  }
+
+  pub async fn get_all_row_orders(&self) -> FlowyResult<Vec<RowOrder>> {
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    Ok(row_orders)
   }
 
   pub async fn close(&self) {
@@ -176,7 +179,6 @@ impl DatabaseViewEditor {
     filter_controller.fill_cells(&mut cells).await;
 
     result.collab_params.cells = cells;
-
     Ok(result)
   }
 
@@ -193,10 +195,8 @@ impl DatabaseViewEditor {
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let mut rows = vec![Arc::new(row.clone())];
       self.v_filter_rows(&mut rows).await;
-
       if let Some(row) = rows.pop() {
         let changesets = controller.did_create_row(&row, index);
-
         for changeset in changesets {
           notify_did_update_group_rows(changeset).await;
         }
@@ -209,7 +209,6 @@ impl DatabaseViewEditor {
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn v_did_delete_row(&self, row: &Row) {
     let deleted_row = row.clone();
-
     // Send the group notification if the current view has groups;
     let result = self
       .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
@@ -230,7 +229,6 @@ impl DatabaseViewEditor {
       }
     }
     let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
-
     send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changes)
       .send();
@@ -238,7 +236,7 @@ impl DatabaseViewEditor {
     // Updating calculations for each of the Rows cells is a tedious task
     // Therefore we spawn a separate task for this
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
+    tokio::spawn(async move {
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
           .did_receive_row_changed(deleted_row)
@@ -323,7 +321,8 @@ impl DatabaseViewEditor {
 
   #[instrument(level = "info", skip(self))]
   pub async fn v_get_all_rows(&self) -> Vec<Arc<Row>> {
-    let mut rows = self.delegate.get_all_rows(&self.view_id).await;
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let mut rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
     self.v_filter_rows(&mut rows).await;
     self.v_sort_rows(&mut rows).await;
     rows
@@ -526,6 +525,43 @@ impl DatabaseViewEditor {
         ..Default::default()
       };
       notify_did_update_num_of_groups(&self.view_id, notification).await;
+    }
+
+    Ok(())
+  }
+
+  pub async fn v_rename_group(&self, changeset: GroupChangeset) -> FlowyResult<()> {
+    let mut type_option_data = None;
+    let (old_field, updated_group) =
+      if let Some(controller) = self.group_controller.write().await.as_mut() {
+        let old_field = self
+          .delegate
+          .get_field(controller.get_grouping_field_id())
+          .await;
+        let (updated_group, new_type_option) = controller.apply_group_rename(&changeset).await?;
+
+        if new_type_option.is_some() {
+          type_option_data = new_type_option;
+        }
+
+        (old_field, Some(updated_group))
+      } else {
+        (None, None)
+      };
+
+    if let (Some(old_field), Some(updated_group)) = (old_field, updated_group) {
+      if let Some(type_option_data) = type_option_data {
+        self
+          .delegate
+          .update_field(type_option_data, old_field)
+          .await?;
+      }
+
+      let notification = GroupRenameNotificationPB {
+        view_id: self.view_id.clone(),
+        group_id: updated_group.group_id.clone(),
+      };
+      notify_did_rename_group(&self.view_id, notification).await;
     }
 
     Ok(())
@@ -865,15 +901,70 @@ impl DatabaseViewEditor {
         let notification = self.filter_controller.apply_changeset(changeset).await;
         notify_did_update_filter(notification).await;
       }
-    }
 
-    // If the id of the grouping field is equal to the updated field's id, then we need to
-    // update the group setting
-    if self.is_grouping_field(field_id).await {
-      self.v_group_by_field(field_id).await?;
+      // If the id of the grouping field is equal to the updated field's id
+      // and something critical changed, then we need to update the group setting
+      if self.is_grouping_field(field_id).await
+        && self.did_type_options_change(field.field_type.into(), old_field, &field)
+      {
+        self.v_group_by_field(field_id).await?;
+      }
     }
 
     Ok(())
+  }
+
+  /// This method returns true if the field type options have changed enough to warrant
+  /// updating the group by field in the client.
+  ///
+  /// This check should only be done when the field is the grouping field, and will by default
+  /// return false for fields that don't quality to be grouped by.
+  ///
+  fn did_type_options_change(
+    &self,
+    field_type: FieldType,
+    old_field: &Field,
+    new_field: &Field,
+  ) -> bool {
+    if old_field.field_type != new_field.field_type {
+      return true;
+    }
+
+    if !field_type.can_be_group() {
+      return false;
+    }
+
+    match field_type {
+      // Checkbox & Url can also be grouped by, but they work differently to select fields
+      // and thus don't need to be updated when the type option itself changes
+      FieldType::Checkbox | FieldType::URL => false,
+      FieldType::SingleSelect => {
+        let old_field_type_option = old_field.get_type_option::<SingleSelectTypeOption>(field_type);
+        let new_field_type_option = new_field.get_type_option::<SingleSelectTypeOption>(field_type);
+
+        if let (Some(old_field_type_option), Some(new_field_type_option)) =
+          (old_field_type_option, new_field_type_option)
+        {
+          return old_field_type_option.options.len() != new_field_type_option.options.len();
+        }
+
+        false
+      },
+      FieldType::MultiSelect => {
+        let old_field_type_option = old_field.get_type_option::<MultiSelectTypeOption>(field_type);
+        let new_field_type_option = new_field.get_type_option::<MultiSelectTypeOption>(field_type);
+
+        if let (Some(old_field_type_option), Some(new_field_type_option)) =
+          (old_field_type_option, new_field_type_option)
+        {
+          return old_field_type_option.options.len() != new_field_type_option.options.len();
+        }
+
+        false
+      },
+      // All other FieldTypes
+      _ => false,
+    }
   }
 
   /// Called when a grouping field is updated.
@@ -902,7 +993,6 @@ impl DatabaseViewEditor {
           initial_groups: new_groups,
           ..Default::default()
         };
-        tracing::trace!("notify did group by field1");
 
         debug_assert!(!changeset.is_empty());
         if !changeset.is_empty() {
@@ -911,7 +1001,6 @@ impl DatabaseViewEditor {
             .send();
         }
       }
-      tracing::trace!("notify did group by field2");
 
       *self.group_controller.write().await = new_group_controller;
 
@@ -1111,7 +1200,7 @@ impl DatabaseViewEditor {
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
+    tokio::spawn(async move {
       if let Some(filter_controller) = weak_filter_controller.upgrade() {
         filter_controller
           .did_receive_row_changed(row_id.clone())
@@ -1138,7 +1227,7 @@ impl DatabaseViewEditor {
   async fn gen_did_create_row_view_tasks(&self, preliminary_index: usize, row: Row) {
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
+    tokio::spawn(async move {
       if let Some(sort_controller) = weak_sort_controller.upgrade() {
         sort_controller
           .read()

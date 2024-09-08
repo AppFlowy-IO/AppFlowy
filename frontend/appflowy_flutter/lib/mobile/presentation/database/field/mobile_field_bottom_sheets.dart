@@ -29,6 +29,7 @@ const mobileSupportedFieldTypes = [
   FieldType.CreatedTime,
   FieldType.Checkbox,
   FieldType.Checklist,
+  FieldType.Media,
   // FieldType.Time,
 ];
 

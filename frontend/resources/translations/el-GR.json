@@ -310,7 +310,7 @@
       "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowy": "AppFlowy Cloud",
       "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",

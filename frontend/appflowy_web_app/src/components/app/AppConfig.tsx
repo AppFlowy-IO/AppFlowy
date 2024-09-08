@@ -81,7 +81,6 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
         enqueueSnackbar(message, { variant: 'success' });
       },
       error: (message: string) => {
-        console.log('error', message);
         enqueueSnackbar(message, { variant: 'error' });
       },
       warning: (message: string) => {

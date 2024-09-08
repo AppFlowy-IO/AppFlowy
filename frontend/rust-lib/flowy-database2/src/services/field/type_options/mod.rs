@@ -1,6 +1,7 @@
 pub mod checkbox_type_option;
 pub mod checklist_type_option;
 pub mod date_type_option;
+pub mod media_type_option;
 pub mod number_type_option;
 pub mod relation_type_option;
 pub mod selection_type_option;
@@ -17,6 +18,7 @@ mod util;
 pub use checkbox_type_option::*;
 pub use checklist_type_option::*;
 pub use date_type_option::*;
+pub use media_type_option::*;
 pub use number_type_option::*;
 pub use relation_type_option::*;
 pub use selection_type_option::*;

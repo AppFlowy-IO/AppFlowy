@@ -3,6 +3,7 @@ pub use client_api::entity::ai_dto::{
   AppFlowyOfflineAI, CompletionType, CreateTextChatContext, LLMModel, LocalAIConfig, ModelInfo,
   RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
+pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::{
   ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataContentType,
   ChatMetadataData, MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
@@ -98,4 +99,9 @@ pub trait ChatCloudService: Send + Sync + 'static {
   ) -> Result<(), FlowyError> {
     Ok(())
   }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError>;
 }

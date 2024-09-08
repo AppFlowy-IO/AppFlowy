@@ -184,6 +184,7 @@ impl EventIntegrationTest {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
         field_type,
+        field_name: None,
       })
       .async_send()
       .await
@@ -262,7 +263,7 @@ impl EventIntegrationTest {
   pub async fn get_row(&self, view_id: &str, row_id: &str) -> OptionalRowPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRow)
-      .payload(RowIdPB {
+      .payload(DatabaseViewRowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,
@@ -275,7 +276,7 @@ impl EventIntegrationTest {
   pub async fn get_row_meta(&self, view_id: &str, row_id: &str) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRowMeta)
-      .payload(RowIdPB {
+      .payload(DatabaseViewRowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,
@@ -297,7 +298,7 @@ impl EventIntegrationTest {
   pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::DuplicateRow)
-      .payload(RowIdPB {
+      .payload(DatabaseViewRowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,
@@ -666,6 +667,12 @@ impl<'a> TestRowBuilder<'a> {
     let time_field = self.field_with_type(&FieldType::Time);
     self.cell_build.insert_number_cell(&time_field.id, time);
     time_field.id.clone()
+  }
+
+  pub fn insert_media_cell(&mut self, media: String) -> String {
+    let media_field = self.field_with_type(&FieldType::Media);
+    self.cell_build.insert_text_cell(&media_field.id, media);
+    media_field.id.clone()
   }
 
   pub fn field_with_type(&self, field_type: &FieldType) -> Field {

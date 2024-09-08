@@ -54,9 +54,8 @@ pub struct RepeatedSelectOptionPayload {
   pub items: Vec<SelectOptionPB>,
 }
 
-#[derive(ProtoBuf_Enum, PartialEq, Eq, Debug, Clone)]
+#[derive(ProtoBuf_Enum, PartialEq, Eq, Debug, Clone, Default)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum SelectOptionColorPB {
   #[default]
   Purple = 0,

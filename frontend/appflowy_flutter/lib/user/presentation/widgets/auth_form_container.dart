@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AuthFormContainer extends StatelessWidget {
-  const AuthFormContainer({super.key, required this.children});
+  const AuthFormContainer({
+    super.key,
+    required this.children,
+  });
 
   final List<Widget> children;
 
@@ -11,14 +14,10 @@ class AuthFormContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: children,
-          ),
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: children,
       ),
     );
   }

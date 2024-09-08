@@ -35,6 +35,8 @@ class RelatedRowDetailPageBloc
     on<RelatedRowDetailPageEvent>((event, emit) async {
       event.when(
         didInitialize: (databaseController, rowController) {
+          rowController.initialize();
+
           state.maybeWhen(
             ready: (_, oldRowController) async {
               await oldRowController.dispose();
@@ -93,6 +95,7 @@ class RelatedRowDetailPageBloc
       viewId: inlineView.id,
       rowCache: databaseController.rowCache,
     );
+
     add(
       RelatedRowDetailPageEvent.didInitialize(
         databaseController,

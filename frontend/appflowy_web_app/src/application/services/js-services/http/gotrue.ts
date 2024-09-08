@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 
 let axiosInstance: AxiosInstance | null = null;
 
-export function initGrantService(baseURL: string) {
+export function initGrantService (baseURL: string) {
   if (axiosInstance) {
     return;
   }
@@ -21,7 +21,7 @@ export function initGrantService(baseURL: string) {
   });
 }
 
-export async function refreshToken(refresh_token: string) {
+export async function refreshToken (refresh_token: string) {
   const response = await axiosInstance?.post<{
     access_token: string;
     expires_at: number;
@@ -39,7 +39,7 @@ export async function refreshToken(refresh_token: string) {
   return newToken;
 }
 
-export async function signInWithMagicLink(email: string, authUrl: string) {
+export async function signInWithMagicLink (email: string, authUrl: string) {
   const res = await axiosInstance?.post(
     '/magiclink',
     {
@@ -52,19 +52,19 @@ export async function signInWithMagicLink(email: string, authUrl: string) {
       headers: {
         Redirect_to: authUrl,
       },
-    }
+    },
   );
 
   return res?.data;
 }
 
-export async function settings() {
+export async function settings () {
   const res = await axiosInstance?.get('/settings');
 
   return res?.data;
 }
 
-export function signInGoogle(authUrl: string) {
+export function signInGoogle (authUrl: string) {
   const provider = 'google';
   const redirectTo = encodeURIComponent(authUrl);
   const accessType = 'offline';
@@ -75,7 +75,16 @@ export function signInGoogle(authUrl: string) {
   window.open(url, '_current');
 }
 
-export function signInGithub(authUrl: string) {
+export function signInApple (authUrl: string) {
+  const provider = 'apple';
+  const redirectTo = encodeURIComponent(authUrl);
+  const baseURL = axiosInstance?.defaults.baseURL;
+  const url = `${baseURL}/authorize?provider=${provider}&redirect_to=${redirectTo}`;
+
+  window.open(url, '_current');
+}
+
+export function signInGithub (authUrl: string) {
   const provider = 'github';
   const redirectTo = encodeURIComponent(authUrl);
   const baseURL = axiosInstance?.defaults.baseURL;
@@ -84,7 +93,7 @@ export function signInGithub(authUrl: string) {
   window.open(url, '_current');
 }
 
-export function signInDiscord(authUrl: string) {
+export function signInDiscord (authUrl: string) {
   const provider = 'discord';
   const redirectTo = encodeURIComponent(authUrl);
   const baseURL = axiosInstance?.defaults.baseURL;

@@ -10,8 +10,9 @@ use crate::services::database_view::{
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
-  ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset, StringCellData,
-  TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler, TypeOptionCellExt,
+  ChecklistCellChangeset, MediaCellData, RelationTypeOption, SelectOptionCellChangeset,
+  StringCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
+  TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -54,8 +55,6 @@ pub struct DatabaseEditor {
   pub cell_cache: CellCache,
   pub(crate) database_views: Arc<DatabaseViews>,
   #[allow(dead_code)]
-  /// Used to send notification to the frontend.
-  notification_sender: Arc<DebounceNotificationSender>,
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   is_opening: ArcSwap<bool>,
@@ -77,7 +76,6 @@ impl DatabaseEditor {
     let database_cancellation = Arc::new(RwLock::new(None));
     // Receive database sync state and send to frontend via the notification
     observe_sync_state(&database_id, &database).await;
-    // observe_view_change(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
     observe_rows_change(&database_id, &database, &notification_sender).await;
 
@@ -119,7 +117,6 @@ impl DatabaseEditor {
       database,
       cell_cache,
       database_views,
-      notification_sender,
       collab_builder,
       is_opening: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
@@ -127,6 +124,7 @@ impl DatabaseEditor {
       finalized_rows: Arc::new(Default::default()),
     });
     observe_block_event(&database_id, &this).await;
+    observe_view_change(&database_id, &this).await;
     Ok(this)
   }
 
@@ -253,6 +251,12 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     view_editor.v_update_group(changesets).await?;
+    Ok(())
+  }
+
+  pub async fn rename_group(&self, view_id: &str, changeset: GroupChangeset) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_rename_group(changeset).await?;
     Ok(())
   }
 
@@ -443,6 +447,7 @@ impl DatabaseEditor {
     view_id: &str,
     field_id: &str,
     new_field_type: FieldType,
+    field_name: Option<String>,
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
     let field = database.get_field(field_id);
@@ -476,6 +481,7 @@ impl DatabaseEditor {
         database.update_field(field_id, |update| {
           update
             .set_field_type(new_field_type.into())
+            .set_name_if_not_none(field_name)
             .set_type_option(new_field_type.into(), Some(transformed_type_option));
         });
 
@@ -526,28 +532,20 @@ impl DatabaseEditor {
   }
 
   pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) -> FlowyResult<()> {
-    let (row, index) = {
-      let mut database = self.database.write().await;
+    let mut database = self.database.write().await;
+    let params = database
+      .duplicate_row(row_id)
+      .await
+      .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
+    let (index, row_order) = database.create_row_in_view(view_id, params).await?;
+    drop(database);
 
-      let params = database
-        .duplicate_row(row_id)
-        .await
-        .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
-
-      let (index, row_order) = database.create_row_in_view(view_id, params).await?;
-      trace!(
-        "duplicate row: {:?} at index:{}, new row:{:?}",
-        row_id,
-        index,
-        row_order
-      );
-      let row = database.get_row(&row_order.id).await;
-      (row, index)
-    };
-
-    for view in self.database_views.editors().await {
-      view.v_did_create_row(&row, index).await;
-    }
+    trace!(
+      "duplicate row: {:?} at index:{}, new row:{:?}",
+      row_id,
+      index,
+      row_order
+    );
 
     Ok(())
   }
@@ -602,9 +600,6 @@ impl DatabaseEditor {
 
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
-      for view in self.database_views.editors().await {
-        view.v_did_create_row(&row_detail.row, index).await;
-      }
       return Ok(Some(row_detail));
     }
 
@@ -689,11 +684,6 @@ impl DatabaseEditor {
     Ok(view_editor.v_get_all_rows().await)
   }
 
-  pub async fn get_all_row_orders(&self, view_id: &str) -> FlowyResult<Vec<RowOrder>> {
-    let orders = self.database.read().await.get_row_orders_for_view(view_id);
-    Ok(orders)
-  }
-
   pub async fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
     let database = self.database.read().await;
     if database.contains_row(view_id, row_id) {
@@ -750,11 +740,15 @@ impl DatabaseEditor {
         id: row_id.clone().into_inner(),
         document_id: Some(row_document_id),
         icon: row_meta.icon_url,
-        cover: row_meta.cover_url,
         is_document_empty: Some(row_meta.is_document_empty),
+        attachment_count: Some(row_meta.attachment_count),
       })
     } else {
-      warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      warn!(
+        "the row:{} is not exist in view:{}",
+        row_id.as_str(),
+        view_id
+      );
       None
     }
   }
@@ -764,14 +758,17 @@ impl DatabaseEditor {
     if database.contains_row(view_id, row_id) {
       database.get_row_detail(row_id).await
     } else {
-      warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      warn!(
+        "the row:{} is not exist in view:{}",
+        row_id.as_str(),
+        view_id
+      );
       None
     }
   }
 
   pub async fn delete_rows(&self, row_ids: &[RowId]) {
     let rows = self.database.write().await.remove_rows(row_ids).await;
-
     for row in rows {
       tracing::trace!("Did delete row:{:?}", row);
       for view in self.database_views.editors().await {
@@ -788,7 +785,8 @@ impl DatabaseEditor {
         meta_update
           .insert_cover_if_not_none(changeset.cover_url)
           .insert_icon_if_not_none(changeset.icon_url)
-          .update_is_document_empty_if_not_none(changeset.is_document_empty);
+          .update_is_document_empty_if_not_none(changeset.is_document_empty)
+          .update_attachment_count_if_not_none(changeset.attachment_count);
       })
       .await;
 
@@ -958,10 +956,95 @@ impl DatabaseEditor {
     old_row: Option<Row>,
   ) {
     let option_row = self.get_row(view_id, row_id).await;
+    let field_type = self
+      .database
+      .read()
+      .await
+      .get_field(field_id)
+      .map(|field| field.field_type);
+
     if let Some(row) = option_row {
       for view in self.database_views.editors().await {
         view
           .v_did_update_row(&old_row, &row, Some(field_id.to_owned()))
+          .await;
+      }
+
+      if let Some(field_type) = field_type {
+        if FieldType::from(field_type) == FieldType::Media {
+          self
+            .did_update_attachments(view_id, row_id, field_id, old_row.clone())
+            .await;
+        }
+      }
+    }
+  }
+
+  async fn did_update_attachments(
+    &self,
+    view_id: &str,
+    row_id: &RowId,
+    field_id: &str,
+    old_row: Option<Row>,
+  ) {
+    let field = self.get_field(field_id).await;
+    if let Some(field) = field {
+      let handler = TypeOptionCellExt::new(&field, None)
+        .get_type_option_cell_data_handler_with_field_type(FieldType::Media);
+      if handler.is_none() {
+        return;
+      }
+      let handler = handler.unwrap();
+
+      let cell = self.get_cell(field_id, row_id).await;
+      let new_count = match cell {
+        Some(cell) => {
+          let data = handler
+            .handle_get_boxed_cell_data(&cell, &field)
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(MediaCellData::default);
+
+          data.files.len() as i64
+        },
+        None => 0,
+      };
+
+      let old_cell = old_row.and_then(|row| row.cells.get(field_id).cloned());
+      let old_count = match old_cell {
+        Some(old_cell) => {
+          let data = handler
+            .handle_get_boxed_cell_data(&old_cell, &field)
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(MediaCellData::default);
+
+          data.files.len() as i64
+        },
+        None => 0,
+      };
+
+      if new_count != old_count {
+        let attachment_count = self
+          .get_row_meta(view_id, row_id)
+          .await
+          .and_then(|meta| meta.attachment_count);
+
+        let new_attachment_count = match attachment_count {
+          Some(attachment_count) => attachment_count + new_count - old_count,
+          None => new_count,
+        };
+
+        self
+          .update_row_meta(
+            row_id,
+            UpdateRowMetaParams {
+              id: row_id.clone().into_inner(),
+              view_id: view_id.to_string(),
+              cover_url: None,
+              icon_url: None,
+              is_document_empty: None,
+              attachment_count: Some(new_attachment_count),
+            },
+          )
           .await;
       }
     }
@@ -1301,7 +1384,7 @@ impl DatabaseEditor {
   }
 
   pub async fn close_database(&self) {
-    info!("Close database: {}", self.database_id);
+    info!("close database editor: {}", self.database_id);
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
@@ -1356,7 +1439,8 @@ impl DatabaseEditor {
           old_token.cancel();
         }
 
-        let row_orders = self.database.read().await.get_row_orders_for_view(view_id);
+        let view_editor = self.database_views.get_view_editor(view_id).await?;
+        let row_orders = view_editor.get_all_row_orders().await?;
         let cloned_row_orders = row_orders.clone();
         // Collect database details in a single block holding the `read` lock
         let (database_id, fields, is_linked) = {
@@ -1522,6 +1606,20 @@ impl DatabaseEditor {
     Ok(type_option.database_id)
   }
 
+  pub async fn get_row_index(&self, view_id: &str, row_id: &RowId) -> Option<usize> {
+    self.database.read().await.get_row_index(view_id, row_id)
+  }
+
+  pub async fn get_row_order_at_index(&self, view_id: &str, index: u32) -> Option<RowOrder> {
+    self
+      .database
+      .read()
+      .await
+      .get_row_order_at_index(view_id, index)
+      .await
+  }
+
+  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
     row_ids: Option<&Vec<String>>,
@@ -1674,9 +1772,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     }
   }
 
-  async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
+  async fn get_all_rows(&self, view_id: &str, row_orders: Vec<RowOrder>) -> Vec<Arc<Row>> {
     let view_id = view_id.to_string();
-    let row_orders = self.database.read().await.get_row_orders_for_view(&view_id);
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
     // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
@@ -1703,6 +1800,10 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     }
     trace!("total row details: {}", all_rows.len());
     all_rows.into_iter().map(Arc::new).collect()
+  }
+
+  async fn get_all_row_orders(&self, view_id: &str) -> Vec<RowOrder> {
+    self.database.read().await.get_row_orders_for_view(view_id)
   }
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row> {

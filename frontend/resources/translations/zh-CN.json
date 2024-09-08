@@ -36,6 +36,7 @@
     "loginButtonText": "登录",
     "loginStartWithAnonymous": "从匿名会话开始",
     "continueAnonymousUser": "继续匿名会话",
+    "anonymous": "匿名",
     "buttonText": "登录",
     "signingInText": "登录中...",
     "forgotPassword": "忘记密码?",
@@ -50,6 +51,7 @@
     "signInWithGoogle": "使用 Google 账户登录",
     "signInWithGithub": "使用 Github 账户登录",
     "signInWithDiscord": "使用 Discord 账户登录",
+    "signInWithApple": "使用 Apple 账户登录",
     "signUpWithGoogle": "使用 Google 账户注册",
     "signUpWithGithub": "使用 Github 账户注册",
     "signUpWithDiscord": "使用 Discord 账户注册",
@@ -688,8 +690,8 @@
       "tooltipSelectIcon": "选择图标",
       "selectAnIcon": "选择一个图标",
       "pleaseInputYourOpenAIKey": "请输入您的 AI 密钥",
-      "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥",
-      "clickToLogout": "点击退出当前用户"
+      "clickToLogout": "点击退出当前用户",
+      "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥"
     },
     "mobile": {
       "personalInfo": "个人信息",
@@ -1173,14 +1175,14 @@
       },
       "searchForAnImage": "搜索图像",
       "pleaseInputYourOpenAIKey": "请在设置页面输入您的 AI 密钥",
-      "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥",
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将图像添加到图库",
       "successToAddImageToGallery": "图片已成功添加到图库",
       "unableToLoadImage": "无法加载图像",
       "maximumImageSize": "支持的最大上传图片大小为 10MB",
       "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB",
-      "imageIsUploading": "图片正在上传"
+      "imageIsUploading": "图片正在上传",
+      "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥"
     },
     "codeBlock": {
       "language": {
@@ -1620,5 +1622,10 @@
   },
   "commandPalette": {
     "placeholder": "输入你要搜索的内容..."
+  },
+  "web": {
+    "continueWithGoogle": "使用 Google 账户登录",
+    "continueWithGithub": "使用 GitHub 账户登录",
+    "continueWithDiscord": "使用 Discord 账户登录"
   }
 }

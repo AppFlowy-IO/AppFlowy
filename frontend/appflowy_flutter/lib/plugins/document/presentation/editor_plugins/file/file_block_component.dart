@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -237,7 +238,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
           },
           onDragDone: (details) {
             if (dropManagerState.isDropEnabled) {
-              insertFileFromLocal(details.files.first.path);
+              insertFileFromLocal(details.files.first);
             }
           },
           child: AppFlowyPopover(
@@ -359,7 +360,8 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
   }
 
-  Future<void> insertFileFromLocal(String path) async {
+  Future<void> insertFileFromLocal(XFile file) async {
+    final path = file.path;
     final documentBloc = context.read<DocumentBloc>();
     final isLocalMode = documentBloc.isLocalMode;
     final urlType = isLocalMode ? FileUrlType.local : FileUrlType.cloud;
@@ -382,12 +384,11 @@ class FileBlockComponentState extends State<FileBlockComponent>
     // Remove the file block from the drop state manager
     dropManagerState.remove(FileBlockKeys.type);
 
-    final name = Uri.tryParse(path)?.pathSegments.last ?? url;
     final transaction = editorState.transaction;
     transaction.updateNode(widget.node, {
       FileBlockKeys.url: url,
       FileBlockKeys.urlType: urlType.toIntValue(),
-      FileBlockKeys.name: name,
+      FileBlockKeys.name: file.name,
       FileBlockKeys.uploadedAt: DateTime.now().millisecondsSinceEpoch,
     });
     await editorState.apply(transaction);

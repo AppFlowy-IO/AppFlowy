@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/media.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/translate.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
@@ -134,6 +135,13 @@ class EditableCellBuilder {
           skin: IEditableTranslateCellSkin.fromStyle(style),
           key: key,
         ),
+      FieldType.Media => EditableMediaCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableMediaCellSkin.fromStyle(style),
+          style: style,
+          key: key,
+        ),
       _ => throw UnimplementedError(),
     };
   }
@@ -224,6 +232,13 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.timeSkin!,
+          key: key,
+        ),
+      FieldType.Media => EditableMediaCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: skinMap.mediaSkin!,
+          style: EditableCellStyle.desktopGrid,
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -368,6 +383,12 @@ class SingleListenerFocusNode extends FocusNode {
       removeListener(_listener!);
     }
   }
+
+  @override
+  void dispose() {
+    removeAllListener();
+    super.dispose();
+  }
 }
 
 class EditableCellSkinMap {
@@ -382,6 +403,7 @@ class EditableCellSkinMap {
     this.urlSkin,
     this.relationSkin,
     this.timeSkin,
+    this.mediaSkin,
   });
 
   final IEditableCheckboxCellSkin? checkboxSkin;
@@ -394,6 +416,7 @@ class EditableCellSkinMap {
   final IEditableURLCellSkin? urlSkin;
   final IEditableRelationCellSkin? relationSkin;
   final IEditableTimeCellSkin? timeSkin;
+  final IEditableMediaCellSkin? mediaSkin;
 
   bool has(FieldType fieldType) {
     return switch (fieldType) {
@@ -410,6 +433,7 @@ class EditableCellSkinMap {
       FieldType.RichText => textSkin != null,
       FieldType.URL => urlSkin != null,
       FieldType.Time => timeSkin != null,
+      FieldType.Media => mediaSkin != null,
       _ => throw UnimplementedError(),
     };
   }
