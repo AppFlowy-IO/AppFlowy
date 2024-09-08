@@ -446,7 +446,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final newGroup = _initializeGroupData(group);
             final visibleGroups = [...groupList]..retainWhere(
                 (g) =>
-                    g.isVisible ||
+                    (g.isVisible && !g.isDefault) ||
                     g.isDefault && !hideUngrouped ||
                     g.groupId == group.groupId,
               );
