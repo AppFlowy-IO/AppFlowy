@@ -22,7 +22,7 @@ void main() {
       const fieldName = "test change field";
       await tester.createField(
         FieldType.RichText,
-        fieldName,
+        name: fieldName,
         layout: ViewLayoutPB.Board,
       );
       await tester.tapButton(card1);

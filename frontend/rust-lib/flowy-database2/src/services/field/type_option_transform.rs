@@ -2,8 +2,8 @@ use crate::entities::FieldType;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
+  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption,
+  NumberTypeOption, RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
   TimestampTypeOption, TypeOptionTransform, URLTypeOption,
 };
 use async_trait::async_trait;
@@ -126,6 +126,9 @@ fn get_type_option_transform_handler(
     },
     FieldType::Translate => {
       Box::new(TranslateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
+    FieldType::Media => {
+      Box::new(MediaTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
   }
 }

@@ -60,7 +60,7 @@ pub trait GroupCustomize: Send + Sync {
   fn move_row(&mut self, context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB>;
 
   /// Returns None if there is no need to delete the group when corresponding row get removed
-  fn delete_group_when_move_row(
+  fn delete_group_after_moving_row(
     &mut self,
     _row: &Row,
     _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
@@ -191,6 +191,16 @@ pub trait GroupController: Send + Sync {
     &mut self,
     changesets: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)>;
+
+  /// Updates the name of a group.
+  ///
+  /// Returns a non-empty `TypeOptionData` when the change require a change
+  /// in the field type option data.
+  ///
+  async fn apply_group_rename(
+    &mut self,
+    changeset: &GroupChangeset,
+  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)>;
 
   /// Called before the row was created.
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);

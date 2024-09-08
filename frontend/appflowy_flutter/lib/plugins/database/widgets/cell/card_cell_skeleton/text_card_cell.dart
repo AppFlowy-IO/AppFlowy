@@ -1,13 +1,15 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_builder.dart';
@@ -60,7 +62,6 @@ class _TextCellState extends State<TextCardCell> {
   @override
   void initState() {
     super.initState();
-
     _textEditingController = TextEditingController(text: cellBloc.state.content)
       ..addListener(() {
         if (_textEditingController.value.composing.isCollapsed) {
@@ -79,13 +80,15 @@ class _TextCellState extends State<TextCardCell> {
     // If the focusNode lost its focus, the widget's editableNotifier will
     // set to false, which will cause the [EditableRowNotifier] to receive
     // end edit event.
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        widget.editableNotifier?.isCellEditing.value = false;
-        cellBloc.add(const TextCellEvent.enableEdit(false));
-      }
-    });
+    focusNode.addListener(_onFocusChanged);
     _bindEditableNotifier();
+  }
+
+  void _onFocusChanged() {
+    if (!focusNode.hasFocus) {
+      widget.editableNotifier?.isCellEditing.value = false;
+      cellBloc.add(const TextCellEvent.enableEdit(false));
+    }
   }
 
   void _bindEditableNotifier() {
@@ -96,9 +99,8 @@ class _TextCellState extends State<TextCardCell> {
 
       final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
       if (isEditing) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          focusNode.requestFocus();
-        });
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => focusNode.requestFocus());
       }
       cellBloc.add(TextCellEvent.enableEdit(isEditing));
     });
@@ -140,12 +142,13 @@ class _TextCellState extends State<TextCardCell> {
   }
 
   Widget? _buildIcon(TextCellState state) {
-    if (state.emoji.isNotEmpty) {
+    if (state.emoji?.value.isNotEmpty ?? false) {
       return Text(
-        state.emoji,
+        state.emoji?.value ?? '',
         style: widget.style.titleTextStyle,
       );
     }
+
     if (widget.showNotes) {
       return FlowyTooltip(
         message: LocaleKeys.board_notesTooltip.tr(),
@@ -206,12 +209,15 @@ class _TextCellState extends State<TextCardCell> {
             bindings: {
               const SingleActivator(LogicalKeyboardKey.escape): () =>
                   focusNode.unfocus(),
+              const SimpleActivator(LogicalKeyboardKey.enter): () =>
+                  focusNode.unfocus(),
             },
             child: TextField(
               controller: _textEditingController,
               focusNode: focusNode,
               onEditingComplete: () => focusNode.unfocus(),
-              maxLines: isEditing ? null : 2,
+              onSubmitted: (_) => focusNode.unfocus(),
+              maxLines: null,
               minLines: 1,
               textInputAction: TextInputAction.done,
               readOnly: !isEditing,
@@ -236,4 +242,28 @@ class _TextCellState extends State<TextCardCell> {
       },
     );
   }
+}
+
+class SimpleActivator with Diagnosticable implements ShortcutActivator {
+  const SimpleActivator(
+    this.trigger, {
+    this.includeRepeats = true,
+  });
+
+  final LogicalKeyboardKey trigger;
+  final bool includeRepeats;
+
+  @override
+  bool accepts(KeyEvent event, HardwareKeyboard state) {
+    return (event is KeyDownEvent ||
+            (includeRepeats && event is KeyRepeatEvent)) &&
+        trigger == event.logicalKey;
+  }
+
+  @override
+  String debugDescribeKeys() =>
+      kDebugMode ? trigger.debugName ?? trigger.toStringShort() : '';
+
+  @override
+  Iterable<LogicalKeyboardKey>? get triggers => <LogicalKeyboardKey>[trigger];
 }

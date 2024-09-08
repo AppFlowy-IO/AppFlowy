@@ -4,6 +4,7 @@ import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
 import { DatabaseBlock } from '@/components/editor/components/blocks/database';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
+import { GalleryBlock } from '@/components/editor/components/blocks/gallery';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
 import { LinkPreview } from '@/components/editor/components/blocks/link-preview';
@@ -77,6 +78,8 @@ export const Element = ({
         return LinkPreview;
       case BlockType.FileBlock:
         return FileBlock;
+      case BlockType.GalleryBlock:
+        return GalleryBlock;
       default:
         return UnSupportedBlock;
     }

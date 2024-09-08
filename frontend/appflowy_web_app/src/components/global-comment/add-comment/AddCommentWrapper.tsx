@@ -9,6 +9,7 @@ export function AddCommentWrapper () {
   const { replyCommentId } = useGlobalCommentContext();
   const addCommentRef = useRef<HTMLDivElement>(null);
   const [showFixedAddComment, setShowFixedAddComment] = useState(false);
+  const [offsetLeft, setOffsetLeft] = useState(0);
   const [focus, setFocus] = useState(false);
   const [content, setContent] = useState('');
 
@@ -22,12 +23,14 @@ export function AddCommentWrapper () {
     const element = addCommentRef.current;
 
     if (!element) return;
+
     const scrollContainer = getScrollParent(element);
 
     if (!scrollContainer) return;
 
     const handleScroll = () => {
-      const isIntersecting = element.getBoundingClientRect().top < HEADER_HEIGHT;
+      const rect = element.getBoundingClientRect();
+      const isIntersecting = rect.top < HEADER_HEIGHT;
 
       if (isIntersecting) {
         setShowFixedAddComment(true);
@@ -42,6 +45,20 @@ export function AddCommentWrapper () {
     };
   }, []);
 
+  useEffect(() => {
+    const element = addCommentRef.current;
+
+    if (!element) return;
+    const scrollContainer = getScrollParent(element);
+
+    if (!scrollContainer) return;
+    if (showFixedAddComment) {
+      setOffsetLeft(scrollContainer.getBoundingClientRect().left || 0);
+    } else {
+      setOffsetLeft(0);
+    }
+  }, [showFixedAddComment]);
+
   return (
     <>
       <div className={'my-2'} id="addComment" ref={addCommentRef}>
@@ -55,8 +72,12 @@ export function AddCommentWrapper () {
       </div>
       {showFixedAddComment && (
         <Portal container={document.body}>
-          <div className={'fixed top-[48px] flex w-full justify-center'}>
-            <div className={'w-[964px] min-w-0 max-w-full px-16 max-sm:px-4'}>
+          <div style={{
+            left: offsetLeft + 'px',
+            width: `calc(100% - ${offsetLeft}px)`,
+          }} className={'fixed top-[48px] flex w-full justify-center'}
+          >
+            <div className={'w-[964px] min-w-0 max-w-full max-xl:px-8 max-lg:px-6'}>
               <AddComment fixed content={content} setContent={setContent} focus={focus} setFocus={setFocus} />
             </div>
           </div>

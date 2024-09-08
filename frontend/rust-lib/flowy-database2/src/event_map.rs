@@ -14,7 +14,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .state(database_manager);
   plugin
          .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-         .event(DatabaseEvent::GetAllRows, get_all_rows_handler)
          .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
          .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
          .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
@@ -63,6 +62,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::UpdateGroup, update_group_handler)
          .event(DatabaseEvent::CreateGroup, create_group_handler)
          .event(DatabaseEvent::DeleteGroup, delete_group_handler)
+         .event(DatabaseEvent::RenameGroup, rename_group_handler)
          // Database
          .event(DatabaseEvent::GetDatabaseMeta, get_database_meta_handler)
          .event(DatabaseEvent::GetDatabases, get_databases_handler)
@@ -95,6 +95,9 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          // AI
          .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
          .event(DatabaseEvent::TranslateRow, translate_row_handler)
+         // Media
+         .event(DatabaseEvent::UpdateMediaCell, update_media_cell_handler)
+         .event(DatabaseEvent::RenameMediaFile, rename_media_cell_file_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -224,19 +227,19 @@ pub enum DatabaseEvent {
 
   /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
   /// to return a nullable row data.
-  #[event(input = "RowIdPB", output = "OptionalRowPB")]
+  #[event(input = "DatabaseViewRowIdPB", output = "OptionalRowPB")]
   GetRow = 51,
 
   #[event(input = "RepeatedRowIdPB")]
   DeleteRows = 52,
 
-  #[event(input = "RowIdPB")]
+  #[event(input = "DatabaseViewRowIdPB")]
   DuplicateRow = 53,
 
   #[event(input = "MoveRowPayloadPB")]
   MoveRow = 54,
 
-  #[event(input = "RowIdPB", output = "RowMetaPB")]
+  #[event(input = "DatabaseViewRowIdPB", output = "RowMetaPB")]
   GetRowMeta = 55,
 
   #[event(input = "UpdateRowMetaChangesetPB")]
@@ -299,6 +302,9 @@ pub enum DatabaseEvent {
   #[event(input = "DeleteGroupPayloadPB")]
   DeleteGroup = 115,
 
+  #[event(input = "RenameGroupPB")]
+  RenameGroup = 116,
+
   #[event(input = "DatabaseIdPB", output = "DatabaseMetaPB")]
   GetDatabaseMeta = 119,
 
@@ -321,7 +327,7 @@ pub enum DatabaseEvent {
   )]
   GetNoDateCalendarEvents = 124,
 
-  #[event(input = "RowIdPB", output = "CalendarEventPB")]
+  #[event(input = "DatabaseViewRowIdPB", output = "CalendarEventPB")]
   GetCalendarEvent = 125,
 
   #[event(input = "MoveCalendarEventPB")]
@@ -381,7 +387,7 @@ pub enum DatabaseEvent {
   #[event(input = "TranslateRowPB")]
   TranslateRow = 175,
 
-  #[event(input = "RowIdPB")]
+  #[event(input = "DatabaseViewRowIdPB")]
   InitRow = 176,
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedRowMetaPB")]
@@ -389,4 +395,10 @@ pub enum DatabaseEvent {
 
   #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
   ExportRawDatabaseData = 178,
+
+  #[event(input = "MediaCellChangesetPB")]
+  UpdateMediaCell = 200,
+
+  #[event(input = "RenameMediaChangesetPB")]
+  RenameMediaFile = 201,
 }

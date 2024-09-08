@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -124,6 +125,12 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 
   @override
   Widget build(BuildContext context) {
+    // Some FieldType has built-in handling for more gestures
+    // and granular control, so we don't need to show the accessory.
+    if (!widget.fieldType.showRowDetailAccessory) {
+      return widget.child;
+    }
+
     final List<Widget> children = [
       DecoratedBox(
         decoration: BoxDecoration(

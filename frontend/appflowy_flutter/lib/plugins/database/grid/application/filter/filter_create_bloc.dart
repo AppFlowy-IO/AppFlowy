@@ -3,13 +3,7 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/number_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -147,6 +141,11 @@ class GridCreateFilterBloc
         return _filterBackendSvc.insertURLFilter(
           fieldId: fieldId,
           condition: TextFilterConditionPB.TextContains,
+        );
+      case FieldType.Media:
+        return _filterBackendSvc.insertMediaFilter(
+          fieldId: fieldId,
+          condition: MediaFilterConditionPB.MediaIsNotEmpty,
         );
       default:
         throw UnimplementedError();

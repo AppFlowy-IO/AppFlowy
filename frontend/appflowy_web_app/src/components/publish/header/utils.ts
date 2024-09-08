@@ -1,99 +1,51 @@
-export function openOrDownload() {
-  const getDeviceType = () => {
-    const ua = navigator.userAgent;
+import { View } from '@/application/types';
+import { getOS, openAppOrDownload } from '@/utils/open_schema';
+import { iosDownloadLink, androidDownloadLink, desktopDownloadLink, openAppFlowySchema } from '@/utils/url';
 
-    if (/(iPad|iPhone|iPod)/g.test(ua)) {
-      return 'iOS';
-    } else if (/Android/g.test(ua)) {
-      return 'Android';
-    } else {
-      return 'Desktop';
+export function openOrDownload () {
+  const os = getOS();
+  const downloadUrl = os === 'ios' ? iosDownloadLink : os === 'android' ? androidDownloadLink : desktopDownloadLink;
+
+  return openAppOrDownload({
+    appScheme: openAppFlowySchema,
+    downloadUrl,
+  });
+}
+
+export function findAncestors (data: View[], targetId: string, currentPath: View[] = []): View[] | null {
+  for (const item of data) {
+    const newPath = [...currentPath, item];
+
+    if (item.view_id === targetId) {
+      return newPath;
     }
-  };
 
-  const deviceType = getDeviceType();
-  const isMobile = deviceType !== 'Desktop';
-  const getFallbackLink = () => {
-    if (deviceType === 'iOS') {
-      return 'https://testflight.apple.com/join/6CexvkDz';
-    } else if (deviceType === 'Android') {
-      return 'https://play.google.com/store/apps/details?id=io.appflowy.appflowy';
-    } else {
-      return 'https://appflowy.io/download/#pop';
-    }
-  };
+    if (item.children && item.children.length > 0) {
+      const result = findAncestors(item.children, targetId, newPath);
 
-  const getDuration = () => {
-    switch (deviceType) {
-      case 'iOS':
-        return 250;
-      default:
-        return 1500;
-    }
-  };
-
-  const APPFLOWY_SCHEME = 'appflowy-flutter://';
-
-  const iframe = document.createElement('iframe');
-
-  iframe.style.display = 'none';
-  iframe.src = APPFLOWY_SCHEME;
-
-  const openSchema = () => {
-    if (isMobile) return (window.location.href = APPFLOWY_SCHEME);
-    document.body.appendChild(iframe);
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 1000);
-  };
-
-  const openAppFlowy = () => {
-    openSchema();
-
-    const initialTime = Date.now();
-    let interactTime = initialTime;
-    let waitTime = 0;
-    const duration = getDuration();
-
-    const updateInteractTime = () => {
-      interactTime = Date.now();
-    };
-
-    document.removeEventListener('mousemove', updateInteractTime);
-    document.removeEventListener('mouseenter', updateInteractTime);
-
-    const checkOpen = setInterval(() => {
-      waitTime = Date.now() - initialTime;
-
-      if (waitTime > duration) {
-        clearInterval(checkOpen);
-        if (isMobile || Date.now() - interactTime < duration) {
-          window.open(getFallbackLink(), '_current');
-        }
+      if (result) {
+        return result;
       }
-    }, 20);
+    }
+  }
 
-    if (!isMobile) {
-      document.addEventListener('mouseenter', updateInteractTime);
-      document.addEventListener('mousemove', updateInteractTime);
+  return null;
+}
+
+export function findView (data: View[], targetId: string): View | null {
+  for (const item of data) {
+    if (item.view_id === targetId) {
+      return item;
     }
 
-    document.addEventListener('visibilitychange', () => {
-      const isHidden = document.hidden;
+    if (item.children && item.children.length > 0) {
+      const result = findView(item.children, targetId);
 
-      if (isHidden) {
-        clearInterval(checkOpen);
+      if (result) {
+        return result;
       }
-    });
+    }
+  }
 
-    window.onpagehide = () => {
-      clearInterval(checkOpen);
-    };
-
-    window.onbeforeunload = () => {
-      clearInterval(checkOpen);
-    };
-  };
-
-  openAppFlowy();
+  return null;
 }

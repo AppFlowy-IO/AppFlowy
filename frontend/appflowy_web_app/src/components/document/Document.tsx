@@ -1,5 +1,5 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/collab.type';
-import DocumentSkeleton from '@/components/document/DocumentSkeleton';
+import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
 import { Editor } from '@/components/editor';
 import React, { Suspense } from 'react';
 import ViewMetaPreview, { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
@@ -23,11 +23,15 @@ export const Document = ({
   viewMeta,
   isTemplateThumb,
 }: DocumentProps) => {
+
   return (
-    <div className={'mb-16 flex h-full w-full flex-col items-center justify-center'}>
+    <div style={{
+      minHeight: `calc(100vh - 48px)`,
+    }} className={'mb-16 flex h-full w-full flex-col items-center'}
+    >
       <ViewMetaPreview {...viewMeta} />
       <Suspense fallback={<DocumentSkeleton />}>
-        <div className={'mx-16 w-[964px] min-w-0 max-w-full'}>
+        <div className={'flex justify-center w-full'}>
           <Editor
             loadView={loadView}
             loadViewMeta={loadViewMeta}

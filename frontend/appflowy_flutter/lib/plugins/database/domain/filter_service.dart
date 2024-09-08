@@ -274,6 +274,30 @@ class FilterBackendService {
     );
   }
 
+  Future<FlowyResult<void, FlowyError>> insertMediaFilter({
+    required String fieldId,
+    String? filterId,
+    required MediaFilterConditionPB condition,
+    String content = "",
+  }) {
+    final filter = MediaFilterPB()
+      ..condition = condition
+      ..content = content;
+
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.Media,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.Media,
+            data: filter.writeToBuffer(),
+          );
+  }
+
   Future<FlowyResult<void, FlowyError>> deleteFilter({
     required String fieldId,
     required String filterId,

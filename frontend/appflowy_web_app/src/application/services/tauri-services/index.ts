@@ -24,6 +24,10 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
+  async getPublishOutline (_namespace: string) {
+    return Promise.reject('Method not implemented');
+  }
+
   async getPublishViewMeta (_namespace: string, _publishName: string) {
     return Promise.reject('Method not implemented');
   }
@@ -45,6 +49,10 @@ export class AFClientService implements AFService {
   }
 
   signInGoogle (_params: { redirectTo: string }): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  signInApple (_params: { redirectTo: string }): Promise<void> {
     return Promise.reject('Method not implemented');
   }
 

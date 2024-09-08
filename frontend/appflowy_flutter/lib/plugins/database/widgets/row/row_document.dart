@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_document_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RowDocument extends StatelessWidget {
@@ -27,17 +26,22 @@ class RowDocument extends StatelessWidget {
     return BlocProvider<RowDocumentBloc>(
       create: (context) => RowDocumentBloc(viewId: viewId, rowId: rowId)
         ..add(const RowDocumentEvent.initial()),
-      child: BlocBuilder<RowDocumentBloc, RowDocumentState>(
+      child: BlocConsumer<RowDocumentBloc, RowDocumentState>(
+        listener: (_, state) => state.loadingState.maybeWhen(
+          error: (error) => Log.error('RowDocument error: $error'),
+          orElse: () => null,
+        ),
         builder: (context, state) {
           return state.loadingState.when(
             loading: () => const Center(
               child: CircularProgressIndicator.adaptive(),
             ),
-            error: (error) => FlowyErrorPage.message(
-              error.toString(),
-              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+            error: (error) => Center(
+              child: AppFlowyErrorPage(
+                error: error,
+              ),
             ),
-            finish: () => RowEditor(
+            finish: () => _RowEditor(
               viewPB: state.viewPB!,
               onIsEmptyChanged: (isEmpty) => context
                   .read<RowDocumentBloc>()
@@ -50,9 +54,8 @@ class RowDocument extends StatelessWidget {
   }
 }
 
-class RowEditor extends StatefulWidget {
-  const RowEditor({
-    super.key,
+class _RowEditor extends StatelessWidget {
+  const _RowEditor({
     required this.viewPB,
     this.onIsEmptyChanged,
   });
@@ -61,35 +64,22 @@ class RowEditor extends StatefulWidget {
   final void Function(bool)? onIsEmptyChanged;
 
   @override
-  State<RowEditor> createState() => _RowEditorState();
-}
-
-class _RowEditorState extends State<RowEditor> {
-  late final DocumentBloc documentBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    documentBloc = DocumentBloc(documentId: widget.viewPB.id)
-      ..add(const DocumentEvent.initial());
-  }
-
-  @override
-  void dispose() {
-    documentBloc.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [BlocProvider.value(value: documentBloc)],
+    return BlocProvider(
+      create: (context) => DocumentBloc(documentId: viewPB.id)
+        ..add(const DocumentEvent.initial()),
       child: BlocListener<DocumentBloc, DocumentState>(
         listenWhen: (previous, current) =>
             previous.isDocumentEmpty != current.isDocumentEmpty,
-        listener: (context, state) {
+        listener: (_, state) {
           if (state.isDocumentEmpty != null) {
-            widget.onIsEmptyChanged?.call(state.isDocumentEmpty!);
+            onIsEmptyChanged?.call(state.isDocumentEmpty!);
+          }
+          if (state.error != null) {
+            Log.error('RowEditor error: ${state.error}');
+          }
+          if (state.editorState == null) {
+            Log.error('RowEditor unable to get editorState');
           }
         },
         child: BlocBuilder<DocumentBloc, DocumentState>(
@@ -101,18 +91,18 @@ class _RowEditorState extends State<RowEditor> {
             final editorState = state.editorState;
             final error = state.error;
             if (error != null || editorState == null) {
-              Log.error(error);
-              return FlowyErrorPage.message(
-                error.toString(),
-                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              return Center(
+                child: AppFlowyErrorPage(
+                  error: error,
+                ),
               );
             }
 
-            return IntrinsicHeight(
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 300),
-                child: BlocProvider<ViewInfoBloc>(
-                  create: (context) => ViewInfoBloc(view: widget.viewPB),
+            return BlocProvider<ViewInfoBloc>(
+              create: (context) => ViewInfoBloc(view: viewPB),
+              child: IntrinsicHeight(
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 300),
                   child: AppFlowyEditorPage(
                     shrinkWrap: true,
                     autoFocus: false,

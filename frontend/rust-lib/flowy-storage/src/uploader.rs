@@ -98,10 +98,6 @@ impl FileUploader {
   }
 
   pub fn resume(&self) {
-    if self.pause_sync.load(std::sync::atomic::Ordering::Relaxed) {
-      return;
-    }
-
     self
       .pause_sync
       .store(false, std::sync::atomic::Ordering::SeqCst);
@@ -111,16 +107,16 @@ impl FileUploader {
   pub async fn process_next(&self) -> Option<()> {
     // Do not proceed if the uploader is paused.
     if self.pause_sync.load(std::sync::atomic::Ordering::Relaxed) {
+      info!("[File] Uploader is paused");
       return None;
     }
 
-    trace!(
-      "[File] Max concurrent uploads: {}, current: {}",
-      self.max_uploads,
-      self
-        .current_uploads
-        .load(std::sync::atomic::Ordering::SeqCst)
-    );
+    let current_uploads = self
+      .current_uploads
+      .load(std::sync::atomic::Ordering::SeqCst);
+    if current_uploads > 0 {
+      trace!("[File] current upload tasks: {}", current_uploads)
+    }
 
     if self
       .current_uploads
@@ -235,13 +231,17 @@ impl FileUploaderRunner {
     loop {
       // stops the runner if the notifier was closed.
       if notifier.changed().await.is_err() {
+        info!("[File]:Uploader runner stopped, notifier closed");
         break;
       }
 
       if let Some(uploader) = weak_uploader.upgrade() {
         let value = notifier.borrow().clone();
         match value {
-          Signal::Stop => break,
+          Signal::Stop => {
+            info!("[File]:Uploader runner stopped, stop signal received");
+            break;
+          },
           Signal::Proceed => {
             tokio::spawn(async move {
               uploader.process_next().await;
@@ -255,6 +255,7 @@ impl FileUploaderRunner {
           },
         }
       } else {
+        info!("[File]:Uploader runner stopped, uploader dropped");
         break;
       }
     }

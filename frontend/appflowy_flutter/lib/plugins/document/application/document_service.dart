@@ -117,17 +117,19 @@ class DocumentService {
     required String documentId,
   }) async {
     final workspace = await FolderEventReadCurrentWorkspace().send();
-    return workspace.fold((l) async {
-      final payload = UploadFileParamsPB(
-        workspaceId: l.id,
-        localFilePath: localFilePath,
-        documentId: documentId,
-      );
-      final result = await DocumentEventUploadFile(payload).send();
-      return result;
-    }, (r) async {
-      return FlowyResult.failure(FlowyError(msg: 'Workspace not found'));
-    });
+    return workspace.fold(
+      (l) async {
+        final payload = UploadFileParamsPB(
+          workspaceId: l.id,
+          localFilePath: localFilePath,
+          documentId: documentId,
+        );
+        return DocumentEventUploadFile(payload).send();
+      },
+      (r) async {
+        return FlowyResult.failure(FlowyError(msg: 'Workspace not found'));
+      },
+    );
   }
 
   /// Download a file from the cloud storage.

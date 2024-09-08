@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/summary_card_cell.dart';
-import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/translate_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import '../card_cell_builder.dart';
 import '../card_cell_skeleton/checkbox_card_cell.dart';
 import '../card_cell_skeleton/checklist_card_cell.dart';
 import '../card_cell_skeleton/date_card_cell.dart';
+import '../card_cell_skeleton/media_card_cell.dart';
 import '../card_cell_skeleton/number_card_cell.dart';
 import '../card_cell_skeleton/relation_card_cell.dart';
 import '../card_cell_skeleton/select_option_card_cell.dart';
+import '../card_cell_skeleton/summary_card_cell.dart';
 import '../card_cell_skeleton/text_card_cell.dart';
 import '../card_cell_skeleton/time_card_cell.dart';
 import '../card_cell_skeleton/timestamp_card_cell.dart';
+import '../card_cell_skeleton/translate_card_cell.dart';
 import '../card_cell_skeleton/url_card_cell.dart';
 
 CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
@@ -92,6 +93,10 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
       textStyle: textStyle,
     ),
     FieldType.Translate: TranslateCardCellStyle(
+      padding: padding,
+      textStyle: textStyle,
+    ),
+    FieldType.Media: MediaCardCellStyle(
       padding: padding,
       textStyle: textStyle,
     ),

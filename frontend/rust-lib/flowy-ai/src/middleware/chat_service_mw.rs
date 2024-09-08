@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionType,
   CreateTextChatContext, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
-  RepeatedRelatedQuestion, StreamAnswer, StreamComplete,
+  RepeatedRelatedQuestion, StreamAnswer, StreamComplete, SubscriptionPlan,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -322,5 +322,12 @@ impl ChatCloudService for AICloudServiceMiddleware {
         .create_chat_context(workspace_id, chat_context)
         .await
     }
+  }
+
+  async fn get_workspace_plan(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
+    self.cloud_service.get_workspace_plan(workspace_id).await
   }
 }

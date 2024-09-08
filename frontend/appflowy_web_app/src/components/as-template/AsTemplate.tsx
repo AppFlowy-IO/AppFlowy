@@ -13,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import './template.scss';
+import { slugify } from '@/components/as-template/utils';
+import { ReactComponent as WebsiteIcon } from '@/assets/website.svg';
 
 function AsTemplate ({
   viewName,
@@ -56,20 +58,10 @@ function AsTemplate ({
         await service?.updateTemplate(template.view_id, formData);
       } else {
         await service?.createTemplate(formData);
-        await loadTemplate();
+
       }
 
-      notify.info({
-        type: 'success',
-        title: t('template.uploadSuccess'),
-        message: t('template.uploadSuccessDescription'),
-        okText: t('template.viewTemplate'),
-        onOk: () => {
-          const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
-
-          window.open(`${url}/templates/${selectedCategoryIds[0]}/${viewId}`, '_blank');
-        },
-      });
+      await loadTemplate();
       handleBack();
     } catch (error) {
       // eslint-disable-next-line
@@ -77,8 +69,7 @@ function AsTemplate ({
       notify.error(error.toString());
     }
 
-  }, [service, selectedCreatorId, selectedCategoryIds, viewId, isNewTemplate, isFeatured, viewUrl, template, t, handleBack, loadTemplate]);
-
+  }, [service, selectedCreatorId, selectedCategoryIds, isNewTemplate, isFeatured, viewId, viewUrl, template, loadTemplate, handleBack]);
   const submitRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -120,6 +111,15 @@ function AsTemplate ({
         >
           {t('button.cancel')}
         </Button>
+        {template && <Button
+          startIcon={<WebsiteIcon />}
+          variant={'text'}
+          onClick={() => {
+            const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
+
+            window.open(`${url}/templates/${slugify(template.categories[0].name)}/${template.view_id}`);
+          }} color={'primary'}
+        >{t('template.viewTemplate')}</Button>}
         <div className={'flex items-center gap-2'}>
           {template && <Button
             startIcon={<DeleteIcon />}
@@ -136,7 +136,7 @@ function AsTemplate ({
             submitRef.current?.click();
           }} variant={'contained'} color={'primary'}
           >
-            {t('template.asTemplate')}
+            {t('button.save')}
           </Button>
         </div>
 

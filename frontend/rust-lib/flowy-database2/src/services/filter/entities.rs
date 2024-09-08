@@ -14,8 +14,8 @@ use tracing::error;
 
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContent, DateFilterPB, FieldType, FilterType,
-  InsertedRowPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB, TextFilterPB,
-  TimeFilterPB,
+  InsertedRowPB, MediaFilterPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB,
+  TextFilterPB, TimeFilterPB,
 };
 use crate::services::field::SelectOptionIds;
 
@@ -287,6 +287,7 @@ impl FilterInner {
       FieldType::Summary => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
       FieldType::Translate => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
       FieldType::Time => BoxAny::new(TimeFilterPB::parse(condition as u8, content)),
+      FieldType::Media => BoxAny::new(MediaFilterPB::parse(condition as u8, content)),
     };
 
     FilterInner::Data {
@@ -386,6 +387,10 @@ impl<'a> From<&'a Filter> for FilterMap {
             },
             FieldType::Translate => {
               let filter = condition_and_content.cloned::<TextFilterPB>()?;
+              (filter.condition as u8, filter.content)
+            },
+            FieldType::Media => {
+              let filter = condition_and_content.cloned::<MediaFilterPB>()?;
               (filter.condition as u8, filter.content)
             },
           };

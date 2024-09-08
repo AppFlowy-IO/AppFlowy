@@ -8,7 +8,7 @@ use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
 use flowy_ai_pub::cloud::{
   AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ChatMetadataContentType, LLMModel,
-  LocalAIConfig,
+  LocalAIConfig, SubscriptionPlan,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
@@ -26,7 +26,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace, warn};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LLMSetting {
@@ -50,6 +50,7 @@ pub struct LocalAIController {
   current_chat_id: ArcSwapOption<String>,
   store_preferences: Arc<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
+  cloud_service: Arc<dyn ChatCloudService>,
 }
 
 impl Deref for LocalAIController {
@@ -70,7 +71,7 @@ impl LocalAIController {
     let local_ai = Arc::new(AppFlowyLocalAI::new(plugin_manager));
     let res_impl = LLMResourceServiceImpl {
       user_service: user_service.clone(),
-      cloud_service,
+      cloud_service: cloud_service.clone(),
       store_preferences: store_preferences.clone(),
     };
 
@@ -107,6 +108,7 @@ impl LocalAIController {
       current_chat_id,
       store_preferences,
       user_service,
+      cloud_service,
     };
 
     let rag_enabled = this.is_rag_enabled();
@@ -151,6 +153,33 @@ impl LocalAIController {
   pub async fn refresh(&self) -> FlowyResult<()> {
     let is_enabled = self.is_enabled();
     self.enable_chat_plugin(is_enabled).await?;
+
+    if is_enabled {
+      let local_ai = self.local_ai.clone();
+      let workspace_id = self.user_service.workspace_id()?;
+      let cloned_service = self.cloud_service.clone();
+      let store_preferences = self.store_preferences.clone();
+      tokio::spawn(async move {
+        let key = local_ai_enabled_key(&workspace_id);
+        match cloned_service.get_workspace_plan(&workspace_id).await {
+          Ok(plans) => {
+            trace!("[AI Plugin] workspace:{} plans: {:?}", workspace_id, plans);
+            if !plans.contains(&SubscriptionPlan::AiLocal) {
+              info!(
+                "disable local ai plugin for workspace: {}. reason: no plan found",
+                workspace_id
+              );
+              let _ = store_preferences.set_bool(&key, false);
+              let _ = local_ai.destroy_chat_plugin().await;
+            }
+          },
+          Err(err) => {
+            warn!("[AI Plugin]: failed to get workspace plan: {:?}", err);
+          },
+        }
+      });
+    }
+
     Ok(())
   }
 
@@ -165,21 +194,25 @@ impl LocalAIController {
 
   /// Indicate whether the local AI plugin is running.
   pub fn is_running(&self) -> bool {
+    if !self.is_enabled() {
+      return false;
+    }
     self.local_ai.get_plugin_running_state().is_ready()
   }
 
   /// Indicate whether the local AI is enabled.
+  /// AppFlowy store the value in local storage isolated by workspace id. Each workspace can have
+  /// different settings.
   pub fn is_enabled(&self) -> bool {
-    if let Ok(key) = self.local_ai_enabled_key() {
+    if let Ok(key) = self
+      .user_service
+      .workspace_id()
+      .map(|workspace_id| local_ai_enabled_key(&workspace_id))
+    {
       self.store_preferences.get_bool(&key).unwrap_or(true)
     } else {
       false
     }
-  }
-
-  fn local_ai_enabled_key(&self) -> FlowyResult<String> {
-    let workspace_id = self.user_service.workspace_id()?;
-    Ok(format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id))
   }
 
   /// Indicate whether the local AI chat is enabled. In the future, we can support multiple
@@ -225,6 +258,10 @@ impl LocalAIController {
   }
 
   pub fn close_chat(&self, chat_id: &str) {
+    if !self.is_running() {
+      return;
+    }
+    info!("[AI Plugin] notify close chat: {}", chat_id);
     let weak_ctrl = Arc::downgrade(&self.local_ai);
     let chat_id = chat_id.to_string();
     tokio::spawn(async move {
@@ -285,6 +322,13 @@ impl LocalAIController {
   }
 
   pub fn get_chat_plugin_state(&self) -> LocalAIPluginStatePB {
+    if !self.is_enabled() {
+      return LocalAIPluginStatePB {
+        state: RunningStatePB::Stopped,
+        offline_ai_ready: false,
+      };
+    }
+
     let offline_ai_ready = self.local_ai_resource.is_offline_app_ready();
     let state = self.local_ai.get_plugin_running_state();
     LocalAIPluginStatePB {
@@ -317,7 +361,8 @@ impl LocalAIController {
   }
 
   pub async fn toggle_local_ai(&self) -> FlowyResult<bool> {
-    let key = self.local_ai_enabled_key()?;
+    let workspace_id = self.user_service.workspace_id()?;
+    let key = local_ai_enabled_key(&workspace_id);
     let enabled = !self.store_preferences.get_bool(&key).unwrap_or(true);
     self.store_preferences.set_bool(&key, enabled)?;
 
@@ -551,4 +596,8 @@ impl LLMResourceService for LLMResourceServiceImpl {
       .store_preferences
       .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
   }
+}
+
+fn local_ai_enabled_key(workspace_id: &str) -> String {
+  format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id)
 }

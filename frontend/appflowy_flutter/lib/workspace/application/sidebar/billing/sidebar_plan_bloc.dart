@@ -117,6 +117,7 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
             userProfile: userProfile,
           ),
         );
+
         _checkWorkspaceUsage();
       },
       updateWorkspaceUsage: (WorkspaceUsagePB usage) {

@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/domain/group_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/board/group_ext.dart';
+import 'package:appflowy/plugins/database/domain/group_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -13,17 +16,14 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:calendar_view/calendar_view.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
+
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
@@ -204,13 +204,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           endEditingHeader: (String groupId, String? groupName) async {
             final group = groupControllers[groupId]?.group;
             if (group != null) {
-              if (generateGroupNameFromGroup(group) != groupName) {
+              final currentName = group.generateGroupName(databaseController);
+              if (currentName != groupName) {
                 await groupBackendSvc.updateGroup(
                   fieldId: groupControllers.values.first.group.fieldId,
                   groupId: groupId,
                   name: groupName,
                 );
-                return;
               }
             }
 
@@ -436,7 +436,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               boardController.getGroupController(group.groupId);
           if (columnController != null) {
             // remove the group or update its name
-            columnController.updateGroupName(generateGroupNameFromGroup(group));
+            columnController.updateGroupName(
+              group.generateGroupName(databaseController),
+            );
             if (!group.isVisible) {
               boardController.removeGroup(group.groupId);
             }
@@ -444,7 +446,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final newGroup = _initializeGroupData(group);
             final visibleGroups = [...groupList]..retainWhere(
                 (g) =>
-                    g.isVisible ||
+                    (g.isVisible && !g.isDefault) ||
                     g.isDefault && !hideUngrouped ||
                     g.groupId == group.groupId,
               );
@@ -488,6 +490,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   GroupController _initializeGroupController(GroupPB group) {
+    group.freeze();
+
     final delegate = GroupControllerDelegateImpl(
       controller: boardController,
       fieldController: fieldController,
@@ -516,110 +520,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   AppFlowyGroupData _initializeGroupData(GroupPB group) {
     return AppFlowyGroupData(
       id: group.groupId,
-      name: generateGroupNameFromGroup(group),
+      name: group.generateGroupName(databaseController),
       items: _buildGroupItems(group),
       customData: GroupData(
         group: group,
         fieldInfo: fieldController.getField(group.fieldId)!,
       ),
     );
-  }
-
-  String generateGroupNameFromGroup(GroupPB group) {
-    final field = fieldController.getField(group.fieldId);
-    if (field == null) {
-      return "";
-    }
-
-    // if the group is the default group, then
-    if (group.isDefault) {
-      return "No ${field.name}";
-    }
-
-    final groupSettings = databaseController.fieldController.groupSettings
-        .firstWhereOrNull((gs) => gs.fieldId == field.id);
-
-    switch (field.fieldType) {
-      case FieldType.SingleSelect:
-        final options =
-            SingleSelectTypeOptionPB.fromBuffer(field.field.typeOptionData)
-                .options;
-        final option =
-            options.firstWhereOrNull((option) => option.id == group.groupId);
-        return option == null ? "" : option.name;
-      case FieldType.MultiSelect:
-        final options =
-            MultiSelectTypeOptionPB.fromBuffer(field.field.typeOptionData)
-                .options;
-        final option =
-            options.firstWhereOrNull((option) => option.id == group.groupId);
-        return option == null ? "" : option.name;
-      case FieldType.Checkbox:
-        return group.groupId;
-      case FieldType.URL:
-        return group.groupId;
-      case FieldType.DateTime:
-        final config = groupSettings?.content != null
-            ? DateGroupConfigurationPB.fromBuffer(groupSettings!.content)
-            : DateGroupConfigurationPB();
-        final dateFormat = DateFormat("y/MM/dd");
-        try {
-          final targetDateTime = dateFormat.parseLoose(group.groupId);
-          switch (config.condition) {
-            case DateConditionPB.Day:
-              return DateFormat("MMM dd, y").format(targetDateTime);
-            case DateConditionPB.Week:
-              final beginningOfWeek = targetDateTime
-                  .subtract(Duration(days: targetDateTime.weekday - 1));
-              final endOfWeek = targetDateTime.add(
-                Duration(days: DateTime.daysPerWeek - targetDateTime.weekday),
-              );
-
-              final beginningOfWeekFormat =
-                  beginningOfWeek.year != endOfWeek.year
-                      ? "MMM dd y"
-                      : "MMM dd";
-              final endOfWeekFormat = beginningOfWeek.month != endOfWeek.month
-                  ? "MMM dd y"
-                  : "dd y";
-
-              return LocaleKeys.board_dateCondition_weekOf.tr(
-                args: [
-                  DateFormat(beginningOfWeekFormat).format(beginningOfWeek),
-                  DateFormat(endOfWeekFormat).format(endOfWeek),
-                ],
-              );
-            case DateConditionPB.Month:
-              return DateFormat("MMM y").format(targetDateTime);
-            case DateConditionPB.Year:
-              return DateFormat("y").format(targetDateTime);
-            case DateConditionPB.Relative:
-              final targetDateTimeDay = DateTime(
-                targetDateTime.year,
-                targetDateTime.month,
-                targetDateTime.day,
-              );
-              final nowDay = DateTime.now().withoutTime;
-              final diff = targetDateTimeDay.difference(nowDay).inDays;
-              return switch (diff) {
-                0 => LocaleKeys.board_dateCondition_today.tr(),
-                -1 => LocaleKeys.board_dateCondition_yesterday.tr(),
-                1 => LocaleKeys.board_dateCondition_tomorrow.tr(),
-                -7 => LocaleKeys.board_dateCondition_lastSevenDays.tr(),
-                2 => LocaleKeys.board_dateCondition_nextSevenDays.tr(),
-                -30 => LocaleKeys.board_dateCondition_lastThirtyDays.tr(),
-                8 => LocaleKeys.board_dateCondition_nextThirtyDays.tr(),
-                _ => DateFormat("MMM y").format(targetDateTimeDay)
-              };
-            default:
-              return "";
-          }
-        } on FormatException {
-          return "";
-        }
-      default:
-        return "";
-    }
   }
 }
 
@@ -709,10 +616,7 @@ class GroupItem extends AppFlowyGroupItem {
   GroupItem({
     required this.row,
     required this.fieldInfo,
-    bool draggable = true,
-  }) {
-    super.draggable.value = draggable;
-  }
+  });
 
   final RowMetaPB row;
   final FieldInfo fieldInfo;
@@ -801,7 +705,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
       return Log.warn("fieldInfo should not be null");
     }
 
-    final item = GroupItem(row: row, fieldInfo: fieldInfo, draggable: false);
+    final item = GroupItem(row: row, fieldInfo: fieldInfo);
 
     if (index != null) {
       controller.insertGroupItem(group.groupId, index, item);

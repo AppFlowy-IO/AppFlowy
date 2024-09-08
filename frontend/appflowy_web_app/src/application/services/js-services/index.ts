@@ -164,6 +164,10 @@ export class AFClientService implements AFService {
     return data;
   }
 
+  async getPublishOutline (namespace: string) {
+    return APIService.getPublishOutline(namespace);
+  }
+
   async loginAuth (url: string) {
     try {
       console.log('loginAuth', url);
@@ -185,6 +189,11 @@ export class AFClientService implements AFService {
   @withSignIn()
   async signInGoogle (_: { redirectTo: string }) {
     return APIService.signInGoogle(AUTH_CALLBACK_URL);
+  }
+
+  @withSignIn()
+  async signInApple (_: { redirectTo: string }) {
+    return APIService.signInApple(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
@@ -212,7 +221,6 @@ export class AFClientService implements AFService {
   async getCurrentUser () {
     const data = await APIService.getCurrentUser();
 
-    await APIService.getWorkspaces();
     return data;
   }
 

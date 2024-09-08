@@ -42,12 +42,14 @@ function Comment ({ comment }: CommentProps) {
       <div className={'flex items-center gap-2'}>
         <div className={'flex items-center gap-4'}>
           <Avatar {...avatar} className={`h-8 w-8`} />
-          <div className={'font-semibold'}>{comment.user?.name}</div>
+          <Tooltip title={comment.user?.name} enterNextDelay={500} enterDelay={1000} placement={'top-start'}>
+            <div className={'font-semibold max-w-[200px] truncate'}>{comment.user?.name}</div>
+          </Tooltip>
         </div>
         <Tooltip title={timeFormat} enterNextDelay={500} enterDelay={1000} placement={'top-start'}>
           <div className={'flex items-center gap-2 text-text-caption'}>
             <BulletedListIcon className={'h-3 w-3'} />
-            <div className={'text-sm'}>{time}</div>
+            <div className={'text-sm whitespace-nowrap'}>{time}</div>
           </div>
         </Tooltip>
       </div>

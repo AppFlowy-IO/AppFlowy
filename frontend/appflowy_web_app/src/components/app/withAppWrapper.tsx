@@ -8,29 +8,18 @@ import { styled } from '@mui/material';
 import { InfoSnackbar } from '../_shared/notify';
 
 const StyledSnackbarProvider = styled(SnackbarProvider)`
-  &.notistack-MuiContent-default {
-    background-color: var(--fill-toolbar);
-  }
+    &.notistack-MuiContent-default {
+        background-color: var(--fill-toolbar);
+    }
 
-  &.notistack-MuiContent-info {
-    background-color: var(--function-info);
-  }
+    &.notistack-MuiContent-info {
+        background-color: var(--function-info);
+    }
 
-  &.notistack-MuiContent-success {
-    background-color: var(--function-success);
-  }
-
-  &.notistack-MuiContent-error {
-    background-color: var(--function-error);
-  }
-
-  &.notistack-MuiContent-warning {
-    background-color: var(--function-warning);
-  }
 `;
 
-export default function withAppWrapper(Component: React.FC): React.FC {
-  return function AppWrapper(): JSX.Element {
+export default function withAppWrapper (Component: React.FC): React.FC {
+  return function AppWrapper (): JSX.Element {
     return (
       <AppTheme>
         <ErrorBoundary FallbackComponent={ErrorHandlerPage}>

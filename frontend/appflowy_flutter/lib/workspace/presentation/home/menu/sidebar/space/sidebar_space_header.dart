@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart' hide Icon;
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -14,7 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarSpaceHeader extends StatefulWidget {
@@ -64,6 +65,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
           child: FlowyHoverContainer(
             style: style,
+            applyStyle: isHovered,
             child: _buildSpaceName(),
           ),
         );

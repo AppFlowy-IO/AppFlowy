@@ -393,7 +393,7 @@ class _MToast extends StatelessWidget {
                     ),
                     const HSpace(8.0),
                   ],
-                  hintText,
+                  Expanded(child: hintText),
                 ],
               )
             : hintText,
@@ -516,6 +516,38 @@ Future<void> showCustomConfirmDialog({
             confirmLabel: confirmLabel,
             style: style,
             closeOnAction: closeOnConfirm,
+            child: builder(context),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showCancelAndDeleteDialog({
+  required BuildContext context,
+  required String title,
+  required String description,
+  required Widget Function(BuildContext) builder,
+  VoidCallback? onDelete,
+  String? confirmLabel,
+}) {
+  return showDialog(
+    context: context,
+    builder: (_) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SizedBox(
+          width: 440,
+          child: ConfirmPopup(
+            title: title,
+            description: description,
+            onConfirm: () => onDelete?.call(),
+            closeOnAction: false,
+            confirmLabel: confirmLabel,
+            confirmButtonColor: Theme.of(context).colorScheme.error,
             child: builder(context),
           ),
         ),

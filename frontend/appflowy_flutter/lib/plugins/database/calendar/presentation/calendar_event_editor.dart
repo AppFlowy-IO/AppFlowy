@@ -1,4 +1,3 @@
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -16,6 +15,7 @@ import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.d
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';

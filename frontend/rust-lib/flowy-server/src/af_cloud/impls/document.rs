@@ -2,6 +2,7 @@ use anyhow::Error;
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_document::document::Document;
 use collab_entity::CollabType;
 use std::sync::Arc;
@@ -91,12 +92,14 @@ where
       &cloned_user,
       format!("Get {} document", document_id),
     )?;
-    let document = Document::open_with_options(
+    let collab = Collab::new_with_source(
       CollabOrigin::Empty,
-      DataSource::DocStateV1(doc_state),
       &document_id,
+      DataSource::DocStateV1(doc_state),
       vec![],
+      false,
     )?;
+    let document = Document::open(collab)?;
     Ok(document.get_document_data().ok())
   }
 }

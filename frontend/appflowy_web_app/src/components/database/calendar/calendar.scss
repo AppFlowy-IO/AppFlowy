@@ -42,7 +42,7 @@ $today-highlight-bg: transparent;
     border: 1px solid var(--line-divider);
     border-top: none;
     min-width: 1200px;
-    @apply max-sm:w-[650vw];
+    @apply max-sm:w-[600vw];
   }
 
 
@@ -61,7 +61,7 @@ $today-highlight-bg: transparent;
   z-index: 50;
   min-width: 1200px;
 
-  @apply max-sm:w-[650vw];
+  @apply max-sm:w-[600vw];
 
   .rbc-header {
     border: none;

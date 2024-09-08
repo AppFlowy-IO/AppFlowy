@@ -9,7 +9,7 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 import * as Y from 'yjs';
-import { DuplicatePublishView, FolderView, User, Workspace } from '@/application/types';
+import { DuplicatePublishView, FolderView, User, View, Workspace } from '@/application/types';
 
 export type AFService = PublishService;
 
@@ -37,6 +37,8 @@ export interface PublishService {
     destroy: () => void;
   }>;
 
+  getPublishOutline (namespace: string): Promise<View>;
+
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;
   deleteCommentOnPublishView: (viewId: string, commentId: string) => Promise<void>;
@@ -49,6 +51,7 @@ export interface PublishService {
   signInGoogle: (params: { redirectTo: string }) => Promise<void>;
   signInGithub: (params: { redirectTo: string }) => Promise<void>;
   signInDiscord: (params: { redirectTo: string }) => Promise<void>;
+  signInApple: (params: { redirectTo: string }) => Promise<void>;
 
   getWorkspaces: () => Promise<Workspace[]>;
   getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;

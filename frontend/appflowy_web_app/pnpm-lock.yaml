@@ -101,6 +101,9 @@ dependencies:
   katex:
     specifier: ^0.16.7
     version: 0.16.10
+  lightgallery:
+    specifier: ^2.7.2
+    version: 2.7.2
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -152,6 +155,9 @@ dependencies:
   react-error-boundary:
     specifier: ^4.0.13
     version: 4.0.13(react@18.2.0)
+  react-helmet:
+    specifier: ^6.1.0
+    version: 6.1.0(react@18.2.0)
   react-hook-form:
     specifier: ^7.52.2
     version: 7.52.2(react@18.2.0)
@@ -188,6 +194,9 @@ dependencies:
   react-window:
     specifier: ^1.8.10
     version: 1.8.10(react-dom@18.2.0)(react@18.2.0)
+  react-zoom-pan-pinch:
+    specifier: ^3.6.1
+    version: 3.6.1(react-dom@18.2.0)(react@18.2.0)
   react18-input-otp:
     specifier: ^1.1.2
     version: 1.1.4(react-dom@18.2.0)(react@18.2.0)
@@ -310,6 +319,9 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18.2.22
     version: 18.2.22
+  '@types/react-helmet':
+    specifier: ^6.1.11
+    version: 6.1.11
   '@types/react-katex':
     specifier: ^3.0.0
     version: 3.0.0
@@ -4209,6 +4221,12 @@ packages:
     resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
     dependencies:
       '@types/react': 18.2.66
+
+  /@types/react-helmet@6.1.11:
+    resolution: {integrity: sha512-0QcdGLddTERotCXo3VFlUSWO3ztraw8nZ6e3zJSgG7apwV5xt+pJUS8ewPBqT4NYB1optGLprNQzFleIY84u/g==}
+    dependencies:
+      '@types/react': 18.2.66
+    dev: true
 
   /@types/react-katex@3.0.0:
     resolution: {integrity: sha512-AiHHXh71a2M7Z6z1wj6iA23SkiRF9r0neHUdu8zjU/cT3MyLxDefYHbcceKhV/gjDEZgF3YaiNHyPNtoGUjPvg==}
@@ -8227,6 +8245,11 @@ packages:
       isomorphic.js: 0.2.5
     dev: false
 
+  /lightgallery@2.7.2:
+    resolution: {integrity: sha512-Ewdcg9UPDqV0HGZeD7wNE4uYejwH2u0fMo5VAr6GHzlPYlhItJvjhLTR0cL0V1HjhMsH39PAom9iv69ewitLWw==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
     engines: {node: '>=10'}
@@ -9530,6 +9553,18 @@ packages:
   /react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
+  /react-helmet@6.1.0(react@18.2.0):
+    resolution: {integrity: sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==}
+    peerDependencies:
+      react: '>=16.3.0'
+    dependencies:
+      object-assign: 4.1.1
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-fast-compare: 3.2.2
+      react-side-effect: 2.1.2(react@18.2.0)
+    dev: false
+
   /react-hook-form@7.52.2(react@18.2.0):
     resolution: {integrity: sha512-pqfPEbERnxxiNMPd0bzmt1tuaPcVccywFDpyk2uV5xCIBphHV5T8SVnX9/o3kplPE1zzKt77+YIoq+EMwJp56A==}
     engines: {node: '>=18.0.0'}
@@ -9736,6 +9771,14 @@ packages:
       react: 18.2.0
     dev: false
 
+  /react-side-effect@2.1.2(react@18.2.0):
+    resolution: {integrity: sha512-PVjOcvVOyIILrYoyGEpDN3vmYNLdy1CajSFNt4TDsVQC5KpTijDvWVoR+/7Rz2xT978D8/ZtFceXxzsPwZEDvw==}
+    peerDependencies:
+      react: ^16.3.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /react-swipeable-views-core@0.14.0:
     resolution: {integrity: sha512-0W/e9uPweNEOSPjmYtuKSC/SvKKg1sfo+WtPdnxeLF3t2L82h7jjszuOHz9C23fzkvLfdgkaOmcbAxE9w2GEjA==}
     engines: {node: '>=6.0.0'}
@@ -9820,6 +9863,17 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.1
       memoize-one: 5.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-zoom-pan-pinch@3.6.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-SdPqdk7QDSV7u/WulkFOi+cnza8rEZ0XX4ZpeH7vx3UZEg7DoyuAy3MCmm+BWv/idPQL2Oe73VoC0EhfCN+sZQ==}
+    engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false

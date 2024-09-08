@@ -59,6 +59,11 @@ where
     Ok(url)
   }
 
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)> {
+    let value = self.0.try_get_client().ok()?.parse_blob_url_v1(url)?;
+    Some(value)
+  }
+
   async fn create_upload(
     &self,
     workspace_id: &str,

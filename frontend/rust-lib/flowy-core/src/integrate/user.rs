@@ -70,6 +70,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize(user_id, authenticator == &Authenticator::Local)
       .await?;
     self.document_manager.initialize(user_id).await?;
+    self.ai_manager.initialize(&user_workspace.id).await?;
     Ok(())
   }
 
