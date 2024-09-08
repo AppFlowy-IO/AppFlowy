@@ -3,7 +3,6 @@ use crate::services::cell::insert_checkbox_cell;
 use crate::services::filter::PreFillCellsWithFilter;
 use collab_database::{fields::Field, rows::Cell};
 
-
 impl CheckboxFilterPB {
   pub fn is_visible(&self, cell_data: &CheckboxCellDataPB) -> bool {
     match self.condition {
