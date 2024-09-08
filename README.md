@@ -32,12 +32,12 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 <p align="center"><img src="https://appflowy.io/_next/static/media/template.9ea13c3b.png" alt="AppFlowy Templates"  /></p>
 
 <p align="center">
-    <img src="https://appflowy.io/_next/static/media/home.b7ebab00.png" alt="Work across devices" width="500px">
-    <img src="https://appflowy.io/_next/static/media/ai_chat.09fc526e.png" alt="Ask AI" width="500px">
-    <img src="https://appflowy.io/_next/static/media/doc.d37c302c.png" alt="Capture anything" width="500px">
-    <img src="https://appflowy.io/_next/static/media/toolbar.d4029705.png" alt="Quickly take notes" width="500px">
-    <img src="https://appflowy.io/_next/static/media/block.e023dd25.png" alt="Perform and look great" width="500px">
-    <img src="https://appflowy.io/_next/static/media/database_card_view.880a4c12.png" alt="Designed and built for mobile" width="500px">
+    <img src="https://appflowy.io/_next/static/media/home.b7ebab00.png" alt="Work across devices" width="350px">
+    <img src="https://appflowy.io/_next/static/media/ai_chat.09fc526e.png" alt="Ask AI" width="350px">
+    <img src="https://appflowy.io/_next/static/media/doc.d37c302c.png" alt="Capture anything" width="350px">
+    <img src="https://appflowy.io/_next/static/media/toolbar.d4029705.png" alt="Quickly take notes" width="350px">
+    <img src="https://appflowy.io/_next/static/media/block.e023dd25.png" alt="Perform and look great" width="350px">
+    <img src="https://appflowy.io/_next/static/media/database_card_view.880a4c12.png" alt="Designed and built for mobile" width="350px">
 </p>
 
 ## User Installation
