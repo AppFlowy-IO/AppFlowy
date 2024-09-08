@@ -221,6 +221,7 @@ async fn update_updated_at_field_on_other_cell_update() {
 async fn time_cell_data_test() {
   let test = DatabaseCellTest::new().await;
   let time_field = test.get_first_field(FieldType::Time).await;
+  println!("{:?}", time_field);
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &time_field.id)
@@ -228,6 +229,7 @@ async fn time_cell_data_test() {
 
   assert!(cells[0].cell.as_ref().is_some());
   let cell = TimeCellData::from(cells[0].cell.as_ref().unwrap());
+  println!("{:?}", cell);
 
   assert!(cell.time.is_some());
   assert_eq!(cell.time.unwrap(), 75);

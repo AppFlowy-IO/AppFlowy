@@ -103,8 +103,12 @@ const TIMER_START: &str = "timer_start";
 
 impl From<&Cell> for TimeCellData {
   fn from(cell: &Cell) -> Self {
-    let time = cell.get_as::<i64>(CELL_DATA);
-    let timer_start = cell.get_as::<i64>(TIMER_START);
+    let time = cell
+      .get_as::<String>(CELL_DATA)
+      .and_then(|data| data.parse::<i64>().ok());
+    let timer_start = cell
+      .get_as::<String>(TIMER_START)
+      .and_then(|data| data.parse::<i64>().ok());
     let time_tracks = cell
       .get_as::<String>(TIME_TRACKS)
       .map(|data| serde_json::from_str::<Vec<TimeTrack>>(&data).unwrap_or_default())

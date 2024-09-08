@@ -425,6 +425,19 @@ pub(crate) async fn get_row_handler(
   data_result_ok(OptionalRowPB { row })
 }
 
+pub(crate) async fn init_row_handler(
+  data: AFPluginData<DatabaseViewRowIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager
+    .get_database_editor_with_view_id(&params.view_id)
+    .await?;
+  database_editor.init_database_row(&params.row_id).await?;
+  Ok(())
+}
+
 pub(crate) async fn get_row_meta_handler(
   data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
