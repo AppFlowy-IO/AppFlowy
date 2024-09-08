@@ -218,10 +218,6 @@ impl SortController {
   }
 
   pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<Row>>) {
-    if self.sorts.is_empty() {
-      return;
-    }
-
     let fields = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter().rev() {
       rows.par_sort_by(|left, right| cmp_row(left, right, sort, &fields, &self.cell_cache));

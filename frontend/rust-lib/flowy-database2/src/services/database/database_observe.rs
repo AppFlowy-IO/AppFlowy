@@ -233,7 +233,7 @@ async fn handle_did_update_row_orders(
         database_view_rows
           .entry(database_view.view_id.clone())
           .or_insert_with(|| {
-            let mut change = RowsChangePB::default();
+            let mut change = RowsChangePB::new();
             change.is_move_row = is_move_row;
             change
           })

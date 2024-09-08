@@ -32,6 +32,12 @@ pub struct RowsChangePB {
   pub is_move_row: bool,
 }
 
+impl RowsChangePB {
+  pub fn new() -> Self {
+    Default::default()
+  }
+}
+
 impl Display for RowsChangePB {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     let inserted_rows = self

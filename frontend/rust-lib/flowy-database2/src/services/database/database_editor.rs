@@ -1406,7 +1406,6 @@ impl DatabaseEditor {
     view_id: &str,
     notify_finish: Option<tokio::sync::oneshot::Sender<()>>,
   ) -> FlowyResult<DatabasePB> {
-    info!("Open database: {}, view: {}", self.database_id, view_id);
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
     // Check if the database is currently being opened
@@ -1449,7 +1448,7 @@ impl DatabaseEditor {
           .collect::<Vec<RowMetaPB>>();
 
         trace!(
-          "database: {}, num fields: {}, num rows: {}",
+          "[Database]: database: {}, num fields: {}, num rows: {}",
           database_id,
           fields.len(),
           rows.len()
@@ -1505,7 +1504,9 @@ impl DatabaseEditor {
           }
 
           info!("[Database]: Finish loading rows: {}", loaded_rows.len());
+          tokio::time::sleep(Duration::from_millis(500)).await;
           apply_filter_and_sort(loaded_rows.clone(), view_editor).await;
+
           if let Some(notify_finish) = notify_finish {
             let _ = notify_finish.send(());
           }
