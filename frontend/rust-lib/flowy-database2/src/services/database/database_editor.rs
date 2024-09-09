@@ -1469,7 +1469,9 @@ impl DatabaseEditor {
         }
       }
 
-      if let Some(tx) = notify_finish { let _ = tx.send(()); }
+      if let Some(tx) = notify_finish {
+        let _ = tx.send(());
+      }
 
       let result = Ok(DatabasePB {
         id: database_id,
