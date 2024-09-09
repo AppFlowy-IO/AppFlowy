@@ -240,5 +240,5 @@ class FlowyText extends StatelessWidget {
     return null;
   }
 
-  bool get _useNotoColorEmoji => Platform.isLinux || Platform.isAndroid;
+  bool get _useNotoColorEmoji => Platform.isLinux;
 }
