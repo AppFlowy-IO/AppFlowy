@@ -65,7 +65,7 @@ dependencies:
   expandable: ^5.0.1
   flex_color_picker: ^3.5.1
   highlight: ^0.7.0
-  package_info_plus: ^6.0.0
+  package_info_plus: ^8.0.2
   url_launcher: ^6.1.11
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
@@ -119,7 +119,7 @@ dependencies:
   keyboard_height_plugin: ^0.1.5
   scrollable_positioned_list: ^0.3.8
   flutter_cache_manager: ^3.3.1
-  share_plus: ^7.2.1
+  share_plus: ^10.0.2
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
