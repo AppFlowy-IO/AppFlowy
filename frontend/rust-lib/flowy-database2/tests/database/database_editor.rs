@@ -284,7 +284,7 @@ impl DatabaseEditorTest {
     self
       .sdk
       .database_manager
-      .get_database_editor(database_id)
+      .get_or_init_database_editor(database_id)
       .await
       .ok()
   }

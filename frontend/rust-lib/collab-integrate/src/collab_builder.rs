@@ -186,7 +186,10 @@ impl AppFlowyCollabBuilder {
     let expected_collab_type = CollabType::Folder;
     assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
-    let folder = Folder::open_with(object.uid, collab, folder_notifier, folder_data);
+    let folder = match folder_data {
+      None => Folder::open(object.uid, collab, folder_notifier)?,
+      Some(data) => Folder::create(object.uid, collab, folder_notifier, data),
+    };
     let folder = Arc::new(RwLock::new(folder));
     self.finalize(object, builder_config, folder)
   }
@@ -207,7 +210,7 @@ impl AppFlowyCollabBuilder {
     let expected_collab_type = CollabType::UserAwareness;
     assert_eq!(object.collab_type, expected_collab_type);
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
-    let user_awareness = UserAwareness::open(collab, notifier);
+    let user_awareness = UserAwareness::create(collab, notifier)?;
     let user_awareness = Arc::new(RwLock::new(user_awareness));
     self.finalize(object, builder_config, user_awareness)
   }

@@ -43,113 +43,120 @@ pub(crate) async fn observe_rows_change(
   let notification_sender = notification_sender.clone();
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut row_change = database.read().await.subscribe_row_change();
-  af_spawn(async move {
-    while let Ok(row_change) = row_change.recv().await {
-      if let Some(database) = weak_database.upgrade() {
-        trace!(
-          "[Database Observe]: {} row change:{:?}",
-          database_id,
-          row_change
-        );
-        match row_change {
-          RowChange::DidUpdateCell {
-            field_id,
-            row_id,
-            value: _,
-          } => {
-            let cell_id = format!("{}:{}", row_id, field_id);
-            notify_cell(&notification_sender, &cell_id);
+  let sub = database.read().await.subscribe_row_change();
+  if let Some(mut row_change) = sub {
+    af_spawn(async move {
+      while let Ok(row_change) = row_change.recv().await {
+        if let Some(database) = weak_database.upgrade() {
+          trace!(
+            "[Database Observe]: {} row change:{:?}",
+            database_id,
+            row_change
+          );
+          match row_change {
+            RowChange::DidUpdateCell {
+              field_id,
+              row_id,
+              value: _,
+            } => {
+              let cell_id = format!("{}:{}", row_id, field_id);
+              notify_cell(&notification_sender, &cell_id);
 
-            let views = database.read().await.get_all_database_views_meta();
-            for view in views {
-              notify_row(&notification_sender, &view.id, &field_id, &row_id);
-            }
-          },
-          _ => {
-            warn!("unhandled row change: {:?}", row_change);
-          },
+              let views = database.read().await.get_all_database_views_meta();
+              for view in views {
+                notify_row(&notification_sender, &view.id, &field_id, &row_id);
+              }
+            },
+            _ => {
+              warn!("unhandled row change: {:?}", row_change);
+            },
+          }
+        } else {
+          break;
         }
-      } else {
-        break;
       }
-    }
-  });
+    });
+  }
 }
 #[allow(dead_code)]
 pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLock<Database>>) {
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
-  let mut field_change = database.read().await.subscribe_field_change();
-  af_spawn(async move {
-    while let Ok(field_change) = field_change.recv().await {
-      if weak_database.upgrade().is_none() {
-        break;
-      }
+  let sub = database.read().await.subscribe_field_change();
+  if let Some(mut field_change) = sub {
+    af_spawn(async move {
+      while let Ok(field_change) = field_change.recv().await {
+        if weak_database.upgrade().is_none() {
+          break;
+        }
 
-      trace!(
-        "[Database Observe]: {} field change:{:?}",
-        database_id,
-        field_change
-      );
-      match field_change {
-        FieldChange::DidUpdateField { .. } => {},
-        FieldChange::DidCreateField { .. } => {},
-        FieldChange::DidDeleteField { .. } => {},
+        trace!(
+          "[Database Observe]: {} field change:{:?}",
+          database_id,
+          field_change
+        );
+        match field_change {
+          FieldChange::DidUpdateField { .. } => {},
+          FieldChange::DidCreateField { .. } => {},
+          FieldChange::DidDeleteField { .. } => {},
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 #[allow(dead_code)]
 pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
   let database_id = database_id.to_string();
   let weak_database_editor = Arc::downgrade(database_editor);
-  let mut view_change = database_editor
+  let view_change = database_editor
     .database
     .read()
     .await
     .subscribe_view_change();
-  af_spawn(async move {
-    while let Ok(view_change) = view_change.recv().await {
-      trace!(
-        "[Database View Observe]: {} view change:{:?}",
-        database_id,
-        view_change
-      );
-      match weak_database_editor.upgrade() {
-        None => break,
-        Some(database_editor) => match view_change {
-          DatabaseViewChange::DidCreateView { .. } => {},
-          DatabaseViewChange::DidUpdateView { .. } => {},
-          DatabaseViewChange::DidDeleteView { .. } => {},
-          DatabaseViewChange::LayoutSettingChanged { .. } => {},
-          DatabaseViewChange::DidUpdateRowOrders {
-            database_view_id: _,
-            is_local_change,
-            insert_row_orders,
-            delete_row_indexes,
-          } => {
-            handle_did_update_row_orders(
-              database_editor,
+
+  if let Some(mut view_change) = view_change {
+    af_spawn(async move {
+      while let Ok(view_change) = view_change.recv().await {
+        trace!(
+          "[Database View Observe]: {} view change:{:?}",
+          database_id,
+          view_change
+        );
+        match weak_database_editor.upgrade() {
+          None => break,
+          Some(database_editor) => match view_change {
+            DatabaseViewChange::DidCreateView { .. } => {},
+            DatabaseViewChange::DidUpdateView { .. } => {},
+            DatabaseViewChange::DidDeleteView { .. } => {},
+            DatabaseViewChange::LayoutSettingChanged { .. } => {},
+            DatabaseViewChange::DidUpdateRowOrders {
+              database_view_id: _,
               is_local_change,
               insert_row_orders,
               delete_row_indexes,
-            )
-            .await;
+            } => {
+              handle_did_update_row_orders(
+                database_editor,
+                is_local_change,
+                insert_row_orders,
+                delete_row_indexes,
+              )
+              .await;
+            },
+            DatabaseViewChange::DidCreateFilters { .. } => {},
+            DatabaseViewChange::DidUpdateFilter { .. } => {},
+            DatabaseViewChange::DidCreateGroupSettings { .. } => {},
+            DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
+            DatabaseViewChange::DidCreateSorts { .. } => {},
+            DatabaseViewChange::DidUpdateSort { .. } => {},
+            DatabaseViewChange::DidCreateFieldOrder { .. } => {},
+            DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
           },
-          DatabaseViewChange::DidCreateFilters { .. } => {},
-          DatabaseViewChange::DidUpdateFilter { .. } => {},
-          DatabaseViewChange::DidCreateGroupSettings { .. } => {},
-          DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
-          DatabaseViewChange::DidCreateSorts { .. } => {},
-          DatabaseViewChange::DidUpdateSort { .. } => {},
-          DatabaseViewChange::DidCreateFieldOrder { .. } => {},
-          DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
-        },
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 async fn handle_did_update_row_orders(

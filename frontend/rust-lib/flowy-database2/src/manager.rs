@@ -185,7 +185,12 @@ impl DatabaseManager {
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
-    wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
+    let database_id = wdb.get_database_id_with_view_id(view_id);
+    info!(
+      "[Database]: get database id:{:?} with view id:{}",
+      database_id, view_id
+    );
+    database_id.ok_or_else(|| {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
     })
@@ -201,10 +206,13 @@ impl DatabaseManager {
     view_id: &str,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    self.get_database_editor(&database_id).await
+    self.get_or_init_database_editor(&database_id).await
   }
 
-  pub async fn get_database_editor(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn get_or_init_database_editor(
+    &self,
+    database_id: &str,
+  ) -> FlowyResult<Arc<DatabaseEditor>> {
     if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);
     }
@@ -766,17 +774,17 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       }
       .into()
     } else {
-      trace!(
-        "build collab: fetch {}:{} from remote",
-        collab_type,
-        object_id
+      info!(
+        "build collab: fetch {}:{} from remote, is_new:{}",
+        collab_type, object_id, is_new,
       );
       match self.get_encode_collab(object_id, collab_type.clone()).await {
         Ok(Some(encode_collab)) => {
-          trace!(
-            "build collab: {}:{} with remote encode collab",
+          info!(
+            "build collab: {}:{} with remote encode collab, {} bytes",
             collab_type,
-            object_id
+            object_id,
+            encode_collab.doc_state.len()
           );
           DataSource::from(encode_collab)
         },
