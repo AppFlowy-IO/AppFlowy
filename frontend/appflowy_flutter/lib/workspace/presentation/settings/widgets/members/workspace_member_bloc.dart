@@ -226,7 +226,11 @@ class WorkspaceMemberBloc
         await UserBackendService.getWorkspaceSubscriptionInfo(_workspaceId);
 
     result.fold(
-      (info) => add(WorkspaceMemberEvent.updateSubscriptionInfo(info)),
+      (info) {
+        if (!isClosed) {
+          add(WorkspaceMemberEvent.updateSubscriptionInfo(info));
+        }
+      },
       (f) => Log.error('Failed to fetch subscription info: ${f.msg}', f),
     );
   }
