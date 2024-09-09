@@ -16,6 +16,7 @@ class ViewAddButton extends StatelessWidget {
     required this.parentViewId,
     required this.onEditing,
     required this.onSelected,
+    this.isHovered = false,
   });
 
   final String parentViewId;
@@ -27,6 +28,7 @@ class ViewAddButton extends StatelessWidget {
     bool openAfterCreated,
     bool createNewView,
   ) onSelected;
+  final bool isHovered;
 
   List<PopoverAction> get _actions {
     return [
@@ -57,7 +59,10 @@ class ViewAddButton extends StatelessWidget {
       buildChild: (popover) {
         return FlowyIconButton(
           width: 24,
-          icon: const FlowySvg(FlowySvgs.view_item_add_s),
+          icon: FlowySvg(
+            FlowySvgs.view_item_add_s,
+            color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
+          ),
           onPressed: () {
             onEditing(true);
             popover.show();
