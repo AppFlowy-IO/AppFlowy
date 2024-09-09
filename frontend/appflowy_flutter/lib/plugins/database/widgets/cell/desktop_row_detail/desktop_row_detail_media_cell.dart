@@ -102,6 +102,7 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                           file: file,
                           size: size,
                           mutex: mutex,
+                          hideFileNames: state.hideFileNames,
                         ),
                       ),
                       SizedBox(
@@ -240,11 +241,13 @@ class _FilePreviewRender extends StatefulWidget {
     required this.file,
     required this.size,
     required this.mutex,
+    this.hideFileNames = false,
   });
 
   final MediaFilePB file;
   final double size;
   final PopoverMutex mutex;
+  final bool hideFileNames;
 
   @override
   State<_FilePreviewRender> createState() => _FilePreviewRenderState();
@@ -464,39 +467,46 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                       clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         color: AFThemeExtension.of(context).greyHover,
-                        borderRadius: const BorderRadius.only(
+                        borderRadius: BorderRadius.only(
                           topLeft: Corners.s6Radius,
                           topRight: Corners.s6Radius,
+                          bottomLeft: widget.hideFileNames
+                              ? Corners.s6Radius
+                              : Radius.zero,
+                          bottomRight: widget.hideFileNames
+                              ? Corners.s6Radius
+                              : Radius.zero,
                         ),
                       ),
                       child: child,
                     ),
-                    Container(
-                      height: 28,
-                      width: widget.size,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).isLightMode
-                            ? Theme.of(context).cardColor
-                            : AFThemeExtension.of(context).greyHover,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Corners.s6Radius,
-                          bottomRight: Corners.s6Radius,
+                    if (!widget.hideFileNames)
+                      Container(
+                        height: 28,
+                        width: widget.size,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).isLightMode
+                              ? Theme.of(context).cardColor
+                              : AFThemeExtension.of(context).greyHover,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Corners.s6Radius,
+                            bottomRight: Corners.s6Radius,
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Center(
-                          child: FlowyText.medium(
-                            widget.file.name,
-                            overflow: TextOverflow.ellipsis,
-                            fontSize: 12,
-                            color:
-                                AFThemeExtension.of(context).secondaryTextColor,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Center(
+                            child: FlowyText.medium(
+                              widget.file.name,
+                              overflow: TextOverflow.ellipsis,
+                              fontSize: 12,
+                              color: AFThemeExtension.of(context)
+                                  .secondaryTextColor,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
