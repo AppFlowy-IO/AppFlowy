@@ -1,4 +1,22 @@
 # Release Notes
+## Version 0.6.9 - 09/09/2024
+### New Features
+- Added a new property type, 'Files & media'
+- Supported Apple Sign-in
+- Displayed the page icon next to the row name when the row page contains nested notes
+- Enabled Delete Account in Settings
+- Included a collapsible navigation menu in your published site
+
+### Bug Fixes
+- Fixed the space name color issue in the community themes
+- Fixed database filters and sorting issues
+- Fixed the issue of not being able to fully display the title on Kanban cards
+- Fixed the inability to see the entire text of a checklist item when it's more than one line long
+- Fixed hide/unhide buttons in the No Status group
+- Fixed the inability to edit group names on Kanban boards
+- Made error codes more user-friendly
+- Added leading zeros to day and month in date format
+  
 ## Version 0.6.8 - 22/08/2024
 ### New Features
 - Enabled viewing data inside a database record on mobile.
