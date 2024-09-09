@@ -13,7 +13,7 @@ impl TaskStore {
   pub fn new() -> Self {
     Self {
       tasks: HashMap::new(),
-      task_id_counter: AtomicU32::new(0),
+      task_id_counter: AtomicU32::new(1),
     }
   }
 
@@ -45,7 +45,6 @@ impl TaskStore {
   }
 
   pub(crate) fn next_task_id(&self) -> TaskId {
-    let old = self.task_id_counter.fetch_add(1, SeqCst);
-    old + 1
+    self.task_id_counter.fetch_add(1, SeqCst)
   }
 }
