@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -209,7 +208,6 @@ Future<void> deleteMyAccount(
     );
     return;
   }
-
   if (!context.mounted) {
     return;
   }
@@ -238,7 +236,6 @@ Future<void> deleteMyAccount(
         message: LocaleKeys
             .newSettings_myAccount_deleteAccount_deleteAccountSuccess
             .tr(),
-        bottomPadding: bottomPadding,
       );
 
       // delay 1 second to make sure the toast notification is shown
@@ -246,7 +243,6 @@ Future<void> deleteMyAccount(
         onSuccess?.call();
 
         // restart the application
-        await getIt<AuthService>().signOut();
         await runAppFlowy();
       });
     },
