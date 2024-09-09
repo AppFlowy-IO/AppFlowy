@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 
 class FlowyIconTextButton extends StatelessWidget {
   final Widget Function(bool onHover) textBuilder;
@@ -160,6 +161,7 @@ class FlowyButton extends StatelessWidget {
   final bool expand;
   final Color? borderColor;
   final Color? backgroundColor;
+  final bool resetHoverOnRebuild;
 
   const FlowyButton({
     super.key,
@@ -185,6 +187,7 @@ class FlowyButton extends StatelessWidget {
     this.expand = false,
     this.borderColor,
     this.backgroundColor,
+    this.resetHoverOnRebuild = true,
   });
 
   @override
@@ -207,6 +210,7 @@ class FlowyButton extends StatelessWidget {
       onTap: disable ? null : onTap,
       onSecondaryTap: disable ? null : onSecondaryTap,
       child: FlowyHover(
+        resetHoverOnRebuild: resetHoverOnRebuild,
         cursor:
             disable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
         style: HoverStyle(

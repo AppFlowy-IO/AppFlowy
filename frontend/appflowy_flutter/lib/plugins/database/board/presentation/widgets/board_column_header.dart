@@ -200,11 +200,15 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
   Widget _buildHeaderIcon(GroupData customData) =>
       switch (customData.fieldType) {
-        FieldType.Checkbox => FlowySvg(
-            customData.asCheckboxGroup()!.isCheck
-                ? FlowySvgs.check_filled_s
-                : FlowySvgs.uncheck_s,
-            blendMode: BlendMode.dst,
+        FieldType.Checkbox => Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: FlowySvg(
+              customData.asCheckboxGroup()!.isCheck
+                  ? FlowySvgs.check_filled_s
+                  : FlowySvgs.uncheck_s,
+              blendMode: BlendMode.dst,
+              size: const Size.square(18),
+            ),
           ),
         _ => const SizedBox.shrink(),
       };
