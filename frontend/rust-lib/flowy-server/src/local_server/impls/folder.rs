@@ -68,7 +68,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     _workspace_id: &str,
     _objects: Vec<FolderCollabParams>,
   ) -> Result<(), Error> {
-    Err(anyhow!("Local server doesn't support create collab"))
+    Ok(())
   }
 
   fn service_name(&self) -> String {

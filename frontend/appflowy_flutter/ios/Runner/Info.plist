@@ -46,10 +46,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>AppFlowy requires access to the camera.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>AppFlowy requires access to the photo library.</string>
+	<string>AppFlowy needs access to your photos to let you add images to your documents</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -69,5 +67,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 </dict>
 </plist>

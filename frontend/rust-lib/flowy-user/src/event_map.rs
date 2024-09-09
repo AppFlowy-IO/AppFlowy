@@ -28,6 +28,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
     .event(UserEvent::SignOut, sign_out_handler)
+    .event(UserEvent::DeleteAccount, delete_account_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
@@ -274,6 +275,9 @@ pub enum UserEvent {
 
   #[event(input = "SuccessWorkspaceSubscriptionPB")]
   NotifyDidSwitchPlan = 63,
+
+  #[event()]
+  DeleteAccount = 64,
 }
 
 #[async_trait]

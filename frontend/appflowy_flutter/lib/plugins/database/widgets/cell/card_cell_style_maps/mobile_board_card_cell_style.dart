@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/media_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/summary_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/translate_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -91,6 +92,10 @@ CardCellStyleMap mobileBoardCardCellStyleMap(BuildContext context) {
       textStyle: textStyle,
     ),
     FieldType.Translate: TranslateCardCellStyle(
+      padding: padding,
+      textStyle: textStyle,
+    ),
+    FieldType.Media: MediaCardCellStyle(
       padding: padding,
       textStyle: textStyle,
     ),

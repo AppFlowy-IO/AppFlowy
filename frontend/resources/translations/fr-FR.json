@@ -360,6 +360,7 @@
     "addToFavorites": "Ajouter aux favoris",
     "favoriteSuccessfully": "Succès en favoris",
     "unfavoriteSuccessfully": "Succès retiré des favoris",
+    "duplicateSuccessfully": "Dupliqué avec succès",
     "rename": "Renommer",
     "helpCenter": "Centre d'aide",
     "add": "Ajouter",
@@ -485,6 +486,7 @@
       },
       "dateTime": {
         "title": "Date et heure",
+        "example": "{} à {} ({})",
         "24HourTime": "Heure sur 24 heures",
         "dateFormat": {
           "label": "Format de date",
@@ -603,6 +605,7 @@
         "alignCenter": "Aligner le texte au centre",
         "alignRight": "Aligner le texte à droite",
         "undo": "Annuler",
+        "redo": "Rétablir",
         "convertToParagraph": "Convertir un bloc en paragraphe",
         "backspace": "Supprimer",
         "deleteLeftWord": "Supprimer le mot de gauche",
@@ -847,6 +850,7 @@
         "itemThree": "5 Go",
         "itemFour": "Oui",
         "itemFive": "Oui",
+        "itemFileUpload": "Jusqu'à 7 Mo",
         "intelligentSearch": "Recherche intelligente"
       },
       "proLabels": {
@@ -856,6 +860,7 @@
         "itemFour": "Oui",
         "itemFive": "Oui",
         "itemSix": "illimité",
+        "itemFileUpload": "Illimité",
         "intelligentSearch": "Recherche intelligente"
       },
       "paymentSuccess": {
@@ -868,6 +873,7 @@
     },
     "cancelSurveyDialog": {
       "title": "Désolé de vous voir partir",
+      "description": "Nous sommes désolés de vous voir partir. Nous aimerions connaître votre avis pour nous aider à améliorer @:appName . Veuillez prendre un moment pour répondre à quelques questions.",
       "commonOther": "Autre",
       "otherHint": "Écrivez votre réponse ici",
       "questionOne": {
@@ -1092,6 +1098,8 @@
         "user": "Utilisateur",
         "role": "Rôle",
         "removeFromWorkspace": "Retirer de l'espace de travail",
+        "removeFromWorkspaceSuccess": "Retiré de l'espace de travail avec succès",
+        "removeFromWorkspaceFailed": "Suppression du membre échouée ",
         "owner": "Propriétaire",
         "guest": "Invité",
         "member": "Membre",
@@ -1107,6 +1115,7 @@
         },
         "inviteFailedDialogTitle": "Échec de l'envoi de l'invitation",
         "inviteFailedMemberLimit": "La limite de membres a été atteinte, veuillez effectuer une mise à niveau pour inviter plus de membres.",
+        "inviteFailedMemberLimitMobile": "Votre espace de travail a atteint la limite de membres. Utilisez l'application sur PC pour effectuez une mise à niveau et débloquer plus de fonctionnalités.",
         "memberLimitExceeded": "Vous avez atteint la limite maximale de membres autorisée pour votre compte. Si vous souhaitez ajouter d'autres membres pour continuer votre travail, veuillez en faire la demande sur Github.",
         "memberLimitExceededUpgrade": "mise à niveau",
         "memberLimitExceededPro": "Limite de membres atteinte, si vous avez besoin de plus de membres, contactez ",
@@ -1309,6 +1318,7 @@
       "insertRight": "Insérer à droite",
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
+      "wrapCellContent": "Envelopper le texte",
       "clear": "Effacer les cellules",
       "textFieldName": "Texte",
       "checkboxFieldName": "Case à cocher",
@@ -1322,6 +1332,7 @@
       "checklistFieldName": "Check-list",
       "relationFieldName": "Relation",
       "summaryFieldName": "Résume IA",
+      "timeFieldName": "Horaire",
       "translateFieldName": "Traduction IA",
       "translateTo": "Traduire en",
       "numberFormat": "Format du nombre",
@@ -1352,6 +1363,7 @@
       "addOption": "Ajouter une option",
       "editProperty": "Modifier la propriété",
       "newProperty": "Nouvelle colonne",
+      "openRowDocument": "Ouvrir en tant que page",
       "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?",
       "clearFieldPromptMessage": "Es-tu sûr? Toutes les cellules de cette colonne seront vidées",
       "newColumn": "Nouvelle colonne",
@@ -1372,7 +1384,8 @@
         "many": "Cacher {count} champs masqués",
         "other": "Cacher {count} champs masqués"
       },
-      "openAsFullPage": "Ouvrir en pleine page"
+      "openAsFullPage": "Ouvrir en pleine page",
+      "moreRowActions": "Plus d'actions de ligne"
     },
     "sort": {
       "ascending": "Ascendant",
@@ -1495,6 +1508,7 @@
         "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
+        "doc": "Doc",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
         "linkedGrid": "Grille liée",
@@ -1505,8 +1519,10 @@
         "quote": "Citation",
         "divider": "Diviseur",
         "table": "Tableau",
+        "outline": "Table des matières",
         "mathEquation": "Équation mathématique",
         "code": "Code",
+        "toggleList": "Menu dépliant",
         "emoji": "Émoji",
         "aiWriter": "Rédacteur IA",
         "dateOrReminder": "Date ou rappel",
@@ -1670,6 +1686,7 @@
       "file": {
         "name": "Fichier",
         "uploadTab": "Télécharger",
+        "networkTab": "Intégrer un lien",
         "placeholderText": "Télécharger ou intégrer un fichier",
         "placeholderDragging": "Glisser le fichier à télécharger",
         "dropFileToUpload": "Glisser le fichier à télécharger",
@@ -1681,7 +1698,9 @@
           "title": "Renommer le fichier",
           "description": "Entrez le nouveau nom pour ce fichier",
           "nameEmptyError": "Le nom du fichier ne peut pas être laissé vide."
-        }
+        },
+        "uploadedAt": "Mis en ligne le {}",
+        "linkedAt": "Lien ajouté le {}"
       }
     },
     "outlineBlock": {
@@ -1882,6 +1901,7 @@
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
       "name": "Disposition du calendrier",
+      "clickToOpen": "Cliquez pour ouvrir l'évènement",
       "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
@@ -1891,6 +1911,8 @@
   "errorDialog": {
     "title": "Erreur @:appName",
     "howToFixFallback": "Nous sommes désolés pour le désagrément ! Soumettez un problème sur notre page GitHub qui décrit votre erreur.",
+    "howToFixFallbackHint1": "Nous sommes désolés pour la gêne occasionnée ! Soumettez un problème sur notre ",
+    "howToFixFallbackHint2": " page qui décrit votre erreur.",
     "github": "Afficher sur GitHub"
   },
   "search": {
@@ -2044,7 +2066,10 @@
   },
   "error": {
     "weAreSorry": "Nous sommes désolés",
-    "loadingViewError": "Nous rencontrons des difficultés pour charger cette vue. Veuillez vérifier votre connexion Internet, actualiser l'application et n'hésitez pas à contacter l'équipe si le problème persiste."
+    "loadingViewError": "Nous rencontrons des difficultés pour charger cette vue. Veuillez vérifier votre connexion Internet, actualiser l'application et n'hésitez pas à contacter l'équipe si le problème persiste.",
+    "syncError": "Les données ne sont pas synchronisées depuis un autre appareil",
+    "syncErrorHint": "Veuillez rouvrir cette page sur l'appareil sur lequel elle a été modifiée pour la dernière fois, puis l'ouvrir à nouveau sur l'appareil actuel.",
+    "clickToCopy": "Cliquez pour copier le code d'erreur"
   },
   "editor": {
     "bold": "Gras",
@@ -2059,6 +2084,7 @@
     "color": "Couleur",
     "image": "Image",
     "date": "Date",
+    "page": "Page",
     "italic": "Italique",
     "link": "Lien",
     "numberedList": "Liste numérotée",
@@ -2134,7 +2160,7 @@
     "auto": "Auto",
     "cut": "Couper",
     "copy": "Copier",
-    "paste": "Color",
+    "paste": "Coller",
     "find": "Chercher",
     "select": "Sélectionner",
     "selectAll": "Tout sélectionner",
@@ -2254,20 +2280,25 @@
     "gradient": "Dégradé",
     "backgroundImage": "Image d'arrière-plan",
     "presets": "Préréglages",
+    "photo": "Photo",
+    "unsplash": "Unsplash",
     "pageCover": "Couverture de page",
     "none": "Aucun",
     "photoPermissionDescription": "Autoriser l'accès à la photothèque pour le téléchargement d'images.",
     "openSettings": "Ouvrir les paramètres",
     "photoPermissionTitle": "@:appName souhaite accéder à votre photothèque",
-    "doNotAllow": "Ne pas autoriser"
+    "doNotAllow": "Ne pas autoriser",
+    "image": "Image"
   },
   "commandPalette": {
     "placeholder": "Tapez pour rechercher des vues...",
+    "bestMatches": "Meilleurs résultats",
     "recentHistory": "Historique récent",
     "navigateHint": "naviguer",
     "loadingTooltip": "Nous recherchons des résultats...",
     "betaLabel": "BÊTA",
     "betaTooltip": "Nous ne prenons actuellement en charge que la recherche de pages",
+    "fromTrashHint": "Depuis la poubelle",
     "noResultsHint": "Nous n'avons pas trouvé ce que vous cherchez, essayez avec un autre terme.",
     "clearSearchTooltip": "Effacer le champ de recherche"
   },
@@ -2299,11 +2330,13 @@
     "defaultSpaceName": "Général",
     "upgradeSpaceTitle": "Activer les espaces",
     "upgradeSpaceDescription": "Créez plusieurs espaces publics et privés pour mieux organiser votre espace de travail.",
+    "upgrade": "Mettre à jour",
     "upgradeYourSpace": "Créer plusieurs espaces",
     "quicklySwitch": "Passer rapidement à l’espace suivant",
     "duplicate": "dupliquer l'espace ",
     "movePageToSpace": "Déplacer la page vers l'espace",
-    "switchSpace": "Changer d'espace"
+    "switchSpace": "Changer d'espace",
+    "spaceNameCannotBeEmpty": "Le nom de l'espace ne peut pas être vide"
   },
   "publish": {
     "hasNotBeenPublished": "Cette page n'a pas encore été publiée",
@@ -2314,7 +2347,8 @@
     "copy": {
       "codeBlock": "Le contenu du bloc de code a été copié dans le presse-papiers",
       "imageBlock": "Le lien de l'image a été copié dans le presse-papiers",
-      "mathBlock": "L'équation mathématique a été copiée dans le presse-papiers"
+      "mathBlock": "L'équation mathématique a été copiée dans le presse-papiers",
+      "fileBlock": "Le lien du fichier a été copié dans le presse-papiers"
     },
     "containsPublishedPage": "Cette page contient une ou plusieurs pages publiées. Si vous continuez, elles ne seront plus publiées. Voulez-vous procéder à la suppression ?",
     "publishSuccessfully": "Publié avec succès",
@@ -2361,7 +2395,12 @@
     "termOfUse": "Termes",
     "privacyPolicy": "politique de confidentialité",
     "signInError": "Erreur de connexion",
-    "login": "Inscrivez-vous ou connectez-vous"
+    "login": "Inscrivez-vous ou connectez-vous",
+    "fileBlock": {
+      "uploadedAt": "Mis en ligne le {time}",
+      "linkedAt": "Lien ajouté le {time}",
+      "empty": "Envoyer ou intégrer un fichier"
+    }
   },
   "globalComment": {
     "comments": "Commentaires",
@@ -2412,5 +2451,65 @@
     "failedToAddComment": "Problème lors de l'ajout du commentaire",
     "commentAddedSuccessfully": "Commentaire ajouté avec succès.",
     "commentAddedSuccessTip": "Vous venez d'ajouter ou de répondre à un commentaire. Souhaitez-vous passer en haut de la page pour voir les derniers commentaires ?"
+  },
+  "template": {
+    "asTemplate": "En tant que modèle",
+    "name": "Nom du modèle",
+    "description": "Description du modèle",
+    "about": "À propos du modèle",
+    "preview": "Aperçu du modèle",
+    "categories": "Catégories de modèles",
+    "relatedTemplates": "Modèles associés",
+    "requiredField": "{field} est requis",
+    "addCategory": "Ajouter \"{category}\"",
+    "addNewCategory": "Ajouter une nouvelle catégorie",
+    "addNewCreator": "Ajouter un nouvel auteur",
+    "deleteCategory": "Supprimer la catégorie",
+    "editCategory": "Modifier la catégorie",
+    "editCreator": "Modifier le créateur",
+    "category": {
+      "name": "Nom de la catégorie",
+      "icon": "Icône de la catégorie",
+      "bgColor": "Couleur d'arrière-plan de la catégorie",
+      "priority": "Priorité de la catégorie",
+      "desc": "Description de la catégorie",
+      "type": "Type de catégorie",
+      "icons": "Icônes de catégorie",
+      "colors": "Couleurs de catégorie ",
+      "byUseCase": "Par cas d'utilisation",
+      "byFeature": "Par fonctionnalité",
+      "deleteCategory": "Supprimer la catégorie",
+      "deleteCategoryDescription": "Êtes-vous sûr de vouloir supprimer cette catégorie ?",
+      "typeToSearch": "Tapez pour rechercher des catégories..."
+    },
+    "creator": {
+      "label": "Auteur du modèle",
+      "name": "Nom de l'auteur",
+      "avatar": "Avatar de l'auteur",
+      "accountLinks": "Liens vers le compte de l'auteur",
+      "uploadAvatar": "Cliquez pour ajouter un avatar",
+      "deleteCreator": "Supprimer l'auteur",
+      "deleteCreatorDescription": "Êtes-vous sûr de vouloir supprimer cet auteur ?",
+      "typeToSearch": "Tapez pour rechercher des auteurs..."
+    },
+    "uploadSuccess": "Modèle envoyé avec succès",
+    "uploadSuccessDescription": "Votre modèle a été envoyé avec succès. Vous pouvez maintenant le visualiser dans la galerie de modèles.",
+    "viewTemplate": "Voir le modèle",
+    "deleteTemplate": "Supprimer le modèle",
+    "deleteTemplateDescription": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
+    "addRelatedTemplate": "Ajouter un modèle associé",
+    "removeRelatedTemplate": "Supprimer le modèle associé",
+    "uploadAvatar": "Envoyer l'avatar",
+    "searchInCategory": "Rechercher dans {category}",
+    "label": "Modèle"
+  },
+  "fileDropzone": {
+    "dropFile": "Cliquez ou faites glisser le fichier vers cette zone pour l'envoyer",
+    "uploading": "Envoi en cours...",
+    "uploadFailed": "Envoi échoué",
+    "uploadSuccess": "Envoi réussi",
+    "uploadSuccessDescription": "Le fichier a été envoyé avec succès",
+    "uploadFailedDescription": "L'envoi du fichier a échoué",
+    "uploadingDescription": "Le fichier est en cours d'envoi"
   }
 }

@@ -1,5 +1,7 @@
-import 'package:flowy_infra/file_picker/file_picker_service.dart';
+import 'package:flutter/services.dart';
+
 import 'package:file_picker/file_picker.dart' as fp;
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 
 class FilePicker implements FilePickerService {
   @override
@@ -35,6 +37,11 @@ class FilePicker implements FilePickerService {
     return FilePickerResult(result?.files ?? []);
   }
 
+  /// On Desktop it will return the path to which the file should be saved.
+  ///
+  /// On Mobile it will return the path to where the file has been saved, and will
+  /// automatically save it. The [bytes] parameter is required on Mobile.
+  ///
   @override
   Future<String?> saveFile({
     String? dialogTitle,
@@ -43,6 +50,7 @@ class FilePicker implements FilePickerService {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
+    Uint8List? bytes,
   }) async {
     final result = await fp.FilePicker.platform.saveFile(
       dialogTitle: dialogTitle,
@@ -51,6 +59,7 @@ class FilePicker implements FilePickerService {
       type: type,
       allowedExtensions: allowedExtensions,
       lockParentWindow: lockParentWindow,
+      bytes: bytes,
     );
 
     return result;

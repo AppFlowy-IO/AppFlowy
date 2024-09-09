@@ -321,18 +321,23 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           Navigator.of(context).pop();
         }
       },
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: 20.0,
           horizontal: 20.0,
         ),
+        color: PlatformExtension.isDesktop
+            ? null
+            : Theme.of(context).colorScheme.surface,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTitle(),
-            const VSpace(6),
-            _buildDescription(),
+            if (widget.description.isNotEmpty) ...[
+              const VSpace(6),
+              _buildDescription(),
+            ],
             if (widget.child != null) ...[
               const VSpace(12),
               widget.child!,
@@ -373,6 +378,10 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
   }
 
   Widget _buildDescription() {
+    if (widget.description.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return FlowyText.regular(
       widget.description,
       fontSize: 16.0,

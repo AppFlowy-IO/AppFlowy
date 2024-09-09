@@ -56,7 +56,7 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
         minHeight: 'calc(100vh - 48px)',
         maxWidth: isTemplateThumb ? '964px' : undefined,
       }}
-      className={'relative flex h-full w-full flex-col px-16 max-md:px-4'}
+      className={'relative flex h-full w-full flex-col px-16 max-xl:px-8 max-lg:px-6'}
     >
       <DatabaseHeader {...viewMeta} />
       <Suspense fallback={<ComponentLoading />}>

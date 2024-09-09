@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -33,9 +33,10 @@ class DesktopWorkspaceStartScreen extends StatelessWidget {
 Widget _renderBody(WorkspaceState state) {
   final body = state.successOrFailure.fold(
     (_) => _renderList(state.workspaces),
-    (error) => FlowyErrorPage.message(
-      error.toString(),
-      howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+    (error) => Center(
+      child: AppFlowyErrorPage(
+        error: error,
+      ),
     ),
   );
   return body;

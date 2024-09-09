@@ -26,7 +26,6 @@ private = true
 script = [
   """
     cd rust-lib/
-    rustup show
     if [ "${BUILD_FLAG}" = "debug" ]; then
       echo "🚀 🚀 🚀  Building iOS SDK for debug"
       cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
@@ -68,10 +67,10 @@ script = [
     cd rust-lib/
     if [ "${BUILD_FLAG}" = "debug" ]; then
       echo "🚀 🚀 🚀  Building Android SDK for debug"
-      cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
       echo "🚀 🚀 🚀  Building Android SDK for release"
-      cargo ndk -t arm64-v8a -t armeabi-v7a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
     fi
     cd ../
   """,
@@ -98,9 +97,6 @@ script = [
     echo "🚀 🚀 🚀  AppFlowy-Core for iOS platform build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
     lib = set lib${LIB_NAME}.${LIB_EXT}
-
-    ls -a ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}
-
 
     echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}/${lib}"
     rm -f ${dart_ffi_dir}/${lib}

@@ -1,13 +1,14 @@
 import { YjsDatabaseKey } from '@/application/collab.type';
 import { FieldType, parseSelectOptionTypeOptions, useFieldSelector } from '@/application/database-yjs';
 import { Tag } from '@/components/_shared/tag';
-import { SelectOptionColorMap } from '@/components/database/components/cell/cell.const';
+import { SelectOptionBadgeColorMap, SelectOptionColorMap } from '@/components/database/components/cell/cell.const';
+import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckboxCheckSvg } from '$icons/16x/check_filled.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$icons/16x/uncheck.svg';
 
-export function useRenderColumn(id: string, fieldId: string) {
+export function useRenderColumn (id: string, fieldId: string) {
   const { field } = useFieldSelector(fieldId);
   const fieldType = Number(field?.get(YjsDatabaseKey.type)) as FieldType;
   const fieldName = field?.get(YjsDatabaseKey.name) || '';
@@ -34,11 +35,19 @@ export function useRenderColumn(id: string, fieldId: string) {
     if ([FieldType.SingleSelect, FieldType.MultiSelect].includes(fieldType)) {
       const option = parseSelectOptionTypeOptions(field)?.options.find((option) => option.id === id);
 
+      const label = option?.name || `No ${fieldName}`;
+
       return (
-        <Tag
-          label={option?.name || `No ${fieldName}`}
-          color={option?.color ? SelectOptionColorMap[option?.color] : 'transparent'}
-        />
+        <Tooltip title={label} enterNextDelay={1000} enterDelay={1000}>
+          <span>
+            <Tag
+              label={label}
+              color={option?.color ? SelectOptionColorMap[option?.color] : 'transparent'}
+              badge={option?.color ? SelectOptionBadgeColorMap[option?.color] : undefined}
+            />
+          </span>
+
+        </Tooltip>
       );
     }
 

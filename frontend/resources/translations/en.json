@@ -288,10 +288,10 @@
     "minutesAgo": "{count} minutes ago",
     "lastViewed": "Last viewed",
     "favoriteAt": "Favorited",
-    "emptyRecent": "No Recent Documents",
-    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
-    "emptyFavorite": "No Favorite Documents",
-    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "emptyRecent": "No Recent Pages",
+    "emptyRecentDescription": "As you view pages, they will appear here for easy retrieval.",
+    "emptyFavorite": "No Favorite Pages",
+    "emptyFavoriteDescription": "Mark pages as favorites—they'll be listed here for quick access!",
     "removePageFromRecent": "Remove this page from the Recent?",
     "removeSuccess": "Removed successfully",
     "favoriteSpace": "Favorites",
@@ -300,11 +300,15 @@
     "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
     "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
+    "storageLimitDialogTitleIOS": "You have run out of free storage.",
     "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "aiResponseLimitTitleIOS": "You have run out of free AI responses.",
     "aiResponseLimitDialogTitle": "AI Responses limit reached",
     "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
     "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
+    "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
@@ -938,7 +942,7 @@
       "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
@@ -1116,7 +1120,7 @@
         },
         "inviteFailedDialogTitle": "Failed to send invite",
         "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
-        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit. Upgrade on Desktop to unlock more features.",
+        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
@@ -1294,6 +1298,7 @@
       "isNotEmpty": "Is not empty"
     },
     "field": {
+      "label": "Property",
       "hide": "Hide",
       "show": "Show",
       "insertLeft": "Insert Left",
@@ -1315,6 +1320,7 @@
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
       "timeFieldName": "Time",
+      "mediaFieldName": "Files & media",
       "translateFieldName": "AI Translate",
       "translateTo": "Translate to",
       "numberFormat": "Number format",
@@ -1346,7 +1352,7 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "openRowDocument": "Open as a page",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "deleteFieldPromptMessage": "Are you sure? This property and all its data will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
       "format": "Format",
@@ -1457,6 +1463,17 @@
       "countEmptyShort": "EMPTY",
       "countNonEmpty": "Count not empty",
       "countNonEmptyShort": "FILLED"
+    },
+    "media": {
+      "rename": "Rename",
+      "download": "Download",
+      "open": "Open",
+      "delete": "Delete",
+      "moreFilesHint": "+{} file(s)",
+      "showMore": "There are {} more file(s), click to view",
+      "addFileOrImage": "Add a file, image, or link",
+      "attachmentsHint": "{} attachment(s)",
+      "addFileMobile": "Add file"
     }
   },
   "document": {
@@ -1668,6 +1685,7 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
+        "uploadMobile": "Pick from files",
         "networkTab": "Embed link",
         "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
@@ -1794,7 +1812,9 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
       "clickToCopyTheBlockContent": "Click to copy the block content",
-      "blockContentHasBeenCopied": "The block content has been copied."
+      "blockContentHasBeenCopied": "The block content has been copied.",
+      "parseError": "An error occurred while parsing the {} block.",
+      "copyBlockContent": "Copy block content"
     },
     "mobilePageSelector": {
       "title": "Select page",
@@ -1853,7 +1873,11 @@
       "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
-    "noGroupDesc": "Board views require a property to group by in order to display"
+    "noGroupDesc": "Board views require a property to group by in order to display",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "files"
+    }
   },
   "calendar": {
     "menuName": "Calendar",
@@ -2227,10 +2251,18 @@
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
+        "description": "Permanently delete your account and remove access from all workspaces.",
         "deleteMyAccount": "Delete my account",
         "dialogTitle": "Delete account",
         "dialogContent1": "Are you sure you want to permanently delete your account?",
-        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+        "dialogContent2": "This action cannot be undone, and will remove access from all workspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
+        "confirmHint1": "Please type \"DELETE MY ACCOUNT\" to confirm.",
+        "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
+        "confirmHint3": "DELETE MY ACCOUNT",
+        "checkToConfirmError": "You must check the box to confirm deletion",
+        "failedToGetCurrentUser": "Failed to get current user email",
+        "confirmTextValidationFailed": "Your confirmation text does not match \"DELETE MY ACCOUNT\"",
+        "deleteAccountSuccess": "Account deleted successfully"
       }
     },
     "workplace": {
@@ -2273,7 +2305,7 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
     "doNotAllow": "Don't Allow",
@@ -2329,6 +2361,7 @@
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
+    "spaceHasNotBeenPublished": "Haven't supported publishing a space yet",
     "reportPage": "Report page",
     "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
     "createdWith": "Created with",
@@ -2358,12 +2391,12 @@
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
     "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
-    "saveThisPage": "Save this page",
+    "saveThisPage": "Start with this template",
     "duplicateTitle": "Where would you like to add",
     "selectWorkspace": "Select a workspace",
     "addTo": "Add to",
-    "duplicateSuccessfully": "Duplicated success. Want to view documents?",
-    "duplicateSuccessfullyDescription": "Don't have the app? Your download will begin automatically after clicking the 'Download'.",
+    "duplicateSuccessfully": "Added to your workspace",
+    "duplicateSuccessfullyDescription": "Don't have AppFlowy installed? The download will start automatically after you click 'Download'.",
     "downloadIt": "Download",
     "openApp": "Open in app",
     "duplicateFailed": "Duplicated failed",
@@ -2372,7 +2405,8 @@
       "one": "1 member",
       "many": "{count} members",
       "other": "{count} members"
-    }
+    },
+    "useThisTemplate": "Use the template"
   },
   "web": {
     "continue": "Continue",
@@ -2380,6 +2414,9 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
+    "continueWithApple": "Continue with Apple ",
+    "moreOptions": "More options",
+    "collapse": "Collapse",
     "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
@@ -2443,7 +2480,7 @@
     "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
   },
   "template": {
-    "asTemplate": "As template",
+    "asTemplate": "Save as template",
     "name": "Template name",
     "description": "Template Description",
     "about": "Template About",
@@ -2493,7 +2530,7 @@
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
     "searchInCategory": "Search in {category}",
-    "label": "Template"
+    "label": "Templates"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",
@@ -2503,5 +2540,15 @@
     "uploadSuccessDescription": "The file has been uploaded successfully",
     "uploadFailedDescription": "The file upload failed",
     "uploadingDescription": "The file is being uploaded"
+  },
+  "gallery": {
+    "preview": "Open in full screen",
+    "copy": "Copy",
+    "download": "Download",
+    "prev": "Previous",
+    "next": "Next",
+    "resetZoom": "Reset zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

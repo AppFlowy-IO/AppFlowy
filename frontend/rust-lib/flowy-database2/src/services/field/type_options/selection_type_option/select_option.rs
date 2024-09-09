@@ -1,6 +1,7 @@
 use crate::entities::SelectOptionCellDataPB;
 use crate::services::field::SelectOptionIds;
 use collab_database::entity::SelectOption;
+
 #[derive(Debug)]
 pub struct SelectOptionCellData {
   pub select_options: Vec<SelectOption>,

@@ -1,12 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/select/select_option.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:intl/intl.dart';
 
 import '../../shared/database_test_op.dart';
 import '../../shared/util.dart';
@@ -56,11 +57,22 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // create a field
-      await tester.createField(FieldType.Checklist, 'checklist');
+      await tester.createField(FieldType.Checklist);
+      tester.findFieldWithName(FieldType.Checklist.i18n);
 
-      // check the field is created successfully
-      tester.findFieldWithName('checklist');
-      await tester.pumpAndSettle();
+      // editing field type during field creation should change title
+      await tester.createField(FieldType.MultiSelect);
+      tester.findFieldWithName(FieldType.MultiSelect.i18n);
+
+      // not if the user changes the title manually though
+      const name = "New field";
+      await tester.createField(FieldType.DateTime);
+      await tester.tapGridFieldWithName(FieldType.DateTime.i18n);
+      await tester.renameField(name);
+      await tester.tapEditFieldButton();
+      await tester.tapSwitchFieldTypeButton();
+      await tester.selectFieldType(FieldType.URL);
+      tester.findFieldWithName(name);
     });
 
     testWidgets('delete field', (tester) async {
@@ -70,14 +82,14 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // create a field
-      await tester.createField(FieldType.Checkbox, 'New field 1');
+      await tester.createField(FieldType.Checkbox, name: 'New field 1');
 
       // Delete the field
       await tester.tapGridFieldWithName('New field 1');
       await tester.tapDeletePropertyButton();
 
       // confirm delete
-      await tester.tapDialogOkButton();
+      await tester.tapButtonWithName(LocaleKeys.space_delete.tr());
 
       tester.noFieldWithName('New field 1');
       await tester.pumpAndSettle();
@@ -90,10 +102,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // create a field
-      await tester.scrollToRight(find.byType(GridPage));
-      await tester.tapNewPropertyButton();
-      await tester.renameField('New field 1');
-      await tester.dismissFieldEditor();
+      await tester.createField(FieldType.RichText, name: 'New field 1');
 
       // duplicate the field
       await tester.tapGridFieldWithName('New field 1');
@@ -126,26 +135,6 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('create checklist field', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-
-      await tester.scrollToRight(find.byType(GridPage));
-      await tester.tapNewPropertyButton();
-
-      // Open the type option menu
-      await tester.tapSwitchFieldTypeButton();
-
-      await tester.selectFieldType(FieldType.Checklist);
-
-      // After update the field type, the cells should be updated
-      await tester.findCellByFieldType(FieldType.Checklist);
-
-      await tester.pumpAndSettle();
-    });
-
     testWidgets('create list of fields', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -162,18 +151,10 @@ void main() {
         FieldType.CreatedTime,
         FieldType.Checkbox,
       ]) {
-        await tester.scrollToRight(find.byType(GridPage));
-        await tester.tapNewPropertyButton();
-        await tester.renameField(fieldType.name);
-
-        // Open the type option menu
-        await tester.tapSwitchFieldTypeButton();
-
-        await tester.selectFieldType(fieldType);
-        await tester.dismissFieldEditor();
+        await tester.createField(fieldType);
 
         // After update the field type, the cells should be updated
-        await tester.findCellByFieldType(fieldType);
+        tester.findCellByFieldType(fieldType);
         await tester.pumpAndSettle();
       }
     });
@@ -190,15 +171,7 @@ void main() {
         FieldType.Checklist,
         FieldType.URL,
       ]) {
-        // create the field
-        await tester.scrollToRight(find.byType(GridPage));
-        await tester.tapNewPropertyButton();
-        await tester.renameField(fieldType.i18n);
-
-        // change field type
-        await tester.tapSwitchFieldTypeButton();
-        await tester.selectFieldType(fieldType);
-        await tester.dismissFieldEditor();
+        await tester.createField(fieldType);
 
         // open the field editor
         await tester.tapGridFieldWithName(fieldType.i18n);
@@ -218,11 +191,7 @@ void main() {
       await tester.scrollToRight(find.byType(GridPage));
 
       // create a number field
-      await tester.tapNewPropertyButton();
-      await tester.renameField("Number");
-      await tester.tapSwitchFieldTypeButton();
-      await tester.selectFieldType(FieldType.Number);
-      await tester.dismissFieldEditor();
+      await tester.createField(FieldType.Number);
 
       // enter some data into the first number cell
       await tester.editCell(
@@ -243,7 +212,7 @@ void main() {
       );
 
       // open editor and change number format
-      await tester.tapGridFieldWithName('Number');
+      await tester.tapGridFieldWithName(FieldType.Number.i18n);
       await tester.tapEditFieldButton();
       await tester.changeNumberFieldFormat();
       await tester.dismissFieldEditor();
@@ -292,11 +261,7 @@ void main() {
       await tester.scrollToRight(find.byType(GridPage));
 
       // create a date field
-      await tester.tapNewPropertyButton();
-      await tester.renameField(FieldType.DateTime.i18n);
-      await tester.tapSwitchFieldTypeButton();
-      await tester.selectFieldType(FieldType.DateTime);
-      await tester.dismissFieldEditor();
+      await tester.createField(FieldType.DateTime);
 
       // edit the first date cell
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);

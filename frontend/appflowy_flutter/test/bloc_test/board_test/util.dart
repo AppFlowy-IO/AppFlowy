@@ -54,7 +54,7 @@ Future<void> boardResponseFuture() {
   return Future.delayed(boardResponseDuration());
 }
 
-Duration boardResponseDuration({int milliseconds = 200}) {
+Duration boardResponseDuration({int milliseconds = 2000}) {
   return Duration(milliseconds: milliseconds);
 }
 
@@ -78,14 +78,13 @@ class BoardTestContext {
 
   FieldEditorBloc makeFieldEditor({
     required FieldInfo fieldInfo,
-  }) {
-    final editorBloc = FieldEditorBloc(
-      viewId: databaseController.viewId,
-      fieldController: fieldController,
-      field: fieldInfo.field,
-    );
-    return editorBloc;
-  }
+  }) =>
+      FieldEditorBloc(
+        viewId: databaseController.viewId,
+        fieldController: fieldController,
+        fieldInfo: fieldInfo,
+        isNew: false,
+      );
 
   CellController makeCellControllerFromFieldId(String fieldId) {
     return makeCellController(

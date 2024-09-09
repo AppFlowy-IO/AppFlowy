@@ -63,16 +63,16 @@ export function ViewMetaPreview ({ icon, cover, name }: ViewMetaProps) {
     <div className={'flex w-full flex-col items-center'}>
       {cover && <ViewCover coverType={coverType} coverValue={coverValue} />}
       <div
-        className={`relative mx-16 mb-6 mt-[52px] max-md:mt-[38px] w-[964px] min-w-0 max-w-full overflow-visible max-md:mx-4`}
+        className={`relative mb-6 mt-[52px] max-md:mt-[38px] max-xl:px-8 w-[964px] min-w-0 max-w-full overflow-visible max-lg:px-6`}
       >
         <div
           className={
-            'flex gap-4 overflow-hidden whitespace-pre-wrap break-words break-all px-16 text-[2.25rem] font-bold leading-[2em] max-md:px-4 max-sm:text-[7vw]'
+            'flex gap-4 overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
           }
         >
           {icon?.value ? <div className={`view-icon ${isFlag ? 'icon' : ''}`}>{icon?.value}</div> : null}
 
-          <div className={'relative top-1.5'}>
+          <div className={'relative'}>
             {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}
           </div>
         </div>

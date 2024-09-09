@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -17,29 +18,32 @@ part 'field_editor_bloc.freezed.dart';
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   FieldEditorBloc({
     required this.viewId,
+    required this.fieldInfo,
     required this.fieldController,
     this.onFieldInserted,
-    required FieldPB field,
-  })  : fieldId = field.id,
-        fieldService = FieldBackendService(
+    required this.isNew,
+  })  : _fieldService = FieldBackendService(
           viewId: viewId,
-          fieldId: field.id,
+          fieldId: fieldInfo.id,
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
-        super(FieldEditorState(field: FieldInfo.initial(field))) {
+        super(FieldEditorState(field: fieldInfo)) {
     _dispatch();
     _startListening();
     _init();
   }
 
   final String viewId;
-  final String fieldId;
+  final FieldInfo fieldInfo;
+  final bool isNew;
   final FieldController fieldController;
-  final FieldBackendService fieldService;
+  final FieldBackendService _fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final void Function(String newFieldId)? onFieldInserted;
 
   late final OnReceiveField _listener;
+
+  String get fieldId => fieldInfo.id;
 
   @override
   Future<void> close() {
@@ -58,11 +62,20 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: fieldInfo));
           },
           switchFieldType: (fieldType) async {
-            await fieldService.updateType(fieldType: fieldType);
+            String? fieldName;
+            if (!state.wasRenameManually && isNew) {
+              fieldName = fieldType.i18n;
+            }
+
+            await _fieldService.updateType(
+              fieldType: fieldType,
+              fieldName: fieldName,
+            );
           },
           renameField: (newName) async {
-            final result = await fieldService.updateField(name: newName);
+            final result = await _fieldService.updateField(name: newName);
             _logIfError(result);
+            emit(state.copyWith(wasRenameManually: true));
           },
           updateTypeOption: (typeOptionData) async {
             final result = await FieldBackendService.updateFieldTypeOption(
@@ -73,14 +86,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await fieldService.createBefore();
+            final result = await _fieldService.createBefore();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await fieldService.createAfter();
+            final result = await _fieldService.createAfter();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
@@ -94,7 +107,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
                     ? FieldVisibility.AlwaysShown
                     : FieldVisibility.AlwaysHidden;
             final result = await fieldSettingsService.updateFieldSettings(
-              fieldId: state.field.id,
+              fieldId: fieldId,
               fieldVisibility: newVisibility,
             );
             _logIfError(result);
@@ -164,5 +177,6 @@ class FieldEditorEvent with _$FieldEditorEvent {
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
     required final FieldInfo field,
+    @Default(false) bool wasRenameManually,
   }) = _FieldEditorState;
 }

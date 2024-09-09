@@ -53,31 +53,43 @@ async fn group_move_row_test() {
 }
 
 #[tokio::test]
-async fn group_move_row_to_other_group_test() {
+async fn test_row_movement_between_groups_with_assertions() {
   let mut test = DatabaseGroupTest::new().await;
-  let group = test.group_at_index(1).await;
-  let scripts = vec![
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 1,
-      row: group.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+  for _ in 0..5 {
+    let scripts = vec![
+      MoveRow {
+        from_group_index: 1,
+        from_row_index: 0,
+        to_group_index: 2,
+        to_row_index: 1,
+      },
+      AssertGroupRowCount {
+        group_index: 1,
+        row_count: 1,
+      },
+      AssertGroupRowCount {
+        group_index: 2,
+        row_count: 3,
+      },
+      // Move the row back to origin group
+      MoveRow {
+        from_group_index: 2,
+        from_row_index: 1,
+        to_group_index: 1,
+        to_row_index: 0,
+      },
+      AssertGroupRowCount {
+        group_index: 2,
+        row_count: 2,
+      },
+      AssertGroupRowCount {
+        group_index: 1,
+        row_count: 2,
+      },
+    ];
+    test.run_scripts(scripts).await;
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+  }
 }
 
 #[tokio::test]
