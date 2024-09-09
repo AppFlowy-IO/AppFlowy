@@ -1,7 +1,7 @@
 import { UploadTemplatePayload } from '@/application/template.type';
 import { notify } from '@/components/_shared/notify';
 import { AFScroller } from '@/components/_shared/scroller';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import AsTemplateForm, { AsTemplateFormValue } from '@/components/as-template/AsTemplateForm';
 import Categories from '@/components/as-template/category/Categories';
 import Creator from '@/components/as-template/creator/Creator';

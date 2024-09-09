@@ -2,7 +2,7 @@ import { YDoc } from '@/application/collab.type';
 import { PublishProvider } from '@/application/publish';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { AFScroller } from '@/components/_shared/scroller';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { GlobalCommentProvider } from '@/components/global-comment';
 import CollabView from '@/components/publish/CollabView';
 import { OutlineDrawer } from '@/components/publish/outline';

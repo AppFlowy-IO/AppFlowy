@@ -1,6 +1,6 @@
 import { YDoc } from '@/application/collab.type';
 import { applyYDoc } from '@/application/ydoc/apply';
-import withAppWrapper from '@/components/app/withAppWrapper';
+import withAppWrapper from '@/components/main/withAppWrapper';
 import { DatabaseRow } from 'src/components/database/DatabaseRow';
 import { DatabaseContextProvider } from 'src/components/database/DatabaseContext';
 import * as Y from 'yjs';
@@ -59,7 +59,7 @@ describe('<DatabaseRow />', () => {
   });
 });
 
-function TestDatabaseRow({
+function TestDatabaseRow ({
   rowId,
   databaseDoc,
   rows,

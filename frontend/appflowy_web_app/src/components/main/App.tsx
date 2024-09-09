@@ -7,7 +7,7 @@ import AsTemplatePage from '@/pages/AsTemplatePage';
 import LoginPage from '@/pages/LoginPage';
 import PublishPage from '@/pages/PublishPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import withAppWrapper from '@/components/app/withAppWrapper';
+import withAppWrapper from '@/components/main/withAppWrapper';
 import '@/styles/app.scss';
 
 const AppMain = withAppWrapper(() => {

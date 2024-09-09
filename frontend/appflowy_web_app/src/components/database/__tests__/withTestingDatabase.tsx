@@ -1,12 +1,12 @@
 import { YDoc } from '@/application/collab.type';
 import { applyYDoc } from '@/application/ydoc/apply';
-import withAppWrapper from '@/components/app/withAppWrapper';
+import withAppWrapper from '@/components/main/withAppWrapper';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import DatabaseViews from '@/components/database/DatabaseViews';
 import { useState } from 'react';
 import * as Y from 'yjs';
 
-export function renderDatabase(
+export function renderDatabase (
   {
     databaseId,
     viewId,
@@ -16,7 +16,7 @@ export function renderDatabase(
     viewId: string;
     onNavigateToView: (viewId: string) => void;
   },
-  onAfterRender?: () => void
+  onAfterRender?: () => void,
 ) {
   cy.fixture(`database/${databaseId}`).then((database) => {
     cy.fixture(`database/rows/${databaseId}`).then((rows) => {
@@ -55,7 +55,7 @@ export function renderDatabase(
   });
 }
 
-export function TestDatabase({
+export function TestDatabase ({
   databaseDoc,
   rows,
   iidIndex,

@@ -3,7 +3,7 @@ import { PublishContext } from '@/application/publish';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { Button, IconButton, Tooltip, TooltipProps } from '@mui/material';
 import React, { memo, useCallback, useContext, useMemo } from 'react';
@@ -20,7 +20,7 @@ interface Item {
   tooltip?: TooltipProps;
 }
 
-function MoreActions({ comment }: { comment: GlobalComment }) {
+function MoreActions ({ comment }: { comment: GlobalComment }) {
   const { reload } = useGlobalCommentContext();
   const canDeleted = comment.canDeleted;
 
@@ -61,9 +61,9 @@ function MoreActions({ comment }: { comment: GlobalComment }) {
         tooltip: canDeleted
           ? undefined
           : {
-              title: <div className={'text-center'}>{t('globalComment.noAccessDeleteComment')}</div>,
-              placement: 'top',
-            },
+            title: <div className={'text-center'}>{t('globalComment.noAccessDeleteComment')}</div>,
+            placement: 'top',
+          },
         onClick: () => {
           setDeleteModalOpen(true);
         },

@@ -1,4 +1,4 @@
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NormalModal } from '@/components/_shared/modal';
@@ -43,7 +43,7 @@ function DuplicateModal ({ open, onClose }: { open: boolean; onClose: () => void
     loadWorkspaces,
     loadSpaces,
   } = useLoadWorkspaces();
-  
+
   useEffect(() => {
     if (open) {
       void loadWorkspaces();

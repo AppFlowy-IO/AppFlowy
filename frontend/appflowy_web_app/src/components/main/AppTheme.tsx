@@ -1,4 +1,4 @@
-import { ThemeModeContext, useAppThemeMode } from '@/components/app/useAppThemeMode';
+import { ThemeModeContext, useAppThemeMode } from '@/components/main/useAppThemeMode';
 import React, { useMemo } from 'react';
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';

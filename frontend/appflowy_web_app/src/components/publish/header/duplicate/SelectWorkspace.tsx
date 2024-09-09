@@ -1,4 +1,4 @@
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Button, CircularProgress, Divider, Tooltip } from '@mui/material';

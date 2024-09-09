@@ -1,7 +1,7 @@
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorHandlerPage } from 'src/components/error/ErrorHandlerPage';
-import AppTheme from '@/components/app/AppTheme';
-import AppConfig from '@/components/app/AppConfig';
+import AppTheme from '@/components/main/AppTheme';
+import AppConfig from '@/components/main/AppConfig';
 import { Suspense } from 'react';
 import { SnackbarProvider } from 'notistack';
 import { styled } from '@mui/material';

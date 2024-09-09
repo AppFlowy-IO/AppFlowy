@@ -1,4 +1,4 @@
-import { useCurrentUser } from '@/components/app/app.hooks';
+import { useCurrentUser } from '@/components/main/app.hooks';
 import { useViewMeta } from '@/components/publish/useViewMeta';
 import { Button, Divider } from '@mui/material';
 import React, { useCallback } from 'react';

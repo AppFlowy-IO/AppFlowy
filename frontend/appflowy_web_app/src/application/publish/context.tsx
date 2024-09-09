@@ -2,7 +2,7 @@ import { GetViewRowsMap, LoadView, LoadViewMeta } from '@/application/collab.typ
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { View } from '@/application/types';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import { notify } from '@/components/_shared/notify';
 import { findView } from '@/components/publish/header/utils';
 import { useLiveQuery } from 'dexie-react-hooks';
