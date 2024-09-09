@@ -1626,8 +1626,8 @@
         "addAnImageMobile": "Click to add one or more images",
         "dropImageToInsert": "Drop images to insert",
         "imageUploadFailed": "Image upload failed",
-        "imageDownloadFailed": "Image upload failed, please try again",
-        "imageDownloadFailedToken": "Image upload failed due to missing user token, please try again",
+        "imageDownloadFailed": "Image download failed, please try again",
+        "imageDownloadFailedToken": "Image download failed due to missing user token, please try again",
         "errorCode": "Error code"
       },
       "photoGallery": {
