@@ -86,6 +86,18 @@ impl From<RowOrder> for RowMetaPB {
   }
 }
 
+impl From<&Row> for RowMetaPB {
+  fn from(data: &Row) -> Self {
+    Self {
+      id: data.id.clone().into_inner(),
+      document_id: None,
+      icon: None,
+      is_document_empty: None,
+      attachment_count: None,
+    }
+  }
+}
+
 impl From<Row> for RowMetaPB {
   fn from(data: Row) -> Self {
     Self {

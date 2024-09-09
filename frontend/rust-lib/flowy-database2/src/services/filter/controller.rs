@@ -371,7 +371,7 @@ impl FilterController {
         &filters,
       ) {
         if is_visible {
-          let row_meta = RowMetaPB::from(row.as_ref().clone());
+          let row_meta = RowMetaPB::from(row.as_ref());
           visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
           invisible_rows.push(row.id.clone());
