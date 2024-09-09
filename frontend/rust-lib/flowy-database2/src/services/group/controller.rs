@@ -115,7 +115,7 @@ where
     if !no_status_group_rows.is_empty() {
       changeset
         .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+        .push(InsertedRowPB::new(RowMetaPB::from(row)));
       no_status_group.add_row(row.clone());
     }
 
@@ -246,7 +246,7 @@ where
           let changeset = GroupRowsNotificationPB::insert(
             group.id.clone(),
             vec![InsertedRowPB {
-              row_meta: (*row).clone().into(),
+              row_meta: row.into(),
               index: Some(index as i32),
               is_new: true,
             }],
@@ -265,7 +265,7 @@ where
         let changeset = GroupRowsNotificationPB::insert(
           no_status_group.id.clone(),
           vec![InsertedRowPB {
-            row_meta: (*row).clone().into(),
+            row_meta: row.into(),
             index: Some(index as i32),
             is_new: true,
           }],

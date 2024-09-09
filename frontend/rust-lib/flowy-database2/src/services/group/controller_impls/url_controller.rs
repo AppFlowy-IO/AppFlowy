@@ -98,7 +98,7 @@ impl GroupCustomize for URLGroupController {
         if !group.contains_row(&row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+            .push(InsertedRowPB::new(RowMetaPB::from(row)));
           group.add_row(row.clone());
         }
       } else if group.contains_row(&row.id) {

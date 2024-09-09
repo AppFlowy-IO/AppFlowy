@@ -62,7 +62,7 @@ pub(crate) async fn get_all_rows_handler(
   let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
   let rows = row_details
     .into_iter()
-    .map(|detail| RowMetaPB::from(detail.as_ref().clone()))
+    .map(|detail| RowMetaPB::from(detail.as_ref()))
     .collect::<Vec<RowMetaPB>>();
   data_result_ok(RepeatedRowMetaPB { items: rows })
 }
