@@ -196,35 +196,8 @@ class FileBlockComponentState extends State<FileBlockComponent>
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: url != null && url.isNotEmpty
-            ? () async {
-                if ([FileUrlType.cloud, FileUrlType.network]
-                        .contains(urlType) ||
-                    PlatformExtension.isDesktopOrWeb) {
-                  await afLaunchUrlString(url);
-                } else {
-                  final result = await OpenFilex.open(url);
-                  if (result.type == ResultType.done) {
-                    return;
-                  }
-
-                  if (context.mounted) {
-                    showToastNotification(
-                      context,
-                      message:
-                          LocaleKeys.document_plugins_file_failedToOpenMsg.tr(),
-                      type: ToastificationType.error,
-                    );
-                  }
-                }
-              }
-            : () {
-                if (PlatformExtension.isDesktopOrWeb) {
-                  controller.show();
-                  dropManagerState.add(FileBlockKeys.type);
-                } else {
-                  showUploadFileMobileMenu();
-                }
-              },
+            ? () async => _openFile(context, urlType, url)
+            : _openMenu,
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: isHovering
@@ -336,6 +309,39 @@ class FileBlockComponentState extends State<FileBlockComponent>
     return child;
   }
 
+  Future<void> _openFile(
+    BuildContext context,
+    FileUrlType urlType,
+    String url,
+  ) async {
+    if ([FileUrlType.cloud, FileUrlType.network].contains(urlType) ||
+        PlatformExtension.isDesktopOrWeb) {
+      await afLaunchUrlString(url);
+    } else {
+      final result = await OpenFilex.open(url);
+      if (result.type == ResultType.done) {
+        return;
+      }
+
+      if (context.mounted) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.document_plugins_file_failedToOpenMsg.tr(),
+          type: ToastificationType.error,
+        );
+      }
+    }
+  }
+
+  void _openMenu() {
+    if (PlatformExtension.isDesktopOrWeb) {
+      controller.show();
+      dropManagerState.add(FileBlockKeys.type);
+    } else {
+      showUploadFileMobileMenu();
+    }
+  }
+
   List<Widget> _buildTrailing(BuildContext context) {
     if (node.attributes[FileBlockKeys.url]?.isNotEmpty == true) {
       final name = node.attributes[FileBlockKeys.name] as String;
@@ -413,26 +419,26 @@ class FileBlockComponentState extends State<FileBlockComponent>
       widget.node.attributes[FileBlockKeys.urlType] ?? 0,
     );
 
+    if (urlType != FileUrlType.network) {
+      return [];
+    }
+
     return [
-      // disable the copy link button if the image is hosted on appflowy cloud
-      // because the url needs the verification token to be accessible
-      // or if the file is a local file.
-      if (urlType == FileUrlType.network)
-        FlowyOptionTile.text(
-          showTopBorder: false,
-          text: LocaleKeys.editor_copyLink.tr(),
-          leftIcon: const FlowySvg(
-            FlowySvgs.m_field_copy_s,
-          ),
-          onTap: () async {
-            context.pop();
-            showSnackBarMessage(
-              context,
-              LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-            );
-            await getIt<ClipboardService>().setPlainText(url);
-          },
+      FlowyOptionTile.text(
+        showTopBorder: false,
+        text: LocaleKeys.editor_copyLink.tr(),
+        leftIcon: const FlowySvg(
+          FlowySvgs.m_field_copy_s,
         ),
+        onTap: () async {
+          context.pop();
+          showSnackBarMessage(
+            context,
+            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+          );
+          await getIt<ClipboardService>().setPlainText(url);
+        },
+      ),
     ];
   }
 
