@@ -223,8 +223,6 @@ class RenderMedia extends StatefulWidget {
 
 class _RenderMediaState extends State<RenderMedia> {
   bool isHovering = false;
-  int? thisIndex;
-
   int? imageIndex;
 
   MediaFilePB get file => widget.file;
@@ -232,12 +230,12 @@ class _RenderMediaState extends State<RenderMedia> {
   @override
   void initState() {
     super.initState();
-    thisIndex = widget.images.indexOf(file);
+    imageIndex = widget.images.indexOf(file);
   }
 
   @override
   void didUpdateWidget(covariant RenderMedia oldWidget) {
-    thisIndex = widget.images.indexOf(file);
+    imageIndex = widget.images.indexOf(file);
     super.didUpdateWidget(oldWidget);
   }
 
@@ -272,7 +270,7 @@ class _RenderMediaState extends State<RenderMedia> {
                     child: _openInteractiveViewer(
                       context,
                       files: widget.images,
-                      index: thisIndex!,
+                      index: imageIndex!,
                       child: FlowyNetworkImage(
                         url: file.url,
                         userProfilePB:
@@ -285,7 +283,7 @@ class _RenderMediaState extends State<RenderMedia> {
                     child: _openInteractiveViewer(
                       context,
                       files: widget.images,
-                      index: thisIndex!,
+                      index: imageIndex!,
                       child: file.uploadType == MediaUploadTypePB.NetworkMedia
                           ? Image.network(
                               file.url,
