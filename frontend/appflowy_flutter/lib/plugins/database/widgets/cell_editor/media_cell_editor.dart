@@ -47,6 +47,10 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
   Widget build(BuildContext context) {
     return BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {
+        final images = state.files
+            .where((file) => file.fileType == MediaFileTypePB.Image)
+            .toList();
+
         return Padding(
           padding: const EdgeInsets.all(4),
           child: SingleChildScrollView(
@@ -63,6 +67,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                       value: context.read<MediaCellBloc>(),
                       child: RenderMedia(
                         file: state.files[index],
+                        images: images,
                         index: index,
                         enableReordering: state.files.length > 1,
                         mutex: itemMutex,
@@ -201,12 +206,14 @@ class RenderMedia extends StatefulWidget {
     super.key,
     required this.index,
     required this.file,
+    required this.images,
     required this.enableReordering,
     required this.mutex,
   });
 
   final int index;
   final MediaFilePB file;
+  final List<MediaFilePB> images;
   final bool enableReordering;
   final PopoverMutex mutex;
 
@@ -216,6 +223,23 @@ class RenderMedia extends StatefulWidget {
 
 class _RenderMediaState extends State<RenderMedia> {
   bool isHovering = false;
+  int? thisIndex;
+
+  int? imageIndex;
+
+  MediaFilePB get file => widget.file;
+
+  @override
+  void initState() {
+    super.initState();
+    thisIndex = widget.images.indexOf(file);
+  }
+
+  @override
+  void didUpdateWidget(covariant RenderMedia oldWidget) {
+    thisIndex = widget.images.indexOf(file);
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -242,33 +266,34 @@ class _RenderMediaState extends State<RenderMedia> {
                   child: const FlowySvg(FlowySvgs.drag_element_s),
                 ),
                 const HSpace(8),
-                if (widget.file.fileType == MediaFileTypePB.Image &&
-                    widget.file.uploadType == MediaUploadTypePB.CloudMedia) ...[
+                if (file.fileType == MediaFileTypePB.Image &&
+                    file.uploadType == MediaUploadTypePB.CloudMedia) ...[
                   Expanded(
                     child: _openInteractiveViewer(
                       context,
-                      file: widget.file,
+                      files: widget.images,
+                      index: thisIndex!,
                       child: FlowyNetworkImage(
-                        url: widget.file.url,
+                        url: file.url,
                         userProfilePB:
                             context.read<MediaCellBloc>().state.userProfile,
                       ),
                     ),
                   ),
-                ] else if (widget.file.fileType == MediaFileTypePB.Image) ...[
+                ] else if (file.fileType == MediaFileTypePB.Image) ...[
                   Expanded(
                     child: _openInteractiveViewer(
                       context,
-                      file: widget.file,
-                      child: widget.file.uploadType ==
-                              MediaUploadTypePB.NetworkMedia
+                      files: widget.images,
+                      index: thisIndex!,
+                      child: file.uploadType == MediaUploadTypePB.NetworkMedia
                           ? Image.network(
-                              widget.file.url,
+                              file.url,
                               fit: BoxFit.cover,
                               alignment: Alignment.centerLeft,
                             )
                           : Image.file(
-                              File(widget.file.url),
+                              File(file.url),
                               fit: BoxFit.cover,
                               alignment: Alignment.centerLeft,
                             ),
@@ -277,18 +302,18 @@ class _RenderMediaState extends State<RenderMedia> {
                 ] else ...[
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => afLaunchUrlString(widget.file.url),
+                      onTap: () => afLaunchUrlString(file.url),
                       child: Row(
                         children: [
                           FlowySvg(
-                            widget.file.fileType.icon,
+                            file.fileType.icon,
                             color: AFThemeExtension.of(context).strongText,
                             size: const Size.square(18),
                           ),
                           const HSpace(8),
                           Flexible(
                             child: FlowyText(
-                              widget.file.name,
+                              file.name,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -307,7 +332,7 @@ class _RenderMediaState extends State<RenderMedia> {
                     popupBuilder: (popoverContext) => BlocProvider.value(
                       value: context.read<MediaCellBloc>(),
                       child: MediaItemMenu(
-                        file: widget.file,
+                        file: file,
                         closeContext: popoverContext,
                       ),
                     ),
@@ -330,17 +355,21 @@ class _RenderMediaState extends State<RenderMedia> {
 
   Widget _openInteractiveViewer(
     BuildContext context, {
-    required MediaFilePB file,
+    required List<MediaFilePB> files,
+    required int index,
     required Widget child,
   }) =>
       GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => openInteractiveViewerFromFile(
+        onTap: () => openInteractiveViewerFromFiles(
           context,
-          file,
-          onDeleteImage: (_) =>
-              context.read<MediaCellBloc>().deleteFile(file.id),
+          files,
+          onDeleteImage: (index) {
+            final deleteFile = files[index];
+            context.read<MediaCellBloc>().deleteFile(deleteFile.id);
+          },
           userProfile: context.read<MediaCellBloc>().state.userProfile,
+          initialIndex: index,
         ),
         child: child,
       );
