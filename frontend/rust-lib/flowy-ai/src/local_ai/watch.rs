@@ -1,6 +1,5 @@
 use crate::local_ai::local_llm_resource::WatchDiskEvent;
 use flowy_error::{FlowyError, FlowyResult};
-use notify::{Event, RecursiveMode, Watcher};
 use std::path::PathBuf;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
@@ -14,6 +13,8 @@ pub struct WatchContext {
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<WatchDiskEvent>)> {
+  use notify::{Event, Watcher};
+
   let install_path = install_path().ok_or_else(|| {
     FlowyError::internal().with_context("Unsupported platform for offline app watching")
   })?;
@@ -44,7 +45,7 @@ pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<Watch
   })
   .map_err(|err| FlowyError::internal().with_context(err))?;
   watcher
-    .watch(&install_path, RecursiveMode::NonRecursive)
+    .watch(&install_path, notify::RecursiveMode::NonRecursive)
     .map_err(|err| FlowyError::internal().with_context(err))?;
 
   Ok((
