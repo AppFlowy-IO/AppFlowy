@@ -142,7 +142,7 @@ SPEC CHECKSUMS:
   HotKey: e96d8a2ddbf4591131e2bb3f54e69554d90cdca6
   hotkey_manager: c32bf0bfe8f934b7bc17ab4ad5c4c142960b023c
   irondash_engine_context: da62996ee25616d2f01bbeb85dc115d813359478
-  local_notifier: e9506bc66fc70311e8bc7291fb70f743c081e4ff
+  local_notifier: c6c371695f914641ab7bc8601944f7e358632d0b
   package_info_plus: fa739dd842b393193c5ca93c26798dff6e3d0e0c
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
