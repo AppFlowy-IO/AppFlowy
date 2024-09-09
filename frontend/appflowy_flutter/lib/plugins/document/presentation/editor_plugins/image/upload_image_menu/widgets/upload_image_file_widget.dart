@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -15,7 +16,7 @@ class UploadImageFileWidget extends StatelessWidget {
   const UploadImageFileWidget({
     super.key,
     required this.onPickFiles,
-    this.allowedExtensions = const ['jpg', 'png', 'jpeg', 'gif', 'webp', 'bmp'],
+    this.allowedExtensions = defaultImageExtensions,
     this.allowMultipleImages = false,
   });
 
