@@ -109,6 +109,18 @@ impl From<RowDetail> for RowMetaPB {
     }
   }
 }
+
+impl From<&RowDetail> for RowMetaPB {
+  fn from(row_detail: &RowDetail) -> Self {
+    Self {
+      id: row_detail.row.id.to_string(),
+      document_id: Some(row_detail.document_id.clone()),
+      icon: row_detail.meta.icon_url.clone(),
+      is_document_empty: Some(row_detail.meta.is_document_empty),
+      attachment_count: Some(row_detail.meta.attachment_count),
+    }
+  }
+}
 //
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

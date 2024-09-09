@@ -47,8 +47,11 @@ class FileStorageService {
       },
     );
 
-    final payload = RegisterStreamPB()..port = Int64(_port.sendPort.nativePort);
-    FileStorageEventRegisterStream(payload).send();
+    if (!integrationMode().isTest) {
+      final payload = RegisterStreamPB()
+        ..port = Int64(_port.sendPort.nativePort);
+      FileStorageEventRegisterStream(payload).send();
+    }
   }
 
   final Map<String, AutoRemoveNotifier<FileProgress>> _notifierList = {};

@@ -19,7 +19,7 @@ class Loading {
 
             if (hasStopped) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(loadingContext!).pop();
+                Navigator.of(loadingContext!).maybePop();
                 loadingContext = null;
               });
             }

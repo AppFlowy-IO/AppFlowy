@@ -382,6 +382,19 @@ pub(crate) async fn import_data_handler(
   data_result_ok(views)
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn import_zip_file_handler(
+  data: AFPluginData<ImportZipPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let data = data.try_into_inner()?;
+  folder
+    .import_zip_file(&data.parent_view_id, &data.file_path)
+    .await?;
+  todo!()
+}
+
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn get_folder_snapshots_handler(
   data: AFPluginData<WorkspaceIdPB>,

@@ -1,4 +1,5 @@
 use collab_database::rows::RowDetail;
+use std::fmt::{Display, Formatter};
 
 use flowy_derive::ProtoBuf;
 
@@ -26,6 +27,54 @@ pub struct RowsChangePB {
 
   #[pb(index = 3)]
   pub updated_rows: Vec<UpdatedRowPB>,
+
+  #[pb(index = 4)]
+  pub is_move_row: bool,
+}
+
+impl RowsChangePB {
+  pub fn new() -> Self {
+    Default::default()
+  }
+}
+impl Display for RowsChangePB {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    let mut parts = Vec::new();
+
+    // Conditionally add inserted rows if not empty
+    if !self.inserted_rows.is_empty() {
+      let inserted_rows = self
+        .inserted_rows
+        .iter()
+        .map(|row| format!("{}:{:?}", row.row_meta.id, row.index))
+        .collect::<Vec<String>>()
+        .join(", ");
+      parts.push(format!("Inserted rows: {}", inserted_rows));
+    }
+
+    // Conditionally add deleted rows if not empty
+    if !self.deleted_rows.is_empty() {
+      let deleted_rows = self.deleted_rows.join(", ");
+      parts.push(format!("Deleted rows: {}", deleted_rows));
+    }
+
+    // Conditionally add updated rows if not empty
+    if !self.updated_rows.is_empty() {
+      let updated_rows = self
+        .updated_rows
+        .iter()
+        .map(|row| row.row_id.to_string())
+        .collect::<Vec<String>>()
+        .join(", ");
+      parts.push(format!("Updated rows: {}", updated_rows));
+    }
+
+    // Always add is_move_row
+    parts.push(format!("is_move_row: {}", self.is_move_row));
+
+    // Join the parts together and write them to the formatter
+    f.write_str(&parts.join(", "))
+  }
 }
 
 impl RowsChangePB {

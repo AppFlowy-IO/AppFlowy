@@ -21,5 +21,4 @@ pub struct ImportValue {
 pub struct ImportParams {
   pub parent_view_id: String,
   pub values: Vec<ImportValue>,
-  pub sync_after_create: bool,
 }

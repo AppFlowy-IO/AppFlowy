@@ -99,7 +99,7 @@ impl SortController {
     }
   }
 
-  pub async fn did_create_row(&self, preliminary_index: usize, row: &Row) {
+  pub async fn did_create_row(&self, preliminary_index: u32, row: &Row) {
     if !self.delegate.filter_row(row).await {
       return;
     }
@@ -172,7 +172,7 @@ impl SortController {
             let notification = InsertRowResult {
               view_id: self.view_id.clone(),
               row: row.clone(),
-              index: row_index,
+              index: row_index as u32,
             };
             self.row_index_cache.insert(row.id, row_index);
             let _ = self
@@ -218,10 +218,6 @@ impl SortController {
   }
 
   pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<Row>>) {
-    if self.sorts.is_empty() {
-      return;
-    }
-
     let fields = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter().rev() {
       rows.par_sort_by(|left, right| cmp_row(left, right, sort, &fields, &self.cell_cache));

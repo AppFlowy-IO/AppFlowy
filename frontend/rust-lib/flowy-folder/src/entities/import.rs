@@ -4,6 +4,8 @@ use crate::share::{ImportParams, ImportType, ImportValue};
 use collab_entity::CollabType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
+use lib_infra::validator_fn::{required_not_empty_str, required_valid_path};
+use validator::Validate;
 
 #[derive(Clone, Debug, ProtoBuf_Enum)]
 pub enum ImportTypePB {
@@ -66,16 +68,25 @@ pub struct ImportValuePayloadPB {
   pub import_type: ImportTypePB,
 }
 
-#[derive(Clone, Debug, ProtoBuf, Default)]
+#[derive(Clone, Debug, Validate, ProtoBuf, Default)]
 pub struct ImportPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub parent_view_id: String,
 
   #[pb(index = 2)]
   pub values: Vec<ImportValuePayloadPB>,
+}
 
-  #[pb(index = 3)]
-  pub sync_after_create: bool,
+#[derive(Clone, Debug, Validate, ProtoBuf, Default)]
+pub struct ImportZipPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub parent_view_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_valid_path")]
+  pub file_path: String,
 }
 
 impl TryInto<ImportParams> for ImportPayloadPB {
@@ -118,7 +129,6 @@ impl TryInto<ImportParams> for ImportPayloadPB {
     Ok(ImportParams {
       parent_view_id,
       values,
-      sync_after_create: self.sync_after_create,
     })
   }
 }
