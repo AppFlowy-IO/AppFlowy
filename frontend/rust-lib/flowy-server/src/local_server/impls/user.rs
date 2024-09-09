@@ -1,7 +1,9 @@
-use std::sync::Arc;
-
+use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_entity::CollabObject;
+use collab_user::core::UserAwareness;
 use lazy_static::lazy_static;
+use std::sync::Arc;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
@@ -147,10 +149,12 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _uid: i64,
     _workspace_id: &str,
-    _object_id: &str,
+    object_id: &str,
   ) -> Result<Vec<u8>, FlowyError> {
-    // must return record not found error
-    Err(FlowyError::record_not_found())
+    let collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
+    let awareness = UserAwareness::create(collab, None)?;
+    let encode_collab = awareness.encode_collab_v1(|_collab| Ok::<_, FlowyError>(()))?;
+    Ok(encode_collab.doc_state.to_vec())
   }
 
   async fn reset_workspace(&self, _collab_object: CollabObject) -> Result<(), FlowyError> {

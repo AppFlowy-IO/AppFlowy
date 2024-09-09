@@ -7,6 +7,8 @@ use anyhow::Error;
 use arc_swap::{ArcSwap, ArcSwapOption};
 use collab::core::collab::DataSource;
 use collab::core::collab_plugin::CollabPersistence;
+use collab::entity::EncodedCollab;
+use collab::error::CollabError;
 use collab::preclude::{Collab, CollabBuilder};
 use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabase};
 use collab_document::blocks::DocumentData;
@@ -163,7 +165,22 @@ impl AppFlowyCollabBuilder {
 
     let document = match data {
       None => Document::open(collab)?,
-      Some(data) => Document::create_with_data(collab, data)?,
+      Some(data) => {
+        let document = Document::create_with_data(collab, data)?;
+        if let Err(err) = self.write_collab_to_disk(
+          object.uid,
+          &object.object_id,
+          collab_db.clone(),
+          &object.collab_type,
+          &document,
+        ) {
+          error!(
+            "build_collab: flush document collab to disk failed: {}",
+            err
+          );
+        }
+        document
+      },
     };
     let document = Arc::new(RwLock::new(document));
     self.finalize(object, builder_config, document)
@@ -188,7 +205,19 @@ impl AppFlowyCollabBuilder {
     let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = match folder_data {
       None => Folder::open(object.uid, collab, folder_notifier)?,
-      Some(data) => Folder::create(object.uid, collab, folder_notifier, data),
+      Some(data) => {
+        let folder = Folder::create(object.uid, collab, folder_notifier, data);
+        if let Err(err) = self.write_collab_to_disk(
+          object.uid,
+          &object.object_id,
+          collab_db.clone(),
+          &object.collab_type,
+          &folder,
+        ) {
+          error!("build_collab: flush folder collab to disk failed: {}", err);
+        }
+        folder
+      },
     };
     let folder = Arc::new(RwLock::new(folder));
     self.finalize(object, builder_config, folder)
@@ -296,7 +325,7 @@ impl AppFlowyCollabBuilder {
   }
 
   /// Remove all updates in disk and write the final state vector to disk.
-  pub fn flush_collab_if_not_exist<T>(
+  pub fn write_collab_to_disk<T>(
     &self,
     uid: i64,
     object_id: &str,
@@ -309,20 +338,17 @@ impl AppFlowyCollabBuilder {
   {
     if let Some(collab_db) = collab_db.upgrade() {
       let write_txn = collab_db.write_txn();
-      let is_not_exist_on_disk = !write_txn.is_exist(uid, object_id);
-      if is_not_exist_on_disk {
-        trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
-        let collab: &Collab = collab.borrow();
-        let encode_collab =
-          collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
-        write_txn.flush_doc(
-          uid,
-          object_id,
-          encode_collab.state_vector.to_vec(),
-          encode_collab.doc_state.to_vec(),
-        )?;
-        write_txn.commit_transaction()?;
-      }
+      trace!("flush collab:{}-{}-{} to disk", uid, collab_type, object_id);
+      let collab: &Collab = collab.borrow();
+      let encode_collab =
+        collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))?;
+      write_txn.flush_doc(
+        uid,
+        object_id,
+        encode_collab.state_vector.to_vec(),
+        encode_collab.doc_state.to_vec(),
+      )?;
+      write_txn.commit_transaction()?;
     }
 
     Ok(())
@@ -388,6 +414,33 @@ impl CollabPersistence for KVDBCollabPersistenceImpl {
       }
     } else {
       warn!("collab_db is dropped");
+    }
+  }
+
+  fn save_collab_to_disk(
+    &self,
+    object_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), CollabError> {
+    if let Some(collab_db) = self.db.upgrade() {
+      let write_txn = collab_db.write_txn();
+      write_txn
+        .flush_doc(
+          self.uid,
+          object_id,
+          encoded_collab.state_vector.to_vec(),
+          encoded_collab.doc_state.to_vec(),
+        )
+        .map_err(|err| CollabError::Internal(err.into()))?;
+
+      write_txn
+        .commit_transaction()
+        .map_err(|err| CollabError::Internal(err.into()))?;
+      Ok(())
+    } else {
+      Err(CollabError::Internal(anyhow::anyhow!(
+        "collab_db is dropped"
+      )))
     }
   }
 }

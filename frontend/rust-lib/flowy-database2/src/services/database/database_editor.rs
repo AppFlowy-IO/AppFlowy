@@ -1461,6 +1461,7 @@ impl DatabaseEditor {
       let (tx, rx) = oneshot::channel();
       self.async_load_rows(view_editor, Some(tx), new_token);
       if should_wait {
+        info!("[Database]: block until all rows are loaded");
         if let Ok(rows) = rx.await {
           row_metas = rows
             .into_iter()
@@ -1508,7 +1509,7 @@ impl DatabaseEditor {
     trace!("[Database]: start loading rows");
     let cloned_database = Arc::downgrade(&self.database);
     tokio::spawn(async move {
-      const CHUNK_SIZE: usize = 20;
+      const CHUNK_SIZE: usize = 5;
       let apply_filter_and_sort =
         |mut loaded_rows: Vec<Arc<Row>>, view_editor: Arc<DatabaseViewEditor>| async move {
           for loaded_row in loaded_rows.iter() {

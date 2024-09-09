@@ -18,10 +18,7 @@ use collab_database::workspace_database::{
 };
 use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use dashmap::DashMap;
-use tokio::select;
 use tokio::sync::Mutex;
-use tokio_util::sync::CancellationToken;
 use tracing::{error, info, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -112,7 +109,7 @@ impl DatabaseManager {
       .build_collab(
         workspace_database_object_id.as_str(),
         CollabType::WorkspaceDatabase,
-        false,
+        None,
       )
       .await?;
     let collab_object = collab_service
@@ -638,7 +635,6 @@ struct WorkspaceDatabaseCollabServiceImpl {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   persistence: Arc<dyn DatabaseCollabPersistenceService>,
   cloud_service: Arc<dyn DatabaseCloudService>,
-  cancellation: Arc<DashMap<String, Option<CancellationToken>>>,
 }
 
 impl WorkspaceDatabaseCollabServiceImpl {
@@ -655,7 +651,6 @@ impl WorkspaceDatabaseCollabServiceImpl {
       collab_builder,
       persistence: Arc::new(persistence),
       cloud_service,
-      cancellation: Arc::new(Default::default()),
     }
   }
 
@@ -665,35 +660,17 @@ impl WorkspaceDatabaseCollabServiceImpl {
     object_ty: CollabType,
   ) -> Result<Option<EncodedCollab>, DatabaseError> {
     let workspace_id = self.user.workspace_id().unwrap();
-    let object_id = object_id.to_string();
+    let object_id = object_id.to_string(); // Convert to String for later use
     trace!("[Database]: fetch {}:{} from remote", object_id, object_ty);
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
-    match weak_cloud_service.upgrade() {
-      None => Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
-      Some(cloud_service) => {
-        if let Some((_, Some(token))) = self.cancellation.remove(&object_id) {
-          trace!("cancel previous request for object:{}", object_id);
-          token.cancel();
-        }
-
-        let token = CancellationToken::new();
-        self
-          .cancellation
-          .insert(object_id.clone(), Some(token.clone()));
-        let cloned_cancellation = self.cancellation.clone();
-        tokio::spawn(async move {
-            select! {
-              _ = token.cancelled() => {
-                 Err(DatabaseError::ActionCancelled)
-              },
-              encode_collab = cloud_service.get_database_encode_collab(&object_id, object_ty, &workspace_id) => {
-                cloned_cancellation.remove(&object_id);
-                Ok(encode_collab?)
-              }
-            }
-        }).await.map_err(|err| DatabaseError::Internal(err.into()))?
-      },
-    }
+    let cloud_service = match weak_cloud_service.upgrade() {
+      None => return Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
+      Some(service) => service,
+    };
+    let encode_collab = cloud_service
+      .get_database_encode_collab(&object_id, object_ty, &workspace_id)
+      .await?;
+    Ok(encode_collab)
   }
 
   #[allow(dead_code)]
@@ -762,51 +739,60 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     &self,
     object_id: &str,
     collab_type: CollabType,
-    is_new: bool,
+    encoded_collab: Option<EncodedCollab>,
   ) -> Result<Collab, DatabaseError> {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
-    let data_source: DataSource = if is_new {
-      DataSource::Disk(None)
-    } else if self.persistence.is_collab_exist(object_id) {
-      trace!("build collab: load {}:{} from disk", collab_type, object_id);
+    let data_source = if self.persistence.is_collab_exist(object_id) {
       CollabPersistenceImpl {
         persistence: Some(self.persistence.clone()),
       }
       .into()
     } else {
-      info!(
-        "build collab: fetch {}:{} from remote, is_new:{}",
-        collab_type, object_id, is_new,
-      );
-      match self.get_encode_collab(object_id, collab_type.clone()).await {
-        Ok(Some(encode_collab)) => {
+      match encoded_collab {
+        None => {
           info!(
-            "build collab: {}:{} with remote encode collab, {} bytes",
+            "build collab: fetch {}:{} from remote, is_new:{}",
             collab_type,
             object_id,
-            encode_collab.doc_state.len()
+            encoded_collab.is_none(),
           );
-          DataSource::from(encode_collab)
-        },
-        Ok(None) => {
-          if self.is_local_user {
-            info!(
-              "build collab: {}:{} with empty encode collab",
-              collab_type, object_id
-            );
-            CollabPersistenceImpl {
-              persistence: Some(self.persistence.clone()),
-            }
-            .into()
-          } else {
-            return Err(DatabaseError::RecordNotFound);
+          match self.get_encode_collab(object_id, collab_type.clone()).await {
+            Ok(Some(encode_collab)) => {
+              info!(
+                "build collab: {}:{} with remote encode collab, {} bytes",
+                collab_type,
+                object_id,
+                encode_collab.doc_state.len()
+              );
+              DataSource::from(encode_collab)
+            },
+            Ok(None) => {
+              if self.is_local_user {
+                info!(
+                  "build collab: {}:{} with empty encode collab",
+                  collab_type, object_id
+                );
+                CollabPersistenceImpl {
+                  persistence: Some(self.persistence.clone()),
+                }
+                .into()
+              } else {
+                return Err(DatabaseError::RecordNotFound);
+              }
+            },
+            Err(err) => {
+              if !matches!(err, DatabaseError::ActionCancelled) {
+                error!("build collab: failed to get encode collab: {}", err);
+              }
+              return Err(err);
+            },
           }
         },
-        Err(err) => {
-          if !matches!(err, DatabaseError::ActionCancelled) {
-            error!("build collab: failed to get encode collab: {}", err);
-          }
-          return Err(err);
+        Some(encoded_collab) => {
+          self
+            .persistence
+            .save_collab(object_id, encoded_collab.clone())?;
+          encoded_collab.into()
         },
       }
     };
@@ -874,6 +860,32 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
       write_txn.delete_doc(uid, object_id).unwrap();
+      write_txn
+        .commit_transaction()
+        .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
+    }
+    Ok(())
+  }
+
+  fn save_collab(
+    &self,
+    object_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), DatabaseError> {
+    let uid = self
+      .user
+      .user_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+      let write_txn = collab_db.write_txn();
+      write_txn
+        .flush_doc(
+          uid,
+          object_id,
+          encoded_collab.state_vector.to_vec(),
+          encoded_collab.doc_state.to_vec(),
+        )
+        .map_err(|err| DatabaseError::Internal(anyhow!("failed to flush doc: {}", err)))?;
       write_txn
         .commit_transaction()
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
