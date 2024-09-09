@@ -326,7 +326,6 @@ class FileBlockComponentState extends State<FileBlockComponent>
     if (!PlatformExtension.isDesktopOrWeb) {
       // show a fixed menu on mobile
       child = MobileBlockActionButtons(
-        showThreeDots: true,
         node: node,
         editorState: editorState,
         extendActionWidgets: _buildExtendActionWidgets(context),
@@ -411,7 +410,8 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
 
     final urlType = FileUrlType.fromIntValue(
-        widget.node.attributes[FileBlockKeys.urlType] ?? 0);
+      widget.node.attributes[FileBlockKeys.urlType] ?? 0,
+    );
 
     return [
       // disable the copy link button if the image is hosted on appflowy cloud
