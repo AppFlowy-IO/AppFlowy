@@ -28,6 +28,7 @@ void main() {
         name: fieldName,
         layout: ViewLayoutPB.Board,
       );
+      await tester.dismissFieldEditor();
       await tester.tapButton(card1);
       await tester.changeFieldTypeOfFieldWithName(
         fieldName,
@@ -52,6 +53,7 @@ void main() {
         name: fieldName,
         layout: ViewLayoutPB.Board,
       );
+      await tester.dismissFieldEditor();
       await tester.tapButton(card1);
 
       final editableTimeCell = find.byType(EditableTimeCell);
