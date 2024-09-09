@@ -82,9 +82,6 @@ pub struct PublishDatabaseData {
   /// The encoded collab data for the documents inside the database rows
   pub database_row_document_collabs: HashMap<String, Vec<u8>>,
 
-  /// The metadata for the database row
-  pub database_row_metas: HashMap<String, serde_json::Value>,
-
   /// Visible view ids
   pub visible_database_view_ids: Vec<String>,
 

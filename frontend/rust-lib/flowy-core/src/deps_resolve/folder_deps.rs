@@ -323,10 +323,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       .into_iter()
       .map(|oid| oid.into_inner())
       .collect::<Vec<_>>();
-    let database_row_metas = row_metas
-      .iter()
-      .map(|meta| (meta.id.clone(), serde_json::to_value(meta).unwrap()))
-      .collect::<HashMap<_, _>>();
     let database_metas = self.0.get_all_databases_meta().await;
 
     let uid = user
@@ -401,7 +397,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         database_row_encoded_collabs,
         database_row_document_encoded_collabs,
         database_relations,
-        database_row_metas,
       }))
     })
     .await?

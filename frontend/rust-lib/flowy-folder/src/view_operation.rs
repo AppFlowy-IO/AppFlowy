@@ -37,7 +37,6 @@ pub struct DatabaseEncodedCollab {
   pub database_row_encoded_collabs: HashMap<String, EncodedCollab>,
   pub database_row_document_encoded_collabs: HashMap<String, EncodedCollab>,
   pub database_relations: HashMap<String, String>,
-  pub database_row_metas: HashMap<String, serde_json::Value>,
 }
 
 pub type ImportedData = (String, CollabType, EncodedCollab);
