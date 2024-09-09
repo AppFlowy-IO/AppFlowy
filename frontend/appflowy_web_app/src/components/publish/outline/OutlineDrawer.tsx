@@ -36,7 +36,7 @@ export function OutlineDrawer ({ open, width, onClose }: { open: boolean; width:
       <div className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
         <div style={{
           backdropFilter: 'blur(4px)',
-        }} className={'flex z-10 h-[48px] sticky top-0 items-center justify-between p-4'}
+        }} className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between p-4'}
         >
           <div
             className={'flex cursor-pointer items-center gap-1 text-text-title'}

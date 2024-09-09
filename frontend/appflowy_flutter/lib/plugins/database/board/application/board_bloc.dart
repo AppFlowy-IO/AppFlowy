@@ -93,9 +93,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       (event, emit) async {
         await event.when(
           initial: () async {
+            emit(BoardState.initial(viewId));
             _startListening();
             await _openDatabase(emit);
-            emit(BoardState.initial(viewId));
           },
           createRow: (groupId, position, title, targetRowId) async {
             final primaryField = databaseController.fieldController.fieldInfos
@@ -446,7 +446,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final newGroup = _initializeGroupData(group);
             final visibleGroups = [...groupList]..retainWhere(
                 (g) =>
-                    g.isVisible ||
+                    (g.isVisible && !g.isDefault) ||
                     g.isDefault && !hideUngrouped ||
                     g.groupId == group.groupId,
               );
@@ -490,6 +490,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   GroupController _initializeGroupController(GroupPB group) {
+    group.freeze();
+
     final delegate = GroupControllerDelegateImpl(
       controller: boardController,
       fieldController: fieldController,
@@ -614,10 +616,7 @@ class GroupItem extends AppFlowyGroupItem {
   GroupItem({
     required this.row,
     required this.fieldInfo,
-    bool draggable = true,
-  }) {
-    super.draggable.value = draggable;
-  }
+  });
 
   final RowMetaPB row;
   final FieldInfo fieldInfo;
@@ -706,7 +705,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
       return Log.warn("fieldInfo should not be null");
     }
 
-    final item = GroupItem(row: row, fieldInfo: fieldInfo, draggable: false);
+    final item = GroupItem(row: row, fieldInfo: fieldInfo);
 
     if (index != null) {
       controller.insertGroupItem(group.groupId, index, item);

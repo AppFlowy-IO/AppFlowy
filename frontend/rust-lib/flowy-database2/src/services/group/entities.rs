@@ -123,6 +123,13 @@ impl GroupData {
   }
 
   pub fn remove_row(&mut self, row_id: &RowId) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Remove row:{} from group:{}",
+      row_id,
+      self.id
+    );
+
     match self.rows.iter().position(|row| &row.id == row_id) {
       None => {},
       Some(pos) => {
@@ -132,6 +139,8 @@ impl GroupData {
   }
 
   pub fn add_row(&mut self, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!("[Database Group]: Add row:{} to group:{}", row.id, self.id);
     match self.rows.iter().find(|r| r.id == row.id) {
       None => {
         self.rows.push(row);
@@ -141,6 +150,13 @@ impl GroupData {
   }
 
   pub fn insert_row(&mut self, index: usize, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Insert row:{} to group:{} at index:{}",
+      row.id,
+      self.id,
+      index
+    );
     if index < self.rows.len() {
       self.rows.insert(index, row);
     } else {

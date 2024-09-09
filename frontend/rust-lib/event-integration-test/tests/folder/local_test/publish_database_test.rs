@@ -144,7 +144,6 @@ async fn import_csv(file_name: &str, test: &EventIntegrationTest) -> ViewPB {
 fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPayloadPB {
   ImportPayloadPB {
     parent_view_id: workspace_id.clone(),
-    sync_after_create: false,
     values: vec![ImportValuePayloadPB {
       name: file_name,
       data: Some(csv_string.as_bytes().to_vec()),

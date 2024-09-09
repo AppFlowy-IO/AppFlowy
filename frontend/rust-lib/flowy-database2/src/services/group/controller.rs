@@ -4,11 +4,11 @@ use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowId};
+use flowy_error::{FlowyError, FlowyResult};
 use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-
-use flowy_error::{FlowyError, FlowyResult};
+use tracing::trace;
 
 use crate::entities::{
   FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
@@ -239,9 +239,7 @@ where
 
     if let Some(cell) = cell {
       let cell_data = <T as TypeOption>::CellData::from(&cell);
-
       let mut suitable_group_ids = vec![];
-
       for group in self.get_all_groups() {
         if self.can_group(&group.id, &cell_data) {
           suitable_group_ids.push(group.id.clone());
@@ -312,11 +310,13 @@ where
   }
 
   fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
+    trace!("[RowOrder]: group did_delete_row: {:?}", row.id);
     let mut result = DidMoveGroupRowResult {
       deleted_group: None,
       row_changesets: vec![],
     };
-    // early return if the row is not in the default group
+
+    // remove row from its group if it is in a group
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
       let cell_data = <T as TypeOption>::CellData::from(cell);
       if !cell_data.is_cell_empty() {
@@ -325,6 +325,7 @@ where
       }
     }
 
+    // when the deleted row is not in current group. It should be in the no status group
     match self.context.get_mut_no_status_group() {
       None => {
         tracing::error!("Unexpected None value. It should have the no status group");
@@ -357,7 +358,7 @@ where
     if let Some(cell) = cell {
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
-      result.deleted_group = self.delete_group_when_move_row(context.row, &cell_data);
+      result.deleted_group = self.delete_group_after_moving_row(context.row, &cell_data);
       result.row_changesets = self.move_row(context);
     } else {
       tracing::warn!("Unexpected moving group row, changes should not be empty");

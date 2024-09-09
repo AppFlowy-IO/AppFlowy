@@ -100,7 +100,11 @@ export const DatabaseBlock = memo(
           <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
             {children}
           </div>
-          <div contentEditable={false} style={style} className={`container-bg relative flex w-full flex-col`}>
+          <div
+            contentEditable={false}
+            style={style}
+            className={`container-bg appflowy-scroller overflow-y-auto overflow-x-hidden relative flex w-full flex-col`}
+          >
             {selectedViewId && doc ? (
               <>
                 <Database
@@ -151,7 +155,7 @@ export const DatabaseBlock = memo(
       </>
     );
   }),
-  (prevProps, nextProps) => prevProps.node.data.view_id === nextProps.node.data.view_id
+  (prevProps, nextProps) => prevProps.node.data.view_id === nextProps.node.data.view_id,
 );
 
 export default DatabaseBlock;

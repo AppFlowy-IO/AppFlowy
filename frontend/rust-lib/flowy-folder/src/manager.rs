@@ -1489,16 +1489,20 @@ impl FolderManager {
     Ok((view, encoded_collab))
   }
 
+  #[allow(dead_code)]
+  pub(crate) async fn import_zip_file(
+    &self,
+    _parent_view_id: &str,
+    _zip_file_path: &str,
+  ) -> FlowyResult<RepeatedViewPB> {
+    todo!()
+  }
+
   /// Import function to handle the import of data.
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<RepeatedViewPB> {
     let workspace_id = self.user.workspace_id()?;
-
-    // Initialize an empty vector to store the objects
-    let sync_after_create = import_data.sync_after_create;
     let mut objects = vec![];
     let mut views = vec![];
-
-    // Iterate over the values in the import data
     for data in import_data.values {
       // Import a single file and get the view and encoded collab data
       let (view, encoded_collabs) = self
@@ -1506,26 +1510,21 @@ impl FolderManager {
         .await?;
       views.push(view_pb_without_child_views(view));
 
-      if sync_after_create {
-        for (object_id, collab_type, encode_collab) in encoded_collabs {
-          match self.get_folder_collab_params(object_id, collab_type, encode_collab) {
-            Ok(params) => objects.push(params),
-            Err(e) => {
-              error!("import error {}", e);
-            },
-          }
+      for (object_id, collab_type, encode_collab) in encoded_collabs {
+        match self.get_folder_collab_params(object_id, collab_type, encode_collab) {
+          Ok(params) => objects.push(params),
+          Err(e) => {
+            error!("import error {}", e);
+          },
         }
       }
     }
 
-    // Sync the view to the cloud
-    if sync_after_create {
-      info!("Syncing the imported {} collab to the cloud", objects.len());
-      self
-        .cloud_service
-        .batch_create_folder_collab_objects(&workspace_id, objects)
-        .await?;
-    }
+    info!("Syncing the imported {} collab to the cloud", objects.len());
+    self
+      .cloud_service
+      .batch_create_folder_collab_objects(&workspace_id, objects)
+      .await?;
 
     // Notify that the parent view has changed
     if let Some(lock) = self.mutex_folder.load_full() {

@@ -97,7 +97,7 @@ function GalleryPreview ({
 
   return (
     <Portal container={document.body}>
-      <div className={'fixed inset-0 bg-black bg-opacity-80 z-50'} onClick={onClose}>
+      <div className={'fixed inset-0 bg-black bg-opacity-80 z-[1400]'} onClick={onClose}>
 
         <TransformWrapper
           initialScale={1}

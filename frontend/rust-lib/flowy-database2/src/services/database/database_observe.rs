@@ -1,12 +1,14 @@
-use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
+use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, InsertedRowPB, RowMetaPB, RowsChangePB};
 use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
 use crate::services::database::{DatabaseEditor, UpdatedRow};
+use crate::services::database_view::DatabaseViewEditor;
 use collab::lock::RwLock;
 use collab_database::blocks::BlockEvent;
 use collab_database::database::Database;
 use collab_database::fields::FieldChange;
 use collab_database::rows::{RowChange, RowId};
-use collab_database::views::DatabaseViewChange;
+use collab_database::views::{DatabaseViewChange, RowOrder};
+use dashmap::DashMap;
 use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
@@ -110,64 +112,177 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
     .subscribe_view_change();
   af_spawn(async move {
     while let Ok(view_change) = view_change.recv().await {
+      trace!(
+        "[Database View Observe]: {} view change:{:?}",
+        database_id,
+        view_change
+      );
       match weak_database_editor.upgrade() {
         None => break,
-        Some(database_editor) => {
-          trace!(
-            "[Database View Observe]: {} view change:{:?}",
-            database_id,
-            view_change
-          );
-          match view_change {
-            DatabaseViewChange::DidCreateView { .. } => {},
-            DatabaseViewChange::DidUpdateView { .. } => {},
-            DatabaseViewChange::DidDeleteView { .. } => {},
-            DatabaseViewChange::LayoutSettingChanged { .. } => {},
-            DatabaseViewChange::DidInsertRowOrders { row_orders } => {
-              trace!("Did insert row orders: {:?}", row_orders);
-              for row in row_orders {
-                if let Err(err) = database_editor.init_database_row(&row.id).await {
-                  error!("Failed to init row: {:?}", err);
-                }
-
-                for view in database_editor.database_views.editors().await {
-                  if let Some(index) = database_editor.get_row_index(&view.view_id, &row.id).await {
-                    if let Some(row) = database_editor.get_row(&view.view_id, &row.id).await {
-                      view.v_did_create_row(&row, index).await;
-                    }
-                  }
-                }
-              }
-            },
-            DatabaseViewChange::DidDeleteRowAtIndex { .. } => {
-              // for index in index {
-              //   for view in database_editor.database_views.editors().await {
-              //     if let Some(row_order) = database_editor
-              //       .get_row_order_at_index(&view.view_id, index)
-              //       .await
-              //     {
-              //       trace!("Did delete row at index: {:?}", index);
-              //       if let Some(row) = database_editor.get_row(&view.view_id, &row_order.id).await {
-              //         trace!("Did delete row at index2: {:?}", row);
-              //         view.v_did_delete_row(&row).await;
-              //       }
-              //     }
-              //   }
-              // }
-            },
-            DatabaseViewChange::DidCreateFilters { .. } => {},
-            DatabaseViewChange::DidUpdateFilter { .. } => {},
-            DatabaseViewChange::DidCreateGroupSettings { .. } => {},
-            DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
-            DatabaseViewChange::DidCreateSorts { .. } => {},
-            DatabaseViewChange::DidUpdateSort { .. } => {},
-            DatabaseViewChange::DidCreateFieldOrder { .. } => {},
-            DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
-          }
+        Some(database_editor) => match view_change {
+          DatabaseViewChange::DidCreateView { .. } => {},
+          DatabaseViewChange::DidUpdateView { .. } => {},
+          DatabaseViewChange::DidDeleteView { .. } => {},
+          DatabaseViewChange::LayoutSettingChanged { .. } => {},
+          DatabaseViewChange::DidUpdateRowOrders {
+            database_view_id: _,
+            is_local_change,
+            insert_row_orders,
+            delete_row_indexes,
+          } => {
+            handle_did_update_row_orders(
+              database_editor,
+              is_local_change,
+              insert_row_orders,
+              delete_row_indexes,
+            )
+            .await;
+          },
+          DatabaseViewChange::DidCreateFilters { .. } => {},
+          DatabaseViewChange::DidUpdateFilter { .. } => {},
+          DatabaseViewChange::DidCreateGroupSettings { .. } => {},
+          DatabaseViewChange::DidUpdateGroupSetting { .. } => {},
+          DatabaseViewChange::DidCreateSorts { .. } => {},
+          DatabaseViewChange::DidUpdateSort { .. } => {},
+          DatabaseViewChange::DidCreateFieldOrder { .. } => {},
+          DatabaseViewChange::DidDeleteFieldOrder { .. } => {},
         },
       }
     }
   });
+}
+
+async fn handle_did_update_row_orders(
+  database_editor: Arc<DatabaseEditor>,
+  is_local_change: bool,
+  insert_row_orders: Vec<(RowOrder, u32)>,
+  delete_row_indexes: Vec<u32>,
+) {
+  // DidUpdateRowOrders is triggered whenever a user performs operations such as
+  // deleting, inserting, or moving a row in the database.
+  //
+  // Before DidUpdateRowOrders is called, the changes (insert/move/delete) have already been
+  // applied to the underlying database. This means the current order of rows reflects these updates.
+  //
+  // Example:
+  // Imagine the current state of rows is:
+  // Before any changes: [a, b, c]
+  //
+  // Operation: Move 'a' before 'c'
+  // Initial state: [a, b, c]
+  //
+  // Move 'a' to before 'c': This operation is divided into two parts:
+  //     Insert row orders: Insert a at position 2 (right before c).
+  //     Delete row indexes: Delete a from its original position (index 0).
+  //     The steps are:
+  //
+  //     Insert row: After inserting a at position 2, the rows temporarily look like this:
+  //     Insert row orders: [(a, 2)]
+  // State after insert: [a, b, a, c]
+  // Delete row: Next, we delete a from its original position at index 0.
+  // Delete row indexes: [0]
+  // Final state after delete: [b, a, c]
+  let database_view_rows = DashMap::new();
+  // 1. handle insert row orders
+  for (row_order, index) in insert_row_orders {
+    if let Err(err) = database_editor.init_database_row(&row_order.id).await {
+      error!("Failed to init row: {:?}", err);
+    }
+
+    for database_view in database_editor.database_views.editors().await {
+      trace!(
+        "[RowOrder]: insert row:{} at index:{}, is_local:{}",
+        row_order.id,
+        index,
+        is_local_change
+      );
+
+      // insert row order
+      {
+        let mut view_row_orders = database_view.row_orders.write().await;
+        if view_row_orders.len() >= index as usize {
+          view_row_orders.insert(index as usize, row_order.clone());
+        } else {
+          warn!(
+            "[RowOrder]: insert row at index:{} out of range:{}",
+            index,
+            view_row_orders.len()
+          );
+        }
+      }
+
+      let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
+      if let Some(row) = database_editor
+        .get_row(&database_view.view_id, &row_order.id)
+        .await
+      {
+        database_view
+          .v_did_create_row(&row, index, is_move_row, is_local_change)
+          .await;
+      }
+
+      // gather changes for notification
+      if let Some((index, row_detail)) = database_view.v_get_row(&row_order.id).await {
+        database_view_rows
+          .entry(database_view.view_id.clone())
+          .or_insert_with(|| {
+            let mut change = RowsChangePB::new();
+            change.is_move_row = is_move_row;
+            change
+          })
+          .inserted_rows
+          .push(InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref())).with_index(index as i32));
+      }
+    }
+  }
+
+  // handle delete row orders
+  for index in delete_row_indexes {
+    let index = index as usize;
+    for database_view in database_editor.database_views.editors().await {
+      let mut view_row_orders = database_view.row_orders.write().await;
+      if view_row_orders.len() > index {
+        let lazy_row = view_row_orders.remove(index);
+        // Update changeset in RowsChangePB
+        let row_id = lazy_row.id.to_string();
+        let mut row_change = database_view_rows
+          .entry(database_view.view_id.clone())
+          .or_default();
+        row_change.deleted_rows.push(row_id);
+
+        // notify the view
+        if let Some(row) = database_view.row_by_row_id.get(lazy_row.id.as_str()) {
+          trace!(
+            "[RowOrder]: delete row:{} at index:{}, is_move_row: {}, is_local:{}",
+            row.id,
+            index,
+            row_change.is_move_row,
+            is_local_change
+          );
+          database_view
+            .v_did_delete_row(&row, row_change.is_move_row, is_local_change)
+            .await;
+        } else {
+          error!("[RowOrder]: row not found: {} in cache", lazy_row.id);
+        }
+      } else {
+        warn!(
+          "[RowOrder]: delete row at index:{} out of range:{}",
+          index,
+          view_row_orders.len()
+        );
+      }
+    }
+  }
+
+  // 3. notify the view
+  for entry in database_view_rows.into_iter() {
+    let (view_id, changes) = entry;
+    trace!("[RowOrder]: {}", changes);
+    send_notification(&view_id, DatabaseNotification::DidUpdateRow)
+      .payload(changes)
+      .send();
+  }
 }
 
 pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc<DatabaseEditor>) {
@@ -205,7 +320,6 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
   });
 }
 
-#[allow(dead_code)]
 fn notify_row(
   notification_sender: &Arc<DebounceNotificationSender>,
   view_id: &str,
@@ -232,4 +346,27 @@ fn notify_cell(notification_sender: &Arc<DebounceNotificationSender>, cell_id: &
   )
   .build();
   notification_sender.send_subject(subject);
+}
+
+async fn is_move_row(
+  database_view: &Arc<DatabaseViewEditor>,
+  insert_row_order: &RowOrder,
+  delete_row_indexes: &[u32],
+) -> bool {
+  let mut is_move_row = false;
+  for index in delete_row_indexes.iter() {
+    is_move_row = database_view
+      .row_orders
+      .read()
+      .await
+      .get(*index as usize)
+      .map(|deleted_row_order| deleted_row_order == insert_row_order)
+      .unwrap_or(false);
+
+    if is_move_row {
+      break;
+    }
+  }
+
+  is_move_row
 }
