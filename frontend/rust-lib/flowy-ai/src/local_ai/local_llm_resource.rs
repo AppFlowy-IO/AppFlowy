@@ -15,8 +15,9 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::local_ai::watch::offline_app_path;
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-use crate::local_ai::watch::{offline_app_path, watch_offline_app, WatchContext};
+use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, instrument, trace, warn};

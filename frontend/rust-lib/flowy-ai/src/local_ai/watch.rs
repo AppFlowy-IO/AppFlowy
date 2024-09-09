@@ -5,12 +5,14 @@ use std::path::PathBuf;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
 
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub struct WatchContext {
   #[allow(dead_code)]
   watcher: notify::RecommendedWatcher,
   pub path: PathBuf,
 }
 
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<WatchDiskEvent>)> {
   let install_path = install_path().ok_or_else(|| {
     FlowyError::internal().with_context("Unsupported platform for offline app watching")
@@ -54,10 +56,13 @@ pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<Watch
   ))
 }
 
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
 pub(crate) fn install_path() -> Option<PathBuf> {
-  #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
-  return None;
+  None
+}
 
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+pub(crate) fn install_path() -> Option<PathBuf> {
   #[cfg(target_os = "windows")]
   return None;
 
@@ -68,20 +73,20 @@ pub(crate) fn install_path() -> Option<PathBuf> {
   return None;
 }
 
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
 pub(crate) fn offline_app_path() -> PathBuf {
-  #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
-  return PathBuf::new();
+  PathBuf::new()
+}
 
-  #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-  {
-    let offline_app = "appflowy_ai_plugin";
-    #[cfg(target_os = "windows")]
-    return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+pub(crate) fn offline_app_path() -> PathBuf {
+  let offline_app = "appflowy_ai_plugin";
+  #[cfg(target_os = "windows")]
+  return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
 
-    #[cfg(target_os = "macos")]
-    return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
+  #[cfg(target_os = "macos")]
+  return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
 
-    #[cfg(target_os = "linux")]
-    return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
-  }
+  #[cfg(target_os = "linux")]
+  return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
 }
