@@ -34,7 +34,7 @@ use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, FieldType};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, FieldType, RowMetaPB};
 use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
@@ -199,6 +199,22 @@ impl DatabaseManager {
   pub async fn get_database_row_ids_with_view_id(&self, view_id: &str) -> FlowyResult<Vec<RowId>> {
     let database = self.get_database_editor_with_view_id(view_id).await?;
     Ok(database.get_row_ids().await)
+  }
+
+  pub async fn get_database_row_metas_with_view_id(
+    &self,
+    view_id: &str,
+    row_ids: Vec<RowId>,
+  ) -> FlowyResult<Vec<RowMetaPB>> {
+    let database = self.get_database_editor_with_view_id(view_id).await?;
+    let view_id = view_id.to_string();
+    let mut row_metas: Vec<RowMetaPB> = vec![];
+    for row_id in row_ids {
+      if let Some(row_meta) = database.get_row_meta(&view_id, &row_id).await {
+        row_metas.push(row_meta);
+      }
+    }
+    Ok(row_metas)
   }
 
   pub async fn get_database_editor_with_view_id(
