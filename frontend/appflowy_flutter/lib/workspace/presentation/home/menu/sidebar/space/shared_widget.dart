@@ -474,10 +474,12 @@ class CurrentSpace extends StatelessWidget {
     super.key,
     this.onTapBlankArea,
     required this.space,
+    this.isHovered = false,
   });
 
   final ViewPB space;
   final VoidCallback? onTapBlankArea;
+  final bool isHovered;
 
   @override
   Widget build(BuildContext context) {
@@ -497,6 +499,7 @@ class CurrentSpace extends StatelessWidget {
             fontSize: 14.0,
             figmaLineHeight: 18.0,
             overflow: TextOverflow.ellipsis,
+            color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
           ),
         ),
         const HSpace(4.0),
@@ -504,6 +507,7 @@ class CurrentSpace extends StatelessWidget {
           context.read<SpaceBloc>().state.isExpanded
               ? FlowySvgs.workspace_drop_down_menu_show_s
               : FlowySvgs.workspace_drop_down_menu_hide_s,
+          color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
         ),
       ],
     );
