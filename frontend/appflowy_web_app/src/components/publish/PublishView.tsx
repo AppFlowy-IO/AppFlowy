@@ -88,7 +88,10 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
   }
 
   return (
-    <PublishProvider isTemplateThumb={isTemplateThumb} namespace={namespace} publishName={publishName}>
+    <PublishProvider
+      isTemplateThumb={isTemplateThumb} isTemplate={isTemplate} namespace={namespace}
+      publishName={publishName}
+    >
       <div className={'h-screen w-screen'} style={isTemplateThumb ? {
         pointerEvents: 'none',
         transform: 'scale(0.333)',
