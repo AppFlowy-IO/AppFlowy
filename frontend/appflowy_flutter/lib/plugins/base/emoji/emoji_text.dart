@@ -36,7 +36,7 @@ class EmojiText extends StatelessWidget {
   }
 
   void _loadFallbackFontFamily() {
-    if (Platform.isLinux || Platform.isAndroid) {
+    if (Platform.isLinux) {
       final notoColorEmoji = GoogleFonts.notoColorEmoji().fontFamily;
       if (notoColorEmoji != null) {
         _cachedFallbackFontFamily = [notoColorEmoji];

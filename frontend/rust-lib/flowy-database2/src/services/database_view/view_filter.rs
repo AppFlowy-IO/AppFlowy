@@ -1,14 +1,13 @@
 use async_trait::async_trait;
 use std::sync::Arc;
 
-use collab_database::fields::Field;
-use collab_database::rows::{RowDetail, RowId};
-
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
   gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
 };
 use crate::services::filter::{Filter, FilterController, FilterDelegate, FilterTaskHandler};
+use collab_database::fields::Field;
+use collab_database::rows::{Row, RowDetail, RowId};
 
 pub async fn make_filter_controller(
   view_id: &str,
@@ -52,8 +51,9 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
     self.0.get_fields(view_id, field_ids).await
   }
 
-  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
-    self.0.get_row_details(view_id).await
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
+    let row_orders = self.0.get_all_row_orders(view_id).await;
+    self.0.get_all_rows(view_id, row_orders).await
   }
 
   async fn get_row(&self, view_id: &str, rows_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {

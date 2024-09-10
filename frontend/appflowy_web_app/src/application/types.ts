@@ -1,4 +1,4 @@
-import { CollabType } from '@/application/collab.type';
+import { CollabType, ViewLayout } from '@/application/collab.type';
 
 export interface Workspace {
   icon: string;
@@ -37,4 +37,32 @@ export interface DuplicatePublishView {
   spaceViewId: string;
   collabType: CollabType;
   viewId: string;
+}
+
+export enum ViewIconType {
+  Emoji = 0,
+  Icon = 1,
+}
+
+export interface ViewIcon {
+  ty: ViewIconType;
+  value: string;
+}
+
+export interface ViewExtra {
+  is_space: boolean;
+  space_created_at?: number;
+  space_icon?: string;
+  space_icon_color?: string;
+  space_permission?: number;
+}
+
+export interface View {
+  view_id: string;
+  name: string;
+  icon: ViewIcon | null;
+  layout: ViewLayout;
+  extra: ViewExtra | null;
+  children: View[];
+  is_published: boolean;
 }

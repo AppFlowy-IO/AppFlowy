@@ -11,7 +11,7 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import { FolderView, User, Workspace } from '@/application/types';
+import { FolderView, User, View, Workspace } from '@/application/types';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 
@@ -221,6 +221,23 @@ export async function getPublishInfoWithViewId (viewId: string) {
       namespace: string;
       publish_name: string;
     };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getPublishOutline (publishNamespace: string) {
+  const url = `/api/workspace/published-outline/${publishNamespace}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: View;
     message: string;
   }>(url);
 

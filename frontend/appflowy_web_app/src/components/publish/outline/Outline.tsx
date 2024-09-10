@@ -1,62 +1,29 @@
-import { PublishViewInfo, ViewLayout } from '@/application/collab.type';
+import { usePublishContext } from '@/application/publish';
+import emptyImageSrc from '@/assets/images/empty.png';
+import { DirectoryStructure } from '@/components/_shared/skeleton/OutlineSkeleton';
 import OutlineItem from '@/components/publish/outline/OutlineItem';
-import SearchInput from '@/components/publish/outline/SearchInput';
-import { filterViews } from '@/components/publish/outline/utils';
-import { CircularProgress } from '@mui/material';
-import React, { useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React from 'react';
 
-function Outline({ viewMeta, width }: { viewMeta?: PublishViewInfo; width: number }) {
-  const hasChildren = Boolean(viewMeta?.child_views?.length);
-  const { t } = useTranslation();
-  const [children, setChildren] = React.useState<PublishViewInfo[]>([]);
+function Outline ({ width }: { width: number }) {
+  const outline = usePublishContext()?.outline;
 
-  useEffect(() => {
-    if (viewMeta) {
-      setChildren(viewMeta.child_views || []);
-    }
-  }, [viewMeta]);
-
-  const handleSearch = useCallback(
-    (val: string) => {
-      if (!val) {
-        return setChildren(viewMeta?.child_views || []);
-      }
-
-      setChildren(filterViews(viewMeta?.child_views || [], val));
-    },
-    [viewMeta]
-  );
-
-  if (!viewMeta) {
-    return <CircularProgress />;
-  }
+  const isEmpty = outline && outline.children.length === 0;
 
   return (
-    <div className={'flex w-full flex-1 flex-col items-start justify-between gap-2'}>
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          width: '100%',
-          height: '44px',
+    <div className={'flex w-full flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
+      {isEmpty && <img src={emptyImageSrc} alt={'No data found'} className={'mx-auto h-[200px]'} />}
+      {!outline ? <div style={{
+          width: width - 20,
         }}
-        className={'z-10 flex items-center justify-center gap-3 bg-bg-body'}
-      >
-        <SearchInput onSearch={handleSearch} />
-      </div>
-
-      {hasChildren ? (
-        <div className={'flex w-full flex-1 flex-col'}>
-          {children
-            .filter((view) => view.layout === ViewLayout.Document)
-            .map((view: PublishViewInfo) => (
-              <OutlineItem width={width} key={view.view_id} view={view} />
-            ))}
-        </div>
-      ) : (
-        <div className={'flex w-full flex-1 items-center justify-center text-text-caption'}>{t('noPagesInside')}</div>
-      )}
+        ><DirectoryStructure /></div> :
+        outline.children.map((view) =>
+          <OutlineItem
+            key={view.view_id}
+            view={view}
+            width={width - 20}
+          />,
+        )
+      }
     </div>
   );
 }

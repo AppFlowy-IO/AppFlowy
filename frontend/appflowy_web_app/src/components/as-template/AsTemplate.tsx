@@ -13,7 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import './template.scss';
-import { useNavigate } from 'react-router-dom';
+import { slugify } from '@/components/as-template/utils';
+import { ReactComponent as WebsiteIcon } from '@/assets/website.svg';
 
 function AsTemplate ({
   viewName,
@@ -37,7 +38,9 @@ function AsTemplate ({
     loading,
   } = useLoadTemplate(viewId);
 
-  const navigate = useNavigate();
+  const handleBack = useCallback(() => {
+    window.location.href = `${decodeURIComponent(viewUrl)}`;
+  }, [viewUrl]);
   const handleSubmit = useCallback(async (data: AsTemplateFormValue) => {
     if (!service || !selectedCreatorId || selectedCategoryIds.length === 0) return;
     const formData: UploadTemplatePayload = {
@@ -50,36 +53,23 @@ function AsTemplate ({
       view_url: viewUrl,
     };
 
-    console.log('formData', formData);
-
     try {
       if (template) {
         await service?.updateTemplate(template.view_id, formData);
       } else {
         await service?.createTemplate(formData);
-        await loadTemplate();
+
       }
 
-      notify.info({
-        type: 'success',
-        title: t('template.uploadSuccess'),
-        message: t('template.uploadSuccessDescription'),
-        okText: t('template.viewTemplate'),
-        onOk: () => {
-          const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
-
-          window.open(`${url}/template-center/${selectedCategoryIds[0]}/${viewId}`, '_blank');
-        },
-      });
-      navigate(-1);
+      await loadTemplate();
+      handleBack();
     } catch (error) {
       // eslint-disable-next-line
       // @ts-ignore
       notify.error(error.toString());
     }
 
-  }, [service, selectedCreatorId, selectedCategoryIds, viewId, isNewTemplate, isFeatured, viewUrl, template, t, navigate, loadTemplate]);
-
+  }, [service, selectedCreatorId, selectedCategoryIds, isNewTemplate, isFeatured, viewId, viewUrl, template, loadTemplate, handleBack]);
   const submitRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -114,15 +104,22 @@ function AsTemplate ({
     <div className={'flex flex-col gap-4 w-full h-full overflow-hidden'}>
       <div className={'flex items-center justify-between'}>
         <Button
-          onClick={() => {
-            navigate(-1);
-          }}
+          onClick={handleBack}
           variant={'outlined'}
           color={'inherit'}
           endIcon={<CloseIcon className={'w-4 h-4'} />}
         >
           {t('button.cancel')}
         </Button>
+        {template && <Button
+          startIcon={<WebsiteIcon />}
+          variant={'text'}
+          onClick={() => {
+            const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
+
+            window.open(`${url}/templates/${slugify(template.categories[0].name)}/${template.view_id}`);
+          }} color={'primary'}
+        >{t('template.viewTemplate')}</Button>}
         <div className={'flex items-center gap-2'}>
           {template && <Button
             startIcon={<DeleteIcon />}
@@ -139,7 +136,7 @@ function AsTemplate ({
             submitRef.current?.click();
           }} variant={'contained'} color={'primary'}
           >
-            {t('template.asTemplate')}
+            {t('button.save')}
           </Button>
         </div>
 
@@ -179,10 +176,13 @@ function AsTemplate ({
           </div>
         </div>
       </div>
-      {deleteModalOpen && <DeleteTemplate id={viewId} onDeleted={() => {
-        navigate(-1);
-      }} open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}
-      />}
+      {deleteModalOpen &&
+        <DeleteTemplate
+          id={viewId}
+          onDeleted={handleBack}
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+        />}
     </div>
 
   );

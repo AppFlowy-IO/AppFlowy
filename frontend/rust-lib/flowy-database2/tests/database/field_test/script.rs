@@ -16,6 +16,7 @@ pub enum FieldScript {
     field: Field,
   },
   SwitchToField {
+    view_id: String,
     field_id: String,
     new_field_type: FieldType,
   },
@@ -80,13 +81,14 @@ impl DatabaseFieldTest {
         assert_eq!(self.field_count, fields.len());
       },
       FieldScript::SwitchToField {
+        view_id,
         field_id,
         new_field_type,
       } => {
         //
         self
           .editor
-          .switch_to_field_type(&field_id, new_field_type)
+          .switch_to_field_type(&view_id, &field_id, new_field_type, None)
           .await
           .unwrap();
       },
@@ -121,10 +123,10 @@ impl DatabaseFieldTest {
       } => {
         let field = self.editor.get_field(&field_id).await.unwrap();
 
-        let rows = self.editor.get_row_details(&self.view_id()).await.unwrap();
-        let row_detail = rows.get(row_index).unwrap();
+        let rows = self.editor.get_all_rows(&self.view_id()).await.unwrap();
+        let row = rows.get(row_index).unwrap();
 
-        let cell = row_detail.row.cells.get(&field_id).unwrap().clone();
+        let cell = row.cells.get(&field_id).unwrap().clone();
         let content = stringify_cell(&cell, &field);
         assert_eq!(content, expected_content);
       },

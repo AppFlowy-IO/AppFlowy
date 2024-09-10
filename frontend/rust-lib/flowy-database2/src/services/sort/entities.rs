@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use anyhow::bail;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowId};
 use collab_database::views::{SortMap, SortMapBuilder};
 
 #[derive(Debug, Clone)]
@@ -113,8 +113,8 @@ pub struct ReorderSingleRowResult {
 #[derive(Clone)]
 pub struct InsertRowResult {
   pub view_id: String,
-  pub row: RowDetail,
-  pub index: usize,
+  pub row: Row,
+  pub index: u32,
 }
 
 #[derive(Debug, Default)]

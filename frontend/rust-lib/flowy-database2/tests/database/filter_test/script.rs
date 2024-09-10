@@ -301,8 +301,16 @@ impl DatabaseFilterTest {
         }
       },
       FilterScript::AssertNumberOfVisibleRows { expected } => {
-        let grid = self.editor.get_database_data(&self.view_id).await.unwrap();
-        assert_eq!(grid.rows.len(), expected);
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        let _ = self
+          .editor
+          .open_database_view(&self.view_id, Some(tx))
+          .await
+          .unwrap();
+        rx.await.unwrap();
+
+        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
+        assert_eq!(rows.len(), expected);
       },
       FilterScript::Wait { millisecond } => {
         tokio::time::sleep(Duration::from_millis(millisecond)).await;

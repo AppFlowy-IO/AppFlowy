@@ -3,9 +3,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/workspace/invite_members_screen.dart';
+import 'package:appflowy/shared/popup_menu/appflowy_popup_menu.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    hide PopupMenuButton, PopupMenuDivider, PopupMenuItem, PopupMenuEntry;
 import 'package:go_router/go_router.dart';
 
 enum _MobileSettingsPopupMenuItem {
@@ -16,7 +19,12 @@ enum _MobileSettingsPopupMenuItem {
 }
 
 class HomePageSettingsPopupMenu extends StatelessWidget {
-  const HomePageSettingsPopupMenu({super.key});
+  const HomePageSettingsPopupMenu({
+    super.key,
+    required this.userProfile,
+  });
+
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +36,9 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
           Radius.circular(12.0),
         ),
       ),
-      // todo: replace it with shadows
       shadowColor: const Color(0x68000000),
       elevation: 10,
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: FlowySvg(
-          FlowySvgs.m_settings_more_s,
-        ),
-      ),
+      color: context.popupMenuBackgroundColor,
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<_MobileSettingsPopupMenuItem>>[
         _buildItem(
@@ -44,12 +46,15 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
           svg: FlowySvgs.m_notification_settings_s,
           text: LocaleKeys.settings_popupMenuItem_settings.tr(),
         ),
-        const PopupMenuDivider(height: 0.5),
-        _buildItem(
-          value: _MobileSettingsPopupMenuItem.members,
-          svg: FlowySvgs.m_settings_member_s,
-          text: LocaleKeys.settings_popupMenuItem_members.tr(),
-        ),
+        // only show the member items in cloud mode
+        if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) ...[
+          const PopupMenuDivider(height: 0.5),
+          _buildItem(
+            value: _MobileSettingsPopupMenuItem.members,
+            svg: FlowySvgs.m_settings_member_s,
+            text: LocaleKeys.settings_popupMenuItem_members.tr(),
+          ),
+        ],
         const PopupMenuDivider(height: 0.5),
         _buildItem(
           value: _MobileSettingsPopupMenuItem.trash,
@@ -79,6 +84,12 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
             break;
         }
       },
+      child: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: FlowySvg(
+          FlowySvgs.m_settings_more_s,
+        ),
+      ),
     );
   }
 

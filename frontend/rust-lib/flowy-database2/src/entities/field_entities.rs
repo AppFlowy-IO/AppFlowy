@@ -207,12 +207,16 @@ pub struct UpdateFieldTypePayloadPB {
 
   #[pb(index = 3)]
   pub field_type: FieldType,
+
+  #[pb(index = 4, one_of)]
+  pub field_name: Option<String>,
 }
 
 pub struct EditFieldParams {
   pub view_id: String,
   pub field_id: String,
   pub field_type: FieldType,
+  pub field_name: Option<String>,
 }
 
 impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
@@ -225,6 +229,7 @@ impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
       view_id: view_id.0,
       field_id: field_id.0,
       field_type: self.field_type,
+      field_name: self.field_name,
     })
   }
 }
@@ -451,6 +456,7 @@ pub enum FieldType {
   Summary = 11,
   Translate = 12,
   Time = 13,
+  Media = 14,
 }
 
 impl Display for FieldType {
@@ -493,6 +499,7 @@ impl FieldType {
       FieldType::Summary => "Summarize",
       FieldType::Translate => "Translate",
       FieldType::Time => "Time",
+      FieldType::Media => "Media",
     };
     s.to_string()
   }
@@ -551,6 +558,10 @@ impl FieldType {
 
   pub fn is_time(&self) -> bool {
     matches!(self, FieldType::Time)
+  }
+
+  pub fn is_media(&self) -> bool {
+    matches!(self, FieldType::Media)
   }
 
   pub fn can_be_group(&self) -> bool {

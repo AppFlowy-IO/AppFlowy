@@ -17,7 +17,7 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
   DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabWrapper, FolderOperationHandler,
-  FolderOperationHandlers, View, ViewData,
+  FolderOperationHandlers, ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::folder_builder::NestedViewBuilder;
@@ -254,13 +254,17 @@ impl FolderOperationHandler for DocumentFolderOperation {
     _name: &str,
     _import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError> {
+  ) -> Result<Vec<ImportedData>, FlowyError> {
     let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
     let encoded_collab = self
       .0
       .create_document(uid, view_id, Some(data.into()))
       .await?;
-    Ok(encoded_collab)
+    Ok(vec![(
+      view_id.to_string(),
+      CollabType::Document,
+      encoded_collab,
+    )])
   }
 
   // will implement soon
@@ -307,6 +311,14 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     //  we should use the view_id to get the database_id
     let oid = self.0.get_database_id_with_view_id(view_id).await?;
     let row_oids = self.0.get_database_row_ids_with_view_id(view_id).await?;
+    let row_metas = self
+      .0
+      .get_database_row_metas_with_view_id(view_id, row_oids.clone())
+      .await?;
+    let row_document_ids = row_metas
+      .iter()
+      .filter_map(|meta| meta.document_id.clone())
+      .collect::<Vec<_>>();
     let row_oids = row_oids
       .into_iter()
       .map(|oid| oid.into_inner())
@@ -327,53 +339,71 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       )
     })?;
 
-    let collab_read_txn = collab_db.read_txn();
+    tokio::task::spawn_blocking(move || {
+      let collab_read_txn = collab_db.read_txn();
 
-    // read the database collab from the db
-    let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
-      FlowyError::internal().with_context(format!("load database collab failed: {}", e))
-    })?;
+      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
+        FlowyError::internal().with_context(format!("load database collab failed: {}", e))
+      })?;
 
-    let database_encoded_collab = database_collab
-        // encode the collab and check the integrity of the collab
-        .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
-        .map_err(|e| {
-          FlowyError::internal().with_context(format!("encode database collab failed: {}", e))
-        })?;
-
-    // read the database rows collab from the db
-    let database_row_collabs = load_collab_by_object_ids(uid, &collab_read_txn, &row_oids);
-    let database_row_encoded_collabs = database_row_collabs
-      .into_iter()
-      .map(|(oid, collab)| {
-        // encode the collab and check the integrity of the collab
-        let encoded_collab = collab
-          .encode_collab_v1(|collab| CollabType::DatabaseRow.validate_require_data(collab))
+      let database_encoded_collab = database_collab
+          // encode the collab and check the integrity of the collab
+          .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
           .map_err(|e| {
-            FlowyError::internal().with_context(format!("encode database row collab failed: {}", e))
+            FlowyError::internal().with_context(format!("encode database collab failed: {}", e))
           })?;
-        Ok((oid, encoded_collab))
-      })
-      .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-    // get the relation info from the database meta
-    let database_relations = database_metas
-      .into_iter()
-      .filter_map(|meta| {
-        let linked_views = meta.linked_views.into_iter().next()?;
-        Some((meta.database_id, linked_views))
-      })
-      .collect::<HashMap<_, _>>();
+      let database_row_encoded_collabs =
+        load_collab_by_object_ids(uid, &collab_read_txn, &row_oids)
+          .into_iter()
+          .map(|(oid, collab)| {
+            collab
+              .encode_collab_v1(|c| CollabType::DatabaseRow.validate_require_data(c))
+              .map(|encoded| (oid, encoded))
+              .map_err(|e| {
+                FlowyError::internal().with_context(format!("Database row collab error: {}", e))
+              })
+          })
+          .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-    Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
-      database_encoded_collab,
-      database_row_encoded_collabs,
-      database_relations,
-    }))
+      let database_relations = database_metas
+        .into_iter()
+        .filter_map(|meta| {
+          meta
+            .linked_views
+            .clone()
+            .into_iter()
+            .next()
+            .map(|lv| (meta.database_id, lv))
+        })
+        .collect::<HashMap<_, _>>();
+
+      let database_row_document_encoded_collabs =
+        load_collab_by_object_ids(uid, &collab_read_txn, &row_document_ids)
+          .into_iter()
+          .map(|(oid, collab)| {
+            collab
+              .encode_collab_v1(|c| CollabType::Document.validate_require_data(c))
+              .map(|encoded| (oid, encoded))
+              .map_err(|e| {
+                FlowyError::internal()
+                  .with_context(format!("Database row document collab error: {}", e))
+              })
+          })
+          .collect::<Result<HashMap<_, _>, FlowyError>>()?;
+
+      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
+        database_encoded_collab,
+        database_row_encoded_collabs,
+        database_row_document_encoded_collabs,
+        database_relations,
+      }))
+    })
+    .await?
   }
 
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
-    let delta_bytes = self.0.duplicate_database(view_id).await?;
+    let delta_bytes = self.0.get_database_json_bytes(view_id).await?;
     Ok(Bytes::from(delta_bytes))
   }
 
@@ -462,7 +492,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     _name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError> {
+  ) -> Result<Vec<ImportedData>, FlowyError> {
     let format = match import_type {
       ImportType::CSV => CSVFormat::Original,
       ImportType::HistoryDatabase => CSVFormat::META,
@@ -477,7 +507,19 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       .0
       .import_csv(view_id.to_string(), content, format)
       .await?;
-    Ok(result.encoded_collab)
+    Ok(
+      result
+        .encoded_collabs
+        .into_iter()
+        .map(|encoded| {
+          (
+            encoded.object_id,
+            encoded.collab_type,
+            encoded.encoded_collab,
+          )
+        })
+        .collect(),
+    )
   }
 
   async fn import_from_file_path(
@@ -570,7 +612,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     _name: &str,
     _import_type: ImportType,
     _bytes: Vec<u8>,
-  ) -> Result<EncodedCollab, FlowyError> {
+  ) -> Result<Vec<ImportedData>, FlowyError> {
     Err(FlowyError::not_support())
   }
 

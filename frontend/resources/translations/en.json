@@ -36,6 +36,7 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Continue with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
+    "anonymous": "Anonymous",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
@@ -48,8 +49,10 @@
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
     "signInWithGoogle": "Continue with Google",
-    "signInWithGithub": "Continue with Github",
+    "signInWithGithub": "Continue with GitHub",
     "signInWithDiscord": "Continue with Discord",
+    "signInWithApple": "Continue with Apple",
+    "continueAnotherWay": "Continue another way",
     "signUpWithGoogle": "Sign up with Google",
     "signUpWithGithub": "Sign up with Github",
     "signUpWithDiscord": "Sign up with Discord",
@@ -141,8 +144,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "unfavorite": "Remove from favorites",
-    "favorite": "Add to favorites",
+    "unfavorite": "Remove from Favorites",
+    "favorite": "Add to Favorites",
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
@@ -201,8 +204,8 @@
     },
     "mobile": {
       "actions": "Trash Actions",
-      "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file",
+      "empty": "No pages or spaces in Trash",
+      "emptyDescription": "Move things you don't need to the Trash.",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
     },
@@ -285,10 +288,10 @@
     "minutesAgo": "{count} minutes ago",
     "lastViewed": "Last viewed",
     "favoriteAt": "Favorited",
-    "emptyRecent": "No Recent Documents",
-    "emptyRecentDescription": "As you view documents, they will appear here for easy retrieval",
-    "emptyFavorite": "No Favorite Documents",
-    "emptyFavoriteDescription": "Start exploring and mark documents as favorites. They’ll be listed here for quick access!",
+    "emptyRecent": "No Recent Pages",
+    "emptyRecentDescription": "As you view pages, they will appear here for easy retrieval.",
+    "emptyFavorite": "No Favorite Pages",
+    "emptyFavoriteDescription": "Mark pages as favorites—they'll be listed here for quick access!",
     "removePageFromRecent": "Remove this page from the Recent?",
     "removeSuccess": "Removed successfully",
     "favoriteSpace": "Favorites",
@@ -297,11 +300,15 @@
     "upgradeToPro": "Upgrade to Pro",
     "upgradeToAIMax": "Unlock unlimited AI",
     "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
+    "storageLimitDialogTitleIOS": "You have run out of free storage.",
     "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "aiResponseLimitTitleIOS": "You have run out of free AI responses.",
     "aiResponseLimitDialogTitle": "AI Responses limit reached",
     "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
+    "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
     "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
+    "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
@@ -344,11 +351,12 @@
     "putback": "Put Back",
     "update": "Update",
     "share": "Share",
-    "removeFromFavorites": "Remove from favorites",
-    "removeFromRecent": "Remove from recent",
-    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "removeFromRecent": "Remove from Recent",
+    "addToFavorites": "Add to Favorites",
     "favoriteSuccessfully": "Favorited success",
     "unfavoriteSuccessfully": "Unfavorited success",
+    "duplicateSuccessfully": "Duplicated successfully",
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
@@ -364,14 +372,15 @@
     "deleteAccount": "Delete account",
     "back": "Back",
     "signInGoogle": "Continue with Google",
-    "signInGithub": "Continue with Github",
+    "signInGithub": "Continue with GitHub",
     "signInDiscord": "Continue with Discord",
     "more": "More",
     "create": "Create",
     "close": "Close",
     "next": "Next",
     "previous": "Previous",
-    "submit": "Submit"
+    "submit": "Submit",
+    "download": "Download"
   },
   "label": {
     "welcome": "Welcome!",
@@ -746,14 +755,13 @@
             "title": "AI Max",
             "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
             "price": "{}",
-            "priceInfo": "per user per month billed annually",
-            "recommend": ""
+            "priceInfo": "Per user per month billed annually"
           },
           "aiOnDevice": {
             "title": "AI On-device for Mac",
             "description": "Run Mistral 7B, LLAMA 3, and more local models on your machine",
             "price": "{}",
-            "priceInfo": "per user per month billed annually",
+            "priceInfo": "Per user per month billed annually",
             "recommend": "Recommend M1 or newer"
           }
         },
@@ -824,13 +832,13 @@
         "title": "Free",
         "description": "For individuals up to 2 members to organize everything",
         "price": "{}",
-        "priceInfo": "free forever"
+        "priceInfo": "Free forever"
       },
       "proPlan": {
         "title": "Pro",
         "description": "For small teams to manage projects and team knowledge",
         "price": "{}",
-        "priceInfo": "per user per month \nbilled annually\n\n{} billed monthly"
+        "priceInfo": "Per user per month \nbilled annually\n\n{} billed monthly"
       },
       "planLabels": {
         "itemOne": "Workspaces",
@@ -839,26 +847,29 @@
         "itemFour": "Real-time collaboration",
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
+        "itemFileUpload": "File uploads",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
         "tooltipSeven": "Allows you to customize part of the URL for your workspace"
       },
       "freeLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 2",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 2",
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "100 lifetime",
+        "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
       "proLabels": {
-        "itemOne": "charged per workspace",
-        "itemTwo": "up to 10",
-        "itemThree": "unlimited",
+        "itemOne": "Charged per workspace",
+        "itemTwo": "Up to 10",
+        "itemThree": "Unlimited",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "unlimited",
+        "itemSix": "Unlimited",
+        "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
       "paymentSuccess": {
@@ -935,7 +946,7 @@
       "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
@@ -993,16 +1004,16 @@
         "archiveAll": "Archive all"
       },
       "emptyInbox": {
-        "title": "No notifications yet",
-        "description": "You'll be notified here for @mentions"
+        "title": "Inbox Zero!",
+        "description": "Set reminders to receive notifications here."
       },
       "emptyUnread": {
         "title": "No unread notifications",
         "description": "You're all caught up!"
       },
       "emptyArchived": {
-        "title": "No archived notifications",
-        "description": "You haven't archived any notifications yet"
+        "title": "No archived",
+        "description": "Archived notifications will appear here."
       },
       "tabs": {
         "inbox": "Inbox",
@@ -1113,7 +1124,7 @@
         },
         "inviteFailedDialogTitle": "Failed to send invite",
         "inviteFailedMemberLimit": "Member limit has been reached, please upgrade to invite more members.",
-        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit. Upgrade on Desktop to unlock more features.",
+        "inviteFailedMemberLimitMobile": "Your workspace has reached the member limit.",
         "memberLimitExceeded": "Member limit reached, to invite more members, please ",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Member limit reached, if you require more members contact ",
@@ -1291,6 +1302,7 @@
       "isNotEmpty": "Is not empty"
     },
     "field": {
+      "label": "Property",
       "hide": "Hide",
       "show": "Show",
       "insertLeft": "Insert Left",
@@ -1312,6 +1324,7 @@
       "relationFieldName": "Relation",
       "summaryFieldName": "AI Summary",
       "timeFieldName": "Time",
+      "mediaFieldName": "Files & media",
       "translateFieldName": "AI Translate",
       "translateTo": "Translate to",
       "numberFormat": "Number format",
@@ -1343,7 +1356,7 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "openRowDocument": "Open as a page",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "deleteFieldPromptMessage": "Are you sure? This property and all its data will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
       "format": "Format",
@@ -1454,6 +1467,21 @@
       "countEmptyShort": "EMPTY",
       "countNonEmpty": "Count not empty",
       "countNonEmptyShort": "FILLED"
+    },
+    "media": {
+      "rename": "Rename",
+      "download": "Download",
+      "open": "Open",
+      "delete": "Delete",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Add a file, image, or link",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Add file",
+      "showFile": "Show 1 file",
+      "showFiles": "Show {} files",
+      "hideFile": "Hide 1 file",
+      "hideFiles": "Hide {} files",
+      "deleteFileDescription": "Are you sure you want to delete this file? This action is irreversible."
     }
   },
   "document": {
@@ -1665,6 +1693,7 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
+        "uploadMobile": "Pick from files",
         "networkTab": "Embed link",
         "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
@@ -1680,7 +1709,8 @@
           "nameEmptyError": "File name cannot be left empty."
         },
         "uploadedAt": "Uploaded on {}",
-        "linkedAt": "Link added on {}"
+        "linkedAt": "Link added on {}",
+        "failedToOpenMsg": "Failed to open, file not found"
       }
     },
     "outlineBlock": {
@@ -1791,7 +1821,9 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
       "clickToCopyTheBlockContent": "Click to copy the block content",
-      "blockContentHasBeenCopied": "The block content has been copied."
+      "blockContentHasBeenCopied": "The block content has been copied.",
+      "parseError": "An error occurred while parsing the {} block.",
+      "copyBlockContent": "Copy block content"
     },
     "mobilePageSelector": {
       "title": "Select page",
@@ -1850,7 +1882,11 @@
       "nextThirtyDays": "Next 30 days"
     },
     "noGroup": "No group by property",
-    "noGroupDesc": "Board views require a property to group by in order to display"
+    "noGroupDesc": "Board views require a property to group by in order to display",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "files"
+    }
   },
   "calendar": {
     "menuName": "Calendar",
@@ -1896,6 +1932,8 @@
   "errorDialog": {
     "title": "@:appName Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "howToFixFallbackHint1": "We're sorry for the inconvenience! Submit an issue on our ",
+    "howToFixFallbackHint2": " page that describes your error.",
     "github": "View on GitHub"
   },
   "search": {
@@ -2050,7 +2088,10 @@
   },
   "error": {
     "weAreSorry": "We're sorry",
-    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues.",
+    "syncError": "Data is not synced from another device",
+    "syncErrorHint": "Please reopen this page on the device where it was last edited, then open it again on the current device.",
+    "clickToCopy": "Click to copy error code"
   },
   "editor": {
     "bold": "Bold",
@@ -2219,10 +2260,18 @@
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
+        "description": "Permanently delete your account and remove access from all workspaces.",
         "deleteMyAccount": "Delete my account",
         "dialogTitle": "Delete account",
         "dialogContent1": "Are you sure you want to permanently delete your account?",
-        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+        "dialogContent2": "This action cannot be undone, and will remove access from all workspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces.",
+        "confirmHint1": "Please type \"DELETE MY ACCOUNT\" to confirm.",
+        "confirmHint2": "I understand that this action is irreversible and will permanently delete my account and all associated data.",
+        "confirmHint3": "DELETE MY ACCOUNT",
+        "checkToConfirmError": "You must check the box to confirm deletion",
+        "failedToGetCurrentUser": "Failed to get current user email",
+        "confirmTextValidationFailed": "Your confirmation text does not match \"DELETE MY ACCOUNT\"",
+        "deleteAccountSuccess": "Account deleted successfully"
       }
     },
     "workplace": {
@@ -2265,7 +2314,7 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
     "doNotAllow": "Don't Allow",
@@ -2316,10 +2365,12 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
-    "switchSpace": "Switch space"
+    "switchSpace": "Switch space",
+    "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
+    "spaceHasNotBeenPublished": "Haven't supported publishing a space yet",
     "reportPage": "Report page",
     "databaseHasNotBeenPublished": "Publishing a database is not supported yet.",
     "createdWith": "Created with",
@@ -2327,7 +2378,8 @@
     "copy": {
       "codeBlock": "The content of code block has been copied to the clipboard",
       "imageBlock": "The image link has been copied to the clipboard",
-      "mathBlock": "The math equation has been copied to the clipboard"
+      "mathBlock": "The math equation has been copied to the clipboard",
+      "fileBlock": "The file link has been copied to the clipboard"
     },
     "containsPublishedPage": "This page contains one or more published pages. If you continue, they will be unpublished. Do you want to proceed with deletion?",
     "publishSuccessfully": "Published successfully",
@@ -2348,12 +2400,12 @@
     "mustSelectPrimaryDatabase": "The primary view must be selected",
     "noDatabaseSelected": "No database selected, please select at least one database.",
     "unableToDeselectPrimaryDatabase": "Unable to deselect primary database",
-    "saveThisPage": "Save this page",
+    "saveThisPage": "Start with this template",
     "duplicateTitle": "Where would you like to add",
     "selectWorkspace": "Select a workspace",
     "addTo": "Add to",
-    "duplicateSuccessfully": "Duplicated success. Want to view documents?",
-    "duplicateSuccessfullyDescription": "Don't have the app? Your download will begin automatically after clicking the 'Download'.",
+    "duplicateSuccessfully": "Added to your workspace",
+    "duplicateSuccessfullyDescription": "Don't have AppFlowy installed? The download will start automatically after you click 'Download'.",
     "downloadIt": "Download",
     "openApp": "Open in app",
     "duplicateFailed": "Duplicated failed",
@@ -2362,7 +2414,8 @@
       "one": "1 member",
       "many": "{count} members",
       "other": "{count} members"
-    }
+    },
+    "useThisTemplate": "Use the template"
   },
   "web": {
     "continue": "Continue",
@@ -2370,12 +2423,20 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithGithub": "Continue with GitHub",
     "continueWithDiscord": "Continue with Discord",
-    "signInAgreement": "By clicking \"Continue\" above, you confirm that\nyou have read, understood, and agreed to\nAppFlowy's",
+    "continueWithApple": "Continue with Apple ",
+    "moreOptions": "More options",
+    "collapse": "Collapse",
+    "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
-    "login": "Sign up or log in"
+    "login": "Sign up or log in",
+    "fileBlock": {
+      "uploadedAt": "Uploaded on {time}",
+      "linkedAt": "Link added on {time}",
+      "empty": "Upload or embed a file"
+    }
   },
   "globalComment": {
     "comments": "Comments",
@@ -2428,7 +2489,7 @@
     "commentAddedSuccessTip": "You've just added or replied to a comment. Would you like to jump to the top to see the latest comments?"
   },
   "template": {
-    "asTemplate": "As template",
+    "asTemplate": "Save as template",
     "name": "Template name",
     "description": "Template Description",
     "about": "Template About",
@@ -2477,7 +2538,8 @@
     "addRelatedTemplate": "Add related template",
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",
-    "searchInCategory": "Search in {category}"
+    "searchInCategory": "Search in {category}",
+    "label": "Templates"
   },
   "fileDropzone": {
     "dropFile": "Click or drag file to this area to upload",
@@ -2487,5 +2549,15 @@
     "uploadSuccessDescription": "The file has been uploaded successfully",
     "uploadFailedDescription": "The file upload failed",
     "uploadingDescription": "The file is being uploaded"
+  },
+  "gallery": {
+    "preview": "Open in full screen",
+    "copy": "Copy",
+    "download": "Download",
+    "prev": "Previous",
+    "next": "Next",
+    "resetZoom": "Reset zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

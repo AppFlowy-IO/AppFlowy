@@ -81,6 +81,7 @@ impl CellDataDecoder for RichTextTypeOption {
       | FieldType::URL
       | FieldType::Summary
       | FieldType::Translate
+      | FieldType::Media
       | FieldType::Time => Some(StringCellData::from(stringify_cell(cell, field))),
       FieldType::Checklist
       | FieldType::LastEditedTime
@@ -147,6 +148,11 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
 
 #[derive(Default, Debug, Clone)]
 pub struct StringCellData(pub String);
+impl StringCellData {
+  pub fn into_inner(self) -> String {
+    self.0
+  }
+}
 impl std::ops::Deref for StringCellData {
   type Target = String;
 

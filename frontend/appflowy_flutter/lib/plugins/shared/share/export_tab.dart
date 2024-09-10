@@ -11,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -51,6 +52,14 @@ class ExportTab extends StatelessWidget {
           svg: FlowySvgs.duplicate_s,
           onTap: () => _exportToClipboard(context),
         ),
+        if (kDebugMode) ...[
+          const VSpace(10),
+          _ExportButton(
+            title: 'JSON (Debug Mode)',
+            svg: FlowySvgs.duplicate_s,
+            onTap: () => _exportJSON(context),
+          ),
+        ],
       ],
     );
   }
@@ -64,6 +73,14 @@ class ExportTab extends StatelessWidget {
           svg: FlowySvgs.database_layout_m,
           onTap: () => _exportCSV(context),
         ),
+        if (kDebugMode) ...[
+          const VSpace(10),
+          _ExportButton(
+            title: 'Raw Database Data (Debug Mode)',
+            svg: FlowySvgs.duplicate_s,
+            onTap: () => _exportRawDatabaseData(context),
+          ),
+        ],
       ],
     );
   }
@@ -100,6 +117,22 @@ class ExportTab extends StatelessWidget {
     }
   }
 
+  Future<void> _exportJSON(BuildContext context) async {
+    final viewName = context.read<ShareBloc>().state.viewName;
+    final exportPath = await getIt<FilePickerService>().saveFile(
+      dialogTitle: '',
+      fileName: '${viewName.toFileName()}.json',
+    );
+    if (context.mounted && exportPath != null) {
+      context.read<ShareBloc>().add(
+            ShareEvent.share(
+              ShareType.json,
+              exportPath,
+            ),
+          );
+    }
+  }
+
   Future<void> _exportCSV(BuildContext context) async {
     final viewName = context.read<ShareBloc>().state.viewName;
     final exportPath = await getIt<FilePickerService>().saveFile(
@@ -110,6 +143,22 @@ class ExportTab extends StatelessWidget {
       context.read<ShareBloc>().add(
             ShareEvent.share(
               ShareType.csv,
+              exportPath,
+            ),
+          );
+    }
+  }
+
+  Future<void> _exportRawDatabaseData(BuildContext context) async {
+    final viewName = context.read<ShareBloc>().state.viewName;
+    final exportPath = await getIt<FilePickerService>().saveFile(
+      dialogTitle: '',
+      fileName: '${viewName.toFileName()}.json',
+    );
+    if (context.mounted && exportPath != null) {
+      context.read<ShareBloc>().add(
+            ShareEvent.share(
+              ShareType.rawDatabaseData,
               exportPath,
             ),
           );

@@ -107,7 +107,6 @@ class SingleSettingAction extends StatelessWidget {
             radius: Corners.s8Border,
             hoverColor: hoverColor(context),
             fontColor: fontColor(context),
-            textColor: fontColor(context),
             fontHoverColor: fontHoverColor(context),
             borderColor: borderColor(context),
             fontSize: 12,

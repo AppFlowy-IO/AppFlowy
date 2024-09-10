@@ -1,5 +1,5 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::entity::DatabaseView;
+use collab_database::entity::{DatabaseView, SelectOption, SelectOptionColor};
 use collab_database::views::DatabaseLayout;
 use strum::IntoEnumIterator;
 
@@ -9,8 +9,8 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
 use flowy_database2::services::field::{
-  ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
-  NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
+  ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MediaTypeOption,
+  MultiSelectTypeOption, NumberFormat, NumberTypeOption, RelationTypeOption,
   SingleSelectTypeOption, TimeFormat, TimeTypeOption, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
@@ -150,6 +150,14 @@ pub fn make_test_grid() -> DatabaseData {
           .name("AI translate")
           .build();
         fields.push(translate_field);
+      },
+      FieldType::Media => {
+        let type_option = MediaTypeOption { files: vec![] };
+
+        let media_field = FieldBuilder::new(field_type, type_option)
+          .name("Media")
+          .build();
+        fields.push(media_field);
       },
     }
   }

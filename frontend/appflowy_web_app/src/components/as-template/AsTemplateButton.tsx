@@ -11,7 +11,7 @@ function AsTemplateButton () {
   const viewMeta = useViewMeta();
   const navigate = useNavigate();
   const handleClick = useCallback(() => {
-    const url = encodeURIComponent(window.location.href);
+    const url = encodeURIComponent(window.location.href.replace(window.location.search, ''));
 
     navigate(`/as-template?viewUrl=${url}&viewName=${viewMeta?.name || ''}&viewId=${viewMeta?.viewId || ''}`);
   }, [navigate, viewMeta]);

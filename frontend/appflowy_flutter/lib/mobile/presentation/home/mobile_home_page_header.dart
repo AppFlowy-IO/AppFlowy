@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/gesture.dart';
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
@@ -46,16 +46,9 @@ class MobileHomePageHeader extends StatelessWidget {
                       ? _MobileWorkspace(userProfile: userProfile)
                       : _MobileUser(userProfile: userProfile),
                 ),
-                const HomePageSettingsPopupMenu(),
-                // GestureDetector(
-                //   onTap: () => context.push(
-                //     MobileHomeSettingPage.routeName,
-                //   ),
-                //   child: const Padding(
-                //     padding: EdgeInsets.all(8.0),
-                //     child: FlowySvg(FlowySvgs.m_notification_settings_s),
-                //   ),
-                // ),
+                HomePageSettingsPopupMenu(
+                  userProfile: userProfile,
+                ),
                 const HSpace(8.0),
               ],
             ),
@@ -118,6 +111,7 @@ class _MobileWorkspace extends StatelessWidget {
           return const SizedBox.shrink();
         }
         return AnimatedGestureDetector(
+          scaleFactor: 0.99,
           alignment: Alignment.centerLeft,
           onTapUp: () {
             context.read<UserWorkspaceBloc>().add(

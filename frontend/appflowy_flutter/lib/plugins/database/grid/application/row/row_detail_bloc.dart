@@ -20,6 +20,8 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     _dispatch();
     _startListening();
     _init();
+
+    rowController.initialize();
   }
 
   final FieldController fieldController;
@@ -79,6 +81,15 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
                 visibleCells: visibleCells,
               ),
             );
+          },
+          startEditingField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId));
+          },
+          startEditingNewField: (fieldId) {
+            emit(state.copyWith(editingFieldId: fieldId, newFieldId: fieldId));
+          },
+          endEditingField: () {
+            emit(state.copyWith(editingFieldId: "", newFieldId: ""));
           },
         );
       },
@@ -217,6 +228,16 @@ class RowDetailEvent with _$RowDetailEvent {
   /// Used to hide/show the hidden fields in the row detail page
   const factory RowDetailEvent.toggleHiddenFieldVisibility() =
       _ToggleHiddenFieldVisibility;
+
+  /// Begin editing an event;
+  const factory RowDetailEvent.startEditingField(String fieldId) =
+      _StartEditingField;
+
+  const factory RowDetailEvent.startEditingNewField(String fieldId) =
+      _StartEditingNewField;
+
+  /// End editing an event
+  const factory RowDetailEvent.endEditingField() = _EndEditingField;
 }
 
 @freezed
@@ -226,6 +247,8 @@ class RowDetailState with _$RowDetailState {
     required List<CellContext> visibleCells,
     required bool showHiddenFields,
     required int numHiddenFields,
+    required String editingFieldId,
+    required String newFieldId,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => const RowDetailState(
@@ -233,5 +256,7 @@ class RowDetailState with _$RowDetailState {
         visibleCells: [],
         showHiddenFields: false,
         numHiddenFields: 0,
+        editingFieldId: "",
+        newFieldId: "",
       );
 }

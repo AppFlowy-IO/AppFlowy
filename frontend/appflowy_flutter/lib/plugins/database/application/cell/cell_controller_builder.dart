@@ -18,6 +18,7 @@ typedef RelationCellController = CellController<RelationCellDataPB, String>;
 typedef SummaryCellController = CellController<String, String>;
 typedef TimeCellController = CellController<TimeCellDataPB, String>;
 typedef TranslateCellController = CellController<String, String>;
+typedef MediaCellController = CellController<MediaCellDataPB, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
@@ -166,6 +167,18 @@ CellController makeCellController(
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
           parser: StringCellDataParser(),
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.Media:
+      return MediaCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
+          parser: MediaCellDataParser(),
           reloadOnFieldChange: true,
         ),
         cellDataPersistence: TextCellDataPersistence(),

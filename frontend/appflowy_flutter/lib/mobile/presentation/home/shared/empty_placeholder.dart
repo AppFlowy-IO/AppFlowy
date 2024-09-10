@@ -6,7 +6,10 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class EmptySpacePlaceholder extends StatelessWidget {
-  const EmptySpacePlaceholder({super.key, required this.type});
+  const EmptySpacePlaceholder({
+    super.key,
+    required this.type,
+  });
 
   final MobilePageCardType type;
 
@@ -36,6 +39,7 @@ class EmptySpacePlaceholder extends StatelessWidget {
             lineHeight: 1.3,
             color: Theme.of(context).hintColor,
           ),
+          const VSpace(kBottomNavigationBarHeight + 36.0),
         ],
       ),
     );

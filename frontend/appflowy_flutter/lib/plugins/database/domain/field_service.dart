@@ -110,11 +110,17 @@ class FieldBackendService {
     required String viewId,
     required String fieldId,
     required FieldType fieldType,
+    String? fieldName,
   }) {
     final payload = UpdateFieldTypePayloadPB()
       ..viewId = viewId
       ..fieldId = fieldId
       ..fieldType = fieldType;
+
+    // Only set if fieldName is not null
+    if (fieldName != null) {
+      payload.fieldName = fieldName;
+    }
 
     return DatabaseEventUpdateFieldType(payload).send();
   }
@@ -177,11 +183,13 @@ class FieldBackendService {
 
   Future<FlowyResult<void, FlowyError>> updateType({
     required FieldType fieldType,
+    String? fieldName,
   }) =>
       updateFieldType(
         viewId: viewId,
         fieldId: fieldId,
         fieldType: fieldType,
+        fieldName: fieldName,
       );
 
   Future<FlowyResult<void, FlowyError>> delete() =>

@@ -22,3 +22,10 @@ extension FieldTypeListExtension on FieldType {
         _ => false,
       };
 }
+
+extension RowDetailAccessoryExtension on FieldType {
+  bool get showRowDetailAccessory => switch (this) {
+        FieldType.Media => false,
+        _ => true,
+      };
+}

@@ -1,13 +1,11 @@
-use std::{fs::File, io::prelude::*};
-
 use collab_database::database::{gen_database_id, gen_field_id, gen_row_id, timestamp};
-use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams, EncodedCollabInfo};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
 use collab_database::views::DatabaseLayout;
-
-use collab_entity::EncodedCollab;
 use flowy_error::{FlowyError, FlowyResult};
+use std::fmt::Display;
+use std::{fs::File, io::prelude::*};
 
 use crate::entities::FieldType;
 use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
@@ -169,9 +167,26 @@ impl FieldsRows {
 pub struct ImportResult {
   pub database_id: String,
   pub view_id: String,
-  pub encoded_collab: EncodedCollab,
+  pub encoded_collabs: Vec<EncodedCollabInfo>,
 }
 
+impl Display for ImportResult {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let total_size: usize = self
+      .encoded_collabs
+      .iter()
+      .map(|c| c.encoded_collab.doc_state.len())
+      .sum();
+    write!(
+      f,
+      "ImportResult {{ database_id: {}, view_id: {}, num collabs: {}, size: {} }}",
+      self.database_id,
+      self.view_id,
+      self.encoded_collabs.len(),
+      total_size
+    )
+  }
+}
 #[cfg(test)]
 mod tests {
   use collab_database::database::gen_database_view_id;

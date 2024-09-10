@@ -15,7 +15,7 @@ import { Fetcher, StrategyType } from '@/application/services/js-services/cache/
 // import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 
-export function collabTypeToDBType(type: CollabType) {
+export function collabTypeToDBType (type: CollabType) {
   switch (type) {
     case CollabType.Folder:
       return 'folder';
@@ -44,7 +44,7 @@ const collabSharedRootKeyMap = {
   [CollabType.Empty]: YjsEditorKey.empty,
 };
 
-export function hasCollabCache(doc: YDoc) {
+export function hasCollabCache (doc: YDoc) {
   const data = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   return Object.values(collabSharedRootKeyMap).some((key) => {
@@ -52,7 +52,7 @@ export function hasCollabCache(doc: YDoc) {
   });
 }
 
-export async function hasViewMetaCache(name: string) {
+export async function hasViewMetaCache (name: string) {
   const data = await db.view_metas.get(name);
 
   return !!data;
@@ -64,7 +64,7 @@ export async function getPublishViewMeta<
     child_views: PublishViewInfo[];
     ancestor_views: PublishViewInfo[];
   }
->(
+> (
   fetcher: Fetcher<T>,
   {
     namespace,
@@ -73,7 +73,7 @@ export async function getPublishViewMeta<
     namespace: string;
     publishName: string;
   },
-  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK
+  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK,
 ) {
   const name = `${namespace}_${publishName}`;
   const exist = await hasViewMetaCache(name);
@@ -124,7 +124,7 @@ export async function getPublishView<
       ancestor_views: PublishViewInfo[];
     };
   }
->(
+> (
   fetcher: Fetcher<T>,
   {
     namespace,
@@ -133,7 +133,7 @@ export async function getPublishView<
     namespace: string;
     publishName: string;
   },
-  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK
+  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK,
 ) {
   const name = `${namespace}_${publishName}`;
   const doc = await openCollabDB(name);
@@ -197,7 +197,7 @@ export async function revalidatePublishViewMeta<
     child_views: PublishViewInfo[];
     ancestor_views: PublishViewInfo[];
   }
->(name: string, fetcher: Fetcher<T>) {
+> (name: string, fetcher: Fetcher<T>) {
   const { view, child_views, ancestor_views } = await fetcher();
 
   const dbView = await db.view_metas.get(name);
@@ -211,7 +211,7 @@ export async function revalidatePublishViewMeta<
       visible_view_ids: dbView?.visible_view_ids ?? [],
       database_relations: dbView?.database_relations ?? {},
     },
-    name
+    name,
   );
 
   return db.view_metas.get(name);
@@ -225,7 +225,7 @@ export async function revalidatePublishView<
     relations?: Record<DatabaseId, ViewId>;
     meta: PublishViewMetaData;
   }
->(name: string, fetcher: Fetcher<T>, collab: YDoc, rowMapDoc: Y.Doc) {
+> (name: string, fetcher: Fetcher<T>, collab: YDoc, rowMapDoc: Y.Doc) {
   const { data, meta, rows, visibleViewIds = [], relations = {} } = await fetcher();
 
   await db.view_metas.put(
@@ -237,7 +237,7 @@ export async function revalidatePublishView<
       visible_view_ids: visibleViewIds,
       database_relations: relations,
     },
-    name
+    name,
   );
 
   if (rows) {
@@ -260,16 +260,14 @@ export async function revalidatePublishView<
     }
   }
 
-  console.log('====', data);
-
   applyYDoc(collab, data);
 }
 
-export async function deleteViewMeta(name: string) {
+export async function deleteViewMeta (name: string) {
   await db.view_metas.delete(name);
 }
 
-export async function deleteView(name: string) {
+export async function deleteView (name: string) {
   console.log('deleteView', name);
   await deleteViewMeta(name);
   await closeCollabDB(name);

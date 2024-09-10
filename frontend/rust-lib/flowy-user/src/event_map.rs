@@ -28,6 +28,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
     .event(UserEvent::SignOut, sign_out_handler)
+    .event(UserEvent::DeleteAccount, delete_account_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
@@ -274,6 +275,9 @@ pub enum UserEvent {
 
   #[event(input = "SuccessWorkspaceSubscriptionPB")]
   NotifyDidSwitchPlan = 63,
+
+  #[event()]
+  DeleteAccount = 64,
 }
 
 #[async_trait]
@@ -290,6 +294,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -299,6 +304,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_id: i64,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -309,6 +315,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }
@@ -320,6 +327,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
     &self,
     _user_id: i64,
     _user_workspace: &UserWorkspace,
+    _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     Ok(())
   }

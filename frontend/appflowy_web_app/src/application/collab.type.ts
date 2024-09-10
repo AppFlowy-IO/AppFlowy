@@ -34,6 +34,8 @@ export enum BlockType {
   TableBlock = 'table',
   TableCell = 'table/cell',
   LinkPreview = 'link_preview',
+  FileBlock = 'file',
+  GalleryBlock = 'multi_image',
 }
 
 export enum InlineBlockType {
@@ -85,6 +87,18 @@ export interface LinkPreviewBlockData extends BlockData {
   url?: string;
 }
 
+export enum FieldURLType {
+  Upload = 2,
+  Link = 1,
+}
+
+export interface FileBlockData extends BlockData {
+  name: string;
+  uploaded_at: number;
+  url: string;
+  url_type: FieldURLType;
+}
+
 export enum ImageType {
   Local = 0,
   Internal = 1,
@@ -97,6 +111,19 @@ export interface ImageBlockData extends BlockData {
   align?: AlignType;
   image_type?: ImageType;
   height?: number;
+}
+
+export enum GalleryLayout {
+  Carousel = 0,
+  Grid = 1,
+}
+
+export interface GalleryBlockData extends BlockData {
+  images: {
+    type: ImageType,
+    url: string,
+  }[];
+  layout: GalleryLayout;
 }
 
 export interface OutlineBlockData extends BlockData {
@@ -271,151 +298,151 @@ export enum YjsDatabaseKey {
 
 export interface YDoc extends Y.Doc {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getMap(key: YjsEditorKey.data_section): YSharedRoot | any;
+  getMap (key: YjsEditorKey.data_section): YSharedRoot | any;
 }
 
 export interface YDatabaseRow extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.id): RowId;
+  get (key: YjsDatabaseKey.id): RowId;
 
-  get(key: YjsDatabaseKey.height): string;
+  get (key: YjsDatabaseKey.height): string;
 
-  get(key: YjsDatabaseKey.visibility): boolean;
+  get (key: YjsDatabaseKey.visibility): boolean;
 
-  get(key: YjsDatabaseKey.created_at): CreatedAt;
+  get (key: YjsDatabaseKey.created_at): CreatedAt;
 
-  get(key: YjsDatabaseKey.last_modified): LastModified;
+  get (key: YjsDatabaseKey.last_modified): LastModified;
 
-  get(key: YjsDatabaseKey.cells): YDatabaseCells;
+  get (key: YjsDatabaseKey.cells): YDatabaseCells;
 }
 
 export interface YDatabaseCells extends Y.Map<unknown> {
-  get(key: FieldId): YDatabaseCell;
+  get (key: FieldId): YDatabaseCell;
 }
 
 export type EndTimestamp = string;
 export type ReminderId = string;
 
 export interface YDatabaseCell extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.created_at): CreatedAt;
+  get (key: YjsDatabaseKey.created_at): CreatedAt;
 
-  get(key: YjsDatabaseKey.last_modified): LastModified;
+  get (key: YjsDatabaseKey.last_modified): LastModified;
 
-  get(key: YjsDatabaseKey.field_type): string;
+  get (key: YjsDatabaseKey.field_type): string;
 
-  get(key: YjsDatabaseKey.data): object | string | boolean | number;
+  get (key: YjsDatabaseKey.data): object | string | boolean | number;
 
-  get(key: YjsDatabaseKey.end_timestamp): EndTimestamp;
+  get (key: YjsDatabaseKey.end_timestamp): EndTimestamp;
 
-  get(key: YjsDatabaseKey.include_time): boolean;
+  get (key: YjsDatabaseKey.include_time): boolean;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.is_range): boolean;
+  get (key: YjsDatabaseKey.is_range): boolean;
 
-  get(key: YjsDatabaseKey.reminder_id): ReminderId;
+  get (key: YjsDatabaseKey.reminder_id): ReminderId;
 }
 
 export interface YSharedRoot extends Y.Map<unknown> {
-  get(key: YjsEditorKey.document): YDocument;
+  get (key: YjsEditorKey.document): YDocument;
 
-  get(key: YjsEditorKey.folder): YFolder;
+  get (key: YjsEditorKey.folder): YFolder;
 
-  get(key: YjsEditorKey.database): YDatabase;
+  get (key: YjsEditorKey.database): YDatabase;
 
-  get(key: YjsEditorKey.database_row): YDatabaseRow;
+  get (key: YjsEditorKey.database_row): YDatabaseRow;
 }
 
 export interface YFolder extends Y.Map<unknown> {
-  get(key: YjsFolderKey.views): YViews;
+  get (key: YjsFolderKey.views): YViews;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.meta): YFolderMeta;
+  get (key: YjsFolderKey.meta): YFolderMeta;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.relation): YFolderRelation;
+  get (key: YjsFolderKey.relation): YFolderRelation;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.section): YFolderSection;
+  get (key: YjsFolderKey.section): YFolderSection;
 }
 
 export interface YViews extends Y.Map<unknown> {
-  get(key: ViewId): YView;
+  get (key: ViewId): YView;
 }
 
 export interface YView extends Y.Map<unknown> {
-  get(key: YjsFolderKey.id): ViewId;
+  get (key: YjsFolderKey.id): ViewId;
 
-  get(key: YjsFolderKey.bid): string;
-
-  // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.name): string;
+  get (key: YjsFolderKey.bid): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.icon | YjsFolderKey.extra): string;
+  get (key: YjsFolderKey.name): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsFolderKey.layout): string;
+  get (key: YjsFolderKey.icon | YjsFolderKey.extra): string;
+
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
+  get (key: YjsFolderKey.layout): string;
 }
 
 export interface YFolderRelation extends Y.Map<unknown> {
-  get(key: ViewId): Y.Array<ViewId>;
+  get (key: ViewId): Y.Array<ViewId>;
 }
 
 export interface YFolderMeta extends Y.Map<unknown> {
-  get(key: YjsFolderKey.current_view | YjsFolderKey.current_workspace): string;
+  get (key: YjsFolderKey.current_view | YjsFolderKey.current_workspace): string;
 }
 
 export interface YFolderSection extends Y.Map<unknown> {
-  get(key: YjsFolderKey.favorite | YjsFolderKey.private | YjsFolderKey.recent | YjsFolderKey.trash): YFolderSectionItem;
+  get (key: YjsFolderKey.favorite | YjsFolderKey.private | YjsFolderKey.recent | YjsFolderKey.trash): YFolderSectionItem;
 }
 
 export interface YFolderSectionItem extends Y.Map<unknown> {
-  get(key: string): Y.Array<unknown>;
+  get (key: string): Y.Array<unknown>;
 }
 
 export interface YDocument extends Y.Map<unknown> {
-  get(key: YjsEditorKey.blocks | YjsEditorKey.page_id | YjsEditorKey.meta): YBlocks | YMeta | string;
+  get (key: YjsEditorKey.blocks | YjsEditorKey.page_id | YjsEditorKey.meta): YBlocks | YMeta | string;
 }
 
 export interface YBlocks extends Y.Map<unknown> {
-  get(key: BlockId): YBlock;
+  get (key: BlockId): YBlock;
 }
 
 export interface YBlock extends Y.Map<unknown> {
-  get(key: YjsEditorKey.block_id | YjsEditorKey.block_parent): BlockId;
+  get (key: YjsEditorKey.block_id | YjsEditorKey.block_parent): BlockId;
 
-  get(key: YjsEditorKey.block_type): BlockType;
+  get (key: YjsEditorKey.block_type): BlockType;
 
-  get(key: YjsEditorKey.block_data): string;
+  get (key: YjsEditorKey.block_data): string;
 
-  get(key: YjsEditorKey.block_children): ChildrenId;
+  get (key: YjsEditorKey.block_children): ChildrenId;
 
-  get(key: YjsEditorKey.block_external_id): ExternalId;
+  get (key: YjsEditorKey.block_external_id): ExternalId;
 }
 
 export interface YMeta extends Y.Map<unknown> {
-  get(key: YjsEditorKey.children_map | YjsEditorKey.text_map): YChildrenMap | YTextMap;
+  get (key: YjsEditorKey.children_map | YjsEditorKey.text_map): YChildrenMap | YTextMap;
 }
 
 export interface YChildrenMap extends Y.Map<unknown> {
-  get(key: ChildrenId): Y.Array<BlockId>;
+  get (key: ChildrenId): Y.Array<BlockId>;
 }
 
 export interface YTextMap extends Y.Map<unknown> {
-  get(key: ExternalId): Y.Text;
+  get (key: ExternalId): Y.Text;
 }
 
 export interface YDatabase extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.views): YDatabaseViews;
+  get (key: YjsDatabaseKey.views): YDatabaseViews;
 
-  get(key: YjsDatabaseKey.metas): YDatabaseMetas;
+  get (key: YjsDatabaseKey.metas): YDatabaseMetas;
 
-  get(key: YjsDatabaseKey.fields): YDatabaseFields;
+  get (key: YjsDatabaseKey.fields): YDatabaseFields;
 
-  get(key: YjsDatabaseKey.id): string;
+  get (key: YjsDatabaseKey.id): string;
 }
 
 export interface YDatabaseViews extends Y.Map<YDatabaseView> {
-  get(key: ViewId): YDatabaseView;
+  get (key: ViewId): YDatabaseView;
 }
 
 export type DatabaseId = string;
@@ -431,32 +458,32 @@ export enum DatabaseViewLayout {
 }
 
 export interface YDatabaseView extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.database_id): DatabaseId;
+  get (key: YjsDatabaseKey.database_id): DatabaseId;
 
-  get(key: YjsDatabaseKey.name): string;
+  get (key: YjsDatabaseKey.name): string;
 
-  get(key: YjsDatabaseKey.created_at): CreatedAt;
+  get (key: YjsDatabaseKey.created_at): CreatedAt;
 
-  get(key: YjsDatabaseKey.modified_at): ModifiedAt;
+  get (key: YjsDatabaseKey.modified_at): ModifiedAt;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.layout): string;
+  get (key: YjsDatabaseKey.layout): string;
 
-  get(key: YjsDatabaseKey.layout_settings): YDatabaseLayoutSettings;
+  get (key: YjsDatabaseKey.layout_settings): YDatabaseLayoutSettings;
 
-  get(key: YjsDatabaseKey.filters): YDatabaseFilters;
+  get (key: YjsDatabaseKey.filters): YDatabaseFilters;
 
-  get(key: YjsDatabaseKey.groups): YDatabaseGroups;
+  get (key: YjsDatabaseKey.groups): YDatabaseGroups;
 
-  get(key: YjsDatabaseKey.sorts): YDatabaseSorts;
+  get (key: YjsDatabaseKey.sorts): YDatabaseSorts;
 
-  get(key: YjsDatabaseKey.field_settings): YDatabaseFieldSettings;
+  get (key: YjsDatabaseKey.field_settings): YDatabaseFieldSettings;
 
-  get(key: YjsDatabaseKey.field_orders): YDatabaseFieldOrders;
+  get (key: YjsDatabaseKey.field_orders): YDatabaseFieldOrders;
 
-  get(key: YjsDatabaseKey.row_orders): YDatabaseRowOrders;
+  get (key: YjsDatabaseKey.row_orders): YDatabaseRowOrders;
 
-  get(key: YjsDatabaseKey.calculations): YDatabaseCalculations;
+  get (key: YjsDatabaseKey.calculations): YDatabaseCalculations;
 }
 
 export type YDatabaseFieldOrders = Y.Array<unknown>; // [ { id: FieldId } ]
@@ -477,128 +504,128 @@ export type GroupId = string;
 
 export interface YDatabaseLayoutSettings extends Y.Map<unknown> {
   // DatabaseViewLayout.Board
-  get(key: '1'): YDatabaseBoardLayoutSetting;
+  get (key: '1'): YDatabaseBoardLayoutSetting;
 
   // DatabaseViewLayout.Calendar
-  get(key: '2'): YDatabaseCalendarLayoutSetting;
+  get (key: '2'): YDatabaseCalendarLayoutSetting;
 }
 
 export interface YDatabaseBoardLayoutSetting extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.hide_ungrouped_column | YjsDatabaseKey.collapse_hidden_groups): boolean;
+  get (key: YjsDatabaseKey.hide_ungrouped_column | YjsDatabaseKey.collapse_hidden_groups): boolean;
 }
 
 export interface YDatabaseCalendarLayoutSetting extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.first_day_of_week | YjsDatabaseKey.field_id | YjsDatabaseKey.layout_ty): string;
+  get (key: YjsDatabaseKey.first_day_of_week | YjsDatabaseKey.field_id | YjsDatabaseKey.layout_ty): string;
 
-  get(key: YjsDatabaseKey.show_week_numbers | YjsDatabaseKey.show_weekends): boolean;
+  get (key: YjsDatabaseKey.show_week_numbers | YjsDatabaseKey.show_weekends): boolean;
 }
 
 export interface YDatabaseGroup extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.id): GroupId;
+  get (key: YjsDatabaseKey.id): GroupId;
 
-  get(key: YjsDatabaseKey.field_id): FieldId;
+  get (key: YjsDatabaseKey.field_id): FieldId;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.content): string;
+  get (key: YjsDatabaseKey.content): string;
 
-  get(key: YjsDatabaseKey.groups): YDatabaseGroupColumns;
+  get (key: YjsDatabaseKey.groups): YDatabaseGroupColumns;
 }
 
 export type YDatabaseGroupColumns = Y.Array<YDatabaseGroupColumn>;
 
 export interface YDatabaseGroupColumn extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.id): string;
+  get (key: YjsDatabaseKey.id): string;
 
-  get(key: YjsDatabaseKey.visible): boolean;
+  get (key: YjsDatabaseKey.visible): boolean;
 }
 
 export interface YDatabaseRowOrder extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.id): SortId;
+  get (key: YjsDatabaseKey.id): SortId;
 
-  get(key: YjsDatabaseKey.height): number;
+  get (key: YjsDatabaseKey.height): number;
 }
 
 export interface YDatabaseSort extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.id): SortId;
+  get (key: YjsDatabaseKey.id): SortId;
 
-  get(key: YjsDatabaseKey.field_id): FieldId;
+  get (key: YjsDatabaseKey.field_id): FieldId;
 
-  get(key: YjsDatabaseKey.condition): string;
+  get (key: YjsDatabaseKey.condition): string;
 }
 
 export type FilterId = string;
 
 export interface YDatabaseFilter extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.id): FilterId;
+  get (key: YjsDatabaseKey.id): FilterId;
 
-  get(key: YjsDatabaseKey.field_id): FieldId;
+  get (key: YjsDatabaseKey.field_id): FieldId;
 
-  get(key: YjsDatabaseKey.type | YjsDatabaseKey.condition | YjsDatabaseKey.content | YjsDatabaseKey.filter_type): string;
+  get (key: YjsDatabaseKey.type | YjsDatabaseKey.condition | YjsDatabaseKey.content | YjsDatabaseKey.filter_type): string;
 }
 
 export interface YDatabaseCalculation extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.field_id): FieldId;
+  get (key: YjsDatabaseKey.field_id): FieldId;
 
-  get(key: YjsDatabaseKey.id | YjsDatabaseKey.type | YjsDatabaseKey.calculation_value): string;
+  get (key: YjsDatabaseKey.id | YjsDatabaseKey.type | YjsDatabaseKey.calculation_value): string;
 }
 
 export interface YDatabaseFieldSettings extends Y.Map<unknown> {
-  get(key: FieldId): YDatabaseFieldSetting;
+  get (key: FieldId): YDatabaseFieldSetting;
 }
 
 export interface YDatabaseFieldSetting extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.visibility): string;
+  get (key: YjsDatabaseKey.visibility): string;
 
-  get(key: YjsDatabaseKey.wrap): boolean;
+  get (key: YjsDatabaseKey.wrap): boolean;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.width): string;
+  get (key: YjsDatabaseKey.width): string;
 }
 
 export interface YDatabaseMetas extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.iid): string;
+  get (key: YjsDatabaseKey.iid): string;
 }
 
 export interface YDatabaseFields extends Y.Map<YDatabaseField> {
-  get(key: FieldId): YDatabaseField;
+  get (key: FieldId): YDatabaseField;
 }
 
 export interface YDatabaseField extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.name): string;
+  get (key: YjsDatabaseKey.name): string;
 
-  get(key: YjsDatabaseKey.id): FieldId;
+  get (key: YjsDatabaseKey.id): FieldId;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.type): string;
+  get (key: YjsDatabaseKey.type): string;
 
-  get(key: YjsDatabaseKey.type_option): YDatabaseFieldTypeOption;
+  get (key: YjsDatabaseKey.type_option): YDatabaseFieldTypeOption;
 
-  get(key: YjsDatabaseKey.is_primary): boolean;
+  get (key: YjsDatabaseKey.is_primary): boolean;
 
-  get(key: YjsDatabaseKey.last_modified): LastModified;
+  get (key: YjsDatabaseKey.last_modified): LastModified;
 }
 
 export interface YDatabaseFieldTypeOption extends Y.Map<unknown> {
   // key is the field type
-  get(key: string): YMapFieldTypeOption;
+  get (key: string): YMapFieldTypeOption;
 }
 
 export interface YMapFieldTypeOption extends Y.Map<unknown> {
-  get(key: YjsDatabaseKey.content): string;
+  get (key: YjsDatabaseKey.content): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.data): string;
+  get (key: YjsDatabaseKey.data): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.time_format): string;
+  get (key: YjsDatabaseKey.time_format): string;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.date_format): string;
+  get (key: YjsDatabaseKey.date_format): string;
 
-  get(key: YjsDatabaseKey.database_id): DatabaseId;
+  get (key: YjsDatabaseKey.database_id): DatabaseId;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
-  get(key: YjsDatabaseKey.format): string;
+  get (key: YjsDatabaseKey.format): string;
 }
 
 export enum CollabType {

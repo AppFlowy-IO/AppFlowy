@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Mon, 27 May 2024 06:26:20 GMT
+* Generated on Fri, 06 Sep 2024 10:13:48 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -50,13 +50,19 @@ module.exports = {
   "bg": {
     "body": "var(--bg-body)",
     "base": "var(--bg-base)",
+    "mask": "var(--bg-mask)",
     "tips": "var(--bg-tips)",
-    "brand": "var(--bg-brand)"
+    "brand": "var(--bg-brand)",
+    "header": "var(--bg-header)",
+    "footer": "var(--bg-footer)"
   },
   "function": {
     "error": "var(--function-error)",
-    "waring": "var(--function-waring)",
+    "error-hover": "var(--function-error-hover)",
+    "warning": "var(--function-warning)",
+    "warning-hover": "var(--function-warning-hover)",
     "success": "var(--function-success)",
+    "success-hover": "var(--function-success-hover)",
     "info": "var(--function-info)"
   },
   "tint": {
@@ -69,6 +75,17 @@ module.exports = {
     "blue": "var(--tint-blue)",
     "orange": "var(--tint-orange)",
     "yellow": "var(--tint-yellow)"
+  },
+  "badge": {
+    "purple": "var(--badge-purple)",
+    "pink": "var(--badge-pink)",
+    "red": "var(--badge-red)",
+    "lime": "var(--badge-lime)",
+    "green": "var(--badge-green)",
+    "aqua": "var(--badge-aqua)",
+    "blue": "var(--badge-blue)",
+    "orange": "var(--badge-orange)",
+    "yellow": "var(--badge-yellow)"
   },
   "scrollbar": {
     "thumb": "var(--scrollbar-thumb)",

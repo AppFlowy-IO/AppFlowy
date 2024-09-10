@@ -1,8 +1,8 @@
-use collab_database::rows::RowId;
+use collab_database::rows::{Cell, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
-use tracing::{error, trace};
+use tracing::{error, info, trace};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -10,8 +10,8 @@ use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginStat
 use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::field::{
-  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
-  SelectOptionCellChangeset,
+  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, MediaCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt,
 };
 use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
@@ -35,8 +35,10 @@ pub(crate) async fn get_database_data_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_database_editor(&database_id).await?;
-  let data = database_editor.get_database_data(view_id.as_ref()).await?;
+  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let data = database_editor
+    .open_database_view(view_id.as_ref(), None)
+    .await?;
   trace!(
     "layout: {:?}, rows: {}, fields: {}",
     data.layout_type,
@@ -56,9 +58,13 @@ pub(crate) async fn get_all_rows_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_database_editor(&database_id).await?;
-  let data = database_editor.get_all_rows(view_id.as_ref()).await?;
-  data_result_ok(data)
+  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
+  let rows = row_details
+    .into_iter()
+    .map(|detail| RowMetaPB::from(detail.as_ref()))
+    .collect::<Vec<RowMetaPB>>();
+  data_result_ok(RepeatedRowMetaPB { items: rows })
 }
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn open_database_handler(
@@ -326,7 +332,12 @@ pub(crate) async fn switch_to_field_handler(
     .await?;
   let old_field = database_editor.get_field(&params.field_id).await;
   database_editor
-    .switch_to_field_type(&params.field_id, params.field_type)
+    .switch_to_field_type(
+      &params.view_id,
+      &params.field_id,
+      params.field_type,
+      params.field_name,
+    )
     .await?;
 
   if let Some(new_type_option) = database_editor
@@ -398,7 +409,7 @@ pub(crate) async fn move_field_handler(
 
 // #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -414,7 +425,7 @@ pub(crate) async fn get_row_handler(
 }
 
 pub(crate) async fn init_row_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -427,7 +438,7 @@ pub(crate) async fn init_row_handler(
 }
 
 pub(crate) async fn get_row_meta_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RowMetaPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -481,7 +492,7 @@ pub(crate) async fn delete_rows_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -781,6 +792,22 @@ pub(crate) async fn update_group_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn rename_group_handler(
+  data: AFPluginData<RenameGroupPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: RenameGroupParams = data.into_inner().try_into()?;
+  let view_id = params.view_id.clone();
+  let database_editor = manager.get_database_editor_with_view_id(&view_id).await?;
+  let group_changeset = GroupChangeset::from(params);
+  database_editor
+    .rename_group(&view_id, group_changeset)
+    .await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_group_handler(
   data: AFPluginData<MoveGroupPayloadPB>,
@@ -954,7 +981,7 @@ pub(crate) async fn get_no_date_calendar_events_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_calendar_event_handler(
-  data: AFPluginData<RowIdPB>,
+  data: AFPluginData<DatabaseViewRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<CalendarEventPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -1017,6 +1044,20 @@ pub(crate) async fn export_csv_handler(
   let data = database.export_csv(CSVFormat::Original).await?;
   data_result_ok(DatabaseExportDataPB {
     export_type: DatabaseExportDataType::CSV,
+    data,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn export_raw_database_data_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<DatabaseExportDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner().value;
+  let data = manager.get_database_json_string(&view_id).await?;
+  data_result_ok(DatabaseExportDataPB {
+    export_type: DatabaseExportDataType::RawDatabaseData,
     data,
   })
 }
@@ -1198,7 +1239,9 @@ pub(crate) async fn get_related_row_datas_handler(
 ) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: GetRelatedRowDataPB = data.into_inner();
-  let database_editor = manager.get_database_editor(&params.database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&params.database_id)
+    .await?;
   let row_datas = database_editor
     .get_related_rows(Some(&params.row_ids))
     .await?;
@@ -1212,10 +1255,14 @@ pub(crate) async fn get_related_database_rows_handler(
 ) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let database_id = data.into_inner().value;
-  let database_editor = manager.get_database_editor(&database_id).await?;
-  let row_datas = database_editor.get_related_rows(None).await?;
 
-  data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
+  info!(
+    "[Database]: get related database rows from database_id: {}",
+    database_id
+  );
+  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let rows = database_editor.get_related_rows(None).await?;
+  data_result_ok(RepeatedRelatedRowDataPB { rows })
 }
 
 pub(crate) async fn summarize_row_handler(
@@ -1253,5 +1300,116 @@ pub(crate) async fn translate_row_handler(
   });
 
   rx.await??;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_media_cell_handler(
+  data: AFPluginData<MediaCellChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: MediaCellChangesetPB = data.into_inner();
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+  let cell_changeset = MediaCellChangeset {
+    inserted_files: params.inserted_files.into_iter().map(Into::into).collect(),
+    removed_ids: params.removed_ids,
+  };
+
+  let database_editor = manager
+    .get_database_editor_with_view_id(&cell_id.view_id)
+    .await?;
+
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      &cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(cell_changeset),
+    )
+    .await?;
+  Ok(())
+}
+
+/// We use a custom handler to rename the media file, as the ordering
+/// of the files must be maintained while renaming a file.
+///
+/// The changeset in [update_media_cell_handler] contains removals and inserts,
+/// and if we were to remove and insert the file, it would mess up the ordering.
+///
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn rename_media_cell_file_handler(
+  data: AFPluginData<RenameMediaChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: RenameMediaChangesetPB = data.into_inner();
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+
+  let database_editor = manager
+    .get_database_editor_with_view_id(&cell_id.view_id)
+    .await?;
+
+  let cell = database_editor
+    .get_cell(&cell_id.field_id, &cell_id.row_id)
+    .await;
+  if cell.is_none() {
+    return Err(FlowyError::record_not_found());
+  }
+
+  let cell = cell.unwrap();
+  let field = database_editor
+    .get_field(&cell_id.field_id)
+    .await
+    .ok_or_else(FlowyError::record_not_found)?;
+  let handler = TypeOptionCellExt::new(&field, None)
+    .get_type_option_cell_data_handler_with_field_type(FieldType::Media);
+  if handler.is_none() {
+    return Err(
+      FlowyError::internal().with_context("Error renaming media file: field type is not Media"),
+    );
+  }
+  let handler = handler.unwrap();
+  let data = handler
+    .handle_get_boxed_cell_data(&cell, &field)
+    .and_then(|cell_data| cell_data.unbox_or_none())
+    .unwrap_or_else(MediaCellData::default);
+
+  let file = data
+    .files
+    .iter()
+    .find(|file| file.id == params.file_id)
+    .ok_or_else(FlowyError::record_not_found)?;
+
+  let new_file = file.rename(params.name);
+  let new_data = MediaCellData {
+    files: data
+      .files
+      .iter()
+      .map(|file| {
+        if file.id == params.file_id {
+          new_file.clone()
+        } else {
+          file.clone()
+        }
+      })
+      .collect(),
+  };
+
+  let result = database_editor
+    .update_cell(
+      &cell_id.view_id,
+      &cell_id.row_id,
+      &cell_id.field_id,
+      Cell::from(&new_data),
+    )
+    .await;
+
+  if result.is_err() {
+    return Err(
+      FlowyError::internal().with_context("Error renaming media file: update cell failed"),
+    );
+  }
+
   Ok(())
 }

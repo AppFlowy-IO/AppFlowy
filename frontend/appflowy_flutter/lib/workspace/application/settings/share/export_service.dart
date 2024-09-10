@@ -12,4 +12,12 @@ class BackendExportService {
     final payload = DatabaseViewIdPB.create()..value = viewId;
     return DatabaseEventExportCSV(payload).send();
   }
+
+  static Future<FlowyResult<DatabaseExportDataPB, FlowyError>>
+      exportDatabaseAsRawData(
+    String viewId,
+  ) async {
+    final payload = DatabaseViewIdPB.create()..value = viewId;
+    return DatabaseEventExportRawDatabaseData(payload).send();
+  }
 }

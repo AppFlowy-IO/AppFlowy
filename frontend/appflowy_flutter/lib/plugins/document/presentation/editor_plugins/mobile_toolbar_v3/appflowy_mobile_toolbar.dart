@@ -245,12 +245,12 @@ class _MobileToolbarState extends State<_MobileToolbar>
       children: [
         const Divider(
           height: 0.5,
-          color: Color(0xFFEDEDED),
+          color: Color(0x7FEDEDED),
         ),
         _buildToolbar(context),
         const Divider(
           height: 0.5,
-          color: Color(0xFFEDEDED),
+          color: Color(0x7FEDEDED),
         ),
         _buildMenuOrSpacer(context),
       ],

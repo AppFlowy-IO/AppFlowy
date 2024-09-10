@@ -1,22 +1,24 @@
-use std::cmp::Ordering;
-use std::str::FromStr;
-
+use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::database::Database;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
-use serde::{Deserialize, Serialize};
-
+use collab_database::template::date_parse::cast_string_to_timestamp;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::str::FromStr;
+use tracing::info;
 
-use crate::entities::{DateCellDataPB, DateFilterPB};
+use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
-  TypeOptionTransform,
+  TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
 
@@ -197,7 +199,52 @@ impl DateTypeOption {
   }
 }
 
-impl TypeOptionTransform for DateTypeOption {}
+#[async_trait]
+impl TypeOptionTransform for DateTypeOption {
+  async fn transform_type_option(
+    &mut self,
+    view_id: &str,
+    field_id: &str,
+    old_type_option_field_type: FieldType,
+    _old_type_option_data: TypeOptionData,
+    _new_type_option_field_type: FieldType,
+    database: &mut Database,
+  ) {
+    match old_type_option_field_type {
+      FieldType::RichText => {
+        let rows = database
+          .get_cells_for_field(view_id, field_id)
+          .await
+          .into_iter()
+          .filter_map(|row| row.cell.map(|cell| (row.row_id, cell)))
+          .collect::<Vec<_>>();
+
+        info!(
+          "Transforming RichText to DateTypeOption, updating {} row's cell content",
+          rows.len()
+        );
+        for (row_id, cell_data) in rows {
+          if let Some(cell_data) = cell_data
+            .get_as::<String>(CELL_DATA)
+            .and_then(|s| cast_string_to_timestamp(&s))
+            .map(DateCellData::from_timestamp)
+          {
+            database
+              .update_row(row_id, |row| {
+                row.update_cells(|cell| {
+                  cell.insert(field_id, Cell::from(&cell_data));
+                });
+              })
+              .await;
+          }
+        }
+      },
+      _ => {
+        // do nothing
+      },
+    }
+  }
+}
 
 impl CellDataDecoder for DateTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -230,6 +277,17 @@ impl CellDataDecoder for DateTypeOption {
     } else {
       date
     }
+  }
+
+  fn decode_cell_with_transform(
+    &self,
+    cell: &Cell,
+    _from_field_type: FieldType,
+    _field: &Field,
+  ) -> Option<<Self as TypeOption>::CellData> {
+    let s = cell.get_as::<String>(CELL_DATA)?;
+    let timestamp = cast_string_to_timestamp(&s)?;
+    Some(DateCellData::from_timestamp(timestamp))
   }
 
   fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {

@@ -10,7 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/imag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/layouts/multi_image_layouts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
-import 'package:appflowy/shared/patterns/common_patterns.dart';
+import 'package:appflowy/shared/patterns/file_type_patterns.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -231,7 +231,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const FlowySvg(
-                              FlowySvgs.import_s,
+                              FlowySvgs.download_s,
                               size: Size.square(28),
                             ),
                             const HSpace(12),

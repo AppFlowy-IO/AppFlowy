@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -202,8 +203,14 @@ class _URLAccessoryIconContainer extends StatelessWidget {
         ),
         borderRadius: Corners.s6Border,
       ),
-      child: Center(
-        child: child,
+      child: FlowyHover(
+        style: HoverStyle(
+          backgroundColor: AFThemeExtension.of(context).background,
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        ),
+        child: Center(
+          child: child,
+        ),
       ),
     );
   }

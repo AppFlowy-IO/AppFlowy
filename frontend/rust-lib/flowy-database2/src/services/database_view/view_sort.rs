@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::RowDetail;
+use collab_database::rows::Row;
 use tokio::sync::RwLock;
 
 use crate::services::cell::CellCache;
@@ -59,18 +59,18 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
     self.delegate.get_sort(view_id, sort_id).await.map(Arc::new)
   }
 
-  async fn get_rows(&self, view_id: &str) -> Vec<Arc<RowDetail>> {
+  async fn get_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
     let view_id = view_id.to_string();
-    let mut row_details = self.delegate.get_row_details(&view_id).await;
-    self.filter_controller.filter_rows(&mut row_details).await;
-    row_details
+    let row_orders = self.delegate.get_all_row_orders(&view_id).await;
+    let mut rows = self.delegate.get_all_rows(&view_id, row_orders).await;
+    self.filter_controller.filter_rows(&mut rows).await;
+    rows
   }
 
-  async fn filter_row(&self, row_detail: &RowDetail) -> bool {
-    let row_detail = row_detail.clone();
-    let mut row_details = vec![Arc::new(row_detail)];
-    self.filter_controller.filter_rows(&mut row_details).await;
-    !row_details.is_empty()
+  async fn filter_row(&self, row: &Row) -> bool {
+    let mut rows = vec![Arc::new(row.clone())];
+    self.filter_controller.filter_rows(&mut rows).await;
+    !rows.is_empty()
   }
 
   async fn get_field(&self, field_id: &str) -> Option<Field> {

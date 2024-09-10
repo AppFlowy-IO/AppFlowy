@@ -10,11 +10,12 @@ use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
+use tracing::error;
 
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContent, DateFilterPB, FieldType, FilterType,
-  InsertedRowPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB, TextFilterPB,
-  TimeFilterPB,
+  InsertedRowPB, MediaFilterPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB,
+  TextFilterPB, TimeFilterPB,
 };
 use crate::services::field::SelectOptionIds;
 
@@ -286,6 +287,7 @@ impl FilterInner {
       FieldType::Summary => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
       FieldType::Translate => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
       FieldType::Time => BoxAny::new(TimeFilterPB::parse(condition as u8, content)),
+      FieldType::Media => BoxAny::new(MediaFilterPB::parse(condition as u8, content)),
     };
 
     FilterInner::Data {
@@ -387,6 +389,10 @@ impl<'a> From<&'a Filter> for FilterMap {
               let filter = condition_and_content.cloned::<TextFilterPB>()?;
               (filter.condition as u8, filter.content)
             },
+            FieldType::Media => {
+              let filter = condition_and_content.cloned::<MediaFilterPB>()?;
+              (filter.condition as u8, filter.content)
+            },
           };
           Some((condition, content))
         };
@@ -454,8 +460,13 @@ fn get_children(filter_map: FilterMap) -> Vec<Filter> {
   if let Some(Any::Array(children)) = filter_map.get(FILTER_CHILDREN) {
     for child in children.iter() {
       if let Any::Map(child_map) = child {
-        if let Ok(filter) = Filter::try_from(child_map.deref().clone()) {
-          result.push(filter);
+        match Filter::try_from(child_map.deref().clone()) {
+          Ok(filter) => {
+            result.push(filter);
+          },
+          Err(err) => {
+            error!("Failed to deserialize filter: {:?}", err);
+          },
         }
       }
     }

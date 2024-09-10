@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { SpaceView, Workspace } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 
-export function useDuplicate() {
+export function useDuplicate () {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
   const [search, setSearch] = useSearchParams();
   const [loginOpen, setLoginOpen] = React.useState(false);
@@ -46,11 +46,15 @@ export function useDuplicate() {
   };
 }
 
-export function useLoadWorkspaces() {
+export function useLoadWorkspaces () {
+  const currentUser = useContext(AFConfigContext)?.currentUser;
+  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated && Boolean(currentUser) || false;
   const [spaceLoading, setSpaceLoading] = useState<boolean>(false);
   const [workspaceLoading, setWorkspaceLoading] = useState<boolean>(false);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>('1');
-  const [selectedSpaceId, setSelectedSpaceId] = useState<string>('1');
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>(() => {
+    return localStorage.getItem('duplicate_selected_workspace') || '';
+  });
+  const [selectedSpaceId, setSelectedSpaceId] = useState<string>('');
 
   const [workspaceList, setWorkspaceList] = useState<Workspace[]>([]);
 
@@ -58,36 +62,33 @@ export function useLoadWorkspaces() {
 
   const service = useContext(AFConfigContext)?.service;
 
-  useEffect(() => {
-    void (async () => {
-      setWorkspaceLoading(true);
-      try {
-        const workspaces = await service?.getWorkspaces();
+  const loadWorkspaces = useCallback(async () => {
+    if (!isAuthenticated) return;
+    setWorkspaceLoading(true);
+    try {
+      const workspaces = await service?.getWorkspaces();
 
-        if (workspaces) {
-          setWorkspaceList(workspaces);
-          setSelectedWorkspaceId(workspaces[0].id);
-        } else {
-          setWorkspaceList([]);
-          setSelectedWorkspaceId('');
-        }
-      } catch (e) {
-        notify.error('Failed to load workspaces');
-      } finally {
-        setWorkspaceLoading(false);
+      if (workspaces) {
+        setWorkspaceList(workspaces);
+        setSelectedWorkspaceId(prev => {
+          if (!prev || !workspaces.find(item => item.id === prev)) return workspaces[0].id;
+          return prev;
+        });
+      } else {
+        setWorkspaceList([]);
+        setSelectedWorkspaceId('');
       }
-    })();
-  }, [service]);
-
-  useEffect(() => {
-    if (workspaceList.length === 0 || !selectedWorkspaceId || workspaceLoading) {
-      setSpaceList([]);
-      setSelectedSpaceId('');
-      return;
+    } catch (e) {
+      notify.error('Failed to load workspaces');
+    } finally {
+      setWorkspaceLoading(false);
     }
+  }, [service, isAuthenticated]);
 
-    setSpaceLoading(true);
-    void (async () => {
+  const loadSpaces = useCallback(
+    async (selectedWorkspaceId: string) => {
+      if (!isAuthenticated) return;
+      setSpaceLoading(true);
       try {
         const folder = await service?.getWorkspaceFolder(selectedWorkspaceId);
 
@@ -115,8 +116,9 @@ export function useLoadWorkspaces() {
         setSelectedSpaceId('');
         setSpaceLoading(false);
       }
-    })();
-  }, [selectedWorkspaceId, service, workspaceList.length, workspaceLoading]);
+    },
+    [service, isAuthenticated],
+  );
 
   return {
     workspaceList,
@@ -127,5 +129,7 @@ export function useLoadWorkspaces() {
     setSelectedSpaceId,
     workspaceLoading,
     spaceLoading,
+    loadWorkspaces,
+    loadSpaces,
   };
 }

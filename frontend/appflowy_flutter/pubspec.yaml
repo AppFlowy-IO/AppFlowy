@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.6.8
+version: 0.7.0
 
 environment:
   flutter: ">=3.22.0"
@@ -65,7 +65,7 @@ dependencies:
   expandable: ^5.0.1
   flex_color_picker: ^3.5.1
   highlight: ^0.7.0
-  package_info_plus: ^6.0.0
+  package_info_plus: ^8.0.2
   url_launcher: ^6.1.11
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
@@ -119,7 +119,7 @@ dependencies:
   keyboard_height_plugin: ^0.1.5
   scrollable_positioned_list: ^0.3.8
   flutter_cache_manager: ^3.3.1
-  share_plus: ^7.2.1
+  share_plus: ^10.0.2
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
@@ -152,7 +152,12 @@ dependencies:
   extended_text_field: ^15.0.0
   extended_text_library: ^12.0.0
   sentry_flutter: ^8.7.0
-  sentry: ^8.7.0
+  sentry: ^8.8.0
+  mime: ^1.0.6
+
+  # Used to open local files on Mobile
+  open_filex: ^4.5.0
+  synchronized: ^3.1.0+1
 
 dev_dependencies:
   flutter_lints: ^4.0.0
@@ -190,7 +195,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "8e17d14"
+      ref: "2110fde"
 
   appflowy_editor_plugins:
     git:

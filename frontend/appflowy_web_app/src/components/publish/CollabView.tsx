@@ -1,5 +1,6 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
+import ViewHelmet from '@/components/_shared/helmet/ViewHelmet';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Document } from '@/components/document';
 import DatabaseView from '@/components/publish/DatabaseView';
@@ -41,31 +42,51 @@ function CollabView ({ doc }: CollabViewProps) {
   const loadView = usePublishContext()?.loadView;
   const isTemplateThumb = usePublishContext()?.isTemplateThumb;
 
+  const className = useMemo(() => {
+    const classList = ['relative w-full flex-1'];
+
+    if (isTemplateThumb && layout !== ViewLayout.Document) {
+      classList.push('flex justify-center h-full');
+    }
+
+    if (layoutClassName) {
+      classList.push(layoutClassName);
+    }
+
+    return classList.join(' ');
+  }, [isTemplateThumb, layout, layoutClassName]);
+
   if (!doc || !View) {
     return <ComponentLoading />;
   }
 
   return (
-    <div style={style}
-         className={`relative w-full flex-1 ${isTemplateThumb ? 'flex justify-center' : ''}  ${layoutClassName}`}
-    >
-      <View
-        doc={doc}
-        loadViewMeta={loadViewMeta}
-        getViewRowsMap={getViewRowsMap}
-        navigateToView={navigateToView}
-        loadView={loadView}
-        isTemplateThumb={isTemplateThumb}
-        viewMeta={{
-          icon,
-          cover,
-          viewId,
-          name,
-          layout: layout || ViewLayout.Document,
-          visibleViewIds: visibleViewIds || [],
-        }}
-      />
-    </div>
+    <>
+      <ViewHelmet icon={icon} name={name} />
+
+      <div
+        style={style}
+        className={className}
+      >
+        <View
+          doc={doc}
+          loadViewMeta={loadViewMeta}
+          getViewRowsMap={getViewRowsMap}
+          navigateToView={navigateToView}
+          loadView={loadView}
+          isTemplateThumb={isTemplateThumb}
+          viewMeta={{
+            icon,
+            cover,
+            viewId,
+            name,
+            layout: layout || ViewLayout.Document,
+            visibleViewIds: visibleViewIds || [],
+          }}
+        />
+      </div>
+    </>
+
   );
 }
 

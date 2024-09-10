@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -8,14 +11,16 @@ import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'card_bloc.dart';
 import '../cell/card_cell_builder.dart';
 import '../cell/card_cell_skeleton/card_cell.dart';
+
+import 'card_bloc.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 
@@ -146,13 +151,11 @@ class _RowCardState extends State<RowCard> {
       triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(140, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
-      popupBuilder: (_) {
-        return RowActionMenu.board(
-          viewId: _cardBloc.viewId,
-          rowId: _cardBloc.rowController.rowId,
-          groupId: widget.groupId,
-        );
-      },
+      popupBuilder: (_) => RowActionMenu.board(
+        viewId: _cardBloc.viewId,
+        rowId: _cardBloc.rowController.rowId,
+        groupId: widget.groupId,
+      ),
       child: RowCardContainer(
         buildAccessoryWhen: () => state.isEditing == false,
         accessories: accessories ?? [],
@@ -196,11 +199,38 @@ class _CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final attachmentCount = rowMeta.attachmentCount.toInt();
     final child = Padding(
       padding: styleConfiguration.cardPadding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: _makeCells(context, rowMeta, cells),
+        children: [
+          ..._makeCells(context, rowMeta, cells),
+          if (attachmentCount > 0) ...[
+            const VSpace(2),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Row(
+                children: [
+                  const FlowySvg(
+                    FlowySvgs.media_s,
+                    size: Size.square(12),
+                  ),
+                  const HSpace(4),
+                  Flexible(
+                    child: FlowyText.regular(
+                      LocaleKeys.grid_media_attachmentsHint
+                          .tr(args: ['$attachmentCount']),
+                      fontSize: 11,
+                      color: AFThemeExtension.of(context).secondaryTextColor,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
     return styleConfiguration.hoverStyle == null

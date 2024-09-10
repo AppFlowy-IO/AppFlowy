@@ -107,7 +107,7 @@ impl AppFlowyCore {
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
 
-    let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
+    let task_scheduler = TaskDispatcher::new(Duration::from_secs(10));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
@@ -271,6 +271,7 @@ impl AppFlowyCore {
         Arc::downgrade(&document_manager),
         Arc::downgrade(&search_manager),
         Arc::downgrade(&ai_manager),
+        Arc::downgrade(&storage_manager),
       ),
     ));
 

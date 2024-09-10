@@ -1,7 +1,7 @@
 use collab::preclude::encoding::serde::{from_any, to_any};
 use collab::preclude::Any;
 use collab_database::database::gen_database_group_id;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -103,7 +103,7 @@ pub struct GroupData {
   pub field_id: String,
   pub is_default: bool,
   pub is_visible: bool,
-  pub(crate) rows: Vec<RowDetail>,
+  pub(crate) rows: Vec<Row>,
 }
 
 impl GroupData {
@@ -119,18 +119,18 @@ impl GroupData {
   }
 
   pub fn contains_row(&self, row_id: &RowId) -> bool {
-    self
-      .rows
-      .iter()
-      .any(|row_detail| &row_detail.row.id == row_id)
+    self.rows.iter().any(|row| &row.id == row_id)
   }
 
   pub fn remove_row(&mut self, row_id: &RowId) {
-    match self
-      .rows
-      .iter()
-      .position(|row_detail| &row_detail.row.id == row_id)
-    {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Remove row:{} from group:{}",
+      row_id,
+      self.id
+    );
+
+    match self.rows.iter().position(|row| &row.id == row_id) {
       None => {},
       Some(pos) => {
         self.rows.remove(pos);
@@ -138,18 +138,27 @@ impl GroupData {
     }
   }
 
-  pub fn add_row(&mut self, row_detail: RowDetail) {
-    match self.rows.iter().find(|r| r.row.id == row_detail.row.id) {
+  pub fn add_row(&mut self, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!("[Database Group]: Add row:{} to group:{}", row.id, self.id);
+    match self.rows.iter().find(|r| r.id == row.id) {
       None => {
-        self.rows.push(row_detail);
+        self.rows.push(row);
       },
       Some(_) => {},
     }
   }
 
-  pub fn insert_row(&mut self, index: usize, row_detail: RowDetail) {
+  pub fn insert_row(&mut self, index: usize, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Insert row:{} to group:{} at index:{}",
+      row.id,
+      self.id,
+      index
+    );
     if index < self.rows.len() {
-      self.rows.insert(index, row_detail);
+      self.rows.insert(index, row);
     } else {
       tracing::error!(
         "Insert row index:{} beyond the bounds:{},",
@@ -160,10 +169,7 @@ impl GroupData {
   }
 
   pub fn index_of_row(&self, row_id: &RowId) -> Option<usize> {
-    self
-      .rows
-      .iter()
-      .position(|row_detail| &row_detail.row.id == row_id)
+    self.rows.iter().position(|row| &row.id == row_id)
   }
 
   pub fn number_of_row(&self) -> usize {
