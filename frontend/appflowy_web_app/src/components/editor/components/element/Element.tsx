@@ -1,4 +1,4 @@
-import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/application/collab.type';
+import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/application/types';
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';

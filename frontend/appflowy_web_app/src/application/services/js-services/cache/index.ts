@@ -1,33 +1,34 @@
 import {
-  CollabType,
+  Types,
   DatabaseId,
-  PublishViewInfo,
+  ViewInfo,
   PublishViewMetaData,
   RowId,
   ViewId,
   YDoc,
   YjsEditorKey,
   YSharedRoot,
-} from '@/application/collab.type';
+  User,
+} from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
 import { closeCollabDB, db, openCollabDB } from '@/application/db';
 import { Fetcher, StrategyType } from '@/application/services/js-services/cache/types';
 // import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 
-export function collabTypeToDBType (type: CollabType) {
+export function collabTypeToDBType (type: Types) {
   switch (type) {
-    case CollabType.Folder:
+    case Types.Folder:
       return 'folder';
-    case CollabType.Document:
+    case Types.Document:
       return 'document';
-    case CollabType.Database:
+    case Types.Database:
       return 'database';
-    case CollabType.WorkspaceDatabase:
+    case Types.WorkspaceDatabase:
       return 'databases';
-    case CollabType.DatabaseRow:
+    case Types.DatabaseRow:
       return 'database_row';
-    case CollabType.UserAwareness:
+    case Types.UserAwareness:
       return 'user_awareness';
     default:
       return '';
@@ -35,13 +36,13 @@ export function collabTypeToDBType (type: CollabType) {
 }
 
 const collabSharedRootKeyMap = {
-  [CollabType.Folder]: YjsEditorKey.folder,
-  [CollabType.Document]: YjsEditorKey.document,
-  [CollabType.Database]: YjsEditorKey.database,
-  [CollabType.WorkspaceDatabase]: YjsEditorKey.workspace_database,
-  [CollabType.DatabaseRow]: YjsEditorKey.database_row,
-  [CollabType.UserAwareness]: YjsEditorKey.user_awareness,
-  [CollabType.Empty]: YjsEditorKey.empty,
+  [Types.Folder]: YjsEditorKey.folder,
+  [Types.Document]: YjsEditorKey.document,
+  [Types.Database]: YjsEditorKey.database,
+  [Types.WorkspaceDatabase]: YjsEditorKey.workspace_database,
+  [Types.DatabaseRow]: YjsEditorKey.database_row,
+  [Types.UserAwareness]: YjsEditorKey.user_awareness,
+  [Types.Empty]: YjsEditorKey.empty,
 };
 
 export function hasCollabCache (doc: YDoc) {
@@ -58,11 +59,17 @@ export async function hasViewMetaCache (name: string) {
   return !!data;
 }
 
+export async function hasUserCache (userId: string) {
+  const data = await db.users.get(userId);
+
+  return !!data;
+}
+
 export async function getPublishViewMeta<
   T extends {
-    view: PublishViewInfo;
-    child_views: PublishViewInfo[];
-    ancestor_views: PublishViewInfo[];
+    view: ViewInfo;
+    child_views: ViewInfo[];
+    ancestor_views: ViewInfo[];
   }
 > (
   fetcher: Fetcher<T>,
@@ -112,6 +119,49 @@ export async function getPublishViewMeta<
   }
 }
 
+export async function getUser<
+  T extends User
+> (
+  fetcher: Fetcher<T>,
+  userId?: string,
+  strategy: StrategyType = StrategyType.CACHE_AND_NETWORK,
+) {
+  const exist = userId && (await hasUserCache(userId));
+  const data = await db.users.get(userId);
+
+  switch (strategy) {
+    case StrategyType.CACHE_ONLY: {
+      if (!exist) {
+        throw new Error('No cache found');
+      }
+
+      return data;
+    }
+
+    case StrategyType.CACHE_FIRST: {
+      if (!exist) {
+        return revalidateUser(fetcher);
+      }
+
+      return data;
+    }
+
+    case StrategyType.CACHE_AND_NETWORK: {
+      if (!exist) {
+        return revalidateUser(fetcher);
+      } else {
+        void revalidateUser(fetcher);
+      }
+
+      return data;
+    }
+
+    default: {
+      return revalidateUser(fetcher);
+    }
+  }
+}
+
 export async function getPublishView<
   T extends {
     data: Uint8Array;
@@ -119,9 +169,9 @@ export async function getPublishView<
     visibleViewIds?: ViewId[];
     relations?: Record<DatabaseId, ViewId>;
     meta: {
-      view: PublishViewInfo;
-      child_views: PublishViewInfo[];
-      ancestor_views: PublishViewInfo[];
+      view: ViewInfo;
+      child_views: ViewInfo[];
+      ancestor_views: ViewInfo[];
     };
   }
 > (
@@ -191,11 +241,80 @@ export async function getPublishView<
   return { doc, rowMapDoc };
 }
 
+export async function getPageDoc<T extends {
+  data: Uint8Array;
+  rows?: Record<RowId, number[]>;
+}> (fetcher: Fetcher<T>, name: string, strategy: StrategyType = StrategyType.CACHE_AND_NETWORK) {
+
+  const doc = await openCollabDB(name);
+  const rowMapDoc = (await openCollabDB(`${name}_rows`)) as Y.Doc;
+
+  const exist = hasCollabCache(doc);
+
+  switch (strategy) {
+    case StrategyType.CACHE_ONLY: {
+      if (!exist) {
+        throw new Error('No cache found');
+      }
+
+      break;
+    }
+
+    case StrategyType.CACHE_FIRST: {
+      if (!exist) {
+        await revalidateView(fetcher, doc, rowMapDoc);
+      }
+
+      break;
+    }
+
+    case StrategyType.CACHE_AND_NETWORK: {
+      if (!exist) {
+        await revalidateView(fetcher, doc, rowMapDoc);
+      } else {
+        void revalidateView(fetcher, doc, rowMapDoc);
+      }
+
+      break;
+    }
+
+    default: {
+      await revalidateView(fetcher, doc, rowMapDoc);
+      break;
+    }
+  }
+
+  return { doc, rowMapDoc };
+}
+
+export async function revalidateView<
+  T extends {
+    data: Uint8Array;
+    rows?: Record<RowId, number[]>;
+  }> (fetcher: Fetcher<T>, collab: YDoc, rowMapDoc: Y.Doc) {
+  const { data, rows } = await fetcher();
+
+  if (rows) {
+    for (const [key, value] of Object.entries(rows)) {
+      const subdoc = new Y.Doc({
+        guid: key,
+      });
+
+      applyYDoc(subdoc, new Uint8Array(value));
+      rowMapDoc.getMap().delete(subdoc.guid);
+      rowMapDoc.getMap().set(subdoc.guid, subdoc);
+    }
+  }
+
+  console.log('revalidateView', collab, data);
+  applyYDoc(collab, data);
+}
+
 export async function revalidatePublishViewMeta<
   T extends {
-    view: PublishViewInfo;
-    child_views: PublishViewInfo[];
-    ancestor_views: PublishViewInfo[];
+    view: ViewInfo;
+    child_views: ViewInfo[];
+    ancestor_views: ViewInfo[];
   }
 > (name: string, fetcher: Fetcher<T>) {
   const { view, child_views, ancestor_views } = await fetcher();
@@ -249,14 +368,6 @@ export async function revalidatePublishView<
       applyYDoc(subdoc, new Uint8Array(value));
       rowMapDoc.getMap().delete(subdoc.guid);
       rowMapDoc.getMap().set(subdoc.guid, subdoc);
-
-      // const persistence = new IndexeddbPersistence(subdoc.guid, subdoc);
-      //
-      // persistence.on('synced', () => {
-      //   applyYDoc(subdoc, new Uint8Array(value));
-      //   rowMapDoc.getMap().delete(subdoc.guid);
-      //   rowMapDoc.getMap().set(subdoc.guid, subdoc);
-      // });
     }
   }
 
@@ -264,7 +375,12 @@ export async function revalidatePublishView<
 }
 
 export async function deleteViewMeta (name: string) {
-  await db.view_metas.delete(name);
+  try {
+    await db.view_metas.delete(name);
+
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export async function deleteView (name: string) {
@@ -282,4 +398,13 @@ export async function deleteView (name: string) {
   // }
 
   await closeCollabDB(`${name}_rows`);
+}
+
+export async function revalidateUser<
+  T extends User> (fetcher: Fetcher<T>) {
+  const data = await fetcher();
+
+  await db.users.put(data, data.uuid);
+
+  return data;
 }

@@ -1,5 +1,5 @@
-import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { User } from '@/application/types';
+import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { createContext, useContext } from 'react';
 
 const baseURL = import.meta.env.AF_BASE_URL || 'https://test.appflowy.cloud';

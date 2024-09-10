@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/collab.type';
+import { YDoc } from '@/application/types';
 import CollaborativeEditor from '@/components/editor/CollaborativeEditor';
 import { defaultLayoutStyle, EditorContextProvider, EditorContextState } from '@/components/editor/EditorContext';
 import React, { memo } from 'react';

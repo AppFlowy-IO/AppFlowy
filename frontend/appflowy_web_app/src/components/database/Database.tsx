@@ -6,7 +6,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import DatabaseRow from '@/components/database/DatabaseRow';
 import DatabaseViews from '@/components/database/DatabaseViews';

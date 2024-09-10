@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { useRowDataSelector } from '@/application/database-yjs';
 import { useDateTypeCellDispatcher } from '@/components/database/components/cell/Cell.hooks';
 import React, { useEffect, useMemo, useState } from 'react';

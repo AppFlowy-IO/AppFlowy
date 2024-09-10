@@ -1,4 +1,4 @@
-import { CollabType } from '@/application/collab.type';
+import { Types } from '@/application/types';
 import { withTestingYDoc } from '@/application/slate-yjs/__tests__/withTestingYjsEditor';
 import { expect } from '@jest/globals';
 import { collabTypeToDBType, getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
@@ -115,12 +115,12 @@ describe('Cache functions', () => {
 
 describe('collabTypeToDBType', () => {
   it('should return correct DB type', () => {
-    expect(collabTypeToDBType(CollabType.Document)).toBe('document');
-    expect(collabTypeToDBType(CollabType.Folder)).toBe('folder');
-    expect(collabTypeToDBType(CollabType.Database)).toBe('database');
-    expect(collabTypeToDBType(CollabType.WorkspaceDatabase)).toBe('databases');
-    expect(collabTypeToDBType(CollabType.DatabaseRow)).toBe('database_row');
-    expect(collabTypeToDBType(CollabType.UserAwareness)).toBe('user_awareness');
-    expect(collabTypeToDBType(CollabType.Empty)).toBe('');
+    expect(collabTypeToDBType(Types.Document)).toBe('document');
+    expect(collabTypeToDBType(Types.Folder)).toBe('folder');
+    expect(collabTypeToDBType(Types.Database)).toBe('database');
+    expect(collabTypeToDBType(Types.WorkspaceDatabase)).toBe('databases');
+    expect(collabTypeToDBType(Types.DatabaseRow)).toBe('database_row');
+    expect(collabTypeToDBType(Types.UserAwareness)).toBe('user_awareness');
+    expect(collabTypeToDBType(Types.Empty)).toBe('');
   });
 });

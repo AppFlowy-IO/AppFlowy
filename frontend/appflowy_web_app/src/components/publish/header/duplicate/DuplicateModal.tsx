@@ -7,17 +7,17 @@ import { useLoadWorkspaces } from '@/components/publish/header/duplicate/useDupl
 import SpaceList from '@/components/publish/header/duplicate/SpaceList';
 import { downloadPage, openAppFlowySchema } from '@/utils/url';
 import { PublishContext } from '@/application/publish';
-import { CollabType, ViewLayout } from '@/application/collab.type';
+import { Types, ViewLayout } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 
 function getCollabTypeFromViewLayout (layout: ViewLayout) {
   switch (layout) {
     case ViewLayout.Document:
-      return CollabType.Document;
+      return Types.Document;
     case ViewLayout.Grid:
     case ViewLayout.Board:
     case ViewLayout.Calendar:
-      return CollabType.Database;
+      return Types.Database;
     default:
       return null;
   }

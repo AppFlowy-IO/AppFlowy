@@ -7,7 +7,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { createContext, useContext } from 'react';
 import * as Y from 'yjs';
 

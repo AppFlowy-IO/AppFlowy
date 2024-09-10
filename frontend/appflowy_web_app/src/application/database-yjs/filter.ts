@@ -6,7 +6,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { FieldType } from '@/application/database-yjs/database.type';
 import {
   CheckboxFilter,

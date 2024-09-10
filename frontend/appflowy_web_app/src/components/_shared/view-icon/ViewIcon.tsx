@@ -1,4 +1,4 @@
-import { ViewLayout } from '@/application/collab.type';
+import { ViewLayout } from '@/application/types';
 import React, { useMemo } from 'react';
 import { ReactComponent as BoardSvg } from '@/assets/board.svg';
 import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';

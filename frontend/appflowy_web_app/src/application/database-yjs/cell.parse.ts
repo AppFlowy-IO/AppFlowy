@@ -1,4 +1,4 @@
-import { YDatabaseCell, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseCell, YjsDatabaseKey } from '@/application/types';
 import { FieldType } from '@/application/database-yjs/database.type';
 import { YArray } from 'yjs/dist/src/types/YArray';
 import { Cell, CheckboxCell, DateTimeCell, FileMediaCell, FileMediaCellData } from './cell.type';

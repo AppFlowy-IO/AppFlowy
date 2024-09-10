@@ -1,7 +1,6 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta } from '@/application/collab.type';
+import { GetViewRowsMap, LoadView, LoadViewMeta, View, ViewInfo } from '@/application/types';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
-import { View } from '@/application/types';
 import { useService } from '@/components/main/app.hooks';
 import { notify } from '@/components/_shared/notify';
 import { findView } from '@/components/publish/header/utils';
@@ -132,7 +131,7 @@ export const PublishProvider = ({
   }, [namespace, service]);
 
   const loadViewMeta = useCallback(
-    async (viewId: string, callback?: (meta: ViewMeta) => void) => {
+    async (viewId: string, callback?: (meta: View) => void) => {
       try {
         const info = await service?.getPublishInfo(viewId);
 
@@ -150,17 +149,33 @@ export const PublishProvider = ({
           return Promise.reject(new Error('View meta has not been published yet'));
         }
 
-        callback?.(meta);
+        const parseMetaToView = (meta: ViewInfo): View => {
+          return {
+            view_id: meta.view_id,
+            name: meta.name,
+            layout: meta.layout,
+            extra: meta.extra ? JSON.parse(meta.extra) : undefined,
+            icon: meta.icon,
+            children: meta.child_views?.map(parseMetaToView) || [],
+            is_published: true,
+          };
+        };
+
+        const res = parseMetaToView(meta);
+
+        callback?.(res);
 
         if (callback) {
           setSubscribers((prev) => {
-            prev.set(name, callback);
+            prev.set(name, (meta) => {
+              return callback?.(parseMetaToView(meta));
+            });
 
             return prev;
           });
         }
 
-        return meta;
+        return res;
       } catch (e) {
         return Promise.reject(e);
       }

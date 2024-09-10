@@ -1,4 +1,4 @@
-import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/collab.type';
+import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/types';
 import { useDatabaseViewsSelector } from '@/application/database-yjs';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { Board } from '@/components/database/board';

@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/collab.type';
+import { YDoc } from '@/application/types';
 import { DatabaseContext, useRowMetaSelector } from '@/application/database-yjs';
 import { Editor } from '@/components/editor';
 import CircularProgress from '@mui/material/CircularProgress';

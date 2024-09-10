@@ -1,16 +1,17 @@
-import { YDoc } from '@/application/collab.type';
+import { userSchema, UserTable } from '@/application/db/tables/users';
+import { YDoc } from '@/application/types';
 import { databasePrefix } from '@/application/constants';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 import BaseDexie from 'dexie';
 import { viewMetasSchema, ViewMetasTable } from '@/application/db/tables/view_metas';
 
-type DexieTables = ViewMetasTable;
+type DexieTables = ViewMetasTable & UserTable;
 
 export type Dexie<T = DexieTables> = BaseDexie & T;
 
 export const db = new BaseDexie(`${databasePrefix}_cache`) as Dexie;
-const schema = Object.assign({}, viewMetasSchema);
+const schema = Object.assign({}, { ...viewMetasSchema, ...userSchema });
 
 db.version(1).stores(schema);
 
@@ -19,7 +20,7 @@ const openedSet = new Set<string>();
 /**
  * Open the collaboration database, and return a function to close it
  */
-export async function openCollabDB(docName: string): Promise<YDoc> {
+export async function openCollabDB (docName: string): Promise<YDoc> {
   const name = `${databasePrefix}_${docName}`;
   const doc = new Y.Doc({
     guid: docName,
@@ -45,7 +46,7 @@ export async function openCollabDB(docName: string): Promise<YDoc> {
   return doc as YDoc;
 }
 
-export async function closeCollabDB(docName: string) {
+export async function closeCollabDB (docName: string) {
   const name = `${databasePrefix}_${docName}`;
 
   if (openedSet.has(name)) {
@@ -59,7 +60,7 @@ export async function closeCollabDB(docName: string) {
   await provider.destroy();
 }
 
-export async function clearData() {
+export async function clearData () {
   try {
     const databases = await indexedDB.databases();
 

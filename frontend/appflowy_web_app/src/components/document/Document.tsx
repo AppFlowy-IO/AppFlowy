@@ -1,4 +1,4 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/collab.type';
+import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/types';
 import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
 import { Editor } from '@/components/editor';
 import React, { Suspense } from 'react';

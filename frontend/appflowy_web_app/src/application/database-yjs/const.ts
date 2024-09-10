@@ -1,4 +1,4 @@
-import { YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 import { RowMetaKey } from '@/application/database-yjs/database.type';
 import * as Y from 'yjs';
 import { v5 as uuidv5, parse as uuidParse } from 'uuid';

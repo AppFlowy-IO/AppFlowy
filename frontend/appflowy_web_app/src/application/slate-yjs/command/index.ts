@@ -1,4 +1,4 @@
-import { InlineBlockType, Mention, MentionType } from '@/application/collab.type';
+import { InlineBlockType, Mention, MentionType } from '@/application/types';
 import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
 import { Editor, Transforms, Element, Text, Node } from 'slate';

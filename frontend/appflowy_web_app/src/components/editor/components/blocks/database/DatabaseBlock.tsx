@@ -7,7 +7,7 @@ import { Tooltip } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { forwardRef, memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BlockType, YDoc } from '@/application/collab.type';
+import { BlockType, YDoc } from '@/application/types';
 
 export const DatabaseBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DatabaseNode>>(({ node, children, ...attributes }, ref) => {

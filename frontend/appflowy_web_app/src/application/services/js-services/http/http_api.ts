@@ -1,4 +1,4 @@
-import { DatabaseId, RowId, ViewId, ViewLayout } from '@/application/collab.type';
+import { DatabaseId, FolderView, RowId, User, View, ViewId, ViewLayout, Workspace } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
 import { blobToBytes } from '@/application/services/js-services/http/utils';
@@ -11,7 +11,6 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import { FolderView, Invitation, User, View, Workspace } from '@/application/types';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 
@@ -175,6 +174,70 @@ export async function getCurrentUser (): Promise<User> {
       email,
       name,
       avatar: metadata.icon_url,
+      latestWorkspaceId: data.data.latest_workspace_id,
+    };
+  }
+
+  return Promise.reject(data);
+}
+
+interface AFWorkspace {
+  workspace_id: string,
+  owner_uid: number,
+  owner_name: string,
+  workspace_name: string,
+  icon: string,
+  created_at: string,
+  member_count: number,
+}
+
+export async function getUserWorkspaceInfo (): Promise<{
+  user_id: string;
+  selected_workspace: Workspace;
+  workspaces: Workspace[];
+}> {
+  const url = '/api/user/workspace';
+  const response = await axiosInstance?.get<{
+    code: number,
+    message: string,
+    data: {
+      user_profile: {
+        uuid: string;
+      },
+      visiting_workspace: AFWorkspace,
+      workspaces: AFWorkspace[]
+    }
+
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0) {
+    const { visiting_workspace, workspaces, user_profile } = data.data;
+
+    return {
+      user_id: user_profile.uuid,
+      selected_workspace: {
+        id: visiting_workspace.workspace_id,
+        name: visiting_workspace.workspace_name,
+        icon: visiting_workspace.icon,
+        memberCount: visiting_workspace.member_count,
+        owner: {
+          uid: visiting_workspace.owner_uid,
+          name: visiting_workspace.owner_name,
+        },
+      },
+      workspaces: workspaces.map(workspace => ({
+        id: workspace.workspace_id,
+        name: workspace.workspace_name,
+        icon: workspace.icon,
+        memberCount: workspace.member_count,
+        createdAt: workspace.created_at,
+        owner: {
+          uid: workspace.owner_uid,
+          name: workspace.owner_name,
+        },
+      })),
     };
   }
 
@@ -195,6 +258,32 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   });
 
   return blobToBytes(response?.data);
+}
+
+export async function getPageCollab (workspaceId: string, viewId: string) {
+  const url = `/api/workspace/v1/${workspaceId}/collab/${viewId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: {
+      doc_state: number[];
+      object_id: string;
+    };
+    message: string;
+  }>(url, {
+    params: {
+      collab_type: 0,
+    },
+  });
+
+  if (response?.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  const docState = response?.data.data.doc_state;
+
+  return {
+    data: new Uint8Array(docState),
+  };
 }
 
 export async function getPublishView (publishNamespace: string, publishName: string) {
@@ -241,6 +330,24 @@ export async function getPublishInfoWithViewId (viewId: string) {
       namespace: string;
       publish_name: string;
     };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppOutline (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/outline`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: View;
     message: string;
   }>(url);
 

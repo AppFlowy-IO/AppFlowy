@@ -26,7 +26,7 @@ import {
 import { sortBy, parseCellDataForSort } from '../sort';
 import * as Y from 'yjs';
 import { expect } from '@jest/globals';
-import { YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 
 describe('parseCellDataForSort', () => {
   it('should parse data correctly based on field type', () => {

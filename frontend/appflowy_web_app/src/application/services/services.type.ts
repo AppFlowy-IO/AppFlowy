@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/collab.type';
+import { Invitation, DuplicatePublishView, FolderView, User, UserWorkspaceInfo, View, Workspace, YDoc } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import {
@@ -9,7 +9,6 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 import * as Y from 'yjs';
-import { DuplicatePublishView, FolderView, Invitation, User, View, Workspace } from '@/application/types';
 
 export type AFService = PublishService;
 
@@ -25,6 +24,11 @@ export interface AFCloudConfig {
 
 export interface PublishService {
   getClientId: () => string;
+  getPageDoc: (workspaceId: string, viewId: string) => Promise<YDoc>;
+  getDatabasePageRows: (workspaceId: string, viewId: string) => Promise<{
+    rows: Y.Map<YDoc>;
+    destroy: () => void;
+  }>;
   getPublishViewMeta: (namespace: string, publishName: string) => Promise<ViewMeta>;
   getPublishView: (namespace: string, publishName: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
@@ -38,6 +42,8 @@ export interface PublishService {
   }>;
 
   getPublishOutline (namespace: string): Promise<View>;
+
+  getAppOutline: (workspaceId: string) => Promise<View>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;
@@ -56,6 +62,7 @@ export interface PublishService {
   getWorkspaces: () => Promise<Workspace[]>;
   getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;
   getCurrentUser: () => Promise<User>;
+  getUserWorkspaceInfo: () => Promise<UserWorkspaceInfo>;
   duplicatePublishView: (params: DuplicatePublishView) => Promise<void>;
 
   getTemplateCategories: () => Promise<TemplateCategory[]>;

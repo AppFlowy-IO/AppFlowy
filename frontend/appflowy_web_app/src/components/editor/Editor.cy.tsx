@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/collab.type';
+import { YDoc } from '@/application/types';
 import { DocumentTest } from '@/../cypress/support/document';
 import { applyYDoc } from '@/application/ydoc/apply';
 import React from 'react';

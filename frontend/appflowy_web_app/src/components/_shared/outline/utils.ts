@@ -1,8 +1,8 @@
-import { PublishViewInfo } from '@/application/collab.type';
+import { ViewInfo } from '@/application/types';
 
-export function filterViews(views: PublishViewInfo[], keyword: string): PublishViewInfo[] {
-  const filterAndFlatten = (views: PublishViewInfo[]): PublishViewInfo[] => {
-    let result: PublishViewInfo[] = [];
+export function filterViews (views: ViewInfo[], keyword: string): ViewInfo[] {
+  const filterAndFlatten = (views: ViewInfo[]): ViewInfo[] => {
+    let result: ViewInfo[] = [];
 
     for (const view of views) {
       if (view.name.toLowerCase().includes(keyword.toLowerCase())) {

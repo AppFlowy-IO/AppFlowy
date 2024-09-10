@@ -10,7 +10,7 @@ import {
   YjsDatabaseKey,
   YjsEditorKey,
   YMapFieldTypeOption,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { YjsEditor } from '@/application/slate-yjs';
 
 describe('Database group', () => {

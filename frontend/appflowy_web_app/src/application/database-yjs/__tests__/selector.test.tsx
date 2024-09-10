@@ -21,7 +21,7 @@ import { useDatabaseViewId } from '../context';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import { withTestingDatabase } from '@/application/database-yjs/__tests__/withTestingData';
 import { expect } from '@jest/globals';
-import { YDoc, YjsDatabaseKey, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
+import { YDoc, YjsDatabaseKey, YjsEditorKey, YSharedRoot } from '@/application/types';
 import * as Y from 'yjs';
 import { withNumberTestingField, withTestingFields } from '@/application/database-yjs/__tests__/withTestingField';
 import { withTestingRows } from '@/application/database-yjs/__tests__/withTestingRows';

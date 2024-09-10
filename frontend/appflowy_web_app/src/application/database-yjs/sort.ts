@@ -6,7 +6,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { FieldType, SortCondition } from '@/application/database-yjs/database.type';
 import { parseChecklistData, parseSelectOptionCellData } from '@/application/database-yjs/fields';
 import { Row } from '@/application/database-yjs/selector';

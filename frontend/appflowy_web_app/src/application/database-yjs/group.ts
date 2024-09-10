@@ -1,4 +1,4 @@
-import { YDatabaseField, YDoc, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseField, YDoc, YjsDatabaseKey } from '@/application/types';
 import { getCellData } from '@/application/database-yjs/const';
 import { FieldType } from '@/application/database-yjs/database.type';
 import { parseSelectOptionTypeOptions } from '@/application/database-yjs/fields';

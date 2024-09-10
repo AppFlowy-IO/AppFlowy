@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/collab.type';
+import { YDoc } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
 import withAppWrapper from '@/components/main/withAppWrapper';
 import { DatabaseRow } from 'src/components/database/DatabaseRow';

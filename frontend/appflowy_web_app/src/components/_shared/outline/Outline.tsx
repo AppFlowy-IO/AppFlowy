@@ -1,11 +1,15 @@
-import { usePublishContext } from '@/application/publish';
+import { View } from '@/application/types';
 import emptyImageSrc from '@/assets/images/empty.png';
 import { DirectoryStructure } from '@/components/_shared/skeleton/OutlineSkeleton';
-import OutlineItem from '@/components/publish/outline/OutlineItem';
-import React from 'react';
+import OutlineItem from '@/components/_shared/outline/OutlineItem';
+import React, { memo } from 'react';
 
-function Outline ({ width }: { width: number }) {
-  const outline = usePublishContext()?.outline;
+export function Outline ({ outline, width, selectedViewId, navigateToView }: {
+  width: number;
+  outline?: View;
+  selectedViewId?: string;
+  navigateToView?: (viewId: string) => Promise<void>
+}) {
 
   const isEmpty = outline && outline.children.length === 0;
 
@@ -19,8 +23,10 @@ function Outline ({ width }: { width: number }) {
         outline.children.map((view) =>
           <OutlineItem
             key={view.view_id}
+            selectedViewId={selectedViewId}
             view={view}
             width={width - 20}
+            navigateToView={navigateToView}
           />,
         )
       }
@@ -28,4 +34,4 @@ function Outline ({ width }: { width: number }) {
   );
 }
 
-export default Outline;
+export default memo(Outline);

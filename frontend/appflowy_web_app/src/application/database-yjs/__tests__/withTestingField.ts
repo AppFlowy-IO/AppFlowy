@@ -3,7 +3,7 @@ import {
   YDatabaseFieldTypeOption,
   YjsDatabaseKey,
   YMapFieldTypeOption,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { FieldType } from '@/application/database-yjs';
 import { SelectOptionColor } from '@/application/database-yjs/fields/select-option';
 import * as Y from 'yjs';

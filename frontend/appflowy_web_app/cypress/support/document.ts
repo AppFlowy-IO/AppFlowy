@@ -1,4 +1,4 @@
-import { BlockId, BlockType, YBlocks, YChildrenMap, YjsEditorKey, YTextMap } from '@/application/collab.type';
+import { BlockId, BlockType, YBlocks, YChildrenMap, YjsEditorKey, YTextMap } from '@/application/types';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 

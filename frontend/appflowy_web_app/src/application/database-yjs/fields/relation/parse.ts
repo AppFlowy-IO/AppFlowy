@@ -1,4 +1,4 @@
-import { YDatabaseField } from '@/application/collab.type';
+import { YDatabaseField } from '@/application/types';
 import { RelationTypeOption } from './relation.type';
 import { getTypeOptions } from '../type_option';
 

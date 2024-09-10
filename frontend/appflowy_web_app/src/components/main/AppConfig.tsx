@@ -1,22 +1,33 @@
-import { clearData } from '@/application/db';
+import { clearData, db } from '@/application/db';
 import { getService } from '@/application/services';
-import { AFService, AFServiceConfig } from '@/application/services/services.type';
+import { AFServiceConfig } from '@/application/services/services.type';
 import { EventType, on } from '@/application/session';
-import { isTokenValid } from '@/application/session/token';
-import { User } from '@/application/types';
+import { getTokenParsed, isTokenValid } from '@/application/session/token';
 import { InfoSnackbarProps } from '@/components/_shared/notify';
 import { AFConfigContext, defaultConfig } from '@/components/main/app.hooks';
 import { useAppLanguage } from '@/components/main/useAppLanguage';
 import { LoginModal } from '@/components/login';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useSnackbar } from 'notistack';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 function AppConfig ({ children }: { children: React.ReactNode }) {
   const [appConfig] = useState<AFServiceConfig>(defaultConfig);
-  const [service, setService] = useState<AFService>();
+  const service = useMemo(() => getService(appConfig), [appConfig]);
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(isTokenValid());
-  const [currentUser, setCurrentUser] = React.useState<User>();
+
+  const userId = useMemo(() => {
+    if (!isAuthenticated) return;
+    return getTokenParsed()?.user?.id;
+  }, [isAuthenticated]);
+
+  const currentUser = useLiveQuery(
+    async () => {
+      if (!userId) return;
+      return db.users.get(userId);
+    }, [userId],
+  );
   const [loginOpen, setLoginOpen] = React.useState(false);
   const [loginCompletedRedirectTo, setLoginCompletedRedirectTo] = React.useState<string>('');
 
@@ -33,16 +44,14 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      setCurrentUser(undefined);
       return;
     }
 
     void (async () => {
       if (!service) return;
       try {
-        const user = await service.getCurrentUser();
+        await service.getCurrentUser();
 
-        setCurrentUser(user);
       } catch (e) {
         console.error(e);
       }
@@ -65,13 +74,6 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
     });
   }, []);
   useAppLanguage();
-
-  useEffect(() => {
-    void (async () => {
-      if (!appConfig) return;
-      setService(await getService(appConfig));
-    })();
-  }, [appConfig]);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 

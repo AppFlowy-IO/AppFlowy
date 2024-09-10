@@ -1,4 +1,4 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/collab.type';
+import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/types';
 import { usePublishContext } from '@/application/publish';
 import ViewHelmet from '@/components/_shared/helmet/ViewHelmet';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';

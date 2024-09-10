@@ -77,7 +77,7 @@ export function AddCommentWrapper () {
             width: `calc(100% - ${offsetLeft}px)`,
           }} className={'fixed top-[48px] flex w-full justify-center'}
           >
-            <div className={'w-[964px] min-w-0 max-w-full max-xl:px-8 max-lg:px-6'}>
+            <div className={'w-[964px] min-w-0 max-w-full px-6'}>
               <AddComment fixed content={content} setContent={setContent} focus={focus} setFocus={setFocus} />
             </div>
           </div>

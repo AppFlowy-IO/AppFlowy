@@ -1,4 +1,4 @@
-import { Mention, MentionType } from '@/application/collab.type';
+import { Mention, MentionType } from '@/application/types';
 import MentionDate from '@/components/editor/components/leaf/mention/MentionDate';
 import MentionPage from '@/components/editor/components/leaf/mention/MentionPage';
 import { useMemo } from 'react';

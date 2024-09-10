@@ -1,8 +1,8 @@
+import { Workspace } from '@/application/types';
 import { AFConfigContext } from '@/components/main/app.hooks';
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Button, CircularProgress, Divider, Tooltip } from '@mui/material';
-import { Workspace } from '@/application/types';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 import { ReactComponent as CheckIcon } from '@/assets/selected.svg';
 import { Popover } from '@/components/_shared/popover';

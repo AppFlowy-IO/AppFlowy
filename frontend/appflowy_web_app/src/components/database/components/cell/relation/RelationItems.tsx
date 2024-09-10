@@ -1,4 +1,4 @@
-import { YDatabase, YDoc, YjsEditorKey } from '@/application/collab.type';
+import { YDatabase, YDoc, YjsEditorKey } from '@/application/types';
 import {
   DatabaseContext,
   DatabaseContextState,

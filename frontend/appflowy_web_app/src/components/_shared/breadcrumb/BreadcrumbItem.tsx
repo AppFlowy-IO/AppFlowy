@@ -1,20 +1,22 @@
-import { ReactComponent as PublishIcon } from '@/assets/publish.svg';
-import { usePublishContext } from '@/application/publish';
 import { View } from '@/application/types';
+import { ReactComponent as PublishIcon } from '@/assets/publish.svg';
 import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
-import SpaceIcon from '@/components/publish/header/SpaceIcon';
+import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { renderColor } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function BreadcrumbItem ({ crumb, disableClick = false }: { crumb: View; disableClick?: boolean }) {
+function BreadcrumbItem ({ crumb, disableClick = false, toView }: {
+  crumb: View;
+  disableClick?: boolean;
+  toView?: (viewId: string) => Promise<void>;
+}) {
   const { view_id, icon, name, layout, extra, is_published } = crumb;
 
   const { t } = useTranslation();
-  const onNavigateToView = usePublishContext()?.toView;
   const isFlag = useMemo(() => {
     return icon ? isFlagEmoji(icon.value) : false;
   }, [icon]);
@@ -26,7 +28,7 @@ function BreadcrumbItem ({ crumb, disableClick = false }: { crumb: View; disable
       onClick={async () => {
         if (disableClick || !is_published) return;
         try {
-          await onNavigateToView?.(view_id);
+          await toView?.(view_id);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (e: any) {
           notify.error(e.message);

@@ -1,12 +1,18 @@
 import { ReactComponent as AppFlowyLogo } from '@/assets/appflowy.svg';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
-import AppFlowyPower from '@/components/_shared/appflowy-power/AppFlowyPower';
-import Outline from '@/components/publish/outline/Outline';
+import Resizer from '@/components/_shared/outline/Resizer';
+import AppFlowyPower from '../appflowy-power/AppFlowyPower';
 import { createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-export function OutlineDrawer ({ open, width, onClose }: { open: boolean; width: number; onClose: () => void }) {
+export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }: {
+  open: boolean;
+  width: number;
+  onClose: () => void;
+  children: React.ReactNode;
+  onResizeWidth: (width: number) => void;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -33,6 +39,7 @@ export function OutlineDrawer ({ open, width, onClose }: { open: boolean; width:
         },
       }}
     >
+
       <div className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
         <div style={{
           backdropFilter: 'blur(4px)',
@@ -55,15 +62,18 @@ export function OutlineDrawer ({ open, width, onClose }: { open: boolean; width:
             }
           >
             <IconButton onClick={onClose}>
-              <SideOutlined className={'h-4 w-4 rotate-180 transform'} />
+              <SideOutlined className={'h-4 w-4 text-text-caption rotate-180 transform'} />
             </IconButton>
           </Tooltip>
         </div>
         <div className={'flex h-fit flex-1 flex-col'}>
-          <Outline width={width} />
+          {children}
         </div>
         <AppFlowyPower width={width} />
+
       </div>
+      <Resizer drawerWidth={width} onResize={onResizeWidth} />
+
     </Drawer>
   );
 }

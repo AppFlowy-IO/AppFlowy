@@ -5,7 +5,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { FieldType, Row } from '@/application/database-yjs';
 import * as Y from 'yjs';
 import * as rowsJson from './fixtures/rows.json';

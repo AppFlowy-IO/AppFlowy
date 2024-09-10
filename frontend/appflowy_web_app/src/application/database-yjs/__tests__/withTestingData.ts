@@ -12,7 +12,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { withTestingFields } from '@/application/database-yjs/__tests__/withTestingField';
 import {
   withTestingRowData,

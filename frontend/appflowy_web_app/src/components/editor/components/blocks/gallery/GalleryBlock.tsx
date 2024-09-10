@@ -1,4 +1,4 @@
-import { GalleryLayout } from '@/application/collab.type';
+import { GalleryLayout } from '@/application/types';
 import { GalleryPreview } from '@/components/_shared/gallery-preview';
 import { notify } from '@/components/_shared/notify';
 import Carousel from '@/components/editor/components/blocks/gallery/Carousel';

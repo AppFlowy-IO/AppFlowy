@@ -1,4 +1,4 @@
-import { FontLayout, GetViewRowsMap, LineHeightLayout, LoadView, LoadViewMeta } from '@/application/collab.type';
+import { FontLayout, GetViewRowsMap, LineHeightLayout, LoadView, LoadViewMeta } from '@/application/types';
 import { createContext, useContext } from 'react';
 
 export interface EditorLayoutStyle {

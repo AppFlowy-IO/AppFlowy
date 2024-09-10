@@ -1,4 +1,4 @@
-import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
+import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/types';
 import { applyToYjs } from '@/application/slate-yjs/utils/applyToYjs';
 import { Editor, Operation, Descendant } from 'slate';
 import Y, { YEvent, Transaction } from 'yjs';

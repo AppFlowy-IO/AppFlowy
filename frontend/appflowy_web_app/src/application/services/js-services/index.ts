@@ -1,13 +1,19 @@
-import { YDoc } from '@/application/collab.type';
+import { getTokenParsed } from '@/application/session/token';
+import { DuplicatePublishView, YDoc } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import {
-  deleteView,
+  deleteView, getPageDoc,
   getPublishView,
-  getPublishViewMeta,
+  getPublishViewMeta, getUser,
   hasViewMetaCache,
 } from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
-import { fetchPublishView, fetchPublishViewMeta, fetchViewInfo } from '@/application/services/js-services/fetch';
+import {
+  fetchPageCollab,
+  fetchPublishView,
+  fetchPublishViewMeta,
+  fetchViewInfo,
+} from '@/application/services/js-services/fetch';
 import { APIService } from '@/application/services/js-services/http';
 
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
@@ -20,12 +26,13 @@ import {
 } from '@/application/template.type';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
-import { DuplicatePublishView } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
 
   private clientId: string = 'web';
+
+  private viewLoaded: Set<string> = new Set();
 
   private publishViewLoaded: Set<string> = new Set();
 
@@ -168,6 +175,10 @@ export class AFClientService implements AFService {
     return APIService.getPublishOutline(namespace);
   }
 
+  async getAppOutline (workspaceId: string) {
+    return APIService.getAppOutline(workspaceId);
+  }
+
   async loginAuth (url: string) {
     try {
       await APIService.signInWithUrl(url);
@@ -218,9 +229,34 @@ export class AFClientService implements AFService {
   }
 
   async getCurrentUser () {
-    const data = await APIService.getCurrentUser();
+    const token = getTokenParsed();
+    const userId = token?.user?.id;
 
-    return data;
+    const user = await getUser(
+      () => APIService.getCurrentUser(),
+      userId,
+      StrategyType.CACHE_AND_NETWORK,
+    );
+
+    if (!user) {
+      return Promise.reject(new Error('User not found'));
+    }
+
+    return user;
+  }
+
+  async getUserWorkspaceInfo () {
+    const workspaceInfo = await APIService.getUserWorkspaceInfo();
+
+    if (!workspaceInfo) {
+      return Promise.reject(new Error('Workspace info not found'));
+    }
+
+    return {
+      userId: workspaceInfo.user_id,
+      selectedWorkspace: workspaceInfo.selected_workspace,
+      workspaces: workspaceInfo.workspaces,
+    };
   }
 
   async duplicatePublishView (params: DuplicatePublishView) {
@@ -314,6 +350,82 @@ export class AFClientService implements AFService {
     return APIService.uploadFileToCDN(file);
   }
 
+  async getPageDoc (workspaceId: string, viewId: string) {
+
+    const token = getTokenParsed();
+    const userId = token?.user.id;
+
+    if (!userId) {
+      throw new Error('User not found');
+    }
+
+    const name = `${userId}_${workspaceId}_${viewId}`;
+
+    const isLoaded = this.viewLoaded.has(name);
+
+    const { doc, rowMapDoc } = await getPageDoc(
+      async () => {
+        try {
+          return await fetchPageCollab(workspaceId, viewId);
+        } catch (e) {
+          console.error(e);
+          void (async () => {
+            this.viewLoaded.delete(name);
+            void deleteView(name);
+          })();
+
+          return Promise.reject(e);
+        }
+      },
+      name,
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
+    );
+
+    if (!isLoaded) {
+      this.viewLoaded.add(name);
+    }
+
+    this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
+
+    return doc;
+  }
+
+  async getDatabasePageRows (workspaceId: string, viewId: string) {
+    const token = getTokenParsed();
+    const userId = token?.user.id;
+
+    if (!userId) {
+      throw new Error('User not found');
+    }
+
+    const name = `${userId}_${workspaceId}_${viewId}`;
+
+    if (!this.publishViewLoaded.has(name) || !this.cacheDatabaseRowDocMap.has(name)) {
+      await this.getPageDoc(workspaceId, viewId);
+    }
+
+    const rootRowsDoc = this.cacheDatabaseRowDocMap.get(name);
+
+    if (!rootRowsDoc) {
+      return Promise.reject(new Error('Root rows doc not found'));
+    }
+
+    if (!this.cacheDatabaseRowFolder.has(name)) {
+      const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+
+      this.cacheDatabaseRowFolder.set(name, rowsFolder);
+    }
+
+    const rowsFolder = this.cacheDatabaseRowFolder.get(name)!;
+
+    return {
+      rows: rowsFolder,
+      destroy: () => {
+        this.cacheDatabaseRowFolder.delete(name);
+        this.cacheDatabaseRowDocMap.delete(name);
+      },
+    };
+  }
   async getInvitation (invitationId: string) {
     return APIService.getInvitation(invitationId);
   }
