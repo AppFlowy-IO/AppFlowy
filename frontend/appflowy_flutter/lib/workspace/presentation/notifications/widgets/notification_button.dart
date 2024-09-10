@@ -13,7 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NotificationButton extends StatefulWidget {
-  const NotificationButton({super.key});
+  const NotificationButton({
+    super.key,
+    this.isHover = false,
+  });
+
+  final bool isHover;
 
   @override
   State<NotificationButton> createState() => _NotificationButtonState();
@@ -81,9 +86,11 @@ class _NotificationButtonState extends State<NotificationButton> {
   Widget _buildNotificationIcon(BuildContext context, bool hasUnreads) {
     return Stack(
       children: [
-        const Center(
+        Center(
           child: FlowySvg(
             FlowySvgs.notification_s,
+            color:
+                widget.isHover ? Theme.of(context).colorScheme.onSurface : null,
             opacity: 0.7,
           ),
         ),

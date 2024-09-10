@@ -63,23 +63,26 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
                       ? Theme.of(context).colorScheme.secondary
                       : Colors.transparent,
                 ),
-                child: child,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SidebarSwitchWorkspaceButton(
+                        userProfile: widget.userProfile,
+                        currentWorkspace: currentWorkspace,
+                        isHover: onHover,
+                      ),
+                    ),
+                    UserSettingButton(
+                      userProfile: widget.userProfile,
+                      isHover: onHover,
+                    ),
+                    const HSpace(8.0),
+                    NotificationButton(isHover: onHover),
+                    const HSpace(4.0),
+                  ],
+                ),
               );
             },
-            child: Row(
-              children: [
-                Expanded(
-                  child: SidebarSwitchWorkspaceButton(
-                    userProfile: widget.userProfile,
-                    currentWorkspace: currentWorkspace,
-                  ),
-                ),
-                UserSettingButton(userProfile: widget.userProfile),
-                const HSpace(8.0),
-                const NotificationButton(),
-                const HSpace(4.0),
-              ],
-            ),
           ),
         );
       },
@@ -177,10 +180,12 @@ class SidebarSwitchWorkspaceButton extends StatefulWidget {
     super.key,
     required this.userProfile,
     required this.currentWorkspace,
+    this.isHover = false,
   });
 
   final UserWorkspacePB currentWorkspace;
   final UserProfilePB userProfile;
+  final bool isHover;
 
   @override
   State<SidebarSwitchWorkspaceButton> createState() =>
@@ -189,7 +194,7 @@ class SidebarSwitchWorkspaceButton extends StatefulWidget {
 
 class _SidebarSwitchWorkspaceButtonState
     extends State<SidebarSwitchWorkspaceButton> {
-  final ValueNotifier<bool> _isWorkSpaceMenuExpanded = ValueNotifier(false);
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -197,14 +202,14 @@ class _SidebarSwitchWorkspaceButtonState
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 5),
       constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      controller: _popoverController,
+      triggerActions: PopoverTriggerFlags.none,
       onOpen: () {
-        _isWorkSpaceMenuExpanded.value = true;
         context
             .read<UserWorkspaceBloc>()
             .add(const UserWorkspaceEvent.fetchWorkspaces());
       },
       onClose: () {
-        _isWorkSpaceMenuExpanded.value = false;
         Log.info('close workspace menu');
       },
       popupBuilder: (_) {
@@ -227,16 +232,40 @@ class _SidebarSwitchWorkspaceButtonState
           ),
         );
       },
-      child: FlowyIconTextButton(
-        margin: EdgeInsets.zero,
-        hoverColor: Colors.transparent,
-        textBuilder: (onHover) => SizedBox(
+      child: _SideBarSwitchWorkspaceButtonChild(
+        currentWorkspace: widget.currentWorkspace,
+        popoverController: _popoverController,
+        isHover: widget.isHover,
+      ),
+    );
+  }
+}
+
+class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
+  const _SideBarSwitchWorkspaceButtonChild({
+    required this.popoverController,
+    required this.currentWorkspace,
+    required this.isHover,
+  });
+
+  final PopoverController popoverController;
+  final UserWorkspacePB currentWorkspace;
+  final bool isHover;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => popoverController.show(),
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
           height: 30,
           child: Row(
             children: [
               const HSpace(4.0),
               WorkspaceIcon(
-                workspace: widget.currentWorkspace,
+                workspace: currentWorkspace,
                 iconSize: 24,
                 fontSize: 16,
                 emojiSize: 18,
@@ -245,7 +274,7 @@ class _SidebarSwitchWorkspaceButtonState
                 figmaLineHeight: 21.0,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
-                        widget.currentWorkspace.workspaceId,
+                        currentWorkspace.workspaceId,
                         result.emoji,
                       ),
                     ),
@@ -253,17 +282,22 @@ class _SidebarSwitchWorkspaceButtonState
               const HSpace(8),
               Flexible(
                 child: FlowyText.medium(
-                  widget.currentWorkspace.name,
+                  currentWorkspace.name,
+                  color:
+                      isHover ? Theme.of(context).colorScheme.onSurface : null,
                   overflow: TextOverflow.ellipsis,
                   withTooltip: true,
                   fontSize: 15.0,
                 ),
               ),
-              const HSpace(4),
-              if (onHover)
-                const FlowySvg(
+              if (isHover) ...[
+                const HSpace(4),
+                FlowySvg(
                   FlowySvgs.workspace_drop_down_menu_show_s,
+                  color:
+                      isHover ? Theme.of(context).colorScheme.onSurface : null,
                 ),
+              ],
             ],
           ),
         ),

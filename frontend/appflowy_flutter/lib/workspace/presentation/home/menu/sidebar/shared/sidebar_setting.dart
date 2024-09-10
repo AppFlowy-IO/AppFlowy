@@ -43,9 +43,14 @@ HotKeyItem openSettingsHotKey(
     );
 
 class UserSettingButton extends StatefulWidget {
-  const UserSettingButton({required this.userProfile, super.key});
+  const UserSettingButton({
+    super.key,
+    required this.userProfile,
+    this.isHover = false,
+  });
 
   final UserProfilePB userProfile;
+  final bool isHover;
 
   @override
   State<UserSettingButton> createState() => _UserSettingButtonState();
@@ -79,8 +84,10 @@ class _UserSettingButtonState extends State<UserSettingButton> {
             _userWorkspaceBloc,
           ),
           margin: EdgeInsets.zero,
-          text: const FlowySvg(
+          text: FlowySvg(
             FlowySvgs.settings_s,
+            color:
+                widget.isHover ? Theme.of(context).colorScheme.onSurface : null,
             opacity: 0.7,
           ),
         ),

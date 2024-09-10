@@ -2,7 +2,7 @@ use collab_database::rows::{Cell, RowCover, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
-use tracing::{error, trace};
+use tracing::{error, info, trace};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -35,7 +35,7 @@ pub(crate) async fn get_database_data_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_database_editor(&database_id).await?;
+  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
   let data = database_editor
     .open_database_view(view_id.as_ref(), None)
     .await?;
@@ -58,11 +58,11 @@ pub(crate) async fn get_all_rows_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_database_editor(&database_id).await?;
+  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
   let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
   let rows = row_details
     .into_iter()
-    .map(|detail| RowMetaPB::from(detail.as_ref().clone()))
+    .map(|detail| RowMetaPB::from(detail.as_ref()))
     .collect::<Vec<RowMetaPB>>();
   data_result_ok(RepeatedRowMetaPB { items: rows })
 }
@@ -1264,7 +1264,9 @@ pub(crate) async fn get_related_row_datas_handler(
 ) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: GetRelatedRowDataPB = data.into_inner();
-  let database_editor = manager.get_database_editor(&params.database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&params.database_id)
+    .await?;
   let row_datas = database_editor
     .get_related_rows(Some(&params.row_ids))
     .await?;
@@ -1278,10 +1280,14 @@ pub(crate) async fn get_related_database_rows_handler(
 ) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let database_id = data.into_inner().value;
-  let database_editor = manager.get_database_editor(&database_id).await?;
-  let row_datas = database_editor.get_related_rows(None).await?;
 
-  data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
+  info!(
+    "[Database]: get related database rows from database_id: {}",
+    database_id
+  );
+  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let rows = database_editor.get_related_rows(None).await?;
+  data_result_ok(RepeatedRelatedRowDataPB { rows })
 }
 
 pub(crate) async fn summarize_row_handler(

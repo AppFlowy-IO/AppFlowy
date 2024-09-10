@@ -1,17 +1,38 @@
 # Release Notes
-## Version 0.6.8 - 22/08/2024
+## Version 0.6.9 - 09/09/2024
 ### New Features
-- Optimized date picker and mention block.
-- Added the ability to open database row on mobile.
-- Added the ability to invite members to workspace on mobile.
-- Added support for Monochrome theme on Android.
-- Added AI Bubble button on homepage on mobile.
-- Settings, trash, members and help & support have been moved into the settings pop up menu.
+- Added a new property type, 'Files & media'
+- Supported Apple Sign-in
+- Displayed the page icon next to the row name when the row page contains nested notes
+- Enabled Delete Account in Settings
+- Included a collapsible navigation menu in your published site
 
 ### Bug Fixes
-- Removed Wayland header from AppImage build
-- Fixed the issue where pasting web image on mobile failed.
-- Fixed the issue where the name of newly created card in board view didn't show up.
+- Fixed the space name color issue in the community themes
+- Fixed database filters and sorting issues
+- Fixed the issue of not being able to fully display the title on Kanban cards
+- Fixed the inability to see the entire text of a checklist item when it's more than one line long
+- Fixed hide/unhide buttons in the No Status group
+- Fixed the inability to edit group names on Kanban boards
+- Made error codes more user-friendly
+- Added leading zeros to day and month in date format
+  
+## Version 0.6.8 - 22/08/2024
+### New Features
+- Enabled viewing data inside a database record on mobile.
+- Added the ability to invite members to a workspace on mobile.
+- Introduced Ask AI in the Home tab on mobile.
+- Import CSV files with up to 1,000 rows.
+- Convert properties from one type to another while preserving the data.
+- Optimized the speed of opening documents and databases.
+- Improved syncing performance across devices.
+- Added support for a monochrome app icon on Android.
+
+### Bug Fixes
+- Removed the Wayland header from the AppImage build.
+- Fixed the issue where pasting a web image on mobile failed.
+- Corrected the Local AI state when switching between different workspaces.
+- Fixed high CPU usage when opening large databases.
 
 ## Version 0.6.7 - 13/08/2024
 ### New Features

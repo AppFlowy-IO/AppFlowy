@@ -36,6 +36,7 @@
     "loginButtonText": "Войти",
     "loginStartWithAnonymous": "Начать анонимную сессию",
     "continueAnonymousUser": "Продолжить анонимную сессию",
+    "anonymous": "Анонимно",
     "buttonText": "Авторизация",
     "signingInText": "Вход…",
     "forgotPassword": "Забыли пароль?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Продолжить с Google",
     "signInWithGithub": "Продолжить с Github",
     "signInWithDiscord": "Продолжить с Discord",
+    "signInWithApple": "Вход с Apple",
+    "continueAnotherWay": "Другие способы входа",
     "signUpWithGoogle": "Зарегистрироваться с Google",
     "signUpWithGithub": "Зарегистрироваться с Github",
     "signUpWithDiscord": "Зарегистрироваться с Discord",
@@ -690,6 +693,14 @@
           "professionalConTwo": "Неогр. кол-во ответов ИИ",
           "professionalConThree": "История изменений за 1 год"
         },
+        "addons": {
+          "aiMax": {
+            "price": "{}"
+          },
+          "aiOnDevice": {
+            "price": "{}"
+          }
+        },
         "deal": {
           "bannerLabel": "Новогодняя акция!",
           "title": "Развивайте свою команду!",
@@ -780,6 +791,43 @@
         "downgradeLabel": "Понизить план"
       }
     },
+    "cancelSurveyDialog": {
+      "title": "Жаль, что вы уходите",
+      "description": "Нам жаль, что вы уходите. Нам будет приятно, если вы оставите отзыв и поможете улучшить @:appName. Ответьте, пожалуйста, на несколько вопросов.",
+      "commonOther": "Другое",
+      "otherHint": "Дайте ответ здесь",
+      "questionOne": {
+        "question": "Почему вы решили отменить подписку на @:appName Pro?",
+        "answerOne": "Высокая стоимость",
+        "answerTwo": "Функционал не оправдал ожиданий",
+        "answerThree": "Нашлась алтернатива лучше",
+        "answerFour": "Не использовал(а) его достаточно, чтобы оправдать стоимость",
+        "answerFive": "Технические проблемы"
+      },
+      "questionTwo": {
+        "question": "Насколько вероятно, что вы купите подписку на @:appName Pro в будущем?",
+        "answerOne": "Очень вероятно",
+        "answerTwo": "Довольно вероятно",
+        "answerThree": "Не уверен(а)",
+        "answerFour": "Маловероятно",
+        "answerFive": "Очень маловероятно"
+      },
+      "questionThree": {
+        "question": "Какой функционал Pro версии понравился вам больше всего?",
+        "answerOne": "Работа с другими пользователями",
+        "answerTwo": "Более длинная история версий",
+        "answerThree": "Неограниченный ИИ",
+        "answerFour": "Доступ к локальным ИИ-моделям"
+      },
+      "questionFour": {
+        "question": "Как бы вы оценили ваши впечатления от @:appName в целом?",
+        "answerOne": "Отлично",
+        "answerTwo": "Хорошо",
+        "answerThree": "Средне",
+        "answerFour": "Ниже среднего",
+        "answerFive": "Неудовлетворительно"
+      }
+    },
     "common": {
       "reset": "Сбросить"
     },
@@ -846,6 +894,45 @@
       "showNotificationsIcon": {
         "label": "Показать иконку уведомлений",
         "hint": "Выключите, чтобы скрыть иконку уведомления на боковой панели."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Все уведомления были добавлены в архив",
+        "success": "Уведомление было добавлено в архив"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Отмечено как прочитанное: все",
+        "success": "Отмечено как прочитанное"
+      },
+      "action": {
+        "markAsRead": "Отметить как прочитанное",
+        "archive": "Архивировать"
+      },
+      "settings": {
+        "settings": "Настройки",
+        "markAllAsRead": "Отметить все как прочитанные",
+        "archiveAll": "Архивировать все"
+      },
+      "emptyInbox": {
+        "title": "Пусто!",
+        "description": "Ставьте напоминания и получайте уведомления."
+      },
+      "emptyUnread": {
+        "title": "Нет непрочитанных напоминаний",
+        "description": "Все напоминания прочитаны!"
+      },
+      "emptyArchived": {
+        "title": "Архив напоминаний пуст",
+        "description": "Архивированные напоминания будут здесь. "
+      },
+      "tabs": {
+        "inbox": "Входящие",
+        "unread": "Непрочитано",
+        "archived": "Архивировано"
+      },
+      "refreshSuccess": "Уведомления были обновлены",
+      "titles": {
+        "notifications": "Уведомления",
+        "reminder": "Напоминание"
       }
     },
     "appearance": {

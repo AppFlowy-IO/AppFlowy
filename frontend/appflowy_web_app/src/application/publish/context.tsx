@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 export interface PublishContextType {
   namespace: string;
   publishName: string;
+  isTemplate?: boolean;
   isTemplateThumb?: boolean;
   viewMeta?: ViewMeta;
   toView: (viewId: string) => Promise<void>;
@@ -28,11 +29,13 @@ export const PublishProvider = ({
   namespace,
   publishName,
   isTemplateThumb,
+  isTemplate,
 }: {
   children: React.ReactNode;
   namespace: string;
   publishName: string;
   isTemplateThumb?: boolean;
+  isTemplate?: boolean;
 }) => {
 
   const [outline, setOutline] = useState<View>();
@@ -102,7 +105,7 @@ export const PublishProvider = ({
         const { namespace: viewNamespace, publishName } = res;
 
         prevViewMeta.current = undefined;
-        navigate(`/${viewNamespace}/${publishName}`, {
+        navigate(`/${viewNamespace}/${publishName}${isTemplate ? '?template=true' : ''}`, {
           replace: true,
         });
         return;
@@ -110,7 +113,7 @@ export const PublishProvider = ({
         return Promise.reject(e);
       }
     },
-    [navigate, service],
+    [navigate, service, isTemplate],
   );
 
   const loadOutline = useCallback(async () => {

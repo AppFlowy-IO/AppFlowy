@@ -77,7 +77,7 @@ impl GroupController for DefaultGroupController {
     vec![GroupRowsNotificationPB::insert(
       self.group.id.clone(),
       vec![InsertedRowPB {
-        row_meta: (*row).clone().into(),
+        row_meta: row.into(),
         index: Some(index as i32),
         is_new: true,
       }],

@@ -1469,11 +1469,15 @@
       "download": "Download",
       "open": "Open",
       "delete": "Delete",
-      "moreFilesHint": "+{} file(s)",
-      "showMore": "There are {} more file(s), click to view",
+      "moreFilesHint": "+{}",
       "addFileOrImage": "Add a file, image, or link",
-      "attachmentsHint": "{} attachment(s)",
-      "addFileMobile": "Add file"
+      "attachmentsHint": "{}",
+      "addFileMobile": "Add file",
+      "showFile": "Show 1 file",
+      "showFiles": "Show {} files",
+      "hideFile": "Hide 1 file",
+      "hideFiles": "Hide {} files",
+      "deleteFileDescription": "Are you sure you want to delete this file? This action is irreversible."
     }
   },
   "document": {
@@ -1702,7 +1706,8 @@
           "nameEmptyError": "File name cannot be left empty."
         },
         "uploadedAt": "Uploaded on {}",
-        "linkedAt": "Link added on {}"
+        "linkedAt": "Link added on {}",
+        "failedToOpenMsg": "Failed to open, file not found"
       }
     },
     "outlineBlock": {

@@ -15,7 +15,7 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::local_ai::path::offline_app_path;
+use crate::local_ai::watch::offline_app_path;
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use tokio::fs::{self};
@@ -35,6 +35,7 @@ const LLM_MODEL_DIR: &str = "models";
 const DOWNLOAD_FINISH: &str = "finish";
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum WatchDiskEvent {
   Create,
   Remove,

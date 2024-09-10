@@ -22,6 +22,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         blockComponentDelta;
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
+import 'package:synchronized/synchronized.dart';
 
 const _kExternalTextType = 'text';
 
@@ -38,7 +39,33 @@ class TransactionAdapter {
   final DocumentService documentService;
   final String documentId;
 
+  // Controls the apply transaction flow
+  //
+  // Ensures transactions are applied in the correct order when dependencies exist.
+  // Example: If transaction B depends on transaction A, A must be applied first.
+  final Lock _applyLock = Lock();
+
   Future<void> apply(Transaction transaction, EditorState editorState) async {
+    await _applyLock.synchronized(
+      () async {
+        if (enableDocumentInternalLog) {
+          Log.debug('apply transaction begin ${transaction.hashCode}');
+        }
+
+        await _applyInternal(transaction, editorState);
+
+        if (enableDocumentInternalLog) {
+          Log.debug('apply transaction end ${transaction.hashCode}');
+        }
+      },
+      timeout: const Duration(seconds: 5),
+    );
+  }
+
+  Future<void> _applyInternal(
+    Transaction transaction,
+    EditorState editorState,
+  ) async {
     final stopwatch = Stopwatch()..start();
     if (enableDocumentInternalLog) {
       Log.debug('transaction => ${transaction.toJson()}');

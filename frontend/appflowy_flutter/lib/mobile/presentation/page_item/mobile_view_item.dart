@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -297,7 +299,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final icon = widget.view.icon.value.isNotEmpty
         ? FlowyText.emoji(
             widget.view.icon.value,
-            fontSize: 18.0,
+            fontSize: Platform.isAndroid ? 16.0 : 18.0,
             figmaLineHeight: 20.0,
             optimizeEmojiAlign: true,
           )

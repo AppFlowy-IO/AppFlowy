@@ -42,6 +42,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::sync::oneshot::Sender;
 use tokio::sync::RwLock as TokioRwLock;
 use tokio::sync::{broadcast, oneshot};
 use tokio_util::sync::CancellationToken;
@@ -1412,117 +1413,75 @@ impl DatabaseEditor {
     // Check if the database is currently being opened
     if !*self.is_opening.load_full() {
       self.is_opening.store(Arc::new(true));
+      let view_layout = self.database.read().await.get_database_view_layout(view_id);
+      let new_token = CancellationToken::new();
+      if let Some(old_token) = self
+        .database_cancellation
+        .write()
+        .await
+        .replace(new_token.clone())
+      {
+        old_token.cancel();
+      }
 
-      let fut = async {
-        let view_layout = self.database.read().await.get_database_view_layout(view_id);
-        let new_token = CancellationToken::new();
-        if let Some(old_token) = self
-          .database_cancellation
-          .write()
-          .await
-          .replace(new_token.clone())
-        {
-          old_token.cancel();
-        }
+      let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
+      let row_orders = view_editor.get_all_row_orders().await?;
+      view_editor.set_row_orders(row_orders.clone()).await;
 
-        let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-        let row_orders = view_editor.get_all_row_orders().await?;
-        view_editor.set_row_orders(row_orders.clone()).await;
-
-        // Collect database details in a single block holding the `read` lock
-        let (database_id, fields, is_linked) = {
-          let database = self.database.read().await;
-          (
-            database.get_database_id(),
-            database
-              .get_all_field_orders()
-              .into_iter()
-              .map(FieldIdPB::from)
-              .collect::<Vec<_>>(),
-            database.is_inline_view(view_id),
-          )
-        };
-
-        let rows = row_orders
-          .into_iter()
-          .map(RowMetaPB::from)
-          .collect::<Vec<RowMetaPB>>();
-
-        trace!(
-          "[Database]: database: {}, num fields: {}, num rows: {}",
-          database_id,
-          fields.len(),
-          rows.len()
-        );
-
-        trace!("[Database]: start loading rows");
-        let cloned_database = Arc::downgrade(&self.database);
-        let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-        tokio::spawn(async move {
-          const CHUNK_SIZE: usize = 10;
-          let apply_filter_and_sort =
-            |mut loaded_rows: Vec<Arc<Row>>, view_editor: Arc<DatabaseViewEditor>| async move {
-              for loaded_row in loaded_rows.iter() {
-                view_editor
-                  .row_by_row_id
-                  .insert(loaded_row.id.to_string(), loaded_row.clone());
-              }
-
-              tokio::time::sleep(Duration::from_millis(500)).await;
-              if view_editor.has_filters().await {
-                trace!("[Database]: filtering rows:{}", loaded_rows.len());
-                view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
-              }
-
-              if view_editor.has_sorts().await {
-                trace!("[Database]: sorting rows:{}", loaded_rows.len());
-                view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
-              }
-            };
-
-          let mut loaded_rows = vec![];
-          for chunk_row_orders in view_editor.row_orders.read().await.chunks(CHUNK_SIZE) {
-            match cloned_database.upgrade() {
-              None => break,
-              Some(database) => {
-                for lazy_row in chunk_row_orders {
-                  if let Some(database_row) =
-                    database.read().await.init_database_row(&lazy_row.id).await
-                  {
-                    if let Some(row) = database_row.read().await.get_row() {
-                      loaded_rows.push(Arc::new(row));
-                    }
-                  }
-                }
-
-                // stop init database rows
-                if new_token.is_cancelled() {
-                  info!("[Database]: stop loading database rows");
-                  return;
-                }
-              },
-            }
-            tokio::task::yield_now().await;
-          }
-
-          info!("[Database]: Finish loading rows: {}", loaded_rows.len());
-          apply_filter_and_sort(loaded_rows.clone(), view_editor).await;
-
-          if let Some(notify_finish) = notify_finish {
-            let _ = notify_finish.send(());
-          }
-        });
-
-        Ok::<_, FlowyError>(DatabasePB {
-          id: database_id,
-          fields,
-          rows,
-          layout_type: view_layout.into(),
-          is_linked,
-        })
+      // Collect database details in a single block holding the `read` lock
+      let (database_id, fields, is_linked) = {
+        let database = self.database.read().await;
+        (
+          database.get_database_id(),
+          database
+            .get_all_field_orders()
+            .into_iter()
+            .map(FieldIdPB::from)
+            .collect::<Vec<_>>(),
+          database.is_inline_view(view_id),
+        )
       };
 
-      let result = fut.await;
+      let mut row_metas = row_orders
+        .into_iter()
+        .map(RowMetaPB::from)
+        .collect::<Vec<RowMetaPB>>();
+
+      trace!(
+        "[Database]: database: {}, num fields: {}, num rows: {}",
+        database_id,
+        fields.len(),
+        row_metas.len()
+      );
+
+      let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
+      // Load rows asynchronously
+      // if the number of rows is less than 100 or notify_finish is not None, it will wait until all
+      // rows are loaded
+      let should_wait = notify_finish.is_some() || row_metas.len() < 100;
+      let (tx, rx) = oneshot::channel();
+      self.async_load_rows(view_editor, Some(tx), new_token);
+      if should_wait {
+        info!("[Database]: block until all rows are loaded");
+        if let Ok(rows) = rx.await {
+          row_metas = rows
+            .into_iter()
+            .map(|row| RowMetaPB::from(row.as_ref()))
+            .collect::<Vec<RowMetaPB>>();
+        }
+      }
+
+      if let Some(tx) = notify_finish {
+        let _ = tx.send(());
+      }
+
+      let result = Ok(DatabasePB {
+        id: database_id,
+        fields,
+        rows: row_metas,
+        layout_type: view_layout.into(),
+        is_linked,
+      });
       // Mark that the opening process is complete
       self.is_opening.store(Arc::new(false));
       // Clear cancellation token
@@ -1540,6 +1499,69 @@ impl DatabaseEditor {
       Ok(result) => result.map_err(internal_error)?,
       Err(_) => Err(FlowyError::internal().with_context("Timeout while opening database view")),
     }
+  }
+
+  fn async_load_rows(
+    &self,
+    view_editor: Arc<DatabaseViewEditor>,
+    notify_finish: Option<Sender<Vec<Arc<Row>>>>,
+    new_token: CancellationToken,
+  ) {
+    trace!("[Database]: start loading rows");
+    let cloned_database = Arc::downgrade(&self.database);
+    tokio::spawn(async move {
+      const CHUNK_SIZE: usize = 5;
+      let apply_filter_and_sort =
+        |mut loaded_rows: Vec<Arc<Row>>, view_editor: Arc<DatabaseViewEditor>| async move {
+          for loaded_row in loaded_rows.iter() {
+            view_editor
+              .row_by_row_id
+              .insert(loaded_row.id.to_string(), loaded_row.clone());
+          }
+
+          if view_editor.has_filters().await {
+            trace!("[Database]: filtering rows:{}", loaded_rows.len());
+            view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
+          }
+
+          if view_editor.has_sorts().await {
+            trace!("[Database]: sorting rows:{}", loaded_rows.len());
+            view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
+          }
+
+          loaded_rows
+        };
+
+      let mut loaded_rows = vec![];
+      for chunk_row_orders in view_editor.row_orders.read().await.chunks(CHUNK_SIZE) {
+        match cloned_database.upgrade() {
+          None => break,
+          Some(database) => {
+            for lazy_row in chunk_row_orders {
+              if let Some(database_row) =
+                database.read().await.init_database_row(&lazy_row.id).await
+              {
+                if let Some(row) = database_row.read().await.get_row() {
+                  loaded_rows.push(Arc::new(row));
+                }
+              }
+            }
+            // stop init database rows
+            if new_token.is_cancelled() {
+              info!("[Database]: stop loading database rows");
+              return;
+            }
+          },
+        }
+        tokio::task::yield_now().await;
+      }
+
+      info!("[Database]: Finish loading all rows: {}", loaded_rows.len());
+      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
+      if let Some(notify_finish) = notify_finish {
+        let _ = notify_finish.send(loaded_rows);
+      }
+    });
   }
 
   pub async fn export_csv(&self, style: CSVFormat) -> FlowyResult<String> {

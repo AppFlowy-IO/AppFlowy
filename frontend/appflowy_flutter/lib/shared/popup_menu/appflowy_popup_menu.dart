@@ -637,11 +637,11 @@ class _PopupMenuState<T> extends State<_PopupMenu<T>> {
       );
     }
 
-    final CurveTween opacity =
-        CurveTween(curve: const Interval(0.0, 1.0 / 3.0));
-    final CurveTween width = CurveTween(curve: Interval(0.0, unit));
-    final CurveTween height =
-        CurveTween(curve: Interval(0.0, unit * widget.route.items.length));
+    final _CurveTween opacity =
+        _CurveTween(curve: const Interval(0.0, 1.0 / 3.0));
+    final _CurveTween width = _CurveTween(curve: Interval(0.0, unit));
+    final _CurveTween height =
+        _CurveTween(curve: Interval(0.0, unit * widget.route.items.length));
 
     final Widget child = ConstrainedBox(
       constraints: widget.constraints ??
@@ -1643,4 +1643,21 @@ extension PopupMenuColors on BuildContext {
     }
     return const Color(0xFF23262B);
   }
+}
+
+class _CurveTween extends Animatable<double> {
+  /// Creates a curve tween.
+  _CurveTween({required this.curve});
+
+  /// The curve to use when transforming the value of the animation.
+  Curve curve;
+
+  @override
+  double transform(double t) {
+    return curve.transform(t.clamp(0, 1));
+  }
+
+  @override
+  String toString() =>
+      '${objectRuntimeType(this, 'CurveTween')}(curve: $curve)';
 }
