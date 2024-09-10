@@ -212,3 +212,53 @@ Future<void> insertLocalFile(
 
   onUploadSuccess?.call(path, isLocalMode);
 }
+
+/// [onUploadSuccess] Callback to be called when the upload is successful.
+///
+/// The callback is called for each file that is successfully uploaded.
+/// In case of an error, the error message will be shown on a per-file basis.
+///
+Future<void> insertLocalFiles(
+  BuildContext context,
+  List<XFile> files, {
+  required String documentId,
+  UserProfilePB? userProfile,
+  void Function(
+    XFile file,
+    String path,
+    bool isLocalMode,
+  )? onUploadSuccess,
+}) async {
+  if (files.every((f) => f.path.isEmpty)) return;
+
+  // Check upload type
+  final isLocalMode = (userProfile?.authenticator ?? AuthenticatorPB.Local) ==
+      AuthenticatorPB.Local;
+
+  for (final file in files) {
+    final fileType = file.fileType.toMediaFileTypePB();
+
+    String? path;
+    String? errorMsg;
+
+    if (isLocalMode) {
+      path = await saveFileToLocalStorage(file.path);
+    } else {
+      (path, errorMsg) = await saveFileToCloudStorage(
+        file.path,
+        documentId,
+        fileType == MediaFileTypePB.Image,
+      );
+    }
+
+    if (errorMsg != null) {
+      showSnackBarMessage(context, errorMsg);
+      continue;
+    }
+
+    if (path == null) {
+      continue;
+    }
+    onUploadSuccess?.call(file, path, isLocalMode);
+  }
+}

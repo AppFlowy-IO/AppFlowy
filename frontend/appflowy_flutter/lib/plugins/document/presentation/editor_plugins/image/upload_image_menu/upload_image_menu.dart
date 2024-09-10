@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
-//import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/upload_image_file_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ColorOption;
@@ -20,18 +19,15 @@ enum UploadImageType {
   unsplash,
   color;
 
-  String get description {
-    switch (this) {
-      case UploadImageType.local:
-        return LocaleKeys.document_imageBlock_upload_label.tr();
-      case UploadImageType.url:
-        return LocaleKeys.document_imageBlock_embedLink_label.tr();
-      case UploadImageType.unsplash:
-        return LocaleKeys.document_imageBlock_unsplash_label.tr();
-      case UploadImageType.color:
-        return LocaleKeys.document_plugins_cover_colors.tr();
-    }
-  }
+  String get description => switch (this) {
+        UploadImageType.local =>
+          LocaleKeys.document_imageBlock_upload_label.tr(),
+        UploadImageType.url =>
+          LocaleKeys.document_imageBlock_embedLink_label.tr(),
+        UploadImageType.unsplash =>
+          LocaleKeys.document_imageBlock_unsplash_label.tr(),
+        UploadImageType.color => LocaleKeys.document_plugins_cover_colors.tr(),
+      };
 }
 
 class UploadImageMenu extends StatefulWidget {
@@ -65,7 +61,6 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
   @override
   void initState() {
     super.initState();
-
     values = widget.supportTypes;
   }
 

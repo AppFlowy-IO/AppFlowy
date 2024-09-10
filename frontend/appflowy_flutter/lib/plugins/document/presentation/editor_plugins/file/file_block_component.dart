@@ -238,7 +238,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
           },
           onDragDone: (details) {
             if (dropManagerState.isDropEnabled) {
-              insertFileFromLocal(details.files.first);
+              insertFileFromLocal(details.files);
             }
           },
           child: AppFlowyPopover(
@@ -360,7 +360,10 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
   }
 
-  Future<void> insertFileFromLocal(XFile file) async {
+  Future<void> insertFileFromLocal(List<XFile> files) async {
+    if (files.isEmpty) return;
+
+    final file = files.first;
     final path = file.path;
     final documentBloc = context.read<DocumentBloc>();
     final isLocalMode = documentBloc.isLocalMode;

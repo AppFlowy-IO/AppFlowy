@@ -97,13 +97,14 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                   ),
                   triggerActions: PopoverTriggerFlags.none,
                   popupBuilder: (popoverContext) => FileUploadMenu(
-                    onInsertLocalFile: (file) async => insertLocalFile(
+                    allowMultipleFiles: true,
+                    onInsertLocalFile: (files) async => insertLocalFiles(
                       context,
-                      file,
+                      files,
                       userProfile:
                           context.read<MediaCellBloc>().state.userProfile,
                       documentId: context.read<MediaCellBloc>().rowId,
-                      onUploadSuccess: (path, isLocalMode) {
+                      onUploadSuccess: (file, path, isLocalMode) {
                         final mediaCellBloc = context.read<MediaCellBloc>();
                         if (mediaCellBloc.isClosed) {
                           return;

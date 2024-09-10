@@ -68,19 +68,19 @@ class MobileMediaCellEditor extends StatelessWidget {
                                 minHeight: 80,
                               ),
                               child: FileUploadMenu(
-                                onInsertLocalFile: (file) async {
+                                onInsertLocalFile: (files) async {
                                   dialogContext.pop();
 
-                                  await insertLocalFile(
+                                  await insertLocalFiles(
                                     context,
-                                    file,
+                                    files,
                                     userProfile: context
                                         .read<MediaCellBloc>()
                                         .state
                                         .userProfile,
                                     documentId:
                                         context.read<MediaCellBloc>().rowId,
-                                    onUploadSuccess: (path, isLocalMode) {
+                                    onUploadSuccess: (file, path, isLocalMode) {
                                       final mediaCellBloc =
                                           context.read<MediaCellBloc>();
                                       if (mediaCellBloc.isClosed) {

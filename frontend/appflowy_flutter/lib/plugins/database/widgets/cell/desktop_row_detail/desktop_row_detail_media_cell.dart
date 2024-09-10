@@ -178,12 +178,13 @@ class _AddFileButton extends StatelessWidget {
       offset: const Offset(0, 10),
       direction: direction,
       popupBuilder: (_) => FileUploadMenu(
-        onInsertLocalFile: (file) => insertLocalFile(
+        allowMultipleFiles: true,
+        onInsertLocalFile: (files) => insertLocalFiles(
           context,
-          file,
+          files,
           userProfile: context.read<MediaCellBloc>().state.userProfile,
           documentId: context.read<MediaCellBloc>().rowId,
-          onUploadSuccess: (path, isLocalMode) {
+          onUploadSuccess: (file, path, isLocalMode) {
             final mediaCellBloc = context.read<MediaCellBloc>();
             if (mediaCellBloc.isClosed) {
               return;
