@@ -17,6 +17,7 @@ import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:cross_file/cross_file.dart';
@@ -185,8 +186,8 @@ class _AddFileButton extends StatelessWidget {
                 url: path,
                 name: file.name,
                 uploadType: isLocalMode
-                    ? MediaUploadTypePB.LocalMedia
-                    : MediaUploadTypePB.CloudMedia,
+                    ? FileUploadTypePB.LocalFile
+                    : FileUploadTypePB.CloudFile,
                 fileType: file.fileType.toMediaFileTypePB(),
               ),
             );
@@ -219,7 +220,7 @@ class _AddFileButton extends StatelessWidget {
                 MediaCellEvent.addFile(
                   url: url,
                   name: name,
-                  uploadType: MediaUploadTypePB.NetworkMedia,
+                  uploadType: FileUploadTypePB.NetworkFile,
                   fileType: fileType,
                 ),
               );
