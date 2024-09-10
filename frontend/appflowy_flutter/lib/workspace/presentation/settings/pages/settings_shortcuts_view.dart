@@ -412,7 +412,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
         if (isHovering)
           Row(
             children: [
-              EditShortcutBtn(
+              _EditShortcutBtn(
                 onEdit: () {
                   if (widget.canStartEditing()) {
                     setState(() {
@@ -423,7 +423,7 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
                 },
               ),
               const HSpace(16),
-              ResetShortcutBtn(
+              _ResetShortcutBtn(
                 onReset: () => _resetIndividualCommand(widget.command),
                 canReset: canReset,
               ),
@@ -476,8 +476,8 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
   }
 }
 
-class EditShortcutBtn extends StatelessWidget {
-  const EditShortcutBtn({super.key, required this.onEdit});
+class _EditShortcutBtn extends StatelessWidget {
+  const _EditShortcutBtn({super.key, required this.onEdit});
 
   final VoidCallback onEdit;
 
@@ -499,8 +499,8 @@ class EditShortcutBtn extends StatelessWidget {
   }
 }
 
-class ResetShortcutBtn extends StatelessWidget {
-  const ResetShortcutBtn({
+class _ResetShortcutBtn extends StatelessWidget {
+  const _ResetShortcutBtn({
     super.key,
     required this.onReset,
     required this.canReset,
