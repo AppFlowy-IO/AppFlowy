@@ -1708,7 +1708,8 @@
           "nameEmptyError": "File name cannot be left empty."
         },
         "uploadedAt": "Uploaded on {}",
-        "linkedAt": "Link added on {}"
+        "linkedAt": "Link added on {}",
+        "failedToOpenMsg": "Failed to open, file not found"
       }
     },
     "outlineBlock": {

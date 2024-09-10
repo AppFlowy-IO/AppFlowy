@@ -80,7 +80,6 @@ pub struct PublishDatabaseData {
   pub database_row_collabs: HashMap<String, Vec<u8>>,
 
   /// The encoded collab data for the documents inside the database rows
-  /// It's not used for now
   pub database_row_document_collabs: HashMap<String, Vec<u8>>,
 
   /// Visible view ids

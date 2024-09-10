@@ -353,7 +353,7 @@ where
     &mut imported_database_indexer.transact_mut(),
   )?;
 
-  let array = WorkspaceDatabaseBody::new(&mut imported_database_indexer);
+  let array = WorkspaceDatabaseBody::open(&mut imported_database_indexer);
   for database_meta_list in array.get_all_database_meta(&imported_database_indexer.transact()) {
     database_view_ids_by_database_id.insert(
       old_to_new_id_map.exchange_new_id(&database_meta_list.database_id),
@@ -403,7 +403,7 @@ where
   let new_uid = new_user_session.user_id;
   let new_object_id = &new_user_session.user_workspace.database_indexer_id;
 
-  let array = WorkspaceDatabaseBody::new(&mut database_with_views_collab);
+  let array = WorkspaceDatabaseBody::open(&mut database_with_views_collab);
   let mut txn = database_with_views_collab.transact_mut();
   for database_meta in array.get_all_database_meta(&txn) {
     array.update_database(&mut txn, &database_meta.database_id, |update| {

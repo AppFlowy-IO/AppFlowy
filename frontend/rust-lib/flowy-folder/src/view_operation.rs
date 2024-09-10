@@ -35,6 +35,7 @@ pub struct DocumentEncodedCollab {
 pub struct DatabaseEncodedCollab {
   pub database_encoded_collab: EncodedCollab,
   pub database_row_encoded_collabs: HashMap<String, EncodedCollab>,
+  pub database_row_document_encoded_collabs: HashMap<String, EncodedCollab>,
   pub database_relations: HashMap<String, String>,
 }
 
