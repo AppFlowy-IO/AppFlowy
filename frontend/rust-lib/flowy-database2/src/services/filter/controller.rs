@@ -331,23 +331,21 @@ impl FilterController {
     if let Some((_, row_detail)) = self.delegate.get_row(&self.view_id, &row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
-      if let Some(is_visible) = filter_row(
+      if filter_row(
         &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
         &filters,
       ) {
-        if is_visible {
-          if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
-            notification.visible_rows.push(
-              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref().clone()))
-                .with_index(index as i32),
-            )
-          }
-        } else {
-          notification.invisible_rows.push(row_id);
+        if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
+          notification.visible_rows.push(
+            InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref().clone()))
+              .with_index(index as i32),
+          )
         }
+      } else {
+        notification.invisible_rows.push(row_id);
       }
 
       let _ = self
@@ -363,23 +361,23 @@ impl FilterController {
     let mut visible_rows = vec![];
     let mut invisible_rows = vec![];
     for (index, row) in rows.iter_mut().enumerate() {
-      if let Some(is_visible) = filter_row(
+      if filter_row(
         row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
         &filters,
       ) {
-        if is_visible {
-          let row_meta = RowMetaPB::from(row.as_ref());
-          visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
-        } else {
-          invisible_rows.push(row.id.clone());
-        }
+        let row_meta = RowMetaPB::from(row.as_ref());
+        visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
+      } else {
+        invisible_rows.push(row.id.clone());
       }
     }
 
+    let len = rows.len();
     rows.retain(|row| !invisible_rows.iter().any(|id| id == &row.id));
+    trace!("[Database]: filter out {} invisible rows", len - rows.len());
     let notification = FilterResultNotification {
       view_id: self.view_id.clone(),
       invisible_rows,
@@ -458,11 +456,9 @@ fn filter_row(
   field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
   filters: &Vec<Filter>,
-) -> Option<bool> {
+) -> bool {
   // Create a filter result cache if it doesn't exist
   let mut filter_result = result_by_row_id.entry(row.id.clone()).or_insert(true);
-  let old_is_visible = *filter_result;
-
   let mut new_is_visible = true;
 
   for filter in filters {
@@ -477,12 +473,7 @@ fn filter_row(
   }
 
   *filter_result = new_is_visible;
-
-  if old_is_visible != new_is_visible {
-    Some(new_is_visible)
-  } else {
-    None
-  }
+  new_is_visible
 }
 
 /// Recursively applies a `Filter` to a `Row`'s cells.
