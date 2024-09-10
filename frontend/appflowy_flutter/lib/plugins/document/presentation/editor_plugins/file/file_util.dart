@@ -11,6 +11,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
@@ -24,6 +25,7 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
+import 'package:toastification/toastification.dart';
 
 Future<String?> saveFileToLocalStorage(String localFilePath) async {
   final path = await getIt<ApplicationDataStorage>().getPath();
@@ -89,6 +91,8 @@ Future<(String? path, String? errorMessage)> saveFileToCloudStorage(
 /// On Mobile the file is fetched first using HTTP, and then saved using FilePicker.
 /// On Desktop the files location is picked first using FilePicker, and then the file is saved.
 ///
+/// [onDownloadBegin] and [onDownloadEnd] are only used for Mobile.
+///
 Future<void> downloadMediaFile(
   BuildContext context,
   MediaFilePB file, {
@@ -106,7 +110,7 @@ Future<void> downloadMediaFile(
     if (userProfile == null) {
       return showSnapBar(
         context,
-        "Failed to download file, could not find user token",
+        LocaleKeys.grid_media_downloadFailedToken.tr(),
       );
     }
 
@@ -121,14 +125,23 @@ Future<void> downloadMediaFile(
 
       if (response.statusCode == 200) {
         final tempFile = File(uri.pathSegments.last);
-        await FilePicker().saveFile(
+        final result = await FilePicker().saveFile(
           fileName: p.basename(tempFile.path),
           bytes: response.bodyBytes,
         );
+
+        if (result != null && context.mounted) {
+          showToastNotification(
+            context,
+            type: ToastificationType.error,
+            message: LocaleKeys.grid_media_downloadSuccess.tr(),
+          );
+        }
       } else if (context.mounted) {
-        showSnapBar(
+        showToastNotification(
           context,
-          LocaleKeys.document_plugins_image_imageDownloadFailed.tr(),
+          type: ToastificationType.error,
+          message: LocaleKeys.document_plugins_image_imageDownloadFailed.tr(),
         );
       }
 
@@ -145,6 +158,13 @@ Future<void> downloadMediaFile(
       if (response.statusCode == 200) {
         final imgFile = File(savePath);
         await imgFile.writeAsBytes(response.bodyBytes);
+
+        if (context.mounted) {
+          showSnapBar(
+            context,
+            LocaleKeys.grid_media_downloadSuccess.tr(),
+          );
+        }
       } else if (context.mounted) {
         showSnapBar(
           context,
