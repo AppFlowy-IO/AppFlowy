@@ -144,7 +144,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             result.fold((_) {}, (err) => Log.error(err));
           },
           renameGroup: (groupId, name) async {
-            final result = await groupBackendSvc.renameGroup(
+            final result = await groupBackendSvc.updateGroup(
               groupId: groupId,
               name: name,
             );

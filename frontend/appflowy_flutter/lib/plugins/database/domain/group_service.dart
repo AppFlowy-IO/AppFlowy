@@ -58,16 +58,4 @@ class GroupBackendService {
 
     return DatabaseEventDeleteGroup(payload).send();
   }
-
-  Future<FlowyResult<void, FlowyError>> renameGroup({
-    required String groupId,
-    required String name,
-  }) {
-    final payload = RenameGroupPB.create()
-      ..viewId = viewId
-      ..groupId = groupId
-      ..name = name;
-
-    return DatabaseEventRenameGroup(payload).send();
-  }
 }

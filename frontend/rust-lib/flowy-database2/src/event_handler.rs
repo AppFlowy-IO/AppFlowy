@@ -792,22 +792,6 @@ pub(crate) async fn update_group_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn rename_group_handler(
-  data: AFPluginData<RenameGroupPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> FlowyResult<()> {
-  let manager = upgrade_manager(manager)?;
-  let params: RenameGroupParams = data.into_inner().try_into()?;
-  let view_id = params.view_id.clone();
-  let database_editor = manager.get_database_editor_with_view_id(&view_id).await?;
-  let group_changeset = GroupChangeset::from(params);
-  database_editor
-    .rename_group(&view_id, group_changeset)
-    .await?;
-  Ok(())
-}
-
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_group_handler(
   data: AFPluginData<MoveGroupPayloadPB>,
