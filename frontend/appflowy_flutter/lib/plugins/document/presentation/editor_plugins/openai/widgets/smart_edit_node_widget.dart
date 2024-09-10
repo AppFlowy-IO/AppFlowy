@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -116,6 +116,7 @@ class _SmartEditBlockComponentWidgetState
       direction: PopoverDirection.bottomWithLeftAligned,
       triggerActions: PopoverTriggerFlags.none,
       margin: EdgeInsets.zero,
+      offset: const Offset(40, 0), // align the editor block
       constraints: BoxConstraints(maxWidth: width),
       child: const SizedBox(
         width: double.infinity,
@@ -126,14 +127,13 @@ class _SmartEditBlockComponentWidgetState
         if (state.result.isEmpty) {
           completer.complete(true);
         } else {
-          await showDialog(
+          await showCancelAndConfirmDialog(
             context: context,
-            builder: (context) {
-              return DiscardDialog(
-                onConfirm: () => completer.complete(true),
-                onCancel: () => completer.complete(false),
-              );
-            },
+            title: LocaleKeys.document_plugins_discardResponse.tr(),
+            description: '',
+            confirmLabel: LocaleKeys.button_discard.tr(),
+            onConfirm: () => completer.complete(true),
+            onCancel: () => completer.complete(false),
           );
         }
         return completer.future;
@@ -314,7 +314,6 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
           ),
           onPressed: () async => _onExit(),
         ),
-        const Spacer(),
         Expanded(
           child: Container(
             alignment: Alignment.centerRight,

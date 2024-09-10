@@ -466,6 +466,7 @@ Future<void> showCancelAndConfirmDialog({
   required String title,
   required String description,
   VoidCallback? onConfirm,
+  VoidCallback? onCancel,
   String? confirmLabel,
 }) {
   return showDialog(
@@ -483,6 +484,7 @@ Future<void> showCancelAndConfirmDialog({
             onConfirm: () => onConfirm?.call(),
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.primary,
+            onCancel: () => onCancel?.call(),
           ),
         ),
       );

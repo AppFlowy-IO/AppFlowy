@@ -59,6 +59,7 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
   @override
   Widget build(BuildContext context) {
     return PopoverActionList<SmartEditActionWrapper>(
+      offset: const Offset(-5, 5),
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: SmartEditAction.values
           .map((action) => SmartEditActionWrapper(action))
