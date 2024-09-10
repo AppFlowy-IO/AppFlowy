@@ -152,14 +152,10 @@ pub struct UpdateGroupPB {
   #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub group_id: String,
 
-  #[pb(index = 3)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
-  pub field_id: String,
-
-  #[pb(index = 4, one_of)]
+  #[pb(index = 3, one_of)]
   pub name: Option<String>,
 
-  #[pb(index = 5, one_of)]
+  #[pb(index = 4, one_of)]
   pub visible: Option<bool>,
 }
 
@@ -173,14 +169,10 @@ impl TryInto<UpdateGroupParams> for UpdateGroupPB {
     let group_id = NotEmptyStr::parse(self.group_id)
       .map_err(|_| ErrorCode::GroupIdIsEmpty)?
       .0;
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
 
     Ok(UpdateGroupParams {
       view_id,
       group_id,
-      field_id,
       name: self.name,
       visible: self.visible,
     })
@@ -190,7 +182,6 @@ impl TryInto<UpdateGroupParams> for UpdateGroupPB {
 pub struct UpdateGroupParams {
   pub view_id: String,
   pub group_id: String,
-  pub field_id: String,
   pub name: Option<String>,
   pub visible: Option<bool>,
 }
@@ -199,7 +190,6 @@ impl From<UpdateGroupParams> for GroupChangeset {
   fn from(params: UpdateGroupParams) -> Self {
     Self {
       group_id: params.group_id,
-      field_id: params.field_id,
       name: params.name,
       visible: params.visible,
     }
@@ -280,17 +270,12 @@ pub struct RenameGroupPB {
 
   #[pb(index = 3)]
   #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
-  pub field_id: String,
-
-  #[pb(index = 4)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub name: String,
 }
 
 pub struct RenameGroupParams {
   pub view_id: String,
   pub group_id: String,
-  pub field_id: String,
   pub name: String,
 }
 
@@ -304,9 +289,6 @@ impl TryFrom<RenameGroupPB> for RenameGroupParams {
     let group_id = NotEmptyStr::parse(value.group_id)
       .map_err(|_| ErrorCode::GroupIdIsEmpty)?
       .0;
-    let field_id = NotEmptyStr::parse(value.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
     let name = NotEmptyStr::parse(value.name)
       .map_err(|_| ErrorCode::GroupNameIsEmpty)?
       .0;
@@ -314,7 +296,6 @@ impl TryFrom<RenameGroupPB> for RenameGroupParams {
     Ok(Self {
       view_id,
       group_id,
-      field_id,
       name,
     })
   }
@@ -324,7 +305,6 @@ impl From<RenameGroupParams> for GroupChangeset {
   fn from(params: RenameGroupParams) -> Self {
     Self {
       group_id: params.group_id,
-      field_id: params.field_id,
       name: Some(params.name),
       visible: None,
     }
