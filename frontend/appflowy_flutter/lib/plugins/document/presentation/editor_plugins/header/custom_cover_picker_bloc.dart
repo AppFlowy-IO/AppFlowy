@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -22,8 +23,6 @@ class CoverImagePickerBloc
   CoverImagePickerBloc() : super(const CoverImagePickerState.initial()) {
     _dispatch();
   }
-
-  static const allowedExtensions = ['jpg', 'png', 'jpeg'];
 
   void _dispatch() {
     on<CoverImagePickerEvent>(
@@ -128,7 +127,7 @@ class CoverImagePickerBloc
     final result = await getIt<FilePickerService>().pickFiles(
       dialogTitle: LocaleKeys.document_plugins_cover_addLocalImage.tr(),
       type: FileType.image,
-      allowedExtensions: allowedExtensions,
+      allowedExtensions: defaultImageExtensions,
     );
     if (result != null && result.files.isNotEmpty) {
       return result.files.first.path;
@@ -176,7 +175,7 @@ class CoverImagePickerBloc
     if (ext != null && ext.isNotEmpty) {
       ext = ext.substring(1);
     }
-    if (allowedExtensions.contains(ext)) {
+    if (defaultImageExtensions.contains(ext)) {
       return ext;
     }
     return null;
