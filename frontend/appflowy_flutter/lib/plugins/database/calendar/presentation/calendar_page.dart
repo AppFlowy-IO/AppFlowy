@@ -431,15 +431,16 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 ),
               ),
             ),
-            popupBuilder: (_) {
-              return BlocProvider.value(
+            popupBuilder: (_) => BlocProvider.value(
+              value: context.read<CalendarBloc>(),
+              child: BlocProvider.value(
                 value: context.read<ViewBloc>(),
                 child: UnscheduleEventsList(
                   databaseController: widget.databaseController,
                   unscheduleEvents: state.unscheduleEvents,
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
       ),
