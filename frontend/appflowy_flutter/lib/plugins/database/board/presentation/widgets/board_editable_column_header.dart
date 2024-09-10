@@ -224,6 +224,7 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
     return (backgroundColor, dotColor);
   }
 
+  // move to theme file and allow theme customization once palette is finalized
   Color getColorOfDot(SelectOptionColorPB color) {
     return switch (Theme.of(context).brightness) {
       Brightness.light => switch (color) {
