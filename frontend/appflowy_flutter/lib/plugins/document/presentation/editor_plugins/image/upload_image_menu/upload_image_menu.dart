@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/upload_image_file_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ColorOption;
+import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -46,7 +47,7 @@ class UploadImageMenu extends StatefulWidget {
     this.allowMultipleImages = false,
   });
 
-  final void Function(List<String?>) onSelectedLocalImages;
+  final void Function(List<XFile>) onSelectedLocalImages;
   final void Function(String url) onSelectedAIImage;
   final void Function(String url) onSelectedNetworkImage;
   final void Function(String color)? onSelectedColor;

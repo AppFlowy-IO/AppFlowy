@@ -218,43 +218,48 @@ class _CardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final attachmentCount = rowMeta.attachmentCount.toInt();
-    final child = Padding(
-      padding: styleConfiguration.cardPadding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardCover(
-            cover: rowMeta.cover,
-            userProfile: userProfile,
-            isCompact: isCompact,
+    final child = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _CardCover(
+          cover: rowMeta.cover,
+          userProfile: userProfile,
+          isCompact: isCompact,
+        ),
+        Padding(
+          padding: styleConfiguration.cardPadding,
+          child: Column(
+            children: [
+              ..._makeCells(context, rowMeta, cells),
+              if (attachmentCount > 0) ...[
+                const VSpace(2),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Row(
+                    children: [
+                      const FlowySvg(
+                        FlowySvgs.media_s,
+                        size: Size.square(12),
+                      ),
+                      const HSpace(4),
+                      Flexible(
+                        child: FlowyText.regular(
+                          LocaleKeys.grid_media_attachmentsHint
+                              .tr(args: ['$attachmentCount']),
+                          fontSize: 11,
+                          color:
+                              AFThemeExtension.of(context).secondaryTextColor,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
-          ..._makeCells(context, rowMeta, cells),
-          if (attachmentCount > 0) ...[
-            const VSpace(2),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Row(
-                children: [
-                  const FlowySvg(
-                    FlowySvgs.media_s,
-                    size: Size.square(12),
-                  ),
-                  const HSpace(4),
-                  Flexible(
-                    child: FlowyText.regular(
-                      LocaleKeys.grid_media_attachmentsHint
-                          .tr(args: ['$attachmentCount']),
-                      fontSize: 11,
-                      color: AFThemeExtension.of(context).secondaryTextColor,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
     return styleConfiguration.hoverStyle == null
         ? child
@@ -309,10 +314,12 @@ class _CardCover extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 4),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(4),
+          topRight: Radius.circular(4),
+        ),
         color: Theme.of(context).cardColor,
       ),
       child: Row(

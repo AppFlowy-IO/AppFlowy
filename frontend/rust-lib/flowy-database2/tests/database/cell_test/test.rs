@@ -1,11 +1,10 @@
 use std::time::Duration;
 
-use collab_database::entity::FileUploadType;
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, DateCellData, MediaFile, MediaFileType,
-  MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption,
-  StringCellData, TimeCellData, URLCellData,
+  MediaUploadType, MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset,
+  SingleSelectTypeOption, StringCellData, TimeCellData, URLCellData,
 };
 use lib_infra::box_any::BoxAny;
 
@@ -64,7 +63,7 @@ async fn grid_cell_update() {
             name: "link".to_string(),
             url: "https://www.appflowy.io".to_string(),
             file_type: MediaFileType::Link,
-            upload_type: FileUploadType::NetworkFile,
+            upload_type: MediaUploadType::NetworkMedia,
           }],
           removed_ids: vec![],
         }),

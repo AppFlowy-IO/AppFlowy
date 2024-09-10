@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -29,6 +31,11 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   final RowBackendService _rowBackendSvc;
   final RowMetaListener _metaListener;
 
+  UserProfilePB? _userProfile;
+  UserProfilePB? get userProfile => _userProfile;
+
+  bool get hasCover => state.rowMeta.cover.url.isNotEmpty;
+
   @override
   Future<void> close() async {
     await _metaListener.stop();
@@ -39,9 +46,14 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
     on<RowBannerEvent>(
       (event, emit) {
         event.when(
-          initial: () {
-            _loadPrimaryField();
+          initial: () async {
+            await _loadPrimaryField();
             _listenRowMetaChanged();
+            final result = await UserEventGetUserProfile().send();
+            result.fold(
+              (userProfile) => _userProfile = userProfile,
+              (error) => Log.error(error),
+            );
           },
           didReceiveRowMeta: (RowMetaPB rowMeta) {
             emit(state.copyWith(rowMeta: rowMeta));
