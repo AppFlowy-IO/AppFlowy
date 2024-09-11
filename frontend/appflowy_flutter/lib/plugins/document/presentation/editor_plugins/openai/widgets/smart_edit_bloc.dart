@@ -3,7 +3,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/wid
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/ai_service.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -67,6 +69,8 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
       add(const SmartEditEvent.update('', true));
     }
 
+    Log.info('[smart_edit] request completions');
+
     final content = node.attributes[SmartEditBlockKeys.content] as String;
     await aiRepository.streamCompletion(
       text: content,
@@ -75,11 +79,16 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (isCanceled) {
           return;
         }
+        Log.info('[smart_edit] start generating');
         add(const SmartEditEvent.update('', true));
       },
       onProcess: (text) async {
         if (isCanceled) {
           return;
+        }
+        // only display the log in debug mode
+        if (kDebugMode) {
+          Log.debug('[smart_edit] onProcess: $text');
         }
         final newResult = state.result + text;
         add(SmartEditEvent.update(newResult, false));
@@ -88,12 +97,14 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (isCanceled) {
           return;
         }
+        Log.info('[smart_edit] end generating');
         add(SmartEditEvent.update('${state.result}\n', false));
       },
       onError: (error) async {
         if (isCanceled) {
           return;
         }
+        Log.info('[smart_edit] onError: $error');
         await _exit();
       },
     );

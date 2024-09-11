@@ -84,7 +84,7 @@ class _SmartEditBlockComponentWidgetState
   late final editorState = context.read<EditorState>();
   late final action = SmartEditAction
       .values[widget.node.attributes[SmartEditBlockKeys.action] as int];
-  late final SmartEditBloc smartEditBloc;
+  late SmartEditBloc smartEditBloc;
 
   @override
   void initState() {
