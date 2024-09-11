@@ -82,7 +82,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
               state.filter.condition !=
                   DateFilterConditionPB.DateIsNotEmpty) ...[
             const VSpace(4),
-            _buildFilterDateField(context, state),
+            _buildFilterDateField(context),
           ],
         ];
 
@@ -139,17 +139,18 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
 
   Widget _buildFilterDateField(
     BuildContext context,
-    DateFilterEditorState state,
   ) {
-    final isRange = state.filter.condition == DateFilterConditionPB.DateWithIn;
+    final filter = context.watch<DateFilterEditorBloc>().state.filter;
+
+    final isRange = filter.condition == DateFilterConditionPB.DateWithIn;
     String? text;
 
     if (isRange) {
       text =
-          "${state.filter.start.toInt().dateTime.defaultFormat ?? ""} - ${state.filter.end.toInt().dateTime.defaultFormat ?? ""}";
+          "${filter.start.toInt().dateTime.defaultFormat ?? ""} - ${filter.end.toInt().dateTime.defaultFormat ?? ""}";
       text = text == " - " ? null : text;
     } else {
-      text = state.filter.timestamp.toInt().dateTime.defaultFormat;
+      text = filter.timestamp.toInt().dateTime.defaultFormat;
     }
     _textEditingController.text = text ?? "";
 
@@ -166,122 +167,111 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
         autoFocus: false,
         hintText: LocaleKeys.grid_field_dateTime.tr(),
       ),
-      popupBuilder: (BuildContext popoverContent) {
-        return AppFlowyDatePicker(
-          isRange: isRange,
-          timeHintText: LocaleKeys.grid_field_selectTime.tr(),
-          includeTime: true,
-          dateFormat: DateFormatPB.Friendly,
-          timeFormat: TimeFormatPB.TwentyFourHour,
-          selectedDay: state.filter.timestamp.toInt().dateTime,
-          startDay: isRange ? state.filter.start.toInt().dateTime : null,
-          endDay: isRange ? state.filter.end.toInt().dateTime : null,
-          timeStr: isRange
-              ? state.filter.start.toInt().dateTime?.timeStr
-              : state.filter.timestamp.toInt().dateTime?.timeStr,
-          endTimeStr:
-              isRange ? state.filter.end.toInt().dateTime?.timeStr : null,
-          onDaySelected: (selectedDay, _) {
-            String? timeStr = context
-                .read<DateFilterEditorBloc>()
-                .state
-                .filter
-                .timestamp
-                .toInt()
-                .dateTime
-                ?.timeStr;
-            Function(DateTime) event =
-                (date) => DateFilterEditorEvent.updateTimestamp(date.timestamp);
-            if (isRange) {
-              timeStr = context
-                  .read<DateFilterEditorBloc>()
-                  .state
-                  .filter
-                  .start
-                  .toInt()
-                  .dateTime
-                  ?.timeStr;
-              event = (date) =>
-                  DateFilterEditorEvent.updateRange(start: date.timestamp);
-            }
-            if (timeStr != null) {
-              selectedDay = timeStr.dateTime(selectedDay);
-            }
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<DateFilterEditorBloc>(),
+          child: BlocBuilder<DateFilterEditorBloc, DateFilterEditorState>(
+            builder: (context, state) {
+              final filter = state.filter;
+              final isRange =
+                  filter.condition == DateFilterConditionPB.DateWithIn;
 
-            context.read<DateFilterEditorBloc>().add(event(selectedDay));
-            if (isRange) {
-              _popover.close();
-            }
-          },
-          onRangeSelected: (start, end, _) {
-            final startTimeStr = context
-                .read<DateFilterEditorBloc>()
-                .state
-                .filter
-                .start
-                .toInt()
-                .dateTime
-                ?.timeStr;
-            if (startTimeStr != null && start != null) {
-              start = startTimeStr.dateTime(start);
-            }
+              return AppFlowyDatePicker(
+                isRange: isRange,
+                timeHintText: LocaleKeys.grid_field_selectTime.tr(),
+                includeTime: true,
+                dateFormat: DateFormatPB.Friendly,
+                timeFormat: TimeFormatPB.TwentyFourHour,
+                selectedDay: filter.timestamp.toInt().dateTime,
+                startDay: isRange ? filter.start.toInt().dateTime : null,
+                endDay: isRange ? filter.end.toInt().dateTime : null,
+                timeStr: isRange
+                    ? filter.start.toInt().dateTime?.timeStr
+                    : filter.timestamp.toInt().dateTime?.timeStr,
+                endTimeStr:
+                    isRange ? filter.end.toInt().dateTime?.timeStr : null,
+                onDaySelected: (selectedDay, _) {
+                  final filter =
+                      context.read<DateFilterEditorBloc>().state.filter;
+                  String? timeStr = filter.timestamp.toInt().dateTime?.timeStr;
+                  Function(DateTime) event = (date) =>
+                      DateFilterEditorEvent.updateTimestamp(date.timestamp);
+                  if (isRange) {
+                    timeStr = filter.start.toInt().dateTime?.timeStr;
+                    event = (date) => DateFilterEditorEvent.updateRange(
+                          start: date.timestamp,
+                        );
+                  }
+                  if (timeStr != null) {
+                    selectedDay = timeStr.dateTime(selectedDay);
+                  }
 
-            final endTimeStr = context
-                .read<DateFilterEditorBloc>()
-                .state
-                .filter
-                .end
-                .toInt()
-                .dateTime
-                ?.timeStr;
-            if (endTimeStr != null && end != null) {
-              end = endTimeStr.dateTime(end);
-            }
+                  context.read<DateFilterEditorBloc>().add(event(selectedDay));
+                  if (isRange) {
+                    _popover.close();
+                  }
+                },
+                onRangeSelected: (start, end, _) {
+                  final filter =
+                      context.read<DateFilterEditorBloc>().state.filter;
+                  final startTimeStr = filter.start.toInt().dateTime?.timeStr;
+                  if (startTimeStr != null && start != null) {
+                    start = startTimeStr.dateTime(start);
+                  }
 
-            context.read<DateFilterEditorBloc>().add(
-                  DateFilterEditorEvent.updateRange(
-                    start: start?.timestamp,
-                    end: end?.timestamp,
-                  ),
-                );
-          },
-          onStartTimeSubmitted: (timeStr) {
-            final filter = context.read<DateFilterEditorBloc>().state.filter;
-            DateTime? date = filter.timestamp.toInt().dateTime;
-            Function(DateTime) event =
-                (date) => DateFilterEditorEvent.updateTimestamp(date.timestamp);
-            if (isRange) {
-              event = (date) =>
-                  DateFilterEditorEvent.updateRange(start: date.timestamp);
-              date = filter.start.toInt().dateTime;
-            }
-            if (date == null) {
-              return;
-            }
+                  final endTimeStr = filter.end.toInt().dateTime?.timeStr;
+                  if (endTimeStr != null && end != null) {
+                    end = endTimeStr.dateTime(end);
+                  }
 
-            context
-                .read<DateFilterEditorBloc>()
-                .add(event(timeStr.dateTime(date)));
-          },
-          onEndTimeSubmitted: (timeStr) {
-            final date = context
-                .read<DateFilterEditorBloc>()
-                .state
-                .filter
-                .end
-                .toInt()
-                .dateTime;
-            if (date == null) {
-              return;
-            }
+                  context.read<DateFilterEditorBloc>().add(
+                        DateFilterEditorEvent.updateRange(
+                          start: start?.timestamp,
+                          end: end?.timestamp,
+                        ),
+                      );
+                },
+                onStartTimeSubmitted: (timeStr) {
+                  final filter =
+                      context.read<DateFilterEditorBloc>().state.filter;
+                  DateTime? date = filter.timestamp.toInt().dateTime;
+                  Function(DateTime) event = (date) =>
+                      DateFilterEditorEvent.updateTimestamp(date.timestamp);
+                  if (isRange) {
+                    event = (date) => DateFilterEditorEvent.updateRange(
+                        start: date.timestamp);
+                    date = filter.start.toInt().dateTime;
+                  }
+                  if (date == null) {
+                    return;
+                  }
 
-            context.read<DateFilterEditorBloc>().add(
-                  DateFilterEditorEvent.updateRange(
-                    end: timeStr.dateTime(date).timestamp,
-                  ),
-                );
-          },
-          onIncludeTimeChanged: (_) => {},
+                  context
+                      .read<DateFilterEditorBloc>()
+                      .add(event(timeStr.dateTime(date)));
+                },
+                onEndTimeSubmitted: (timeStr) {
+                  final date = context
+                      .read<DateFilterEditorBloc>()
+                      .state
+                      .filter
+                      .end
+                      .toInt()
+                      .dateTime;
+                  if (date == null) {
+                    return;
+                  }
+
+                  context.read<DateFilterEditorBloc>().add(
+                        DateFilterEditorEvent.updateRange(
+                          end: timeStr.dateTime(date).timestamp,
+                        ),
+                      );
+                },
+                onIncludeTimeChanged: (_) => {},
+              );
+            },
+          ),
         );
       },
     );
