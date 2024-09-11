@@ -37,6 +37,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
           await _exit();
         },
         cancel: () async {
+          isCanceled = true;
           await _exit();
         },
         update: (result, isLoading) async {
@@ -57,6 +58,8 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
 
   late final AIRepository aiRepository;
 
+  bool isCanceled = false;
+
   Future<void> _requestCompletions({
     bool rewrite = false,
   }) async {
@@ -69,16 +72,28 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
       text: content,
       completionType: completionTypeFromInt(state.action),
       onStart: () async {
+        if (isCanceled) {
+          return;
+        }
         add(const SmartEditEvent.update('', true));
       },
       onProcess: (text) async {
-        add(SmartEditEvent.update(state.result + text, false));
+        if (isCanceled) {
+          return;
+        }
+        final newResult = state.result + text;
+        add(SmartEditEvent.update(newResult, false));
       },
       onEnd: () async {
+        if (isCanceled) {
+          return;
+        }
         add(SmartEditEvent.update('${state.result}\n', false));
       },
       onError: (error) async {
-        // todo: handle error
+        if (isCanceled) {
+          return;
+        }
         await _exit();
       },
     );

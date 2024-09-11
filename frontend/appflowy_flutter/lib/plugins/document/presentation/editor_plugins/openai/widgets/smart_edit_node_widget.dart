@@ -22,6 +22,8 @@ class SmartEditBlockKeys {
   static const action = 'action';
 
   /// The input of the smart edit.
+  ///
+  /// The content is a string that using '\n\n' as separator.
   static const content = 'content';
 }
 
@@ -202,9 +204,11 @@ class SmartEditInputContent extends StatelessWidget {
                   fontSize: 14,
                 ),
                 const VSpace(16),
-                _buildResultWidget(context, state),
+                state.loading
+                    ? _buildLoadingWidget(context)
+                    : _buildResultWidget(context, state),
                 const VSpace(16),
-                _buildInputFooterWidget(context, state),
+                const _SmartEditFooterWidget(),
               ],
             ),
           ),
@@ -214,24 +218,33 @@ class SmartEditInputContent extends StatelessWidget {
   }
 
   Widget _buildResultWidget(BuildContext context, SmartEditState state) {
-    if (state.result.isEmpty || state.loading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.0),
-        child: SizedBox.square(
-          dimension: 14,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.0,
-          ),
-        ),
-      );
-    }
     // todo: replace it with appflowy_editor
     return Flexible(
-      child: Text(state.result),
+      child: FlowyText.regular(
+        state.result,
+        maxLines: null,
+      ),
     );
   }
 
-  Widget _buildInputFooterWidget(BuildContext context, SmartEditState state) {
+  Widget _buildLoadingWidget(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.0),
+      child: SizedBox.square(
+        dimension: 14,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _SmartEditFooterWidget extends StatelessWidget {
+  const _SmartEditFooterWidget();
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         OutlinedRoundedButton(
