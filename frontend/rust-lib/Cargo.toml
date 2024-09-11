@@ -105,8 +105,8 @@ dashmap = "6.0.1"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3f59c650f4fb38171310607d709f57836418ee7f" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3f59c650f4fb38171310607d709f57836418ee7f" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "4e54d2adabaa28a86145218e198cb62e78636999" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "4e54d2adabaa28a86145218e198cb62e78636999" }
 
 [profile.dev]
 opt-level = 0
@@ -141,13 +141,13 @@ rocksdb = { git = "https://github.com/rust-rocksdb/rust-rocksdb", rev = "1710120
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28c439274c222bbc298dc6753200ee492d7e8509" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "28eb1265653d663ab62d9eb622ad9f70ede21178" }
 
 # Working directory: frontend
 # To update the commit ID, run:

@@ -36,6 +36,7 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfi
 use dashmap::DashMap;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
+use futures::future::join_all;
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
@@ -840,7 +841,7 @@ impl DatabaseEditor {
     database
       .update_row_meta(row_id, |meta_update| {
         meta_update
-          .insert_cover_if_not_none(changeset.cover_url)
+          .insert_cover_if_not_none(changeset.cover)
           .insert_icon_if_not_none(changeset.icon_url)
           .update_is_document_empty_if_not_none(changeset.is_document_empty)
           .update_attachment_count_if_not_none(changeset.attachment_count);
@@ -1096,7 +1097,7 @@ impl DatabaseEditor {
             UpdateRowMetaParams {
               id: row_id.clone().into_inner(),
               view_id: view_id.to_string(),
-              cover_url: None,
+              cover: None,
               icon_url: None,
               is_document_empty: None,
               attachment_count: Some(new_attachment_count),
@@ -1454,10 +1455,7 @@ impl DatabaseEditor {
       );
 
       let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-      // Load rows asynchronously
-      // if the number of rows is less than 100 or notify_finish is not None, it will wait until all
-      // rows are loaded
-      let should_wait = notify_finish.is_some() || row_metas.len() < 100;
+      let should_wait = notify_finish.is_some() || row_metas.len() < 10;
       let (tx, rx) = oneshot::channel();
       self.async_load_rows(view_editor, Some(tx), new_token);
       if should_wait {
@@ -1509,7 +1507,6 @@ impl DatabaseEditor {
     trace!("[Database]: start loading rows");
     let cloned_database = Arc::downgrade(&self.database);
     tokio::spawn(async move {
-      const CHUNK_SIZE: usize = 5;
       let apply_filter_and_sort =
         |mut loaded_rows: Vec<Arc<Row>>, view_editor: Arc<DatabaseViewEditor>| async move {
           for loaded_row in loaded_rows.iter() {
@@ -1532,28 +1529,47 @@ impl DatabaseEditor {
         };
 
       let mut loaded_rows = vec![];
-      for chunk_row_orders in view_editor.row_orders.read().await.chunks(CHUNK_SIZE) {
-        match cloned_database.upgrade() {
-          None => break,
-          Some(database) => {
-            for lazy_row in chunk_row_orders {
-              if let Some(database_row) =
-                database.read().await.init_database_row(&lazy_row.id).await
-              {
-                if let Some(row) = database_row.read().await.get_row() {
-                  loaded_rows.push(Arc::new(row));
-                }
+      const CHUNK_SIZE: usize = 10;
+      let row_orders = view_editor.row_orders.read().await;
+      let row_orders_chunks = row_orders.chunks(CHUNK_SIZE).collect::<Vec<_>>();
+
+      // Iterate over chunks and load rows concurrently
+      for chunk_row_orders in row_orders_chunks {
+        // Check if the database is still available
+        let database = match cloned_database.upgrade() {
+          None => break, // If the database is dropped, stop the operation
+          Some(database) => database,
+        };
+
+        // Process the chunk of rows concurrently using async tasks
+        let tasks: Vec<_> = chunk_row_orders
+          .iter()
+          .map(|row_order| {
+            let db_clone = database.clone();
+            async move {
+              // Initialize the database row
+              let database_row = db_clone.read().await.init_database_row(&row_order.id).await;
+              if let Some(database_row) = database_row {
+                let row = database_row.read().await.get_row();
+                row.map(Arc::new)
+              } else {
+                None
               }
             }
-            // stop init database rows
-            if new_token.is_cancelled() {
-              info!("[Database]: stop loading database rows");
-              return;
-            }
-          },
+          })
+          .collect();
+
+        let results = join_all(tasks).await;
+        for row in results.into_iter().flatten() {
+          loaded_rows.push(row);
         }
-        tokio::task::yield_now().await;
+        // Check for cancellation after each chunk
+        if new_token.is_cancelled() {
+          info!("[Database]: stop loading database rows");
+          return;
+        }
       }
+      drop(row_orders);
 
       info!("[Database]: Finish loading all rows: {}", loaded_rows.len());
       let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
