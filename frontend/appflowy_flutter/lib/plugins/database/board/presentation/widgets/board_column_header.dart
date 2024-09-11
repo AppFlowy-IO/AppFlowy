@@ -147,14 +147,16 @@ class GroupOptionsButton extends StatelessWidget {
             .add(BoardEvent.setGroupVisibility(group, false));
         break;
       case GroupOption.delete:
-        NavigatorAlertDialog(
-          title: LocaleKeys.board_column_deleteColumnConfirmation.tr(),
-          confirm: () {
+        showConfirmDeletionDialog(
+          context: context,
+          name: LocaleKeys.board_column_label.tr(),
+          description: LocaleKeys.board_column_deleteColumnConfirmation.tr(),
+          onConfirm: () {
             context
                 .read<BoardBloc>()
                 .add(BoardEvent.deleteGroup(group.groupId));
           },
-        ).show(context);
+        );
         break;
     }
   }
