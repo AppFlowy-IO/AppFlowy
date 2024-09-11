@@ -33,7 +33,6 @@ use collab_database::views::{
 };
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use dashmap::DashMap;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use futures::future::join_all;
@@ -62,7 +61,6 @@ pub struct DatabaseEditor {
   is_opening: ArcSwap<bool>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
-  finalized_rows: Arc<DashMap<RowId, bool>>,
 }
 
 impl DatabaseEditor {
@@ -123,7 +121,6 @@ impl DatabaseEditor {
       is_opening: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
-      finalized_rows: Arc::new(Default::default()),
     });
     observe_block_event(&database_id, &this).await;
     observe_view_change(&database_id, &this).await;
@@ -762,29 +759,12 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<Arc<RwLock<DatabaseRow>>> {
-    if let Some(entry) = self.finalized_rows.get(row_id) {
-      if *entry.value() {
-        let database_row = self
-          .database
-          .read()
-          .await
-          .get_database_row(row_id)
-          .await
-          .ok_or_else(|| {
-            FlowyError::record_not_found()
-              .with_context(format!("The row:{} in database not found", row_id))
-          })?;
-        return Ok(database_row);
-      }
-    }
-
-    self.finalized_rows.insert(row_id.clone(), true);
     debug!("Init database row: {}", row_id);
     let database_row = self
       .database
       .read()
       .await
-      .init_database_row(row_id)
+      .get_or_init_database_row(row_id)
       .await
       .ok_or_else(|| {
         FlowyError::record_not_found()
@@ -1548,7 +1528,11 @@ impl DatabaseEditor {
             let db_clone = database.clone();
             async move {
               // Initialize the database row
-              let database_row = db_clone.read().await.init_database_row(&row_order.id).await;
+              let database_row = db_clone
+                .read()
+                .await
+                .get_or_init_database_row(&row_order.id)
+                .await;
               if let Some(database_row) = database_row {
                 let row = database_row.read().await.get_row();
                 row.map(Arc::new)
