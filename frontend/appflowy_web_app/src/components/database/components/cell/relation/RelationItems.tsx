@@ -1,4 +1,4 @@
-import { YDatabase, YDoc, YjsEditorKey } from '@/application/types';
+import { View, YDatabase, YDoc, YjsEditorKey } from '@/application/types';
 import {
   DatabaseContext,
   DatabaseContextState,
@@ -7,7 +7,6 @@ import {
   useFieldSelector,
 } from '@/application/database-yjs';
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
 import { notify } from '@/components/_shared/notify';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -38,7 +37,8 @@ function RelationItems ({ style, cell, fieldId }: {
   useEffect(() => {
     if (!viewId) return;
 
-    const update = (meta: ViewMeta) => {
+    const update = (meta: View | null) => {
+      if (!meta) return;
       setRelations(meta.database_relations);
     };
 

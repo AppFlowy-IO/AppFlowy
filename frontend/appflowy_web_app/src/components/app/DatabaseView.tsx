@@ -21,7 +21,7 @@ function DatabaseView ({ viewMeta, ...props }: {
   const iidIndex = viewMeta.viewId;
   const view = useMemo(() => {
     if (!outline || !iidIndex) return;
-    return findView(outline.children || [], iidIndex);
+    return findView(outline || [], iidIndex);
   }, [outline, iidIndex]);
 
   const visibleViewIds = useMemo(() => view?.children?.map(v => v.view_id) || [], [view]);

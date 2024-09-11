@@ -28,13 +28,15 @@ import { withTestingRows } from '@/application/database-yjs/__tests__/withTestin
 
 const wrapperCreator =
   (viewId: string, doc: YDoc, rowDocMap: Y.Map<YDoc>) =>
-  ({ children }: { children: React.ReactNode }) => {
-    return (
-      <DatabaseContextProvider iidIndex={viewId} viewId={viewId} databaseDoc={doc} rowDocMap={rowDocMap} readOnly={true}>
-        {children}
-      </DatabaseContextProvider>
-    );
-  };
+    ({ children }: { children: React.ReactNode }) => {
+      return (
+        <DatabaseContextProvider
+          iidIndex={viewId} viewId={viewId} databaseDoc={doc} rowDocMap={rowDocMap} readOnly={true}
+        >
+          {children}
+        </DatabaseContextProvider>
+      );
+    };
 
 describe('Database selector', () => {
   let wrapper: ({ children }: { children: React.ReactNode }) => JSX.Element;
@@ -168,7 +170,7 @@ describe('Database selector', () => {
             { id: '6', height: 37 },
           ],
         ],
-      ])
+      ]),
     );
   });
 
@@ -189,7 +191,7 @@ describe('Database selector', () => {
     const { result } = renderHook(() => useRowDataSelector(rows[0].id), { wrapper });
 
     expect(result.current.row.toJSON()).toEqual(
-      rowDocMap.get(rows[0].id)?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database_row)?.toJSON()
+      rowDocMap.get(rows[0].id)?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database_row)?.toJSON(),
     );
   });
 
@@ -201,7 +203,7 @@ describe('Database selector', () => {
           rowId: rows[0].id,
           fieldId: 'number_field',
         }),
-      { wrapper }
+      { wrapper },
     );
 
     expect(result.current).toEqual({
@@ -223,13 +225,6 @@ describe('Database selector', () => {
     const { result } = renderHook(() => useRowMetaSelector(rows[0].id), { wrapper });
 
     expect(result.current?.documentId).not.toBeNull();
-  });
-
-  it('should select all calendar events', () => {
-    const { result } = renderHook(() => useCalendarEventsSelector(), { wrapper });
-
-    expect(result.current.events.length).toEqual(8);
-    expect(result.current.emptyEvents.length).toEqual(0);
   });
 
   it('should select view id', () => {

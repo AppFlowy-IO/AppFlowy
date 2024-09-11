@@ -25,12 +25,14 @@ function setOutlineExpands (viewId: string, isExpanded: boolean) {
   localStorage.setItem('outline_expanded', JSON.stringify(expands));
 }
 
-function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId }: {
+function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, variant }: {
   view: View;
-  width: number;
+  width?: number;
   level?: number;
   selectedViewId?: string;
   navigateToView?: (viewId: string) => Promise<void>
+  variant?: 'publish' | 'app' | 'recent' | 'favorite';
+
 }) {
   const selected = selectedViewId === view.view_id;
   const [isExpanded, setIsExpanded] = React.useState(() => {
@@ -87,11 +89,17 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId }
         >
           {item.children?.length ? getIcon() : null}
 
-          <OutlineItemContent item={item} navigateToView={navigateToView} level={level} setIsExpanded={setIsExpanded} />
+          <OutlineItemContent
+            variant={variant}
+            item={item}
+            navigateToView={navigateToView}
+            level={level}
+            setIsExpanded={setIsExpanded}
+          />
         </div>
       </div>
     );
-  }, [getIcon, level, navigateToView, selected, width]);
+  }, [getIcon, level, navigateToView, variant, selected, width]);
 
   const children = useMemo(() => view.children || [], [view.children]);
 

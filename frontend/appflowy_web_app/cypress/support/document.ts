@@ -1,6 +1,14 @@
 import { BlockId, BlockType, YBlocks, YChildrenMap, YjsEditorKey, YTextMap } from '@/application/types';
 import { nanoid } from 'nanoid';
+import { Op } from 'quill-delta';
 import * as Y from 'yjs';
+
+export interface FromBlockJSON {
+  type: string;
+  children: FromBlockJSON[];
+  data: Record<string, number | string | boolean>;
+  text: Op[];
+}
 
 export class DocumentTest {
   public doc: Y.Doc;
@@ -13,7 +21,7 @@ export class DocumentTest {
 
   private pageId: string;
 
-  constructor() {
+  constructor () {
     const doc = new Y.Doc();
 
     this.doc = doc;
@@ -48,7 +56,7 @@ export class DocumentTest {
     this.pageId = pageId;
   }
 
-  insertParagraph(text: string) {
+  insertParagraph (text: string) {
     const blockId = nanoid(8);
     const block = new Y.Map();
 
@@ -71,5 +79,45 @@ export class DocumentTest {
     this.textMap.set(blockId, blockText);
 
     return blockText;
+  }
+
+  fromJSON (json: FromBlockJSON[]) {
+
+    this.fromJSONChildren(json, this.pageId);
+
+    return this.doc;
+  }
+
+  private fromJSONChildren (children: FromBlockJSON[], parentId: BlockId) {
+    const parentChildren = this.childrenMap.get(parentId) ?? new Y.Array<BlockId>();
+
+    for (const child of children) {
+      const blockId = nanoid(8);
+      const block = new Y.Map();
+
+      block.set(YjsEditorKey.block_id, blockId);
+      block.set(YjsEditorKey.block_type, child.type);
+      block.set(YjsEditorKey.block_children, blockId);
+      block.set(YjsEditorKey.block_external_id, blockId);
+      block.set(YjsEditorKey.block_external_type, YjsEditorKey.text);
+      block.set(YjsEditorKey.block_parent, parentId);
+      block.set(YjsEditorKey.block_data, JSON.stringify(child.data));
+      this.blocks.set(blockId, block);
+
+      parentChildren.push([blockId]);
+      if (!this.childrenMap.has(parentId)) {
+        this.childrenMap.set(parentId, parentChildren);
+      }
+
+      const blockText = new Y.Text();
+      
+      blockText.applyDelta(child.text);
+
+      console.log(blockText.toJSON());
+
+      this.textMap.set(blockId, blockText);
+
+      this.fromJSONChildren(child.children, blockId);
+    }
   }
 }

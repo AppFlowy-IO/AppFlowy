@@ -1,8 +1,9 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/types';
 import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
 import { Editor } from '@/components/editor';
-import React, { Suspense } from 'react';
+import React, { Suspense, useCallback } from 'react';
 import ViewMetaPreview, { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
+import { useSearchParams } from 'react-router-dom';
 
 export interface DocumentProps {
   doc: YDoc;
@@ -23,6 +24,15 @@ export const Document = ({
   viewMeta,
   isTemplateThumb,
 }: DocumentProps) => {
+  const [search, setSearch] = useSearchParams();
+  const blockId = search.get('blockId') || undefined;
+
+  const onJumpedBlockId = useCallback(() => {
+    setSearch(prev => {
+      prev.delete('blockId');
+      return prev;
+    });
+  }, [setSearch]);
 
   return (
     <div style={{
@@ -40,6 +50,8 @@ export const Document = ({
             readSummary={isTemplateThumb}
             doc={doc}
             readOnly={true}
+            jumpBlockId={blockId}
+            onJumpedBlockId={onJumpedBlockId}
           />
         </div>
       </Suspense>

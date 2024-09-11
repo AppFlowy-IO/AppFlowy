@@ -14,7 +14,11 @@ import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-function MoreActions () {
+function MoreActions ({
+  variant,
+}: {
+  variant?: 'publish' | 'app';
+}) {
   const { isDark, setDark } = useContext(ThemeModeContext) || {};
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -89,7 +93,8 @@ function MoreActions () {
           onClose={handleClose}
         >
           <div className={'flex w-[240px] flex-col gap-2 px-2 py-2'}>
-            <AsTemplateButton />
+            {variant === 'publish' && <AsTemplateButton />}
+
 
             {actions.map((action, index) => (
               <button

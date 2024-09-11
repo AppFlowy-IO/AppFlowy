@@ -74,6 +74,7 @@ export function withYjs<T extends Editor> (
       return;
     }
 
+    console.log('===', content.children);
     if (readSummary) {
       e.children = content.children.slice(0, 10);
     } else {
@@ -146,7 +147,7 @@ export function withYjs<T extends Editor> (
     // parse changes and apply to ydoc
     doc.transact(() => {
       changes.forEach((change) => {
-        applyToYjs(doc, { children: change.slateContent }, change.op);
+        applyToYjs(doc, editor, change.op);
       });
     }, localOrigin);
   };

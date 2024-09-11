@@ -342,9 +342,83 @@ export async function getPublishInfoWithViewId (viewId: string) {
   return Promise.reject(data);
 }
 
-export async function getAppOutline (workspaceId: string) {
-  const url = `/api/workspace/${workspaceId}/outline`;
+export async function getAppFavorites (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/favorite`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      views: View[]
+    };
+    message: string;
+  }>(url);
 
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.views;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppTrash (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/trash`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      views: View[]
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.views;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppRecent (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/recent`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      views: View[]
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.views;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppOutline (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/folder?depth=10`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: View;
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.children;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getView (workspaceId: string, viewId: string, depth: number = 1) {
+  const url = `/api/workspace/${workspaceId}/folder?depth=${depth}&root_view_id=${viewId}`;
   const response = await axiosInstance?.get<{
     code: number;
     data?: View;
@@ -371,7 +445,7 @@ export async function getPublishOutline (publishNamespace: string) {
   const data = response?.data;
 
   if (data?.code === 0 && data.data) {
-    return data.data;
+    return data.data.children;
   }
 
   return Promise.reject(data);

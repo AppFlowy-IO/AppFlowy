@@ -179,6 +179,22 @@ export class AFClientService implements AFService {
     return APIService.getAppOutline(workspaceId);
   }
 
+  async getAppView (workspaceId: string, viewId: string) {
+    return APIService.getView(workspaceId, viewId);
+  }
+
+  async getAppFavorites (workspaceId: string) {
+    return APIService.getAppFavorites(workspaceId);
+  }
+
+  async getAppRecent (workspaceId: string) {
+    return APIService.getAppRecent(workspaceId);
+  }
+
+  async getAppTrash (workspaceId: string) {
+    return APIService.getAppTrash(workspaceId);
+  }
+
   async loginAuth (url: string) {
     try {
       await APIService.signInWithUrl(url);

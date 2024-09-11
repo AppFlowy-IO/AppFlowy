@@ -23,6 +23,8 @@ export interface EditorContextState {
   loadView?: LoadView;
   getViewRowsMap?: GetViewRowsMap;
   readSummary?: boolean;
+  jumpBlockId?: string;
+  onJumpedBlockId?: () => void;
 }
 
 export const EditorContext = createContext<EditorContextState>({

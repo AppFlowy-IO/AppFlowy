@@ -1,23 +1,20 @@
 import { InlineBlockType, Mention, MentionType } from '@/application/types';
 import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
-import { Editor, Transforms, Element, Text, Node } from 'slate';
+import { Editor, Element, Text, Node, NodeEntry } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 export const CustomEditor = {
-  setDocumentTitle: (editor: ReactEditor, title: string) => {
-    const length = Editor.string(editor, [0, 0]).length;
-
-    Transforms.insertText(editor, title, {
-      at: {
-        anchor: { path: [0, 0, 0], offset: 0 },
-        focus: { path: [0, 0, 0], offset: length },
-      },
+  findTextNode (editor: ReactEditor, path: number[]): NodeEntry<Element> {
+    const [node] = editor.nodes({
+      at: path,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
     });
-  },
 
+    return node as NodeEntry<Element>;
+  },
   // Get the text content of a block node, including the text content of its children and formula nodes
-  getBlockTextContent(node: Node): string {
+  getBlockTextContent (node: Node): string {
     if (Element.isElement(node)) {
       if (node.type === InlineBlockType.Formula) {
         return (node as FormulaNode).data || '';

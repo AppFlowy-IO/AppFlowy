@@ -5,14 +5,14 @@ import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';
 import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
 import { ReactComponent as GridSvg } from '@/assets/grid.svg';
 
-export function ViewIcon({ layout, size }: { layout: ViewLayout; size: number | 'small' | 'medium' | 'large' }) {
+export function ViewIcon ({ layout, size }: { layout: ViewLayout; size: number | 'small' | 'medium' | 'large' }) {
   const iconSize = useMemo(() => {
     if (size === 'small') {
       return 'h-4 w-4';
     }
 
     if (size === 'medium') {
-      return 'h-6 w-6';
+      return 'h-5 w-5';
     }
 
     if (size === 'large') {

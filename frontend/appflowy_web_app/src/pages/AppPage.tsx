@@ -20,7 +20,7 @@ function AppPage () {
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
-    return findView(outline.children, viewId);
+    return findView(outline, viewId);
   }, [outline, viewId]);
 
   const helmet = useMemo(() => {
@@ -68,7 +68,7 @@ function AppPage () {
     viewMeta: ViewMetaProps;
   }>;
 
-  const viewMeta: ViewMetaProps = useMemo(() => {
+  const viewMeta: ViewMetaProps | null = useMemo(() => {
     return view ? {
       name: view.name,
       icon: view.icon || undefined,
@@ -76,16 +76,20 @@ function AppPage () {
       layout: view.layout,
       visibleViewIds: [],
       viewId: view.view_id,
-    } : {};
+    } : null;
   }, [view]);
 
   const viewDom = useMemo(() => {
-    return doc && View ? (
-      <View doc={doc} viewMeta={viewMeta} navigateToView={toView} loadViewMeta={loadViewMeta}
-            getViewRowsMap={getViewRowsMap} loadView={loadView}
+    return doc && viewMeta && View ? (
+      <View
+        doc={doc}
+        viewMeta={viewMeta}
+        navigateToView={toView}
+        loadViewMeta={loadViewMeta}
+        getViewRowsMap={getViewRowsMap} loadView={loadView}
       />
     ) : (
-      <PageSkeleton hasCover={!!viewMeta.cover} hasIcon={!!viewMeta.icon?.value} hasName />
+      <PageSkeleton hasCover={!viewMeta || !!viewMeta.cover} hasIcon={!viewMeta || !!viewMeta.icon} hasName />
     );
   }, [doc, View, viewMeta, toView, loadViewMeta, getViewRowsMap, loadView]);
 

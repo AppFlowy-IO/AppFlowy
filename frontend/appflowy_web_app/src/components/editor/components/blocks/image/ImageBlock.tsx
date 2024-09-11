@@ -6,7 +6,12 @@ import ImageEmpty from './ImageEmpty';
 import ImageRender from './ImageRender';
 
 export const ImageBlock = memo(
-  forwardRef<HTMLDivElement, EditorElementProps<ImageBlockNode>>(({ node, children, className, ...attributes }, ref) => {
+  forwardRef<HTMLDivElement, EditorElementProps<ImageBlockNode>>(({
+    node,
+    children,
+    className,
+    ...attributes
+  }, ref) => {
     const selected = useSelected();
     const { url, align } = useMemo(() => node.data || {}, [node.data]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -39,7 +44,10 @@ export const ImageBlock = memo(
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}>
           {children}
         </div>
-        <div contentEditable={false} className={`flex w-full select-none ${url ? '' : 'rounded border'} ${alignCss}`}>
+        <div
+          contentEditable={false}
+          className={`flex w-full select-none overflow-hidden ${url ? '' : 'rounded-[8px] border border-line-divider'} ${alignCss}`}
+        >
           {url ? (
             <ImageRender showToolbar={showToolbar} selected={selected} node={node} />
           ) : (
@@ -48,7 +56,7 @@ export const ImageBlock = memo(
         </div>
       </div>
     );
-  })
+  }),
 );
 
 export default ImageBlock;

@@ -13,11 +13,14 @@ function OutlineItemContent ({
   setIsExpanded,
   navigateToView,
   level,
+  variant,
 }: {
   item: View;
   setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
   navigateToView?: (viewId: string) => Promise<void>;
   level: number;
+  variant?: 'publish' | 'app' | 'recent' | 'favorite';
+
 }) {
   const { icon, layout, name, view_id, extra } = item;
   const [hovered, setHovered] = React.useState(false);
@@ -27,7 +30,7 @@ function OutlineItemContent ({
   return (
     <div
       onClick={async () => {
-        if (isSpace || !item.is_published) {
+        if (isSpace || (!item.is_published && variant === 'publish')) {
           setIsExpanded(prev => !prev);
           return;
         }
@@ -41,7 +44,7 @@ function OutlineItemContent ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        paddingLeft: item.children?.length ? 0 : 1.125 * (level + 1) + 'rem',
+        paddingLeft: variant === 'favorite' || variant === 'recent' ? '8px' : item.children?.length ? 0 : 1.125 * (level + 1) + 'rem',
       }}
       className={`flex flex-1 cursor-pointer select-none items-center gap-1.5 overflow-hidden`}
     >
@@ -53,19 +56,22 @@ function OutlineItemContent ({
             borderRadius: '4px',
           }}
         >
-              <SpaceIcon
-                value={extra.space_icon || ''}
-                char={extra.space_icon ? undefined : name.slice(0, 1)}
-              /></span> :
-        <div className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}>
-          {icon?.value || <ViewIcon layout={layout} size={'small'} />}
+          <SpaceIcon
+            value={extra.space_icon || ''}
+            char={extra.space_icon ? undefined : name.slice(0, 1)}
+          />
+        </span> :
+        <div
+          className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}
+        >
+          {icon?.value || <ViewIcon layout={layout} size={'medium'} />}
         </div>
       }
 
       <Tooltip title={name} enterDelay={1000} enterNextDelay={1000}>
         <div className={'flex-1 truncate'}>{name}</div>
       </Tooltip>
-      {hovered && !item.is_published && !isSpace && (
+      {hovered && variant === 'publish' && !item.is_published && !isSpace && (
         <Tooltip
           disableInteractive
           title={isSpace ? t('publish.spaceHasNotBeenPublished') : t('publish.hasNotBeenPublished')}

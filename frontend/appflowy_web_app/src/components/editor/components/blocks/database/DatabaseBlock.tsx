@@ -1,5 +1,4 @@
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
-import { ViewMeta } from '@/application/db/tables/view_metas';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { Database } from '@/components/database';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
@@ -7,7 +6,7 @@ import { Tooltip } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { forwardRef, memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BlockType, YDoc } from '@/application/types';
+import { BlockType, View, YDoc } from '@/application/types';
 
 export const DatabaseBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DatabaseNode>>(({ node, children, ...attributes }, ref) => {
@@ -63,11 +62,15 @@ export const DatabaseBlock = memo(
     const [iidName, setIidName] = useState<string>('');
 
     useEffect(() => {
-      const updateVisibleViewIds = async (meta: ViewMeta) => {
-        const viewIds = meta.visible_view_ids || [];
+      const updateVisibleViewIds = async (meta: View | null) => {
+        if (!meta) {
+          return;
+        }
+
+        const viewIds = meta.children.map((v) => v.view_id) || [];
 
         if (!viewIds.includes(viewId)) {
-          setSelectedViewId(meta.visible_view_ids[0]);
+          setSelectedViewId(viewIds[0]);
         } else {
           setSelectedViewId(viewId);
         }

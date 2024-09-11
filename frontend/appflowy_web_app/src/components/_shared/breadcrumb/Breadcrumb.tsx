@@ -4,9 +4,12 @@ import BreadcrumbItem from '@/components/_shared/breadcrumb/BreadcrumbItem';
 import React, { memo, useMemo } from 'react';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 
-export function Breadcrumb ({ crumbs, toView }: { crumbs: View[]; toView?: (viewId: string) => Promise<void> }) {
+export function Breadcrumb ({ crumbs, toView, variant }: {
+  crumbs: View[];
+  toView?: (viewId: string) => Promise<void>;
+  variant?: 'publish' | 'app';
+}) {
   const renderCrumb = useMemo(() => {
-    console.log('Breadcrumb render');
 
     return crumbs?.map((crumb, index) => {
       const isLast = index === crumbs.length - 1;
@@ -14,12 +17,12 @@ export function Breadcrumb ({ crumbs, toView }: { crumbs: View[]; toView?: (view
 
       return (
         <div className={`${isLast ? 'text-text-title' : 'text-text-caption'} flex items-center gap-2`} key={key}>
-          <BreadcrumbItem toView={toView} crumb={crumb} disableClick={isLast} />
+          <BreadcrumbItem variant={variant} toView={toView} crumb={crumb} disableClick={isLast} />
           {!isLast && <RightIcon className={'h-4 w-4'} />}
         </div>
       );
     });
-  }, [crumbs, toView]);
+  }, [crumbs, toView, variant]);
 
   return (
     <div className={'relative h-full w-full flex-1  overflow-hidden'}>

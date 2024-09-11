@@ -69,6 +69,7 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
           visibleViewIds={visibleViewIds}
           onChangeView={handleChangeView}
           onOpenRow={handleNavigateToRow}
+          hideConditions={true}
         />
       </Suspense>
     </div>

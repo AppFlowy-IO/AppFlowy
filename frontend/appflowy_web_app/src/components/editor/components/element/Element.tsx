@@ -16,8 +16,10 @@ import { Paragraph } from '@/components/editor/components/blocks/paragraph';
 import { Quote } from '@/components/editor/components/blocks/quote';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
 import { ErrorBoundary } from 'react-error-boundary';
+import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
 import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
@@ -26,8 +28,8 @@ import { Mention } from '@/components/editor/components/leaf/mention';
 import { FileBlock } from '@/components/editor/components/blocks/file';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
-import React, { FC, useMemo } from 'react';
-import { RenderElementProps } from 'slate-react';
+import React, { FC, useEffect, useMemo } from 'react';
+import { ReactEditor, RenderElementProps, useSlateStatic } from 'slate-react';
 
 export const Element = ({
   element: node,
@@ -36,6 +38,31 @@ export const Element = ({
 }: RenderElementProps & {
   element: EditorElementProps['node'];
 }) => {
+  const {
+    jumpBlockId,
+    onJumpedBlockId,
+  } = useEditorContext();
+
+  const editor = useSlateStatic();
+
+  useEffect(() => {
+    if (!jumpBlockId) return;
+
+    if (node.blockId !== jumpBlockId) {
+      return;
+    }
+
+    const element = ReactEditor.toDOMNode(editor, node);
+
+    void (async () => {
+      await smoothScrollIntoViewIfNeeded(element, {
+        behavior: 'smooth',
+        scrollMode: 'if-needed',
+      });
+      onJumpedBlockId?.();
+    })();
+
+  }, [editor, jumpBlockId, node, onJumpedBlockId]);
   const Component = useMemo(() => {
     switch (node.type) {
       case BlockType.HeadingBlock:

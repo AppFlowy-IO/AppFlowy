@@ -8,6 +8,7 @@ import AppPage from '@/pages/AppPage';
 import AsTemplatePage from '@/pages/AsTemplatePage';
 import LoginPage from '@/pages/LoginPage';
 import PublishPage from '@/pages/PublishPage';
+import TrashPage from '@/pages/TrashPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import withAppWrapper from '@/components/main/withAppWrapper';
 import emptyImageSrc from '@/assets/images/empty.png';
@@ -31,6 +32,8 @@ const AppMain = withAppWrapper(() => {
         </div>}
         />
         <Route path={':workspaceId/:viewId'} element={<AppPage />} />
+        <Route path={'trash'} element={<TrashPage />} />
+
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

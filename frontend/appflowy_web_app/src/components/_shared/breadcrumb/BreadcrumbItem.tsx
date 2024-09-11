@@ -9,10 +9,11 @@ import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function BreadcrumbItem ({ crumb, disableClick = false, toView }: {
+function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
   crumb: View;
   disableClick?: boolean;
   toView?: (viewId: string) => Promise<void>;
+  variant?: 'publish' | 'app'
 }) {
   const { view_id, icon, name, layout, extra, is_published } = crumb;
 
@@ -26,7 +27,7 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView }: {
     <div
       className={`flex items-center gap-1.5 text-sm ${!disableClick && is_published ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
       onClick={async () => {
-        if (disableClick || !is_published) return;
+        if (disableClick || extra?.is_space || (!is_published && variant === 'publish')) return;
         try {
           await toView?.(view_id);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,7 +61,7 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView }: {
           {name || t('menuAppHeader.defaultNewPageName')}
         </span>
       </Tooltip>
-      {!is_published && !extra?.is_space && (<Tooltip
+      {!is_published && variant === 'publish' && !extra?.is_space && (<Tooltip
         disableInteractive
         title={extra?.is_space ? t('publish.spaceHasNotBeenPublished') : t('publish.hasNotBeenPublished')}
       >

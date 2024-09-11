@@ -1,6 +1,7 @@
 import { ReactComponent as AppFlowyLogo } from '@/assets/appflowy.svg';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 import Resizer from '@/components/_shared/outline/Resizer';
+import { useNavigate } from 'react-router-dom';
 import AppFlowyPower from '../appflowy-power/AppFlowyPower';
 import { createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Drawer, IconButton, Tooltip } from '@mui/material';
@@ -14,6 +15,8 @@ export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }
   onResizeWidth: (width: number) => void;
 }) {
   const { t } = useTranslation();
+
+  const navigate = useNavigate();
 
   return (
     <Drawer
@@ -48,7 +51,7 @@ export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }
           <div
             className={'flex cursor-pointer items-center gap-1 text-text-title'}
             onClick={() => {
-              window.open('https://appflowy.io', '_blank');
+              navigate('/app');
             }}
           >
             <AppFlowyLogo className={'w-[88px]'} />

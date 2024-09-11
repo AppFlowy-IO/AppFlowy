@@ -1,15 +1,16 @@
 import { Breadcrumb } from '@/components/_shared/breadcrumb';
+import MoreActions from '@/components/_shared/more-actions/MoreActions';
 import { OutlinePopover } from '@/components/_shared/outline';
-import Outline from '@/components/_shared/outline/Outline';
 import { useOutlinePopover } from '@/components/_shared/outline/outline.hooks';
 import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
-import { AppContext, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
+import { useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
 import { findAncestors } from '@/components/publish/header/utils';
 import { Button, IconButton } from '@mui/material';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import Recent from 'src/components/app/recent/Recent';
 
 interface AppHeaderProps {
   onOpenDrawer: () => void;
@@ -21,7 +22,7 @@ interface AppHeaderProps {
 const HEADER_HEIGHT = 48;
 
 export function AppHeader ({
-  onOpenDrawer, drawerWidth, openDrawer, onCloseDrawer,
+  onOpenDrawer, openDrawer, onCloseDrawer,
 }: AppHeaderProps) {
   const {
     openPopover, debounceClosePopover, handleOpenPopover, debounceOpenPopover, handleClosePopover,
@@ -31,12 +32,19 @@ export function AppHeader ({
   const { t } = useTranslation();
   const outline = useAppOutline();
   const viewId = useAppViewId();
+  const isTrash = window.location.pathname === '/app/trash';
+
   const crumbs = useMemo(() => {
     if (!outline || !viewId) return [];
 
-    return findAncestors(outline.children, viewId) || [];
-  }, [viewId, outline]);
-  const navigateToView = useContext(AppContext)?.toView;
+    return findAncestors(outline, viewId) || [];
+  }, [outline, viewId]);
+
+  const displayMenuButton = !openDrawer && window.innerWidth >= 480;
+
+  const toView = useAppHandlers().toView;
+
+  const recent = useMemo(() => <Recent />, []);
 
   return (
     <div
@@ -49,7 +57,7 @@ export function AppHeader ({
       className={'appflowy-top-bar transform-gpu sticky top-0 z-10 flex px-5'}
     >
       <div className={'flex w-full items-center justify-between gap-4 overflow-hidden'}>
-        {!openDrawer && (
+        {displayMenuButton && (
           <OutlinePopover
             {...{
               onMouseEnter: handleOpenPopover,
@@ -57,10 +65,7 @@ export function AppHeader ({
             }}
             open={openPopover}
             onClose={debounceClosePopover}
-            drawerWidth={drawerWidth}
-            content={<Outline navigateToView={navigateToView} selectedViewId={viewId} outline={outline}
-                              width={drawerWidth}
-            />}
+            content={recent}
           >
             <IconButton
               {...{
@@ -78,12 +83,16 @@ export function AppHeader ({
           </OutlinePopover>
         )}
         <div className={'h-full flex-1 overflow-hidden'}>
-          {!crumbs.length ? <div className={'h-[48px] flex items-center'}><BreadcrumbSkeleton /></div> : <Breadcrumb
-            toView={undefined}
-            crumbs={crumbs}
-          />}
+          {isTrash ? null :
+            !crumbs.length ? <div className={'h-[48px] flex items-center'}><BreadcrumbSkeleton /></div> :
+              <Breadcrumb
+                toView={toView}
+                variant={'app'}
+                crumbs={crumbs}
+              />}
         </div>
         <div className={'flex items-center gap-2'}>
+          <MoreActions variant={'app'} />
           <Button size={'small'} variant={'contained'} color={'primary'}>{t('shareAction.buttonText')}</Button>
         </div>
       </div>

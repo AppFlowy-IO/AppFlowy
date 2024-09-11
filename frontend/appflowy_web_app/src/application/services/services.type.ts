@@ -41,9 +41,13 @@ export interface PublishService {
     destroy: () => void;
   }>;
 
-  getPublishOutline (namespace: string): Promise<View>;
+  getPublishOutline (namespace: string): Promise<View[]>;
 
-  getAppOutline: (workspaceId: string) => Promise<View>;
+  getAppOutline: (workspaceId: string) => Promise<View[]>;
+  getAppView: (workspaceId: string, viewId: string) => Promise<View>;
+  getAppFavorites: (workspaceId: string) => Promise<View[]>;
+  getAppRecent: (workspaceId: string) => Promise<View[]>;
+  getAppTrash: (workspaceId: string) => Promise<View[]>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;

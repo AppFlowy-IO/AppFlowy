@@ -23,7 +23,9 @@ function SideBar ({
     <OutlineDrawer onResizeWidth={onResizeDrawerWidth} width={drawerWidth} open={drawerOpened}
                    onClose={() => toggleOpenDrawer(false)}
     >
-      <Outline navigateToView={navigateToView} selectedViewId={viewId} width={drawerWidth} outline={outline} />
+      <Outline variant={'publish'} navigateToView={navigateToView} selectedViewId={viewId} width={drawerWidth}
+               outline={outline}
+      />
     </OutlineDrawer>
   );
 }

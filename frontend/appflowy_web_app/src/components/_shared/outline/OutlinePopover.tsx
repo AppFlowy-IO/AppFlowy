@@ -10,7 +10,6 @@ export function OutlinePopover ({
   placement,
   onMouseEnter,
   onMouseLeave,
-  drawerWidth,
   content,
 }: {
   open: boolean;
@@ -19,7 +18,7 @@ export function OutlinePopover ({
   placement?: PopperPlacementType;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
-  drawerWidth: number;
+  drawerWidth?: number;
   content: React.ReactNode
 }) {
   const popoverContent = useMemo(() => {
@@ -34,7 +33,7 @@ export function OutlinePopover ({
         <AppFlowyPower />
       </div>
     );
-  }, [onMouseEnter, onMouseLeave, drawerWidth]);
+  }, [onMouseEnter, onMouseLeave, content]);
 
   return (
     <RichTooltip PaperProps={{

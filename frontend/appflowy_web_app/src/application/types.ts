@@ -701,6 +701,8 @@ export type LoadView = (viewId: string) => Promise<YDoc>;
 
 export type LoadViewMeta = (viewId: string, onChange?: (meta: View | null) => void) => Promise<View>;
 
+export type DatabaseRelations = Record<DatabaseId, ViewId>;
+
 export interface Workspace {
   icon: string;
   id: string;
@@ -767,6 +769,7 @@ export interface ViewExtra {
   space_icon?: string;
   space_icon_color?: string;
   space_permission?: number;
+  is_pinned?: boolean;
   cover?: {
     type: CoverType;
     value: string;
@@ -781,6 +784,9 @@ export interface View {
   extra: ViewExtra | null;
   children: View[];
   is_published: boolean;
+  last_edited_time?: string;
+  created_at?: string;
+  database_relations?: DatabaseRelations;
 }
 
 export interface Invitation {

@@ -27,6 +27,7 @@ export interface Database2Props {
   onOpenRow?: (rowId: string) => void;
   visibleViewIds: string[];
   iidIndex: string;
+  hideConditions?: boolean;
 }
 
 function Database ({
@@ -42,6 +43,7 @@ function Database ({
   rowId,
   onChangeView,
   onOpenRow,
+  hideConditions,
 }: Database2Props) {
   const database = doc.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database) as YDatabase;
 
@@ -98,7 +100,7 @@ function Database ({
                 viewName={iidName}
                 onChangeView={onChangeView}
                 viewId={viewId}
-                hideConditions={true}
+                hideConditions={hideConditions}
               />
             </div>
           )}

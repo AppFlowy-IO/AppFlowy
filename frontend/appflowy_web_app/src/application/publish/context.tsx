@@ -1,4 +1,10 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta, View, ViewInfo } from '@/application/types';
+import {
+  GetViewRowsMap,
+  LoadView,
+  LoadViewMeta,
+  View,
+  ViewInfo,
+} from '@/application/types';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import { useService } from '@/components/main/app.hooks';
@@ -18,7 +24,7 @@ export interface PublishContextType {
   loadViewMeta: LoadViewMeta;
   getViewRowsMap?: GetViewRowsMap;
   loadView: LoadView;
-  outline?: View;
+  outline?: View[];
 }
 
 export const PublishContext = createContext<PublishContextType | null>(null);
@@ -37,7 +43,7 @@ export const PublishProvider = ({
   isTemplate?: boolean;
 }) => {
 
-  const [outline, setOutline] = useState<View>();
+  const [outline, setOutline] = useState<View[]>([]);
 
   const [subscribers, setSubscribers] = useState<Map<string, (meta: ViewMeta) => void>>(new Map());
 
@@ -56,7 +62,7 @@ export const PublishProvider = ({
 
     return {
       ...view,
-      name: findView(outline?.children || [], view.view_id)?.name || view.name,
+      name: findView(outline, view.view_id)?.name || view.name,
     };
   }, [namespace, publishName, outline]);
 
@@ -149,7 +155,7 @@ export const PublishProvider = ({
           return Promise.reject(new Error('View meta has not been published yet'));
         }
 
-        const parseMetaToView = (meta: ViewInfo): View => {
+        const parseMetaToView = (meta: ViewInfo | ViewMeta): View => {
           return {
             view_id: meta.view_id,
             name: meta.name,
@@ -158,6 +164,7 @@ export const PublishProvider = ({
             icon: meta.icon,
             children: meta.child_views?.map(parseMetaToView) || [],
             is_published: true,
+            database_relations: 'database_relations' in meta ? meta.database_relations : undefined,
           };
         };
 

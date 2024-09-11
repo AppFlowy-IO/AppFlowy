@@ -12,7 +12,7 @@ import { OutlinePopover } from '@/components/_shared/outline';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumb } from '@/components/_shared/breadcrumb';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
-import MoreActions from './MoreActions';
+import MoreActions from '@/components/_shared/more-actions/MoreActions';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 import { Duplicate } from './duplicate';
 
@@ -32,7 +32,7 @@ export function PublishViewHeader ({
   const toView = usePublishContext()?.toView;
   const crumbs = useMemo(() => {
     if (!viewMeta || !outline) return [];
-    const ancestors = findAncestors(outline.children, viewMeta?.view_id);
+    const ancestors = findAncestors(outline, viewMeta?.view_id);
 
     if (ancestors) return ancestors;
     if (!viewMeta?.ancestor_views) return [];
@@ -58,7 +58,7 @@ export function PublishViewHeader ({
 
     const currentView = parseToView(viewMeta);
 
-    return viewMeta?.ancestor_views.slice(1).map(item => findView(outline.children, item.view_id) || parseToView(item)) || [currentView];
+    return viewMeta?.ancestor_views.slice(1).map(item => findView(outline, item.view_id) || parseToView(item)) || [currentView];
   }, [viewMeta, outline]);
 
   const {
@@ -91,7 +91,10 @@ export function PublishViewHeader ({
             open={openPopover}
             onClose={debounceClosePopover}
             drawerWidth={drawerWidth}
-            content={<Outline selectedViewId={viewId} navigateToView={toView} outline={outline} width={drawerWidth} />}
+            content={<Outline
+              variant={'publish'} selectedViewId={viewId} navigateToView={toView} outline={outline}
+              width={drawerWidth}
+            />}
           >
             <IconButton
               {...{
@@ -113,11 +116,12 @@ export function PublishViewHeader ({
           {!viewMeta ? <div className={'h-[48px] flex items-center'}><BreadcrumbSkeleton /></div> : <Breadcrumb
             toView={toView}
             crumbs={crumbs}
+            variant={'publish'}
           />}
         </div>
 
         <div className={'flex items-center gap-2'}>
-          <MoreActions />
+          <MoreActions variant={'publish'} />
           <Duplicate />
           <Divider
             orientation={'vertical'}

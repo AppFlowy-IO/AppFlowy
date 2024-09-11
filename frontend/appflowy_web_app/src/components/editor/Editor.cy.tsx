@@ -1,5 +1,5 @@
 import { YDoc } from '@/application/types';
-import { DocumentTest } from '@/../cypress/support/document';
+import { DocumentTest } from 'cypress/support/document';
 import { applyYDoc } from '@/application/ydoc/apply';
 import React from 'react';
 import * as Y from 'yjs';
