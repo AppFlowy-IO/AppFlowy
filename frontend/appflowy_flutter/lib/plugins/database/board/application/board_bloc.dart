@@ -428,7 +428,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         // workaround: update group most of the time gets called before fields in
         // field controller are updated. For single and multi-select group
         // renames, this is required before generating the new group name.
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 50));
 
         for (final group in updatedGroups) {
           // see if the column is already in the board
