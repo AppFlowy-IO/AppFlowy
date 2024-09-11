@@ -7,7 +7,7 @@ export const downloadPage = 'https://appflowy.io/download';
 
 export const openAppFlowySchema = 'appflowy-flutter://';
 
-export const iosDownloadLink = 'https://testflight.apple.com/join/6CexvkDz';
+export const iosDownloadLink = 'https://apps.apple.com/us/app/appflowy/id6457261352';
 export const androidDownloadLink = 'https://play.google.com/store/apps/details?id=io.appflowy.appflowy';
 
 export const desktopDownloadLink = 'https://appflowy.io/download/#pop';
