@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,29 +13,39 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
   SmartEditBloc({
     required this.node,
     required this.editorState,
-    required this.aiRepository,
     required this.action,
   }) : super(
           SmartEditState.initial(action),
         ) {
     on<SmartEditEvent>((event, emit) async {
       await event.when(
+        initial: () async {
+          aiRepository = await getIt.getAsync<AIRepository>();
+        },
         started: () async {
-          await _requestCompletions(emit);
+          await _requestCompletions();
         },
         rewrite: () async {
-          await _requestCompletions(emit, rewrite: true);
+          await _requestCompletions(rewrite: true);
         },
         replace: () async {
-          await _replace(emit);
+          await _replace();
           await _exit();
         },
         insertBelow: () async {
-          await _insertBelow(emit);
+          await _insertBelow();
           await _exit();
         },
         cancel: () async {
           await _exit();
+        },
+        update: (result, isLoading) async {
+          emit(
+            state.copyWith(
+              result: result,
+              loading: isLoading,
+            ),
+          );
         },
       );
     });
@@ -42,20 +53,15 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
 
   final Node node;
   final EditorState editorState;
-  final AIRepository aiRepository;
   final SmartEditAction action;
 
-  Future<void> _requestCompletions(
-    Emitter<SmartEditState> emit, {
+  late final AIRepository aiRepository;
+
+  Future<void> _requestCompletions({
     bool rewrite = false,
   }) async {
     if (rewrite) {
-      emit(
-        state.copyWith(
-          result: '',
-          loading: true,
-        ),
-      );
+      add(const SmartEditEvent.update('', true));
     }
 
     final content = node.attributes[SmartEditBlockKeys.content] as String;
@@ -63,22 +69,22 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
       text: content,
       completionType: completionTypeFromInt(state.action),
       onStart: () async {
-        emit(state.copyWith(loading: false));
+        add(const SmartEditEvent.update('', true));
       },
       onProcess: (text) async {
-        emit(state.copyWith(result: state.result + text));
+        add(SmartEditEvent.update(state.result + text, false));
       },
       onEnd: () async {
-        emit(state.copyWith(result: '${state.result}\n'));
+        add(SmartEditEvent.update('${state.result}\n', false));
       },
       onError: (error) async {
-        // Handle error
+        // todo: handle error
         await _exit();
       },
     );
   }
 
-  Future<void> _insertBelow(Emitter<SmartEditState> emit) async {
+  Future<void> _insertBelow() async {
     // check the selection is not empty
     final selection = editorState.selection?.normalized;
     if (selection == null) {
@@ -112,7 +118,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
     await editorState.apply(transaction);
   }
 
-  Future<void> _replace(Emitter<SmartEditState> emit) async {
+  Future<void> _replace() async {
     final result = state.result.trim();
     if (result.isEmpty) {
       return;
@@ -164,11 +170,13 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
 
 @freezed
 class SmartEditEvent with _$SmartEditEvent {
+  const factory SmartEditEvent.initial() = _Initial;
   const factory SmartEditEvent.started() = _Started;
   const factory SmartEditEvent.rewrite() = _Rewrite;
   const factory SmartEditEvent.replace() = _Replace;
   const factory SmartEditEvent.insertBelow() = _InsertBelow;
   const factory SmartEditEvent.cancel() = _Cancel;
+  const factory SmartEditEvent.update(String result, bool isLoading) = _Update;
 }
 
 @freezed

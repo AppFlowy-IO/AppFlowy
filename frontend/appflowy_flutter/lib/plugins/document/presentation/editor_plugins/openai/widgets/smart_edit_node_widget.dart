@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -83,6 +82,7 @@ class _SmartEditBlockComponentWidgetState
   late final editorState = context.read<EditorState>();
   late final action = SmartEditAction
       .values[widget.node.attributes[SmartEditBlockKeys.action] as int];
+  late final SmartEditBloc smartEditBloc;
 
   @override
   void initState() {
@@ -91,40 +91,45 @@ class _SmartEditBlockComponentWidgetState
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       popoverController.show();
     });
+
+    smartEditBloc = SmartEditBloc(
+      node: widget.node,
+      editorState: editorState,
+      action: action,
+    )..add(const SmartEditEvent.initial());
   }
 
-  // @override
-  // void reassemble() {
-  //   super.reassemble();
+  @override
+  void dispose() {
+    smartEditBloc.close();
 
-  //   final transaction = editorState.transaction..deleteNode(widget.node);
-  //   editorState.apply(transaction);
-  // }
+    super.dispose();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+
+    _removeNode();
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = _getEditorWidth();
 
-    return BlocProvider(
-      create: (context) => SmartEditBloc(
-        node: widget.node,
-        editorState: editorState,
-        aiRepository: context.read<AIRepository>(),
-        action: action,
-      )..add(const SmartEditEvent.started()),
+    return BlocProvider.value(
+      value: smartEditBloc,
       child: AppFlowyPopover(
         controller: popoverController,
         direction: PopoverDirection.bottomWithLeftAligned,
         triggerActions: PopoverTriggerFlags.none,
         margin: EdgeInsets.zero,
         offset: const Offset(40, 0), // align the editor block
+        windowPadding: EdgeInsets.zero,
         constraints: BoxConstraints(maxWidth: width),
-        child: const SizedBox(
-          width: double.infinity,
-        ),
         canClose: () async {
           final completer = Completer<bool>();
-          final state = context.read<SmartEditBloc>().state;
+          final state = smartEditBloc.state;
           if (state.result.isEmpty) {
             completer.complete(true);
           } else {
@@ -139,25 +144,36 @@ class _SmartEditBlockComponentWidgetState
           }
           return completer.future;
         },
-        onClose: () {
-          final transaction = editorState.transaction..deleteNode(widget.node);
-          editorState.apply(transaction);
-        },
+        onClose: _removeNode,
         popupBuilder: (BuildContext popoverContext) {
-          return const SmartEditInputContent();
+          return BlocProvider.value(
+            // request the result when opening the popover
+            value: smartEditBloc..add(const SmartEditEvent.started()),
+            child: const SmartEditInputContent(),
+          );
         },
+        child: const SizedBox(
+          width: double.infinity,
+        ),
       ),
     );
   }
 
   double _getEditorWidth() {
     var width = double.infinity;
-    final editorSize = editorState.renderBox?.size;
-    final padding = editorState.editorStyle.padding;
-    if (editorSize != null) {
-      width = editorSize.width - padding.left - padding.right;
-    }
+    try {
+      final editorSize = editorState.renderBox?.size;
+      final padding = editorState.editorStyle.padding;
+      if (editorSize != null) {
+        width = editorSize.width - padding.left - padding.right;
+      }
+    } catch (_) {}
     return width;
+  }
+
+  void _removeNode() {
+    final transaction = editorState.transaction..deleteNode(widget.node);
+    editorState.apply(transaction);
   }
 }
 
@@ -171,8 +187,12 @@ class SmartEditInputContent extends StatelessWidget {
         return Card(
           elevation: 5,
           color: Theme.of(context).colorScheme.surface,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Container(
-            margin: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,9 +201,9 @@ class SmartEditInputContent extends StatelessWidget {
                   state.action.name,
                   fontSize: 14,
                 ),
-                const VSpace(10),
+                const VSpace(16),
                 _buildResultWidget(context, state),
-                const VSpace(10),
+                const VSpace(16),
                 _buildInputFooterWidget(context, state),
               ],
             ),
@@ -199,7 +219,9 @@ class SmartEditInputContent extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 4.0),
         child: SizedBox.square(
           dimension: 14,
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            strokeWidth: 2.0,
+          ),
         ),
       );
     }
@@ -212,28 +234,28 @@ class SmartEditInputContent extends StatelessWidget {
   Widget _buildInputFooterWidget(BuildContext context, SmartEditState state) {
     return Row(
       children: [
-        OutlinedButton(
-          child: Text(LocaleKeys.document_plugins_autoGeneratorRewrite.tr()),
-          onPressed: () =>
+        OutlinedRoundedButton(
+          text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+          onTap: () =>
               context.read<SmartEditBloc>().add(const SmartEditEvent.rewrite()),
         ),
         const HSpace(10),
-        OutlinedButton(
-          child: Text(LocaleKeys.button_replace.tr()),
-          onPressed: () =>
+        OutlinedRoundedButton(
+          text: LocaleKeys.button_replace.tr(),
+          onTap: () =>
               context.read<SmartEditBloc>().add(const SmartEditEvent.replace()),
         ),
         const HSpace(10),
-        OutlinedButton(
-          child: Text(LocaleKeys.button_insertBelow.tr()),
-          onPressed: () => context
+        OutlinedRoundedButton(
+          text: LocaleKeys.button_insertBelow.tr(),
+          onTap: () => context
               .read<SmartEditBloc>()
               .add(const SmartEditEvent.insertBelow()),
         ),
         const HSpace(10),
-        OutlinedButton(
-          child: Text(LocaleKeys.button_cancel.tr()),
-          onPressed: () =>
+        OutlinedRoundedButton(
+          text: LocaleKeys.button_cancel.tr(),
+          onTap: () =>
               context.read<SmartEditBloc>().add(const SmartEditEvent.cancel()),
         ),
         Expanded(
