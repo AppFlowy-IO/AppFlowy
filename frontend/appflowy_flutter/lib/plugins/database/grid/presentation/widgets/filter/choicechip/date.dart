@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -7,9 +9,8 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy/util/int64_extension.dart';
 
 import '../condition_button.dart';
 import '../disclosure_button.dart';
@@ -137,9 +138,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
     );
   }
 
-  Widget _buildFilterDateField(
-    BuildContext context,
-  ) {
+  Widget _buildFilterDateField(BuildContext context) {
     final filter = context.watch<DateFilterEditorBloc>().state.filter;
 
     final isRange = filter.condition == DateFilterConditionPB.DateWithIn;
@@ -147,10 +146,10 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
 
     if (isRange) {
       text =
-          "${filter.start.toInt().dateTime.defaultFormat ?? ""} - ${filter.end.toInt().dateTime.defaultFormat ?? ""}";
+          "${filter.start.dateTime.defaultFormat ?? ""} - ${filter.end.dateTime.defaultFormat ?? ""}";
       text = text == " - " ? null : text;
     } else {
-      text = filter.timestamp.toInt().dateTime.defaultFormat;
+      text = filter.timestamp.dateTime.defaultFormat;
     }
     _textEditingController.text = text ?? "";
 
@@ -182,26 +181,27 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                 includeTime: true,
                 dateFormat: DateFormatPB.Friendly,
                 timeFormat: TimeFormatPB.TwentyFourHour,
-                selectedDay: filter.timestamp.toInt().dateTime,
-                startDay: isRange ? filter.start.toInt().dateTime : null,
-                endDay: isRange ? filter.end.toInt().dateTime : null,
+                selectedDay: filter.timestamp.dateTime,
+                startDay: isRange ? filter.start.dateTime : null,
+                endDay: isRange ? filter.end.dateTime : null,
                 timeStr: isRange
-                    ? filter.start.toInt().dateTime?.timeStr
-                    : filter.timestamp.toInt().dateTime?.timeStr,
-                endTimeStr:
-                    isRange ? filter.end.toInt().dateTime?.timeStr : null,
+                    ? filter.start.dateTime?.timeStr
+                    : filter.timestamp.dateTime?.timeStr,
+                endTimeStr: isRange ? filter.end.dateTime?.timeStr : null,
                 onDaySelected: (selectedDay, _) {
+                  selectedDay = selectedDay.considerLocal;
                   final filter =
                       context.read<DateFilterEditorBloc>().state.filter;
-                  String? timeStr = filter.timestamp.toInt().dateTime?.timeStr;
-                  Function(DateTime) event = (date) =>
-                      DateFilterEditorEvent.updateTimestamp(date.timestamp);
+                  String? timeStr = filter.timestamp.dateTime?.timeStr;
+                  Function(DateTime) event =
+                      (date) => DateFilterEditorEvent.updateDate(date);
                   if (isRange) {
-                    timeStr = filter.start.toInt().dateTime?.timeStr;
+                    timeStr = filter.start.dateTime?.timeStr;
                     event = (date) => DateFilterEditorEvent.updateRange(
-                          start: date.timestamp,
+                          start: date,
                         );
                   }
+
                   if (timeStr != null) {
                     selectedDay = timeStr.dateTime(selectedDay);
                   }
@@ -212,35 +212,39 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                   }
                 },
                 onRangeSelected: (start, end, _) {
+                  start = start?.considerLocal;
+                  end = end?.considerLocal;
                   final filter =
                       context.read<DateFilterEditorBloc>().state.filter;
-                  final startTimeStr = filter.start.toInt().dateTime?.timeStr;
+
+                  final startTimeStr = filter.start.dateTime?.timeStr;
                   if (startTimeStr != null && start != null) {
                     start = startTimeStr.dateTime(start);
                   }
 
-                  final endTimeStr = filter.end.toInt().dateTime?.timeStr;
+                  final endTimeStr = filter.end.dateTime?.timeStr;
                   if (endTimeStr != null && end != null) {
                     end = endTimeStr.dateTime(end);
                   }
 
                   context.read<DateFilterEditorBloc>().add(
                         DateFilterEditorEvent.updateRange(
-                          start: start?.timestamp,
-                          end: end?.timestamp,
+                          start: start,
+                          end: end,
                         ),
                       );
                 },
                 onStartTimeSubmitted: (timeStr) {
                   final filter =
                       context.read<DateFilterEditorBloc>().state.filter;
-                  DateTime? date = filter.timestamp.toInt().dateTime;
-                  Function(DateTime) event = (date) =>
-                      DateFilterEditorEvent.updateTimestamp(date.timestamp);
+                  DateTime? date = filter.timestamp.dateTime;
+                  Function(DateTime) event =
+                      (date) => DateFilterEditorEvent.updateDate(date);
                   if (isRange) {
                     event = (date) => DateFilterEditorEvent.updateRange(
-                        start: date.timestamp);
-                    date = filter.start.toInt().dateTime;
+                          start: date,
+                        );
+                    date = filter.start.dateTime;
                   }
                   if (date == null) {
                     return;
@@ -256,7 +260,6 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                       .state
                       .filter
                       .end
-                      .toInt()
                       .dateTime;
                   if (date == null) {
                     return;
@@ -264,7 +267,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
 
                   context.read<DateFilterEditorBloc>().add(
                         DateFilterEditorEvent.updateRange(
-                          end: timeStr.dateTime(date).timestamp,
+                          end: timeStr.dateTime(date),
                         ),
                       );
                 },
@@ -356,25 +359,18 @@ extension DateFilterConditionPBExtension on DateFilterConditionPB {
 }
 
 extension DateTimeChoicechipExtension on DateTime {
-  int get timestamp {
-    return millisecondsSinceEpoch ~/ 1000;
-  }
-
   String get timeStr {
     return DateFormat('HH:mm').format(this);
+  }
+
+  DateTime get considerLocal {
+    return DateTime(year, month, day, hour, minute);
   }
 }
 
 extension DateTimeDefaultFormatExtension on DateTime? {
   String? get defaultFormat {
     return this != null ? DateFormat('dd/MM/yyyy HH:mm').format(this!) : null;
-  }
-}
-
-extension IntDateTimeExtension on int {
-  DateTime? get dateTime {
-    final num = toInt();
-    return num != 0 ? DateTime.fromMillisecondsSinceEpoch(num * 1000) : null;
   }
 }
 

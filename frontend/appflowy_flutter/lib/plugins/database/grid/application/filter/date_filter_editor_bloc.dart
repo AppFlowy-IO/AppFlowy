@@ -49,12 +49,12 @@ class DateFilterEditorBloc
               timestamp: state.filter.timestamp.toInt(),
             );
           },
-          updateTimestamp: (timestamp) {
+          updateDate: (date) {
             _filterBackendSvc.insertDateFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
-              timestamp: timestamp,
+              timestamp: date.toUtc().millisecondsSinceEpoch ~/ 1000,
             );
           },
           updateRange: (start, end) {
@@ -63,8 +63,12 @@ class DateFilterEditorBloc
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
-              start: start ?? state.filter.start.toInt(),
-              end: end ?? state.filter.end.toInt(),
+              start: start != null
+                  ? start.toUtc().millisecondsSinceEpoch ~/ 1000
+                  : state.filter.start.toInt(),
+              end: end != null
+                  ? end.toUtc().millisecondsSinceEpoch ~/ 1000
+                  : state.filter.end.toInt(),
             );
           },
           delete: () {
@@ -102,12 +106,12 @@ class DateFilterEditorEvent with _$DateFilterEditorEvent {
   const factory DateFilterEditorEvent.updateCondition(
     DateFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory DateFilterEditorEvent.updateTimestamp(
-    int timestamp,
-  ) = _UpdateTimestamp;
+  const factory DateFilterEditorEvent.updateDate(
+    DateTime date,
+  ) = _UpdateDate;
   const factory DateFilterEditorEvent.updateRange({
-    int? start,
-    int? end,
+    DateTime? start,
+    DateTime? end,
   }) = _UpdateRange;
   const factory DateFilterEditorEvent.delete() = _Delete;
 }
