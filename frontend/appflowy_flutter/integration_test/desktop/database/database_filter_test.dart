@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -135,6 +135,28 @@ void main() {
       // select the option 'm4'. Any option with 'm4' should be shown.
       await tester.tapOptionFilterWithName('m4');
       await tester.assertNumberOfRowsInGridPage(1);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('add date filter', (tester) async {
+      await tester.openV020database();
+
+      // create a filter
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.DateTime, 'date');
+
+      // By default, the condition of date filter is current day and time
+      await tester.assertNumberOfRowsInGridPage(0);
+
+      await tester.tapFilterButtonInGrid('date');
+      await tester.tapDateFilterButtonInGrid();
+      await tester.tapDateFilterCondition(DateFilterConditionPB.DateBefore);
+      await tester.assertNumberOfRowsInGridPage(7);
+
+      await tester.tapDateFilterButtonInGrid();
+      await tester.tapDateFilterCondition(DateFilterConditionPB.DateIsEmpty);
+      await tester.assertNumberOfRowsInGridPage(3);
 
       await tester.pumpAndSettle();
     });
