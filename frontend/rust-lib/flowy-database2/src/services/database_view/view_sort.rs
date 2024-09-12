@@ -63,8 +63,8 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
     let view_id = view_id.to_string();
     let row_orders = self.delegate.get_all_row_orders(&view_id).await;
     let rows = self.delegate.get_all_rows(&view_id, row_orders).await;
-    let rows = self.filter_controller.filter_rows(rows).await;
-    rows
+    
+    self.filter_controller.filter_rows(rows).await
   }
 
   async fn filter_row(&self, row: &Row) -> bool {
