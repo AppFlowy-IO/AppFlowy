@@ -11,12 +11,13 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 extension PasteFromImage on EditorState {
   static final supportedImageFormats = [
@@ -76,7 +77,7 @@ extension PasteFromImage on EditorState {
 
     if (!supportedImageFormats.contains(format)) {
       Log.info('unsupported format: $format');
-      if (PlatformExtension.isMobile) {
+      if (UniversalPlatform.isMobile) {
         showToastNotification(
           context,
           message: LocaleKeys.document_imageBlock_error_invalidImageFormat.tr(),

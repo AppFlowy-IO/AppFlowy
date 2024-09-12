@@ -15,6 +15,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -32,7 +33,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final configuration = BlockComponentConfiguration(
     // use EdgeInsets.zero to remove the default padding.
     padding: (_) {
-      if (PlatformExtension.isMobile) {
+      if (UniversalPlatform.isMobile) {
         final pageStyle = context.read<DocumentPageStyleBloc>().state;
         final factor = pageStyle.fontLayout.factor;
         final padding = pageStyle.lineHeightLayout.padding * factor;
@@ -89,7 +90,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
             return customHeadingPadding;
           }
 
-          if (PlatformExtension.isMobile) {
+          if (UniversalPlatform.isMobile) {
             final pageStyle = context.read<DocumentPageStyleBloc>().state;
             final factor = pageStyle.fontLayout.factor;
             final headingPaddings = pageStyle.lineHeightLayout.headingPaddings
@@ -298,7 +299,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         if (supportDepthBuilderType.contains(entry.key)) ...depthAction,
       ];
 
-      if (PlatformExtension.isDesktop) {
+      if (UniversalPlatform.isDesktop) {
         builder.showActions =
             (node) => node.parent?.type != TableCellBlockKeys.type;
 

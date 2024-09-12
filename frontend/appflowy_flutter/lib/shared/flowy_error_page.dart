@@ -6,12 +6,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class AppFlowyErrorPage extends StatelessWidget {
   const AppFlowyErrorPage({
@@ -23,7 +23,7 @@ class AppFlowyErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       return _MobileSyncErrorPage(error: error);
     } else {
       return _DesktopSyncErrorPage(error: error);

@@ -18,7 +18,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/non_secure.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MentionDateBlock extends StatefulWidget {
   const MentionDateBlock({
@@ -354,7 +355,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     if (!widget.editorState.editable) {
       return;
     }
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
 
       showMobileBottomSheet(

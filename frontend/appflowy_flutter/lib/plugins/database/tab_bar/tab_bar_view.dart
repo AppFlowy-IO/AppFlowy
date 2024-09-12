@@ -12,12 +12,12 @@ import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_v
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'desktop/tab_bar_header.dart';
 import 'mobile/mobile_tab_bar_header.dart';
@@ -108,7 +108,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         ],
         child: Column(
           children: [
-            if (PlatformExtension.isMobile) const VSpace(12),
+            if (UniversalPlatform.isMobile) const VSpace(12),
             BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
                 return ValueListenableBuilder<bool>(
@@ -121,7 +121,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                       return const SizedBox.shrink();
                     }
 
-                    return PlatformExtension.isDesktop
+                    return UniversalPlatform.isDesktop
                         ? const TabBarHeader()
                         : const MobileTabBarHeader();
                   },

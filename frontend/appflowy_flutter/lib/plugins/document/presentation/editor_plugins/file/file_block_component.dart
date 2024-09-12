@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -20,11 +18,13 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'file_block_menu.dart';
 import 'file_upload_menu.dart';
@@ -230,7 +230,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       ),
     );
 
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       if (url == null || url.isEmpty) {
         child = DropTarget(
           onDragEntered: (_) {
@@ -296,7 +296,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       );
     }
 
-    if (!PlatformExtension.isDesktopOrWeb) {
+    if (!UniversalPlatform.isDesktopOrWeb) {
       // show a fixed menu on mobile
       child = MobileBlockActionButtons(
         node: node,
@@ -315,7 +315,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     String url,
   ) async {
     if ([FileUrlType.cloud, FileUrlType.network].contains(urlType) ||
-        PlatformExtension.isDesktopOrWeb) {
+        UniversalPlatform.isDesktopOrWeb) {
       await afLaunchUrlString(url);
     } else {
       final result = await OpenFilex.open(url);
@@ -334,7 +334,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
   }
 
   void _openMenu() {
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       controller.show();
       dropManagerState.add(FileBlockKeys.type);
     } else {
@@ -353,7 +353,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
           ),
         ),
         const HSpace(8),
-        if (PlatformExtension.isDesktopOrWeb) ...[
+        if (UniversalPlatform.isDesktopOrWeb) ...[
           ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
             builder: (_, value, __) {

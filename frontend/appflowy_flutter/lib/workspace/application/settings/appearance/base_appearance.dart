@@ -1,8 +1,8 @@
 import 'package:appflowy/shared/google_fonts_extension.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 // the default font family is empty, so we can use the default font family of the platform
 // the system will choose the default font family of the platform
@@ -32,7 +32,7 @@ abstract class BaseAppearance {
   }) {
     fontSize = fontSize ?? FontSizes.s14;
     fontWeight = fontWeight ??
-        (PlatformExtension.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
+        (UniversalPlatform.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
     letterSpacing = fontSize * (letterSpacing ?? 0.005);
 
     final textStyle = TextStyle(

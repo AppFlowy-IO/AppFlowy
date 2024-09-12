@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -11,13 +9,14 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SkipLogInScreen extends StatefulWidget {
   const SkipLogInScreen({super.key});
@@ -47,7 +46,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         const Spacer(),
         FlowyLogoTitle(
           title: LocaleKeys.welcomeText.tr(),
-          logoSize: Size.square(PlatformExtension.isMobile ? 80 : 40),
+          logoSize: Size.square(UniversalPlatform.isMobile ? 80 : 40),
         ),
         const VSpace(32),
         GoButton(
@@ -103,7 +102,7 @@ class SkipLoginPageFooter extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (!PlatformExtension.isMobile) const HSpace(placeholderWidth),
+          if (!UniversalPlatform.isMobile) const HSpace(placeholderWidth),
           const Expanded(child: SubscribeButtons()),
           const SizedBox(
             width: placeholderWidth,
