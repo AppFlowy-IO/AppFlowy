@@ -155,9 +155,9 @@ class CellController<T, D> {
   /// Get the cell data. The cell data will be read from the cache first,
   /// and load from disk if it doesn't exist. You can set [loadIfNotExist] to
   /// false to disable this behavior.
-  T? getCellData({bool loadIfNotExist = true}) {
+  T? getCellData({bool loadIfNotExist = true, bool forceLoad = false}) {
     final T? data = _cellCache.get(_cellContext);
-    if (data == null && loadIfNotExist) {
+    if ((data == null && loadIfNotExist) || forceLoad) {
       _loadData();
     }
     return data;

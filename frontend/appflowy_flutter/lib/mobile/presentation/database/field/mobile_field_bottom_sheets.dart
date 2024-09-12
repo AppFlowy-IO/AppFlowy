@@ -29,8 +29,8 @@ const mobileSupportedFieldTypes = [
   FieldType.CreatedTime,
   FieldType.Checkbox,
   FieldType.Checklist,
+  FieldType.Time,
   FieldType.Media,
-  // FieldType.Time,
 ];
 
 Future<FieldType?> showFieldTypeGridBottomSheet(

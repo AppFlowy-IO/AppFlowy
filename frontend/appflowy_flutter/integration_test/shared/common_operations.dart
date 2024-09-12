@@ -144,7 +144,6 @@ extension CommonOperations on WidgetTester {
     Finder finder, {
     Offset? offset,
     Future<void> Function()? onHover,
-    bool removePointer = true,
   }) async {
     try {
       final gesture = await createGesture(kind: PointerDeviceKind.mouse);

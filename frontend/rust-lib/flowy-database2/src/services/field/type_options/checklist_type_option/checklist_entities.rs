@@ -88,15 +88,3 @@ pub struct ChecklistCellChangeset {
   pub delete_option_ids: Vec<String>,
   pub update_options: Vec<SelectOption>,
 }
-
-#[cfg(test)]
-mod tests {
-  #[test]
-  fn test() {
-    let a = 1;
-    let b = 2;
-
-    let c = (a as f32) / (b as f32);
-    println!("{}", c);
-  }
-}

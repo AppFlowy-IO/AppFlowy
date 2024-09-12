@@ -94,6 +94,8 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          // AI
          .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
          .event(DatabaseEvent::TranslateRow, translate_row_handler)
+         // Time
+         .event(DatabaseEvent::UpdateTimeCell, update_time_cell_handler)
          // Media
          .event(DatabaseEvent::UpdateMediaCell, update_media_cell_handler)
          .event(DatabaseEvent::RenameMediaFile, rename_media_cell_file_handler)
@@ -397,4 +399,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "RenameMediaChangesetPB")]
   RenameMediaFile = 201,
+
+  #[event(input = "TimeCellChangesetPB")]
+  UpdateTimeCell = 202,
 }

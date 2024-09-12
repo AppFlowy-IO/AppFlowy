@@ -663,7 +663,7 @@ impl<'a> TestRowBuilder<'a> {
 
   pub fn insert_time_cell(&mut self, time: i64) -> String {
     let time_field = self.field_with_type(&FieldType::Time);
-    self.cell_build.insert_number_cell(&time_field.id, time);
+    self.cell_build.insert_time_cell(&time_field.id, time);
     time_field.id.clone()
   }
 

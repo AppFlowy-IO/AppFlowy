@@ -11,7 +11,8 @@ use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::field::{
   type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, MediaCellData,
-  RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt,
+  RelationCellChangeset, SelectOptionCellChangeset, TimeCellChangeset, TimeTrack,
+  TypeOptionCellExt,
 };
 use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
@@ -1313,6 +1314,44 @@ pub(crate) async fn update_media_cell_handler(
     .get_database_editor_with_view_id(&cell_id.view_id)
     .await?;
 
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      &cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(cell_changeset),
+    )
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_time_cell_handler(
+  data: AFPluginData<TimeCellChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let data = data.into_inner();
+  let cell_id: CellIdParams = data.cell_id.try_into()?;
+  let cell_changeset = TimeCellChangeset {
+    time: data.time,
+    timer_start: data.timer_start,
+    delete_time_tracking_ids: data.delete_time_tracking_ids,
+    add_time_trackings: data
+      .add_time_trackings
+      .into_iter()
+      .map(TimeTrack::from)
+      .collect(),
+    update_time_trackings: data
+      .update_time_trackings
+      .into_iter()
+      .map(TimeTrack::from)
+      .collect(),
+  };
+
+  let database_editor = manager
+    .get_database_editor_with_view_id(&cell_id.view_id)
+    .await?;
   database_editor
     .update_cell_with_changeset(
       &cell_id.view_id,

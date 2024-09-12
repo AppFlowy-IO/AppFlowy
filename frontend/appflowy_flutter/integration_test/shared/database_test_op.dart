@@ -47,6 +47,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/se
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/time.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
@@ -58,7 +59,9 @@ import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_type_list.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/util.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/number.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/time.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
@@ -348,7 +351,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> changeDateFormat() async {
-    final findDateFormatButton = find.byType(DateFormatButton);
+    final findDateFormatButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is TypeOptionButton &&
+          widget.text == LocaleKeys.grid_field_dateFormat.tr(),
+    );
     await tapButton(findDateFormatButton);
 
     final findNewDateFormat = find.text("Day/Month/Year");
@@ -356,7 +363,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> changeTimeFormat() async {
-    final findDateFormatButton = find.byType(TimeFormatButton);
+    final findDateFormatButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is TypeOptionButton &&
+          widget.text == LocaleKeys.grid_field_timeFormat.tr(),
+    );
     await tapButton(findDateFormatButton);
 
     final findNewDateFormat = find.text("12 hour");
@@ -1531,6 +1542,30 @@ extension AppFlowyDatabaseTest on WidgetTester {
         find.descendant(of: field, matching: find.byType(FlowyIconButton));
     await tapButton(toggleVisibilityButton);
   }
+
+  Future<void> changeTimeType(TimeTypePB timeType) async {
+    final findTimeTypeButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is TypeOptionButton &&
+          widget.text == LocaleKeys.grid_field_timeType.tr(),
+    );
+    await tapButton(findTimeTypeButton);
+
+    final findNewTimeType = find.text(timeType.title());
+    await tapButton(findNewTimeType);
+  }
+
+  Future<void> changeTimePrecision(TimePrecisionPB precision) async {
+    final findTimePrecisionButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is TypeOptionButton &&
+          widget.text == LocaleKeys.grid_field_timePrecision.tr(),
+    );
+    await tapButton(findTimePrecisionButton);
+
+    final findNewTimePrecision = find.text(precision.title());
+    await tapButton(findNewTimePrecision);
+  }
 }
 
 Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) => switch (layout) {
@@ -1582,6 +1617,8 @@ Finder finderForFieldType(FieldType fieldType) {
       return find.byType(EditableTextCell, skipOffstage: false);
     case FieldType.URL:
       return find.byType(EditableURLCell, skipOffstage: false);
+    case FieldType.Time:
+      return find.byType(EditableTimeCell, skipOffstage: false);
     case FieldType.Media:
       return find.byType(EditableMediaCell, skipOffstage: false);
     default:

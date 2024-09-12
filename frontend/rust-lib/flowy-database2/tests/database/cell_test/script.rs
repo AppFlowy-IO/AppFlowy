@@ -1,5 +1,6 @@
 use collab_database::rows::RowId;
 
+use flowy_database2::services::field::TimeCellData;
 use lib_infra::box_any::BoxAny;
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -59,6 +60,22 @@ impl DatabaseCellTest {
       //   println!("{}", grid_pad.delta_str());
       // },
     }
+  }
+
+  pub async fn assert_time(&mut self, field_id: String, time: i64) {
+    let cell = self.get_time_cell_data(field_id).await;
+    assert!(cell.time.is_some());
+    assert_eq!(cell.time.unwrap(), time);
+  }
+
+  pub async fn get_time_cell_data(&mut self, field_id: String) -> TimeCellData {
+    let cells = self
+      .editor
+      .get_cells_for_field(&self.view_id, &field_id.clone())
+      .await;
+    assert!(cells[0].cell.as_ref().is_some());
+
+    TimeCellData::from(cells[0].cell.as_ref().unwrap())
   }
 }
 

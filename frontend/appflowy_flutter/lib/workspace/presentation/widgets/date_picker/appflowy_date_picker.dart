@@ -236,17 +236,19 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
                 onChanged: widget.onIncludeTimeChanged,
               ),
             ),
-            const _GroupSeparator(),
-            ReminderSelector(
-              mutex: widget.popoverMutex,
-              hasTime: widget.includeTime,
-              timeFormat: widget.timeFormat,
-              selectedOption: _selectedReminderOption,
-              onOptionSelected: (option) {
-                setState(() => _selectedReminderOption = option);
-                widget.onReminderSelected?.call(option);
-              },
-            ),
+            if (widget.onReminderSelected != null) ...[
+              const _GroupSeparator(),
+              ReminderSelector(
+                mutex: widget.popoverMutex,
+                hasTime: widget.includeTime,
+                timeFormat: widget.timeFormat,
+                selectedOption: _selectedReminderOption,
+                onOptionSelected: (option) {
+                  setState(() => _selectedReminderOption = option);
+                  widget.onReminderSelected?.call(option);
+                },
+              ),
+            ],
             if (widget.options?.isNotEmpty ?? false) ...[
               const _GroupSeparator(),
               ListView.separated(

@@ -1,10 +1,12 @@
-use std::time::Duration;
+use chrono::Duration;
 
+use collab_database::database::timestamp;
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, DateCellData, MediaFile, MediaFileType,
   MediaUploadType, MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset,
-  SingleSelectTypeOption, StringCellData, TimeCellData, URLCellData,
+  SingleSelectTypeOption, StringCellData, TimeCellChangeset, TimeCellData, TimePrecision,
+  TimeTrack, TimeType, TimeTypeOption, URLCellData,
 };
 use lib_infra::box_any::BoxAny;
 
@@ -55,6 +57,10 @@ async fn grid_cell_update() {
         FieldType::URL => BoxAny::new("1".to_string()),
         FieldType::Relation => BoxAny::new(RelationCellChangeset {
           inserted_row_ids: vec!["abcdefabcdef".to_string().into()],
+          ..Default::default()
+        }),
+        FieldType::Time => BoxAny::new(TimeCellChangeset {
+          time: Some(45),
           ..Default::default()
         }),
         FieldType::Media => BoxAny::new(MediaCellChangeset {
@@ -156,7 +162,7 @@ async fn update_updated_at_field_on_other_cell_update() {
     .get_cells_for_field(&test.view_id, &updated_at_field.id)
     .await;
 
-  tokio::time::sleep(Duration::from_millis(500)).await;
+  tokio::time::sleep(std::time::Duration::from_millis(500)).await;
   let after_update_timestamp = chrono::offset::Utc::now().timestamp();
   assert!(!cells.is_empty());
   for (i, row_cell) in cells.into_iter().enumerate() {
@@ -215,15 +221,260 @@ async fn update_updated_at_field_on_other_cell_update() {
 async fn time_cell_data_test() {
   let test = DatabaseCellTest::new().await;
   let time_field = test.get_first_field(FieldType::Time).await;
+  println!("{:?}", time_field);
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &time_field.id)
     .await;
 
-  if let Some(cell) = cells[0].cell.as_ref() {
-    let cell = TimeCellData::from(cell);
+  assert!(cells[0].cell.as_ref().is_some());
+  let cell = TimeCellData::from(cells[0].cell.as_ref().unwrap());
+  println!("{:?}", cell);
 
-    assert!(cell.0.is_some());
-    assert_eq!(cell.0.unwrap_or_default(), 75);
-  }
+  assert!(cell.time.is_some());
+  assert_eq!(cell.time.unwrap(), 75);
+}
+
+#[tokio::test]
+async fn time_cell_stopwatch_add_time_tracking_test() {
+  let mut test = DatabaseCellTest::new().await;
+  let time_field = test.get_first_field(FieldType::Time).await;
+
+  let type_option = TimeTypeOption {
+    time_type: TimeType::Stopwatch,
+    precision: TimePrecision::Seconds,
+  };
+  test
+    .editor
+    .update_field_type_option(
+      &time_field.id.clone(),
+      type_option.into(),
+      time_field.clone(),
+    )
+    .await
+    .unwrap();
+
+  let now_timestamp = timestamp();
+  let hour_before_timestamp = now_timestamp - Duration::hours(1).num_seconds();
+  test
+    .run_script(UpdateCell {
+      view_id: test.view_id.clone(),
+      row_id: test.rows[0].id.clone(),
+      field_id: time_field.id.clone(),
+      changeset: BoxAny::new(TimeCellChangeset {
+        add_time_trackings: vec![
+          TimeTrack {
+            from_timestamp: now_timestamp,
+            to_timestamp: Some(now_timestamp + Duration::minutes(30).num_seconds()),
+            ..Default::default()
+          },
+          TimeTrack {
+            from_timestamp: hour_before_timestamp,
+            to_timestamp: Some(hour_before_timestamp + Duration::minutes(15).num_seconds()),
+            ..Default::default()
+          },
+        ],
+        ..Default::default()
+      }),
+      is_err: false,
+    })
+    .await;
+
+  test
+    .assert_time(time_field.id, Duration::minutes(45).num_seconds())
+    .await;
+}
+
+#[tokio::test]
+async fn time_cell_stopwatch_delete_time_tracking_test() {
+  let mut test = DatabaseCellTest::new().await;
+  let time_field = test.get_first_field(FieldType::Time).await;
+
+  let type_option = TimeTypeOption {
+    time_type: TimeType::Stopwatch,
+    precision: TimePrecision::Minutes,
+  };
+  test
+    .editor
+    .update_field_type_option(
+      &time_field.id.clone(),
+      type_option.into(),
+      time_field.clone(),
+    )
+    .await
+    .unwrap();
+
+  let now_timestamp = timestamp();
+  let hour_before_timestamp = now_timestamp - Duration::hours(1).num_seconds();
+  test
+    .run_script(UpdateCell {
+      view_id: test.view_id.clone(),
+      row_id: test.rows[0].id.clone(),
+      field_id: time_field.id.clone(),
+      changeset: BoxAny::new(TimeCellChangeset {
+        add_time_trackings: vec![
+          TimeTrack {
+            from_timestamp: now_timestamp,
+            to_timestamp: Some(now_timestamp + Duration::minutes(30).num_seconds()),
+            ..Default::default()
+          },
+          TimeTrack {
+            from_timestamp: hour_before_timestamp,
+            to_timestamp: Some(hour_before_timestamp + Duration::minutes(15).num_seconds()),
+            ..Default::default()
+          },
+        ],
+        ..Default::default()
+      }),
+      is_err: false,
+    })
+    .await;
+
+  let cell = test.get_time_cell_data(time_field.clone().id).await;
+  let time_track_id = &cell
+    .time_tracks
+    .iter()
+    .find(|tt| tt.from_timestamp == now_timestamp)
+    .unwrap()
+    .id;
+  test
+    .run_script(UpdateCell {
+      view_id: test.view_id.clone(),
+      row_id: test.rows[0].id.clone(),
+      field_id: time_field.id.clone(),
+      changeset: BoxAny::new(TimeCellChangeset {
+        delete_time_tracking_ids: vec![time_track_id.to_string()],
+        ..Default::default()
+      }),
+      is_err: false,
+    })
+    .await;
+
+  test
+    .assert_time(time_field.id, Duration::minutes(15).num_seconds())
+    .await;
+}
+
+#[tokio::test]
+async fn time_cell_stopwatch_update_time_tracking_test() {
+  let mut test = DatabaseCellTest::new().await;
+  let time_field = test.get_first_field(FieldType::Time).await;
+
+  let type_option = TimeTypeOption {
+    time_type: TimeType::Stopwatch,
+    precision: TimePrecision::Minutes,
+  };
+  test
+    .editor
+    .update_field_type_option(
+      &time_field.id.clone(),
+      type_option.into(),
+      time_field.clone(),
+    )
+    .await
+    .unwrap();
+
+  let now_timestamp = timestamp();
+  let hour_before_timestamp = now_timestamp - Duration::hours(1).num_seconds();
+  test
+    .run_script(UpdateCell {
+      view_id: test.view_id.clone(),
+      row_id: test.rows[0].id.clone(),
+      field_id: time_field.id.clone(),
+      changeset: BoxAny::new(TimeCellChangeset {
+        add_time_trackings: vec![
+          TimeTrack {
+            from_timestamp: now_timestamp,
+            to_timestamp: Some(now_timestamp + Duration::minutes(30).num_seconds()),
+            ..Default::default()
+          },
+          TimeTrack {
+            from_timestamp: hour_before_timestamp,
+            to_timestamp: Some(hour_before_timestamp + Duration::minutes(15).num_seconds()),
+            ..Default::default()
+          },
+        ],
+        ..Default::default()
+      }),
+      is_err: false,
+    })
+    .await;
+
+  let cell = test.get_time_cell_data(time_field.clone().id).await;
+  let time_track = &cell
+    .time_tracks
+    .iter()
+    .find(|tt| tt.from_timestamp == now_timestamp)
+    .unwrap();
+  test
+    .run_script(UpdateCell {
+      view_id: test.view_id.clone(),
+      row_id: test.rows[0].id.clone(),
+      field_id: time_field.id.clone(),
+      changeset: BoxAny::new(TimeCellChangeset {
+        update_time_trackings: vec![TimeTrack {
+          id: time_track.id.to_string(),
+          from_timestamp: time_track.from_timestamp + Duration::minutes(5).num_seconds(),
+          to_timestamp: time_track.to_timestamp,
+        }],
+        ..Default::default()
+      }),
+      is_err: false,
+    })
+    .await;
+
+  test
+    .assert_time(time_field.id, Duration::minutes(40).num_seconds())
+    .await;
+}
+
+#[tokio::test]
+async fn time_cell_timer_add_time_tracking_test() {
+  let mut test = DatabaseCellTest::new().await;
+  let time_field = test.get_first_field(FieldType::Time).await;
+
+  let type_option = TimeTypeOption {
+    time_type: TimeType::Timer,
+    precision: TimePrecision::Minutes,
+  };
+  test
+    .editor
+    .update_field_type_option(
+      &time_field.id.clone(),
+      type_option.into(),
+      time_field.clone(),
+    )
+    .await
+    .unwrap();
+
+  let now_timestamp = timestamp();
+  let hour_before_timestamp = now_timestamp - Duration::hours(1).num_seconds();
+  test
+    .run_script(UpdateCell {
+      view_id: test.view_id.clone(),
+      row_id: test.rows[0].id.clone(),
+      field_id: time_field.id.clone(),
+      changeset: BoxAny::new(TimeCellChangeset {
+        timer_start: Some(Duration::minutes(50).num_seconds()),
+        add_time_trackings: vec![
+          TimeTrack {
+            from_timestamp: now_timestamp,
+            to_timestamp: Some(now_timestamp + Duration::minutes(30).num_seconds()),
+            ..Default::default()
+          },
+          TimeTrack {
+            from_timestamp: hour_before_timestamp,
+            to_timestamp: Some(hour_before_timestamp + Duration::minutes(15).num_seconds()),
+            ..Default::default()
+          },
+        ],
+        ..Default::default()
+      }),
+      is_err: false,
+    })
+    .await;
+
+  test
+    .assert_time(time_field.id, Duration::minutes(5).num_seconds())
+    .await;
 }
