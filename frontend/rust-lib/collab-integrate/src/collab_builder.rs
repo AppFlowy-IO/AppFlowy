@@ -294,6 +294,12 @@ impl AppFlowyCollabBuilder {
     T: BorrowMut<Collab> + Send + Sync + 'static,
   {
     let mut write_collab = collab.try_write()?;
+    let has_cloud_plugin = write_collab.borrow().has_cloud_plugin();
+    if has_cloud_plugin {
+      drop(write_collab);
+      return Ok(collab);
+    }
+
     if build_config.sync_enable {
       trace!("🚀finalize collab:{}", object);
       let plugin_provider = self.plugin_provider.load_full();

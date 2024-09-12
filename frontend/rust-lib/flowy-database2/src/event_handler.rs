@@ -35,7 +35,9 @@ pub(crate) async fn get_database_data_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&database_id, Some(view_id.as_ref()))
+    .await?;
   let data = database_editor
     .open_database_view(view_id.as_ref(), None)
     .await?;
@@ -58,7 +60,9 @@ pub(crate) async fn get_all_rows_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&database_id, Some(view_id.as_ref()))
+    .await?;
   let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
   let rows = row_details
     .into_iter()
@@ -76,7 +80,8 @@ pub(crate) async fn open_database_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let _ = manager.open_database(&database_id).await?;
+  let mut editors = manager.editors.lock().await;
+  let _ = manager.open_database(&database_id, &mut editors).await?;
   Ok(())
 }
 
@@ -1240,7 +1245,7 @@ pub(crate) async fn get_related_row_datas_handler(
   let manager = upgrade_manager(manager)?;
   let params: GetRelatedRowDataPB = data.into_inner();
   let database_editor = manager
-    .get_or_init_database_editor(&params.database_id)
+    .get_or_init_database_editor(&params.database_id, None)
     .await?;
   let row_datas = database_editor
     .get_related_rows(Some(&params.row_ids))
@@ -1260,7 +1265,9 @@ pub(crate) async fn get_related_database_rows_handler(
     "[Database]: get related database rows from database_id: {}",
     database_id
   );
-  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&database_id, None)
+    .await?;
   let rows = database_editor.get_related_rows(None).await?;
   data_result_ok(RepeatedRelatedRowDataPB { rows })
 }

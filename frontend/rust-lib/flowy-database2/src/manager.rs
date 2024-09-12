@@ -49,11 +49,12 @@ pub trait DatabaseUser: Send + Sync {
   fn workspace_database_object_id(&self) -> Result<String, FlowyError>;
 }
 
+pub(crate) type DatabaseEditorMap = HashMap<String, Arc<DatabaseEditor>>;
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
   workspace_database: ArcSwapOption<RwLock<WorkspaceDatabase>>,
   task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
-  editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
+  pub(crate) editors: Mutex<DatabaseEditorMap>,
   removing_editor: Arc<Mutex<HashMap<String, Arc<DatabaseEditor>>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
@@ -183,10 +184,6 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let database_id = wdb.get_database_id_with_view_id(view_id);
-    info!(
-      "[Database]: get database id:{:?} with view id:{}",
-      database_id, view_id
-    );
     database_id.ok_or_else(|| {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
@@ -219,28 +216,35 @@ impl DatabaseManager {
     view_id: &str,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    self.get_or_init_database_editor(&database_id).await
+    self
+      .get_or_init_database_editor(&database_id, Some(view_id))
+      .await
   }
 
   pub async fn get_or_init_database_editor(
     &self,
     database_id: &str,
+    _database_view_id: Option<&str>,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
+    let mut editors = self.editors.lock().await;
+    if let Some(editor) = editors.get(database_id).cloned() {
       return Ok(editor);
     }
-    self.open_database(database_id).await
+
+    let editor = self.open_database(database_id, &mut editors).await?;
+    drop(editors);
+    Ok(editor)
   }
 
   #[instrument(level = "trace", skip_all, err)]
-  pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn open_database(
+    &self,
+    database_id: &str,
+    editors: &mut DatabaseEditorMap,
+  ) -> FlowyResult<Arc<DatabaseEditor>> {
     let workspace_database = self.workspace_database()?;
     if let Some(database_editor) = self.removing_editor.lock().await.remove(database_id) {
-      self
-        .editors
-        .lock()
-        .await
-        .insert(database_id.to_string(), database_editor.clone());
+      editors.insert(database_id.to_string(), database_editor.clone());
       return Ok(database_editor);
     }
 
@@ -271,11 +275,7 @@ impl DatabaseManager {
     )
     .await?;
 
-    self
-      .editors
-      .lock()
-      .await
-      .insert(database_id.to_string(), editor.clone());
+    editors.insert(database_id.to_string(), editor.clone());
     Ok(editor)
   }
 
@@ -285,9 +285,10 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let workspace_database = lock.read().await;
     if let Some(database_id) = workspace_database.get_database_id_with_view_id(view_id) {
-      if self.editors.lock().await.get(&database_id).is_none() {
-        let database = self.open_database(&database_id).await?;
-        database.as_ref().open_database_view(view_id, None).await?;
+      let mut editors = self.editors.lock().await;
+      if editors.get(&database_id).is_none() {
+        let _ = self.open_database(&database_id, &mut editors).await?;
+        drop(editors);
       }
     }
     Ok(())

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowDetail, RowId};
+use collab_database::rows::{Row, RowCover, RowDetail, RowId};
 use collab_database::views::RowOrder;
 
 use flowy_derive::ProtoBuf;
@@ -161,7 +161,7 @@ pub struct UpdateRowMetaParams {
   pub id: String,
   pub view_id: String,
   pub icon_url: Option<String>,
-  pub cover_url: Option<String>,
+  pub cover: Option<RowCover>,
   pub is_document_empty: Option<bool>,
   pub attachment_count: Option<i64>,
 }
@@ -181,7 +181,7 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
       id: row_id,
       view_id,
       icon_url: self.icon_url,
-      cover_url: self.cover_url,
+      cover: None,
       is_document_empty: self.is_document_empty,
       attachment_count: self.attachment_count,
     })
