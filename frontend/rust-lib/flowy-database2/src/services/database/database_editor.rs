@@ -960,9 +960,11 @@ impl DatabaseEditor {
     let old_row = self.get_row(view_id, row_id).await;
     self
       .update_row(row_id.clone(), |row_update| {
-        row_update.update_cells(|cell_update| {
-          cell_update.insert(field_id, new_cell);
-        });
+        row_update
+          .set_last_modified(timestamp())
+          .update_cells(|cell_update| {
+            cell_update.insert(field_id, new_cell);
+          });
       })
       .await?;
 

@@ -43,7 +43,7 @@ pub(crate) async fn get_database_data_handler(
     .open_database_view(view_id.as_ref(), None)
     .await?;
   info!(
-    "[Database]: {} layout: {:?}, rows: {}, fields: {}, cost time: {}",
+    "[Database]: {} layout: {:?}, rows: {}, fields: {}, cost time: {} milliseconds",
     database_id,
     data.layout_type,
     data.rows.len(),
