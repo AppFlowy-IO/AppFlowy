@@ -28,6 +28,7 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
@@ -151,7 +152,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: PlatformExtension.isDesktopOrWeb ? 80 : 20,
+            left: UniversalPlatform.isDesktopOrWeb ? 80 : 20,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -246,7 +247,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   void initState() {
     super.initState();
 
-    isHidden = PlatformExtension.isDesktopOrWeb;
+    isHidden = UniversalPlatform.isDesktopOrWeb;
   }
 
   @override
@@ -254,7 +255,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     Widget child = Container(
       alignment: Alignment.bottomLeft,
       width: double.infinity,
-      padding: PlatformExtension.isDesktopOrWeb
+      padding: UniversalPlatform.isDesktopOrWeb
           ? EdgeInsets.symmetric(
               horizontal: EditorStyleCustomizer.documentPadding.right,
             )
@@ -270,7 +271,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       ),
     );
 
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       child = MouseRegion(
         onEnter: (event) => setHidden(false),
         onExit: (event) {
@@ -297,7 +298,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         FlowyButton(
           leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(
-            cover: PlatformExtension.isDesktopOrWeb
+            cover: UniversalPlatform.isDesktopOrWeb
                 ? (CoverType.asset, '1')
                 : (CoverType.color, '0xffe8e0ff'),
           ),
@@ -333,7 +334,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           LocaleKeys.document_plugins_cover_addIcon.tr(),
           color: Theme.of(context).hintColor,
         ),
-        onTap: PlatformExtension.isDesktop
+        onTap: UniversalPlatform.isDesktop
             ? null
             : () async {
                 final result = await context.push<EmojiPickerResult>(
@@ -345,7 +346,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
               },
       );
 
-      if (PlatformExtension.isDesktop) {
+      if (UniversalPlatform.isDesktop) {
         child = AppFlowyPopover(
           onClose: () => isPopoverOpen = false,
           controller: _popoverController,
@@ -410,7 +411,7 @@ class DocumentCoverState extends State<DocumentCover> {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformExtension.isDesktopOrWeb
+    return UniversalPlatform.isDesktopOrWeb
         ? _buildDesktopCover()
         : _buildMobileCover();
   }
@@ -682,10 +683,10 @@ class DeleteCoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fillColor = PlatformExtension.isDesktopOrWeb
+    final fillColor = UniversalPlatform.isDesktopOrWeb
         ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
         : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
-    final svgColor = PlatformExtension.isDesktopOrWeb
+    final svgColor = UniversalPlatform.isDesktopOrWeb
         ? Theme.of(context).colorScheme.tertiary
         : Theme.of(context).colorScheme.onPrimary;
     return FlowyIconButton(
@@ -730,7 +731,7 @@ class _DocumentIconState extends State<DocumentIcon> {
       emoji: widget.icon,
     );
 
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       child = AppFlowyPopover(
         direction: PopoverDirection.bottomWithCenterAligned,
         controller: _popoverController,

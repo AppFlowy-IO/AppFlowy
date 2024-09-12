@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'third_party_sign_in_button.dart';
 
@@ -26,7 +26,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       return _DesktopThirdPartySignIn(
         onSignIn: (type) => _signIn(context, type.provider),
       );

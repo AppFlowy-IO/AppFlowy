@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -18,6 +19,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../cell/card_cell_builder.dart';
 import '../cell/card_cell_skeleton/card_cell.dart';
@@ -133,7 +135,7 @@ class _RowCardState extends State<RowCard> {
           }
         },
         builder: (context, state) =>
-            PlatformExtension.isMobile ? _mobile(state) : _desktop(state),
+            UniversalPlatform.isMobile ? _mobile(state) : _desktop(state),
       ),
     );
   }

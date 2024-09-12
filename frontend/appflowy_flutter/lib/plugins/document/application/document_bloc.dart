@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/document/application/doc_sync_state_listener.dart';
 import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_collab_adapter.dart';
@@ -28,12 +26,13 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
         EditorState,
-        LogLevel,
+        AppFlowyEditorLogLevel,
         TransactionTime,
         Selection,
         Position,
         paragraphNode;
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -257,9 +256,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     // output the log from the editor when debug mode
     if (kDebugMode) {
       editorState.logConfiguration
-        ..level = LogLevel.all
+        ..level = AppFlowyEditorLogLevel.all
         ..handler = (log) {
-          // Log.debug(log);
+          if (enableDocumentInternalLog) {
+            Log.info(log);
+          }
         };
     }
 

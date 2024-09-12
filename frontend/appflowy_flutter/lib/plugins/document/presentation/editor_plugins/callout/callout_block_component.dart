@@ -8,6 +8,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../base/emoji_picker_button.dart';
 
@@ -189,7 +190,7 @@ class _CalloutBlockComponentWidgetState
         mainAxisSize: MainAxisSize.min,
         textDirection: textDirection,
         children: [
-          if (PlatformExtension.isDesktopOrWeb) const HSpace(4.0),
+          if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
           // the emoji picker button for the note
           EmojiPickerButton(
             key: ValueKey(
@@ -204,7 +205,7 @@ class _CalloutBlockComponentWidgetState
               controller?.close();
             },
           ),
-          if (PlatformExtension.isDesktopOrWeb) const HSpace(4.0),
+          if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
           Flexible(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),

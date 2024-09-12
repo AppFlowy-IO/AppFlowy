@@ -3,9 +3,9 @@ import 'package:appflowy/user/presentation/screens/workspace_start_screen/deskto
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/mobile_workspace_start_screen.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 // For future use
 class WorkspaceStartScreen extends StatelessWidget {
@@ -24,7 +24,7 @@ class WorkspaceStartScreen extends StatelessWidget {
         ..add(const WorkspaceEvent.initial()),
       child: BlocBuilder<WorkspaceBloc, WorkspaceState>(
         builder: (context, state) {
-          if (PlatformExtension.isMobile) {
+          if (UniversalPlatform.isMobile) {
             return MobileWorkspaceStartScreen(
               workspaceState: state,
             );

@@ -49,11 +49,12 @@ pub trait DatabaseUser: Send + Sync {
   fn workspace_database_object_id(&self) -> Result<String, FlowyError>;
 }
 
+pub(crate) type DatabaseEditorMap = HashMap<String, Arc<DatabaseEditor>>;
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
   workspace_database: ArcSwapOption<RwLock<WorkspaceDatabase>>,
   task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
-  editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
+  pub(crate) editors: Mutex<DatabaseEditorMap>,
   removing_editor: Arc<Mutex<HashMap<String, Arc<DatabaseEditor>>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
@@ -183,10 +184,6 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let database_id = wdb.get_database_id_with_view_id(view_id);
-    info!(
-      "[Database]: get database id:{:?} with view id:{}",
-      database_id, view_id
-    );
     database_id.ok_or_else(|| {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
@@ -219,17 +216,21 @@ impl DatabaseManager {
     view_id: &str,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    self.get_or_init_database_editor(&database_id).await
+    self
+      .get_or_init_database_editor(&database_id, Some(view_id))
+      .await
   }
 
   pub async fn get_or_init_database_editor(
     &self,
     database_id: &str,
+    _database_view_id: Option<&str>,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);
     }
-    self.open_database(database_id).await
+    let editor = self.open_database(database_id).await?;
+    Ok(editor)
   }
 
   #[instrument(level = "trace", skip_all, err)]
@@ -249,7 +250,7 @@ impl DatabaseManager {
     // hasn't finished syncing yet. In such cases, get_or_create_database will return None.
     // The workaround is to add a retry mechanism to attempt fetching the database again.
     let database = Retry::spawn(
-      ExponentialBackoff::from_millis(2).factor(1000).take(3),
+      ExponentialBackoff::from_millis(3).factor(1000).take(2),
       || async {
         trace!("retry to open database:{}", database_id);
         let database = workspace_database
@@ -285,9 +286,9 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let workspace_database = lock.read().await;
     if let Some(database_id) = workspace_database.get_database_id_with_view_id(view_id) {
-      if self.editors.lock().await.get(&database_id).is_none() {
-        let database = self.open_database(&database_id).await?;
-        database.as_ref().open_database_view(view_id, None).await?;
+      let is_not_exist = self.editors.lock().await.get(&database_id).is_none();
+      if is_not_exist {
+        let _ = self.open_database(&database_id).await?;
       }
     }
     Ok(())
@@ -301,12 +302,11 @@ impl DatabaseManager {
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
       let mut should_remove = false;
-
       if let Some(editor) = editors.get(&database_id) {
         editor.close_view(view_id).await;
         // when there is no opening views, mark the database to be removed.
         trace!(
-          "{} has {} opening views",
+          "[Database]: {} has {} opening views",
           database_id,
           editor.num_of_opening_views().await
         );
@@ -314,7 +314,10 @@ impl DatabaseManager {
       }
 
       if should_remove {
-        if let Some(editor) = editors.remove(&database_id) {
+        let editor = editors.remove(&database_id);
+        drop(editors);
+
+        if let Some(editor) = editor {
           editor.close_database().await;
           self
             .removing_editor
@@ -759,6 +762,13 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   ) -> Result<Collab, DatabaseError> {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
     let data_source = if self.persistence.is_collab_exist(object_id) {
+      if encoded_collab.is_some() {
+        error!(
+          "build collab: {}:{} with both local and remote encode collab",
+          collab_type, object_id
+        );
+      }
+
       CollabPersistenceImpl {
         persistence: Some(self.persistence.clone()),
       }

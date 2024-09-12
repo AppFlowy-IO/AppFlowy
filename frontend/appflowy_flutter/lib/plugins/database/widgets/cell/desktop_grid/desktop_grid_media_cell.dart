@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -13,10 +15,10 @@ import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class GridMediaCellSkin extends IEditableMediaCellSkin {
   const GridMediaCellSkin({this.isMobileRowDetail = false});
@@ -33,7 +35,7 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
     PopoverController popoverController,
     MediaCellBloc bloc,
   ) {
-    final isMobile = PlatformExtension.isMobile;
+    final isMobile = UniversalPlatform.isMobile;
 
     Widget child = BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {

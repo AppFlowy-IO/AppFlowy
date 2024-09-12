@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
   const SpacePermissionSwitch({
@@ -326,7 +327,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           vertical: 20.0,
           horizontal: 20.0,
         ),
-        color: PlatformExtension.isDesktop
+        color: UniversalPlatform.isDesktop
             ? null
             : Theme.of(context).colorScheme.surface,
         child: Column(

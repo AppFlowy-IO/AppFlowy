@@ -17,7 +17,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,6 +25,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 part 'space_bloc.freezed.dart';
 
@@ -233,7 +233,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
 
             // don't open the page automatically on mobile
-            if (PlatformExtension.isDesktop) {
+            if (UniversalPlatform.isDesktop) {
               // open the first page by default
               if (currentSpace.childViews.isNotEmpty) {
                 final firstPage = currentSpace.childViews.first;

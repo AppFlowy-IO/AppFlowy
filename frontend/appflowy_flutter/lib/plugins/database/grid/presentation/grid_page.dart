@@ -352,7 +352,7 @@ class _GridRowsState extends State<_GridRows> {
           child: ReorderableListView.builder(
             ///  This is a workaround related to
             ///  https://github.com/flutter/flutter/issues/25652
-            cacheExtent: max(layoutConstraints.maxHeight * 2, 500),
+            cacheExtent: max(layoutConstraints.maxHeight, 500),
             scrollController: widget.scrollController.verticalController,
             physics: const ClampingScrollPhysics(),
             buildDefaultDragHandles: false,

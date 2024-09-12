@@ -2,7 +2,7 @@ use collab_database::rows::{Cell, RowCover, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
-use tracing::{error, info, trace};
+use tracing::{error, info};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -35,15 +35,20 @@ pub(crate) async fn get_database_data_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&database_id, Some(view_id.as_ref()))
+    .await?;
+  let start = std::time::Instant::now();
   let data = database_editor
     .open_database_view(view_id.as_ref(), None)
     .await?;
-  trace!(
-    "layout: {:?}, rows: {}, fields: {}",
+  info!(
+    "[Database]: {} layout: {:?}, rows: {}, fields: {}, cost time: {} milliseconds",
+    database_id,
     data.layout_type,
     data.rows.len(),
-    data.fields.len()
+    data.fields.len(),
+    start.elapsed().as_millis()
   );
   data_result_ok(data)
 }
@@ -58,7 +63,9 @@ pub(crate) async fn get_all_rows_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&database_id, Some(view_id.as_ref()))
+    .await?;
   let row_details = database_editor.get_all_rows(view_id.as_ref()).await?;
   let rows = row_details
     .into_iter()
@@ -817,22 +824,6 @@ pub(crate) async fn update_group_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn rename_group_handler(
-  data: AFPluginData<RenameGroupPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> FlowyResult<()> {
-  let manager = upgrade_manager(manager)?;
-  let params: RenameGroupParams = data.into_inner().try_into()?;
-  let view_id = params.view_id.clone();
-  let database_editor = manager.get_database_editor_with_view_id(&view_id).await?;
-  let group_changeset = GroupChangeset::from(params);
-  database_editor
-    .rename_group(&view_id, group_changeset)
-    .await?;
-  Ok(())
-}
-
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_group_handler(
   data: AFPluginData<MoveGroupPayloadPB>,
@@ -1265,7 +1256,7 @@ pub(crate) async fn get_related_row_datas_handler(
   let manager = upgrade_manager(manager)?;
   let params: GetRelatedRowDataPB = data.into_inner();
   let database_editor = manager
-    .get_or_init_database_editor(&params.database_id)
+    .get_or_init_database_editor(&params.database_id, None)
     .await?;
   let row_datas = database_editor
     .get_related_rows(Some(&params.row_ids))
@@ -1285,7 +1276,9 @@ pub(crate) async fn get_related_database_rows_handler(
     "[Database]: get related database rows from database_id: {}",
     database_id
   );
-  let database_editor = manager.get_or_init_database_editor(&database_id).await?;
+  let database_editor = manager
+    .get_or_init_database_editor(&database_id, None)
+    .await?;
   let rows = database_editor.get_related_rows(None).await?;
   data_result_ok(RepeatedRelatedRowDataPB { rows })
 }

@@ -3,10 +3,10 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 enum DraggableHoverPosition {
   none,
@@ -54,7 +54,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     // add top border if the draggable item is on the top of the list
     // highlight the draggable item if the draggable item is on the center
     // add bottom border if the draggable item is on the bottom of the list
-    final child = PlatformExtension.isMobile
+    final child = UniversalPlatform.isMobile
         ? _buildMobileDraggableItem()
         : _buildDesktopDraggableItem();
 
@@ -174,7 +174,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   void _updatePosition(DraggableHoverPosition position) {
-    if (PlatformExtension.isMobile && position != this.position) {
+    if (UniversalPlatform.isMobile && position != this.position) {
       HapticFeedback.mediumImpact();
     }
     setState(

@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -14,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../layout/sizes.dart';
 import 'desktop_field_cell.dart';
@@ -112,7 +112,7 @@ class _GridHeaderState extends State<_GridHeader> {
             ),
             draggingWidgetOpacity: 0,
             header: _cellLeading(),
-            needsLongPressDraggable: PlatformExtension.isMobile,
+            needsLongPressDraggable: UniversalPlatform.isMobile,
             footer: _CellTrailing(viewId: widget.viewId),
             onReorder: (int oldIndex, int newIndex) {
               context

@@ -6,12 +6,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 /// Sidebar top menu is the top bar of the sidebar.
 ///
@@ -30,7 +30,7 @@ class SidebarTopMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
       builder: (context, _) => SizedBox(
-        height: !PlatformExtension.isWindows ? HomeSizes.topBarHeight : 45,
+        height: !UniversalPlatform.isWindows ? HomeSizes.topBarHeight : 45,
         child: MoveWindowDetector(
           child: Row(
             children: [

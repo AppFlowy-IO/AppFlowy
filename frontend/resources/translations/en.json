@@ -1830,6 +1830,7 @@
   },
   "board": {
     "column": {
+      "label": "Column",
       "createNewCard": "New",
       "renameGroupTooltip": "Press to rename group",
       "createNewColumn": "Add a new group",
@@ -1839,7 +1840,7 @@
       "hideColumn": "Hide",
       "newGroup": "New group",
       "deleteColumn": "Delete",
-      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
+      "deleteColumnConfirmation": "This will delete this group and all the cards in it. Are you sure you want to continue?"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Hidden Groups",
