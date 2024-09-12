@@ -46,6 +46,10 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
   Widget build(BuildContext context) {
     return BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {
+        final images = state.files
+            .where((file) => file.fileType == MediaFileTypePB.Image)
+            .toList();
+
         return Padding(
           padding: const EdgeInsets.all(4),
           child: SingleChildScrollView(
@@ -62,6 +66,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                       value: context.read<MediaCellBloc>(),
                       child: RenderMedia(
                         file: state.files[index],
+                        images: images,
                         index: index,
                         enableReordering: state.files.length > 1,
                         mutex: itemMutex,
@@ -91,13 +96,14 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                   ),
                   triggerActions: PopoverTriggerFlags.none,
                   popupBuilder: (popoverContext) => FileUploadMenu(
-                    onInsertLocalFile: (file) async => insertLocalFile(
+                    allowMultipleFiles: true,
+                    onInsertLocalFile: (files) async => insertLocalFiles(
                       context,
-                      file,
+                      files,
                       userProfile:
                           context.read<MediaCellBloc>().state.userProfile,
                       documentId: context.read<MediaCellBloc>().rowId,
-                      onUploadSuccess: (path, isLocalMode) {
+                      onUploadSuccess: (file, path, isLocalMode) {
                         final mediaCellBloc = context.read<MediaCellBloc>();
                         if (mediaCellBloc.isClosed) {
                           return;
@@ -200,12 +206,14 @@ class RenderMedia extends StatefulWidget {
     super.key,
     required this.index,
     required this.file,
+    required this.images,
     required this.enableReordering,
     required this.mutex,
   });
 
   final int index;
   final MediaFilePB file;
+  final List<MediaFilePB> images;
   final bool enableReordering;
   final PopoverMutex mutex;
 
@@ -215,6 +223,21 @@ class RenderMedia extends StatefulWidget {
 
 class _RenderMediaState extends State<RenderMedia> {
   bool isHovering = false;
+  int? imageIndex;
+
+  MediaFilePB get file => widget.file;
+
+  @override
+  void initState() {
+    super.initState();
+    imageIndex = widget.images.indexOf(file);
+  }
+
+  @override
+  void didUpdateWidget(covariant RenderMedia oldWidget) {
+    imageIndex = widget.images.indexOf(file);
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +268,8 @@ class _RenderMediaState extends State<RenderMedia> {
                   Expanded(
                     child: _openInteractiveViewer(
                       context,
-                      file: widget.file,
+                      files: widget.images,
+                      index: imageIndex!,
                       child: AFImage(
                         url: widget.file.url,
                         uploadType: widget.file.uploadType,
@@ -257,18 +281,18 @@ class _RenderMediaState extends State<RenderMedia> {
                 ] else ...[
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => afLaunchUrlString(widget.file.url),
+                      onTap: () => afLaunchUrlString(file.url),
                       child: Row(
                         children: [
                           FlowySvg(
-                            widget.file.fileType.icon,
+                            file.fileType.icon,
                             color: AFThemeExtension.of(context).strongText,
                             size: const Size.square(18),
                           ),
                           const HSpace(8),
                           Flexible(
                             child: FlowyText(
-                              widget.file.name,
+                              file.name,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -287,7 +311,7 @@ class _RenderMediaState extends State<RenderMedia> {
                     popupBuilder: (popoverContext) => BlocProvider.value(
                       value: context.read<MediaCellBloc>(),
                       child: MediaItemMenu(
-                        file: widget.file,
+                        file: file,
                         closeContext: popoverContext,
                       ),
                     ),
@@ -310,17 +334,21 @@ class _RenderMediaState extends State<RenderMedia> {
 
   Widget _openInteractiveViewer(
     BuildContext context, {
-    required MediaFilePB file,
+    required List<MediaFilePB> files,
+    required int index,
     required Widget child,
   }) =>
       GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => openInteractiveViewerFromFile(
+        onTap: () => openInteractiveViewerFromFiles(
           context,
-          file,
-          onDeleteImage: (_) =>
-              context.read<MediaCellBloc>().deleteFile(file.id),
+          files,
+          onDeleteImage: (index) {
+            final deleteFile = files[index];
+            context.read<MediaCellBloc>().deleteFile(deleteFile.id);
+          },
           userProfile: context.read<MediaCellBloc>().state.userProfile,
+          initialIndex: index,
         ),
         child: child,
       );

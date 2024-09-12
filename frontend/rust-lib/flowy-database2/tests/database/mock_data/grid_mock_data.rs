@@ -152,7 +152,10 @@ pub fn make_test_grid() -> DatabaseData {
         fields.push(translate_field);
       },
       FieldType::Media => {
-        let type_option = MediaTypeOption { files: vec![] };
+        let type_option = MediaTypeOption {
+          files: vec![],
+          hide_file_names: false,
+        };
 
         let media_field = FieldBuilder::new(field_type, type_option)
           .name("Media")

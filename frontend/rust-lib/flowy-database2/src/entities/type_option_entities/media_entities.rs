@@ -31,6 +31,9 @@ impl From<MediaCellDataPB> for MediaCellData {
 pub struct MediaTypeOptionPB {
   #[pb(index = 1)]
   pub files: Vec<MediaFilePB>,
+
+  #[pb(index = 2)]
+  pub hide_file_names: bool,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

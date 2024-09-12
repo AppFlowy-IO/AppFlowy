@@ -46,7 +46,7 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
           if (extraCount > 0) _ExtraInfo(extraCount: extraCount),
         ];
 
-        if (filesToDisplay.isEmpty && isMobile) {
+        if (isMobileRowDetail && filesToDisplay.isEmpty) {
           children.add(
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -129,7 +129,8 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
       }
 
       child = InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+            isMobileRowDetail ? BorderRadius.circular(12) : BorderRadius.zero,
         onTap: () {
           showMobileBottomSheet(
             context,
