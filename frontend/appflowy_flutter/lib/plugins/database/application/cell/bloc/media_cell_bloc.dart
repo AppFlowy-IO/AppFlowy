@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -58,7 +59,15 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
             emit(state.copyWith(files: files));
           },
           didUpdateField: (fieldName) {
-            emit(state.copyWith(fieldName: fieldName));
+            final typeOption =
+                cellController.getTypeOption(MediaTypeOptionDataParser());
+
+            emit(
+              state.copyWith(
+                fieldName: fieldName,
+                hideFileNames: typeOption.hideFileNames,
+              ),
+            );
           },
           addFile: (url, name, uploadType, fileType) async {
             final newFile = MediaFilePB(
@@ -213,14 +222,18 @@ class MediaCellState with _$MediaCellState {
     required String fieldName,
     @Default([]) List<MediaFilePB> files,
     @Default(false) showAllFiles,
+    @Default(false) hideFileNames,
   }) = _MediaCellState;
 
   factory MediaCellState.initial(MediaCellController cellController) {
     final cellData = cellController.getCellData();
+    final typeOption =
+        cellController.getTypeOption(MediaTypeOptionDataParser());
 
     return MediaCellState(
       fieldName: cellController.fieldInfo.field.name,
       files: cellData?.files ?? const [],
+      hideFileNames: typeOption.hideFileNames,
     );
   }
 }

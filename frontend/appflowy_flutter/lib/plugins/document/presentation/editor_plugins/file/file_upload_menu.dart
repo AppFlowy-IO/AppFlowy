@@ -19,10 +19,12 @@ class FileUploadMenu extends StatefulWidget {
     super.key,
     required this.onInsertLocalFile,
     required this.onInsertNetworkFile,
+    this.allowMultipleFiles = false,
   });
 
-  final void Function(XFile file) onInsertLocalFile;
+  final void Function(List<XFile> files) onInsertLocalFile;
   final void Function(String url) onInsertNetworkFile;
+  final bool allowMultipleFiles;
 
   @override
   State<FileUploadMenu> createState() => _FileUploadMenuState();
@@ -59,9 +61,10 @@ class _FileUploadMenuState extends State<FileUploadMenu> {
           const Divider(height: 4),
           if (currentTab == 0) ...[
             _FileUploadLocal(
-              onFilePicked: (file) {
-                if (file != null) {
-                  widget.onInsertLocalFile(file);
+              allowMultipleFiles: widget.allowMultipleFiles,
+              onFilesPicked: (files) {
+                if (files.isNotEmpty) {
+                  widget.onInsertLocalFile(files);
                 }
               },
             ),
@@ -94,9 +97,13 @@ class _Tab extends StatelessWidget {
 }
 
 class _FileUploadLocal extends StatefulWidget {
-  const _FileUploadLocal({required this.onFilePicked});
+  const _FileUploadLocal({
+    required this.onFilesPicked,
+    this.allowMultipleFiles = false,
+  });
 
-  final void Function(XFile?) onFilePicked;
+  final void Function(List<XFile>) onFilesPicked;
+  final bool allowMultipleFiles;
 
   @override
   State<_FileUploadLocal> createState() => _FileUploadLocalState();
@@ -137,7 +144,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
       child: DropTarget(
         onDragEntered: (_) => setState(() => isDragging = true),
         onDragExited: (_) => setState(() => isDragging = false),
-        onDragDone: (details) => widget.onFilePicked(details.files.first),
+        onDragDone: (details) => widget.onFilesPicked(details.files),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
@@ -200,10 +207,16 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
   }
 
   Future<void> _uploadFile(BuildContext context) async {
-    final result = await getIt<FilePickerService>().pickFiles(dialogTitle: '');
-    final file =
-        result?.files.isNotEmpty ?? false ? result?.files.first.xFile : null;
-    widget.onFilePicked(file);
+    final result = await getIt<FilePickerService>().pickFiles(
+      dialogTitle: '',
+      allowMultiple: widget.allowMultipleFiles,
+    );
+
+    final List<XFile> files = result?.files.isNotEmpty ?? false
+        ? result!.files.map((f) => f.xFile).toList()
+        : const [];
+
+    widget.onFilesPicked(files);
   }
 }
 

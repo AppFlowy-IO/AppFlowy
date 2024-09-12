@@ -99,7 +99,7 @@ impl GroupControllerDelegate for GroupControllerDelegateImpl {
   async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
     let row_orders = self.delegate.get_all_row_orders(view_id).await;
     let rows = self.delegate.get_all_rows(view_id, row_orders).await;
-    
+
     self.filter_controller.filter_rows(rows).await
   }
 }
