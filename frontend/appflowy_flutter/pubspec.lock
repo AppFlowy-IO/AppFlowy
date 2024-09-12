@@ -61,11 +61,9 @@ packages:
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
-      path: "packages/appflowy_editor_plugins"
-      ref: "87af520732deae1138c12a4c33a62ae56b2aa81f"
-      resolved-ref: "87af520732deae1138c12a4c33a62ae56b2aa81f"
-      url: "https://github.com/AppFlowy-IO/AppFlowy-plugins.git"
-    source: git
+      path: "/Users/lucas.xu/Desktop/appflowy_editor_plugins/packages/appflowy_editor_plugins"
+      relative: false
+    source: path
     version: "0.0.6"
   appflowy_popover:
     dependency: "direct main"
@@ -350,18 +348,18 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "2056db5241f96cdc0126bd94459fc4cdc13876753768fc7a31c425e50a7177d0"
+      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.5"
+    version: "5.0.2"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
       name: connectivity_plus_platform_interface
-      sha256: "42657c1715d48b167930d5f34d00222ac100475f73d10162ddf43e714932f204"
+      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "1.2.4"
   convert:
     dependency: transitive
     description:
@@ -954,42 +952,10 @@ packages:
     dependency: "direct main"
     description:
       name: hotkey_manager
-      sha256: "06f0655b76c8dd322fb7101dc615afbdbf39c3d3414df9e059c33892104479cd"
+      sha256: "8aaa0aeaca7015b8c561a58d02eb7ebba95e93357fc9540398c5751ee24afd7c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.3"
-  hotkey_manager_linux:
-    dependency: transitive
-    description:
-      name: hotkey_manager_linux
-      sha256: "83676bda8210a3377bc6f1977f193bc1dbdd4c46f1bdd02875f44b6eff9a8473"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  hotkey_manager_macos:
-    dependency: transitive
-    description:
-      name: hotkey_manager_macos
-      sha256: "03b5967e64357b9ac05188ea4a5df6fe4ed4205762cb80aaccf8916ee1713c96"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  hotkey_manager_platform_interface:
-    dependency: transitive
-    description:
-      name: hotkey_manager_platform_interface
-      sha256: "98ffca25b8cc9081552902747b2942e3bc37855389a4218c9d50ca316b653b13"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  hotkey_manager_windows:
-    dependency: transitive
-    description:
-      name: hotkey_manager_windows
-      sha256: "0d03ced9fe563ed0b68f0a0e1b22c9ffe26eb8053cb960e401f68a4f070e0117"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
+    version: "0.1.8"
   html:
     dependency: transitive
     description:
@@ -1151,10 +1117,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.7"
   json_annotation:
     dependency: "direct main"
     description:
@@ -1759,18 +1725,18 @@ packages:
     dependency: "direct main"
     description:
       name: sentry
-      sha256: "033287044a6644a93498969449d57c37907e56f5cedb17b88a3ff20a882261dd"
+      sha256: "1af8308298977259430d118ab25be8e1dda626cdefa1e6ce869073d530d39271"
       url: "https://pub.dev"
     source: hosted
-    version: "8.9.0"
+    version: "8.8.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "3780b5a0bb6afd476857cfbc6c7444d969c29a4d9bd1aa5b6960aa76c65b737a"
+      sha256: "18fe4d125c2d529bd6127200f0d2895768266a8c60b4fb50b2086fd97e1a4ab2"
       url: "https://pub.dev"
     source: hosted
-    version: "8.9.0"
+    version: "8.8.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -2178,14 +2144,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
-  uni_platform:
-    dependency: transitive
-    description:
-      name: uni_platform
-      sha256: e02213a7ee5352212412ca026afd41d269eb00d982faa552f419ffc2debfad84
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.3"
   universal_html:
     dependency: transitive
     description:
@@ -2203,7 +2161,7 @@ packages:
     source: hosted
     version: "2.2.2"
   universal_platform:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: universal_platform
       sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
@@ -2415,10 +2373,10 @@ packages:
     dependency: "direct main"
     description:
       name: window_manager
-      sha256: ab8b2a7f97543d3db2b506c9d875e637149d48ee0c6a5cb5f5fd6e0dac463792
+      sha256: "8699323b30da4cdbe2aa2e7c9de567a6abd8a97d9a5c850a3c86dcd0b34bbfbf"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.2"
+    version: "0.3.9"
   xdg_directories:
     dependency: transitive
     description:
