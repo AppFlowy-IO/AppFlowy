@@ -38,14 +38,17 @@ pub(crate) async fn get_database_data_handler(
   let database_editor = manager
     .get_or_init_database_editor(&database_id, Some(view_id.as_ref()))
     .await?;
+  let start = std::time::Instant::now();
   let data = database_editor
     .open_database_view(view_id.as_ref(), None)
     .await?;
-  trace!(
-    "layout: {:?}, rows: {}, fields: {}",
+  info!(
+    "[Database]: {} layout: {:?}, rows: {}, fields: {}, cost time: {}",
+    database_id,
     data.layout_type,
     data.rows.len(),
-    data.fields.len()
+    data.fields.len(),
+    start.elapsed().as_millis()
   );
   data_result_ok(data)
 }
@@ -80,8 +83,7 @@ pub(crate) async fn open_database_handler(
   let database_id = manager
     .get_database_id_with_view_id(view_id.as_ref())
     .await?;
-  let mut editors = manager.editors.lock().await;
-  let _ = manager.open_database(&database_id, &mut editors).await?;
+  let _ = manager.open_database(&database_id).await?;
   Ok(())
 }
 

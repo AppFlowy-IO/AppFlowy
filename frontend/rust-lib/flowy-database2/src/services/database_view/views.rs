@@ -37,7 +37,7 @@ impl DatabaseViews {
     })
   }
 
-  pub async fn close_view(&self, view_id: &str) {
+  pub async fn remove_view(&self, view_id: &str) {
     let mut lock_guard = self.view_editors.write().await;
     if let Some(view) = lock_guard.remove(view_id) {
       view.close().await;
