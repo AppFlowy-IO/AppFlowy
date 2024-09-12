@@ -44,8 +44,8 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 - [Download AppFlowy Desktop (macOS, Windows, and Linux)](https://github.com/AppFlowy-IO/AppFlowy/releases)
 - Other channels: [FlatHub](https://flathub.org/apps/io.appflowy.AppFlowy), [Snapcraft](https://snapcraft.io/appflowy), [Sourceforge](https://sourceforge.net/projects/appflowy/)
 - Available on
-  - App Store: iPhone
-  - Play Store: Android 10 or above; ARMv7 is not supported
+  - [App Store](https://apps.apple.com/app/appflowy/id6457261352): iPhone
+  - [Play Store](https://play.google.com/store/apps/details?id=io.appflowy.appflowy): Android 10 or above; ARMv7 is not supported
 - [Self-hosting AppFlowy](https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 
