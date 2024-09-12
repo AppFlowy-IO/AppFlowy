@@ -314,6 +314,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
               blockComponentContext: context,
               blockComponentState: state,
               editorState: editorState,
+              blockComponentBuilder: builders,
               actions: actions,
               showSlashMenu: slashMenuItems != null
                   ? () => customSlashCommand(

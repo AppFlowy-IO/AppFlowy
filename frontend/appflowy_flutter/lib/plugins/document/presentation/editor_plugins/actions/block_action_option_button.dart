@@ -10,7 +10,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class BlockOptionButton extends StatefulWidget {
   const BlockOptionButton({
@@ -19,12 +19,14 @@ class BlockOptionButton extends StatefulWidget {
     required this.blockComponentState,
     required this.actions,
     required this.editorState,
+    required this.blockComponentBuilder,
   });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
   final List<OptionAction> actions;
   final EditorState editorState;
+  final Map<String, BlockComponentBuilder> blockComponentBuilder;
 
   @override
   State<BlockOptionButton> createState() => _BlockOptionButtonState();
@@ -85,6 +87,7 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
         controller: controller,
         editorState: widget.editorState,
         blockComponentContext: widget.blockComponentContext,
+        blockComponentBuilder: widget.blockComponentBuilder,
       ),
     );
   }
@@ -220,29 +223,40 @@ class _DraggableOptionButton extends StatefulWidget {
     required this.controller,
     required this.editorState,
     required this.blockComponentContext,
+    required this.blockComponentBuilder,
   });
 
   final PopoverController controller;
   final EditorState editorState;
   final BlockComponentContext blockComponentContext;
-
+  final Map<String, BlockComponentBuilder> blockComponentBuilder;
   @override
   State<_DraggableOptionButton> createState() => _DraggableOptionButtonState();
 }
 
 class _DraggableOptionButtonState extends State<_DraggableOptionButton> {
+  late final Node node;
+  late BlockComponentContext blockComponentContext;
+
   Offset? globalPosition;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // copy the node to avoid the node in document being updated
+    node = widget.blockComponentContext.node.copyWith();
+    blockComponentContext = BlockComponentContext(
+      widget.blockComponentContext.buildContext,
+      node,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Draggable<Node>(
-      feedback: Container(
-        width: 20,
-        height: 20,
-        color: Colors.red,
-      ),
+      feedback: _buildFeedback(context),
       onDragStarted: () {
-        debugPrint('onDragStarted');
         context.read<EditorState>().selectionService.removeDropTarget();
       },
       onDragUpdate: (details) {
@@ -265,13 +279,48 @@ class _DraggableOptionButtonState extends State<_DraggableOptionButton> {
             .selectionService
             .getDropTargetRenderData(globalPosition!);
         final acceptedPath = data?.dropPath;
-        debugPrint('onDragEnd, acceptedPath($acceptedPath)');
-        // TODO(Lucas): Implement the move node to new position
+
+        _moveNodeToNewPosition(node, acceptedPath);
       },
       child: _OptionButton(
         controller: widget.controller,
         editorState: widget.editorState,
         blockComponentContext: widget.blockComponentContext,
+      ),
+    );
+  }
+
+  Future<void> _moveNodeToNewPosition(Node node, Path? acceptedPath) async {
+    if (acceptedPath == null) {
+      Log.info('acceptedPath is null');
+      return;
+    }
+
+    Log.info('move node($node) to path($acceptedPath)');
+
+    final transaction = widget.editorState.transaction;
+    // use the node in document instead of the local node
+    transaction.moveNode(acceptedPath, widget.blockComponentContext.node);
+    await widget.editorState.apply(transaction);
+  }
+
+  Widget _buildFeedback(BuildContext context) {
+    final builder = widget.blockComponentBuilder[node.type];
+    if (builder == null) {
+      return const SizedBox.shrink();
+    }
+    return Opacity(
+      opacity: 0.7,
+      child: Material(
+        color: Colors.transparent,
+        child: IntrinsicWidth(
+          child: IntrinsicHeight(
+            child: Provider.value(
+              value: context.read<EditorState>(),
+              child: builder.build(blockComponentContext),
+            ),
+          ),
+        ),
       ),
     );
   }
