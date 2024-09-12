@@ -258,7 +258,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       editorState.logConfiguration
         ..level = AppFlowyEditorLogLevel.all
         ..handler = (log) {
-          // Log.debug(log);
+          if (enableDocumentInternalLog) {
+            Log.info(log);
+          }
         };
     }
 
