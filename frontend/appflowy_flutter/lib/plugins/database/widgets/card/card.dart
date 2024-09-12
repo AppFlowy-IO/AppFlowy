@@ -221,7 +221,7 @@ class _CardContent extends StatelessWidget {
     final child = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _CardCover(
+        CardCover(
           cover: rowMeta.cover,
           userProfile: userProfile,
           isCompact: isCompact,
@@ -297,8 +297,13 @@ class _CardContent extends StatelessWidget {
   }
 }
 
-class _CardCover extends StatelessWidget {
-  const _CardCover({this.cover, this.userProfile, this.isCompact = false});
+class CardCover extends StatelessWidget {
+  const CardCover({
+    super.key,
+    this.cover,
+    this.userProfile,
+    this.isCompact = false,
+  });
 
   final RowCoverPB? cover;
   final UserProfilePB? userProfile;

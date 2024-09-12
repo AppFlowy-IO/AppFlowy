@@ -1,5 +1,8 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -14,18 +17,28 @@ class MobileRowDetailBloc
 
   final DatabaseController databaseController;
 
+  UserProfilePB? _userProfile;
+  UserProfilePB? get userProfile => _userProfile;
+
   void _dispatch() {
     on<MobileRowDetailEvent>(
       (event, emit) {
         event.when(
-          initial: (rowId) {
+          initial: (rowId) async {
             _startListening();
+
             emit(
               state.copyWith(
                 isLoading: false,
                 currentRowId: rowId,
                 rowInfos: databaseController.rowCache.rowInfos,
               ),
+            );
+
+            final result = await UserEventGetUserProfile().send();
+            result.fold(
+              (profile) => _userProfile = profile,
+              (error) => Log.error(error),
             );
           },
           didLoadRows: (rows) {

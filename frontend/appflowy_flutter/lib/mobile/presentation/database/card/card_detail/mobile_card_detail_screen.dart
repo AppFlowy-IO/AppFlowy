@@ -21,6 +21,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -322,91 +323,105 @@ class MobileRowDetailPageContentState
         rowController: rowController,
       ),
       child: BlocBuilder<RowDetailBloc, RowDetailState>(
-        builder: (context, rowDetailState) {
-          return Column(
-            children: [
-              BlocProvider<RowBannerBloc>(
-                create: (context) => RowBannerBloc(
-                  viewId: viewId,
-                  fieldController: fieldController,
-                  rowMeta: rowController.rowMeta,
-                )..add(const RowBannerEvent.initial()),
-                child: BlocConsumer<RowBannerBloc, RowBannerState>(
-                  listener: (context, state) {
-                    if (state.primaryField == null) {
-                      return;
-                    }
-                    primaryFieldId.value = state.primaryField!.id;
-                  },
-                  builder: (context, state) {
-                    if (state.primaryField == null) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: cellBuilder.buildCustom(
-                        CellContext(
-                          rowId: rowController.rowId,
-                          fieldId: state.primaryField!.id,
-                        ),
-                        skinMap: EditableCellSkinMap(
-                          textSkin: _TitleSkin(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.only(top: 9, bottom: 100),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: MobileRowPropertyList(
-                        databaseController: widget.databaseController,
-                        cellBuilder: cellBuilder,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(6, 6, 16, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (rowDetailState.numHiddenFields != 0) ...[
-                            const ToggleHiddenFieldsVisibilityButton(),
-                          ],
-                          const VSpace(8.0),
-                          ValueListenableBuilder(
-                            valueListenable: primaryFieldId,
-                            builder: (context, primaryFieldId, child) {
-                              if (primaryFieldId.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-                              return OpenRowPageButton(
-                                databaseController: widget.databaseController,
-                                cellContext: CellContext(
-                                  rowId: rowController.rowId,
-                                  fieldId: primaryFieldId,
-                                ),
-                                documentId: rowController.rowMeta.documentId,
-                              );
-                            },
-                          ),
-                          MobileRowDetailCreateFieldButton(
-                            viewId: viewId,
-                            fieldController: fieldController,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+        builder: (context, rowDetailState) => Column(
+          children: [
+            if (widget.rowMeta.cover.url.isNotEmpty) ...[
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                  child: AFImage(
+                    url: widget.rowMeta.cover.url,
+                    uploadType: widget.rowMeta.cover.uploadType,
+                    userProfile:
+                        context.read<MobileRowDetailBloc>().userProfile,
+                  ),
                 ),
               ),
             ],
-          );
-        },
+            BlocProvider<RowBannerBloc>(
+              create: (context) => RowBannerBloc(
+                viewId: viewId,
+                fieldController: fieldController,
+                rowMeta: rowController.rowMeta,
+              )..add(const RowBannerEvent.initial()),
+              child: BlocConsumer<RowBannerBloc, RowBannerState>(
+                listener: (context, state) {
+                  if (state.primaryField == null) {
+                    return;
+                  }
+                  primaryFieldId.value = state.primaryField!.id;
+                },
+                builder: (context, state) {
+                  if (state.primaryField == null) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: cellBuilder.buildCustom(
+                      CellContext(
+                        rowId: rowController.rowId,
+                        fieldId: state.primaryField!.id,
+                      ),
+                      skinMap: EditableCellSkinMap(textSkin: _TitleSkin()),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.only(top: 9, bottom: 100),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: MobileRowPropertyList(
+                      databaseController: widget.databaseController,
+                      cellBuilder: cellBuilder,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(6, 6, 16, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (rowDetailState.numHiddenFields != 0) ...[
+                          const ToggleHiddenFieldsVisibilityButton(),
+                        ],
+                        const VSpace(8.0),
+                        ValueListenableBuilder(
+                          valueListenable: primaryFieldId,
+                          builder: (context, primaryFieldId, child) {
+                            if (primaryFieldId.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return OpenRowPageButton(
+                              databaseController: widget.databaseController,
+                              cellContext: CellContext(
+                                rowId: rowController.rowId,
+                                fieldId: primaryFieldId,
+                              ),
+                              documentId: rowController.rowMeta.documentId,
+                            );
+                          },
+                        ),
+                        MobileRowDetailCreateFieldButton(
+                          viewId: viewId,
+                          fieldController: fieldController,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
