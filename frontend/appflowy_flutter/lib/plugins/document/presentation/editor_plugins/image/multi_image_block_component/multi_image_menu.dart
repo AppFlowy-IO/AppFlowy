@@ -15,7 +15,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu, Log;
+import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -128,7 +128,6 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
                   UploadImageType.local,
                   UploadImageType.url,
                   UploadImageType.unsplash,
-
                 ],
                 onSelectedLocalImages: insertLocalImages,
                 onSelectedAIImage: insertAIImage,

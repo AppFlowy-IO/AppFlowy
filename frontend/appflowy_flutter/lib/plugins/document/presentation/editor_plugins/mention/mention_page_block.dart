@@ -12,14 +12,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show
-        Delta,
-        EditorState,
-        Node,
-        PlatformExtension,
-        TextInsert,
-        TextTransaction,
-        paragraphNode;
+    show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -27,6 +20,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 final pageMemorizer = <String, ViewPB?>{};
 
@@ -112,7 +106,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
           );
         }
 
-        if (PlatformExtension.isMobile) {
+        if (UniversalPlatform.isMobile) {
           return _MobileMentionPageBlock(
             view: view,
             textStyle: widget.textStyle,
@@ -137,7 +131,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       return;
     }
 
-    if (PlatformExtension.isMobile && mounted) {
+    if (UniversalPlatform.isMobile && mounted) {
       await context.pushView(view);
     } else {
       getIt<TabsBloc>().add(
@@ -147,7 +141,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   Future<void> handleDoubleTap() async {
-    if (!PlatformExtension.isMobile) {
+    if (!UniversalPlatform.isMobile) {
       return;
     }
 

@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -13,6 +12,7 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
@@ -313,7 +313,7 @@ void showToastNotification(
   ToastificationCallbacks? callbacks,
   double bottomPadding = 100,
 }) {
-  if (PlatformExtension.isMobile) {
+  if (UniversalPlatform.isMobile) {
     toastification.showCustom(
       alignment: Alignment.bottomCenter,
       autoCloseDuration: const Duration(milliseconds: 3000),

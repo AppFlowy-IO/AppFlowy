@@ -11,6 +11,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ErrorBlockComponentBuilder extends BlockComponentBuilder {
   ErrorBlockComponentBuilder({
@@ -66,7 +67,7 @@ class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: PlatformExtension.isDesktopOrWeb
+      child: UniversalPlatform.isDesktopOrWeb
           ? _buildDesktopErrorBlock(context)
           : _buildMobileErrorBlock(context),
     );
@@ -84,7 +85,7 @@ class _ErrorBlockComponentWidgetState extends State<ErrorBlockComponentWidget>
       );
     }
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       child = MobileBlockActionButtons(
         node: node,
         editorState: context.read<EditorState>(),

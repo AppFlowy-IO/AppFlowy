@@ -1,8 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/mobile/presentation/chat/mobile_chat_screen.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
@@ -33,10 +30,12 @@ import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/mobile_feature_flag_screen.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/time/duration.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sheet/route.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 GoRouter generateRouter(Widget child) {
   return GoRouter(
@@ -52,9 +51,9 @@ GoRouter generateRouter(Widget child) {
       _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
+      if (!UniversalPlatform.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
-      if (PlatformExtension.isMobile) ...[
+      if (UniversalPlatform.isMobile) ...[
         // settings
         _mobileHomeSettingPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
@@ -650,7 +649,7 @@ GoRoute _rootRoute(Widget child) {
         (user) => DesktopHomeScreen.routeName,
         (error) => null,
       );
-      if (routeName != null && !PlatformExtension.isMobile) return routeName;
+      if (routeName != null && !UniversalPlatform.isMobile) return routeName;
 
       return null;
     },

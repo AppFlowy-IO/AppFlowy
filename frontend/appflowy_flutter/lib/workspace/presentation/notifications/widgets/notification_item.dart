@@ -14,6 +14,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class NotificationItem extends StatefulWidget {
   const NotificationItem({
@@ -104,7 +105,7 @@ class _NotificationItemState extends State<NotificationItem> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border(
-                    bottom: PlatformExtension.isMobile
+                    bottom: UniversalPlatform.isMobile
                         ? BorderSide(
                             color: AFThemeExtension.of(context).calloutBGColor,
                           )
@@ -122,7 +123,7 @@ class _NotificationItemState extends State<NotificationItem> {
                           ? null
                           : Border(
                               left: BorderSide(
-                                width: PlatformExtension.isMobile ? 4 : 2,
+                                width: UniversalPlatform.isMobile ? 4 : 2,
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
@@ -138,7 +139,7 @@ class _NotificationItemState extends State<NotificationItem> {
                           FlowySvg(
                             FlowySvgs.time_s,
                             size: Size.square(
-                              PlatformExtension.isMobile ? 24 : 20,
+                              UniversalPlatform.isMobile ? 24 : 20,
                             ),
                             color: AFThemeExtension.of(context).textColor,
                           ),
@@ -150,14 +151,14 @@ class _NotificationItemState extends State<NotificationItem> {
                                 FlowyText.semibold(
                                   widget.title,
                                   fontSize:
-                                      PlatformExtension.isMobile ? 16 : 14,
+                                      UniversalPlatform.isMobile ? 16 : 14,
                                   color: AFThemeExtension.of(context).textColor,
                                 ),
                                 // TODO(Xazin): Relative time
                                 FlowyText.regular(
                                   infoString,
                                   fontSize:
-                                      PlatformExtension.isMobile ? 12 : 10,
+                                      UniversalPlatform.isMobile ? 12 : 10,
                                 ),
                                 const VSpace(5),
                                 Container(
@@ -184,11 +185,11 @@ class _NotificationItemState extends State<NotificationItem> {
               ),
             ),
           ),
-          if (PlatformExtension.isMobile && !widget.readOnly ||
+          if (UniversalPlatform.isMobile && !widget.readOnly ||
               _isHovering && !widget.readOnly)
             Positioned(
-              right: PlatformExtension.isMobile ? 8 : 4,
-              top: PlatformExtension.isMobile ? 8 : 4,
+              right: UniversalPlatform.isMobile ? 8 : 4,
+              top: UniversalPlatform.isMobile ? 8 : 4,
               child: NotificationItemActions(
                 isRead: widget.isRead,
                 onDelete: widget.onDelete,
@@ -257,7 +258,7 @@ class NotificationItemActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = PlatformExtension.isMobile ? 40.0 : 30.0;
+    final double size = UniversalPlatform.isMobile ? 40.0 : 30.0;
 
     return Container(
       height: size,
@@ -297,7 +298,7 @@ class NotificationItemActions extends StatelessWidget {
               thickness: 1,
               indent: 2,
               endIndent: 2,
-              color: PlatformExtension.isMobile
+              color: UniversalPlatform.isMobile
                   ? Theme.of(context).colorScheme.outline
                   : Theme.of(context).dividerColor,
             ),

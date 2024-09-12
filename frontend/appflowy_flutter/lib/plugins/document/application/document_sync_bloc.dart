@@ -42,7 +42,7 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
 
             final isNetworkConnected = await _connectivity
                 .checkConnectivity()
-                .then((value) => value != ConnectivityResult.none);
+                .then((value) => !value.contains(ConnectivityResult.none));
             emit(state.copyWith(isNetworkConnected: isNetworkConnected));
 
             connectivityStream =
@@ -56,7 +56,7 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
           networkStateChanged: (result) {
             emit(
               state.copyWith(
-                isNetworkConnected: result != ConnectivityResult.none,
+                isNetworkConnected: !result.contains(ConnectivityResult.none),
               ),
             );
           },
@@ -86,7 +86,7 @@ class DocumentSyncEvent with _$DocumentSyncEvent {
     DocumentSyncStatePB syncState,
   ) = syncStateChanged;
   const factory DocumentSyncEvent.networkStateChanged(
-    ConnectivityResult result,
+    List<ConnectivityResult> result,
   ) = NetworkStateChanged;
 }
 

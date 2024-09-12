@@ -19,7 +19,6 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -27,6 +26,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
@@ -47,7 +47,7 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     bool shrinkWrap,
     String? initialRowId,
   ) =>
-      PlatformExtension.isDesktop
+      UniversalPlatform.isDesktop
           ? DesktopBoardPage(
               key: _makeValueKey(controller),
               view: view,
