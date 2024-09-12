@@ -6,6 +6,7 @@ import 'desktop/database/database_field_settings_test.dart'
     as database_field_settings_test;
 import 'desktop/database/database_field_test.dart' as database_field_test;
 import 'desktop/database/database_filter_test.dart' as database_filter_test;
+import 'desktop/database/database_media_test.dart' as database_media_test;
 import 'desktop/database/database_row_page_test.dart' as database_row_page_test;
 import 'desktop/database/database_row_test.dart' as database_row_test;
 import 'desktop/database/database_setting_test.dart' as database_setting_test;
@@ -35,6 +36,7 @@ Future<void> runIntegration2OnDesktop() async {
   database_sort_test.main();
   database_view_test.main();
   database_calendar_test.main();
+  database_media_test.main();
 
   // DON'T add more tests here. This is the second test runner for desktop.
 }
