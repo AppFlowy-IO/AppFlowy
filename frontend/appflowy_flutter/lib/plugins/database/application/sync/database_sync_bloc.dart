@@ -50,7 +50,7 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
 
             final isNetworkConnected = await _connectivity
                 .checkConnectivity()
-                .then((value) => !value.contains(ConnectivityResult.none));
+                .then((value) => value != ConnectivityResult.none);
             emit(state.copyWith(isNetworkConnected: isNetworkConnected));
 
             connectivityStream =
@@ -64,7 +64,7 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
           networkStateChanged: (result) {
             emit(
               state.copyWith(
-                isNetworkConnected: !result.contains(ConnectivityResult.none),
+                isNetworkConnected: result != ConnectivityResult.none,
               ),
             );
           },
@@ -94,7 +94,7 @@ class DatabaseSyncEvent with _$DatabaseSyncEvent {
     DatabaseSyncStatePB syncState,
   ) = syncStateChanged;
   const factory DatabaseSyncEvent.networkStateChanged(
-    List<ConnectivityResult> result,
+    ConnectivityResult result,
   ) = NetworkStateChanged;
 }
 

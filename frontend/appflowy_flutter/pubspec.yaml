@@ -199,11 +199,10 @@ dependency_overrides:
       ref: "200b572"
 
   appflowy_editor_plugins:
-    path: /Users/lucas.xu/Desktop/appflowy_editor_plugins/packages/appflowy_editor_plugins
-    # git:
-    #   url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
-    #   path: "packages/appflowy_editor_plugins"
-    #   ref: "87af520732deae1138c12a4c33a62ae56b2aa81f"
+    git:
+      url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
+      path: "packages/appflowy_editor_plugins"
+      ref: "b228456"
 
   sheet:
     git:
