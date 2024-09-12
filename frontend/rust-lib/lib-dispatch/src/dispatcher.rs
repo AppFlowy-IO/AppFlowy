@@ -60,6 +60,7 @@ pub type BoxFutureCallback =
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
+#[track_caller]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + Send + 'static,

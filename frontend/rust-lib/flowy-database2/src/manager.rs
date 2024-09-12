@@ -226,25 +226,22 @@ impl DatabaseManager {
     database_id: &str,
     _database_view_id: Option<&str>,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
-    let mut editors = self.editors.lock().await;
-    if let Some(editor) = editors.get(database_id).cloned() {
+    if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);
     }
-
-    let editor = self.open_database(database_id, &mut editors).await?;
-    drop(editors);
+    let editor = self.open_database(database_id).await?;
     Ok(editor)
   }
 
   #[instrument(level = "trace", skip_all, err)]
-  pub async fn open_database(
-    &self,
-    database_id: &str,
-    editors: &mut DatabaseEditorMap,
-  ) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let workspace_database = self.workspace_database()?;
     if let Some(database_editor) = self.removing_editor.lock().await.remove(database_id) {
-      editors.insert(database_id.to_string(), database_editor.clone());
+      self
+        .editors
+        .lock()
+        .await
+        .insert(database_id.to_string(), database_editor.clone());
       return Ok(database_editor);
     }
 
@@ -253,7 +250,7 @@ impl DatabaseManager {
     // hasn't finished syncing yet. In such cases, get_or_create_database will return None.
     // The workaround is to add a retry mechanism to attempt fetching the database again.
     let database = Retry::spawn(
-      ExponentialBackoff::from_millis(2).factor(1000).take(3),
+      ExponentialBackoff::from_millis(3).factor(1000).take(2),
       || async {
         trace!("retry to open database:{}", database_id);
         let database = workspace_database
@@ -275,7 +272,11 @@ impl DatabaseManager {
     )
     .await?;
 
-    editors.insert(database_id.to_string(), editor.clone());
+    self
+      .editors
+      .lock()
+      .await
+      .insert(database_id.to_string(), editor.clone());
     Ok(editor)
   }
 
@@ -285,10 +286,9 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let workspace_database = lock.read().await;
     if let Some(database_id) = workspace_database.get_database_id_with_view_id(view_id) {
-      let mut editors = self.editors.lock().await;
-      if editors.get(&database_id).is_none() {
-        let _ = self.open_database(&database_id, &mut editors).await?;
-        drop(editors);
+      let is_not_exist = self.editors.lock().await.get(&database_id).is_none();
+      if is_not_exist {
+        let _ = self.open_database(&database_id).await?;
       }
     }
     Ok(())
@@ -302,12 +302,11 @@ impl DatabaseManager {
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
       let mut should_remove = false;
-
       if let Some(editor) = editors.get(&database_id) {
         editor.close_view(view_id).await;
         // when there is no opening views, mark the database to be removed.
         trace!(
-          "{} has {} opening views",
+          "[Database]: {} has {} opening views",
           database_id,
           editor.num_of_opening_views().await
         );
@@ -315,7 +314,10 @@ impl DatabaseManager {
       }
 
       if should_remove {
-        if let Some(editor) = editors.remove(&database_id) {
+        let editor = editors.remove(&database_id);
+        drop(editors);
+
+        if let Some(editor) = editor {
           editor.close_database().await;
           self
             .removing_editor
@@ -760,6 +762,13 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   ) -> Result<Collab, DatabaseError> {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
     let data_source = if self.persistence.is_collab_exist(object_id) {
+      if encoded_collab.is_some() {
+        error!(
+          "build collab: {}:{} with both local and remote encode collab",
+          collab_type, object_id
+        );
+      }
+
       CollabPersistenceImpl {
         persistence: Some(self.persistence.clone()),
       }

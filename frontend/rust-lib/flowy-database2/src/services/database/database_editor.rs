@@ -21,13 +21,14 @@ use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
-use arc_swap::ArcSwap;
+use arc_swap::{ArcSwap, ArcSwapOption};
 use async_trait::async_trait;
+use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, DatabaseRow, Row, RowCell, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, DatabaseRow, Row, RowCell, RowDetail, RowId, RowUpdate};
 use collab_database::views::{
   DatabaseLayout, FilterMap, LayoutSetting, OrderObjectPosition, RowOrder,
 };
@@ -40,8 +41,9 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::time::Duration;
+use tokio::select;
 use tokio::sync::oneshot::Sender;
 use tokio::sync::RwLock as TokioRwLock;
 use tokio::sync::{broadcast, oneshot};
@@ -61,6 +63,8 @@ pub struct DatabaseEditor {
   is_opening: ArcSwap<bool>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
+  un_finalized_rows_cancellation: Arc<ArcSwapOption<CancellationToken>>,
+  finalized_rows: Arc<moka::future::Cache<String, Weak<RwLock<DatabaseRow>>>>,
 }
 
 impl DatabaseEditor {
@@ -70,6 +74,15 @@ impl DatabaseEditor {
     task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> FlowyResult<Arc<Self>> {
+    let finalized_rows: moka::future::Cache<String, Weak<RwLock<DatabaseRow>>> =
+      moka::future::Cache::builder()
+        .max_capacity(50)
+        .async_eviction_listener(|key, value, _| {
+          Box::pin(async move {
+            database_row_evict_listener(key, value).await;
+          })
+        })
+        .build();
     let notification_sender = Arc::new(DebounceNotificationSender::new(200));
     let cell_cache = AnyTypeCache::<u64>::new();
     let database_id = database.read().await.get_database_id();
@@ -121,6 +134,8 @@ impl DatabaseEditor {
       is_opening: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
+      un_finalized_rows_cancellation: Arc::new(Default::default()),
+      finalized_rows: Arc::new(finalized_rows),
     });
     observe_block_event(&database_id, &this).await;
     observe_view_change(&database_id, &this).await;
@@ -128,7 +143,7 @@ impl DatabaseEditor {
   }
 
   pub async fn close_view(&self, view_id: &str) {
-    self.database_views.close_view(view_id).await;
+    self.database_views.remove_view(view_id).await;
   }
 
   pub async fn get_row_ids(&self) -> Vec<RowId> {
@@ -609,15 +624,12 @@ impl DatabaseEditor {
       .await;
     if !updated_cells.is_empty() {
       self
-        .database
-        .write()
-        .await
         .update_row(row.id, |row| {
           row
             .set_last_modified(timestamp())
             .set_cells(Cells::from(updated_cells));
         })
-        .await;
+        .await?;
     }
 
     let to_row = if to_row.is_some() {
@@ -765,19 +777,27 @@ impl DatabaseEditor {
           .with_context(format!("The row:{} in database not found", row_id))
       })?;
 
-    let collab_object = self.collab_builder.collab_object(
-      &self.user.workspace_id()?,
-      self.user.user_id()?,
-      row_id,
-      CollabType::DatabaseRow,
-    )?;
+    let is_finalized = self.finalized_rows.get(row_id.as_str()).await.is_some();
+    if !is_finalized {
+      trace!("[Database]: finalize database row: {}", row_id);
+      let collab_object = self.collab_builder.collab_object(
+        &self.user.workspace_id()?,
+        self.user.user_id()?,
+        row_id,
+        CollabType::DatabaseRow,
+      )?;
 
-    if let Err(err) = self.collab_builder.finalize(
-      collab_object,
-      CollabBuilderConfig::default(),
-      database_row.clone(),
-    ) {
-      error!("Failed to init database row: {}", err);
+      if let Err(err) = self.collab_builder.finalize(
+        collab_object,
+        CollabBuilderConfig::default(),
+        database_row.clone(),
+      ) {
+        error!("Failed to init database row: {}", err);
+      }
+      self
+        .finalized_rows
+        .insert(row_id.to_string(), Arc::downgrade(&database_row))
+        .await;
     }
 
     Ok(database_row)
@@ -939,9 +959,6 @@ impl DatabaseEditor {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = self.get_row(view_id, row_id).await;
     self
-      .database
-      .write()
-      .await
       .update_row(row_id.clone(), |row_update| {
         row_update
           .set_last_modified(timestamp())
@@ -949,7 +966,7 @@ impl DatabaseEditor {
             cell_update.insert(field_id, new_cell);
           });
       })
-      .await;
+      .await?;
 
     self
       .did_update_row(view_id, row_id, field_id, old_row)
@@ -958,20 +975,31 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn update_row<F>(&self, row_id: RowId, modify: F) -> FlowyResult<()>
+  where
+    F: FnOnce(RowUpdate),
+  {
+    if self.finalized_rows.get(row_id.as_str()).await.is_none() {
+      info!(
+        "[Database Row]: row:{} is not finalized when editing, init it",
+        row_id
+      );
+      self.init_database_row(&row_id).await?;
+    }
+    self.database.write().await.update_row(row_id, modify).await;
+    Ok(())
+  }
+
   pub async fn clear_cell(&self, view_id: &str, row_id: RowId, field_id: &str) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = self.get_row(view_id, &row_id).await;
-
     self
-      .database
-      .write()
-      .await
       .update_row(row_id.clone(), |row_update| {
         row_update.update_cells(|cell_update| {
           cell_update.clear(field_id);
         });
       })
-      .await;
+      .await?;
 
     self
       .did_update_row(view_id, &row_id, field_id, old_row)
@@ -1364,7 +1392,30 @@ impl DatabaseEditor {
   }
 
   pub async fn close_database(&self) {
-    info!("close database editor: {}", self.database_id);
+    info!("[Database]: {} close", self.database_id);
+    let token = CancellationToken::new();
+    let cloned_finalized_rows = self.finalized_rows.clone();
+    self
+      .un_finalized_rows_cancellation
+      .store(Some(Arc::new(token.clone())));
+    tokio::spawn(async move {
+      // Using select! to concurrently run two asynchronous futures:
+      // 1. Wait for 30 seconds, then invalidate all the finalized rows.
+      // 2. If the cancellation token (`token`) is triggered before the 30 seconds expire,
+      //    cancel the invalidation action and do nothing.
+      select! {
+        _ = tokio::time::sleep(Duration::from_secs(30)) => {
+          for (row_id, row) in cloned_finalized_rows.iter() {
+            remove_row_sync_plugin(row_id.as_str(), row).await;
+          }
+          cloned_finalized_rows.invalidate_all();
+        },
+        _ = token.cancelled() => {
+          trace!("Invalidate action cancelled");
+        }
+      }
+    });
+
     let cancellation = self.database_cancellation.read().await;
     if let Some(cancellation) = &*cancellation {
       info!("Cancel database operation");
@@ -1382,6 +1433,10 @@ impl DatabaseEditor {
     view_id: &str,
     notify_finish: Option<tokio::sync::oneshot::Sender<()>>,
   ) -> FlowyResult<DatabasePB> {
+    if let Some(un_finalized_rows_token) = self.un_finalized_rows_cancellation.load_full() {
+      un_finalized_rows_token.cancel();
+    }
+
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
     // Check if the database is currently being opened
@@ -1429,11 +1484,10 @@ impl DatabaseEditor {
       );
 
       let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-      let should_wait = notify_finish.is_some() || row_metas.len() < 10;
+      let blocking_read = notify_finish.is_some() || row_metas.len() < 50;
       let (tx, rx) = oneshot::channel();
-      self.async_load_rows(view_editor, Some(tx), new_token);
-      if should_wait {
-        info!("[Database]: block until all rows are loaded");
+      self.async_load_rows(view_editor, Some(tx), new_token, blocking_read);
+      if blocking_read {
         if let Ok(rows) = rx.await {
           row_metas = rows
             .into_iter()
@@ -1455,9 +1509,6 @@ impl DatabaseEditor {
       });
       // Mark that the opening process is complete
       self.is_opening.store(Arc::new(false));
-      // Clear cancellation token
-      self.database_cancellation.write().await.take();
-
       // Collect all waiting tasks and send the result
       let txs = std::mem::take(&mut *self.opening_ret_txs.write().await);
       for tx in txs {
@@ -1477,8 +1528,12 @@ impl DatabaseEditor {
     view_editor: Arc<DatabaseViewEditor>,
     notify_finish: Option<Sender<Vec<Arc<Row>>>>,
     new_token: CancellationToken,
+    blocking_read: bool,
   ) {
-    trace!("[Database]: start loading rows");
+    trace!(
+      "[Database]: start loading rows, blocking: {}",
+      blocking_read
+    );
     let cloned_database = Arc::downgrade(&self.database);
     tokio::spawn(async move {
       let apply_filter_and_sort =
@@ -1491,12 +1546,20 @@ impl DatabaseEditor {
 
           if view_editor.has_filters().await {
             trace!("[Database]: filtering rows:{}", loaded_rows.len());
-            view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
+            if blocking_read {
+              loaded_rows = view_editor.v_filter_rows(loaded_rows).await;
+            } else {
+              view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
+            }
           }
 
           if view_editor.has_sorts().await {
             trace!("[Database]: sorting rows:{}", loaded_rows.len());
-            view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
+            if blocking_read {
+              view_editor.v_sort_rows(&mut loaded_rows).await;
+            } else {
+              view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
+            }
           }
 
           loaded_rows
@@ -1549,7 +1612,11 @@ impl DatabaseEditor {
       }
       drop(row_orders);
 
-      info!("[Database]: Finish loading all rows: {}", loaded_rows.len());
+      info!(
+        "[Database]: Finish loading all rows: {}, blocking: {}",
+        loaded_rows.len(),
+        blocking_read
+      );
       let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);
@@ -2141,4 +2208,21 @@ fn notify_did_update_database_field(database: &Database, field_id: &str) -> Flow
       .send();
   }
   Ok(())
+}
+
+async fn database_row_evict_listener(key: Arc<String>, row: Weak<RwLock<DatabaseRow>>) {
+  remove_row_sync_plugin(key.as_str(), row).await
+}
+
+async fn remove_row_sync_plugin(row_id: &str, row: Weak<RwLock<DatabaseRow>>) {
+  if let Some(row) = row.upgrade() {
+    let should_remove = row.read().await.has_cloud_plugin();
+    if should_remove {
+      trace!("[Database]: un-finalize row: {}", row_id);
+      row
+        .write()
+        .await
+        .remove_plugins_for_types(vec![CollabPluginType::CloudStorage]);
+    }
+  }
 }
