@@ -62,8 +62,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/appflowy_editor_plugins"
-      ref: "87af520732deae1138c12a4c33a62ae56b2aa81f"
-      resolved-ref: "87af520732deae1138c12a4c33a62ae56b2aa81f"
+      ref: b228456
+      resolved-ref: b228456d59fcfa08752353ccd665a9ecc7304f94
       url: "https://github.com/AppFlowy-IO/AppFlowy-plugins.git"
     source: git
     version: "0.0.6"
@@ -1151,10 +1151,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.7"
   json_annotation:
     dependency: "direct main"
     description:
