@@ -10,7 +10,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'chat_at_button.dart';
 import 'chat_input_attachment.dart';
@@ -68,7 +68,7 @@ class _ChatInputState extends State<ChatInput> {
     _textController = InputTextFieldController();
     _inputFocusNode = FocusNode(
       onKeyEvent: (node, event) {
-        if (PlatformExtension.isDesktop) {
+        if (UniversalPlatform.isDesktop) {
           if (_inputActionControl.canHandleKeyEvent(event)) {
             _inputActionControl.handleKeyEvent(event);
             return KeyEventResult.handled;
@@ -154,7 +154,7 @@ class _ChatInputState extends State<ChatInput> {
                 Row(
                   children: [
                     // TODO(lucas): support mobile
-                    if (PlatformExtension.isDesktop &&
+                    if (UniversalPlatform.isDesktop &&
                         widget.aiType.isLocalAI())
                       _attachmentButton(buttonPadding),
 
@@ -164,7 +164,7 @@ class _ChatInputState extends State<ChatInput> {
                     // mention button
                     _mentionButton(buttonPadding),
 
-                    if (PlatformExtension.isMobile) const HSpace(6.0),
+                    if (UniversalPlatform.isMobile) const HSpace(6.0),
 
                     // send button
                     _sendButton(buttonPadding),
@@ -274,7 +274,7 @@ class _ChatInputState extends State<ChatInput> {
       return;
     }
 
-    if (PlatformExtension.isDesktop) {
+    if (UniversalPlatform.isDesktop) {
       ChatActionsMenu(
         anchor: ChatInputAnchor(
           anchorKey: _textFieldKey,

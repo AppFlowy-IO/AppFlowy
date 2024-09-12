@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 /// The ... button shows on the top right corner of a block.
 ///
@@ -35,7 +36,7 @@ class MobileBlockActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!PlatformExtension.isMobile) {
+    if (!UniversalPlatform.isMobile) {
       return child;
     }
 

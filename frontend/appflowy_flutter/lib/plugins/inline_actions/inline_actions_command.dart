@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const inlineActionCharacter = '@';
 
@@ -26,7 +27,7 @@ Future<bool> inlineActionsCommandHandler(
   InlineActionsMenuStyle style,
 ) async {
   final selection = editorState.selection;
-  if (PlatformExtension.isMobile || selection == null) {
+  if (UniversalPlatform.isMobile || selection == null) {
     return false;
   }
 

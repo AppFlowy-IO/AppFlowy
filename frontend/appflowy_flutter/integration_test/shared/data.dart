@@ -1,9 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:archive/archive_io.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,7 +59,7 @@ class TestWorkspaceService {
     final inputStream =
         InputFileStream(await workspace.zip.then((value) => value.path));
     final archive = ZipDecoder().decodeBuffer(inputStream);
-    extractArchiveToDisk(
+    await extractArchiveToDisk(
       archive,
       await TestWorkspace._parent.then((value) => value.path),
     );

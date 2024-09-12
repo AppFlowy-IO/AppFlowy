@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
@@ -18,9 +16,11 @@ import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provi
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../common.dart';
 
@@ -206,7 +206,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
     }
 
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       child = BlockSelectionContainer(
         node: node,
         delegate: this,
@@ -228,7 +228,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     }
 
     // show a hover menu on desktop or web
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       if (widget.showMenu && widget.menuBuilder != null) {
         child = MouseRegion(
           onEnter: (_) => showActionsNotifier.value = true,

@@ -6,7 +6,6 @@ import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.da
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
-import 'package:appflowy/plugins/database/board/application/column_header_bloc.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
@@ -20,7 +19,6 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -28,6 +26,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
@@ -48,7 +47,7 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     bool shrinkWrap,
     String? initialRowId,
   ) =>
-      PlatformExtension.isDesktop
+      UniversalPlatform.isDesktop
           ? DesktopBoardPage(
               key: _makeValueKey(controller),
               view: view,
@@ -341,23 +340,10 @@ class _BoardContentState extends State<_BoardContent> {
                       false
                   ? BoardTrailing(scrollController: scrollController)
                   : const HSpace(40),
-              headerBuilder: (_, groupData) => MultiBlocProvider(
-                providers: [
-                  BlocProvider<BoardBloc>.value(
-                    value: context.read<BoardBloc>(),
-                  ),
-                  BlocProvider<ColumnHeaderBloc>(
-                    create: (context) => ColumnHeaderBloc(
-                      databaseController: databaseController,
-                      fieldId: (groupData.customData as GroupData).fieldInfo.id,
-                      group: context
-                          .read<BoardBloc>()
-                          .groupControllers[groupData.headerData.groupId]!
-                          .group,
-                    )..add(const ColumnHeaderEvent.initial()),
-                  ),
-                ],
+              headerBuilder: (_, groupData) => BlocProvider.value(
+                value: context.read<BoardBloc>(),
                 child: BoardColumnHeader(
+                  databaseController: databaseController,
                   groupData: groupData,
                   margin: config.groupHeaderPadding,
                 ),

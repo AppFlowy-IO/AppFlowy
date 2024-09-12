@@ -192,16 +192,6 @@ pub trait GroupController: Send + Sync {
     changesets: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)>;
 
-  /// Updates the name of a group.
-  ///
-  /// Returns a non-empty `TypeOptionData` when the change require a change
-  /// in the field type option data.
-  ///
-  async fn apply_group_rename(
-    &mut self,
-    changeset: &GroupChangeset,
-  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)>;
-
   /// Called before the row was created.
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);
 }

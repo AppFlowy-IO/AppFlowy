@@ -11,7 +11,6 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,6 +20,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../application/row/row_controller.dart';
 import '../../widgets/row/row_detail.dart';
@@ -183,7 +183,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return LayoutBuilder(
       // must specify MonthView width for useAvailableVerticalSpace to work properly
       builder: (context, constraints) {
-        EdgeInsets padding = PlatformExtension.isMobile
+        EdgeInsets padding = UniversalPlatform.isMobile
             ? CalendarSize.contentInsetsMobile
             : CalendarSize.contentInsets +
                 const EdgeInsets.symmetric(horizontal: 40);
@@ -201,7 +201,7 @@ class _CalendarPageState extends State<CalendarPage> {
               key: _calendarState,
               controller: _eventController,
               width: constraints.maxWidth,
-              cellAspectRatio: PlatformExtension.isMobile ? 0.9 : 0.6,
+              cellAspectRatio: UniversalPlatform.isMobile ? 0.9 : 0.6,
               startDay: _weekdayFromInt(firstDayOfWeek),
               showBorder: false,
               headerBuilder: _headerNavigatorBuilder,
@@ -221,7 +221,7 @@ class _CalendarPageState extends State<CalendarPage> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: PlatformExtension.isMobile
+            onTap: UniversalPlatform.isMobile
                 ? () => showMobileBottomSheet(
                       context,
                       title: LocaleKeys.calendar_quickJumpYear.tr(),
@@ -248,7 +248,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   DateFormat('MMMM y', context.locale.toLanguageTag())
                       .format(currentMonth),
                 ),
-                if (PlatformExtension.isMobile) ...[
+                if (UniversalPlatform.isMobile) ...[
                   const HSpace(6),
                   const FlowySvg(FlowySvgs.arrow_down_s),
                 ],
@@ -298,7 +298,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
     String weekDayString = symbols.WEEKDAYS[(day + 1) % 7];
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       weekDayString = weekDayString.substring(0, 3);
     }
 
@@ -410,7 +410,7 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
               ),
               onPressed: () {
                 if (state.unscheduleEvents.isNotEmpty) {
-                  if (PlatformExtension.isMobile) {
+                  if (UniversalPlatform.isMobile) {
                     _showUnscheduledEventsMobile(state.unscheduleEvents);
                   } else {
                     _popoverController.show();
@@ -475,7 +475,7 @@ class UnscheduleEventsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cells = [
-      if (!PlatformExtension.isMobile)
+      if (!UniversalPlatform.isMobile)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           child: FlowyText.medium(
@@ -489,7 +489,7 @@ class UnscheduleEventsList extends StatelessWidget {
         (event) => UnscheduledEventCell(
           event: event,
           onPressed: () {
-            if (PlatformExtension.isMobile) {
+            if (UniversalPlatform.isMobile) {
               context.push(
                 MobileRowDetailPage.routeName,
                 extra: {
@@ -519,7 +519,7 @@ class UnscheduleEventsList extends StatelessWidget {
       shrinkWrap: true,
     );
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       return Flexible(child: child);
     }
 
@@ -539,7 +539,7 @@ class UnscheduledEventCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformExtension.isMobile
+    return UniversalPlatform.isMobile
         ? MobileUnscheduledEventTile(event: event, onPressed: onPressed)
         : DesktopUnscheduledEventTile(event: event, onPressed: onPressed);
   }

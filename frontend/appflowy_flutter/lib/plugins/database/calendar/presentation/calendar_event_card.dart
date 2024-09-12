@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/calendar_card_cell_style.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -14,6 +13,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../application/calendar_bloc.dart';
 import 'calendar_event_editor.dart';
@@ -81,7 +81,7 @@ class _EventCardState extends State<EventCard> {
       isEditing: false,
       cellBuilder: cellBuilder,
       onTap: (context) {
-        if (PlatformExtension.isMobile) {
+        if (UniversalPlatform.isMobile) {
           context.push(
             MobileRowDetailPage.routeName,
             extra: {

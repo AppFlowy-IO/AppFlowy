@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -14,6 +11,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class FileUploadMenu extends StatefulWidget {
   const FileUploadMenu({
@@ -46,7 +45,7 @@ class _FileUploadMenuState extends State<FileUploadMenu> {
             isScrollable: true,
             padding: EdgeInsets.zero,
             overlayColor: WidgetStatePropertyAll(
-              PlatformExtension.isDesktop
+              UniversalPlatform.isDesktop
                   ? Theme.of(context).colorScheme.secondary
                   : Colors.transparent,
             ),
@@ -90,7 +89,7 @@ class _Tab extends StatelessWidget {
         left: 12.0,
         right: 12.0,
         bottom: 8.0,
-        top: PlatformExtension.isMobile ? 0 : 8.0,
+        top: UniversalPlatform.isMobile ? 0 : 8.0,
       ),
       child: FlowyText(title),
     );
@@ -116,9 +115,9 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
   @override
   Widget build(BuildContext context) {
     final constraints =
-        PlatformExtension.isMobile ? const BoxConstraints(minHeight: 92) : null;
+        UniversalPlatform.isMobile ? const BoxConstraints(minHeight: 92) : null;
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: SizedBox(
@@ -237,7 +236,7 @@ class _FileUploadNetworkState extends State<_FileUploadNetwork> {
   @override
   Widget build(BuildContext context) {
     final constraints =
-        PlatformExtension.isMobile ? const BoxConstraints(minHeight: 92) : null;
+        UniversalPlatform.isMobile ? const BoxConstraints(minHeight: 92) : null;
 
     return Container(
       padding: const EdgeInsets.all(8),

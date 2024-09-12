@@ -1,20 +1,21 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class UploadImageFileWidget extends StatelessWidget {
   const UploadImageFileWidget({
     super.key,
     required this.onPickFiles,
-    this.allowedExtensions = const ['jpg', 'png', 'jpeg'],
+    this.allowedExtensions = defaultImageExtensions,
     this.allowMultipleImages = false,
   });
 
@@ -26,7 +27,7 @@ class UploadImageFileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child = FlowyButton(
       showDefaultBoxDecorationOnMobile: true,
-      radius: PlatformExtension.isMobile ? BorderRadius.circular(8.0) : null,
+      radius: UniversalPlatform.isMobile ? BorderRadius.circular(8.0) : null,
       text: Container(
         margin: const EdgeInsets.all(4.0),
         alignment: Alignment.center,
@@ -37,7 +38,7 @@ class UploadImageFileWidget extends StatelessWidget {
       onTap: () => _uploadImage(context),
     );
 
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       child = FlowyHover(child: child);
     } else {
       child = Padding(
@@ -50,7 +51,7 @@ class UploadImageFileWidget extends StatelessWidget {
   }
 
   Future<void> _uploadImage(BuildContext context) async {
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       // on desktop, the users can pick a image file from folder
       final result = await getIt<FilePickerService>().pickFiles(
         dialogTitle: '',

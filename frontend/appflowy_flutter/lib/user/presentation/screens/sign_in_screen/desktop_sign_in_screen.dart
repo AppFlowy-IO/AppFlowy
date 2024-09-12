@@ -5,11 +5,11 @@ import 'package:appflowy/shared/window_title_bar.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DesktopSignInScreen extends StatelessWidget {
   const DesktopSignInScreen({
@@ -76,8 +76,8 @@ class DesktopSignInScreen extends StatelessWidget {
 
   PreferredSize _buildAppBar() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(PlatformExtension.isWindows ? 40 : 60),
-      child: PlatformExtension.isWindows
+      preferredSize: Size.fromHeight(UniversalPlatform.isWindows ? 40 : 60),
+      child: UniversalPlatform.isWindows
           ? const WindowTitleBar()
           : const MoveWindowDetector(),
     );

@@ -94,7 +94,6 @@ async fn rename_group_event_test() {
     .update_group(
       &board_view.id,
       &groups[1].group_id,
-      &groups[1].field_id,
       Some("new name".to_owned()),
       None,
     )
@@ -115,13 +114,7 @@ async fn hide_group_event_test() {
   assert_eq!(groups.len(), 4);
 
   let error = test
-    .update_group(
-      &board_view.id,
-      &groups[0].group_id,
-      &groups[0].field_id,
-      None,
-      Some(false),
-    )
+    .update_group(&board_view.id, &groups[0].group_id, None, Some(false))
     .await;
   assert!(error.is_none());
 
@@ -145,7 +138,6 @@ async fn update_group_name_test() {
     .update_group(
       &board_view.id,
       &groups[1].group_id,
-      &groups[1].field_id,
       Some("To Do?".to_string()),
       None,
     )

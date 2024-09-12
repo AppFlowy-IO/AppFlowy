@@ -30,6 +30,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 final codeBlockLocalization = CodeBlockLocalizations(
   codeBlockNewParagraph:
@@ -127,7 +128,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    smartEditItem..isActive = onlyShowInTextType,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     headingsToolbarItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -360,7 +361,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             // if the last one isn't a empty node, insert a new empty node.
             await _focusOnLastEmptyParagraph();
           },
-          child: VSpace(PlatformExtension.isDesktopOrWeb ? 200 : 400),
+          child: VSpace(UniversalPlatform.isDesktopOrWeb ? 200 : 400),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(
           color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
@@ -371,7 +372,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     final editorState = widget.editorState;
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       return AppFlowyMobileToolbar(
         toolbarHeight: 42.0,
         editorState: editorState,

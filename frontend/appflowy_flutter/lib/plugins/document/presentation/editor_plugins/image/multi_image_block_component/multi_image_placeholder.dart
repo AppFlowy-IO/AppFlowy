@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
@@ -17,18 +15,20 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu, Log;
+import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MultiImagePlaceholder extends StatefulWidget {
   const MultiImagePlaceholder({super.key, required this.node});
@@ -74,7 +74,7 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
               ),
               const HSpace(10),
               FlowyText(
-                PlatformExtension.isDesktop
+                UniversalPlatform.isDesktop
                     ? isDraggingFiles
                         ? LocaleKeys.document_plugins_image_dropImageToInsert
                             .tr()
@@ -89,7 +89,7 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
       ),
     );
 
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       return AppFlowyPopover(
         controller: controller,
         direction: PopoverDirection.bottomWithCenterAligned,
@@ -166,7 +166,7 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
   }
 
   void showUploadImageMenu() {
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       controller.show();
     } else {
       final isLocalMode = _isLocalMode();

@@ -20,12 +20,12 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
-import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 Future<String?> saveFileToLocalStorage(String localFilePath) async {
   final path = await getIt<ApplicationDataStorage>().getPath();
@@ -117,7 +117,7 @@ Future<void> downloadMediaFile(
     final uri = Uri.parse(file.url);
     final token = jsonDecode(userProfile.token)['access_token'];
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       onDownloadBegin?.call();
 
       final response =

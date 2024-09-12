@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
@@ -21,11 +19,13 @@ import 'package:appflowy/workspace/application/action_navigation/navigation_acti
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const _excludeFromDropTarget = [
   ImageBlockKeys.type,
@@ -146,7 +146,7 @@ class _DocumentPageState extends State<DocumentPage>
     EditorDropManagerState dropState,
   ) {
     final Widget child;
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
         builder: (context, styleState) {
           return AppFlowyEditorPage(
@@ -263,7 +263,7 @@ class _DocumentPageState extends State<DocumentPage>
       return const SizedBox.shrink();
     }
 
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       return DocumentImmersiveCover(
         fixedTitle: widget.fixedTitle,
         view: widget.view,
