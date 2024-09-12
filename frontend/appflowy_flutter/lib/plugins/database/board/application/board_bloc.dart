@@ -143,6 +143,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             final result = await groupBackendSvc.deleteGroup(groupId: groupId);
             result.fold((_) {}, (err) => Log.error(err));
           },
+          renameGroup: (groupId, name) async {
+            final result = await groupBackendSvc.updateGroup(
+              groupId: groupId,
+              name: name,
+            );
+            result.fold((_) {}, (err) => Log.error(err));
+          },
           didReceiveError: (error) {
             emit(BoardState.error(error: error));
           },
@@ -207,7 +214,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               final currentName = group.generateGroupName(databaseController);
               if (currentName != groupName) {
                 await groupBackendSvc.updateGroup(
-                  fieldId: groupControllers.values.first.group.fieldId,
                   groupId: groupId,
                   name: groupName,
                 );
@@ -282,7 +288,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       );
     } else {
       await groupBackendSvc.updateGroup(
-        fieldId: groupControllers.values.first.group.fieldId,
         groupId: group.groupId,
         visible: isVisible,
       );
@@ -550,6 +555,8 @@ class BoardEvent with _$BoardEvent {
   ) = _SetGroupVisibility;
   const factory BoardEvent.toggleHiddenSectionVisibility(bool isVisible) =
       _ToggleHiddenSectionVisibility;
+  const factory BoardEvent.renameGroup(String groupId, String name) =
+      _RenameGroup;
   const factory BoardEvent.deleteGroup(String groupId) = _DeleteGroup;
   const factory BoardEvent.reorderGroup(String fromGroupId, String toGroupId) =
       _ReorderGroup;
@@ -718,7 +725,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 }
 
 class GroupData {
-  GroupData({
+  const GroupData({
     required this.group,
     required this.fieldInfo,
   });

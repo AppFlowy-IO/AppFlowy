@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database/board/application/column_header_bloc.dart';
+import 'package:appflowy/plugins/database/board/group_ext.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -13,15 +11,21 @@ import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'board_checkbox_column_header.dart';
+import 'board_editable_column_header.dart';
 
 class BoardColumnHeader extends StatefulWidget {
   const BoardColumnHeader({
     super.key,
+    required this.databaseController,
     required this.groupData,
     required this.margin,
   });
 
+  final DatabaseController databaseController;
   final AppFlowyGroupData groupData;
   final EdgeInsets margin;
 
@@ -30,190 +34,61 @@ class BoardColumnHeader extends StatefulWidget {
 }
 
 class _BoardColumnHeaderState extends State<BoardColumnHeader> {
-  final FocusNode _focusNode = FocusNode();
-  final FocusNode _keyboardListenerFocusNode = FocusNode();
+  final ValueNotifier<bool> isEditing = ValueNotifier(false);
 
-  late final TextEditingController _controller =
-      TextEditingController.fromValue(
-    TextEditingValue(
-      selection: TextSelection.collapsed(
-        offset: widget.groupData.headerData.groupName.length,
-      ),
-      text: widget.groupData.headerData.groupName,
-    ),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
-        _saveEdit();
-      }
-    });
-  }
+  GroupData get customData => widget.groupData.customData;
 
   @override
   void dispose() {
-    _focusNode.dispose();
-    _keyboardListenerFocusNode.dispose();
-    _controller.dispose();
+    isEditing.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final boardCustomData = widget.groupData.customData as GroupData;
-
-    return BlocBuilder<ColumnHeaderBloc, ColumnHeaderState>(
-      builder: (context, state) {
-        return state.maybeMap(
-          orElse: () => const SizedBox.shrink(),
-          ready: (state) {
-            if (state.isEditing) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _focusNode.requestFocus();
-              });
-            }
-
-            Widget title = Expanded(
-              child: FlowyText.medium(
-                state.groupName,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-
-            if (!boardCustomData.group.isDefault &&
-                boardCustomData.fieldType.canEditHeader) {
-              title = Flexible(
-                fit: FlexFit.tight,
-                child: FlowyTooltip(
-                  message: LocaleKeys.board_column_renameGroupTooltip.tr(),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => context
-                          .read<ColumnHeaderBloc>()
-                          .add(const ColumnHeaderEvent.startEditing()),
-                      child: FlowyText.medium(
-                        state.groupName,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-
-            if (state.isEditing) {
-              title = _buildTextField(context);
-            }
-
-            return Padding(
-              padding: widget.margin,
-              child: SizedBox(
-                height: 50,
-                child: Row(
-                  children: [
-                    _buildHeaderIcon(boardCustomData),
-                    title,
-                    const HSpace(6),
-                    _groupOptionsButton(context),
-                    const HSpace(4),
-                    FlowyTooltip(
-                      message:
-                          LocaleKeys.board_column_addToColumnTopTooltip.tr(),
-                      preferBelow: false,
-                      child: FlowyIconButton(
-                        width: 20,
-                        icon: const FlowySvg(FlowySvgs.add_s),
-                        iconColorOnHover:
-                            Theme.of(context).colorScheme.onSurface,
-                        onPressed: () => context.read<BoardBloc>().add(
-                              BoardEvent.createRow(
-                                widget.groupData.id,
-                                OrderObjectPositionTypePB.Start,
-                                null,
-                                null,
-                              ),
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+    final Widget child = switch (customData.fieldType) {
+      FieldType.MultiSelect ||
+      FieldType.SingleSelect when !customData.group.isDefault =>
+        EditableColumnHeader(
+          databaseController: widget.databaseController,
+          groupData: widget.groupData,
+          isEditing: isEditing,
+          onSubmitted: (columnName) {
+            context
+                .read<BoardBloc>()
+                .add(BoardEvent.renameGroup(widget.groupData.id, columnName));
           },
-        );
-      },
-    );
-  }
-
-  Widget _buildTextField(BuildContext context) {
-    return Expanded(
-      child: KeyboardListener(
-        focusNode: _keyboardListenerFocusNode,
-        onKeyEvent: (event) {
-          if ([LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
-              .contains(event.logicalKey)) {
-            _saveEdit();
-          }
-        },
-        child: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          onEditingComplete: _saveEdit,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
-            hoverColor: Colors.transparent,
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            isDense: true,
-          ),
         ),
-      ),
+      FieldType.Checkbox => CheckboxColumnHeader(
+          databaseController: widget.databaseController,
+          groupData: widget.groupData,
+        ),
+      _ => _DefaultColumnHeaderContent(
+          databaseController: widget.databaseController,
+          groupData: widget.groupData,
+        ),
+    };
+
+    return Container(
+      padding: widget.margin,
+      height: 50,
+      child: child,
     );
   }
+}
 
-  void _saveEdit() {
-    context
-        .read<ColumnHeaderBloc>()
-        .add(ColumnHeaderEvent.endEditing(_controller.text));
-  }
+class GroupOptionsButton extends StatelessWidget {
+  const GroupOptionsButton({
+    super.key,
+    required this.groupData,
+    this.isEditing,
+  });
 
-  Widget _buildHeaderIcon(GroupData customData) =>
-      switch (customData.fieldType) {
-        FieldType.Checkbox => Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: FlowySvg(
-              customData.asCheckboxGroup()!.isCheck
-                  ? FlowySvgs.check_filled_s
-                  : FlowySvgs.uncheck_s,
-              blendMode: BlendMode.dst,
-              size: const Size.square(18),
-            ),
-          ),
-        _ => const SizedBox.shrink(),
-      };
+  final AppFlowyGroupData groupData;
+  final ValueNotifier<bool>? isEditing;
 
-  Widget _groupOptionsButton(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return AppFlowyPopover(
       clickHandler: PopoverClickHandler.gestureDetector,
       margin: const EdgeInsets.all(8),
@@ -225,14 +100,14 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
         iconColorOnHover: Theme.of(context).colorScheme.onSurface,
       ),
       popupBuilder: (popoverContext) {
-        final customGroupData = widget.groupData.customData as GroupData;
+        final customGroupData = groupData.customData as GroupData;
         final isDefault = customGroupData.group.isDefault;
-        final menuItems = GroupOptions.values.toList();
+        final menuItems = GroupOption.values.toList();
         if (!customGroupData.fieldType.canEditHeader || isDefault) {
-          menuItems.remove(GroupOptions.rename);
+          menuItems.remove(GroupOption.rename);
         }
         if (!customGroupData.fieldType.canDeleteGroup || isDefault) {
-          menuItems.remove(GroupOptions.delete);
+          menuItems.remove(GroupOption.delete);
         }
         return SeparatedColumn(
           mainAxisSize: MainAxisSize.min,
@@ -249,7 +124,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   onTap: () {
-                    action.call(context, customGroupData.group);
+                    run(context, action, customGroupData.group);
                     PopoverContainer.of(popoverContext).close();
                   },
                 ),
@@ -260,37 +135,100 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
       },
     );
   }
-}
 
-enum GroupOptions {
-  rename,
-  hide,
-  delete;
-
-  void call(BuildContext context, GroupPB group) {
-    switch (this) {
-      case rename:
-        context
-            .read<ColumnHeaderBloc>()
-            .add(const ColumnHeaderEvent.startEditing());
+  void run(BuildContext context, GroupOption option, GroupPB group) {
+    switch (option) {
+      case GroupOption.rename:
+        isEditing?.value = true;
         break;
-      case hide:
+      case GroupOption.hide:
         context
             .read<BoardBloc>()
             .add(BoardEvent.setGroupVisibility(group, false));
         break;
-      case delete:
-        NavigatorAlertDialog(
-          title: LocaleKeys.board_column_deleteColumnConfirmation.tr(),
-          confirm: () {
+      case GroupOption.delete:
+        showConfirmDeletionDialog(
+          context: context,
+          name: LocaleKeys.board_column_label.tr(),
+          description: LocaleKeys.board_column_deleteColumnConfirmation.tr(),
+          onConfirm: () {
             context
                 .read<BoardBloc>()
                 .add(BoardEvent.deleteGroup(group.groupId));
           },
-        ).show(context);
+        );
         break;
     }
   }
+}
+
+class CreateCardFromTopButton extends StatelessWidget {
+  const CreateCardFromTopButton({
+    super.key,
+    required this.groupId,
+  });
+
+  final String groupId;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.board_column_addToColumnTopTooltip.tr(),
+      preferBelow: false,
+      child: FlowyIconButton(
+        width: 20,
+        icon: const FlowySvg(FlowySvgs.add_s),
+        iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+        onPressed: () => context.read<BoardBloc>().add(
+              BoardEvent.createRow(
+                groupId,
+                OrderObjectPositionTypePB.Start,
+                null,
+                null,
+              ),
+            ),
+      ),
+    );
+  }
+}
+
+class _DefaultColumnHeaderContent extends StatelessWidget {
+  const _DefaultColumnHeaderContent({
+    required this.databaseController,
+    required this.groupData,
+  });
+
+  final DatabaseController databaseController;
+  final AppFlowyGroupData groupData;
+
+  @override
+  Widget build(BuildContext context) {
+    final customData = groupData.customData as GroupData;
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText.medium(
+            customData.group.generateGroupName(databaseController),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const HSpace(6),
+        GroupOptionsButton(
+          groupData: groupData,
+        ),
+        const HSpace(4),
+        CreateCardFromTopButton(
+          groupId: groupData.id,
+        ),
+      ],
+    );
+  }
+}
+
+enum GroupOption {
+  rename,
+  hide,
+  delete;
 
   FlowySvgData get icon => switch (this) {
         rename => FlowySvgs.edit_s,

@@ -38,8 +38,6 @@ pub enum DatabaseNotification {
   DidUpdateRowMeta = 67,
   /// Trigger when the settings of the database are changed
   DidUpdateSettings = 70,
-  /// Trigger after a group is renamed
-  DidRenameGroup = 71,
   // Trigger when the layout setting of the database is updated
   DidUpdateLayoutSettings = 80,
   // Trigger when the layout of the database is changed
@@ -80,7 +78,6 @@ impl std::convert::From<i32> for DatabaseNotification {
       66 => DatabaseNotification::DidReorderSingleRow,
       67 => DatabaseNotification::DidUpdateRowMeta,
       70 => DatabaseNotification::DidUpdateSettings,
-      71 => DatabaseNotification::DidRenameGroup,
       80 => DatabaseNotification::DidUpdateLayoutSettings,
       82 => DatabaseNotification::DidUpdateDatabaseLayout,
       83 => DatabaseNotification::DidDeleteDatabaseView,

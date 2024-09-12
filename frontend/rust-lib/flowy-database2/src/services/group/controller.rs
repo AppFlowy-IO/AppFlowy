@@ -430,31 +430,6 @@ where
     ))
   }
 
-  async fn apply_group_rename(
-    &mut self,
-    changeset: &GroupChangeset,
-  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)> {
-    let type_option = self.get_grouping_field_type_option().await.ok_or_else(|| {
-      FlowyError::internal().with_context("Failed to get grouping field type option")
-    })?;
-
-    let mut updated_type_option = None;
-
-    if let Some(type_option) = self.update_type_option_when_update_group(changeset, &type_option) {
-      updated_type_option = Some(type_option);
-    }
-
-    let updated_group = self
-      .get_group(&changeset.group_id)
-      .map(|(_, group)| GroupPB::from(group))
-      .ok_or_else(|| FlowyError::internal().with_context("Failed to get group"))?;
-
-    Ok((
-      updated_group,
-      updated_type_option.map(|type_option| type_option.into()),
-    ))
-  }
-
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
     <Self as GroupCustomize>::will_create_row(self, cells, field, group_id);
   }

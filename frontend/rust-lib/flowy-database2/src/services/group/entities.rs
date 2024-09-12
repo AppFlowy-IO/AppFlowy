@@ -21,7 +21,6 @@ pub struct GroupSetting {
 #[derive(Clone, Default, Debug)]
 pub struct GroupChangeset {
   pub group_id: String,
-  pub field_id: String,
   pub name: Option<String>,
   pub visible: Option<bool>,
 }

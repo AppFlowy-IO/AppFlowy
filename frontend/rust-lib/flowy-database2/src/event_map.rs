@@ -62,7 +62,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::UpdateGroup, update_group_handler)
          .event(DatabaseEvent::CreateGroup, create_group_handler)
          .event(DatabaseEvent::DeleteGroup, delete_group_handler)
-         .event(DatabaseEvent::RenameGroup, rename_group_handler)
          // Database
          .event(DatabaseEvent::GetDatabaseMeta, get_database_meta_handler)
          .event(DatabaseEvent::GetDatabases, get_databases_handler)
@@ -301,9 +300,6 @@ pub enum DatabaseEvent {
 
   #[event(input = "DeleteGroupPayloadPB")]
   DeleteGroup = 115,
-
-  #[event(input = "RenameGroupPB")]
-  RenameGroup = 116,
 
   #[event(input = "DatabaseIdPB", output = "DatabaseMetaPB")]
   GetDatabaseMeta = 119,
