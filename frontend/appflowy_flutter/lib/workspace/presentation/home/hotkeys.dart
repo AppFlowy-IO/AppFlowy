@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -8,11 +10,9 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:scaled_app/scaled_app.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 typedef KeyDownHandler = void Function(HotKey hotKey);
 
@@ -60,12 +60,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Collapse sidebar menu (using slash)
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.backslash,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.backslash,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => context
@@ -76,12 +72,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Collapse sidebar menu (using .)
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.period,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.period,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => context
@@ -92,12 +84,10 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Toggle theme mode light/dark
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.keyL,
+        KeyCode.keyL,
         modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-          HotKeyModifier.shift,
+          Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+          KeyModifier.shift,
         ],
         scope: HotKeyScope.inapp,
       ),
@@ -108,12 +98,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Close current tab
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.keyW,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.keyW,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) =>
@@ -123,12 +109,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Go to previous tab
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.pageUp,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.pageUp,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, -1),
@@ -137,12 +119,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Go to next tab
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.pageDown,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.pageDown,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, 1),
@@ -151,7 +129,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Rename current view
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.f2,
+        KeyCode.f2,
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) =>
@@ -160,14 +138,12 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     // Scale up/down the app
     // In some keyboards, the system returns equal as + keycode, while others may return add as + keycode, so add them both as zoom in key.
-    ...[LogicalKeyboardKey.equal, LogicalKeyboardKey.add].map(
+    ...[KeyCode.equal, KeyCode.add].map(
       (keycode) => HotKeyItem(
         hotKey: HotKey(
-          key: keycode,
+          keycode,
           modifiers: [
-            UniversalPlatform.isMacOS
-                ? HotKeyModifier.meta
-                : HotKeyModifier.control,
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
           ],
           scope: HotKeyScope.inapp,
         ),
@@ -177,12 +153,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.minus,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.minus,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _scaleWithStep(-0.1),
@@ -191,12 +163,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Reset app scaling
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.digit0,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.digit0,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _scaleToSize(1),
@@ -205,12 +173,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Switch to the next space
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.keyO,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.keyO,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => switchToTheNextSpace.value++,
@@ -219,12 +183,8 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     // Create a new page
     HotKeyItem(
       hotKey: HotKey(
-        key: LogicalKeyboardKey.keyN,
-        modifiers: [
-          UniversalPlatform.isMacOS
-              ? HotKeyModifier.meta
-              : HotKeyModifier.control,
-        ],
+        KeyCode.keyN,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => createNewPageNotifier.value++,

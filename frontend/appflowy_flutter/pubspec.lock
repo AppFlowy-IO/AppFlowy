@@ -2161,7 +2161,7 @@ packages:
     source: hosted
     version: "2.2.2"
   universal_platform:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: universal_platform
       sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
