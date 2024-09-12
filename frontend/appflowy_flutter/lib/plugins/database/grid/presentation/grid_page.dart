@@ -300,12 +300,14 @@ class _GridRowsState extends State<_GridRows> {
 
   void _evaluateFloatingCalculations() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        // maxScrollExtent is 0.0 if scrolling is not possible
-        showFloatingCalculations = widget
-                .scrollController.verticalController.position.maxScrollExtent >
-            0;
-      });
+      if (mounted) {
+        setState(() {
+          // maxScrollExtent is 0.0 if scrolling is not possible
+          showFloatingCalculations = widget.scrollController.verticalController
+                  .position.maxScrollExtent >
+              0;
+        });
+      }
     });
   }
 
