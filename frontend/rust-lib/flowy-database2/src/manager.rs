@@ -226,8 +226,7 @@ impl DatabaseManager {
     database_id: &str,
     _database_view_id: Option<&str>,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
-    let mut editors = self.editors.lock().await;
-    if let Some(editor) = editors.get(database_id).cloned() {
+    if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);
     }
     let editor = self.open_database(database_id).await?;

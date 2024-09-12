@@ -1396,7 +1396,6 @@ impl DatabaseEditor {
     self
       .un_finalized_rows_cancellation
       .store(Some(Arc::new(token.clone())));
-    let database_id = self.database_id.clone();
     tokio::spawn(async move {
       // Using select! to concurrently run two asynchronous futures:
       // 1. Wait for 30 seconds, then invalidate all the finalized rows.
@@ -1487,7 +1486,6 @@ impl DatabaseEditor {
       let (tx, rx) = oneshot::channel();
       self.async_load_rows(view_editor, Some(tx), new_token, blocking_read);
       if blocking_read {
-        info!("[Database]: block until all rows are loaded");
         if let Ok(rows) = rx.await {
           row_metas = rows
             .into_iter()
@@ -1530,7 +1528,10 @@ impl DatabaseEditor {
     new_token: CancellationToken,
     blocking_read: bool,
   ) {
-    trace!("[Database]: start loading rows");
+    trace!(
+      "[Database]: start loading rows, blocking: {}",
+      blocking_read
+    );
     let cloned_database = Arc::downgrade(&self.database);
     tokio::spawn(async move {
       let apply_filter_and_sort =
@@ -1543,12 +1544,20 @@ impl DatabaseEditor {
 
           if view_editor.has_filters().await {
             trace!("[Database]: filtering rows:{}", loaded_rows.len());
-            view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
+            if blocking_read {
+              loaded_rows = view_editor.v_filter_rows(loaded_rows).await;
+            } else {
+              view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
+            }
           }
 
           if view_editor.has_sorts().await {
             trace!("[Database]: sorting rows:{}", loaded_rows.len());
-            view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
+            if blocking_read {
+              view_editor.v_sort_rows(&mut loaded_rows).await;
+            } else {
+              view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
+            }
           }
 
           loaded_rows
@@ -1601,7 +1610,11 @@ impl DatabaseEditor {
       }
       drop(row_orders);
 
-      info!("[Database]: Finish loading all rows: {}", loaded_rows.len());
+      info!(
+        "[Database]: Finish loading all rows: {}, blocking: {}",
+        loaded_rows.len(),
+        blocking_read
+      );
       let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);

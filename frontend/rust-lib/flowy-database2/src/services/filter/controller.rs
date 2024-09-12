@@ -10,6 +10,8 @@ use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use rayon::prelude::*;
+
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;
 use tracing::{error, trace};
@@ -358,22 +360,23 @@ impl FilterController {
   pub async fn filter_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) -> FlowyResult<()> {
     let filters = self.filters.read().await;
     let field_by_field_id = self.get_field_map().await;
-    let mut visible_rows = vec![];
-    let mut invisible_rows = vec![];
-    for (index, row) in rows.iter_mut().enumerate() {
-      if filter_row(
-        row,
-        &self.result_by_row_id,
-        &field_by_field_id,
-        &self.cell_cache,
-        &filters,
-      ) {
-        let row_meta = RowMetaPB::from(row.as_ref());
-        visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
-      } else {
-        invisible_rows.push(row.id.clone());
-      }
-    }
+    let (visible_rows, invisible_rows): (Vec<_>, Vec<_>) =
+      rows.par_iter().enumerate().partition_map(|(index, row)| {
+        if filter_row(
+          row,
+          &self.result_by_row_id,
+          &field_by_field_id,
+          &self.cell_cache,
+          &filters,
+        ) {
+          let row_meta = RowMetaPB::from(row.as_ref());
+          // Visible rows go into the left partition
+          rayon::iter::Either::Left(InsertedRowPB::new(row_meta).with_index(index as i32))
+        } else {
+          // Invisible rows (just IDs) go into the right partition
+          rayon::iter::Either::Right(row.id.clone())
+        }
+      });
 
     let len = rows.len();
     rows.retain(|row| !invisible_rows.iter().any(|id| id == &row.id));
@@ -390,10 +393,10 @@ impl FilterController {
     Ok(())
   }
 
-  pub async fn filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn filter_rows(&self, mut rows: Vec<Arc<Row>>) -> Vec<Arc<Row>> {
     let filters = self.filters.read().await;
     let field_by_field_id = self.get_field_map().await;
-    rows.iter().for_each(|row| {
+    rows.par_iter().for_each(|row| {
       let _ = filter_row(
         row,
         &self.result_by_row_id,
@@ -410,6 +413,7 @@ impl FilterController {
         .map(|result| *result)
         .unwrap_or(false)
     });
+    rows
   }
 
   async fn get_field_map(&self) -> HashMap<String, Field> {

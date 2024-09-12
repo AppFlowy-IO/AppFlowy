@@ -216,8 +216,8 @@ impl DatabaseViewEditor {
 
     if !is_move_row || !is_local_change {
       if let Some(controller) = self.group_controller.write().await.as_mut() {
-        let mut rows = vec![Arc::new(row.clone())];
-        self.v_filter_rows(&mut rows).await;
+        let rows = vec![Arc::new(row.clone())];
+        let mut rows = self.v_filter_rows(rows).await;
         if let Some(row) = rows.pop() {
           let changesets = controller.did_create_row(&row, index as usize);
           for changeset in changesets {
@@ -270,8 +270,8 @@ impl DatabaseViewEditor {
         .await;
 
       if let Some(field) = field {
-        let mut rows = vec![Arc::new(row.clone())];
-        self.v_filter_rows(&mut rows).await;
+        let rows = vec![Arc::new(row.clone())];
+        let mut rows = self.v_filter_rows(rows).await;
 
         if let Some(row) = rows.pop() {
           let result = controller.did_update_group_row(old_row, &row, &field);
@@ -312,7 +312,7 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn v_filter_rows(&self, rows: Vec<Arc<Row>>) -> Vec<Arc<Row>> {
     self.filter_controller.filter_rows(rows).await
   }
 
@@ -336,8 +336,8 @@ impl DatabaseViewEditor {
   #[instrument(level = "info", skip(self))]
   pub async fn v_get_all_rows(&self) -> Vec<Arc<Row>> {
     let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
-    let mut rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
-    self.v_filter_rows(&mut rows).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    let mut rows = self.v_filter_rows(rows).await;
     self.v_sort_rows(&mut rows).await;
     rows
   }
