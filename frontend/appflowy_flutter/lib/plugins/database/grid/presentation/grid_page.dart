@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
@@ -9,8 +11,10 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flutter/material.dart';
@@ -361,11 +365,33 @@ class _GridRowsState extends State<_GridRows> {
               ),
             ),
             onReorder: (fromIndex, newIndex) {
-              final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-              if (fromIndex != toIndex) {
-                context
-                    .read<GridBloc>()
-                    .add(GridEvent.moveRow(fromIndex, toIndex));
+              void moveRow() {
+                final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+                if (fromIndex != toIndex) {
+                  context
+                      .read<GridBloc>()
+                      .add(GridEvent.moveRow(fromIndex, toIndex));
+                }
+              }
+
+              if (state.sorts.isNotEmpty) {
+                showCancelAndDeleteDialog(
+                  context: context,
+                  title: LocaleKeys.grid_sort_sortsActive.tr(
+                    namedArgs: {
+                      'intention':
+                          LocaleKeys.grid_row_reorderRowDescription.tr(),
+                    },
+                  ),
+                  description: LocaleKeys.grid_sort_removeSorting.tr(),
+                  confirmLabel: LocaleKeys.button_remove.tr(),
+                  onDelete: () {
+                    SortBackendService(viewId: widget.viewId).deleteAllSorts();
+                    moveRow();
+                  },
+                );
+              } else {
+                moveRow();
               }
             },
             itemCount: itemCount,
@@ -374,7 +400,6 @@ class _GridRowsState extends State<_GridRows> {
                 return _renderRow(
                   context,
                   state.rowInfos[index].rowId,
-                  isDraggable: state.reorderable,
                   index: index,
                 );
               }
@@ -411,8 +436,7 @@ class _GridRowsState extends State<_GridRows> {
   Widget _renderRow(
     BuildContext context,
     RowId rowId, {
-    int? index,
-    required bool isDraggable,
+    required int index,
     Animation<double>? animation,
   }) {
     final databaseController = context.read<GridBloc>().databaseController;
@@ -436,7 +460,6 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
-      isDraggable: isDraggable,
       rowController: rowController,
       cellBuilder: EditableCellBuilder(databaseController: databaseController),
       openDetailPage: (rowDetailContext) {

@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/domain/sort_service.dart';
+import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -8,6 +10,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RowActionMenu extends StatelessWidget {
   const RowActionMenu({
@@ -57,17 +60,7 @@ class RowActionMenu extends StatelessWidget {
           lineHeight: 1.0,
         ),
         onTap: () {
-          if (action == RowAction.delete) {
-            NavigatorOkCancelDialog(
-              message: LocaleKeys.grid_row_deleteRowPrompt.tr(),
-              onOkPressed: () {
-                action.performAction(context, viewId, rowId);
-              },
-            ).show(context);
-          } else {
-            action.performAction(context, viewId, rowId);
-          }
-
+          action.performAction(context, viewId, rowId);
           PopoverContainer.of(context).close();
         },
         leftIcon: icon,
@@ -107,17 +100,44 @@ enum RowAction {
         final position = this == insertAbove
             ? OrderObjectPositionTypePB.Before
             : OrderObjectPositionTypePB.After;
-        RowBackendService.createRow(
-          viewId: viewId,
-          position: position,
-          targetRowId: rowId,
-        );
+        final intention = this == insertAbove
+            ? LocaleKeys.grid_row_createRowAboveDescription.tr()
+            : LocaleKeys.grid_row_createRowBelowDescription.tr();
+        if (context.read<GridBloc>().state.sorts.isNotEmpty) {
+          showCancelAndDeleteDialog(
+            context: context,
+            title: LocaleKeys.grid_sort_sortsActive.tr(
+              namedArgs: {'intention': intention},
+            ),
+            description: LocaleKeys.grid_sort_removeSorting.tr(),
+            confirmLabel: LocaleKeys.button_remove.tr(),
+            onDelete: () {
+              SortBackendService(viewId: viewId).deleteAllSorts();
+              RowBackendService.createRow(
+                viewId: viewId,
+                position: position,
+                targetRowId: rowId,
+              );
+            },
+          );
+        } else {
+          RowBackendService.createRow(
+            viewId: viewId,
+            position: position,
+            targetRowId: rowId,
+          );
+        }
         break;
       case duplicate:
         RowBackendService.duplicateRow(viewId, rowId);
         break;
       case delete:
-        RowBackendService.deleteRows(viewId, [rowId]);
+        showConfirmDeletionDialog(
+          context: context,
+          name: LocaleKeys.grid_row_label.tr(),
+          description: LocaleKeys.grid_row_deleteRowPrompt.tr(),
+          onConfirm: () => RowBackendService.deleteRows(viewId, [rowId]),
+        );
         break;
     }
   }
