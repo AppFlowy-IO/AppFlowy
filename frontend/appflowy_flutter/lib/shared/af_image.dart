@@ -17,7 +17,7 @@ class AFImage extends StatelessWidget {
     this.userProfile,
   }) : assert(
           uploadType != FileUploadTypePB.CloudFile || userProfile != null,
-          'userProfilePB must be provided for accessing files from AF Cloud',
+          'userProfile must be provided for accessing files from AF Cloud',
         );
 
   final String url;
