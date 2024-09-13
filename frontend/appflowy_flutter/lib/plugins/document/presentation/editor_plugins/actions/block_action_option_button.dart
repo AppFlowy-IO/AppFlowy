@@ -344,7 +344,15 @@ class _OptionButton extends StatelessWidget {
       richMessage: TextSpan(
         children: [
           TextSpan(
-            // todo: customize the color to highlight the text.
+            text: LocaleKeys.document_plugins_optionAction_drag.tr(),
+            style: context.tooltipTextStyle(),
+          ),
+          TextSpan(
+            text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
+            style: context.tooltipTextStyle(),
+          ),
+          const TextSpan(text: '\n'),
+          TextSpan(
             text: LocaleKeys.document_plugins_optionAction_click.tr(),
             style: context.tooltipTextStyle(),
           ),
