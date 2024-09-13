@@ -4,6 +4,8 @@ import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_file.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
@@ -182,14 +184,28 @@ class _DocumentPageState extends State<DocumentPage>
           }
         },
         onDragDone: (details) async {
-          state.editorState!.selectionService.removeDropTarget();
+          final editorState = state.editorState;
+          if (editorState == null) {
+            return;
+          }
 
-          final data = state.editorState!.selectionService
+          editorState.selectionService.removeDropTarget();
+
+          final data = editorState.selectionService
               .getDropTargetRenderData(details.globalPosition);
 
           if (data != null) {
-            if (data.cursorNode != null) {
-              if (_excludeFromDropTarget.contains(data.cursorNode?.type)) {
+            final cursorNode = data.cursorNode;
+            final dropPath = data.dropPath;
+
+            if (cursorNode != null && dropPath != null) {
+              if (_excludeFromDropTarget.contains(cursorNode.type)) {
+                return;
+              }
+
+              final node = editorState.getNodeAtPath(dropPath);
+
+              if (node == null) {
                 return;
               }
 
@@ -207,19 +223,19 @@ class _DocumentPageState extends State<DocumentPage>
                 }
               }
 
-              // TODO(Lucas): add back the image and file drop logic
-              // await editorState!.dropImages(
-              //   data.dropTarget!,
-              //   imageFiles,
-              //   widget.view.id,
-              //   isLocalMode,
-              // );
-              // await editorState!.dropFiles(
-              //   data.dropTarget!,
-              //   otherFiles,
-              //   widget.view.id,
-              //   isLocalMode,
-              // );
+              await editorState.dropImages(
+                node,
+                imageFiles,
+                widget.view.id,
+                isLocalMode,
+              );
+
+              await editorState.dropFiles(
+                node,
+                otherFiles,
+                widget.view.id,
+                isLocalMode,
+              );
             }
           }
         },
