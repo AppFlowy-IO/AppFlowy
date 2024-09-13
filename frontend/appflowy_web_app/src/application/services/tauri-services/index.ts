@@ -9,7 +9,7 @@ import {
 } from '@/application/template.type';
 import { nanoid } from 'nanoid';
 import { YMap } from 'yjs/dist/src/types/YMap';
-import { DuplicatePublishView, FolderView, User, Workspace } from '@/application/types';
+import { DuplicatePublishView, FolderView, Invitation, User, Workspace } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -164,5 +164,13 @@ export class AFClientService implements AFService {
 
   uploadFileToCDN (_file: File): Promise<string> {
     return Promise.resolve('');
+  }
+
+  acceptInvitation (_invitationId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getInvitation (_invitationId: string): Promise<Invitation> {
+    return Promise.reject('Method not implemented');
   }
 }

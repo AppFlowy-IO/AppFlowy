@@ -16,6 +16,7 @@ export interface NormalModalProps extends DialogProps {
   okButtonProps?: ButtonProps;
   cancelButtonProps?: ButtonProps;
   okLoading?: boolean;
+  closable?: boolean;
 }
 
 export function NormalModal ({
@@ -30,6 +31,7 @@ export function NormalModal ({
   okButtonProps,
   cancelButtonProps,
   okLoading,
+  closable = true,
   ...dialogProps
 }: NormalModalProps) {
   const { t } = useTranslation();
@@ -39,7 +41,7 @@ export function NormalModal ({
   return (
     <Dialog
       onKeyDown={(e) => {
-        if (e.key === 'Escape') {
+        if (e.key === 'Escape' && closable) {
           onClose?.();
         }
       }}
@@ -48,16 +50,18 @@ export function NormalModal ({
       <div className={'relative flex flex-col gap-4 p-5'}>
         <div className={'flex w-full items-center justify-between text-base font-medium'}>
           <div className={'flex-1 text-center '}>{title}</div>
-          <div className={'relative -right-1.5'}>
+          {closable && <div className={'relative -right-1.5'}>
             <IconButton size={'small'} color={'inherit'} className={'h-6 w-6'} onClick={onClose || onCancel}>
               <CloseIcon className={'h-4 w-4'} />
             </IconButton>
-          </div>
+          </div>}
+
         </div>
 
         <div className={'flex-1'}>{children}</div>
         <div className={'flex w-full justify-end gap-3'}>
-          <Button color={'inherit'} variant={'outlined'} onClick={() => {
+          <Button
+            color={'inherit'} variant={'outlined'} onClick={() => {
             if (onCancel) {
               onCancel();
             } else {

@@ -1,24 +1,24 @@
-export function saveRedirectTo(redirectTo: string) {
+export function saveRedirectTo (redirectTo: string) {
   localStorage.setItem('redirectTo', redirectTo);
 }
 
-export function getRedirectTo() {
+export function getRedirectTo () {
   return localStorage.getItem('redirectTo');
 }
 
-export function clearRedirectTo() {
+export function clearRedirectTo () {
   localStorage.removeItem('redirectTo');
 }
 
 export const AUTH_CALLBACK_PATH = '/auth/callback';
 export const AUTH_CALLBACK_URL = `${window.location.origin}${AUTH_CALLBACK_PATH}`;
 
-export function withSignIn() {
+export function withSignIn () {
   return function (
     // eslint-disable-next-line
     _target: any,
     _propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
@@ -40,7 +40,7 @@ export function withSignIn() {
   };
 }
 
-export function afterAuth() {
+export function afterAuth () {
   const redirectTo = getRedirectTo();
 
   if (redirectTo) {
