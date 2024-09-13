@@ -29,7 +29,7 @@ use collab_folder::{
   Workspace,
 };
 use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+  AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -160,7 +160,7 @@ impl FolderManager {
     let config = CollabBuilderConfig::default().sync_enable(true);
 
     let data_source = data_source
-      .unwrap_or_else(|| KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
+      .unwrap_or_else(|| CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
 
     let object_id = workspace_id;
     let collab_object =
@@ -208,7 +208,7 @@ impl FolderManager {
         .collab_builder
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
 
-    let doc_state = KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
+    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
     let folder = self.collab_builder.create_folder(
       collab_object,
       doc_state,

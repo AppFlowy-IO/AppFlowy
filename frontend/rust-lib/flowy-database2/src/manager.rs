@@ -769,6 +769,11 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
         );
       }
 
+      trace!(
+        "build collab: {}:{} from local encode collab",
+        collab_type,
+        object_id
+      );
       CollabPersistenceImpl {
         persistence: Some(self.persistence.clone()),
       }
@@ -815,9 +820,16 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           }
         },
         Some(encoded_collab) => {
+          info!(
+            "build collab: {}:{} with new encode collab, {} bytes",
+            collab_type,
+            object_id,
+            encoded_collab.doc_state.len()
+          );
           self
             .persistence
             .save_collab(object_id, encoded_collab.clone())?;
+          //TODO(nathan): post collab
           encoded_collab.into()
         },
       }

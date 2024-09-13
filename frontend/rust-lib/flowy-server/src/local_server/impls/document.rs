@@ -1,5 +1,5 @@
 use anyhow::Error;
-
+use collab::entity::EncodedCollab;
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::async_trait::async_trait;
@@ -36,5 +36,14 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     _workspace_id: &str,
   ) -> Result<Option<DocumentData>, Error> {
     Ok(None)
+  }
+
+  async fn create_document_collab(
+    &self,
+    workspace_id: &str,
+    document_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    Ok(())
   }
 }

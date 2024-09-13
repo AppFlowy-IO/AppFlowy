@@ -378,12 +378,12 @@ impl CollabBuilderConfig {
   }
 }
 
-pub struct KVDBCollabPersistenceImpl {
+pub struct CollabPersistenceImpl {
   pub db: Weak<CollabKVDB>,
   pub uid: i64,
 }
 
-impl KVDBCollabPersistenceImpl {
+impl CollabPersistenceImpl {
   pub fn new(db: Weak<CollabKVDB>, uid: i64) -> Self {
     Self { db, uid }
   }
@@ -393,7 +393,7 @@ impl KVDBCollabPersistenceImpl {
   }
 }
 
-impl CollabPersistence for KVDBCollabPersistenceImpl {
+impl CollabPersistence for CollabPersistenceImpl {
   fn load_collab_from_disk(&self, collab: &mut Collab) {
     if let Some(collab_db) = self.db.upgrade() {
       let object_id = collab.object_id().to_string();

@@ -1,7 +1,8 @@
 use anyhow::Error;
-use client_api::entity::{QueryCollab, QueryCollabParams};
+use client_api::entity::{CreateCollabParams, QueryCollab, QueryCollabParams};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
+use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
 use collab_document::document::Document;
 use collab_entity::CollabType;
@@ -32,15 +33,13 @@ where
     document_id: &str,
     workspace_id: &str,
   ) -> Result<Vec<u8>, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let try_get_client = self.inner.try_get_client();
-    let document_id = document_id.to_string();
-    let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
+      workspace_id: workspace_id.to_string(),
       inner: QueryCollab::new(document_id.to_string(), CollabType::Document),
     };
-    let doc_state = try_get_client?
+    let doc_state = self
+      .inner
+      .try_get_client()?
       .get_collab(params)
       .await
       .map_err(FlowyError::from)?
@@ -50,7 +49,7 @@ where
 
     check_request_workspace_id_is_match(
       &workspace_id,
-      &cloned_user,
+      &self.user,
       format!("get document doc state:{}", document_id),
     )?;
 
@@ -72,15 +71,13 @@ where
     document_id: &str,
     workspace_id: &str,
   ) -> Result<Option<DocumentData>, Error> {
-    let try_get_client = self.inner.try_get_client();
-    let document_id = document_id.to_string();
-    let workspace_id = workspace_id.to_string();
-    let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(document_id.clone(), CollabType::Document),
+      workspace_id: workspace_id.to_string(),
+      inner: QueryCollab::new(document_id.to_string(), CollabType::Document),
     };
-    let doc_state = try_get_client?
+    let doc_state = self
+      .inner
+      .try_get_client()?
       .get_collab(params)
       .await
       .map_err(FlowyError::from)?
@@ -89,17 +86,33 @@ where
       .to_vec();
     check_request_workspace_id_is_match(
       &workspace_id,
-      &cloned_user,
+      &self.user,
       format!("Get {} document", document_id),
     )?;
     let collab = Collab::new_with_source(
       CollabOrigin::Empty,
-      &document_id,
+      document_id,
       DataSource::DocStateV1(doc_state),
       vec![],
       false,
     )?;
     let document = Document::open(collab)?;
     Ok(document.get_document_data().ok())
+  }
+
+  async fn create_document_collab(
+    &self,
+    workspace_id: &str,
+    document_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    let params = CreateCollabParams {
+      workspace_id: workspace_id.to_string(),
+      object_id: document_id.to_string(),
+      encoded_collab_v1: encoded_collab.encode_to_bytes()?,
+      collab_type: CollabType::Document,
+    };
+    self.inner.try_get_client()?.create_collab(params).await?;
+    Ok(())
   }
 }

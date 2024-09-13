@@ -2,6 +2,7 @@ use std::ops::Deref;
 use std::sync::{Arc, OnceLock};
 
 use anyhow::Error;
+use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -170,6 +171,15 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     _workspace_id: &str,
   ) -> Result<Option<DocumentData>, Error> {
     Ok(None)
+  }
+
+  async fn create_document_collab(
+    &self,
+    workspace_id: &str,
+    document_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    Ok(())
   }
 }
 
