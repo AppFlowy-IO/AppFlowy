@@ -266,26 +266,27 @@ class _DraggableOptionButtonState extends State<_DraggableOptionButton> {
         blockComponentBuilder: widget.blockComponentBuilder,
       ),
       onDragStarted: () {
-        context.read<EditorState>().selectionService.removeDropTarget();
+        widget.editorState.selectionService.removeDropTarget();
       },
       onDragUpdate: (details) {
-        context
-            .read<EditorState>()
-            .selectionService
+        widget.editorState.selectionService
             .renderDropTargetForOffset(details.globalPosition);
 
         globalPosition = details.globalPosition;
+
+        // auto scroll the page when the drag position is at the edge of the screen
+        widget.editorState.scrollService?.startAutoScroll(
+          details.localPosition,
+        );
       },
       onDragEnd: (details) {
-        context.read<EditorState>().selectionService.removeDropTarget();
+        widget.editorState.selectionService.removeDropTarget();
 
         if (globalPosition == null) {
           return;
         }
 
-        final data = context
-            .read<EditorState>()
-            .selectionService
+        final data = widget.editorState.selectionService
             .getDropTargetRenderData(globalPosition!);
         final acceptedPath = data?.dropPath;
 
