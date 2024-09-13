@@ -120,7 +120,7 @@
     "publishTab": "公開",
     "shareTab": "共有"
   },
-   "moreAction": {
+  "moreAction": {
     "small": "小",
     "medium": "中",
     "large": "大",
@@ -560,647 +560,647 @@
         "fixYourDataDescription": "データに問題がある場合、ここで修復を試みることができます。"
       }
     },
-  "shortcutsPage": {
-    "menuLabel": "ショートカット",
-    "title": "ショートカット",
-    "editBindingHint": "新しいバインディングを入力",
-    "searchHint": "検索",
-    "actions": {
-      "resetDefault": "デフォルトにリセット"
-    },
-    "errorPage": {
-      "message": "ショートカットの読み込みに失敗しました: {}",
-      "howToFix": "もう一度お試しください。問題が続く場合はGitHubでお問い合わせください。"
-    },
-    "resetDialog": {
-      "title": "ショートカットをリセット",
-      "description": "これにより、すべてのキー設定がデフォルトにリセットされます。この操作は元に戻せません。続行してもよろしいですか？",
-      "buttonLabel": "リセット"
-    },
-    "conflictDialog": {
-      "title": "{}は現在使用されています",
-      "descriptionPrefix": "このキー設定は現在 ",
-      "descriptionSuffix": " によって使用されています。このキー設定を置き換えると、{} から削除されます。",
-      "confirmLabel": "続行"
-    },
-    "editTooltip": "キー設定の編集を開始するには押してください",
-    "keybindings": {
-      "toggleToDoList": "To-Doリストを切り替え",
-      "insertNewParagraphInCodeblock": "新しい段落を挿入",
-      "pasteInCodeblock": "コードブロックに貼り付け",
-      "selectAllCodeblock": "すべて選択",
-      "indentLineCodeblock": "行の先頭にスペースを2つ挿入",
-      "outdentLineCodeblock": "行の先頭のスペースを2つ削除",
-      "twoSpacesCursorCodeblock": "カーソル位置にスペースを2つ挿入",
-      "copy": "選択をコピー",
-      "paste": "コンテンツに貼り付け",
-      "cut": "選択をカット",
-      "alignLeft": "テキストを左揃え",
-      "alignCenter": "テキストを中央揃え",
-      "alignRight": "テキストを右揃え",
-      "undo": "元に戻す",
-      "redo": "やり直し",
-      "convertToParagraph": "ブロックを段落に変換",
-      "backspace": "削除",
-      "deleteLeftWord": "左の単語を削除",
-      "deleteLeftSentence": "左の文を削除",
-      "delete": "右の文字を削除",
-      "deleteMacOS": "左の文字を削除",
-      "deleteRightWord": "右の単語を削除",
-      "moveCursorLeft": "カーソルを左に移動",
-      "moveCursorBeginning": "カーソルを先頭に移動",
-      "moveCursorLeftWord": "カーソルを左に1単語移動",
-      "moveCursorLeftSelect": "選択してカーソルを左に移動",
-      "moveCursorBeginSelect": "選択してカーソルを先頭に移動",
-      "moveCursorLeftWordSelect": "選択してカーソルを左に1単語移動",
-      "moveCursorRight": "カーソルを右に移動",
-      "moveCursorEnd": "カーソルを末尾に移動",
-      "moveCursorRightWord": "カーソルを右に1単語移動",
-      "moveCursorRightSelect": "選択してカーソルを右に1つ移動",
-      "moveCursorEndSelect": "選択してカーソルを末尾に移動",
-      "moveCursorRightWordSelect": "選択してカーソルを右に1単語移動",
-      "moveCursorUp": "カーソルを上に移動",
-      "moveCursorTopSelect": "選択してカーソルを最上部に移動",
-      "moveCursorTop": "カーソルを最上部に移動",
-      "moveCursorUpSelect": "選択してカーソルを上に移動",
-      "moveCursorBottomSelect": "選択してカーソルを最下部に移動",
-      "moveCursorBottom": "カーソルを最下部に移動",
-      "moveCursorDown": "カーソルを下に移動",
-      "moveCursorDownSelect": "選択してカーソルを下に移動",
-      "home": "最上部にスクロール",
-      "end": "最下部にスクロール",
-      "toggleBold": "太字を切り替え",
-      "toggleItalic": "斜体を切り替え",
-      "toggleUnderline": "下線を切り替え",
-      "toggleStrikethrough": "取り消し線を切り替え",
-      "toggleCode": "インラインコードを切り替え",
-      "toggleHighlight": "ハイライトを切り替え",
-      "showLinkMenu": "リンクメニューを表示",
-      "openInlineLink": "インラインリンクを開く",
-      "openLinks": "選択されたすべてのリンクを開く",
-      "indent": "インデント",
-      "outdent": "アウトデント",
-      "exit": "編集を終了",
-      "pageUp": "1ページ上にスクロール",
-      "pageDown": "1ページ下にスクロール",
-      "selectAll": "すべて選択",
-      "pasteWithoutFormatting": "フォーマットなしで貼り付け",
-      "showEmojiPicker": "絵文字ピッカーを表示",
-      "enterInTableCell": "表に改行を追加",
-      "leftInTableCell": "表の左隣のセルに移動",
-      "rightInTableCell": "表の右隣のセルに移動",
-      "upInTableCell": "表の上隣のセルに移動",
-      "downInTableCell": "表の下隣のセルに移動",
-      "tabInTableCell": "表の次の利用可能なセルに移動",
-      "shiftTabInTableCell": "表の前の利用可能なセルに移動",
-      "backSpaceInTableCell": "セルの先頭で停止"
-    },
-    "commands": {
-      "codeBlockNewParagraph": "コードブロックの隣に新しい段落を挿入",
-      "codeBlockIndentLines": "コードブロック内の行の先頭にスペースを2つ挿入",
-      "codeBlockOutdentLines": "コードブロック内の行の先頭のスペースを2つ削除",
-      "codeBlockAddTwoSpaces": "コードブロック内のカーソル位置にスペースを2つ挿入",
-      "codeBlockSelectAll": "コードブロック内のすべてのコンテンツを選択",
-      "codeBlockPasteText": "コードブロック内にテキストを貼り付け",
-      "textAlignLeft": "テキストを左揃え",
-      "textAlignCenter": "テキストを中央揃え",
-      "textAlignRight": "テキストを右揃え"
-    },
-    "couldNotLoadErrorMsg": "ショートカットを読み込めませんでした。もう一度お試しください。",
-    "couldNotSaveErrorMsg": "ショートカットを保存できませんでした。もう一度お試しください。"
-  },
-  "aiPage": {
-    "title": "AI設定",
-    "menuLabel": "AI設定",
-    "keys": {
-      "enableAISearchTitle": "AI検索",
-      "aiSettingsDescription": "AppFlowy AIを駆動するモデルを選択します。GPT 4-o、Claude 3.5、Llama 3.1、Mistral 7Bが含まれます。",
-      "loginToEnableAIFeature": "AI機能は@:appName Cloudにログインした後に有効になります。@:appNameアカウントがない場合は、「マイアカウント」でサインアップしてください。",
-      "llmModel": "言語モデル",
-      "llmModelType": "言語モデルのタイプ",
-      "downloadLLMPrompt": "{}をダウンロード",
-      "downloadAppFlowyOfflineAI": "AIオフラインパッケージをダウンロードすると、デバイス上でAIが動作します。続行しますか？",
-      "downloadLLMPromptDetail": "{}のローカルモデルをダウンロードすると、{}のストレージを使用します。続行しますか？",
-      "downloadBigFilePrompt": "ダウンロードが完了するまで約10分かかることがあります",
-      "downloadAIModelButton": "ダウンロード",
-      "downloadingModel": "ダウンロード中",
-      "localAILoaded": "ローカルAIモデルが正常に追加され、使用可能です",
-      "localAIStart": "ローカルAIチャットが開始しています...",
-      "localAILoading": "ローカルAIチャットモデルを読み込み中...",
-      "localAIStopped": "ローカルAIが停止しました",
-      "failToLoadLocalAI": "ローカルAIの起動に失敗しました",
-      "restartLocalAI": "ローカルAIを再起動",
-      "disableLocalAITitle": "ローカルAIを無効化",
-      "disableLocalAIDescription": "ローカルAIを無効にしますか？",
-      "localAIToggleTitle": "ローカルAIを有効化または無効化",
-      "offlineAIInstruction1": "次の手順に従って",
-      "offlineAIInstruction2": "指示",
-      "offlineAIInstruction3": "でオフラインAIを有効にします。",
-      "offlineAIDownload1": "AppFlowy AIをまだダウンロードしていない場合は、",
-      "offlineAIDownload2": "ダウンロード",
-      "offlineAIDownload3": "してください",
-      "activeOfflineAI": "アクティブ",
-      "downloadOfflineAI": "ダウンロード",
-      "openModelDirectory": "フォルダを開く"
-    }
-  },
-  "planPage": {
-    "menuLabel": "プラン",
-    "title": "料金プラン",
-    "planUsage": {
-      "title": "プラン使用状況の概要",
-      "storageLabel": "ストレージ",
-      "storageUsage": "{} / {} GB",
-      "unlimitedStorageLabel": "無制限のストレージ",
-      "collaboratorsLabel": "メンバー",
-      "collaboratorsUsage": "{} / {}",
-      "aiResponseLabel": "AIレスポンス",
-      "aiResponseUsage": "{} / {}",
-      "unlimitedAILabel": "無制限のAIレスポンス",
-      "proBadge": "プロ",
-      "aiMaxBadge": "AI Max",
-      "aiOnDeviceBadge": "Mac用AIオンデバイス",
-      "memberProToggle": "メンバーを追加 & 無制限のAI",
-      "aiMaxToggle": "無制限のAI & 高度なモデルにアクセス",
-      "aiOnDeviceToggle": "究極のプライバシーのためのローカルAI",
-      "aiCredit": {
-        "title": "@:appName AIクレジットを追加",
-        "price": "{}",
-        "priceDescription": "1,000クレジットの価格",
-        "purchase": "AIを購入",
-        "info": "ワークスペースごとに1,000 AIクレジットを追加し、より賢く迅速な結果を得るためにAIをワークフローにシームレスに統合します。最大で：",
-        "infoItemOne": "データベースごとに10,000レスポンス",
-        "infoItemTwo": "ワークスペースごとに1,000レスポンス"
+    "shortcutsPage": {
+      "menuLabel": "ショートカット",
+      "title": "ショートカット",
+      "editBindingHint": "新しいバインディングを入力",
+      "searchHint": "検索",
+      "actions": {
+        "resetDefault": "デフォルトにリセット"
       },
-      "currentPlan": {
-        "bannerLabel": "現在のプラン",
-        "freeTitle": "無料",
-        "proTitle": "プロ",
-        "teamTitle": "チーム",
-        "freeInfo": "個人や2名までのメンバーに最適",
-        "proInfo": "小規模・中規模チームに最適（最大10名）",
-        "teamInfo": "生産的かつ整理されたチームに最適",
-        "upgrade": "プランを変更",
-        "canceledInfo": "プランはキャンセルされました。{}に無料プランにダウングレードされます。"
+      "errorPage": {
+        "message": "ショートカットの読み込みに失敗しました: {}",
+        "howToFix": "もう一度お試しください。問題が続く場合はGitHubでお問い合わせください。"
+      },
+      "resetDialog": {
+        "title": "ショートカットをリセット",
+        "description": "これにより、すべてのキー設定がデフォルトにリセットされます。この操作は元に戻せません。続行してもよろしいですか？",
+        "buttonLabel": "リセット"
+      },
+      "conflictDialog": {
+        "title": "{}は現在使用されています",
+        "descriptionPrefix": "このキー設定は現在 ",
+        "descriptionSuffix": " によって使用されています。このキー設定を置き換えると、{} から削除されます。",
+        "confirmLabel": "続行"
+      },
+      "editTooltip": "キー設定の編集を開始するには押してください",
+      "keybindings": {
+        "toggleToDoList": "To-Doリストを切り替え",
+        "insertNewParagraphInCodeblock": "新しい段落を挿入",
+        "pasteInCodeblock": "コードブロックに貼り付け",
+        "selectAllCodeblock": "すべて選択",
+        "indentLineCodeblock": "行の先頭にスペースを2つ挿入",
+        "outdentLineCodeblock": "行の先頭のスペースを2つ削除",
+        "twoSpacesCursorCodeblock": "カーソル位置にスペースを2つ挿入",
+        "copy": "選択をコピー",
+        "paste": "コンテンツに貼り付け",
+        "cut": "選択をカット",
+        "alignLeft": "テキストを左揃え",
+        "alignCenter": "テキストを中央揃え",
+        "alignRight": "テキストを右揃え",
+        "undo": "元に戻す",
+        "redo": "やり直し",
+        "convertToParagraph": "ブロックを段落に変換",
+        "backspace": "削除",
+        "deleteLeftWord": "左の単語を削除",
+        "deleteLeftSentence": "左の文を削除",
+        "delete": "右の文字を削除",
+        "deleteMacOS": "左の文字を削除",
+        "deleteRightWord": "右の単語を削除",
+        "moveCursorLeft": "カーソルを左に移動",
+        "moveCursorBeginning": "カーソルを先頭に移動",
+        "moveCursorLeftWord": "カーソルを左に1単語移動",
+        "moveCursorLeftSelect": "選択してカーソルを左に移動",
+        "moveCursorBeginSelect": "選択してカーソルを先頭に移動",
+        "moveCursorLeftWordSelect": "選択してカーソルを左に1単語移動",
+        "moveCursorRight": "カーソルを右に移動",
+        "moveCursorEnd": "カーソルを末尾に移動",
+        "moveCursorRightWord": "カーソルを右に1単語移動",
+        "moveCursorRightSelect": "選択してカーソルを右に1つ移動",
+        "moveCursorEndSelect": "選択してカーソルを末尾に移動",
+        "moveCursorRightWordSelect": "選択してカーソルを右に1単語移動",
+        "moveCursorUp": "カーソルを上に移動",
+        "moveCursorTopSelect": "選択してカーソルを最上部に移動",
+        "moveCursorTop": "カーソルを最上部に移動",
+        "moveCursorUpSelect": "選択してカーソルを上に移動",
+        "moveCursorBottomSelect": "選択してカーソルを最下部に移動",
+        "moveCursorBottom": "カーソルを最下部に移動",
+        "moveCursorDown": "カーソルを下に移動",
+        "moveCursorDownSelect": "選択してカーソルを下に移動",
+        "home": "最上部にスクロール",
+        "end": "最下部にスクロール",
+        "toggleBold": "太字を切り替え",
+        "toggleItalic": "斜体を切り替え",
+        "toggleUnderline": "下線を切り替え",
+        "toggleStrikethrough": "取り消し線を切り替え",
+        "toggleCode": "インラインコードを切り替え",
+        "toggleHighlight": "ハイライトを切り替え",
+        "showLinkMenu": "リンクメニューを表示",
+        "openInlineLink": "インラインリンクを開く",
+        "openLinks": "選択されたすべてのリンクを開く",
+        "indent": "インデント",
+        "outdent": "アウトデント",
+        "exit": "編集を終了",
+        "pageUp": "1ページ上にスクロール",
+        "pageDown": "1ページ下にスクロール",
+        "selectAll": "すべて選択",
+        "pasteWithoutFormatting": "フォーマットなしで貼り付け",
+        "showEmojiPicker": "絵文字ピッカーを表示",
+        "enterInTableCell": "表に改行を追加",
+        "leftInTableCell": "表の左隣のセルに移動",
+        "rightInTableCell": "表の右隣のセルに移動",
+        "upInTableCell": "表の上隣のセルに移動",
+        "downInTableCell": "表の下隣のセルに移動",
+        "tabInTableCell": "表の次の利用可能なセルに移動",
+        "shiftTabInTableCell": "表の前の利用可能なセルに移動",
+        "backSpaceInTableCell": "セルの先頭で停止"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "コードブロックの隣に新しい段落を挿入",
+        "codeBlockIndentLines": "コードブロック内の行の先頭にスペースを2つ挿入",
+        "codeBlockOutdentLines": "コードブロック内の行の先頭のスペースを2つ削除",
+        "codeBlockAddTwoSpaces": "コードブロック内のカーソル位置にスペースを2つ挿入",
+        "codeBlockSelectAll": "コードブロック内のすべてのコンテンツを選択",
+        "codeBlockPasteText": "コードブロック内にテキストを貼り付け",
+        "textAlignLeft": "テキストを左揃え",
+        "textAlignCenter": "テキストを中央揃え",
+        "textAlignRight": "テキストを右揃え"
+      },
+      "couldNotLoadErrorMsg": "ショートカットを読み込めませんでした。もう一度お試しください。",
+      "couldNotSaveErrorMsg": "ショートカットを保存できませんでした。もう一度お試しください。"
+    },
+    "aiPage": {
+      "title": "AI設定",
+      "menuLabel": "AI設定",
+      "keys": {
+        "enableAISearchTitle": "AI検索",
+        "aiSettingsDescription": "AppFlowy AIを駆動するモデルを選択します。GPT 4-o、Claude 3.5、Llama 3.1、Mistral 7Bが含まれます。",
+        "loginToEnableAIFeature": "AI機能は@:appName Cloudにログインした後に有効になります。@:appNameアカウントがない場合は、「マイアカウント」でサインアップしてください。",
+        "llmModel": "言語モデル",
+        "llmModelType": "言語モデルのタイプ",
+        "downloadLLMPrompt": "{}をダウンロード",
+        "downloadAppFlowyOfflineAI": "AIオフラインパッケージをダウンロードすると、デバイス上でAIが動作します。続行しますか？",
+        "downloadLLMPromptDetail": "{}のローカルモデルをダウンロードすると、{}のストレージを使用します。続行しますか？",
+        "downloadBigFilePrompt": "ダウンロードが完了するまで約10分かかることがあります",
+        "downloadAIModelButton": "ダウンロード",
+        "downloadingModel": "ダウンロード中",
+        "localAILoaded": "ローカルAIモデルが正常に追加され、使用可能です",
+        "localAIStart": "ローカルAIチャットが開始しています...",
+        "localAILoading": "ローカルAIチャットモデルを読み込み中...",
+        "localAIStopped": "ローカルAIが停止しました",
+        "failToLoadLocalAI": "ローカルAIの起動に失敗しました",
+        "restartLocalAI": "ローカルAIを再起動",
+        "disableLocalAITitle": "ローカルAIを無効化",
+        "disableLocalAIDescription": "ローカルAIを無効にしますか？",
+        "localAIToggleTitle": "ローカルAIを有効化または無効化",
+        "offlineAIInstruction1": "次の手順に従って",
+        "offlineAIInstruction2": "指示",
+        "offlineAIInstruction3": "でオフラインAIを有効にします。",
+        "offlineAIDownload1": "AppFlowy AIをまだダウンロードしていない場合は、",
+        "offlineAIDownload2": "ダウンロード",
+        "offlineAIDownload3": "してください",
+        "activeOfflineAI": "アクティブ",
+        "downloadOfflineAI": "ダウンロード",
+        "openModelDirectory": "フォルダを開く"
+      }
+    },
+    "planPage": {
+      "menuLabel": "プラン",
+      "title": "料金プラン",
+      "planUsage": {
+        "title": "プラン使用状況の概要",
+        "storageLabel": "ストレージ",
+        "storageUsage": "{} / {} GB",
+        "unlimitedStorageLabel": "無制限のストレージ",
+        "collaboratorsLabel": "メンバー",
+        "collaboratorsUsage": "{} / {}",
+        "aiResponseLabel": "AIレスポンス",
+        "aiResponseUsage": "{} / {}",
+        "unlimitedAILabel": "無制限のAIレスポンス",
+        "proBadge": "プロ",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "Mac用AIオンデバイス",
+        "memberProToggle": "メンバーを追加 & 無制限のAI",
+        "aiMaxToggle": "無制限のAI & 高度なモデルにアクセス",
+        "aiOnDeviceToggle": "究極のプライバシーのためのローカルAI",
+        "aiCredit": {
+          "title": "@:appName AIクレジットを追加",
+          "price": "{}",
+          "priceDescription": "1,000クレジットの価格",
+          "purchase": "AIを購入",
+          "info": "ワークスペースごとに1,000 AIクレジットを追加し、より賢く迅速な結果を得るためにAIをワークフローにシームレスに統合します。最大で：",
+          "infoItemOne": "データベースごとに10,000レスポンス",
+          "infoItemTwo": "ワークスペースごとに1,000レスポンス"
+        },
+        "currentPlan": {
+          "bannerLabel": "現在のプラン",
+          "freeTitle": "無料",
+          "proTitle": "プロ",
+          "teamTitle": "チーム",
+          "freeInfo": "個人や2名までのメンバーに最適",
+          "proInfo": "小規模・中規模チームに最適（最大10名）",
+          "teamInfo": "生産的かつ整理されたチームに最適",
+          "upgrade": "プランを変更",
+          "canceledInfo": "プランはキャンセルされました。{}に無料プランにダウングレードされます。"
+        },
+        "addons": {
+          "title": "アドオン",
+          "addLabel": "追加",
+          "activeLabel": "追加済み",
+          "aiMax": {
+            "title": "AI Max",
+            "description": "GPT-4o、Claude 3.5 Sonnetなどによる無制限のAIレスポンス",
+            "price": "{}",
+            "priceInfo": "1ユーザーあたり月額、年間請求"
+          },
+          "aiOnDevice": {
+            "title": "Mac用AIオンデバイス",
+            "description": "Mistral 7B、LLAMA 3、その他のローカルモデルをマシンで実行",
+            "price": "{}",
+            "priceInfo": "1ユーザーあたり月額、年間請求",
+            "recommend": "M1以上を推奨"
+          }
+        },
+        "deal": {
+          "bannerLabel": "新年キャンペーン！",
+          "title": "チームを成長させましょう！",
+          "info": "Proプランとチームプランを10％オフでアップグレード！@:appName AIを含む強力な新機能でワークスペースの生産性を向上させましょう。",
+          "viewPlans": "プランを表示"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "請求",
+      "title": "請求",
+      "plan": {
+        "title": "プラン",
+        "freeLabel": "無料",
+        "proLabel": "プロ",
+        "planButtonLabel": "プランを変更",
+        "billingPeriod": "請求期間",
+        "periodButtonLabel": "期間を編集"
+      },
+      "paymentDetails": {
+        "title": "支払い詳細",
+        "methodLabel": "支払い方法",
+        "methodButtonLabel": "方法を編集"
       },
       "addons": {
         "title": "アドオン",
         "addLabel": "追加",
-        "activeLabel": "追加済み",
+        "removeLabel": "削除",
+        "renewLabel": "更新",
         "aiMax": {
-          "title": "AI Max",
-          "description": "GPT-4o、Claude 3.5 Sonnetなどによる無制限のAIレスポンス",
-          "price": "{}",
-          "priceInfo": "1ユーザーあたり月額、年間請求"
+          "label": "AI Max",
+          "description": "無制限のAIと高度なモデルを解放",
+          "activeDescription": "次の請求日は{}",
+          "canceledDescription": "AI Maxは{}まで利用可能です"
         },
         "aiOnDevice": {
-          "title": "Mac用AIオンデバイス",
-          "description": "Mistral 7B、LLAMA 3、その他のローカルモデルをマシンで実行",
-          "price": "{}",
-          "priceInfo": "1ユーザーあたり月額、年間請求",
-          "recommend": "M1以上を推奨"
+          "label": "Mac用AIオンデバイス",
+          "description": "デバイス上で無制限のAIを解放",
+          "activeDescription": "次の請求日は{}",
+          "canceledDescription": "Mac用AIオンデバイスは{}まで利用可能です"
+        },
+        "removeDialog": {
+          "title": "{}を削除",
+          "description": "{plan}を削除してもよろしいですか？{plan}の機能と特典へのアクセスをすぐに失います。"
         }
       },
-      "deal": {
-        "bannerLabel": "新年キャンペーン！",
-        "title": "チームを成長させましょう！",
-        "info": "Proプランとチームプランを10％オフでアップグレード！@:appName AIを含む強力な新機能でワークスペースの生産性を向上させましょう。",
-        "viewPlans": "プランを表示"
-      }
-    }
-  },
-  "billingPage": {
-    "menuLabel": "請求",
-    "title": "請求",
-    "plan": {
-      "title": "プラン",
-      "freeLabel": "無料",
-      "proLabel": "プロ",
-      "planButtonLabel": "プランを変更",
-      "billingPeriod": "請求期間",
-      "periodButtonLabel": "期間を編集"
+      "currentPeriodBadge": "現在の期間",
+      "changePeriod": "期間を変更",
+      "planPeriod": "{}期間",
+      "monthlyInterval": "毎月",
+      "monthlyPriceInfo": "毎月請求される座席あたりの料金",
+      "annualInterval": "年次",
+      "annualPriceInfo": "年間請求される座席あたりの料金"
     },
-    "paymentDetails": {
-      "title": "支払い詳細",
-      "methodLabel": "支払い方法",
-      "methodButtonLabel": "方法を編集"
-    },
-    "addons": {
-      "title": "アドオン",
-      "addLabel": "追加",
-      "removeLabel": "削除",
-      "renewLabel": "更新",
-      "aiMax": {
-        "label": "AI Max",
-        "description": "無制限のAIと高度なモデルを解放",
-        "activeDescription": "次の請求日は{}",
-        "canceledDescription": "AI Maxは{}まで利用可能です"
+    "comparePlanDialog": {
+      "title": "プランの比較と選択",
+      "planFeatures": "プラン\n機能",
+      "current": "現在のプラン",
+      "actions": {
+        "upgrade": "アップグレード",
+        "downgrade": "ダウングレード",
+        "current": "現在のプラン"
       },
-      "aiOnDevice": {
-        "label": "Mac用AIオンデバイス",
-        "description": "デバイス上で無制限のAIを解放",
-        "activeDescription": "次の請求日は{}",
-        "canceledDescription": "Mac用AIオンデバイスは{}まで利用可能です"
+      "freePlan": {
+        "title": "無料",
+        "description": "個人や2名までのメンバーに最適",
+        "price": "{}",
+        "priceInfo": "永久に無料"
       },
-      "removeDialog": {
-        "title": "{}を削除",
-        "description": "{plan}を削除してもよろしいですか？{plan}の機能と特典へのアクセスをすぐに失います。"
+      "proPlan": {
+        "title": "プロ",
+        "description": "小規模チームのプロジェクト管理とチーム知識の管理に最適",
+        "price": "{}",
+        "priceInfo": "1ユーザーあたり月額 \n年間請求\n\n{} 毎月請求"
+      },
+      "planLabels": {
+        "itemOne": "ワークスペース",
+        "itemTwo": "メンバー",
+        "itemThree": "ストレージ",
+        "itemFour": "リアルタイムコラボレーション",
+        "itemFive": "モバイルアプリ",
+        "itemSix": "AIレスポンス",
+        "itemFileUpload": "ファイルアップロード",
+        "tooltipSix": "ライフタイムはレスポンスの数がリセットされないことを意味します",
+        "intelligentSearch": "インテリジェント検索",
+        "tooltipSeven": "ワークスペースのURLの一部をカスタマイズできます"
+      },
+      "freeLabels": {
+        "itemOne": "ワークスペースごとの料金",
+        "itemTwo": "最大2名",
+        "itemThree": "5 GB",
+        "itemFour": "はい",
+        "itemFive": "はい",
+        "itemSix": "100回のライフタイムレスポンス",
+        "itemFileUpload": "最大7 MB",
+        "intelligentSearch": "インテリジェント検索"
+      },
+      "proLabels": {
+        "itemOne": "ワークスペースごとの料金",
+        "itemTwo": "最大10名",
+        "itemThree": "無制限",
+        "itemFour": "はい",
+        "itemFive": "はい",
+        "itemSix": "無制限",
+        "itemFileUpload": "無制限",
+        "intelligentSearch": "インテリジェント検索"
+      },
+      "paymentSuccess": {
+        "title": "あなたは現在{}プランに加入しています！",
+        "description": "お支払いが正常に処理され、プランが@:appName {}にアップグレードされました。プランの詳細はプランページで確認できます。"
+      },
+      "downgradeDialog": {
+        "title": "本当にプランをダウングレードしますか？",
+        "description": "プランをダウングレードすると、無料プランに戻ります。メンバーがこのワークスペースにアクセスできなくなり、無料プランのストレージ制限を満たすためにスペースを空ける必要がある場合があります。",
+        "downgradeLabel": "プランをダウングレード"
       }
     },
-    "currentPeriodBadge": "現在の期間",
-    "changePeriod": "期間を変更",
-    "planPeriod": "{}期間",
-    "monthlyInterval": "毎月",
-    "monthlyPriceInfo": "毎月請求される座席あたりの料金",
-    "annualInterval": "年次",
-    "annualPriceInfo": "年間請求される座席あたりの料金"
-  },
-  "comparePlanDialog": {
-    "title": "プランの比較と選択",
-    "planFeatures": "プラン\n機能",
-    "current": "現在のプラン",
-    "actions": {
-      "upgrade": "アップグレード",
-      "downgrade": "ダウングレード",
-      "current": "現在のプラン"
+    "cancelSurveyDialog": {
+      "title": "ご利用いただきありがとうございました",
+      "description": "ご解約されるのは残念です。@:appNameを改善するために、お客様のフィードバックをお聞かせください。いくつかの質問にお答えいただけますと幸いです。",
+      "commonOther": "その他",
+      "otherHint": "ここに回答を入力してください",
+      "questionOne": {
+        "question": "@:appName Proサブスクリプションをキャンセルした理由は何ですか？",
+        "answerOne": "料金が高すぎる",
+        "answerTwo": "機能が期待に応えなかった",
+        "answerThree": "より良い代替案を見つけた",
+        "answerFour": "コストに見合うほど使用しなかった",
+        "answerFive": "サービスや技術的な問題があった"
+      },
+      "questionTwo": {
+        "question": "将来的に@:appName Proに再加入する可能性はどのくらいですか？",
+        "answerOne": "非常に高い",
+        "answerTwo": "やや高い",
+        "answerThree": "わからない",
+        "answerFour": "低い",
+        "answerFive": "非常に低い"
+      },
+      "questionThree": {
+        "question": "サブスクリプション中に最も価値を感じたPro機能は何ですか？",
+        "answerOne": "複数ユーザーのコラボレーション",
+        "answerTwo": "長期間のバージョン履歴",
+        "answerThree": "無制限のAIレスポンス",
+        "answerFour": "ローカルAIモデルへのアクセス"
+      },
+      "questionFour": {
+        "question": "全体的な@:appNameの体験はどのようなものでしたか？",
+        "answerOne": "素晴らしい",
+        "answerTwo": "良い",
+        "answerThree": "普通",
+        "answerFour": "平均以下",
+        "answerFive": "満足していない"
+      }
     },
-    "freePlan": {
-      "title": "無料",
-      "description": "個人や2名までのメンバーに最適",
-      "price": "{}",
-      "priceInfo": "永久に無料"
+    "common": {
+      "reset": "リセット"
     },
-    "proPlan": {
-      "title": "プロ",
-      "description": "小規模チームのプロジェクト管理とチーム知識の管理に最適",
-      "price": "{}",
-      "priceInfo": "1ユーザーあたり月額 \n年間請求\n\n{} 毎月請求"
-    },
-    "planLabels": {
-      "itemOne": "ワークスペース",
-      "itemTwo": "メンバー",
-      "itemThree": "ストレージ",
-      "itemFour": "リアルタイムコラボレーション",
-      "itemFive": "モバイルアプリ",
-      "itemSix": "AIレスポンス",
-      "itemFileUpload": "ファイルアップロード",
-      "tooltipSix": "ライフタイムはレスポンスの数がリセットされないことを意味します",
-      "intelligentSearch": "インテリジェント検索",
-      "tooltipSeven": "ワークスペースのURLの一部をカスタマイズできます"
-    },
-    "freeLabels": {
-    "itemOne": "ワークスペースごとの料金",
-    "itemTwo": "最大2名",
-    "itemThree": "5 GB",
-    "itemFour": "はい",
-    "itemFive": "はい",
-    "itemSix": "100回のライフタイムレスポンス",
-    "itemFileUpload": "最大7 MB",
-    "intelligentSearch": "インテリジェント検索"
-  },
-  "proLabels": {
-    "itemOne": "ワークスペースごとの料金",
-    "itemTwo": "最大10名",
-    "itemThree": "無制限",
-    "itemFour": "はい",
-    "itemFive": "はい",
-    "itemSix": "無制限",
-    "itemFileUpload": "無制限",
-    "intelligentSearch": "インテリジェント検索"
-  },
-  "paymentSuccess": {
-    "title": "あなたは現在{}プランに加入しています！",
-    "description": "お支払いが正常に処理され、プランが@:appName {}にアップグレードされました。プランの詳細はプランページで確認できます。"
-  },
-  "downgradeDialog": {
-    "title": "本当にプランをダウングレードしますか？",
-    "description": "プランをダウングレードすると、無料プランに戻ります。メンバーがこのワークスペースにアクセスできなくなり、無料プランのストレージ制限を満たすためにスペースを空ける必要がある場合があります。",
-    "downgradeLabel": "プランをダウングレード"
-  }
-},
-  "cancelSurveyDialog": {
-    "title": "ご利用いただきありがとうございました",
-    "description": "ご解約されるのは残念です。@:appNameを改善するために、お客様のフィードバックをお聞かせください。いくつかの質問にお答えいただけますと幸いです。",
-    "commonOther": "その他",
-    "otherHint": "ここに回答を入力してください",
-    "questionOne": {
-      "question": "@:appName Proサブスクリプションをキャンセルした理由は何ですか？",
-      "answerOne": "料金が高すぎる",
-      "answerTwo": "機能が期待に応えなかった",
-      "answerThree": "より良い代替案を見つけた",
-      "answerFour": "コストに見合うほど使用しなかった",
-      "answerFive": "サービスや技術的な問題があった"
-    },
-    "questionTwo": {
-      "question": "将来的に@:appName Proに再加入する可能性はどのくらいですか？",
-      "answerOne": "非常に高い",
-      "answerTwo": "やや高い",
-      "answerThree": "わからない",
-      "answerFour": "低い",
-      "answerFive": "非常に低い"
-    },
-    "questionThree": {
-      "question": "サブスクリプション中に最も価値を感じたPro機能は何ですか？",
-      "answerOne": "複数ユーザーのコラボレーション",
-      "answerTwo": "長期間のバージョン履歴",
-      "answerThree": "無制限のAIレスポンス",
-      "answerFour": "ローカルAIモデルへのアクセス"
-    },
-    "questionFour": {
-      "question": "全体的な@:appNameの体験はどのようなものでしたか？",
-      "answerOne": "素晴らしい",
-      "answerTwo": "良い",
-      "answerThree": "普通",
-      "answerFour": "平均以下",
-      "answerFive": "満足していない"
-    }
-  },
-  "common": {
-    "reset": "リセット"
-  },
-  "menu": {
-    "appearance": "外観",
-    "language": "言語",
-    "user": "ユーザー",
-    "files": "ファイル",
-    "notifications": "通知",
-    "open": "設定を開く",
-    "logout": "ログアウト",
-    "logoutPrompt": "本当にログアウトしますか？",
-    "selfEncryptionLogoutPrompt": "ログアウトしますか？暗号化キーをコピーしていることを確認してください。",
-    "syncSetting": "同期設定",
-    "cloudSettings": "クラウド設定",
-    "enableSync": "同期を有効化",
-    "enableEncrypt": "データを暗号化",
-    "cloudURL": "基本URL",
-    "invalidCloudURLScheme": "無効なスキーム",
-    "cloudServerType": "クラウドサーバー",
-    "cloudServerTypeTip": "クラウドサーバーを変更すると現在のアカウントがログアウトされる可能性があります。",
-    "cloudLocal": "ローカル",
-    "cloudSupabase": "Supabase",
-    "cloudSupabaseUrl": "Supabase URL",
-    "cloudSupabaseUrlCanNotBeEmpty": "SupabaseのURLを空にすることはできません",
-    "cloudSupabaseAnonKey": "Supabase匿名キー",
-    "cloudSupabaseAnonKeyCanNotBeEmpty": "匿名キーを空にすることはできません",
-    "cloudAppFlowy": "@:appName Cloud",
-    "cloudAppFlowySelfHost": "@:appName クラウドセルフホスト",
-    "appFlowyCloudUrlCanNotBeEmpty": "クラウドのURLを空にすることはできません",
-    "clickToCopy": "クリックしてコピー",
-    "selfHostStart": "サーバーをお持ちでない場合は、",
-    "selfHostContent": "ドキュメント",
-    "selfHostEnd": "を参照してセルフホストサーバーの設定方法をご確認ください",
-    "cloudURLHint": "サーバーの基本URLを入力してください",
-    "cloudWSURL": "Websocket URL",
-    "cloudWSURLHint": "サーバーのWebsocketアドレスを入力してください",
-    "restartApp": "再起動",
-    "restartAppTip": "変更を反映するにはアプリケーションを再起動してください。再起動すると現在のアカウントがログアウトされる可能性があります。",
-    "changeServerTip": "サーバーを変更後、変更を反映するには再起動ボタンをクリックしてください。",
-    "enableEncryptPrompt": "この秘密キーでデータを暗号化します。安全に保管してください。有効にすると解除できません。キーを紛失するとデータが回復不可能になります。コピーするにはクリックしてください。",
-    "inputEncryptPrompt": "暗号化キーを入力してください",
-    "clickToCopySecret": "クリックして秘密キーをコピー",
-    "configServerSetting": "サーバー設定を構成",
-    "configServerGuide": "「クイックスタート」を選択後、「設定」→「クラウド設定」に進み、セルフホストサーバーを構成します。",
-    "inputTextFieldHint": "秘密キー",
-    "historicalUserList": "ユーザーログイン履歴",
-    "historicalUserListTooltip": "このリストには匿名アカウントが表示されます。アカウントをクリックすると詳細が表示されます。匿名アカウントは「始める」ボタンをクリックすることで作成されます。",
-    "openHistoricalUser": "匿名アカウントを開くにはクリック",
-    "customPathPrompt": "Google Driveなどのクラウド同期フォルダに@:appNameデータフォルダを保存することはリスクを伴います。このフォルダ内のデータベースが複数の場所から同時にアクセスまたは変更されると、同期の競合やデータ破損が発生する可能性があります。",
-    "importAppFlowyData": "外部@:appNameフォルダからデータをインポート",
-    "importingAppFlowyDataTip": "データインポート中です。アプリを閉じないでください。",
-    "importAppFlowyDataDescription": "外部@:appNameデータフォルダからデータをコピーし、現在のAppFlowyデータフォルダにインポートします。",
-    "importSuccess": "@:appNameデータフォルダのインポートに成功しました",
-    "importFailed": "@:appNameデータフォルダのインポートに失敗しました",
-    "importGuide": "詳細については、参照されたドキュメントをご確認ください。"
-  },
-  "notifications": {
-    "enableNotifications": {
-      "label": "通知を有効化",
-      "hint": "ローカル通知の表示を停止するにはオフにします。"
-    },
-    "showNotificationsIcon": {
-      "label": "通知アイコンを表示",
-      "hint": "サイドバーに通知アイコンを表示するにはオンにします。"
-    },
-    "archiveNotifications": {
-      "allSuccess": "すべての通知を正常にアーカイブしました",
-      "success": "通知を正常にアーカイブしました"
-    },
-    "markAsReadNotifications": {
-      "allSuccess": "すべて既読にしました",
-      "success": "正常に既読にしました"
-    },
-    "action": {
-      "markAsRead": "既読にする",
-      "multipleChoice": "複数選択",
-      "archive": "アーカイブ"
-    },
-    "settings": {
-      "settings": "設定",
-      "markAllAsRead": "すべて既読にする",
-      "archiveAll": "すべてアーカイブ"
-    },
-    "emptyInbox": {
-      "title": "インボックスゼロ！",
-      "description": "リマインダーを設定してここで通知を受け取ります。"
-    },
-    "emptyUnread": {
-      "title": "未読の通知はありません",
-      "description": "すべてが完了しました！"
-    },
-    "emptyArchived": {
-    "title": "アーカイブなし",
-    "description": "アーカイブされた通知がここに表示されます。"
-  },
-  "tabs": {
-    "inbox": "受信箱",
-    "unread": "未読",
-    "archived": "アーカイブ"
-  },
-  "refreshSuccess": "通知が正常に更新されました",
-  "titles": {
-    "notifications": "通知",
-    "reminder": "リマインダー"
-  }
-},
-  "appearance": {
-    "resetSetting": "リセット",
-    "fontFamily": {
-      "label": "フォントファミリー",
-      "search": "検索",
-      "defaultFont": "システム"
-    },
-    "themeMode": {
-      "label": "テーマモード",
-      "light": "ライトモード",
-      "dark": "ダークモード",
-      "system": "システムに適応"
-    },
-    "fontScaleFactor": "フォントの拡大率",
-    "documentSettings": {
-      "cursorColor": "ドキュメントのカーソル色",
-      "selectionColor": "ドキュメントの選択色",
-      "pickColor": "色を選択",
-      "colorShade": "色の濃淡",
-      "opacity": "不透明度",
-      "hexEmptyError": "Hexカラーコードは空にできません",
-      "hexLengthError": "Hex値は6桁である必要があります",
-      "hexInvalidError": "無効なHex値です",
-      "opacityEmptyError": "不透明度は空にできません",
-      "opacityRangeError": "不透明度は1から100の間である必要があります",
-      "app": "アプリ",
-      "flowy": "Flowy",
-      "apply": "適用"
-    },
-    "layoutDirection": {
-      "label": "レイアウト方向",
-      "hint": "画面上のコンテンツの流れを、左から右、または右から左に制御します。",
-      "ltr": "LTR",
-      "rtl": "RTL"
-    },
-    "textDirection": {
-      "label": "デフォルトのテキスト方向",
-      "hint": "テキストがデフォルトで左から始まるか右から始まるかを指定します。",
-      "ltr": "LTR",
-      "rtl": "RTL",
-      "auto": "自動",
-      "fallback": "レイアウト方向と同じ"
-    },
-    "themeUpload": {
-      "button": "アップロード",
-      "uploadTheme": "テーマをアップロード",
-      "description": "下のボタンを使用して独自の@:appNameテーマをアップロードします。",
-      "loading": "テーマの検証とアップロード中です。しばらくお待ちください...",
-      "uploadSuccess": "テーマが正常にアップロードされました",
-      "deletionFailure": "テーマの削除に失敗しました。手動で削除をお試しください。",
-      "filePickerDialogTitle": ".flowy_pluginファイルを選択",
-      "urlUploadFailure": "URLのオープンに失敗しました: {}"
-    },
-    "theme": "テーマ",
-    "builtInsLabel": "組み込みテーマ",
-    "pluginsLabel": "プラグイン",
-    "dateFormat": {
-      "label": "日付形式",
-      "local": "ローカル",
-      "us": "US",
-      "iso": "ISO",
-      "friendly": "読み易さ",
-      "dmy": "日/月/年"
-    },
-    "timeFormat": {
-      "label": "時間形式",
-      "twelveHour": "12時間制",
-      "twentyFourHour": "24時間制"
-    },
-    "showNamingDialogWhenCreatingPage": "ページ作成時に名前付けダイアログを表示",
-    "enableRTLToolbarItems": "RTLツールバー項目を有効にする",
-    "members": {
-      "title": "メンバー設定",
-      "inviteMembers": "メンバーを招待",
-      "inviteHint": "メールで招待",
-      "sendInvite": "招待を送信",
-      "copyInviteLink": "招待リンクをコピー",
-      "label": "メンバー",
+    "menu": {
+      "appearance": "外観",
+      "language": "言語",
       "user": "ユーザー",
-      "role": "役割",
-      "removeFromWorkspace": "ワークスペースから削除",
-      "removeFromWorkspaceSuccess": "ワークスペースから正常に削除されました",
-      "removeFromWorkspaceFailed": "ワークスペースからの削除に失敗しました",
-      "owner": "オーナー",
-      "guest": "ゲスト",
-      "member": "メンバー",
-      "memberHintText": "メンバーはページを閲覧および編集できます",
-      "guestHintText": "ゲストはページを閲覧、反応、コメントし、許可があれば一部のページを編集できます。",
-      "emailInvalidError": "無効なメールアドレスです。確認してもう一度お試しください。",
-      "emailSent": "メールが送信されました。受信箱を確認してください。",
-      "members": "メンバー",
-      "membersCount": {
-        "zero": "{} 人のメンバー",
-        "one": "{} 人のメンバー",
-        "other": "{} 人のメンバー"
+      "files": "ファイル",
+      "notifications": "通知",
+      "open": "設定を開く",
+      "logout": "ログアウト",
+      "logoutPrompt": "本当にログアウトしますか？",
+      "selfEncryptionLogoutPrompt": "ログアウトしますか？暗号化キーをコピーしていることを確認してください。",
+      "syncSetting": "同期設定",
+      "cloudSettings": "クラウド設定",
+      "enableSync": "同期を有効化",
+      "enableEncrypt": "データを暗号化",
+      "cloudURL": "基本URL",
+      "invalidCloudURLScheme": "無効なスキーム",
+      "cloudServerType": "クラウドサーバー",
+      "cloudServerTypeTip": "クラウドサーバーを変更すると現在のアカウントがログアウトされる可能性があります。",
+      "cloudLocal": "ローカル",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "SupabaseのURLを空にすることはできません",
+      "cloudSupabaseAnonKey": "Supabase匿名キー",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "匿名キーを空にすることはできません",
+      "cloudAppFlowy": "@:appName Cloud",
+      "cloudAppFlowySelfHost": "@:appName クラウドセルフホスト",
+      "appFlowyCloudUrlCanNotBeEmpty": "クラウドのURLを空にすることはできません",
+      "clickToCopy": "クリックしてコピー",
+      "selfHostStart": "サーバーをお持ちでない場合は、",
+      "selfHostContent": "ドキュメント",
+      "selfHostEnd": "を参照してセルフホストサーバーの設定方法をご確認ください",
+      "cloudURLHint": "サーバーの基本URLを入力してください",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "サーバーのWebsocketアドレスを入力してください",
+      "restartApp": "再起動",
+      "restartAppTip": "変更を反映するにはアプリケーションを再起動してください。再起動すると現在のアカウントがログアウトされる可能性があります。",
+      "changeServerTip": "サーバーを変更後、変更を反映するには再起動ボタンをクリックしてください。",
+      "enableEncryptPrompt": "この秘密キーでデータを暗号化します。安全に保管してください。有効にすると解除できません。キーを紛失するとデータが回復不可能になります。コピーするにはクリックしてください。",
+      "inputEncryptPrompt": "暗号化キーを入力してください",
+      "clickToCopySecret": "クリックして秘密キーをコピー",
+      "configServerSetting": "サーバー設定を構成",
+      "configServerGuide": "「クイックスタート」を選択後、「設定」→「クラウド設定」に進み、セルフホストサーバーを構成します。",
+      "inputTextFieldHint": "秘密キー",
+      "historicalUserList": "ユーザーログイン履歴",
+      "historicalUserListTooltip": "このリストには匿名アカウントが表示されます。アカウントをクリックすると詳細が表示されます。匿名アカウントは「始める」ボタンをクリックすることで作成されます。",
+      "openHistoricalUser": "匿名アカウントを開くにはクリック",
+      "customPathPrompt": "Google Driveなどのクラウド同期フォルダに@:appNameデータフォルダを保存することはリスクを伴います。このフォルダ内のデータベースが複数の場所から同時にアクセスまたは変更されると、同期の競合やデータ破損が発生する可能性があります。",
+      "importAppFlowyData": "外部@:appNameフォルダからデータをインポート",
+      "importingAppFlowyDataTip": "データインポート中です。アプリを閉じないでください。",
+      "importAppFlowyDataDescription": "外部@:appNameデータフォルダからデータをコピーし、現在のAppFlowyデータフォルダにインポートします。",
+      "importSuccess": "@:appNameデータフォルダのインポートに成功しました",
+      "importFailed": "@:appNameデータフォルダのインポートに失敗しました",
+      "importGuide": "詳細については、参照されたドキュメントをご確認ください。"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "通知を有効化",
+        "hint": "ローカル通知の表示を停止するにはオフにします。"
       },
-      "inviteFailedDialogTitle": "招待の送信に失敗しました",
-      "inviteFailedMemberLimit": "メンバー制限に達しました。メンバーを追加するにはアップグレードしてください。",
-      "inviteFailedMemberLimitMobile": "ワークスペースのメンバー制限に達しました。",
-      "memberLimitExceeded": "メンバー制限に達しました。さらにメンバーを招待するには ",
-      "memberLimitExceededUpgrade": "アップグレード",
-      "memberLimitExceededPro": "メンバー制限に達しました。さらにメンバーが必要な場合は ",
-      "memberLimitExceededProContact": "support@appflowy.io にご連絡ください",
-      "failedToAddMember": "メンバーの追加に失敗しました",
-      "addMemberSuccess": "メンバーが正常に追加されました",
-      "removeMember": "メンバーを削除",
-      "areYouSureToRemoveMember": "本当にこのメンバーを削除しますか？",
-      "inviteMemberSuccess": "招待が正常に送信されました",
-      "failedToInviteMember": "メンバーの招待に失敗しました",
-      "workspaceMembersError": "問題が発生しました",
-      "workspaceMembersErrorDescription": "現在、メンバーリストを読み込むことができません。後でもう一度お試しください"
+      "showNotificationsIcon": {
+        "label": "通知アイコンを表示",
+        "hint": "サイドバーに通知アイコンを表示するにはオンにします。"
+      },
+      "archiveNotifications": {
+        "allSuccess": "すべての通知を正常にアーカイブしました",
+        "success": "通知を正常にアーカイブしました"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "すべて既読にしました",
+        "success": "正常に既読にしました"
+      },
+      "action": {
+        "markAsRead": "既読にする",
+        "multipleChoice": "複数選択",
+        "archive": "アーカイブ"
+      },
+      "settings": {
+        "settings": "設定",
+        "markAllAsRead": "すべて既読にする",
+        "archiveAll": "すべてアーカイブ"
+      },
+      "emptyInbox": {
+        "title": "インボックスゼロ！",
+        "description": "リマインダーを設定してここで通知を受け取ります。"
+      },
+      "emptyUnread": {
+        "title": "未読の通知はありません",
+        "description": "すべてが完了しました！"
+      },
+      "emptyArchived": {
+        "title": "アーカイブなし",
+        "description": "アーカイブされた通知がここに表示されます。"
+      },
+      "tabs": {
+        "inbox": "受信箱",
+        "unread": "未読",
+        "archived": "アーカイブ"
+      },
+      "refreshSuccess": "通知が正常に更新されました",
+      "titles": {
+        "notifications": "通知",
+        "reminder": "リマインダー"
+      }
+    },
+    "appearance": {
+      "resetSetting": "リセット",
+      "fontFamily": {
+        "label": "フォントファミリー",
+        "search": "検索",
+        "defaultFont": "システム"
+      },
+      "themeMode": {
+        "label": "テーマモード",
+        "light": "ライトモード",
+        "dark": "ダークモード",
+        "system": "システムに適応"
+      },
+      "fontScaleFactor": "フォントの拡大率",
+      "documentSettings": {
+        "cursorColor": "ドキュメントのカーソル色",
+        "selectionColor": "ドキュメントの選択色",
+        "pickColor": "色を選択",
+        "colorShade": "色の濃淡",
+        "opacity": "不透明度",
+        "hexEmptyError": "Hexカラーコードは空にできません",
+        "hexLengthError": "Hex値は6桁である必要があります",
+        "hexInvalidError": "無効なHex値です",
+        "opacityEmptyError": "不透明度は空にできません",
+        "opacityRangeError": "不透明度は1から100の間である必要があります",
+        "app": "アプリ",
+        "flowy": "Flowy",
+        "apply": "適用"
+      },
+      "layoutDirection": {
+        "label": "レイアウト方向",
+        "hint": "画面上のコンテンツの流れを、左から右、または右から左に制御します。",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "デフォルトのテキスト方向",
+        "hint": "テキストがデフォルトで左から始まるか右から始まるかを指定します。",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "自動",
+        "fallback": "レイアウト方向と同じ"
+      },
+      "themeUpload": {
+        "button": "アップロード",
+        "uploadTheme": "テーマをアップロード",
+        "description": "下のボタンを使用して独自の@:appNameテーマをアップロードします。",
+        "loading": "テーマの検証とアップロード中です。しばらくお待ちください...",
+        "uploadSuccess": "テーマが正常にアップロードされました",
+        "deletionFailure": "テーマの削除に失敗しました。手動で削除をお試しください。",
+        "filePickerDialogTitle": ".flowy_pluginファイルを選択",
+        "urlUploadFailure": "URLのオープンに失敗しました: {}"
+      },
+      "theme": "テーマ",
+      "builtInsLabel": "組み込みテーマ",
+      "pluginsLabel": "プラグイン",
+      "dateFormat": {
+        "label": "日付形式",
+        "local": "ローカル",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "読み易さ",
+        "dmy": "日/月/年"
+      },
+      "timeFormat": {
+        "label": "時間形式",
+        "twelveHour": "12時間制",
+        "twentyFourHour": "24時間制"
+      },
+      "showNamingDialogWhenCreatingPage": "ページ作成時に名前付けダイアログを表示",
+      "enableRTLToolbarItems": "RTLツールバー項目を有効にする",
+      "members": {
+        "title": "メンバー設定",
+        "inviteMembers": "メンバーを招待",
+        "inviteHint": "メールで招待",
+        "sendInvite": "招待を送信",
+        "copyInviteLink": "招待リンクをコピー",
+        "label": "メンバー",
+        "user": "ユーザー",
+        "role": "役割",
+        "removeFromWorkspace": "ワークスペースから削除",
+        "removeFromWorkspaceSuccess": "ワークスペースから正常に削除されました",
+        "removeFromWorkspaceFailed": "ワークスペースからの削除に失敗しました",
+        "owner": "オーナー",
+        "guest": "ゲスト",
+        "member": "メンバー",
+        "memberHintText": "メンバーはページを閲覧および編集できます",
+        "guestHintText": "ゲストはページを閲覧、反応、コメントし、許可があれば一部のページを編集できます。",
+        "emailInvalidError": "無効なメールアドレスです。確認してもう一度お試しください。",
+        "emailSent": "メールが送信されました。受信箱を確認してください。",
+        "members": "メンバー",
+        "membersCount": {
+          "zero": "{} 人のメンバー",
+          "one": "{} 人のメンバー",
+          "other": "{} 人のメンバー"
+        },
+        "inviteFailedDialogTitle": "招待の送信に失敗しました",
+        "inviteFailedMemberLimit": "メンバー制限に達しました。メンバーを追加するにはアップグレードしてください。",
+        "inviteFailedMemberLimitMobile": "ワークスペースのメンバー制限に達しました。",
+        "memberLimitExceeded": "メンバー制限に達しました。さらにメンバーを招待するには ",
+        "memberLimitExceededUpgrade": "アップグレード",
+        "memberLimitExceededPro": "メンバー制限に達しました。さらにメンバーが必要な場合は ",
+        "memberLimitExceededProContact": "support@appflowy.io にご連絡ください",
+        "failedToAddMember": "メンバーの追加に失敗しました",
+        "addMemberSuccess": "メンバーが正常に追加されました",
+        "removeMember": "メンバーを削除",
+        "areYouSureToRemoveMember": "本当にこのメンバーを削除しますか？",
+        "inviteMemberSuccess": "招待が正常に送信されました",
+        "failedToInviteMember": "メンバーの招待に失敗しました",
+        "workspaceMembersError": "問題が発生しました",
+        "workspaceMembersErrorDescription": "現在、メンバーリストを読み込むことができません。後でもう一度お試しください"
+      }
+    },
+    "files": {
+      "copy": "コピー",
+      "defaultLocation": "ファイルとデータ保存場所を読み取る",
+      "exportData": "データをエクスポート",
+      "doubleTapToCopy": "パスをコピーするにはダブルタップ",
+      "restoreLocation": "@:appName のデフォルトパスに復元",
+      "customizeLocation": "別のフォルダを開く",
+      "restartApp": "変更を反映するにはアプリを再起動してください。",
+      "exportDatabase": "データベースをエクスポート",
+      "selectFiles": "エクスポートするファイルを選択",
+      "selectAll": "すべて選択",
+      "deselectAll": "すべて選択解除",
+      "createNewFolder": "新しいフォルダを作成",
+      "createNewFolderDesc": "データを保存する場所を指定してください",
+      "defineWhereYourDataIsStored": "データが保存される場所を設定",
+      "open": "開く",
+      "openFolder": "既存のフォルダを開く",
+      "openFolderDesc": "既存の@:appName フォルダに読み書き",
+      "folderHintText": "フォルダ名",
+      "location": "新しいフォルダを作成",
+      "locationDesc": "@:appName データフォルダの名前を指定",
+      "browser": "参照",
+      "create": "作成",
+      "set": "設定",
+      "folderPath": "フォルダを保存するパス",
+      "locationCannotBeEmpty": "パスを空にすることはできません",
+      "pathCopiedSnackbar": "ファイル保存パスがクリップボードにコピーされました！",
+      "changeLocationTooltips": "データディレクトリを変更",
+      "change": "変更",
+      "openLocationTooltips": "別のデータディレクトリを開く",
+      "openCurrentDataFolder": "現在のデータディレクトリを開く",
+      "recoverLocationTooltips": "@:appName のデフォルトデータディレクトリにリセット",
+      "exportFileSuccess": "ファイルのエクスポートに成功しました！",
+      "exportFileFail": "ファイルのエクスポートに失敗しました！",
+      "export": "エクスポート",
+      "clearCache": "キャッシュをクリア",
+      "clearCacheDesc": "画像が読み込まれない、フォントが表示されないなどの問題がある場合は、キャッシュをクリアしてください。この操作はユーザーデータを削除しません。",
+      "areYouSureToClearCache": "キャッシュをクリアしますか？",
+      "clearCacheSuccess": "キャッシュが正常にクリアされました！"
+    },
+    "user": {
+      "name": "名前",
+      "email": "メールアドレス",
+      "tooltipSelectIcon": "アイコンを選択",
+      "selectAnIcon": "アイコンを選択",
+      "pleaseInputYourOpenAIKey": "AIキーを入力してください",
+      "clickToLogout": "現在のユーザーをログアウトするにはクリック"
+    },
+    "mobile": {
+      "personalInfo": "個人情報",
+      "username": "ユーザー名",
+      "usernameEmptyError": "ユーザー名は空にできません",
+      "about": "概要",
+      "pushNotifications": "プッシュ通知",
+      "support": "サポート",
+      "joinDiscord": "Discordに参加",
+      "privacyPolicy": "プライバシーポリシー",
+      "userAgreement": "利用規約",
+      "termsAndConditions": "利用条件",
+      "userprofileError": "ユーザープロフィールの読み込みに失敗しました",
+      "userprofileErrorDescription": "ログアウトして再度ログインして、問題が解決するか確認してください。",
+      "selectLayout": "レイアウトを選択",
+      "selectStartingDay": "開始日を選択",
+      "version": "バージョン"
     }
   },
-  "files": {
-    "copy": "コピー",
-    "defaultLocation": "ファイルとデータ保存場所を読み取る",
-    "exportData": "データをエクスポート",
-    "doubleTapToCopy": "パスをコピーするにはダブルタップ",
-    "restoreLocation": "@:appName のデフォルトパスに復元",
-    "customizeLocation": "別のフォルダを開く",
-    "restartApp": "変更を反映するにはアプリを再起動してください。",
-    "exportDatabase": "データベースをエクスポート",
-    "selectFiles": "エクスポートするファイルを選択",
-    "selectAll": "すべて選択",
-    "deselectAll": "すべて選択解除",
-    "createNewFolder": "新しいフォルダを作成",
-    "createNewFolderDesc": "データを保存する場所を指定してください",
-    "defineWhereYourDataIsStored": "データが保存される場所を設定",
-    "open": "開く",
-    "openFolder": "既存のフォルダを開く",
-    "openFolderDesc": "既存の@:appName フォルダに読み書き",
-    "folderHintText": "フォルダ名",
-    "location": "新しいフォルダを作成",
-    "locationDesc": "@:appName データフォルダの名前を指定",
-    "browser": "参照",
-    "create": "作成",
-    "set": "設定",
-    "folderPath": "フォルダを保存するパス",
-    "locationCannotBeEmpty": "パスを空にすることはできません",
-    "pathCopiedSnackbar": "ファイル保存パスがクリップボードにコピーされました！",
-    "changeLocationTooltips": "データディレクトリを変更",
-    "change": "変更",
-    "openLocationTooltips": "別のデータディレクトリを開く",
-    "openCurrentDataFolder": "現在のデータディレクトリを開く",
-    "recoverLocationTooltips": "@:appName のデフォルトデータディレクトリにリセット",
-    "exportFileSuccess": "ファイルのエクスポートに成功しました！",
-    "exportFileFail": "ファイルのエクスポートに失敗しました！",
-    "export": "エクスポート",
-    "clearCache": "キャッシュをクリア",
-    "clearCacheDesc": "画像が読み込まれない、フォントが表示されないなどの問題がある場合は、キャッシュをクリアしてください。この操作はユーザーデータを削除しません。",
-    "areYouSureToClearCache": "キャッシュをクリアしますか？",
-    "clearCacheSuccess": "キャッシュが正常にクリアされました！"
-  },
-  "user": {
-    "name": "名前",
-    "email": "メールアドレス",
-    "tooltipSelectIcon": "アイコンを選択",
-    "selectAnIcon": "アイコンを選択",
-    "pleaseInputYourOpenAIKey": "AIキーを入力してください",
-    "clickToLogout": "現在のユーザーをログアウトするにはクリック"
-  },
-  "mobile": {
-    "personalInfo": "個人情報",
-    "username": "ユーザー名",
-    "usernameEmptyError": "ユーザー名は空にできません",
-    "about": "概要",
-    "pushNotifications": "プッシュ通知",
-    "support": "サポート",
-    "joinDiscord": "Discordに参加",
-    "privacyPolicy": "プライバシーポリシー",
-    "userAgreement": "利用規約",
-    "termsAndConditions": "利用条件",
-    "userprofileError": "ユーザープロフィールの読み込みに失敗しました",
-    "userprofileErrorDescription": "ログアウトして再度ログインして、問題が解決するか確認してください。",
-    "selectLayout": "レイアウトを選択",
-    "selectStartingDay": "開始日を選択",
-    "version": "バージョン"
-  }
-},
   "grid": {
     "deleteView": "このビューを削除してもよろしいですか？",
     "createView": "新規",
@@ -1470,10 +1470,10 @@
       "open": "開く",
       "delete": "削除",
       "moreFilesHint": "+{} ファイル",
-      "showMore": "{} ファイルがさらにあります。クリックして表示",
       "addFileOrImage": "ファイル、画像、またはリンクを追加",
       "attachmentsHint": "{} 添付ファイル",
-      "addFileMobile": "ファイルを追加"
+      "addFileMobile": "ファイルを追加",
+      "showMore": "{} ファイルがさらにあります。クリックして表示"
     }
   },
   "document": {
@@ -1714,297 +1714,297 @@
       "placeholder": "無題"
     },
     "imageBlock": {
-    "placeholder": "クリックして画像を追加",
-    "upload": {
-      "label": "アップロード",
-      "placeholder": "クリックして画像をアップロード"
-    },
-    "url": {
-      "label": "画像URL",
-      "placeholder": "画像URLを入力"
-    },
-    "ai": {
-      "label": "AIから画像を生成",
-      "placeholder": "AIに画像を生成させるプロンプトを入力してください"
-    },
-    "stability_ai": {
-      "label": "Stability AIから画像を生成",
-      "placeholder": "Stability AIに画像を生成させるプロンプトを入力してください"
-    },
-    "support": "画像サイズの上限は5MBです。サポートされている形式: JPEG, PNG, GIF, SVG",
-    "error": {
-      "invalidImage": "無効な画像です",
-      "invalidImageSize": "画像サイズは5MB未満である必要があります",
-      "invalidImageFormat": "サポートされていない画像形式です。サポートされている形式: JPEG, PNG, JPG, GIF, SVG, WEBP",
-      "invalidImageUrl": "無効な画像URLです",
-      "noImage": "ファイルまたはディレクトリが見つかりません",
-      "multipleImagesFailed": "1つ以上の画像のアップロードに失敗しました。再試行してください"
-    },
-    "embedLink": {
-      "label": "リンクを埋め込む",
-      "placeholder": "画像リンクを貼り付けるか入力"
-    },
-    "unsplash": {
-      "label": "Unsplash"
-    },
-    "searchForAnImage": "画像を検索",
-    "pleaseInputYourOpenAIKey": "設定ページでAIキーを入力してください",
-    "saveImageToGallery": "画像をギャラリーに保存",
-    "failedToAddImageToGallery": "ギャラリーに画像を追加できませんでした",
-    "successToAddImageToGallery": "画像がギャラリーに正常に追加されました",
-    "unableToLoadImage": "画像を読み込めませんでした",
-    "maximumImageSize": "サポートされている画像の最大サイズは10MBです",
-    "uploadImageErrorImageSizeTooBig": "画像サイズは10MB未満である必要があります",
-    "imageIsUploading": "画像をアップロード中",
-    "openFullScreen": "全画面で開く",
-    "interactiveViewer": {
-      "toolbar": {
-        "previousImageTooltip": "前の画像",
-        "nextImageTooltip": "次の画像",
-        "zoomOutTooltip": "ズームアウト",
-        "zoomInTooltip": "ズームイン",
-        "changeZoomLevelTooltip": "ズームレベルを変更",
-        "openLocalImage": "画像を開く",
-        "downloadImage": "画像をダウンロード",
-        "closeViewer": "インタラクティブビューアを閉じる",
-        "scalePercentage": "{}%",
-        "deleteImageTooltip": "画像を削除"
+      "placeholder": "クリックして画像を追加",
+      "upload": {
+        "label": "アップロード",
+        "placeholder": "クリックして画像をアップロード"
+      },
+      "url": {
+        "label": "画像URL",
+        "placeholder": "画像URLを入力"
+      },
+      "ai": {
+        "label": "AIから画像を生成",
+        "placeholder": "AIに画像を生成させるプロンプトを入力してください"
+      },
+      "stability_ai": {
+        "label": "Stability AIから画像を生成",
+        "placeholder": "Stability AIに画像を生成させるプロンプトを入力してください"
+      },
+      "support": "画像サイズの上限は5MBです。サポートされている形式: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "無効な画像です",
+        "invalidImageSize": "画像サイズは5MB未満である必要があります",
+        "invalidImageFormat": "サポートされていない画像形式です。サポートされている形式: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "無効な画像URLです",
+        "noImage": "ファイルまたはディレクトリが見つかりません",
+        "multipleImagesFailed": "1つ以上の画像のアップロードに失敗しました。再試行してください"
+      },
+      "embedLink": {
+        "label": "リンクを埋め込む",
+        "placeholder": "画像リンクを貼り付けるか入力"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "画像を検索",
+      "pleaseInputYourOpenAIKey": "設定ページでAIキーを入力してください",
+      "saveImageToGallery": "画像をギャラリーに保存",
+      "failedToAddImageToGallery": "ギャラリーに画像を追加できませんでした",
+      "successToAddImageToGallery": "画像がギャラリーに正常に追加されました",
+      "unableToLoadImage": "画像を読み込めませんでした",
+      "maximumImageSize": "サポートされている画像の最大サイズは10MBです",
+      "uploadImageErrorImageSizeTooBig": "画像サイズは10MB未満である必要があります",
+      "imageIsUploading": "画像をアップロード中",
+      "openFullScreen": "全画面で開く",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "前の画像",
+          "nextImageTooltip": "次の画像",
+          "zoomOutTooltip": "ズームアウト",
+          "zoomInTooltip": "ズームイン",
+          "changeZoomLevelTooltip": "ズームレベルを変更",
+          "openLocalImage": "画像を開く",
+          "downloadImage": "画像をダウンロード",
+          "closeViewer": "インタラクティブビューアを閉じる",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "画像を削除"
+        }
       }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "言語",
+        "placeholder": "言語を選択",
+        "auto": "自動"
+      },
+      "copyTooltip": "コピー",
+      "searchLanguageHint": "言語を検索",
+      "codeCopiedSnackbar": "コードがクリップボードにコピーされました！"
+    },
+    "inlineLink": {
+      "placeholder": "リンクを貼り付けるか入力",
+      "openInNewTab": "新しいタブで開く",
+      "copyLink": "リンクをコピー",
+      "removeLink": "リンクを削除",
+      "url": {
+        "label": "リンクURL",
+        "placeholder": "リンクURLを入力"
+      },
+      "title": {
+        "label": "リンクタイトル",
+        "placeholder": "リンクタイトルを入力"
+      }
+    },
+    "mention": {
+      "placeholder": "人物、ページ、日付をメンション...",
+      "page": {
+        "label": "ページへのリンク",
+        "tooltip": "クリックしてページを開く"
+      },
+      "deleted": "削除済み",
+      "deletedContent": "このコンテンツは存在しないか、削除されました",
+      "noAccess": "アクセス権がありません"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "デフォルトに戻す"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "ブロックコンテンツを解析できません",
+      "clickToCopyTheBlockContent": "クリックしてブロックコンテンツをコピー",
+      "blockContentHasBeenCopied": "ブロックコンテンツがコピーされました。",
+      "parseError": "{}ブロックの解析中にエラーが発生しました。",
+      "copyBlockContent": "ブロックコンテンツをコピー"
+    },
+    "mobilePageSelector": {
+      "title": "ページを選択",
+      "failedToLoad": "ページリストの読み込みに失敗しました",
+      "noPagesFound": "ページが見つかりません"
     }
   },
-  "codeBlock": {
-    "language": {
-      "label": "言語",
-      "placeholder": "言語を選択",
-      "auto": "自動"
+  "board": {
+    "column": {
+      "createNewCard": "新規",
+      "renameGroupTooltip": "押してグループ名を変更",
+      "createNewColumn": "新しいグループを追加",
+      "addToColumnTopTooltip": "上に新しいカードを追加",
+      "addToColumnBottomTooltip": "下に新しいカードを追加",
+      "renameColumn": "名前を変更",
+      "hideColumn": "非表示",
+      "newGroup": "新しいグループ",
+      "deleteColumn": "削除",
+      "deleteColumnConfirmation": "このグループとその中のすべてのカードが削除されます。\n続行してもよろしいですか？"
     },
-    "copyTooltip": "コピー",
-    "searchLanguageHint": "言語を検索",
-    "codeCopiedSnackbar": "コードがクリップボードにコピーされました！"
-  },
-  "inlineLink": {
-    "placeholder": "リンクを貼り付けるか入力",
-    "openInNewTab": "新しいタブで開く",
-    "copyLink": "リンクをコピー",
-    "removeLink": "リンクを削除",
-    "url": {
-      "label": "リンクURL",
-      "placeholder": "リンクURLを入力"
+    "hiddenGroupSection": {
+      "sectionTitle": "非表示のグループ",
+      "collapseTooltip": "非表示グループを隠す",
+      "expandTooltip": "非表示グループを表示"
     },
-    "title": {
-      "label": "リンクタイトル",
-      "placeholder": "リンクタイトルを入力"
+    "cardDetail": "カードの詳細",
+    "cardActions": "カードアクション",
+    "cardDuplicated": "カードが複製されました",
+    "cardDeleted": "カードが削除されました",
+    "showOnCard": "カードの詳細に表示",
+    "setting": "設定",
+    "propertyName": "プロパティ名",
+    "menuName": "ボード",
+    "showUngrouped": "グループ化されていない項目を表示",
+    "ungroupedButtonText": "グループ化されていない",
+    "ungroupedButtonTooltip": "どのグループにも属していないカードが含まれています",
+    "ungroupedItemsTitle": "クリックしてボードに追加",
+    "groupBy": "グループ化",
+    "groupCondition": "グループ条件",
+    "referencedBoardPrefix": "表示元",
+    "notesTooltip": "内部のメモ",
+    "mobile": {
+      "editURL": "URLを編集",
+      "showGroup": "グループを表示",
+      "showGroupContent": "このグループをボード上に表示してもよろしいですか？",
+      "failedToLoad": "ボードビューの読み込みに失敗しました"
+    },
+    "dateCondition": {
+      "weekOf": "{}週 - {}",
+      "today": "今日",
+      "yesterday": "昨日",
+      "tomorrow": "明日",
+      "lastSevenDays": "過去7日間",
+      "nextSevenDays": "次の7日間",
+      "lastThirtyDays": "過去30日間",
+      "nextThirtyDays": "次の30日間"
+    },
+    "noGroup": "プロパティによるグループ化なし",
+    "noGroupDesc": "ボードビューを表示するには、グループ化するプロパティが必要です",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "ファイル"
     }
   },
-  "mention": {
-    "placeholder": "人物、ページ、日付をメンション...",
-    "page": {
-      "label": "ページへのリンク",
-      "tooltip": "クリックしてページを開く"
+  "calendar": {
+    "menuName": "カレンダー",
+    "defaultNewCalendarTitle": "無題",
+    "newEventButtonTooltip": "新しいイベントを追加",
+    "navigation": {
+      "today": "今日",
+      "jumpToday": "今日にジャンプ",
+      "previousMonth": "前の月",
+      "nextMonth": "次の月",
+      "views": {
+        "day": "日",
+        "week": "週",
+        "month": "月",
+        "year": "年"
+      }
     },
-    "deleted": "削除済み",
-    "deletedContent": "このコンテンツは存在しないか、削除されました",
-    "noAccess": "アクセス権がありません"
+    "mobileEventScreen": {
+      "emptyTitle": "まだイベントがありません",
+      "emptyBody": "プラスボタンを押してこの日にイベントを作成してください。"
+    },
+    "settings": {
+      "showWeekNumbers": "週番号を表示",
+      "showWeekends": "週末を表示",
+      "firstDayOfWeek": "週の開始日",
+      "layoutDateField": "カレンダーのレイアウト",
+      "changeLayoutDateField": "レイアウトフィールドを変更",
+      "noDateTitle": "日付なし",
+      "noDateHint": {
+        "zero": "予定されていないイベントがここに表示されます",
+        "one": "{count} 件の予定されていないイベント",
+        "other": "{count} 件の予定されていないイベント"
+      },
+      "unscheduledEventsTitle": "予定されていないイベント",
+      "clickToAdd": "クリックしてカレンダーに追加",
+      "name": "カレンダー設定",
+      "clickToOpen": "クリックしてレコードを開く"
+    },
+    "referencedCalendarPrefix": "表示元",
+    "quickJumpYear": "ジャンプ",
+    "duplicateEvent": "イベントを複製"
   },
-  "toolbar": {
-    "resetToDefaultFont": "デフォルトに戻す"
+  "errorDialog": {
+    "title": "@:appName エラー",
+    "howToFixFallback": "ご不便をおかけして申し訳ありません！エラー内容をGitHubページに報告してください。",
+    "howToFixFallbackHint1": "ご不便をおかけして申し訳ありません！エラー内容を報告するには、",
+    "howToFixFallbackHint2": "ページにアクセスしてください。",
+    "github": "GitHubで表示"
   },
-  "errorBlock": {
-    "theBlockIsNotSupported": "ブロックコンテンツを解析できません",
-    "clickToCopyTheBlockContent": "クリックしてブロックコンテンツをコピー",
-    "blockContentHasBeenCopied": "ブロックコンテンツがコピーされました。",
-    "parseError": "{}ブロックの解析中にエラーが発生しました。",
-    "copyBlockContent": "ブロックコンテンツをコピー"
-  },
-  "mobilePageSelector": {
-    "title": "ページを選択",
-    "failedToLoad": "ページリストの読み込みに失敗しました",
-    "noPagesFound": "ページが見つかりません"
-  }  
-},
-"board": {
-  "column": {
-    "createNewCard": "新規",
-    "renameGroupTooltip": "押してグループ名を変更",
-    "createNewColumn": "新しいグループを追加",
-    "addToColumnTopTooltip": "上に新しいカードを追加",
-    "addToColumnBottomTooltip": "下に新しいカードを追加",
-    "renameColumn": "名前を変更",
-    "hideColumn": "非表示",
-    "newGroup": "新しいグループ",
-    "deleteColumn": "削除",
-    "deleteColumnConfirmation": "このグループとその中のすべてのカードが削除されます。\n続行してもよろしいですか？"
-  },
-  "hiddenGroupSection": {
-    "sectionTitle": "非表示のグループ",
-    "collapseTooltip": "非表示グループを隠す",
-    "expandTooltip": "非表示グループを表示"
-  },
-  "cardDetail": "カードの詳細",
-  "cardActions": "カードアクション",
-  "cardDuplicated": "カードが複製されました",
-  "cardDeleted": "カードが削除されました",
-  "showOnCard": "カードの詳細に表示",
-  "setting": "設定",
-  "propertyName": "プロパティ名",
-  "menuName": "ボード",
-  "showUngrouped": "グループ化されていない項目を表示",
-  "ungroupedButtonText": "グループ化されていない",
-  "ungroupedButtonTooltip": "どのグループにも属していないカードが含まれています",
-  "ungroupedItemsTitle": "クリックしてボードに追加",
-  "groupBy": "グループ化",
-  "groupCondition": "グループ条件",
-  "referencedBoardPrefix": "表示元",
-  "notesTooltip": "内部のメモ",
-  "mobile": {
-    "editURL": "URLを編集",
-    "showGroup": "グループを表示",
-    "showGroupContent": "このグループをボード上に表示してもよろしいですか？",
-    "failedToLoad": "ボードビューの読み込みに失敗しました"
-  },
-  "dateCondition": {
-    "weekOf": "{}週 - {}",
-    "today": "今日",
-    "yesterday": "昨日",
-    "tomorrow": "明日",
-    "lastSevenDays": "過去7日間",
-    "nextSevenDays": "次の7日間",
-    "lastThirtyDays": "過去30日間",
-    "nextThirtyDays": "次の30日間"
-  },
-  "noGroup": "プロパティによるグループ化なし",
-  "noGroupDesc": "ボードビューを表示するには、グループ化するプロパティが必要です",
-  "media": {
-    "cardText": "{} {}",
-    "fallbackName": "ファイル"
-  }
-},
-"calendar": {
-  "menuName": "カレンダー",
-  "defaultNewCalendarTitle": "無題",
-  "newEventButtonTooltip": "新しいイベントを追加",
-  "navigation": {
-    "today": "今日",
-    "jumpToday": "今日にジャンプ",
-    "previousMonth": "前の月",
-    "nextMonth": "次の月",
-    "views": {
-      "day": "日",
-      "week": "週",
-      "month": "月",
-      "year": "年"
+  "search": {
+    "label": "検索",
+    "sidebarSearchIcon": "検索してページに素早く移動",
+    "placeholder": {
+      "actions": "アクションを検索..."
     }
   },
-  "mobileEventScreen": {
-    "emptyTitle": "まだイベントがありません",
-    "emptyBody": "プラスボタンを押してこの日にイベントを作成してください。"
+  "message": {
+    "copy": {
+      "success": "コピー完了！",
+      "fail": "コピーに失敗しました"
+    }
   },
-  "settings": {
-    "showWeekNumbers": "週番号を表示",
-    "showWeekends": "週末を表示",
-    "firstDayOfWeek": "週の開始日",
-    "layoutDateField": "カレンダーのレイアウト",
-    "changeLayoutDateField": "レイアウトフィールドを変更",
-    "noDateTitle": "日付なし",
-    "noDateHint": {
-      "zero": "予定されていないイベントがここに表示されます",
-      "one": "{count} 件の予定されていないイベント",
-      "other": "{count} 件の予定されていないイベント"
-    },
-    "unscheduledEventsTitle": "予定されていないイベント",
-    "clickToAdd": "クリックしてカレンダーに追加",
-    "name": "カレンダー設定",
-    "clickToOpen": "クリックしてレコードを開く"
+  "unSupportBlock": "このバージョンではこのブロックはサポートされていません。",
+  "views": {
+    "deleteContentTitle": "{pageType}を削除してもよろしいですか？",
+    "deleteContentCaption": "この{pageType}を削除すると、ゴミ箱から復元できます。"
   },
-  "referencedCalendarPrefix": "表示元",
-  "quickJumpYear": "ジャンプ",
-  "duplicateEvent": "イベントを複製"
-},
-"errorDialog": {
-  "title": "@:appName エラー",
-  "howToFixFallback": "ご不便をおかけして申し訳ありません！エラー内容をGitHubページに報告してください。",
-  "howToFixFallbackHint1": "ご不便をおかけして申し訳ありません！エラー内容を報告するには、",
-  "howToFixFallbackHint2": "ページにアクセスしてください。",
-  "github": "GitHubで表示"
-},
-"search": {
-  "label": "検索",
-  "sidebarSearchIcon": "検索してページに素早く移動",
-  "placeholder": {
-    "actions": "アクションを検索..."
-  }
-},
-"message": {
-  "copy": {
-    "success": "コピー完了！",
-    "fail": "コピーに失敗しました"
-  }
-},
-"unSupportBlock": "このバージョンではこのブロックはサポートされていません。",
-"views": {
-  "deleteContentTitle": "{pageType}を削除してもよろしいですか？",
-  "deleteContentCaption": "この{pageType}を削除すると、ゴミ箱から復元できます。"
-},
-"colors": {
-  "custom": "カスタム",
-  "default": "デフォルト",
-  "red": "赤",
-  "orange": "オレンジ",
-  "yellow": "黄色",
-  "green": "緑",
-  "blue": "青",
-  "purple": "紫",
-  "pink": "ピンク",
-  "brown": "茶色",
-  "gray": "灰色"
-},
-"emoji": {
-  "emojiTab": "絵文字",
-  "search": "絵文字を検索",
-  "noRecent": "最近使用された絵文字なし",
-  "noEmojiFound": "絵文字が見つかりません",
-  "filter": "フィルター",
-  "random": "ランダム",
-  "selectSkinTone": "スキントーンを選択",
-  "remove": "絵文字を削除",
-  "categories": {
-    "smileys": "スマイリー＆感情",
-    "people": "人々",
-    "animals": "自然",
-    "food": "食べ物",
-    "activities": "アクティビティ",
-    "places": "場所",
-    "objects": "オブジェクト",
-    "symbols": "記号",
-    "flags": "旗",
-    "nature": "自然",
-    "frequentlyUsed": "よく使われる"
-  },
-  "skinTone": {
+  "colors": {
+    "custom": "カスタム",
     "default": "デフォルト",
-    "light": "明るい",
-    "mediumLight": "やや明るい",
-    "medium": "普通",
-    "mediumDark": "やや暗い",
-    "dark": "暗い"
+    "red": "赤",
+    "orange": "オレンジ",
+    "yellow": "黄色",
+    "green": "緑",
+    "blue": "青",
+    "purple": "紫",
+    "pink": "ピンク",
+    "brown": "茶色",
+    "gray": "灰色"
   },
-  "openSourceIconsFrom": "オープンソースのアイコン提供元"
-},
-"inlineActions": {
-  "noResults": "結果なし",
-  "recentPages": "最近のページ",
-  "pageReference": "ページ参照",
-  "docReference": "ドキュメント参照",
-  "boardReference": "ボード参照",
-  "calReference": "カレンダー参照",
-  "gridReference": "グリッド参照",
-  "date": "日付",
-  "reminder": {
-    "groupTitle": "リマインダー",
-    "shortKeyword": "リマインド"
-  }
-},
-"datePicker": {
+  "emoji": {
+    "emojiTab": "絵文字",
+    "search": "絵文字を検索",
+    "noRecent": "最近使用された絵文字なし",
+    "noEmojiFound": "絵文字が見つかりません",
+    "filter": "フィルター",
+    "random": "ランダム",
+    "selectSkinTone": "スキントーンを選択",
+    "remove": "絵文字を削除",
+    "categories": {
+      "smileys": "スマイリー＆感情",
+      "people": "人々",
+      "animals": "自然",
+      "food": "食べ物",
+      "activities": "アクティビティ",
+      "places": "場所",
+      "objects": "オブジェクト",
+      "symbols": "記号",
+      "flags": "旗",
+      "nature": "自然",
+      "frequentlyUsed": "よく使われる"
+    },
+    "skinTone": {
+      "default": "デフォルト",
+      "light": "明るい",
+      "mediumLight": "やや明るい",
+      "medium": "普通",
+      "mediumDark": "やや暗い",
+      "dark": "暗い"
+    },
+    "openSourceIconsFrom": "オープンソースのアイコン提供元"
+  },
+  "inlineActions": {
+    "noResults": "結果なし",
+    "recentPages": "最近のページ",
+    "pageReference": "ページ参照",
+    "docReference": "ドキュメント参照",
+    "boardReference": "ボード参照",
+    "calReference": "カレンダー参照",
+    "gridReference": "グリッド参照",
+    "date": "日付",
+    "reminder": {
+      "groupTitle": "リマインダー",
+      "shortKeyword": "リマインド"
+    }
+  },
+  "datePicker": {
     "dateTimeFormatTooltip": "設定で日付と時刻の形式を変更",
     "dateFormat": "日付形式",
     "includeTime": "時刻を含む",
@@ -2407,148 +2407,148 @@
       "other": "{count}人のメンバー"
     },
     "useThisTemplate": "このテンプレートを使用"
-},
-"web": {
-  "continue": "続ける",
-  "or": "または",
-  "continueWithGoogle": "Googleで続ける",
-  "continueWithGithub": "GitHubで続ける",
-  "continueWithDiscord": "Discordで続ける",
-  "continueWithApple": "Appleで続ける",
-  "moreOptions": "他のオプション",
-  "collapse": "折りたたむ",
-  "signInAgreement": "「続ける」をクリックすると、AppFlowyの",
-  "and": "および",
-  "termOfUse": "利用規約",
-  "privacyPolicy": "プライバシーポリシー",
-  "signInError": "サインインエラー",
-  "login": "サインアップまたはログイン",
-  "fileBlock": {
-    "uploadedAt": "{time}にアップロード",
-    "linkedAt": "{time}にリンク追加",
-    "empty": "ファイルをアップロードまたは埋め込み"
-  }
-},
-"globalComment": {
-  "comments": "コメント",
-  "addComment": "コメントを追加",
-  "reactedBy": "リアクションした人",
-  "addReaction": "リアクションを追加",
-  "reactedByMore": "他 {count} 人",
-  "showSeconds": {
-    "one": "1秒前",
-    "other": "{count}秒前",
-    "zero": "たった今",
-    "many": "{count}秒前"
   },
-  "showMinutes": {
-    "one": "1分前",
-    "other": "{count}分前",
-    "many": "{count}分前"
+  "web": {
+    "continue": "続ける",
+    "or": "または",
+    "continueWithGoogle": "Googleで続ける",
+    "continueWithGithub": "GitHubで続ける",
+    "continueWithDiscord": "Discordで続ける",
+    "continueWithApple": "Appleで続ける",
+    "moreOptions": "他のオプション",
+    "collapse": "折りたたむ",
+    "signInAgreement": "「続ける」をクリックすると、AppFlowyの",
+    "and": "および",
+    "termOfUse": "利用規約",
+    "privacyPolicy": "プライバシーポリシー",
+    "signInError": "サインインエラー",
+    "login": "サインアップまたはログイン",
+    "fileBlock": {
+      "uploadedAt": "{time}にアップロード",
+      "linkedAt": "{time}にリンク追加",
+      "empty": "ファイルをアップロードまたは埋め込み"
+    }
   },
-  "showHours": {
-    "one": "1時間前",
-    "other": "{count}時間前",
-    "many": "{count}時間前"
+  "globalComment": {
+    "comments": "コメント",
+    "addComment": "コメントを追加",
+    "reactedBy": "リアクションした人",
+    "addReaction": "リアクションを追加",
+    "reactedByMore": "他 {count} 人",
+    "showSeconds": {
+      "one": "1秒前",
+      "other": "{count}秒前",
+      "zero": "たった今",
+      "many": "{count}秒前"
+    },
+    "showMinutes": {
+      "one": "1分前",
+      "other": "{count}分前",
+      "many": "{count}分前"
+    },
+    "showHours": {
+      "one": "1時間前",
+      "other": "{count}時間前",
+      "many": "{count}時間前"
+    },
+    "showDays": {
+      "one": "1日前",
+      "other": "{count}日前",
+      "many": "{count}日前"
+    },
+    "showMonths": {
+      "one": "1ヶ月前",
+      "other": "{count}ヶ月前",
+      "many": "{count}ヶ月前"
+    },
+    "showYears": {
+      "one": "1年前",
+      "other": "{count}年前",
+      "many": "{count}年前"
+    },
+    "reply": "返信",
+    "deleteComment": "コメントを削除",
+    "youAreNotOwner": "このコメントの所有者ではありません",
+    "confirmDeleteDescription": "このコメントを削除してもよろしいですか？",
+    "hasBeenDeleted": "削除済み",
+    "replyingTo": "返信先",
+    "noAccessDeleteComment": "このコメントを削除する権限がありません",
+    "collapse": "折りたたむ",
+    "readMore": "続きを読む",
+    "failedToAddComment": "コメントの追加に失敗しました...",
+    "commentAddedSuccessfully": "コメントが正常に追加されました。",
+    "commentAddedSuccessTip": "コメントまたは返信を追加しました。最新のコメントを確認するためにトップに移動しますか？"
   },
-  "showDays": {
-    "one": "1日前",
-    "other": "{count}日前",
-    "many": "{count}日前"
-  },
-  "showMonths": {
-    "one": "1ヶ月前",
-    "other": "{count}ヶ月前",
-    "many": "{count}ヶ月前"
-  },
-  "showYears": {
-    "one": "1年前",
-    "other": "{count}年前",
-    "many": "{count}年前"
-  },
-  "reply": "返信",
-  "deleteComment": "コメントを削除",
-  "youAreNotOwner": "このコメントの所有者ではありません",
-  "confirmDeleteDescription": "このコメントを削除してもよろしいですか？",
-  "hasBeenDeleted": "削除済み",
-  "replyingTo": "返信先",
-  "noAccessDeleteComment": "このコメントを削除する権限がありません",
-  "collapse": "折りたたむ",
-  "readMore": "続きを読む",
-  "failedToAddComment": "コメントの追加に失敗しました...",
-  "commentAddedSuccessfully": "コメントが正常に追加されました。",
-  "commentAddedSuccessTip": "コメントまたは返信を追加しました。最新のコメントを確認するためにトップに移動しますか？"
-},
-"template": {
-  "asTemplate": "テンプレートとして保存",
-  "name": "テンプレート名",
-  "description": "テンプレートの説明",
-  "about": "テンプレートについて",
-  "preview": "テンプレートのプレビュー",
-  "categories": "テンプレートのカテゴリー",
-  "isNewTemplate": "新しいテンプレートとしてピン留め",
-  "featured": "おすすめとしてピン留め",
-  "relatedTemplates": "関連テンプレート",
-  "requiredField": "{field}は必須です",
-  "addCategory": "「{category}」を追加",
-  "addNewCategory": "新しいカテゴリーを追加",
-  "addNewCreator": "新しい作成者を追加",
-  "deleteCategory": "カテゴリーを削除",
-  "editCategory": "カテゴリーを編集",
-  "editCreator": "作成者を編集",
-  "category": {
-    "name": "カテゴリー名",
-    "icon": "カテゴリーアイコン",
-    "bgColor": "カテゴリー背景色",
-    "priority": "カテゴリーの優先度",
-    "desc": "カテゴリーの説明",
-    "type": "カテゴリーの種類",
-    "icons": "カテゴリーアイコン",
-    "colors": "カテゴリーの色",
-    "byUseCase": "ユースケース別",
-    "byFeature": "機能別",
+  "template": {
+    "asTemplate": "テンプレートとして保存",
+    "name": "テンプレート名",
+    "description": "テンプレートの説明",
+    "about": "テンプレートについて",
+    "preview": "テンプレートのプレビュー",
+    "categories": "テンプレートのカテゴリー",
+    "isNewTemplate": "新しいテンプレートとしてピン留め",
+    "featured": "おすすめとしてピン留め",
+    "relatedTemplates": "関連テンプレート",
+    "requiredField": "{field}は必須です",
+    "addCategory": "「{category}」を追加",
+    "addNewCategory": "新しいカテゴリーを追加",
+    "addNewCreator": "新しい作成者を追加",
     "deleteCategory": "カテゴリーを削除",
-    "deleteCategoryDescription": "このカテゴリーを削除してもよろしいですか？",
-    "typeToSearch": "カテゴリーを検索..."
+    "editCategory": "カテゴリーを編集",
+    "editCreator": "作成者を編集",
+    "category": {
+      "name": "カテゴリー名",
+      "icon": "カテゴリーアイコン",
+      "bgColor": "カテゴリー背景色",
+      "priority": "カテゴリーの優先度",
+      "desc": "カテゴリーの説明",
+      "type": "カテゴリーの種類",
+      "icons": "カテゴリーアイコン",
+      "colors": "カテゴリーの色",
+      "byUseCase": "ユースケース別",
+      "byFeature": "機能別",
+      "deleteCategory": "カテゴリーを削除",
+      "deleteCategoryDescription": "このカテゴリーを削除してもよろしいですか？",
+      "typeToSearch": "カテゴリーを検索..."
+    },
+    "creator": {
+      "label": "テンプレート作成者",
+      "name": "作成者名",
+      "avatar": "作成者のアバター",
+      "accountLinks": "作成者のアカウントリンク",
+      "uploadAvatar": "クリックしてアバターをアップロード",
+      "deleteCreator": "作成者を削除",
+      "deleteCreatorDescription": "この作成者を削除してもよろしいですか？",
+      "typeToSearch": "作成者を検索..."
+    },
+    "uploadSuccess": "テンプレートが正常にアップロードされました。",
+    "uploadSuccessDescription": "テンプレートが正常にアップロードされました。テンプレートギャラリーで確認できます。",
+    "viewTemplate": "テンプレートを表示",
+    "deleteTemplate": "テンプレートを削除",
+    "deleteTemplateDescription": "このテンプレートを削除してもよろしいですか？",
+    "addRelatedTemplate": "関連テンプレートを追加",
+    "removeRelatedTemplate": "関連テンプレートを削除",
+    "uploadAvatar": "アバターをアップロード",
+    "searchInCategory": "{category}で検索",
+    "label": "テンプレート"
   },
-  "creator": {
-    "label": "テンプレート作成者",
-    "name": "作成者名",
-    "avatar": "作成者のアバター",
-    "accountLinks": "作成者のアカウントリンク",
-    "uploadAvatar": "クリックしてアバターをアップロード",
-    "deleteCreator": "作成者を削除",
-    "deleteCreatorDescription": "この作成者を削除してもよろしいですか？",
-    "typeToSearch": "作成者を検索..."
+  "fileDropzone": {
+    "dropFile": "クリックまたはドラッグしてファイルをアップロード",
+    "uploading": "アップロード中...",
+    "uploadFailed": "アップロードに失敗しました",
+    "uploadSuccess": "アップロード成功",
+    "uploadSuccessDescription": "ファイルが正常にアップロードされました",
+    "uploadFailedDescription": "ファイルのアップロードに失敗しました",
+    "uploadingDescription": "ファイルをアップロード中"
   },
-  "uploadSuccess": "テンプレートが正常にアップロードされました。",
-  "uploadSuccessDescription": "テンプレートが正常にアップロードされました。テンプレートギャラリーで確認できます。",
-  "viewTemplate": "テンプレートを表示",
-  "deleteTemplate": "テンプレートを削除",
-  "deleteTemplateDescription": "このテンプレートを削除してもよろしいですか？",
-  "addRelatedTemplate": "関連テンプレートを追加",
-  "removeRelatedTemplate": "関連テンプレートを削除",
-  "uploadAvatar": "アバターをアップロード",
-  "searchInCategory": "{category}で検索",
-  "label": "テンプレート"
-},
-"fileDropzone": {
-  "dropFile": "クリックまたはドラッグしてファイルをアップロード",
-  "uploading": "アップロード中...",
-  "uploadFailed": "アップロードに失敗しました",
-  "uploadSuccess": "アップロード成功",
-  "uploadSuccessDescription": "ファイルが正常にアップロードされました",
-  "uploadFailedDescription": "ファイルのアップロードに失敗しました",
-  "uploadingDescription": "ファイルをアップロード中"
-},
-"gallery": {
-  "preview": "全画面表示で開く",
-  "copy": "コピー",
-  "download": "ダウンロード",
-  "prev": "前へ",
-  "next": "次へ",
-  "resetZoom": "ズームをリセット",
-  "zoomIn": "ズームイン",
-  "zoomOut": "ズームアウト"
-}
+  "gallery": {
+    "preview": "全画面表示で開く",
+    "copy": "コピー",
+    "download": "ダウンロード",
+    "prev": "前へ",
+    "next": "次へ",
+    "resetZoom": "ズームをリセット",
+    "zoomIn": "ズームイン",
+    "zoomOut": "ズームアウト"
+  }
 }

@@ -129,7 +129,7 @@
     "medium": "trung bình",
     "large": "lớn",
     "fontSize": "Cỡ chữ",
-    "import": "Import",
+    "import": "Nhập",
     "moreOptions": "Lựa chọn khác",
     "wordCount": "Số từ: {}",
     "charCount": "Số ký tự: {}",
@@ -304,11 +304,15 @@
     "upgradeToPro": "Nâng cấp lên Pro",
     "upgradeToAIMax": "Mở khóa AI không giới hạn",
     "storageLimitDialogTitle": "Bạn đã hết dung lượng lưu trữ miễn phí. Nâng cấp để mở khóa dung lượng lưu trữ không giới hạn",
+    "storageLimitDialogTitleIOS": "Bạn đã hết dung lượng lưu trữ miễn phí.",
     "aiResponseLimitTitle": "Bạn đã hết phản hồi AI miễn phí. Nâng cấp lên Gói Pro hoặc mua tiện ích bổ sung AI để mở khóa phản hồi không giới hạn",
+    "aiResponseLimitTitleIOS": "Bạn đã hết lượt sử dụng AI miễn phí.",
     "aiResponseLimitDialogTitle": "Đã đạt đến giới hạn sử dụng AI",
     "aiResponseLimit": "Bạn đã hết lượt dùng AI miễn phí.\nVào Cài đặt -> Gói đăng ký -> Nhấp vào AI Max hoặc Gói Pro để có thêm lượt dùng AI",
     "askOwnerToUpgradeToPro": "Không gian làm việc của bạn sắp hết dung lượng lưu trữ miễn phí. Vui lòng yêu cầu chủ sở hữu không gian làm việc của bạn nâng cấp lên Gói Pro",
+    "askOwnerToUpgradeToProIOS": "Không gian làm việc của bạn sắp hết dung lượng lưu trữ miễn phí.",
     "askOwnerToUpgradeToAIMax": "Không gian làm việc của bạn sắp hết phản hồi AI miễn phí. Vui lòng yêu cầu chủ sở hữu không gian làm việc của bạn nâng cấp gói hoặc mua tiện ích bổ sung AI",
+    "askOwnerToUpgradeToAIMaxIOS": "Không gian làm việc của bạn sắp hết lượt sử dụng AI miễn phí.",
     "purchaseStorageSpace": "Mua không gian lưu trữ",
     "purchaseAIResponse": "Mua ",
     "askOwnerToUpgradeToLocalAI": "Yêu cầu chủ sở hữu không gian làm việc bật AI trên thiết bị",
@@ -844,6 +848,7 @@
         "itemFour": "Chỉnh sửa thời gian thực",
         "itemFive": "Ứng dụng di động",
         "itemSix": "Phản hồi của AI",
+        "itemFileUpload": "Tải tập tin lên",
         "tooltipSix": "Trọn đời có nghĩa là số lượng phản hồi không bao giờ được thiết lập lại",
         "intelligentSearch": "Tìm kiếm thông minh",
         "tooltipSeven": "Cho phép bạn tùy chỉnh một phần URL cho không gian làm việc của bạn"
@@ -855,6 +860,7 @@
         "itemFour": "Đúng",
         "itemFive": "Đúng",
         "itemSix": "100 trọn đời",
+        "itemFileUpload": "Lên đến 7 MB",
         "intelligentSearch": "Tìm kiếm thông minh"
       },
       "proLabels": {
@@ -864,6 +870,7 @@
         "itemFour": "Đúng",
         "itemFive": "Đúng",
         "itemSix": "không giới hạn",
+        "itemFileUpload": "Không giới hạn",
         "intelligentSearch": "Tìm kiếm thông minh"
       },
       "paymentSuccess": {
@@ -1224,6 +1231,7 @@
       "typeAValue": "Nhập một giá trị...",
       "layout": "Bố cục",
       "databaseLayout": "Bố cục",
+      "viewList": "Database Views",
       "editView": "Chỉnh sửa chế độ xem",
       "boardSettings": "Cài đặt bảng",
       "calendarSettings": "Cài đặt lịch",
@@ -1231,8 +1239,7 @@
       "duplicateView": "Xem trùng lặp",
       "deleteView": "Xóa chế độ xem",
       "numberOfVisibleFields": "{} đã hiển thị",
-      "Properties": "Thuộc tính",
-      "viewList": "Database Views"
+      "Properties": "Thuộc tính"
     },
     "textFilter": {
       "contains": "Chứa",
@@ -1299,6 +1306,7 @@
       "isNotEmpty": "Không trống"
     },
     "field": {
+      "label": "Thuộc tính",
       "hide": "Ẩn",
       "show": "Hiện",
       "insertLeft": "Chèn trái",
@@ -1320,6 +1328,7 @@
       "relationFieldName": "Mối quan hệ",
       "summaryFieldName": "Tóm tắt AI",
       "timeFieldName": "Thời gian",
+      "mediaFieldName": "Tệp tin & phương tiện",
       "translateFieldName": "AI Dịch",
       "translateTo": "Dịch sang",
       "numberFormat": "Định dạng số",
@@ -1462,6 +1471,24 @@
       "countEmptyShort": "TRỐNG",
       "countNonEmpty": "Đếm không trống",
       "countNonEmptyShort": "ĐIỀN"
+    },
+    "media": {
+      "rename": "Đổi tên",
+      "download": "Tải về",
+      "open": "Mở",
+      "delete": "Xóa bỏ",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Thêm tệp, hình ảnh hoặc liên kết",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Thêm tập tin",
+      "showFile": "Hiển thị 1 tập tin",
+      "showFiles": "Hiển thị {} tập tin",
+      "hideFile": "Ẩn 1 tập tin",
+      "hideFiles": "Ẩn {} tập tin",
+      "deleteFileDescription": "Bạn có chắc chắn muốn xóa tệp này không? Hành động này không thể hoàn tác.",
+      "hideFileNames": "Ẩn tên tập tin",
+      "downloadSuccess": "Đã lưu tập tin thành công",
+      "downloadFailedToken": "Không tải được tệp, mã thông báo người dùng không khả dụng"
     }
   },
   "document": {
@@ -1673,6 +1700,7 @@
       "file": {
         "name": "Tài liệu",
         "uploadTab": "Tải lên",
+        "uploadMobile": "Chọn tệp",
         "networkTab": "Nhúng liên kết",
         "placeholderText": "Tải lên hoặc nhúng một tập tin",
         "placeholderDragging": "Thả tệp để tải lên",
@@ -1688,7 +1716,8 @@
           "nameEmptyError": "Tên tệp không được để trống."
         },
         "uploadedAt": "Đã tải lên vào {}",
-        "linkedAt": "Liên kết đã được thêm vào {}"
+        "linkedAt": "Liên kết đã được thêm vào {}",
+        "failedToOpenMsg": "Không mở được, không tìm thấy tệp"
       }
     },
     "outlineBlock": {
@@ -1799,7 +1828,9 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Không thể phân tích nội dung khối",
       "clickToCopyTheBlockContent": "Nhấp để sao chép nội dung khối",
-      "blockContentHasBeenCopied": "Nội dung khối đã được sao chép."
+      "blockContentHasBeenCopied": "Nội dung khối đã được sao chép.",
+      "parseError": "Đã xảy ra lỗi khi phân tích khối {}.",
+      "copyBlockContent": "Sao chép nội dung khối"
     },
     "mobilePageSelector": {
       "title": "Chọn trang",
@@ -1809,6 +1840,7 @@
   },
   "board": {
     "column": {
+      "label": "Cột",
       "createNewCard": "Mới",
       "renameGroupTooltip": "Nhấn để đổi tên nhóm",
       "createNewColumn": "Thêm một nhóm mới",
@@ -1858,7 +1890,11 @@
       "nextThirtyDays": "30 ngày tiếp theo"
     },
     "noGroup": "Không có nhóm theo tài sản",
-    "noGroupDesc": "Các chế độ xem bảng yêu cầu một thuộc tính để nhóm theo để hiển thị"
+    "noGroupDesc": "Các chế độ xem bảng yêu cầu một thuộc tính để nhóm theo để hiển thị",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "tập tin"
+    }
   },
   "calendar": {
     "menuName": "Lịch",
@@ -2233,10 +2269,18 @@
       "deleteAccount": {
         "title": "Xóa tài khoản",
         "subtitle": "Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu của bạn.",
+        "description": "Xóa vĩnh viễn tài khoản của bạn và xóa quyền truy cập khỏi mọi không gian làm việc.",
         "deleteMyAccount": "Xóa tài khoản của tôi",
         "dialogTitle": "Xóa tài khoản",
         "dialogContent1": "Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của mình không?",
-        "dialogContent2": "Không thể hoàn tác hành động này và sẽ xóa quyền truy cập khỏi mọi không gian làm việc nhóm, xóa toàn bộ tài khoản của bạn, bao gồm cả không gian làm việc riêng tư và xóa bạn khỏi mọi không gian làm việc được chia sẻ."
+        "dialogContent2": "Không thể hoàn tác hành động này và sẽ xóa quyền truy cập khỏi mọi không gian làm việc nhóm, xóa toàn bộ tài khoản của bạn, bao gồm cả không gian làm việc riêng tư và xóa bạn khỏi mọi không gian làm việc được chia sẻ.",
+        "confirmHint1": "Vui lòng nhập \"XÓA TÀI KHOẢN CỦA TÔI\" để xác nhận.",
+        "confirmHint2": "Tôi hiểu rằng hành động này là không thể đảo ngược và sẽ xóa vĩnh viễn tài khoản của tôi cùng mọi dữ liệu liên quan.",
+        "confirmHint3": "XÓA TÀI KHOẢN CỦA TÔI",
+        "checkToConfirmError": "Bạn phải đánh dấu vào ô để xác nhận việc xóa",
+        "failedToGetCurrentUser": "Không lấy được email người dùng hiện tại",
+        "confirmTextValidationFailed": "Văn bản xác nhận của bạn không khớp với \"XÓA TÀI KHOẢN CỦA TÔI\"",
+        "deleteAccountSuccess": "Tài khoản đã được xóa thành công"
       }
     },
     "workplace": {
@@ -2335,6 +2379,7 @@
   },
   "publish": {
     "hasNotBeenPublished": "Trang này chưa được xuất bản",
+    "spaceHasNotBeenPublished": "Chưa hỗ trợ xuất bản không gian",
     "reportPage": "Báo cáo trang",
     "databaseHasNotBeenPublished": "Việc xuất bản cơ sở dữ liệu hiện chưa được hỗ trợ.",
     "createdWith": "Được tạo ra với",
@@ -2378,7 +2423,8 @@
       "one": "1 thành viên",
       "many": "{đếm} thành viên",
       "other": "{đếm} thành viên"
-    }
+    },
+    "useThisTemplate": "Sử dụng mẫu"
   },
   "web": {
     "continue": "Tiếp tục",
@@ -2386,6 +2432,9 @@
     "continueWithGoogle": "Tiếp tục với Google",
     "continueWithGithub": "Tiếp tục với GitHub",
     "continueWithDiscord": "Tiếp tục với Discord",
+    "continueWithApple": "Tiếp tục với Apple ",
+    "moreOptions": "Thêm tùy chọn",
+    "collapse": "Thu gọn",
     "signInAgreement": "Bằng cách nhấp vào \"Tiếp tục\" ở trên, bạn đã đồng ý với AppFlowy",
     "and": "và",
     "termOfUse": "Điều khoản",
@@ -2509,5 +2558,15 @@
     "uploadSuccessDescription": "Tệp đã được tải lên thành công",
     "uploadFailedDescription": "Tải tệp lên không thành công",
     "uploadingDescription": "Tập tin đang được tải lên"
+  },
+  "gallery": {
+    "preview": "Mở toàn màn hình",
+    "copy": "Sao chép",
+    "download": "Tải về",
+    "prev": "Trước",
+    "next": "Kế tiếp",
+    "resetZoom": "Đặt lại chế độ thu phóng",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ"
   }
 }
