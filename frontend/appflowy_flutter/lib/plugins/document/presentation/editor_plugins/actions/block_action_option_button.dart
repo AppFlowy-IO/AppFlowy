@@ -235,7 +235,7 @@ class _DraggableOptionButton extends StatefulWidget {
 }
 
 class _DraggableOptionButtonState extends State<_DraggableOptionButton> {
-  late final Node node;
+  late Node node;
   late BlockComponentContext blockComponentContext;
 
   Offset? globalPosition;
@@ -246,16 +246,25 @@ class _DraggableOptionButtonState extends State<_DraggableOptionButton> {
 
     // copy the node to avoid the node in document being updated
     node = widget.blockComponentContext.node.copyWith();
-    blockComponentContext = BlockComponentContext(
-      widget.blockComponentContext.buildContext,
-      node,
-    );
+  }
+
+  @override
+  void dispose() {
+    node.dispose();
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Draggable<Node>(
-      feedback: _buildFeedback(context),
+      data: node,
+      feedback: _OptionButtonFeedback(
+        controller: widget.controller,
+        editorState: widget.editorState,
+        blockComponentContext: widget.blockComponentContext,
+        blockComponentBuilder: widget.blockComponentBuilder,
+      ),
       onDragStarted: () {
         context.read<EditorState>().selectionService.removeDropTarget();
       },
@@ -303,25 +312,85 @@ class _DraggableOptionButtonState extends State<_DraggableOptionButton> {
     transaction.moveNode(acceptedPath, widget.blockComponentContext.node);
     await widget.editorState.apply(transaction);
   }
+}
 
-  Widget _buildFeedback(BuildContext context) {
+class _OptionButtonFeedback extends StatefulWidget {
+  const _OptionButtonFeedback({
+    required this.controller,
+    required this.editorState,
+    required this.blockComponentContext,
+    required this.blockComponentBuilder,
+  });
+
+  final PopoverController controller;
+  final EditorState editorState;
+  final BlockComponentContext blockComponentContext;
+  final Map<String, BlockComponentBuilder> blockComponentBuilder;
+
+  @override
+  State<_OptionButtonFeedback> createState() => _OptionButtonFeedbackState();
+}
+
+class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
+  late Node node;
+  late BlockComponentContext blockComponentContext;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _setupLockComponentContext();
+    widget.blockComponentContext.node.addListener(_updateBlockComponentContext);
+  }
+
+  @override
+  void dispose() {
+    widget.blockComponentContext.node
+        .removeListener(_updateBlockComponentContext);
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final node = widget.blockComponentContext.node;
     final builder = widget.blockComponentBuilder[node.type];
     if (builder == null) {
       return const SizedBox.shrink();
     }
+
+    final maxWidth = (widget.editorState.renderBox?.size.width ??
+            MediaQuery.of(context).size.width) *
+        0.8;
+
     return Opacity(
       opacity: 0.7,
       child: Material(
         color: Colors.transparent,
-        child: IntrinsicWidth(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: maxWidth,
+          ),
           child: IntrinsicHeight(
             child: Provider.value(
-              value: context.read<EditorState>(),
+              value: widget.editorState,
               child: builder.build(blockComponentContext),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  void _updateBlockComponentContext() {
+    setState(() => _setupLockComponentContext());
+  }
+
+  void _setupLockComponentContext() {
+    node = widget.blockComponentContext.node.copyWith();
+    blockComponentContext = BlockComponentContext(
+      widget.blockComponentContext.buildContext,
+      node,
     );
   }
 }
