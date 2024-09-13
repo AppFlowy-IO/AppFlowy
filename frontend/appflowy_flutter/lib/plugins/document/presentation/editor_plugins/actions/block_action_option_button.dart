@@ -353,12 +353,6 @@ class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
 
   @override
   Widget build(BuildContext context) {
-    final node = widget.blockComponentContext.node;
-    final builder = widget.blockComponentBuilder[node.type];
-    if (builder == null) {
-      return const SizedBox.shrink();
-    }
-
     final maxWidth = (widget.editorState.renderBox?.size.width ??
             MediaQuery.of(context).size.width) *
         0.8;
@@ -374,10 +368,38 @@ class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
           child: IntrinsicHeight(
             child: Provider.value(
               value: widget.editorState,
-              child: builder.build(blockComponentContext),
+              child: _buildBlock(),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBlock() {
+    final node = widget.blockComponentContext.node;
+    final builder = widget.blockComponentBuilder[node.type];
+    if (builder == null) {
+      return const SizedBox.shrink();
+    }
+
+    if (node.type == TableBlockKeys.type) {
+      // unable to render table block without provider/context
+      // render a placeholder instead
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const FlowyText('Table'),
+      );
+    }
+
+    return IntrinsicHeight(
+      child: Provider.value(
+        value: widget.editorState,
+        child: builder.build(blockComponentContext),
       ),
     );
   }
