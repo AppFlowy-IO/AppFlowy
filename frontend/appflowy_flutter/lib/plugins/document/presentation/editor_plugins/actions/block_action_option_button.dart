@@ -7,7 +7,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'drag_to_reorder/raw_option_button.dart';
+import 'drag_to_reorder/draggable_option_button.dart';
 
 class BlockOptionButton extends StatefulWidget {
   const BlockOptionButton({
@@ -123,8 +123,7 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
   ) {
     // 1. verify the node integrity
     final type = node.type;
-    final builder =
-        context.read<EditorState>().renderer.blockComponentBuilder(type);
+    final builder = widget.editorState.renderer.blockComponentBuilder(type);
 
     if (builder == null) {
       Log.error('Block type $type is not supported');
@@ -151,8 +150,7 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
     Node copiedNode = node.copyWith();
 
     final type = node.type;
-    final builder =
-        context.read<EditorState>().renderer.blockComponentBuilder(type);
+    final builder = widget.editorState.renderer.blockComponentBuilder(type);
 
     if (builder == null) {
       Log.error('Block type $type is not supported');

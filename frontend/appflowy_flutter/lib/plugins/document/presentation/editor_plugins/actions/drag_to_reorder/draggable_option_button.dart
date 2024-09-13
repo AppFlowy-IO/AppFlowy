@@ -1,6 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -176,7 +179,13 @@ class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
       return const SizedBox.shrink();
     }
 
-    if (node.type == TableBlockKeys.type) {
+    const unsupportedRenderBlockTypes = [
+      TableBlockKeys.type,
+      CustomImageBlockKeys.type,
+      FileBlockKeys.type,
+    ];
+
+    if (unsupportedRenderBlockTypes.contains(node.type)) {
       // unable to render table block without provider/context
       // render a placeholder instead
       return Container(
@@ -185,7 +194,7 @@ class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const FlowyText('Table'),
+        child: FlowyText(node.type.capitalize()),
       );
     }
 
