@@ -2,7 +2,7 @@ use collab_database::rows::{Cell, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
-use tracing::{error, info, instrument};
+use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -888,14 +888,11 @@ pub(crate) async fn get_databases_handler(
 
   let mut items = Vec::with_capacity(metas.len());
   for meta in metas {
-    match manager.get_database_inline_view_id(&meta.database_id).await {
-      Ok(view_id) => items.push(DatabaseMetaPB {
+    if let Some(link_view) = meta.linked_views.first() {
+      items.push(DatabaseMetaPB {
         database_id: meta.database_id,
-        inline_view_id: view_id,
-      }),
-      Err(err) => {
-        error!(?err);
-      },
+        inline_view_id: link_view.clone(),
+      })
     }
   }
 
@@ -916,7 +913,6 @@ pub(crate) async fn set_layout_setting_handler(
   database_editor.set_layout_setting(&view_id, params).await?;
   Ok(())
 }
-
 pub(crate) async fn get_layout_setting_handler(
   data: AFPluginData<DatabaseLayoutMetaPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,

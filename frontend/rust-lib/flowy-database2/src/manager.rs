@@ -42,7 +42,7 @@ use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 use tokio::sync::RwLock as TokioRwLock;
 use tokio_retry::strategy::ExponentialBackoff;
-use tokio_retry::Retry;
+use tokio_retry::RetryIf;
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -147,14 +147,7 @@ impl DatabaseManager {
   pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
-    let database_collab = wdb
-      .get_or_create_database(database_id)
-      .await
-      .ok_or_else(|| {
-        FlowyError::record_not_found()
-          .with_context(format!("The database:{} not found", database_id))
-      })?;
-
+    let database_collab = wdb.get_or_init_database(database_id).await?;
     let lock_guard = database_collab.read().await;
     Ok(lock_guard.get_inline_view_id())
   }
@@ -244,22 +237,22 @@ impl DatabaseManager {
       return Ok(database_editor);
     }
 
-    trace!("create database editor:{}", database_id);
+    trace!("init database editor:{}", database_id);
     // When the user opens the database from the left-side bar, it may fail because the workspace database
     // hasn't finished syncing yet. In such cases, get_or_create_database will return None.
     // The workaround is to add a retry mechanism to attempt fetching the database again.
-    let database = Retry::spawn(
+    let database = RetryIf::spawn(
       ExponentialBackoff::from_millis(3).factor(1000).take(2),
       || async {
         trace!("retry to open database:{}", database_id);
         let database = workspace_database
           .read()
           .await
-          .get_or_create_database(database_id)
-          .await
-          .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
-        Ok::<_, FlowyError>(database)
+          .get_or_init_database(database_id)
+          .await?;
+        Ok::<_, DatabaseError>(database)
       },
+      |err: &DatabaseError| !err.is_no_required_data(),
     )
     .await?;
 
@@ -393,7 +386,8 @@ impl DatabaseManager {
     let encoded_collab = database
       .read()
       .await
-      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))?;
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
+      .map_err(|err| FlowyError::internal().with_context(err))?;
     Ok(encoded_collab)
   }
 
@@ -420,7 +414,7 @@ impl DatabaseManager {
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
     let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
-    if let Some(database) = wdb.get_or_create_database(&database_id).await {
+    if let Ok(database) = wdb.get_or_init_database(&database_id).await {
       let (field, layout_setting, field_settings_map) =
         DatabaseLayoutDepsResolver::new(database, layout)
           .resolve_deps_when_create_database_linked_view(&database_parent_view_id)
@@ -741,7 +735,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     &self,
     object_id: &str,
     collab_type: CollabType,
-    encoded_collab: Option<EncodedCollab>,
+    encoded_collab: Option<(EncodedCollab, bool)>,
   ) -> Result<Collab, DatabaseError> {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
     let data_source = if self.persistence.is_collab_exist(object_id) {
@@ -802,7 +796,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
             },
           }
         },
-        Some(encoded_collab) => {
+        Some((encoded_collab, _)) => {
           info!(
             "build collab: {}:{} with new encode collab, {} bytes",
             collab_type,
@@ -848,6 +842,9 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     mut object_ids: Vec<String>,
     collab_type: CollabType,
   ) -> Result<EncodeCollabByOid, DatabaseError> {
+    if object_ids.is_empty() {
+      return Ok(EncodeCollabByOid::new());
+    }
     let mut encoded_collab_by_id = EncodeCollabByOid::new();
     // 1. Collect local disk collabs into a HashMap
     let local_disk_encoded_collab: HashMap<String, EncodedCollab> = object_ids
