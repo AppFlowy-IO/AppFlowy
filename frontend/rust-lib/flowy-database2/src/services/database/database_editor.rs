@@ -36,7 +36,6 @@ use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
-use futures::future::join_all;
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
@@ -663,12 +662,13 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let (index, order_id) = database
+    let (index, row_order) = database
       .create_row_in_view(&view_editor.view_id, collab_params)
       .await?;
-    let row_detail = database.get_row_detail(&order_id.id).await;
+    let row_detail = database.get_row_detail(&row_order.id).await;
     drop(database);
 
+    trace!("[Database]: did create row: {} at {}", row_order.id, index);
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
       return Ok(Some(row_detail));
@@ -1566,7 +1566,7 @@ impl DatabaseEditor {
         };
 
       let mut loaded_rows = vec![];
-      const CHUNK_SIZE: usize = 10;
+      const CHUNK_SIZE: usize = 20;
       let row_orders = view_editor.row_orders.read().await;
       let row_orders_chunks = row_orders.chunks(CHUNK_SIZE).collect::<Vec<_>>();
 
@@ -1578,32 +1578,19 @@ impl DatabaseEditor {
           Some(database) => database,
         };
 
-        // Process the chunk of rows concurrently using async tasks
-        let tasks: Vec<_> = chunk_row_orders
+        let row_ids = chunk_row_orders
           .iter()
-          .map(|row_order| {
-            let db_clone = database.clone();
-            async move {
-              // Initialize the database row
-              let database_row = db_clone
-                .read()
-                .await
-                .get_or_init_database_row(&row_order.id)
-                .await;
-              if let Some(database_row) = database_row {
-                let row = database_row.read().await.get_row();
-                row.map(Arc::new)
-              } else {
-                None
-              }
-            }
-          })
+          .map(|row_order| row_order.id.clone())
           .collect();
 
-        let results = join_all(tasks).await;
-        for row in results.into_iter().flatten() {
-          loaded_rows.push(row);
+        if let Ok(rows) = database.read().await.init_database_rows(row_ids).await {
+          for row in rows {
+            if let Some(row) = row.read().await.get_row() {
+              loaded_rows.push(Arc::new(row));
+            }
+          }
         }
+
         // Check for cancellation after each chunk
         if new_token.is_cancelled() {
           info!("[Database]: stop loading database rows");

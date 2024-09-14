@@ -381,6 +381,20 @@ impl DatabaseCloudService for ServerProvider {
       .await
   }
 
+  async fn create_database_encode_collab(
+    &self,
+    object_id: &str,
+    collab_type: CollabType,
+    workspace_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    let server = self.get_server()?;
+    server
+      .database_service()
+      .create_database_encode_collab(object_id, collab_type, workspace_id, encoded_collab)
+      .await
+  }
+
   async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,

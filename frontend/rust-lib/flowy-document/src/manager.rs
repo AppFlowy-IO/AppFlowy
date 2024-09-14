@@ -14,8 +14,7 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use collab_plugins::local_storage::kv::doc::CollabKVAction;
-use collab_plugins::local_storage::kv::KVTransactionDB;
+
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;

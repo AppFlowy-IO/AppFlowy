@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::DataSource;
+use collab::core::origin::CollabOrigin;
 use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
@@ -18,6 +19,7 @@ use collab_database::workspace_database::{
 };
 use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use rayon::prelude::*;
 use tokio::sync::Mutex;
 use tracing::{error, info, instrument, trace};
 
@@ -390,7 +392,7 @@ impl DatabaseManager {
 
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
-    let database = wdb.create_database(create_database_params)?;
+    let database = wdb.create_database(create_database_params).await?;
     let encoded_collab = database
       .read()
       .await
@@ -398,14 +400,13 @@ impl DatabaseManager {
     Ok(encoded_collab)
   }
 
-  pub async fn create_database_with_params(
+  pub async fn import_database(
     &self,
     params: CreateDatabaseParams,
   ) -> FlowyResult<Arc<RwLock<Database>>> {
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
-    let database = wdb.create_database(params)?;
-
+    let database = wdb.create_database(params).await?;
     Ok(database)
   }
 
@@ -455,7 +456,7 @@ impl DatabaseManager {
 
     let view_id = params.inline_view_id.clone();
     let database_id = params.database_id.clone();
-    let database = self.create_database_with_params(params).await?;
+    let database = self.import_database(params).await?;
     let encoded_database = database.read().await.encode_database_collabs().await?;
     let encoded_collabs = std::iter::once(encoded_database.encoded_database_collab)
       .chain(encoded_database.encoded_row_collabs.into_iter())
@@ -679,43 +680,28 @@ impl WorkspaceDatabaseCollabServiceImpl {
     object_ty: CollabType,
   ) -> Result<Option<EncodedCollab>, DatabaseError> {
     let workspace_id = self.user.workspace_id().unwrap();
-    let object_id = object_id.to_string(); // Convert to String for later use
     trace!("[Database]: fetch {}:{} from remote", object_id, object_ty);
-    let weak_cloud_service = Arc::downgrade(&self.cloud_service);
-    let cloud_service = match weak_cloud_service.upgrade() {
-      None => return Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
-      Some(service) => service,
-    };
-    let encode_collab = cloud_service
-      .get_database_encode_collab(&object_id, object_ty, &workspace_id)
+    let encode_collab = self
+      .cloud_service
+      .get_database_encode_collab(object_id, object_ty, &workspace_id)
       .await?;
     Ok(encode_collab)
   }
 
-  #[allow(dead_code)]
   async fn batch_get_encode_collab(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
   ) -> Result<EncodeCollabByOid, DatabaseError> {
-    let cloned_user = self.user.clone();
-    let weak_cloud_service = Arc::downgrade(&self.cloud_service);
-
-    let workspace_id = cloned_user
+    let workspace_id = self
+      .user
       .workspace_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
-    match weak_cloud_service.upgrade() {
-      None => {
-        tracing::warn!("Cloud service is dropped");
-        Ok(EncodeCollabByOid::default())
-      },
-      Some(cloud_service) => {
-        let updates = cloud_service
-          .batch_get_database_encode_collab(object_ids, object_ty, &workspace_id)
-          .await?;
-        Ok(updates)
-      },
-    }
+    let updates = self
+      .cloud_service
+      .batch_get_database_encode_collab(object_ids, object_ty, &workspace_id)
+      .await?;
+    Ok(updates)
   }
 
   fn collab_db(&self) -> Result<Weak<CollabKVDB>, DatabaseError> {
@@ -829,7 +815,25 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
           self
             .persistence
             .save_collab(object_id, encoded_collab.clone())?;
-          //TODO(nathan): post collab
+
+          // TODO(nathan): cover database rows and other database collab type
+          if matches!(collab_type, CollabType::Database) {
+            if let Ok(workspace_id) = self.user.workspace_id() {
+              let object_id = object_id.to_string();
+              let cloned_encoded_collab = encoded_collab.clone();
+              let cloud_service = self.cloud_service.clone();
+              tokio::spawn(async move {
+                let _ = cloud_service
+                  .create_database_encode_collab(
+                    &object_id,
+                    collab_type,
+                    &workspace_id,
+                    cloned_encoded_collab,
+                  )
+                  .await;
+              });
+            }
+          }
           encoded_collab.into()
         },
       }
@@ -840,6 +844,46 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       .collab_builder
       .build_collab(&object, &collab_db, data_source)?;
     Ok(collab)
+  }
+
+  async fn get_collabs(
+    &self,
+    mut object_ids: Vec<String>,
+    collab_type: CollabType,
+  ) -> Result<EncodeCollabByOid, DatabaseError> {
+    let mut encoded_collab_by_id = EncodeCollabByOid::new();
+    // 1. Collect local disk collabs into a HashMap
+    let local_disk_encoded_collab: HashMap<String, EncodedCollab> = object_ids
+      .par_iter()
+      .filter_map(|object_id| {
+        self
+          .persistence
+          .get_encoded_collab(object_id.as_str(), collab_type.clone())
+          .map(|encoded_collab| (object_id.clone(), encoded_collab))
+      })
+      .collect();
+    trace!(
+      "[Database]: load {} database row from local disk",
+      local_disk_encoded_collab.len()
+    );
+    object_ids.retain(|object_id| !local_disk_encoded_collab.contains_key(object_id));
+    for (k, v) in local_disk_encoded_collab {
+      encoded_collab_by_id.insert(k, v);
+    }
+
+    // 2. Fetch remaining collabs from remote
+    let remote_collabs = self
+      .batch_get_encode_collab(object_ids, collab_type)
+      .await?;
+
+    trace!(
+      "[Database]: load {} database row from remote",
+      remote_collabs.len()
+    );
+    for (k, v) in remote_collabs {
+      encoded_collab_by_id.insert(k, v);
+    }
+    Ok(encoded_collab_by_id)
   }
 
   fn persistence(&self) -> Option<Arc<dyn DatabaseCollabPersistenceService>> {
@@ -888,6 +932,24 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
         },
       }
     }
+  }
+
+  fn get_encoded_collab(&self, object_id: &str, collab_type: CollabType) -> Option<EncodedCollab> {
+    let uid = self.user.user_id().ok()?;
+    let db = self.user.collab_db(uid).ok()?.upgrade()?;
+    let read_txn = db.read_txn();
+    if !read_txn.is_exist(uid, &object_id) {
+      return None;
+    }
+
+    let mut collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
+    let mut txn = collab.transact_mut();
+    let _ = read_txn.load_doc_with_txn(uid, &object_id, &mut txn);
+    drop(txn);
+
+    collab
+      .encode_collab_v1(|collab| collab_type.validate_require_data(collab))
+      .ok()
   }
 
   fn delete_collab(&self, object_id: &str) -> Result<(), DatabaseError> {

@@ -48,7 +48,7 @@ where
       .to_vec();
 
     check_request_workspace_id_is_match(
-      &workspace_id,
+      workspace_id,
       &self.user,
       format!("get document doc state:{}", document_id),
     )?;
@@ -85,7 +85,7 @@ where
       .doc_state
       .to_vec();
     check_request_workspace_id_is_match(
-      &workspace_id,
+      workspace_id,
       &self.user,
       format!("Get {} document", document_id),
     )?;

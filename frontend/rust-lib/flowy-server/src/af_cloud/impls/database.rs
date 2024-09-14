@@ -3,7 +3,7 @@ use client_api::entity::ai_dto::{
   SummarizeRowData, SummarizeRowParams, TranslateRowData, TranslateRowParams,
 };
 use client_api::entity::QueryCollabResult::{Failed, Success};
-use client_api::entity::{QueryCollab, QueryCollabParams};
+use client_api::entity::{CreateCollabParams, QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
@@ -65,6 +65,23 @@ where
         }
       },
     }
+  }
+
+  async fn create_database_encode_collab(
+    &self,
+    object_id: &str,
+    collab_type: CollabType,
+    workspace_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    let params = CreateCollabParams {
+      workspace_id: workspace_id.to_string(),
+      object_id: object_id.to_string(),
+      encoded_collab_v1: encoded_collab.encode_to_bytes()?,
+      collab_type,
+    };
+    self.inner.try_get_client()?.create_collab(params).await?;
+    Ok(())
   }
 
   #[instrument(level = "debug", skip_all)]

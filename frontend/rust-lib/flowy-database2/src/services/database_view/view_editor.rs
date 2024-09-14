@@ -159,6 +159,7 @@ impl DatabaseViewEditor {
     params: CreateRowPayloadPB,
   ) -> FlowyResult<CreateRowParams> {
     let timestamp = timestamp();
+    trace!("[Database]: will create row at: {:?}", params.row_position);
     let mut result = CreateRowParams {
       collab_params: collab_database::rows::CreateRowParams {
         id: gen_row_id(),

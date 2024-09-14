@@ -175,9 +175,9 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 
   async fn create_document_collab(
     &self,
-    workspace_id: &str,
-    document_id: &str,
-    encoded_collab: EncodedCollab,
+    _workspace_id: &str,
+    _document_id: &str,
+    _encoded_collab: EncodedCollab,
   ) -> Result<(), Error> {
     Ok(())
   }
