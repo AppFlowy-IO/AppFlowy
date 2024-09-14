@@ -331,6 +331,7 @@ impl AppFlowyCollabBuilder {
   }
 
   /// Remove all updates in disk and write the final state vector to disk.
+  #[instrument(level = "trace", skip_all, err)]
   pub fn write_collab_to_disk<T>(
     &self,
     uid: i64,
@@ -355,6 +356,8 @@ impl AppFlowyCollabBuilder {
         encode_collab.doc_state.to_vec(),
       )?;
       write_txn.commit_transaction()?;
+    } else {
+      error!("collab_db is dropped");
     }
 
     Ok(())

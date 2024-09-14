@@ -1471,7 +1471,7 @@ impl DatabaseEditor {
         )
       };
 
-      let mut row_metas = row_orders
+      let mut order_row_metas = row_orders
         .into_iter()
         .map(RowMetaPB::from)
         .collect::<Vec<RowMetaPB>>();
@@ -1480,19 +1480,25 @@ impl DatabaseEditor {
         "[Database]: database: {}, num fields: {}, num rows: {}",
         database_id,
         fields.len(),
-        row_metas.len()
+        order_row_metas.len()
       );
 
       let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-      let blocking_read = notify_finish.is_some() || row_metas.len() < 50;
+      let blocking_read = notify_finish.is_some() || order_row_metas.len() < 50;
       let (tx, rx) = oneshot::channel();
       self.async_load_rows(view_editor, Some(tx), new_token, blocking_read);
       if blocking_read {
         if let Ok(rows) = rx.await {
-          row_metas = rows
+          let mut un_order_rows = rows
             .into_iter()
-            .map(|row| RowMetaPB::from(row.as_ref()))
-            .collect::<Vec<RowMetaPB>>();
+            .map(|row| (row.id.to_string(), RowMetaPB::from(row.as_ref())))
+            .collect::<HashMap<String, RowMetaPB>>();
+
+          order_row_metas.iter_mut().for_each(|row_meta| {
+            if let Some(un_order_row) = un_order_rows.remove(&row_meta.id) {
+              *row_meta = un_order_row;
+            }
+          });
         }
       }
 
@@ -1503,7 +1509,7 @@ impl DatabaseEditor {
       let result = Ok(DatabasePB {
         id: database_id,
         fields,
-        rows: row_metas,
+        rows: order_row_metas,
         layout_type: view_layout.into(),
         is_linked,
       });
