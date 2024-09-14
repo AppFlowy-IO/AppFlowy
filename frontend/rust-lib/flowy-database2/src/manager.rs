@@ -218,23 +218,17 @@ impl DatabaseManager {
     view_id: &str,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    self
-      .get_or_init_database_editor(&database_id, Some(view_id))
-      .await
+    self.get_or_init_database_editor(&database_id).await
   }
 
   pub async fn get_or_init_database_editor(
     &self,
     database_id: &str,
-    _database_view_id: Option<&str>,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);
     }
     let editor = self.open_database(database_id).await?;
-    // if let Some(database_view_id) = database_view_id {
-    //   let _ = editor.open_database_view(database_view_id, None).await;
-    // }
     Ok(editor)
   }
 

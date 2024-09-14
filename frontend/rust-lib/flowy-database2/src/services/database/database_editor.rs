@@ -21,7 +21,7 @@ use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
-use arc_swap::{ArcSwap, ArcSwapOption};
+use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
 use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
@@ -36,10 +36,10 @@ use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
+use futures::future::join_all;
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
-use rayon::broadcast;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -1707,41 +1707,75 @@ impl DatabaseEditor {
       .await
   }
 
-  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
-    row_ids: Option<&Vec<String>>,
+    row_ids: Option<Vec<String>>,
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let database = self.database.read().await;
-    let primary_field = database.get_primary_field().unwrap();
-    let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
-      .ok_or(FlowyError::internal())?;
+    let primary_field = Arc::new(
+      database
+        .get_primary_field()
+        .ok_or_else(|| FlowyError::internal().with_context("Primary field is not exist"))?,
+    );
 
-    let row_data = {
-      let mut rows = database.get_all_rows().await;
-      if let Some(row_ids) = row_ids {
-        rows.retain(|row| row_ids.contains(&row.id));
-      }
-      let mut row_data = vec![];
-      for row in rows {
-        let title = database
-          .get_cell(&primary_field.id, &row.id)
-          .await
-          .cell
-          .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
-          .and_then(|cell_data| cell_data.unbox_or_none())
-          .unwrap_or_else(|| StringCellData("".to_string()));
+    let handler = Arc::new(
+      TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
+        .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
+        .ok_or(FlowyError::internal())?,
+    );
 
-        row_data.push(RelatedRowDataPB {
-          row_id: row.id.to_string(),
-          name: title.0,
-        })
-      }
-      row_data
-    };
+    match row_ids {
+      None => {
+        warn!("Get all related rows will cause performance issue");
+        let rows = database.get_all_rows().await;
+        let mut row_data = vec![];
+        for row in rows {
+          let title = database
+            .get_cell(&primary_field.id, &row.id)
+            .await
+            .cell
+            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(|| StringCellData("".to_string()));
+          row_data.push(RelatedRowDataPB {
+            row_id: row.id.to_string(),
+            name: title.0,
+          })
+        }
+        Ok(row_data)
+      },
+      Some(row_ids) => {
+        let mut database_rows = vec![];
+        for row_id in row_ids {
+          let row_id = RowId::from(row_id);
+          if let Some(database_row) = database.get_or_init_database_row(&row_id).await {
+            database_rows.push(database_row);
+          }
+        }
 
-    Ok(row_data)
+        let row_data_futures = database_rows.into_iter().map(|database_row| {
+          let handler = handler.clone();
+          let cloned_primary_field = primary_field.clone();
+          async move {
+            let row_id = database_row.read().await.row_id.to_string();
+            let title = database_row
+              .read()
+              .await
+              .get_cell(&cloned_primary_field.id)
+              .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &cloned_primary_field))
+              .and_then(|cell_data| cell_data.unbox_or_none())
+              .unwrap_or_else(|| StringCellData("".to_string()));
+
+            RelatedRowDataPB {
+              row_id,
+              name: title.0,
+            }
+          }
+        });
+        let row_data = join_all(row_data_futures).await;
+        Ok(row_data)
+      },
+    }
   }
 
   async fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
