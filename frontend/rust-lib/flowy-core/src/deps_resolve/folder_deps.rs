@@ -472,7 +472,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         );
       },
     };
-    let result = self.0.create_database_with_params(data).await;
+    let result = self.0.import_database(data).await;
     match result {
       Ok(_) => Ok(()),
       Err(err) => {

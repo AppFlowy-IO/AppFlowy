@@ -6,7 +6,7 @@ use collab::lock::RwLock;
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+  AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 use dashmap::try_result::TryResult;
@@ -157,7 +157,7 @@ impl UserManager {
         );
         let collab_db = self.get_collab_db(session.user_id)?;
         let doc_state =
-          KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+          CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
         let awareness = Self::collab_for_user_awareness(
           &self.collab_builder.clone(),
           &session.user_workspace.id,
@@ -220,7 +220,7 @@ impl UserManager {
 
       let create_awareness = if authenticator.is_local() {
         let doc_state =
-          KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+          CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
         Self::collab_for_user_awareness(
           &weak_builder,
           &session.user_workspace.id,
@@ -252,8 +252,8 @@ impl UserManager {
           Err(err) => {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
-              let doc_state = KVDBCollabPersistenceImpl::new(collab_db.clone(), session.user_id)
-                .into_data_source();
+              let doc_state =
+                CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
               Self::collab_for_user_awareness(
                 &weak_builder,
                 &session.user_workspace.id,

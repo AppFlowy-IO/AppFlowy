@@ -21,7 +21,7 @@ use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
-use arc_swap::{ArcSwap, ArcSwapOption};
+use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
 use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
@@ -60,7 +60,7 @@ pub struct DatabaseEditor {
   #[allow(dead_code)]
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  is_opening: ArcSwap<bool>,
+  is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
   un_finalized_rows_cancellation: Arc<ArcSwapOption<CancellationToken>>,
@@ -131,7 +131,7 @@ impl DatabaseEditor {
       cell_cache,
       database_views,
       collab_builder,
-      is_opening: Default::default(),
+      is_loading_rows: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
       un_finalized_rows_cancellation: Arc::new(Default::default()),
@@ -663,12 +663,13 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let (index, order_id) = database
+    let (index, row_order) = database
       .create_row_in_view(&view_editor.view_id, collab_params)
       .await?;
-    let row_detail = database.get_row_detail(&order_id.id).await;
+    let row_detail = database.get_row_detail(&row_order.id).await;
     drop(database);
 
+    trace!("[Database]: did create row: {} at {}", row_order.id, index);
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
       return Ok(Some(row_detail));
@@ -765,7 +766,13 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<Arc<RwLock<DatabaseRow>>> {
-    debug!("Init database row: {}", row_id);
+    if let Some(is_loading) = self.is_loading_rows.load_full() {
+      let mut rx = is_loading.subscribe();
+      trace!("[Database]: wait for loading rows when trying to init database row");
+      let _ = tokio::time::timeout(Duration::from_secs(10), rx.recv()).await;
+    }
+
+    debug!("[Database]: Init database row: {}", row_id);
     let database_row = self
       .database
       .read()
@@ -1440,8 +1447,10 @@ impl DatabaseEditor {
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
     // Check if the database is currently being opened
-    if !*self.is_opening.load_full() {
-      self.is_opening.store(Arc::new(true));
+    if self.is_loading_rows.load_full().is_none() {
+      self
+        .is_loading_rows
+        .store(Some(Arc::new(broadcast::channel(500).0)));
       let view_layout = self.database.read().await.get_database_view_layout(view_id);
       let new_token = CancellationToken::new();
       if let Some(old_token) = self
@@ -1471,7 +1480,7 @@ impl DatabaseEditor {
         )
       };
 
-      let mut row_metas = row_orders
+      let mut order_row_metas = row_orders
         .into_iter()
         .map(RowMetaPB::from)
         .collect::<Vec<RowMetaPB>>();
@@ -1480,19 +1489,25 @@ impl DatabaseEditor {
         "[Database]: database: {}, num fields: {}, num rows: {}",
         database_id,
         fields.len(),
-        row_metas.len()
+        order_row_metas.len()
       );
 
       let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-      let blocking_read = notify_finish.is_some() || row_metas.len() < 50;
+      let blocking_read = notify_finish.is_some() || order_row_metas.len() < 50;
       let (tx, rx) = oneshot::channel();
       self.async_load_rows(view_editor, Some(tx), new_token, blocking_read);
       if blocking_read {
         if let Ok(rows) = rx.await {
-          row_metas = rows
+          let mut un_order_rows = rows
             .into_iter()
-            .map(|row| RowMetaPB::from(row.as_ref()))
-            .collect::<Vec<RowMetaPB>>();
+            .map(|row| (row.id.to_string(), RowMetaPB::from(row.as_ref())))
+            .collect::<HashMap<String, RowMetaPB>>();
+
+          order_row_metas.iter_mut().for_each(|row_meta| {
+            if let Some(un_order_row) = un_order_rows.remove(&row_meta.id) {
+              *row_meta = un_order_row;
+            }
+          });
         }
       }
 
@@ -1503,12 +1518,15 @@ impl DatabaseEditor {
       let result = Ok(DatabasePB {
         id: database_id,
         fields,
-        rows: row_metas,
+        rows: order_row_metas,
         layout_type: view_layout.into(),
         is_linked,
       });
       // Mark that the opening process is complete
-      self.is_opening.store(Arc::new(false));
+      if let Some(tx) = self.is_loading_rows.load_full() {
+        let _ = tx.send(());
+      }
+      self.is_loading_rows.store(None);
       // Collect all waiting tasks and send the result
       let txs = std::mem::take(&mut *self.opening_ret_txs.write().await);
       for tx in txs {
@@ -1566,7 +1584,7 @@ impl DatabaseEditor {
         };
 
       let mut loaded_rows = vec![];
-      const CHUNK_SIZE: usize = 10;
+      const CHUNK_SIZE: usize = 20;
       let row_orders = view_editor.row_orders.read().await;
       let row_orders_chunks = row_orders.chunks(CHUNK_SIZE).collect::<Vec<_>>();
 
@@ -1578,32 +1596,19 @@ impl DatabaseEditor {
           Some(database) => database,
         };
 
-        // Process the chunk of rows concurrently using async tasks
-        let tasks: Vec<_> = chunk_row_orders
+        let row_ids = chunk_row_orders
           .iter()
-          .map(|row_order| {
-            let db_clone = database.clone();
-            async move {
-              // Initialize the database row
-              let database_row = db_clone
-                .read()
-                .await
-                .get_or_init_database_row(&row_order.id)
-                .await;
-              if let Some(database_row) = database_row {
-                let row = database_row.read().await.get_row();
-                row.map(Arc::new)
-              } else {
-                None
-              }
-            }
-          })
+          .map(|row_order| row_order.id.clone())
           .collect();
 
-        let results = join_all(tasks).await;
-        for row in results.into_iter().flatten() {
-          loaded_rows.push(row);
+        if let Ok(rows) = database.read().await.init_database_rows(row_ids).await {
+          for row in rows {
+            if let Some(row) = row.read().await.get_row() {
+              loaded_rows.push(Arc::new(row));
+            }
+          }
         }
+
         // Check for cancellation after each chunk
         if new_token.is_cancelled() {
           info!("[Database]: stop loading database rows");
@@ -1702,41 +1707,75 @@ impl DatabaseEditor {
       .await
   }
 
-  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
-    row_ids: Option<&Vec<String>>,
+    row_ids: Option<Vec<String>>,
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let database = self.database.read().await;
-    let primary_field = database.get_primary_field().unwrap();
-    let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
-      .ok_or(FlowyError::internal())?;
+    let primary_field = Arc::new(
+      database
+        .get_primary_field()
+        .ok_or_else(|| FlowyError::internal().with_context("Primary field is not exist"))?,
+    );
 
-    let row_data = {
-      let mut rows = database.get_all_rows().await;
-      if let Some(row_ids) = row_ids {
-        rows.retain(|row| row_ids.contains(&row.id));
-      }
-      let mut row_data = vec![];
-      for row in rows {
-        let title = database
-          .get_cell(&primary_field.id, &row.id)
-          .await
-          .cell
-          .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
-          .and_then(|cell_data| cell_data.unbox_or_none())
-          .unwrap_or_else(|| StringCellData("".to_string()));
+    let handler = Arc::new(
+      TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
+        .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
+        .ok_or(FlowyError::internal())?,
+    );
 
-        row_data.push(RelatedRowDataPB {
-          row_id: row.id.to_string(),
-          name: title.0,
-        })
-      }
-      row_data
-    };
+    match row_ids {
+      None => {
+        warn!("Get all related rows will cause performance issue");
+        let rows = database.get_all_rows().await;
+        let mut row_data = vec![];
+        for row in rows {
+          let title = database
+            .get_cell(&primary_field.id, &row.id)
+            .await
+            .cell
+            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(|| StringCellData("".to_string()));
+          row_data.push(RelatedRowDataPB {
+            row_id: row.id.to_string(),
+            name: title.0,
+          })
+        }
+        Ok(row_data)
+      },
+      Some(row_ids) => {
+        let mut database_rows = vec![];
+        for row_id in row_ids {
+          let row_id = RowId::from(row_id);
+          if let Some(database_row) = database.get_or_init_database_row(&row_id).await {
+            database_rows.push(database_row);
+          }
+        }
 
-    Ok(row_data)
+        let row_data_futures = database_rows.into_iter().map(|database_row| {
+          let handler = handler.clone();
+          let cloned_primary_field = primary_field.clone();
+          async move {
+            let row_id = database_row.read().await.row_id.to_string();
+            let title = database_row
+              .read()
+              .await
+              .get_cell(&cloned_primary_field.id)
+              .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &cloned_primary_field))
+              .and_then(|cell_data| cell_data.unbox_or_none())
+              .unwrap_or_else(|| StringCellData("".to_string()));
+
+            RelatedRowDataPB {
+              row_id,
+              name: title.0,
+            }
+          }
+        });
+        let row_data = join_all(row_data_futures).await;
+        Ok(row_data)
+      },
+    }
   }
 
   async fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
