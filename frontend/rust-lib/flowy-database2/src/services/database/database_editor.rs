@@ -39,6 +39,7 @@ use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
+use rayon::broadcast;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
@@ -59,7 +60,7 @@ pub struct DatabaseEditor {
   #[allow(dead_code)]
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  is_opening: ArcSwap<bool>,
+  is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
   un_finalized_rows_cancellation: Arc<ArcSwapOption<CancellationToken>>,
@@ -130,7 +131,7 @@ impl DatabaseEditor {
       cell_cache,
       database_views,
       collab_builder,
-      is_opening: Default::default(),
+      is_loading_rows: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
       un_finalized_rows_cancellation: Arc::new(Default::default()),
@@ -765,7 +766,13 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<Arc<RwLock<DatabaseRow>>> {
-    debug!("Init database row: {}", row_id);
+    if let Some(is_loading) = self.is_loading_rows.load_full() {
+      let mut rx = is_loading.subscribe();
+      trace!("[Database]: wait for loading rows when trying to init database row");
+      let _ = tokio::time::timeout(Duration::from_secs(10), rx.recv()).await;
+    }
+
+    debug!("[Database]: Init database row: {}", row_id);
     let database_row = self
       .database
       .read()
@@ -1440,8 +1447,10 @@ impl DatabaseEditor {
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
     // Check if the database is currently being opened
-    if !*self.is_opening.load_full() {
-      self.is_opening.store(Arc::new(true));
+    if self.is_loading_rows.load_full().is_none() {
+      self
+        .is_loading_rows
+        .store(Some(Arc::new(broadcast::channel(500).0)));
       let view_layout = self.database.read().await.get_database_view_layout(view_id);
       let new_token = CancellationToken::new();
       if let Some(old_token) = self
@@ -1514,7 +1523,10 @@ impl DatabaseEditor {
         is_linked,
       });
       // Mark that the opening process is complete
-      self.is_opening.store(Arc::new(false));
+      if let Some(tx) = self.is_loading_rows.load_full() {
+        let _ = tx.send(());
+      }
+      self.is_loading_rows.store(None);
       // Collect all waiting tasks and send the result
       let txs = std::mem::take(&mut *self.opening_ret_txs.write().await);
       for tx in txs {

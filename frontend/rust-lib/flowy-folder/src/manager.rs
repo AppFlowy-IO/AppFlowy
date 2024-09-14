@@ -194,7 +194,7 @@ impl FolderManager {
     }
   }
 
-  pub(crate) async fn create_empty_collab(
+  pub(crate) async fn create_folder_with_data(
     &self,
     uid: i64,
     workspace_id: &str,

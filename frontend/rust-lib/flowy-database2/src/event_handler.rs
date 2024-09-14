@@ -2,7 +2,7 @@ use collab_database::rows::{Cell, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
-use tracing::{error, info};
+use tracing::{error, info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -1224,6 +1224,7 @@ pub(crate) async fn update_relation_cell_handler(
   Ok(())
 }
 
+#[instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_related_row_datas_handler(
   data: AFPluginData<GetRelatedRowDataPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
@@ -1240,6 +1241,7 @@ pub(crate) async fn get_related_row_datas_handler(
   data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
 }
 
+#[instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_related_database_rows_handler(
   data: AFPluginData<DatabaseIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,

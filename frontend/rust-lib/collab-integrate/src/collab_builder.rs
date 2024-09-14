@@ -202,10 +202,13 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<Folder>>, Error> {
     let expected_collab_type = CollabType::Folder;
     assert_eq!(object.collab_type, expected_collab_type);
-    let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = match folder_data {
-      None => Folder::open(object.uid, collab, folder_notifier)?,
+      None => {
+        let collab = self.build_collab(&object, &collab_db, doc_state)?;
+        Folder::open(object.uid, collab, folder_notifier)?
+      },
       Some(data) => {
+        let collab = self.build_collab(&object, &collab_db, doc_state)?;
         let folder = Folder::create(object.uid, collab, folder_notifier, data);
         if let Err(err) = self.write_collab_to_disk(
           object.uid,

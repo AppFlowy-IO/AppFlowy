@@ -21,7 +21,7 @@ use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use rayon::prelude::*;
 use tokio::sync::Mutex;
-use tracing::{error, info, instrument, trace};
+use tracing::{error, info, instrument, trace, warn};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB};
@@ -232,6 +232,9 @@ impl DatabaseManager {
       return Ok(editor);
     }
     let editor = self.open_database(database_id).await?;
+    // if let Some(database_view_id) = database_view_id {
+    //   let _ = editor.open_database_view(database_view_id, None).await;
+    // }
     Ok(editor)
   }
 
@@ -749,7 +752,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
     let data_source = if self.persistence.is_collab_exist(object_id) {
       if encoded_collab.is_some() {
-        error!(
+        warn!(
           "build collab: {}:{} with both local and remote encode collab",
           collab_type, object_id
         );
