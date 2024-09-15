@@ -260,7 +260,7 @@
     "openAsPage": "Open as a Page",
     "addNewRow": "Add a new row",
     "openMenu": "Click to open menu",
-    "dragRow": "Long press to reorder the row",
+    "dragRow": "Drag to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
     "addBlockBelow": "Add a block below",
@@ -380,7 +380,8 @@
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",
-    "download": "Download"
+    "download": "Download",
+    "backToHome": "Back to Home"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1383,10 +1384,12 @@
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
       "addSort": "Add new sort",
-      "removeSorting": "Would you like to remove sorting?",
+      "sortsActive": "Cannot {intention} while sorting",
+      "removeSorting": "Would you like to remove all the sorts in this view and continue?",
       "fieldInUse": "You are already sorting by this field"
     },
     "row": {
+      "label": "Row",
       "duplicate": "Duplicate",
       "delete": "Delete",
       "titlePlaceholder": "Untitled",
@@ -1397,12 +1400,15 @@
       "action": "Action",
       "add": "Click add to below",
       "drag": "Drag to move",
-      "deleteRowPrompt": "Are you sure you want to delete this row? This action cannot be undone",
-      "deleteCardPrompt": "Are you sure you want to delete this card? This action cannot be undone",
+      "deleteRowPrompt": "Are you sure you want to delete this row? This action cannot be undone.",
+      "deleteCardPrompt": "Are you sure you want to delete this card? This action cannot be undone.",
       "dragAndClick": "Drag to move, click to open menu",
       "insertRecordAbove": "Insert record above",
       "insertRecordBelow": "Insert record below",
-      "noContent": "No content"
+      "noContent": "No content",
+      "reorderRowDescription": "reorder row",
+      "createRowAboveDescription": "create a row above",
+      "createRowBelowDescription": "insert a row below"
     },
     "selectOption": {
       "create": "Create",
@@ -2559,5 +2565,29 @@
     "resetZoom": "Reset zoom",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out"
+  },
+  "invitation": {
+    "join": "Join",
+    "on": "on",
+    "invitedBy": "Invited by",
+    "membersCount": {
+      "zero": "{count} members",
+      "one": "{count} member",
+      "many": "{count} members",
+      "other": "{count} members"
+    },
+    "tip": "You’ve been invited to Join this workspace with the contact information below. If this is incorrect, contact your administrator to resend the invite.",
+    "joinWorkspace": "Join workspace",
+    "success": "You've successfully joined the workspace",
+    "successMessage": "You can now access all the pages and workspaces within it.",
+    "openWorkspace": "Open AppFlowy",
+    "alreadyAccepted": "You've already accepted the invitation",
+    "errorModal": {
+      "title": "Something went wrong",
+      "description": "Your current account {email} may not have access to this workspace. Please log in with the correct account or contact the workspace owner for help.",
+      "contactOwner": "Contact owner",
+      "close": "Back to home",
+      "changeAccount": "Change account"
+    }
   }
 }

@@ -323,10 +323,7 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 20.0,
-          horizontal: 20.0,
-        ),
+        padding: const EdgeInsets.all(20),
         color: UniversalPlatform.isDesktop
             ? null
             : Theme.of(context).colorScheme.surface,

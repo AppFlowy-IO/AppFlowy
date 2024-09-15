@@ -170,7 +170,6 @@ export class AFClientService implements AFService {
 
   async loginAuth (url: string) {
     try {
-      console.log('loginAuth', url);
       await APIService.signInWithUrl(url);
       emit(EventType.SESSION_VALID);
       afterAuth();
@@ -313,6 +312,14 @@ export class AFClientService implements AFService {
 
   async uploadFileToCDN (file: File) {
     return APIService.uploadFileToCDN(file);
+  }
+
+  async getInvitation (invitationId: string) {
+    return APIService.getInvitation(invitationId);
+  }
+
+  async acceptInvitation (invitationId: string) {
+    return APIService.acceptInvitation(invitationId);
   }
 
 }

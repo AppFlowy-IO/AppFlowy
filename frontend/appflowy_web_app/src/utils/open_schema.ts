@@ -1,3 +1,5 @@
+import { androidDownloadLink, desktopDownloadLink, iosDownloadLink, openAppFlowySchema } from '@/utils/url';
+
 type OS = 'ios' | 'android' | 'other';
 
 interface AppConfig {
@@ -90,3 +92,13 @@ export const openAppOrDownload = (config: AppConfig): void => {
     redirectToUrl(downloadUrl);
   };
 };
+
+export function openOrDownload (schema?: string) {
+  const os = getOS();
+  const downloadUrl = os === 'ios' ? iosDownloadLink : os === 'android' ? androidDownloadLink : desktopDownloadLink;
+
+  return openAppOrDownload({
+    appScheme: schema || openAppFlowySchema,
+    downloadUrl,
+  });
+}
