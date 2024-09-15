@@ -406,13 +406,15 @@ impl FilterController {
       );
     });
 
+    let len = rows.len();
     rows.retain(|row| {
       self
         .result_by_row_id
         .get(&row.id)
         .map(|result| *result)
-        .unwrap_or(false)
+        .unwrap_or(true)
     });
+    trace!("[Database]: filter out {} invisible rows", len - rows.len());
     rows
   }
 
@@ -468,7 +470,6 @@ fn filter_row(
   for filter in filters {
     if let Some(is_visible) = apply_filter(row, field_by_field_id, cell_data_cache, filter) {
       new_is_visible = new_is_visible && is_visible;
-
       // short-circuit as soon as one filter tree returns false
       if !new_is_visible {
         break;

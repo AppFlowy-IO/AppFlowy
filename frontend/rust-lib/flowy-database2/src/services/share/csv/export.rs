@@ -1,6 +1,7 @@
 use collab_database::database::Database;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
+use futures::StreamExt;
 use indexmap::IndexMap;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -47,7 +48,12 @@ impl CSVExport {
     fields.into_iter().for_each(|field| {
       field_by_field_id.insert(field.id.clone(), field);
     });
-    let rows = database.get_rows_for_view(&inline_view_id).await;
+    let rows = database
+      .get_rows_for_view(&inline_view_id, None)
+      .await
+      .filter_map(|result| async { result.ok() })
+      .collect::<Vec<_>>()
+      .await;
 
     let stringify = |cell: &Cell, field: &Field, style: CSVFormat| match style {
       CSVFormat::Original => stringify_cell(cell, field),

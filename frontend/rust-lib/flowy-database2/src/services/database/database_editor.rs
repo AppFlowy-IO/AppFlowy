@@ -37,6 +37,7 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfi
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use futures::future::join_all;
+use futures::{pin_mut, StreamExt};
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
@@ -906,22 +907,29 @@ impl DatabaseEditor {
     if let Some(field) = database.get_field(field_id) {
       let field_type = FieldType::from(field.field_type);
       match field_type {
-        FieldType::LastEditedTime | FieldType::CreatedTime => database
-          .get_rows_for_view(view_id)
-          .await
-          .into_iter()
-          .map(|row| {
-            let data = if field_type.is_created_time() {
-              TimestampCellData::new(row.created_at)
-            } else {
-              TimestampCellData::new(row.modified_at)
-            };
-            RowCell {
-              row_id: row.id,
-              cell: Some(Cell::from(data)),
-            }
-          })
-          .collect(),
+        FieldType::LastEditedTime | FieldType::CreatedTime => {
+          database
+            .get_rows_for_view(view_id, None)
+            .await
+            .filter_map(|result| async {
+              match result {
+                Ok(row) => {
+                  let data = if field_type.is_created_time() {
+                    TimestampCellData::new(row.created_at)
+                  } else {
+                    TimestampCellData::new(row.modified_at)
+                  };
+                  Some(RowCell {
+                    row_id: row.id,
+                    cell: Some(Cell::from(data)),
+                  })
+                },
+                Err(_) => None,
+              }
+            })
+            .collect()
+            .await
+        },
         _ => database.get_cells_for_field(view_id, field_id).await,
       }
     } else {
@@ -1480,34 +1488,31 @@ impl DatabaseEditor {
         )
       };
 
-      let mut order_row_metas = row_orders
-        .into_iter()
-        .map(RowMetaPB::from)
+      // the order_rows are not filtered and sorted yet
+      let mut order_rows = row_orders
+        .iter()
+        .map(|row_order| RowMetaPB::from(row_order.clone()))
         .collect::<Vec<RowMetaPB>>();
 
       trace!(
         "[Database]: database: {}, num fields: {}, num rows: {}",
         database_id,
         fields.len(),
-        order_row_metas.len()
+        order_rows.len()
       );
 
       let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-      let blocking_read = notify_finish.is_some() || order_row_metas.len() < 50;
-      let (tx, rx) = oneshot::channel();
-      self.async_load_rows(view_editor, Some(tx), new_token, blocking_read);
-      if blocking_read {
-        if let Ok(rows) = rx.await {
-          let mut un_order_rows = rows
-            .into_iter()
-            .map(|row| (row.id.to_string(), RowMetaPB::from(row.as_ref())))
-            .collect::<HashMap<String, RowMetaPB>>();
+      let blocking_read = notify_finish.is_some() || order_rows.len() < 50;
 
-          order_row_metas.iter_mut().for_each(|row_meta| {
-            if let Some(un_order_row) = un_order_rows.remove(&row_meta.id) {
-              *row_meta = un_order_row;
-            }
-          });
+      let (tx, rx) = oneshot::channel();
+      self.async_load_rows(view_editor, Some(tx), new_token, blocking_read, row_orders);
+      if blocking_read {
+        // the rows returned here are applied with filters and sorts
+        if let Ok(rows) = rx.await {
+          order_rows = rows
+            .into_iter()
+            .map(|row| RowMetaPB::from(row.as_ref()))
+            .collect();
         }
       }
 
@@ -1518,7 +1523,7 @@ impl DatabaseEditor {
       let result = Ok(DatabasePB {
         id: database_id,
         fields,
-        rows: order_row_metas,
+        rows: order_rows,
         layout_type: view_layout.into(),
         is_linked,
       });
@@ -1547,6 +1552,7 @@ impl DatabaseEditor {
     notify_finish: Option<Sender<Vec<Arc<Row>>>>,
     new_token: CancellationToken,
     blocking_read: bool,
+    original_row_orders: Vec<RowOrder>,
   ) {
     trace!(
       "[Database]: start loading rows, blocking: {}",
@@ -1569,6 +1575,8 @@ impl DatabaseEditor {
             } else {
               view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
             }
+          } else {
+            trace!("[Database]: no filter to apply");
           }
 
           if view_editor.has_sorts().await {
@@ -1578,9 +1586,23 @@ impl DatabaseEditor {
             } else {
               view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
             }
-          }
+            loaded_rows
+          } else {
+            trace!("[Database]: no sort to apply");
+            // if there are no sorts, use the original row orders to sort the loaded rows
+            let mut map = loaded_rows
+              .into_iter()
+              .map(|row| (row.id.clone(), row))
+              .collect::<HashMap<RowId, Arc<Row>>>();
 
-          loaded_rows
+            let mut order_rows = vec![];
+            for row_order in original_row_orders {
+              if let Some(row) = map.remove(&row_order.id) {
+                order_rows.push(row);
+              }
+            }
+            order_rows
+          }
         };
 
       let mut loaded_rows = vec![];
@@ -1601,13 +1623,18 @@ impl DatabaseEditor {
           .map(|row_order| row_order.id.clone())
           .collect();
 
-        if let Ok(rows) = database.read().await.init_database_rows(row_ids).await {
-          for row in rows {
-            if let Some(row) = row.read().await.get_row() {
-              loaded_rows.push(Arc::new(row));
-            }
-          }
-        }
+        let new_loaded_rows: Vec<Arc<Row>> = database
+          .read()
+          .await
+          .init_database_rows(row_ids, None)
+          .filter_map(|result| async {
+            let database_row = result.ok()?;
+            let read_guard = database_row.read().await;
+            read_guard.get_row().map(Arc::new)
+          })
+          .collect()
+          .await;
+        loaded_rows.extend(new_loaded_rows);
 
         // Check for cancellation after each chunk
         if new_token.is_cancelled() {
@@ -1726,22 +1753,26 @@ impl DatabaseEditor {
 
     match row_ids {
       None => {
-        warn!("Get all related rows will cause performance issue");
-        let rows = database.get_all_rows().await;
         let mut row_data = vec![];
-        for row in rows {
-          let title = database
-            .get_cell(&primary_field.id, &row.id)
-            .await
-            .cell
-            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
-            .and_then(|cell_data| cell_data.unbox_or_none())
-            .unwrap_or_else(|| StringCellData("".to_string()));
-          row_data.push(RelatedRowDataPB {
-            row_id: row.id.to_string(),
-            name: title.0,
-          })
+        let rows_stream = database.get_all_rows(None).await;
+        pin_mut!(rows_stream);
+        while let Some(result) = rows_stream.next().await {
+          if let Ok(row) = result {
+            let title = database
+              .get_cell(&primary_field.id, &row.id)
+              .await
+              .cell
+              .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
+              .and_then(|cell_data| cell_data.unbox_or_none())
+              .unwrap_or_else(|| StringCellData("".to_string())); // Default to empty string
+
+            row_data.push(RelatedRowDataPB {
+              row_id: row.id.to_string(),
+              name: title.0,
+            });
+          }
         }
+
         Ok(row_data)
       },
       Some(row_ids) => {
@@ -1898,28 +1929,28 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let view_id = view_id.to_string();
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
-    // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
-    const CHUNK_SIZE: usize = 10;
     let cancellation = self
       .database_cancellation
       .read()
       .await
       .as_ref()
       .map(|c| c.clone());
-    for chunk in row_orders.chunks(CHUNK_SIZE) {
-      let database_read_guard = self.database.read().await;
-      let chunk = chunk.to_vec();
-      let rows = database_read_guard.get_rows_from_row_orders(&chunk).await;
-      if let Some(cancellation) = &cancellation {
-        if cancellation.is_cancelled() {
-          info!("Get all database row is cancelled:{}", view_id);
-          return vec![];
-        }
+
+    let read_guard = self.database.read().await;
+    let rows_stream = read_guard
+      .get_rows_from_row_orders(&row_orders, cancellation)
+      .await;
+    pin_mut!(rows_stream);
+
+    while let Some(result) = rows_stream.next().await {
+      match result {
+        Ok(row) => {
+          all_rows.push(row);
+        },
+        Err(err) => error!("Error while loading rows: {}", err),
       }
-      all_rows.extend(rows);
-      drop(database_read_guard);
-      tokio::task::yield_now().await;
     }
+
     trace!("total row details: {}", all_rows.len());
     all_rows.into_iter().map(Arc::new).collect()
   }
