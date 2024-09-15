@@ -822,6 +822,7 @@ impl DatabaseEditor {
         icon: row_meta.icon_url,
         is_document_empty: Some(row_meta.is_document_empty),
         attachment_count: Some(row_meta.attachment_count),
+        cover: row_meta.cover.map(|cover| cover.into()),
       })
     } else {
       warn!(

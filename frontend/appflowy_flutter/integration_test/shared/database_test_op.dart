@@ -70,6 +70,7 @@ import 'package:appflowy/plugins/database/widgets/setting/database_setting_actio
 import 'package:appflowy/plugins/database/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
@@ -569,6 +570,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     await startGesture(getCenter(banner), kind: PointerDeviceKind.mouse);
     await pumpAndSettle();
+  }
+
+  /// Used to open the add cover popover, by pressing on "Add cover"-button.
+  ///
+  /// Should call [hoverRowBanner] first.
+  ///
+  Future<void> tapAddCoverButton() async {
+    await tapButtonWithName(
+      LocaleKeys.document_plugins_cover_addCover.tr(),
+    );
+    await pumpAndSettle();
+    expect(find.byType(UploadImageMenu), findsOneWidget);
   }
 
   Future<void> openEmojiPicker() async =>

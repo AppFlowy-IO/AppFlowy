@@ -1,8 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::{
-  entities::CellIdPB,
-  services::field::{MediaCellData, MediaFile, MediaFileType, MediaUploadType},
+  entities::{CellIdPB, FileUploadTypePB},
+  services::field::{MediaCellData, MediaFile, MediaFileType},
 };
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -48,39 +48,10 @@ pub struct MediaFilePB {
   pub url: String,
 
   #[pb(index = 4)]
-  pub upload_type: MediaUploadTypePB,
+  pub upload_type: FileUploadTypePB,
 
   #[pb(index = 5)]
   pub file_type: MediaFileTypePB,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
-#[repr(u8)]
-pub enum MediaUploadTypePB {
-  #[default]
-  LocalMedia = 0,
-  NetworkMedia = 1,
-  CloudMedia = 2,
-}
-
-impl From<MediaUploadType> for MediaUploadTypePB {
-  fn from(data: MediaUploadType) -> Self {
-    match data {
-      MediaUploadType::LocalMedia => MediaUploadTypePB::LocalMedia,
-      MediaUploadType::NetworkMedia => MediaUploadTypePB::NetworkMedia,
-      MediaUploadType::CloudMedia => MediaUploadTypePB::CloudMedia,
-    }
-  }
-}
-
-impl From<MediaUploadTypePB> for MediaUploadType {
-  fn from(data: MediaUploadTypePB) -> Self {
-    match data {
-      MediaUploadTypePB::LocalMedia => MediaUploadType::LocalMedia,
-      MediaUploadTypePB::NetworkMedia => MediaUploadType::NetworkMedia,
-      MediaUploadTypePB::CloudMedia => MediaUploadType::CloudMedia,
-    }
-  }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
