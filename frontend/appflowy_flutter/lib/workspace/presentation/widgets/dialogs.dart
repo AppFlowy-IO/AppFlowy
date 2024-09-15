@@ -530,7 +530,7 @@ Future<void> showCancelAndDeleteDialog({
   required BuildContext context,
   required String title,
   required String description,
-  required Widget Function(BuildContext) builder,
+  Widget Function(BuildContext)? builder,
   VoidCallback? onDelete,
   String? confirmLabel,
 }) {
@@ -550,7 +550,7 @@ Future<void> showCancelAndDeleteDialog({
             closeOnAction: false,
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.error,
-            child: builder(context),
+            child: builder?.call(context),
           ),
         ),
       );
