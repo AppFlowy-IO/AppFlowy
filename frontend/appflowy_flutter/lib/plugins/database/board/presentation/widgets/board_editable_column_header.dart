@@ -142,9 +142,11 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
                     ),
                   ),
                   const HSpace(4.0),
-                  FlowyText.medium(
-                    groupName,
-                    overflow: TextOverflow.ellipsis,
+                  Flexible(
+                    child: FlowyText.medium(
+                      groupName,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
