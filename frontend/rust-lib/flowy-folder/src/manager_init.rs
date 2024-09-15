@@ -164,7 +164,7 @@ impl FolderManager {
     let folder_data =
       DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers).await;
     let folder = self
-      .create_empty_collab(
+      .create_folder_with_data(
         uid,
         workspace_id,
         collab_db,

@@ -21,7 +21,7 @@ use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
 use crate::DatabaseUser;
-use arc_swap::{ArcSwap, ArcSwapOption};
+use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
 use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
@@ -37,6 +37,7 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfi
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_notification::DebounceNotificationSender;
 use futures::future::join_all;
+use futures::{pin_mut, StreamExt};
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 use lib_infra::util::timestamp;
@@ -60,7 +61,7 @@ pub struct DatabaseEditor {
   #[allow(dead_code)]
   user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  is_opening: ArcSwap<bool>,
+  is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
   un_finalized_rows_cancellation: Arc<ArcSwapOption<CancellationToken>>,
@@ -131,7 +132,7 @@ impl DatabaseEditor {
       cell_cache,
       database_views,
       collab_builder,
-      is_opening: Default::default(),
+      is_loading_rows: Default::default(),
       opening_ret_txs: Arc::new(Default::default()),
       database_cancellation,
       un_finalized_rows_cancellation: Arc::new(Default::default()),
@@ -663,12 +664,13 @@ impl DatabaseEditor {
     } = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
-    let (index, order_id) = database
+    let (index, row_order) = database
       .create_row_in_view(&view_editor.view_id, collab_params)
       .await?;
-    let row_detail = database.get_row_detail(&order_id.id).await;
+    let row_detail = database.get_row_detail(&row_order.id).await;
     drop(database);
 
+    trace!("[Database]: did create row: {} at {}", row_order.id, index);
     if let Some(row_detail) = row_detail {
       trace!("created row: {:?} at {}", row_detail, index);
       return Ok(Some(row_detail));
@@ -765,7 +767,13 @@ impl DatabaseEditor {
   }
 
   pub async fn init_database_row(&self, row_id: &RowId) -> FlowyResult<Arc<RwLock<DatabaseRow>>> {
-    debug!("Init database row: {}", row_id);
+    if let Some(is_loading) = self.is_loading_rows.load_full() {
+      let mut rx = is_loading.subscribe();
+      trace!("[Database]: wait for loading rows when trying to init database row");
+      let _ = tokio::time::timeout(Duration::from_secs(10), rx.recv()).await;
+    }
+
+    debug!("[Database]: Init database row: {}", row_id);
     let database_row = self
       .database
       .read()
@@ -899,22 +907,29 @@ impl DatabaseEditor {
     if let Some(field) = database.get_field(field_id) {
       let field_type = FieldType::from(field.field_type);
       match field_type {
-        FieldType::LastEditedTime | FieldType::CreatedTime => database
-          .get_rows_for_view(view_id)
-          .await
-          .into_iter()
-          .map(|row| {
-            let data = if field_type.is_created_time() {
-              TimestampCellData::new(row.created_at)
-            } else {
-              TimestampCellData::new(row.modified_at)
-            };
-            RowCell {
-              row_id: row.id,
-              cell: Some(Cell::from(data)),
-            }
-          })
-          .collect(),
+        FieldType::LastEditedTime | FieldType::CreatedTime => {
+          database
+            .get_rows_for_view(view_id, None)
+            .await
+            .filter_map(|result| async {
+              match result {
+                Ok(row) => {
+                  let data = if field_type.is_created_time() {
+                    TimestampCellData::new(row.created_at)
+                  } else {
+                    TimestampCellData::new(row.modified_at)
+                  };
+                  Some(RowCell {
+                    row_id: row.id,
+                    cell: Some(Cell::from(data)),
+                  })
+                },
+                Err(_) => None,
+              }
+            })
+            .collect()
+            .await
+        },
         _ => database.get_cells_for_field(view_id, field_id).await,
       }
     } else {
@@ -1440,8 +1455,10 @@ impl DatabaseEditor {
     let (tx, rx) = oneshot::channel();
     self.opening_ret_txs.write().await.push(tx);
     // Check if the database is currently being opened
-    if !*self.is_opening.load_full() {
-      self.is_opening.store(Arc::new(true));
+    if self.is_loading_rows.load_full().is_none() {
+      self
+        .is_loading_rows
+        .store(Some(Arc::new(broadcast::channel(500).0)));
       let view_layout = self.database.read().await.get_database_view_layout(view_id);
       let new_token = CancellationToken::new();
       if let Some(old_token) = self
@@ -1471,28 +1488,31 @@ impl DatabaseEditor {
         )
       };
 
-      let mut row_metas = row_orders
-        .into_iter()
-        .map(RowMetaPB::from)
+      // the order_rows are not filtered and sorted yet
+      let mut order_rows = row_orders
+        .iter()
+        .map(|row_order| RowMetaPB::from(row_order.clone()))
         .collect::<Vec<RowMetaPB>>();
 
       trace!(
         "[Database]: database: {}, num fields: {}, num rows: {}",
         database_id,
         fields.len(),
-        row_metas.len()
+        order_rows.len()
       );
 
       let view_editor = self.database_views.get_or_init_view_editor(view_id).await?;
-      let blocking_read = notify_finish.is_some() || row_metas.len() < 50;
+      let blocking_read = notify_finish.is_some() || order_rows.len() < 50;
+
       let (tx, rx) = oneshot::channel();
-      self.async_load_rows(view_editor, Some(tx), new_token, blocking_read);
+      self.async_load_rows(view_editor, Some(tx), new_token, blocking_read, row_orders);
       if blocking_read {
+        // the rows returned here are applied with filters and sorts
         if let Ok(rows) = rx.await {
-          row_metas = rows
+          order_rows = rows
             .into_iter()
             .map(|row| RowMetaPB::from(row.as_ref()))
-            .collect::<Vec<RowMetaPB>>();
+            .collect();
         }
       }
 
@@ -1503,12 +1523,15 @@ impl DatabaseEditor {
       let result = Ok(DatabasePB {
         id: database_id,
         fields,
-        rows: row_metas,
+        rows: order_rows,
         layout_type: view_layout.into(),
         is_linked,
       });
       // Mark that the opening process is complete
-      self.is_opening.store(Arc::new(false));
+      if let Some(tx) = self.is_loading_rows.load_full() {
+        let _ = tx.send(());
+      }
+      self.is_loading_rows.store(None);
       // Collect all waiting tasks and send the result
       let txs = std::mem::take(&mut *self.opening_ret_txs.write().await);
       for tx in txs {
@@ -1529,6 +1552,7 @@ impl DatabaseEditor {
     notify_finish: Option<Sender<Vec<Arc<Row>>>>,
     new_token: CancellationToken,
     blocking_read: bool,
+    original_row_orders: Vec<RowOrder>,
   ) {
     trace!(
       "[Database]: start loading rows, blocking: {}",
@@ -1551,6 +1575,8 @@ impl DatabaseEditor {
             } else {
               view_editor.v_filter_rows_and_notify(&mut loaded_rows).await;
             }
+          } else {
+            trace!("[Database]: no filter to apply");
           }
 
           if view_editor.has_sorts().await {
@@ -1560,13 +1586,27 @@ impl DatabaseEditor {
             } else {
               view_editor.v_sort_rows_and_notify(&mut loaded_rows).await;
             }
-          }
+            loaded_rows
+          } else {
+            trace!("[Database]: no sort to apply");
+            // if there are no sorts, use the original row orders to sort the loaded rows
+            let mut map = loaded_rows
+              .into_iter()
+              .map(|row| (row.id.clone(), row))
+              .collect::<HashMap<RowId, Arc<Row>>>();
 
-          loaded_rows
+            let mut order_rows = vec![];
+            for row_order in original_row_orders {
+              if let Some(row) = map.remove(&row_order.id) {
+                order_rows.push(row);
+              }
+            }
+            order_rows
+          }
         };
 
       let mut loaded_rows = vec![];
-      const CHUNK_SIZE: usize = 10;
+      const CHUNK_SIZE: usize = 20;
       let row_orders = view_editor.row_orders.read().await;
       let row_orders_chunks = row_orders.chunks(CHUNK_SIZE).collect::<Vec<_>>();
 
@@ -1578,32 +1618,24 @@ impl DatabaseEditor {
           Some(database) => database,
         };
 
-        // Process the chunk of rows concurrently using async tasks
-        let tasks: Vec<_> = chunk_row_orders
+        let row_ids = chunk_row_orders
           .iter()
-          .map(|row_order| {
-            let db_clone = database.clone();
-            async move {
-              // Initialize the database row
-              let database_row = db_clone
-                .read()
-                .await
-                .get_or_init_database_row(&row_order.id)
-                .await;
-              if let Some(database_row) = database_row {
-                let row = database_row.read().await.get_row();
-                row.map(Arc::new)
-              } else {
-                None
-              }
-            }
-          })
+          .map(|row_order| row_order.id.clone())
           .collect();
 
-        let results = join_all(tasks).await;
-        for row in results.into_iter().flatten() {
-          loaded_rows.push(row);
-        }
+        let new_loaded_rows: Vec<Arc<Row>> = database
+          .read()
+          .await
+          .init_database_rows(row_ids, None)
+          .filter_map(|result| async {
+            let database_row = result.ok()?;
+            let read_guard = database_row.read().await;
+            read_guard.get_row().map(Arc::new)
+          })
+          .collect()
+          .await;
+        loaded_rows.extend(new_loaded_rows);
+
         // Check for cancellation after each chunk
         if new_token.is_cancelled() {
           info!("[Database]: stop loading database rows");
@@ -1702,41 +1734,79 @@ impl DatabaseEditor {
       .await
   }
 
-  /// TODO(nathan): lazy load database rows
   pub async fn get_related_rows(
     &self,
-    row_ids: Option<&Vec<String>>,
+    row_ids: Option<Vec<String>>,
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let database = self.database.read().await;
-    let primary_field = database.get_primary_field().unwrap();
-    let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
-      .ok_or(FlowyError::internal())?;
+    let primary_field = Arc::new(
+      database
+        .get_primary_field()
+        .ok_or_else(|| FlowyError::internal().with_context("Primary field is not exist"))?,
+    );
 
-    let row_data = {
-      let mut rows = database.get_all_rows().await;
-      if let Some(row_ids) = row_ids {
-        rows.retain(|row| row_ids.contains(&row.id));
-      }
-      let mut row_data = vec![];
-      for row in rows {
-        let title = database
-          .get_cell(&primary_field.id, &row.id)
-          .await
-          .cell
-          .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
-          .and_then(|cell_data| cell_data.unbox_or_none())
-          .unwrap_or_else(|| StringCellData("".to_string()));
+    let handler = Arc::new(
+      TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
+        .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
+        .ok_or(FlowyError::internal())?,
+    );
 
-        row_data.push(RelatedRowDataPB {
-          row_id: row.id.to_string(),
-          name: title.0,
-        })
-      }
-      row_data
-    };
+    match row_ids {
+      None => {
+        let mut row_data = vec![];
+        let rows_stream = database.get_all_rows(None).await;
+        pin_mut!(rows_stream);
+        while let Some(result) = rows_stream.next().await {
+          if let Ok(row) = result {
+            let title = database
+              .get_cell(&primary_field.id, &row.id)
+              .await
+              .cell
+              .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
+              .and_then(|cell_data| cell_data.unbox_or_none())
+              .unwrap_or_else(|| StringCellData("".to_string())); // Default to empty string
 
-    Ok(row_data)
+            row_data.push(RelatedRowDataPB {
+              row_id: row.id.to_string(),
+              name: title.0,
+            });
+          }
+        }
+
+        Ok(row_data)
+      },
+      Some(row_ids) => {
+        let mut database_rows = vec![];
+        for row_id in row_ids {
+          let row_id = RowId::from(row_id);
+          if let Some(database_row) = database.get_or_init_database_row(&row_id).await {
+            database_rows.push(database_row);
+          }
+        }
+
+        let row_data_futures = database_rows.into_iter().map(|database_row| {
+          let handler = handler.clone();
+          let cloned_primary_field = primary_field.clone();
+          async move {
+            let row_id = database_row.read().await.row_id.to_string();
+            let title = database_row
+              .read()
+              .await
+              .get_cell(&cloned_primary_field.id)
+              .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &cloned_primary_field))
+              .and_then(|cell_data| cell_data.unbox_or_none())
+              .unwrap_or_else(|| StringCellData("".to_string()));
+
+            RelatedRowDataPB {
+              row_id,
+              name: title.0,
+            }
+          }
+        });
+        let row_data = join_all(row_data_futures).await;
+        Ok(row_data)
+      },
+    }
   }
 
   async fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
@@ -1859,28 +1929,28 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let view_id = view_id.to_string();
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
-    // Loading the rows in chunks of 10 rows in order to prevent blocking the main asynchronous runtime
-    const CHUNK_SIZE: usize = 10;
     let cancellation = self
       .database_cancellation
       .read()
       .await
       .as_ref()
       .map(|c| c.clone());
-    for chunk in row_orders.chunks(CHUNK_SIZE) {
-      let database_read_guard = self.database.read().await;
-      let chunk = chunk.to_vec();
-      let rows = database_read_guard.get_rows_from_row_orders(&chunk).await;
-      if let Some(cancellation) = &cancellation {
-        if cancellation.is_cancelled() {
-          info!("Get all database row is cancelled:{}", view_id);
-          return vec![];
-        }
+
+    let read_guard = self.database.read().await;
+    let rows_stream = read_guard
+      .get_rows_from_row_orders(&row_orders, cancellation)
+      .await;
+    pin_mut!(rows_stream);
+
+    while let Some(result) = rows_stream.next().await {
+      match result {
+        Ok(row) => {
+          all_rows.push(row);
+        },
+        Err(err) => error!("Error while loading rows: {}", err),
       }
-      all_rows.extend(rows);
-      drop(database_read_guard);
-      tokio::task::yield_now().await;
     }
+
     trace!("total row details: {}", all_rows.len());
     all_rows.into_iter().map(Arc::new).collect()
   }

@@ -68,7 +68,7 @@ const createServer = async (req: Request) => {
 
   logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
 
-  if (['/after-payment', '/login', '/as-template'].includes(reqUrl.pathname)) {
+  if (['/after-payment', '/login', '/as-template', '/accept-invitation'].includes(reqUrl.pathname)) {
     timer();
     const htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = load(htmlData);

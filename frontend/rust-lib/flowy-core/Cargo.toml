@@ -27,7 +27,7 @@ flowy-search = { workspace = true }
 flowy-search-pub = { workspace = true }
 collab-entity = { workspace = true }
 collab-plugins = { workspace = true }
-collab = { workspace = true }
+collab = { workspace = true, features = ["verbose_log"] }
 diesel.workspace = true
 uuid.workspace = true
 flowy-storage = { workspace = true }

@@ -381,6 +381,20 @@ impl DatabaseCloudService for ServerProvider {
       .await
   }
 
+  async fn create_database_encode_collab(
+    &self,
+    object_id: &str,
+    collab_type: CollabType,
+    workspace_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    let server = self.get_server()?;
+    server
+      .database_service()
+      .create_database_encode_collab(object_id, collab_type, workspace_id, encoded_collab)
+      .await
+  }
+
   async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,
@@ -449,13 +463,10 @@ impl DocumentCloudService for ServerProvider {
     document_id: &str,
     workspace_id: &str,
   ) -> Result<Vec<u8>, FlowyError> {
-    let workspace_id = workspace_id.to_string();
-    let document_id = document_id.to_string();
     let server = self.get_server()?;
-
     server
       .document_service()
-      .get_document_doc_state(&document_id, &workspace_id)
+      .get_document_doc_state(document_id, workspace_id)
       .await
   }
 
@@ -465,13 +476,11 @@ impl DocumentCloudService for ServerProvider {
     limit: usize,
     workspace_id: &str,
   ) -> Result<Vec<DocumentSnapshot>, Error> {
-    let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
-    let document_id = document_id.to_string();
 
     server
       .document_service()
-      .get_document_snapshots(&document_id, limit, &workspace_id)
+      .get_document_snapshots(document_id, limit, workspace_id)
       .await
   }
 
@@ -480,13 +489,23 @@ impl DocumentCloudService for ServerProvider {
     document_id: &str,
     workspace_id: &str,
   ) -> Result<Option<DocumentData>, Error> {
-    let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
-    let document_id = document_id.to_string();
-
     server
       .document_service()
-      .get_document_data(&document_id, &workspace_id)
+      .get_document_data(document_id, workspace_id)
+      .await
+  }
+
+  async fn create_document_collab(
+    &self,
+    workspace_id: &str,
+    document_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    let server = self.get_server()?;
+    server
+      .document_service()
+      .create_document_collab(workspace_id, document_id, encoded_collab)
       .await
   }
 }

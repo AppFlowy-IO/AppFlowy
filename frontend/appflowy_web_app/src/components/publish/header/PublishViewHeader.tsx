@@ -2,8 +2,9 @@ import { PublishViewInfo } from '@/application/collab.type';
 import { usePublishContext } from '@/application/publish';
 import { View } from '@/application/types';
 import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
-import { findAncestors, findView, openOrDownload } from '@/components/publish/header/utils';
+import { findAncestors, findView } from '@/components/publish/header/utils';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
+import { openOrDownload } from '@/utils/open_schema';
 import { getPlatform } from '@/utils/platform';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { debounce } from 'lodash-es';
@@ -159,7 +160,7 @@ export function PublishViewHeader ({
             flexItem
           />
           <Tooltip title={t('publish.downloadApp')}>
-            <button onClick={openOrDownload}>
+            <button onClick={() => openOrDownload()}>
               <Logo className={'h-6 w-6'} />
             </button>
           </Tooltip>
