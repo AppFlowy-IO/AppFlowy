@@ -68,9 +68,9 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     _textEditingController.dispose();
-    await cellBloc.close();
+    cellBloc.close();
     super.dispose();
   }
 
