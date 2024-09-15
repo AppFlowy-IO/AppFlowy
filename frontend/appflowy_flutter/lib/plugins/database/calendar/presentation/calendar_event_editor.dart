@@ -287,10 +287,8 @@ class _TitleTextCellSkin extends IEditableTextCellSkin {
       textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
       focusNode: focusNode,
       hintText: LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
-      onChanged: (text) {
-        if (textEditingController.value.composing.isCollapsed) {
-          bloc.add(TextCellEvent.updateText(text));
-        }
+      onEditingComplete: () {
+        bloc.add(TextCellEvent.updateText(textEditingController.text));
       },
     );
   }
