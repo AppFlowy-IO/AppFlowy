@@ -73,7 +73,7 @@ class _RowBannerState extends State<RowBanner> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _BannerCover(userProfile: widget.userProfile),
+                BannerCover(userProfile: widget.userProfile),
                 Padding(
                   padding: EdgeInsets.fromLTRB(
                     60,
@@ -235,8 +235,9 @@ class _BannerTitle extends StatelessWidget {
   }
 }
 
-class _BannerCover extends StatelessWidget {
-  const _BannerCover({required this.userProfile});
+@visibleForTesting
+class BannerCover extends StatelessWidget {
+  const BannerCover({super.key, required this.userProfile});
 
   final UserProfilePB? userProfile;
 

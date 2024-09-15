@@ -1,6 +1,8 @@
 import 'package:integration_test/integration_test.dart';
 
 import 'desktop/board/board_test_runner.dart' as board_test_runner;
+import 'desktop/database/database_row_cover_test.dart'
+    as database_row_cover_test;
 import 'desktop/settings/settings_runner.dart' as settings_test_runner;
 import 'desktop/sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'desktop/uncategorized/emoji_shortcut_test.dart' as emoji_shortcut_test;
@@ -30,4 +32,5 @@ Future<void> runIntegration3OnDesktop() async {
   sidebar_test_runner.main();
   board_test_runner.main();
   tabs_test.main();
+  database_row_cover_test.main();
 }
