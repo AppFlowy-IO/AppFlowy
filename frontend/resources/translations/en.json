@@ -380,7 +380,8 @@
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",
-    "download": "Download"
+    "download": "Download",
+    "backToHome": "Back to Home"
   },
   "label": {
     "welcome": "Welcome!",
@@ -2559,5 +2560,29 @@
     "resetZoom": "Reset zoom",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out"
+  },
+  "invitation": {
+    "join": "Join",
+    "on": "on",
+    "invitedBy": "Invited by",
+    "membersCount": {
+      "zero": "{count} members",
+      "one": "{count} member",
+      "many": "{count} members",
+      "other": "{count} members"
+    },
+    "tip": "You’ve been invited to Join this workspace with the contact information below. If this is incorrect, contact your administrator to resend the invite.",
+    "joinWorkspace": "Join workspace",
+    "success": "You've successfully joined the workspace",
+    "successMessage": "You can now access all the pages and workspaces within it.",
+    "openWorkspace": "Open AppFlowy",
+    "alreadyAccepted": "You've already accepted the invitation",
+    "errorModal": {
+      "title": "Something went wrong",
+      "description": "Your current account {email} may not have access to this workspace. Please log in with the correct account or contact the workspace owner for help.",
+      "contactOwner": "Contact owner",
+      "close": "Back to home",
+      "changeAccount": "Change account"
+    }
   }
 }

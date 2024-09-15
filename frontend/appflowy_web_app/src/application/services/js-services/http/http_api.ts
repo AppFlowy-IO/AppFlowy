@@ -11,7 +11,7 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import { FolderView, User, View, Workspace } from '@/application/types';
+import { FolderView, Invitation, User, View, Workspace } from '@/application/types';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 
@@ -97,13 +97,33 @@ export async function signInWithUrl (url: string) {
   }
 
   const params = new URLSearchParams(hash.slice(1));
+  const accessToken = params.get('access_token');
   const refresh_token = params.get('refresh_token');
 
-  if (!refresh_token) {
-    return Promise.reject('No access_token found');
+  if (!accessToken || !refresh_token) {
+    return Promise.reject({
+      code: -1,
+      message: 'No access token or refresh token found',
+    });
   }
 
-  await refreshToken(refresh_token);
+  try {
+    await verifyToken(accessToken);
+  } catch (e) {
+    return Promise.reject({
+      code: -1,
+      message: 'Verify token failed',
+    });
+  }
+
+  try {
+    await refreshToken(refresh_token);
+  } catch (e) {
+    return Promise.reject({
+      code: -1,
+      message: 'Refresh token failed',
+    });
+  }
 }
 
 export async function verifyToken (accessToken: string) {
@@ -753,4 +773,35 @@ export async function uploadFileToCDN (file: File) {
   }
 
   return Promise.reject(data);
+}
+
+export async function getInvitation (invitationId: string) {
+  const url = `/api/workspace/invite/${invitationId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: Invitation;
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function acceptInvitation (invitationId: string) {
+  const url = `/api/workspace/accept-invite/${invitationId}`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data.message);
 }

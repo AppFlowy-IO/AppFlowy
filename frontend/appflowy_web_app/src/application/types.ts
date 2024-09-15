@@ -66,3 +66,15 @@ export interface View {
   children: View[];
   is_published: boolean;
 }
+
+export interface Invitation {
+  invite_id: string;
+  workspace_id: string;
+  workspace_name: string;
+  inviter_email: string;
+  inviter_name: string;
+  inviter_icon: string;
+  workspace_icon: string;
+  member_count: number;
+  status: 'Accepted' | 'Pending';
+}
