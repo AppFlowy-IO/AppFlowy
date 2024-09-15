@@ -1252,7 +1252,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: find.byType(EventCard),
     );
 
-    await tapButton(cards.at(index));
+    await tapButton(cards.at(index), milliseconds: 1000);
   }
 
   void assertEventEditorOpen() =>

@@ -83,7 +83,7 @@ class _RowEditor extends StatelessWidget {
       child: BlocProvider(
         create: (context) => DocumentBloc(documentId: viewPB.id)
           ..add(const DocumentEvent.initial()),
-        child: BlocListener<DocumentBloc, DocumentState>(
+        child: BlocConsumer<DocumentBloc, DocumentState>(
           listenWhen: (previous, current) =>
               previous.isDocumentEmpty != current.isDocumentEmpty,
           listener: (_, state) {
@@ -97,47 +97,45 @@ class _RowEditor extends StatelessWidget {
               Log.error('RowEditor unable to get editorState');
             }
           },
-          child: BlocBuilder<DocumentBloc, DocumentState>(
-            builder: (context, state) {
-              if (state.isLoading) {
-                return const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                );
-              }
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
+            }
 
-              final editorState = state.editorState;
-              final error = state.error;
-              if (error != null || editorState == null) {
-                return Center(
-                  child: AppFlowyErrorPage(error: error),
-                );
-              }
+            final editorState = state.editorState;
+            final error = state.error;
+            if (error != null || editorState == null) {
+              return Center(
+                child: AppFlowyErrorPage(error: error),
+              );
+            }
 
-              return Consumer<EditorDropManagerState>(
-                builder: (_, dropState, __) => BlocProvider<ViewInfoBloc>(
-                  create: (context) => ViewInfoBloc(view: viewPB),
-                  child: IntrinsicHeight(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 300),
-                      child: AppFlowyEditorPage(
-                        shrinkWrap: true,
-                        autoFocus: false,
-                        editorState: editorState,
-                        styleCustomizer: EditorStyleCustomizer(
-                          context: context,
-                          padding: const EdgeInsets.only(left: 16, right: 54),
-                        ),
-                        showParagraphPlaceholder: (editorState, node) =>
-                            editorState.document.isEmpty,
-                        placeholderText: (node) =>
-                            LocaleKeys.cardDetails_notesPlaceholder.tr(),
+            return Consumer<EditorDropManagerState>(
+              builder: (_, dropState, __) => BlocProvider<ViewInfoBloc>(
+                create: (context) => ViewInfoBloc(view: viewPB),
+                child: IntrinsicHeight(
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 300),
+                    child: AppFlowyEditorPage(
+                      shrinkWrap: true,
+                      autoFocus: false,
+                      editorState: editorState,
+                      styleCustomizer: EditorStyleCustomizer(
+                        context: context,
+                        padding: const EdgeInsets.only(left: 16, right: 54),
                       ),
+                      showParagraphPlaceholder: (editorState, node) =>
+                          editorState.document.isEmpty,
+                      placeholderText: (node) =>
+                          LocaleKeys.cardDetails_notesPlaceholder.tr(),
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
