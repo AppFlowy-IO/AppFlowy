@@ -9,7 +9,7 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 import * as Y from 'yjs';
-import { DuplicatePublishView, FolderView, User, View, Workspace } from '@/application/types';
+import { DuplicatePublishView, FolderView, Invitation, User, View, Workspace } from '@/application/types';
 
 export type AFService = PublishService;
 
@@ -75,4 +75,6 @@ export interface PublishService {
   updateTemplateCategory: (categoryId: string, category: TemplateCategoryFormValues) => Promise<void>;
   updateTemplateCreator: (creatorId: string, creator: TemplateCreatorFormValues) => Promise<void>;
   uploadFileToCDN: (file: File) => Promise<string>;
+  getInvitation: (invitationId: string) => Promise<Invitation>;
+  acceptInvitation: (invitationId: string) => Promise<void>;
 }

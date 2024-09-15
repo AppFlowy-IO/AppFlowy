@@ -202,10 +202,13 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<Folder>>, Error> {
     let expected_collab_type = CollabType::Folder;
     assert_eq!(object.collab_type, expected_collab_type);
-    let collab = self.build_collab(&object, &collab_db, doc_state)?;
     let folder = match folder_data {
-      None => Folder::open(object.uid, collab, folder_notifier)?,
+      None => {
+        let collab = self.build_collab(&object, &collab_db, doc_state)?;
+        Folder::open(object.uid, collab, folder_notifier)?
+      },
       Some(data) => {
+        let collab = self.build_collab(&object, &collab_db, doc_state)?;
         let folder = Folder::create(object.uid, collab, folder_notifier, data);
         if let Err(err) = self.write_collab_to_disk(
           object.uid,
@@ -331,6 +334,7 @@ impl AppFlowyCollabBuilder {
   }
 
   /// Remove all updates in disk and write the final state vector to disk.
+  #[instrument(level = "trace", skip_all, err)]
   pub fn write_collab_to_disk<T>(
     &self,
     uid: i64,
@@ -355,6 +359,8 @@ impl AppFlowyCollabBuilder {
         encode_collab.doc_state.to_vec(),
       )?;
       write_txn.commit_transaction()?;
+    } else {
+      error!("collab_db is dropped");
     }
 
     Ok(())
@@ -378,12 +384,12 @@ impl CollabBuilderConfig {
   }
 }
 
-pub struct KVDBCollabPersistenceImpl {
+pub struct CollabPersistenceImpl {
   pub db: Weak<CollabKVDB>,
   pub uid: i64,
 }
 
-impl KVDBCollabPersistenceImpl {
+impl CollabPersistenceImpl {
   pub fn new(db: Weak<CollabKVDB>, uid: i64) -> Self {
     Self { db, uid }
   }
@@ -393,7 +399,7 @@ impl KVDBCollabPersistenceImpl {
   }
 }
 
-impl CollabPersistence for KVDBCollabPersistenceImpl {
+impl CollabPersistence for CollabPersistenceImpl {
   fn load_collab_from_disk(&self, collab: &mut Collab) {
     if let Some(collab_db) = self.db.upgrade() {
       let object_id = collab.object_id().to_string();
