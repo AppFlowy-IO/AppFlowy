@@ -152,7 +152,7 @@ where
   #[cfg(feature = "verbose_log")]
   {
     for group in group_controller.get_all_groups() {
-      trace!("[Database]: group: {}", group);
+      tracing::trace!("[Database]: group: {}", group);
     }
   }
   Ok(group_controller)
