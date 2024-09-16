@@ -170,6 +170,7 @@ class InsertRowButton extends StatelessWidget {
             ),
             description: LocaleKeys.grid_sort_removeSorting.tr(),
             confirmLabel: LocaleKeys.button_remove.tr(),
+            closeOnAction: true,
             onDelete: () {
               SortBackendService(viewId: viewId).deleteAllSorts();
               rowBloc.add(const RowEvent.createRow());

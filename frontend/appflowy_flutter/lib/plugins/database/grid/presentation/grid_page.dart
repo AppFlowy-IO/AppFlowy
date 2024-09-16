@@ -390,6 +390,7 @@ class _GridRowsState extends State<_GridRows> {
                   ),
                   description: LocaleKeys.grid_sort_removeSorting.tr(),
                   confirmLabel: LocaleKeys.button_remove.tr(),
+                  closeOnAction: true,
                   onDelete: () {
                     SortBackendService(viewId: widget.viewId).deleteAllSorts();
                     moveRow();

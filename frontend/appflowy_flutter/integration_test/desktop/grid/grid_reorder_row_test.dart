@@ -1,9 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../../shared/database_test_op.dart';
+import '../../shared/util.dart';
 import 'grid_test_extensions.dart';
 
 void main() {
@@ -114,10 +118,11 @@ void main() {
 
       // reorder row
       await tester.reorderRow(original[4], original[1]);
+      expect(find.byType(ConfirmPopup), findsOneWidget);
+      await tester.tapButtonWithName(LocaleKeys.button_cancel.tr());
 
       // verify grid data
       actual = tester.getGridRows();
-      // TODO(RS): remind users why the reorder failed
       expect(actual, orderedEquals(sorted));
     });
 

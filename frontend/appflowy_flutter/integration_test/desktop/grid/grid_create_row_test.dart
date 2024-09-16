@@ -1,7 +1,10 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -74,13 +77,31 @@ void main() {
         unsorted[4],
       ];
 
-      final actual = tester.getGridRows();
+      List actual = tester.getGridRows();
       expect(actual, orderedEquals(sorted));
 
       // create row
-      await tester.tapCreateRowButtonInGrid();
+      await tester.hoverOnFirstRowOfGrid();
+      await tester.tapCreateRowButtonAfterHoveringOnGridRow();
 
-      // TODO(RS): handle create row with sort active before writing test logic
+      // cancel
+      expect(find.byType(ConfirmPopup), findsOneWidget);
+      await tester.tapButtonWithName(LocaleKeys.button_cancel.tr());
+
+      // verify grid data
+      actual = tester.getGridRows();
+      expect(actual, orderedEquals(sorted));
+
+      // try again, but confirm this time
+      await tester.hoverOnFirstRowOfGrid();
+      await tester.tapCreateRowButtonAfterHoveringOnGridRow();
+      expect(find.byType(ConfirmPopup), findsOneWidget);
+      await tester.tapButtonWithName(LocaleKeys.button_remove.tr());
+
+      // verify grid data
+      actual = tester.getGridRows();
+      expect(actual.length, equals(14));
+      tester.assertNumberOfRowsInGridPage(14);
     });
 
     testWidgets('with filter configured', (tester) async {

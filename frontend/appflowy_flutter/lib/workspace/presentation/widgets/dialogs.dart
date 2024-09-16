@@ -533,6 +533,7 @@ Future<void> showCancelAndDeleteDialog({
   Widget Function(BuildContext)? builder,
   VoidCallback? onDelete,
   String? confirmLabel,
+  bool closeOnAction = false,
 }) {
   return showDialog(
     context: context,
@@ -547,7 +548,7 @@ Future<void> showCancelAndDeleteDialog({
             title: title,
             description: description,
             onConfirm: () => onDelete?.call(),
-            closeOnAction: false,
+            closeOnAction: closeOnAction,
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.error,
             child: builder?.call(context),
