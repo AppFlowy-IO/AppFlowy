@@ -1281,6 +1281,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await enterText(textField, title);
+    await testTextInput.receiveAction(TextInputAction.done);
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 

@@ -965,6 +965,7 @@ impl DatabaseEditor {
 
   /// Update a cell in the database.
   /// This will notify all views that the cell has been updated.
+  #[instrument(level = "trace", skip_all)]
   pub async fn update_cell(
     &self,
     view_id: &str,
@@ -974,6 +975,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = self.get_row(view_id, row_id).await;
+    trace!("[Database Row]: update cell: {:?}", new_cell);
     self
       .update_row(row_id.clone(), |row_update| {
         row_update
