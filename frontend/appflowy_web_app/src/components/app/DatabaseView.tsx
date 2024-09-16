@@ -1,9 +1,9 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/types';
+import { findView } from '@/components/_shared/outline/utils';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { useAppOutline } from '@/components/app/app.hooks';
 import { Database } from '@/components/database';
 import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
-import { findView } from '@/components/publish/header/utils';
 import { ViewMetaProps } from '@/components/view-meta';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';

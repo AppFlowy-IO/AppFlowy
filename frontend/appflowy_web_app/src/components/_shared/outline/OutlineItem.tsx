@@ -119,10 +119,11 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
             width={width}
             key={index}
             view={item}
+            variant={variant}
           />
         ))}
     </div>;
-  }, [children, isExpanded, level, navigateToView, selectedViewId, width]);
+  }, [children, isExpanded, level, navigateToView, selectedViewId, width, variant]);
 
   return (
     <div className={'flex h-fit w-full flex-col'}>

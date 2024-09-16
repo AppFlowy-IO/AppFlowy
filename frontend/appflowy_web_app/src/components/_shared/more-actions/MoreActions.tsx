@@ -2,7 +2,6 @@ import { invalidToken } from '@/application/session/token';
 import { Popover } from '@/components/_shared/popover';
 import { AFConfigContext } from '@/components/main/app.hooks';
 import { ThemeModeContext } from '@/components/main/useAppThemeMode';
-import AsTemplateButton from '@/components/as-template/AsTemplateButton';
 import { openUrl } from '@/utils/url';
 import { IconButton } from '@mui/material';
 import React, { useCallback, useContext, useMemo } from 'react';
@@ -14,11 +13,7 @@ import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-function MoreActions ({
-  variant,
-}: {
-  variant?: 'publish' | 'app';
-}) {
+function MoreActions () {
   const { isDark, setDark } = useContext(ThemeModeContext) || {};
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -93,8 +88,6 @@ function MoreActions ({
           onClose={handleClose}
         >
           <div className={'flex w-[240px] flex-col gap-2 px-2 py-2'}>
-            {variant === 'publish' && <AsTemplateButton />}
-
 
             {actions.map((action, index) => (
               <button

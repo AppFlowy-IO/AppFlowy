@@ -21,6 +21,17 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
           },
         },
         components: {
+          MuiOutlinedInput: {
+            styleOverrides: {
+              root: {
+                borderColor: 'var(--line-divider)',
+              },
+              notchedOutline: {
+                borderColor: 'var(--line-divider)',
+              },
+              
+            },
+          },
           MuiMenuItem: {
             defaultProps: {
               sx: {

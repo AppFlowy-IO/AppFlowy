@@ -20,11 +20,15 @@ function SideBar ({
   const navigateToView = usePublishContext()?.toView;
 
   return (
-    <OutlineDrawer onResizeWidth={onResizeDrawerWidth} width={drawerWidth} open={drawerOpened}
-                   onClose={() => toggleOpenDrawer(false)}
+    <OutlineDrawer
+      onResizeWidth={onResizeDrawerWidth} width={drawerWidth} open={drawerOpened}
+      onClose={() => toggleOpenDrawer(false)}
     >
-      <Outline variant={'publish'} navigateToView={navigateToView} selectedViewId={viewId} width={drawerWidth}
-               outline={outline}
+      <Outline
+        variant={'publish'}
+        navigateToView={navigateToView}
+        selectedViewId={viewId} width={drawerWidth}
+        outline={outline}
       />
     </OutlineDrawer>
   );

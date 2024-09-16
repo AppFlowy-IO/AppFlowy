@@ -118,7 +118,8 @@
     "visitSite": "Visit site",
     "exportAsTab": "Export as",
     "publishTab": "Publish",
-    "shareTab": "Share"
+    "shareTab": "Share",
+    "publishOnAppFlowy": "Publish on AppFlowy"
   },
   "moreAction": {
     "small": "small",
@@ -2503,6 +2504,7 @@
     "name": "Template name",
     "description": "Template Description",
     "about": "Template About",
+    "deleteFromTemplate": "Delete from templates",
     "preview": "Template Preview",
     "categories": "Template Categories",
     "isNewTemplate": "PIN to New template",
@@ -2544,7 +2546,8 @@
     "uploadSuccessDescription": "Your template has been uploaded successfully. You can now view it in the template gallery.",
     "viewTemplate": "View template",
     "deleteTemplate": "Delete template",
-    "deleteTemplateDescription": "Are you sure you want to delete this template?",
+    "deleteSuccess": "Template deleted successfully",
+    "deleteTemplateDescription": "This won't affect the current page or published status. Are you sure you want to delete this template?",
     "addRelatedTemplate": "Add related template",
     "removeRelatedTemplate": "Remove related template",
     "uploadAvatar": "Upload avatar",

@@ -4,7 +4,9 @@ import { AppProvider } from '@/components/app/app.hooks';
 import { AppHeader } from '@/components/app/header';
 import Main from '@/components/app/Main';
 import SideBar from '@/components/app/SideBar';
+import SomethingError from '@/components/error/SomethingError';
 import React, { memo, useMemo } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export function AuthLayout () {
   const {
@@ -41,7 +43,9 @@ export function AuthLayout () {
             }}
             openDrawer={drawerOpened}
           />
-          {main}
+          <ErrorBoundary FallbackComponent={SomethingError}>
+            {main}
+          </ErrorBoundary>
 
         </AFScroller>
         {drawerOpened &&

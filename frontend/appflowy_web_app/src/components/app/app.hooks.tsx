@@ -1,8 +1,8 @@
 import { invalidToken } from '@/application/session/token';
 import { GetViewRowsMap, LoadView, LoadViewMeta, View } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
+import { findView } from '@/components/_shared/outline/utils';
 import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
-import { findView } from '@/components/publish/header/utils';
 import { uniqBy } from 'lodash-es';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -212,6 +212,18 @@ export function useAppViewId () {
   }
 
   return context.viewId;
+}
+
+export function useAppView () {
+  const viewId = useAppViewId();
+  const outline = useAppOutline();
+  const view = useMemo(() => viewId ? findView(outline || [], viewId) : null, [outline, viewId]);
+
+  if (!viewId || !outline) {
+    return;
+  }
+  
+  return view;
 }
 
 export function useCurrentWorkspaceId () {

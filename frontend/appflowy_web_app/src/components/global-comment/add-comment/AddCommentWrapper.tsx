@@ -1,6 +1,6 @@
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import { getScrollParent } from '@/components/global-comment/utils';
-import { HEADER_HEIGHT } from '@/components/publish/header';
+import { HEADER_HEIGHT } from '@/application/constants';
 import React, { useEffect, useRef, useState } from 'react';
 import AddComment from './AddComment';
 import { Portal } from '@mui/material';
@@ -72,10 +72,11 @@ export function AddCommentWrapper () {
       </div>
       {showFixedAddComment && (
         <Portal container={document.body}>
-          <div style={{
-            left: offsetLeft + 'px',
-            width: `calc(100% - ${offsetLeft}px)`,
-          }} className={'fixed top-[48px] flex w-full justify-center'}
+          <div
+            style={{
+              left: offsetLeft + 'px',
+              width: `calc(100% - ${offsetLeft}px)`,
+            }} className={'fixed top-[48px] flex w-full justify-center'}
           >
             <div className={'w-[964px] min-w-0 max-w-full px-6'}>
               <AddComment fixed content={content} setContent={setContent} focus={focus} setFocus={setFocus} />

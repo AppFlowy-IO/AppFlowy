@@ -1,22 +1,21 @@
-import { ViewInfo, View } from '@/application/types';
+import { HEADER_HEIGHT } from '@/application/constants';
 import { usePublishContext } from '@/application/publish';
+import { View, ViewInfo } from '@/application/types';
+import { ReactComponent as Logo } from '@/assets/logo.svg';
+import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
+import { Breadcrumb } from '@/components/_shared/breadcrumb';
+import MoreActions from '@/components/_shared/more-actions/MoreActions';
+import { OutlinePopover } from '@/components/_shared/outline';
+import Outline from '@/components/_shared/outline/Outline';
 import { useOutlinePopover } from '@/components/_shared/outline/outline.hooks';
+import { findAncestors, findView } from '@/components/_shared/outline/utils';
 import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
-import { findAncestors, findView } from '@/components/publish/header/utils';
 import { openOrDownload } from '@/utils/open_schema';
 import { getPlatform } from '@/utils/platform';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
-import Outline from '@/components/_shared/outline/Outline';
-import { OutlinePopover } from '@/components/_shared/outline';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumb } from '@/components/_shared/breadcrumb';
-import { ReactComponent as Logo } from '@/assets/logo.svg';
-import MoreActions from '@/components/_shared/more-actions/MoreActions';
-import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 import { Duplicate } from './duplicate';
-
-export const HEADER_HEIGHT = 48;
 
 export function PublishViewHeader ({
   drawerWidth, onOpenDrawer, openDrawer, onCloseDrawer,
@@ -121,7 +120,7 @@ export function PublishViewHeader ({
         </div>
 
         <div className={'flex items-center gap-2'}>
-          <MoreActions variant={'publish'} />
+          <MoreActions />
           <Duplicate />
           <Divider
             orientation={'vertical'}

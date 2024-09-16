@@ -1,10 +1,10 @@
 import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/types';
 import ViewHelmet from '@/components/_shared/helmet/ViewHelmet';
+import { findView } from '@/components/_shared/outline/utils';
 import PageSkeleton from '@/components/_shared/skeleton/PageSkeleton';
 import { useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import RecordNotFound from '@/components/error/RecordNotFound';
-import { findView } from '@/components/publish/header/utils';
 import { ViewMetaProps } from '@/components/view-meta';
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { Document } from '@/components/document';

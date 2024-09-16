@@ -1,5 +1,5 @@
 import { View } from '@/application/types';
-import { ReactComponent as PublishIcon } from '@/assets/publish.svg';
+import PublishIcon from '@/components/_shared/breadcrumb/PublishIcon';
 import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
@@ -61,17 +61,7 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
           {name || t('menuAppHeader.defaultNewPageName')}
         </span>
       </Tooltip>
-      {!is_published && variant === 'publish' && !extra?.is_space && (<Tooltip
-        disableInteractive
-        title={extra?.is_space ? t('publish.spaceHasNotBeenPublished') : t('publish.hasNotBeenPublished')}
-      >
-        <div
-          className={'text-text-caption cursor-pointer hover:bg-fill-list-hover rounded h-5 w-5 flex items-center justify-center'}
-        >
-          <PublishIcon className={'h-4 w-4'} />
-        </div>
-      </Tooltip>)}
-
+      <PublishIcon variant={variant} crumb={crumb} />
     </div>
   );
 }

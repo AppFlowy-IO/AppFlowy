@@ -7,9 +7,9 @@ import {
 } from '@/application/types';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
+import { findView } from '@/components/_shared/outline/utils';
 import { useService } from '@/components/main/app.hooks';
 import { notify } from '@/components/_shared/notify';
-import { findView } from '@/components/publish/header/utils';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

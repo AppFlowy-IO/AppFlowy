@@ -2,15 +2,15 @@ import { Breadcrumb } from '@/components/_shared/breadcrumb';
 import MoreActions from '@/components/_shared/more-actions/MoreActions';
 import { OutlinePopover } from '@/components/_shared/outline';
 import { useOutlinePopover } from '@/components/_shared/outline/outline.hooks';
+import { findAncestors } from '@/components/_shared/outline/utils';
 import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
 import { useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
-import { findAncestors } from '@/components/publish/header/utils';
-import { Button, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
 import React, { memo, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import Recent from 'src/components/app/recent/Recent';
+import ShareButton from 'src/components/app/share/ShareButton';
 
 interface AppHeaderProps {
   onOpenDrawer: () => void;
@@ -29,7 +29,7 @@ export function AppHeader ({
   } = useOutlinePopover({
     onOpenDrawer, openDrawer, onCloseDrawer,
   });
-  const { t } = useTranslation();
+
   const outline = useAppOutline();
   const viewId = useAppViewId();
   const isTrash = window.location.pathname === '/app/trash';
@@ -92,8 +92,8 @@ export function AppHeader ({
               />}
         </div>
         <div className={'flex items-center gap-2'}>
-          <MoreActions variant={'app'} />
-          <Button size={'small'} variant={'contained'} color={'primary'}>{t('shareAction.buttonText')}</Button>
+          <MoreActions />
+          <ShareButton />
         </div>
       </div>
     </div>
