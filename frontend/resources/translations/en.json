@@ -1615,6 +1615,8 @@
       "optionAction": {
         "click": "Click",
         "toOpenMenu": " to open menu",
+        "drag": "Drag",
+        "toMove": " to move",
         "delete": "Delete",
         "duplicate": "Duplicate",
         "turnInto": "Turn into",
