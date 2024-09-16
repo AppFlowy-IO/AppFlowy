@@ -63,8 +63,7 @@ where
       .get_type_option::<T>(&field_type)
       .unwrap_or_else(|| T::from(default_type_option_data_from_type(field_type)));
 
-    // TODO(nathan): remove block_on
-    let generated_groups = block_on(G::build(grouping_field, &configuration, &type_option));
+    let generated_groups = G::build(grouping_field, &configuration, &type_option).await;
     let _ = configuration.init_groups(generated_groups)?;
 
     Ok(Self {
