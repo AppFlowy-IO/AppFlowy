@@ -9,7 +9,7 @@ void main() {
 
   group('grid', () {
     testWidgets('add text sort', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.RichText, 'Name');
@@ -60,7 +60,7 @@ void main() {
 
       // delete all sorts
       await tester.tapSortMenuInSettingBar();
-      await tester.tapAllSortButton();
+      await tester.tapDeleteAllSortsButton();
 
       // check the text cell order
       for (final (index, content) in <String>[
@@ -85,7 +85,7 @@ void main() {
     });
 
     testWidgets('add checkbox sort', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
@@ -135,7 +135,7 @@ void main() {
     });
 
     testWidgets('add number sort', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
@@ -187,7 +187,7 @@ void main() {
     });
 
     testWidgets('add checkbox and number sort', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
@@ -266,7 +266,7 @@ void main() {
     });
 
     testWidgets('reorder sort', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');

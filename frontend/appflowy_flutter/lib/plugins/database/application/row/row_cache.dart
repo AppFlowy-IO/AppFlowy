@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
@@ -315,7 +316,7 @@ class RowChangesetNotifier extends ChangeNotifier {
   }
 }
 
-class RowInfo {
+class RowInfo extends Equatable {
   RowInfo({
     required this.fields,
     required RowMetaPB rowMeta,
@@ -347,6 +348,9 @@ class RowInfo {
     rowIconNotifier.dispose();
     rowDocumentNotifier.dispose();
   }
+
+  @override
+  List<Object> get props => [rowMeta];
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;
