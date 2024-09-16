@@ -57,10 +57,12 @@ export function PrimaryCell (props: CellProps<CellType> & {
       //     navigateToRow?.(rowId);
       //   }
       // }}
-      className={'primary-cell relative flex min-h-full w-full items-center gap-2'}
+      className={'primary-cell relative flex min-h-full w-full gap-2'}
     >
-      {icon ? <div className={'h-5 w-5 flex items-center justify-center text-base'}
-      >{icon}</div> : hasDocument && showDocumentIcon ? <DocumentSvg className={'h-5 w-5'}
+      {icon ? <div
+        className={'h-5 w-5 flex items-center justify-center text-base'}
+      >{icon}</div> : hasDocument && showDocumentIcon ? <DocumentSvg
+        className={'h-5 w-5'}
       /> : null}
       <div className={'flex-1 overflow-x-hidden'}>
         <TextCell {...props} />

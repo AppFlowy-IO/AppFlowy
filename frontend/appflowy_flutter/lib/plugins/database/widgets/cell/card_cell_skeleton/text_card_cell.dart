@@ -122,9 +122,7 @@ class _TextCellState extends State<TextCardCell> {
       child: BlocListener<TextCellBloc, TextCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
-          if (!state.enableEdit) {
-            _textEditingController.text = state.content;
-          }
+          _textEditingController.text = state.content ?? "";
         },
         child: isTitle ? _buildTitle() : _buildText(),
       ),
@@ -164,7 +162,7 @@ class _TextCellState extends State<TextCardCell> {
   Widget _buildText() {
     return BlocBuilder<TextCellBloc, TextCellState>(
       builder: (context, state) {
-        final content = state.content;
+        final content = state.content ?? "";
 
         return content.isEmpty
             ? const SizedBox.shrink()

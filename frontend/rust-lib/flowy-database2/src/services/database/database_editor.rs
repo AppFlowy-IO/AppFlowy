@@ -63,6 +63,7 @@ pub struct DatabaseEditor {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
+  #[allow(dead_code)]
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
   un_finalized_rows_cancellation: Arc<ArcSwapOption<CancellationToken>>,
   finalized_rows: Arc<moka::future::Cache<String, Weak<RwLock<DatabaseRow>>>>,
@@ -965,6 +966,7 @@ impl DatabaseEditor {
 
   /// Update a cell in the database.
   /// This will notify all views that the cell has been updated.
+  #[instrument(level = "trace", skip_all)]
   pub async fn update_cell(
     &self,
     view_id: &str,
@@ -974,6 +976,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = self.get_row(view_id, row_id).await;
+    trace!("[Database Row]: update cell: {:?}", new_cell);
     self
       .update_row(row_id.clone(), |row_update| {
         row_update
@@ -1833,6 +1836,7 @@ struct DatabaseViewOperationImpl {
   task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   cell_cache: CellCache,
   editor_by_view_id: Arc<RwLock<EditorByViewId>>,
+  #[allow(dead_code)]
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
 }
 
@@ -1930,17 +1934,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let view_id = view_id.to_string();
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
-    let cancellation = self
-      .database_cancellation
-      .read()
-      .await
-      .as_ref()
-      .map(|c| c.clone());
-
     let read_guard = self.database.read().await;
-    let rows_stream = read_guard
-      .get_rows_from_row_orders(&row_orders, cancellation)
-      .await;
+    let rows_stream = read_guard.get_rows_from_row_orders(&row_orders, None).await;
     pin_mut!(rows_stream);
 
     while let Some(result) = rows_stream.next().await {
