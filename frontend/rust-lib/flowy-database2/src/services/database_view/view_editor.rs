@@ -210,7 +210,7 @@ impl DatabaseViewEditor {
     &self,
     row_detail: &RowDetail,
     index: u32,
-    _is_move_row: bool,
+    is_move_row: bool,
     _is_local_change: bool,
     row_changes: &DashMap<String, RowsChangePB>,
   ) {
@@ -235,7 +235,11 @@ impl DatabaseViewEditor {
     {
       row_changes
         .entry(self.view_id.clone())
-        .or_default()
+        .or_insert_with(|| {
+          let mut change = RowsChangePB::new();
+          change.is_move_row = is_move_row;
+          change
+        })
         .inserted_rows
         .push(InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32));
     };
