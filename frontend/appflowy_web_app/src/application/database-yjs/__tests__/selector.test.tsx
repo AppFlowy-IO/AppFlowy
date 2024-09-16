@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import {
-  useCalendarEventsSelector,
   useCellSelector,
   useFieldSelector,
   useFieldsSelector,

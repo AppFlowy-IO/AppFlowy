@@ -1,4 +1,14 @@
-import { DatabaseId, FolderView, RowId, User, View, ViewId, ViewLayout, Workspace } from '@/application/types';
+import {
+  DatabaseId,
+  FolderView,
+  RowId,
+  User,
+  View,
+  ViewId,
+  ViewLayout,
+  Workspace,
+  Invitation,
+} from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
 import { blobToBytes } from '@/application/services/js-services/http/utils';

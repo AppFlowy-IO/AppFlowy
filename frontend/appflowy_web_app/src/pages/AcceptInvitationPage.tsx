@@ -1,7 +1,7 @@
 import { Invitation } from '@/application/types';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext, useCurrentUser, useService } from '@/components/app/app.hooks';
+import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
 import { stringAvatar } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import { openOrDownload } from '@/utils/open_schema';
