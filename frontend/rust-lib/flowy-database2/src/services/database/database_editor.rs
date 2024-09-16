@@ -63,6 +63,7 @@ pub struct DatabaseEditor {
   collab_builder: Arc<AppFlowyCollabBuilder>,
   is_loading_rows: ArcSwapOption<broadcast::Sender<()>>,
   opening_ret_txs: Arc<RwLock<Vec<OpenDatabaseResult>>>,
+  #[allow(dead_code)]
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
   un_finalized_rows_cancellation: Arc<ArcSwapOption<CancellationToken>>,
   finalized_rows: Arc<moka::future::Cache<String, Weak<RwLock<DatabaseRow>>>>,
