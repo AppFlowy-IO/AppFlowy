@@ -110,8 +110,12 @@ body {
 }
 
 .grid-row-cell.wrap-cell {
+  .primary-cell {
+    @apply py-2;
+  }
+
   .text-cell {
-    @apply py-2 break-words whitespace-pre-wrap;
+    @apply break-words whitespace-pre-wrap overflow-hidden;
   }
 
   .relation-cell {
