@@ -1,183 +1,162 @@
 name: appflowy
-description: A new Flutter project.
+description: Bring projects, wikis, and teams together with AI. AppFlowy is an AI collaborative workspace where you achieve more without losing control of your data. The best open source alternative to Notion.
+publish_to: "none"
 
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
-
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 0.7.0
 
 environment:
   flutter: ">=3.22.0"
   sdk: ">=3.3.0 <4.0.0"
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
-  flutter:
-    sdk: flutter
+  app_links: ^3.5.0
   appflowy_backend:
     path: packages/appflowy_backend
-  flowy_infra_ui:
-    path: packages/flowy_infra_ui
-  flowy_infra:
-    path: packages/flowy_infra
-  flowy_svg:
-    path: packages/flowy_svg
   appflowy_board:
-    # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: 8a6434ae3d02624b614a010af80f775db11bf22e
-  appflowy_result:
-    path: packages/appflowy_result
-  appflowy_editor_plugins:
   appflowy_editor:
+  appflowy_editor_plugins:
   appflowy_popover:
     path: packages/appflowy_popover
+  appflowy_result:
+    path: packages/appflowy_result
 
-  #  third party packages
-  intl: ^0.19.0
-  time: ^2.1.3
-  equatable: ^2.0.5
-  freezed_annotation: ^2.2.0
-  get_it: ^7.6.0
-  flutter_bloc: ^8.1.3
-  flutter_math_fork: ^0.7.2
-  provider: ^6.0.5
-  path_provider: ^2.0.15
-  sized_context: ^1.0.0+4
-  styled_widget: ^0.4.1
-  expandable: ^5.0.1
-  flex_color_picker: ^3.5.1
-  highlight: ^0.7.0
-  package_info_plus: ^8.0.2
-  url_launcher: ^6.1.11
-  connectivity_plus: ^5.0.2
-  easy_localization: ^3.0.2
-  device_info_plus: ^10.1.0
-  fluttertoast: ^8.2.6
-  json_annotation: ^4.8.1
-  table_calendar: ^3.0.9
-  reorderables: ^0.6.0
-  linked_scroll_controller: ^0.2.0
-  hotkey_manager: ^0.1.7
-  fixnum: ^1.1.0
-  protobuf: ^3.1.0
-  collection: ^1.17.1
+  archive: ^3.4.10
+  auto_size_text_field: ^2.2.3
+  avatar_stack: ^1.2.0
+
+  # BitsDojo Window for Windows
+  bitsdojo_window: ^0.1.6
   bloc: ^8.1.2
-  shared_preferences: ^2.2.2
-  google_fonts: ^6.1.0
-  percent_indicator: ^4.2.3
+  cached_network_image: ^3.3.0
   calendar_view:
     git:
       url: https://github.com/Xazin/flutter_calendar_view
       ref: "6fe0c98"
-  http: ^1.0.0
-  path: ^1.8.3
+  collection: ^1.17.1
+  connectivity_plus: ^5.0.2
+  cross_file: ^0.3.4+1
 
-  archive: ^3.4.10
-  nanoid: ^1.0.0
-  supabase_flutter: ^1.10.4
-  envied: ^0.5.2
+  # Desktop Drop uses Cross File (XFile) data type
+  desktop_drop: ^0.4.4
+  device_info_plus: ^10.1.0
   dotted_border: ^2.0.0+3
-  url_protocol:
-  hive_flutter: ^1.1.0
-  super_clipboard: ^0.8.4
-  go_router: ^14.2.0
-  string_validator: ^1.0.0
-  unsplash_client: ^2.1.1
+  easy_localization: ^3.0.2
+  envied: ^0.5.2
+  equatable: ^2.0.5
+  expandable: ^5.0.1
+  extended_text_field: ^15.0.0
+  extended_text_library: ^12.0.0
+  file: ^7.0.0
+  fixnum: ^1.1.0
+  flex_color_picker: ^3.5.1
+  flowy_infra:
+    path: packages/flowy_infra
+  flowy_infra_ui:
+    path: packages/flowy_infra_ui
+  flowy_svg:
+    path: packages/flowy_svg
+  flutter:
+    sdk: flutter
+  flutter_animate: ^4.5.0
+  flutter_bloc: ^8.1.3
+  flutter_cache_manager: ^3.3.1
+  flutter_chat_types: ^3.6.2
+  flutter_chat_ui: ^1.6.13
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
       ref: "38c2c42"
+  flutter_math_fork: ^0.7.2
+  flutter_slidable: ^3.0.0
+
+  flutter_staggered_grid_view: ^0.7.0
+  fluttertoast: ^8.2.6
+  freezed_annotation: ^2.2.0
+  get_it: ^7.6.0
+  go_router: ^14.2.0
+  google_fonts: ^6.1.0
+  highlight: ^0.7.0
+  hive_flutter: ^1.1.0
+  hotkey_manager: ^0.1.7
+  http: ^1.0.0
+  image_picker: ^1.0.4
+
+  #  third party packages
+  intl: ^0.19.0
+  json_annotation: ^4.8.1
+  keyboard_height_plugin: ^0.1.5
+  leak_tracker: ^10.0.0
+  linked_scroll_controller: ^0.2.0
 
   # Notifications
   # TODO: Consider implementing custom package
   # to gather notification handling for all platforms
   local_notifier: ^0.1.5
-
-  app_links: ^3.5.0
-  flutter_slidable: ^3.0.0
-  image_picker: ^1.0.4
-  cached_network_image: ^3.3.0
-  leak_tracker: ^10.0.0
-  keyboard_height_plugin: ^0.1.5
-  scrollable_positioned_list: ^0.3.8
-  flutter_cache_manager: ^3.3.1
-  share_plus: ^10.0.2
-  sheet:
-  file: ^7.0.0
-  avatar_stack: ^1.2.0
-  numerus: ^2.1.2
-  flutter_animate: ^4.5.0
-  permission_handler: ^11.3.1
-  flutter_chat_ui: ^1.6.13
-  flutter_chat_types: ^3.6.2
-  scaled_app: ^2.3.0
-  auto_size_text_field: ^2.2.3
-  reorderable_tabbar: ^1.0.6
-  shimmer: ^3.0.0
-  markdown_widget: ^2.3.2+6
   markdown:
+  markdown_widget: ^2.3.2+6
+  mime: ^1.0.6
+  nanoid: ^1.0.0
+  numerus: ^2.1.2
 
-  # Desktop Drop uses Cross File (XFile) data type
-  desktop_drop: ^0.4.4
-  cross_file: ^0.3.4+1
+  # Used to open local files on Mobile
+  open_filex: ^4.5.0
+  package_info_plus: ^8.0.2
+  path: ^1.8.3
+  path_provider: ^2.0.15
+  percent_indicator: ^4.2.3
+  permission_handler: ^11.3.1
+  protobuf: ^3.1.0
+  provider: ^6.0.5
+  reorderable_tabbar: ^1.0.6
+  reorderables: ^0.6.0
+  scaled_app: ^2.3.0
+  scroll_to_index: ^3.0.1
+  scrollable_positioned_list: ^0.3.8
+  sentry: 8.8.0
+  sentry_flutter: 8.8.0
+  share_plus: ^10.0.2
+  shared_preferences: ^2.2.2
+  sheet:
+  shimmer: ^3.0.0
+  sized_context: ^1.0.0+4
+  string_validator: ^1.0.0
+  styled_widget: ^0.4.1
+  supabase_flutter: ^1.10.4
+  super_clipboard: ^0.8.4
+  synchronized: ^3.1.0+1
+  table_calendar: ^3.0.9
+  time: ^2.1.3
 
-  flutter_staggered_grid_view: ^0.7.0
+  toastification: ^2.0.0
+  universal_platform: ^1.1.0
+  unsplash_client: ^2.1.1
+  url_launcher: ^6.1.11
+  url_protocol:
 
   # Window Manager for MacOS and Linux
   window_manager: ^0.3.9
 
-  # BitsDojo Window for Windows
-  bitsdojo_window: ^0.1.6
-
-  toastification: ^2.0.0
-  scroll_to_index: ^3.0.1
-  extended_text_field: ^15.0.0
-  extended_text_library: ^12.0.0
-  sentry_flutter: 8.8.0
-  sentry: 8.8.0
-  mime: ^1.0.6
-
-  # Used to open local files on Mobile
-  open_filex: ^4.5.0
-  synchronized: ^3.1.0+1
-  universal_platform: ^1.1.0
-
 dev_dependencies:
+  bloc_test: ^9.1.2
+  build_runner: ^2.4.9
+  envied_generator: ^0.5.2
   flutter_lints: ^4.0.0
 
   flutter_test:
     sdk: flutter
+  freezed: ^2.4.7
   integration_test:
     sdk: flutter
-  build_runner: ^2.4.9
-  freezed: ^2.4.7
-  bloc_test: ^9.1.2
   json_serializable: ^6.7.1
-  envied_generator: ^0.5.2
-
-  plugin_platform_interface: any
-  url_launcher_platform_interface: any
-  run_with_network_images: ^0.0.1
 
   mocktail: ^1.0.1
+
+  plugin_platform_interface: any
+  run_with_network_images: ^0.0.1
+  url_launcher_platform_interface: any
 
 dependency_overrides:
   http: ^1.0.0
@@ -196,7 +175,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "200b572"
+      ref: "ea494df"
 
   appflowy_editor_plugins:
     git:
@@ -218,23 +197,8 @@ dependency_overrides:
       commit: fbab857b1b1d209240a146d32f496379b9f62276
       path: flutter_cache_manager
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
-  # Automatic code generation for l10n and i18n
   generate: true
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
   fonts:
