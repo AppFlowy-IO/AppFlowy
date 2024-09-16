@@ -5,7 +5,6 @@ use std::sync::Arc;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowId};
 use flowy_error::{FlowyError, FlowyResult};
-use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use tracing::trace;

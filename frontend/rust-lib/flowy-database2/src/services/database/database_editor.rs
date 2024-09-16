@@ -1836,6 +1836,7 @@ struct DatabaseViewOperationImpl {
   task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   cell_cache: CellCache,
   editor_by_view_id: Arc<RwLock<EditorByViewId>>,
+  #[allow(dead_code)]
   database_cancellation: Arc<RwLock<Option<CancellationToken>>>,
 }
 

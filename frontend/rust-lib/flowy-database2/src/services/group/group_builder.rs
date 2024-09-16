@@ -5,7 +5,6 @@ use async_trait::async_trait;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
 use flowy_error::FlowyResult;
-use tracing::trace;
 
 use crate::entities::FieldType;
 use crate::services::field::TypeOption;
