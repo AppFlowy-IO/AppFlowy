@@ -1,4 +1,4 @@
-use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, InsertedRowPB, RowMetaPB, RowsChangePB};
+use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
 use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
 use crate::services::database::{DatabaseEditor, UpdatedRow};
 use crate::services::database_view::DatabaseViewEditor;
@@ -189,7 +189,7 @@ async fn handle_did_update_row_orders(
   // Delete row: Next, we delete a from its original position at index 0.
   // Delete row indexes: [0]
   // Final state after delete: [b, a, c]
-  let database_view_rows = DashMap::new();
+  let row_changes = DashMap::new();
   // 1. handle insert row orders
   for (row_order, index) in insert_row_orders {
     if let Err(err) = database_editor.init_database_row(&row_order.id).await {
@@ -204,7 +204,7 @@ async fn handle_did_update_row_orders(
         is_local_change
       );
 
-      // insert row order
+      // insert row order in database view cache
       {
         let mut view_row_orders = database_view.row_orders.write().await;
         if view_row_orders.len() >= index as usize {
@@ -219,26 +219,17 @@ async fn handle_did_update_row_orders(
       }
 
       let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
-      if let Some(row) = database_editor
-        .get_row(&database_view.view_id, &row_order.id)
-        .await
-      {
-        database_view
-          .v_did_create_row(&row, index, is_move_row, is_local_change)
-          .await;
-      }
 
-      // gather changes for notification
       if let Some((index, row_detail)) = database_view.v_get_row(&row_order.id).await {
-        database_view_rows
-          .entry(database_view.view_id.clone())
-          .or_insert_with(|| {
-            let mut change = RowsChangePB::new();
-            change.is_move_row = is_move_row;
-            change
-          })
-          .inserted_rows
-          .push(InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref())).with_index(index as i32));
+        database_view
+          .v_did_create_row(
+            &row_detail,
+            index as u32,
+            is_move_row,
+            is_local_change,
+            &row_changes,
+          )
+          .await;
       }
     }
   }
@@ -252,7 +243,7 @@ async fn handle_did_update_row_orders(
         let lazy_row = view_row_orders.remove(index);
         // Update changeset in RowsChangePB
         let row_id = lazy_row.id.to_string();
-        let mut row_change = database_view_rows
+        let mut row_change = row_changes
           .entry(database_view.view_id.clone())
           .or_default();
         row_change.deleted_rows.push(row_id);
@@ -283,7 +274,7 @@ async fn handle_did_update_row_orders(
   }
 
   // 3. notify the view
-  for entry in database_view_rows.into_iter() {
+  for entry in row_changes.into_iter() {
     let (view_id, changes) = entry;
     trace!("[RowOrder]: {}", changes);
     send_notification(&view_id, DatabaseNotification::DidUpdateRow)

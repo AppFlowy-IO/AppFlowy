@@ -6,7 +6,7 @@ use super::notify_did_update_calculation;
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
   DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
-  GroupChangesPB, GroupPB, LayoutSettingChangeset, LayoutSettingParams,
+  GroupChangesPB, GroupPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams,
   RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
@@ -208,27 +208,41 @@ impl DatabaseViewEditor {
 
   pub async fn v_did_create_row(
     &self,
-    row: &Row,
+    row_detail: &RowDetail,
     index: u32,
-    is_move_row: bool,
-    is_local_change: bool,
+    _is_move_row: bool,
+    _is_local_change: bool,
+    row_changes: &DashMap<String, RowsChangePB>,
   ) {
     // Send the group notification if the current view has groups
-
-    if !is_move_row || !is_local_change {
-      if let Some(controller) = self.group_controller.write().await.as_mut() {
-        let rows = vec![Arc::new(row.clone())];
-        let mut rows = self.v_filter_rows(rows).await;
-        if let Some(row) = rows.pop() {
-          let changesets = controller.did_create_row(&row, index as usize);
-          for changeset in changesets {
-            notify_did_update_group_rows(changeset).await;
-          }
+    if let Some(controller) = self.group_controller.write().await.as_mut() {
+      let rows = vec![Arc::new(row_detail.row.clone())];
+      let mut rows = self.v_filter_rows(rows).await;
+      if let Some(row) = rows.pop() {
+        let changesets = controller.did_create_row(&row, index as usize);
+        for changeset in changesets {
+          notify_did_update_group_rows(changeset).await;
         }
       }
     }
 
-    self.gen_did_create_row_view_tasks(index, row.clone()).await;
+    if let Some(index) = self
+      .sort_controller
+      .write()
+      .await
+      .did_create_row(&row_detail.row)
+      .await
+    {
+      row_changes
+        .entry(self.view_id.clone())
+        .or_default()
+        .inserted_rows
+        .push(InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32));
+    };
+
+    self
+      .gen_did_create_row_view_tasks(row_detail.row.clone())
+      .await;
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
@@ -1190,18 +1204,9 @@ impl DatabaseViewEditor {
     });
   }
 
-  async fn gen_did_create_row_view_tasks(&self, preliminary_index: u32, row: Row) {
-    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
+  async fn gen_did_create_row_view_tasks(&self, row: Row) {
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
     tokio::spawn(async move {
-      if let Some(sort_controller) = weak_sort_controller.upgrade() {
-        sort_controller
-          .read()
-          .await
-          .did_create_row(preliminary_index, &row)
-          .await;
-      }
-
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
           .did_receive_row_changed(row.clone())
