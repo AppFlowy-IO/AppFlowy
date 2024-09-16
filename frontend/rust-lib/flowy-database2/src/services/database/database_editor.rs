@@ -1932,17 +1932,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     let view_id = view_id.to_string();
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
-    let cancellation = self
-      .database_cancellation
-      .read()
-      .await
-      .as_ref()
-      .map(|c| c.clone());
-
     let read_guard = self.database.read().await;
-    let rows_stream = read_guard
-      .get_rows_from_row_orders(&row_orders, cancellation)
-      .await;
+    let rows_stream = read_guard.get_rows_from_row_orders(&row_orders, None).await;
     pin_mut!(rows_stream);
 
     while let Some(result) = rows_stream.next().await {

@@ -4,8 +4,8 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
-
 use flowy_error::FlowyResult;
+use tracing::trace;
 
 use crate::entities::FieldType;
 use crate::services::field::TypeOption;
@@ -144,14 +144,18 @@ where
 
   // Separates the rows into different groups
   let row_details = delegate.get_all_rows(view_id).await;
-
   let rows = row_details
     .iter()
     .map(|row| row.as_ref())
     .collect::<Vec<_>>();
 
   group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
-
+  #[cfg(feature = "verbose_log")]
+  {
+    for group in group_controller.get_all_groups() {
+      trace!("[Database]: group: {}", group);
+    }
+  }
   Ok(group_controller)
 }
 

@@ -48,7 +48,8 @@ class Log {
           shared._logger.log(level, msg, stackTrace: stackTrace);
       }
     }
-    rust_log(rustLevel, toNativeUtf8(msg));
+    String formattedMessage = _formatMessageWithStackTrace(msg, stackTrace);
+    rust_log(rustLevel, toNativeUtf8(formattedMessage));
   }
 
   static void info(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
@@ -80,3 +81,10 @@ bool isReleaseVersion() {
 Pointer<ffi.Utf8> toNativeUtf8(dynamic msg) {
   return "$msg".toNativeUtf8();
 }
+
+String _formatMessageWithStackTrace(dynamic msg, StackTrace? stackTrace) {
+   if (stackTrace != null) {
+     return "$msg\nStackTrace:\n$stackTrace"; // Append the stack trace to the message
+   }
+   return msg.toString();
+ }
