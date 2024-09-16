@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:app_links/app_links.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -13,28 +11,30 @@ import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy/workspace/application/subscription_success_listenable/subscription_success_listenable.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/material.dart';
 import 'package:url_protocol/url_protocol.dart';
 
 const appflowyDeepLinkSchema = 'appflowy-flutter';
 
 class AppFlowyCloudDeepLink {
   AppFlowyCloudDeepLink() {
-    if (_deeplinkSubscription == null) {
-      _deeplinkSubscription = _appLinks.uriLinkStream.listen(
+    if (_deepLinkSubscription == null) {
+      _deepLinkSubscription = _appLinks.uriLinkStream.listen(
         (Uri? uri) async {
           Log.info('onDeepLink: ${uri.toString()}');
           await _handleUri(uri);
         },
         onError: (Object err, StackTrace stackTrace) {
           Log.error('on DeepLink stream error: ${err.toString()}', stackTrace);
-          _deeplinkSubscription?.cancel();
-          _deeplinkSubscription = null;
+          _deepLinkSubscription?.cancel();
+          _deepLinkSubscription = null;
         },
       );
       if (Platform.isWindows) {
@@ -42,29 +42,38 @@ class AppFlowyCloudDeepLink {
         registerProtocolHandler(appflowyDeepLinkSchema);
       }
     } else {
-      _deeplinkSubscription?.resume();
+      _deepLinkSubscription?.resume();
     }
   }
 
   final _appLinks = AppLinks();
 
   ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
+
   Completer<FlowyResult<UserProfilePB, FlowyError>>? _completer;
+
+  set completer(Completer<FlowyResult<UserProfilePB, FlowyError>>? value) {
+    Log.debug('AppFlowyCloudDeepLink: $hashCode completer');
+    _completer = value;
+  }
 
   // The AppLinks is a singleton, so we need to cancel the previous subscription
   // before creating a new one.
-  static StreamSubscription<Uri?>? _deeplinkSubscription;
+  static StreamSubscription<Uri?>? _deepLinkSubscription;
 
   Future<void> dispose() async {
-    _deeplinkSubscription?.pause();
+    Log.debug('AppFlowyCloudDeepLink: $hashCode dispose');
+    await _deepLinkSubscription?.cancel();
+    _deepLinkSubscription = null;
     _stateNotifier?.dispose();
     _stateNotifier = null;
+    completer = null;
   }
 
   void registerCompleter(
     Completer<FlowyResult<UserProfilePB, FlowyError>> completer,
   ) {
-    _completer = completer;
+    this.completer = completer;
   }
 
   VoidCallback subscribeDeepLinkLoadingState(
@@ -91,7 +100,7 @@ class AppFlowyCloudDeepLink {
     if (uri == null) {
       Log.error('onDeepLinkError: Unexpected empty deep link callback');
       _completer?.complete(FlowyResult.failure(AuthError.emptyDeepLink));
-      _completer = null;
+      completer = null;
       return;
     }
 
@@ -128,16 +137,16 @@ class AppFlowyCloudDeepLink {
               Log.error(err);
               final context = AppGlobals.rootNavKey.currentState?.context;
               if (context != null) {
-                showSnackBarMessage(
+                showToastNotification(
                   context,
-                  err.msg,
+                  message: err.msg,
                 );
               }
             },
           );
         } else {
           _completer?.complete(result);
-          _completer = null;
+          completer = null;
         }
       },
       (err) {
@@ -152,7 +161,7 @@ class AppFlowyCloudDeepLink {
           }
         } else {
           _completer?.complete(FlowyResult.failure(err));
-          _completer = null;
+          completer = null;
         }
       },
     );
