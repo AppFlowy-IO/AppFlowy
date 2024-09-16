@@ -1,8 +1,9 @@
 import { YDatabaseCell, YjsDatabaseKey } from '@/application/collab.type';
 import { FieldType } from '@/application/database-yjs/database.type';
-import { Cell, CheckboxCell, DateTimeCell } from './cell.type';
+import { YArray } from 'yjs/dist/src/types/YArray';
+import { Cell, CheckboxCell, DateTimeCell, FileMediaCell, FileMediaCellData } from './cell.type';
 
-export function parseYDatabaseCommonCellToCell(cell: YDatabaseCell): Cell {
+export function parseYDatabaseCommonCellToCell (cell: YDatabaseCell): Cell {
   return {
     createdAt: Number(cell.get(YjsDatabaseKey.created_at)),
     lastModified: Number(cell.get(YjsDatabaseKey.last_modified)),
@@ -11,7 +12,7 @@ export function parseYDatabaseCommonCellToCell(cell: YDatabaseCell): Cell {
   };
 }
 
-export function parseYDatabaseCellToCell(cell: YDatabaseCell): Cell {
+export function parseYDatabaseCellToCell (cell: YDatabaseCell): Cell {
   const fieldType = parseInt(cell.get(YjsDatabaseKey.field_type));
 
   if (fieldType === FieldType.DateTime) {
@@ -22,10 +23,14 @@ export function parseYDatabaseCellToCell(cell: YDatabaseCell): Cell {
     return parseYDatabaseCheckboxCellToCell(cell);
   }
 
+  if (fieldType === FieldType.FileMedia) {
+    return parseYDatabaseFileMediaCellToCell(cell);
+  }
+
   return parseYDatabaseCommonCellToCell(cell);
 }
 
-export function parseYDatabaseDateTimeCellToCell(cell: YDatabaseCell): DateTimeCell {
+export function parseYDatabaseDateTimeCellToCell (cell: YDatabaseCell): DateTimeCell {
   return {
     ...parseYDatabaseCommonCellToCell(cell),
     data: cell.get(YjsDatabaseKey.data) as string,
@@ -37,7 +42,18 @@ export function parseYDatabaseDateTimeCellToCell(cell: YDatabaseCell): DateTimeC
   };
 }
 
-export function parseYDatabaseCheckboxCellToCell(cell: YDatabaseCell): CheckboxCell {
+export function parseYDatabaseFileMediaCellToCell (cell: YDatabaseCell): FileMediaCell {
+  const data = cell.get(YjsDatabaseKey.data) as YArray<string>;
+  const dataJson = data.toJSON().map((item: string) => JSON.parse(item)) as FileMediaCellData;
+
+  return {
+    ...parseYDatabaseCommonCellToCell(cell),
+    data: dataJson,
+    fieldType: FieldType.FileMedia,
+  };
+}
+
+export function parseYDatabaseCheckboxCellToCell (cell: YDatabaseCell): CheckboxCell {
   return {
     ...parseYDatabaseCommonCellToCell(cell),
     data: cell.get(YjsDatabaseKey.data) === 'Yes',
