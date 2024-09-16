@@ -229,34 +229,7 @@ class _CardContent extends StatelessWidget {
         Padding(
           padding: styleConfiguration.cardPadding,
           child: Column(
-            children: [
-              ..._makeCells(context, rowMeta, cells),
-              if (attachmentCount > 0) ...[
-                const VSpace(2),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Row(
-                    children: [
-                      const FlowySvg(
-                        FlowySvgs.media_s,
-                        size: Size.square(12),
-                      ),
-                      const HSpace(4),
-                      Flexible(
-                        child: FlowyText.regular(
-                          LocaleKeys.grid_media_attachmentsHint
-                              .tr(args: ['$attachmentCount']),
-                          fontSize: 11,
-                          color:
-                              AFThemeExtension.of(context).secondaryTextColor,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
+            children: _makeCells(context, rowMeta, cells),
           ),
         ),
       ],
