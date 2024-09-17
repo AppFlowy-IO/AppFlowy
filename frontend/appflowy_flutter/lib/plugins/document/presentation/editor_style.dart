@@ -38,6 +38,9 @@ class EditorStyleCustomizer {
   final EdgeInsets padding;
   final double? width;
 
+  static const double maxDocumentWidth = 480 * 4;
+  static const double minDocumentWidth = 480;
+
   static EdgeInsets get documentPadding => UniversalPlatform.isMobile
       ? const EdgeInsets.symmetric(horizontal: 24)
       : const EdgeInsets.only(left: 40, right: 40 + 44);

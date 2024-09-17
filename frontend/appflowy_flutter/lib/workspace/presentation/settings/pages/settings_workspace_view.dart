@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
@@ -1317,10 +1318,7 @@ class _DocumentPaddingSlider extends StatefulWidget {
 }
 
 class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
-  double width = 480;
-
-  final double minWidth = 480;
-  final double maxWidth = 480 * 3;
+  late double width;
 
   @override
   void initState() {
@@ -1340,9 +1338,12 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
             overlayShape: SliderComponentShape.noThumb,
           ),
       child: Slider(
-        value: width.clamp(minWidth, maxWidth),
-        min: minWidth,
-        max: maxWidth,
+        value: width.clamp(
+          EditorStyleCustomizer.minDocumentWidth,
+          EditorStyleCustomizer.maxDocumentWidth,
+        ),
+        min: EditorStyleCustomizer.minDocumentWidth,
+        max: EditorStyleCustomizer.maxDocumentWidth,
         divisions: 10,
         onChanged: (value) {
           setState(() => width = value);
