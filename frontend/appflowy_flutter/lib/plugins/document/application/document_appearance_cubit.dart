@@ -209,11 +209,9 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
 
   double formattedPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    double padding = state.padding;
     // leave at least 360 width for the editor, otherwise, the editor will be too narrow
-    final double minWidth = 360 * MediaQuery.of(context).devicePixelRatio;
-    final double maxPadding = (width - minWidth) / 2;
-    padding = min(padding, maxPadding);
-    return padding;
+    final minWidth = 360 * MediaQuery.of(context).devicePixelRatio;
+    final maxPadding = (width - minWidth) / 2;
+    return min(state.padding, max(0, maxPadding));
   }
 }
