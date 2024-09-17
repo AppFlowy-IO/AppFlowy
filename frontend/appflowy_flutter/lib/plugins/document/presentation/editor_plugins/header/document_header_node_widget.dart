@@ -131,6 +131,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final offset = _calculateIconLeft();
     return Stack(
       children: [
         SizedBox(
@@ -141,6 +142,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
             editorState: widget.editorState,
             hasCover: hasCover,
             hasIcon: hasIcon,
+            offset: offset,
           ),
         ),
         if (hasCover)
@@ -155,7 +157,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: _calculateIconLeft(),
+            left: offset,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -172,8 +174,14 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   }
 
   double _calculateIconLeft() {
+    final editorState = context.read<EditorState>();
+    final renderBox = editorState.renderBox;
+    var renderBoxWidth = 0.0;
+    if (renderBox != null && renderBox.hasSize) {
+      renderBoxWidth = renderBox.size.width;
+    }
     final editorWidth = min(
-      context.read<EditorState>().renderBox?.size.width ?? 0,
+      renderBoxWidth,
       context.read<DocumentAppearanceCubit>().state.width,
     );
     final menuWidth = context.read<HomeSettingBloc>().state.isMenuCollapsed
@@ -182,7 +190,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     final width = MediaQuery.of(context).size.width - menuWidth;
     final left = (width - editorWidth) / 2.0 +
         EditorStyleCustomizer.documentPadding.right;
-    return left;
+    return max(0, left);
   }
 
   double _calculateOverallHeight() {
@@ -241,6 +249,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.hasCover,
     required this.hasIcon,
     required this.onIconOrCoverChanged,
+    required this.offset,
   });
 
   final Node node;
@@ -249,6 +258,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final bool hasIcon;
   final void Function({(CoverType, String?)? cover, String? icon})
       onIconOrCoverChanged;
+  final double offset;
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -272,11 +282,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     Widget child = Container(
       alignment: Alignment.bottomLeft,
       width: double.infinity,
-      padding: UniversalPlatform.isDesktopOrWeb
-          ? const EdgeInsets.symmetric(
-              horizontal: 40,
-            )
-          : const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
         child: Row(
