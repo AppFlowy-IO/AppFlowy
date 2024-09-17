@@ -146,9 +146,6 @@ class _DocumentPageState extends State<DocumentPage>
     DocumentState state,
     EditorDropManagerState dropState,
   ) {
-    final padding = EdgeInsets.symmetric(
-      horizontal: UniversalPlatform.isMobile ? 24 : 40,
-    );
     final width = context.read<DocumentAppearanceCubit>().state.width;
 
     final Widget child;
@@ -160,7 +157,7 @@ class _DocumentPageState extends State<DocumentPage>
             styleCustomizer: EditorStyleCustomizer(
               context: context,
               width: width,
-              padding: padding,
+              padding: EditorStyleCustomizer.documentPadding,
             ),
             header: _buildCoverAndIcon(context, state),
             initialSelection: widget.initialSelection,
@@ -250,7 +247,7 @@ class _DocumentPageState extends State<DocumentPage>
           styleCustomizer: EditorStyleCustomizer(
             context: context,
             width: width,
-            padding: padding,
+            padding: EditorStyleCustomizer.documentPadding,
           ),
           header: _buildCoverAndIcon(context, state),
           initialSelection: widget.initialSelection,
