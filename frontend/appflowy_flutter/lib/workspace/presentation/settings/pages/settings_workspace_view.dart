@@ -1278,17 +1278,11 @@ class _DocumentPaddingSetting extends StatelessWidget {
           label: LocaleKeys.settings_appearance_documentSettings_width.tr(),
           resetButtonKey: const Key('DocumentSelectionColorResetButton'),
           onResetRequested: () {
-            showConfirmDialog(
-              context: context,
-              title: LocaleKeys.settings_workspacePage_resetSelectionColor_title
+            context.read<DocumentAppearanceCubit>().syncPadding(null);
+            showToastNotification(
+              context,
+              message: LocaleKeys.settings_workspacePage_resetWidth_resetSuccess
                   .tr(),
-              description: LocaleKeys
-                  .settings_workspacePage_resetSelectionColor_description
-                  .tr(),
-              style: ConfirmPopupStyle.cancelAndOk,
-              confirmLabel: LocaleKeys.settings_common_reset.tr(),
-              onConfirm: () =>
-                  context.read<DocumentAppearanceCubit>().syncPadding(null),
             );
           },
           trailing: [
