@@ -1,11 +1,10 @@
-import { YDatabaseField, YDoc, YjsDatabaseKey } from '@/application/types';
+import { RowId, YDatabaseField, YDoc, YjsDatabaseKey } from '@/application/types';
 import { getCellData } from '@/application/database-yjs/const';
 import { FieldType } from '@/application/database-yjs/database.type';
 import { parseSelectOptionTypeOptions } from '@/application/database-yjs/fields';
 import { Row } from '@/application/database-yjs/selector';
-import * as Y from 'yjs';
 
-export function groupByField(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabaseField) {
+export function groupByField (rows: Row[], rowMetas: Record<RowId, YDoc>, field: YDatabaseField) {
   const fieldType = Number(field.get(YjsDatabaseKey.type));
   const isSelectOptionField = [FieldType.SingleSelect, FieldType.MultiSelect].includes(fieldType);
 
@@ -20,7 +19,7 @@ export function groupByField(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabas
   return;
 }
 
-export function groupByCheckbox(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabaseField) {
+export function groupByCheckbox (rows: Row[], rowMetas: Record<RowId, YDoc>, field: YDatabaseField) {
   const fieldId = field.get(YjsDatabaseKey.id);
   const result = new Map<string, Row[]>();
 
@@ -36,7 +35,7 @@ export function groupByCheckbox(rows: Row[], rowMetas: Y.Map<YDoc>, field: YData
   return result;
 }
 
-export function groupBySelectOption(rows: Row[], rowMetas: Y.Map<YDoc>, field: YDatabaseField) {
+export function groupBySelectOption (rows: Row[], rowMetas: Record<RowId, YDoc>, field: YDatabaseField) {
   const fieldId = field.get(YjsDatabaseKey.id);
   const result = new Map<string, Row[]>();
   const typeOption = parseSelectOptionTypeOptions(field);

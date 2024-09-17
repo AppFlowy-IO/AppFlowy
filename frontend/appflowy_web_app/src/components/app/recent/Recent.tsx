@@ -1,3 +1,4 @@
+import { UIVariant } from '@/application/types';
 import OutlineItem from '@/components/_shared/outline/OutlineItem';
 import RecentListSkeleton from '@/components/_shared/skeleton/RecentListSkeleton';
 import { useAppHandlers, useAppRecent } from '@/components/app/app.hooks';
@@ -51,7 +52,7 @@ export function Recent () {
         <div className={'px-1'}>
           {value.map((view) =>
             <OutlineItem
-              variant={'recent'}
+              variant={UIVariant.Recent}
               key={view.view_id}
               view={view}
               navigateToView={navigateToView}

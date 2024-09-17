@@ -11,6 +11,7 @@ export function OutlinePopover ({
   onMouseEnter,
   onMouseLeave,
   content,
+  variant = 'app',
 }: {
   open: boolean;
   onClose: () => void;
@@ -19,7 +20,8 @@ export function OutlinePopover ({
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   drawerWidth?: number;
-  content: React.ReactNode
+  content: React.ReactNode;
+  variant?: 'app' | 'publish';
 }) {
   const popoverContent = useMemo(() => {
     return (
@@ -29,16 +31,17 @@ export function OutlinePopover ({
         className={'flex h-fit max-h-[590px] flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}
       >
         {content}
+        {variant === 'publish' && <AppFlowyPower />}
 
-        <AppFlowyPower />
       </div>
     );
-  }, [onMouseEnter, onMouseLeave, content]);
+  }, [variant, onMouseEnter, onMouseLeave, content]);
 
   return (
-    <RichTooltip PaperProps={{
-      className: 'rounded-[14px] border border-tint-purple bg-bg-body m-2 overflow-hidden',
-    }} open={open} onClose={onClose} content={popoverContent} placement={placement}
+    <RichTooltip
+      PaperProps={{
+        className: 'rounded-[14px] border border-tint-purple bg-bg-body m-2 overflow-hidden',
+      }} open={open} onClose={onClose} content={popoverContent} placement={placement}
     >
       {children}
     </RichTooltip>

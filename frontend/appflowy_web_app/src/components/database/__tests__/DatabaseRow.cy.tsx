@@ -21,13 +21,12 @@ describe('<DatabaseRow />', () => {
       applyYDoc(doc, databaseState);
 
       cy.fixture('database/rows/4c658817-20db-4f56-b7f9-0637a22dfeb6').then((rows) => {
-        const rootRowsDoc = new Y.Doc();
-        const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+        const rowsFolder: Record<string, YDoc> = {};
         const data = rows['2f944220-9f45-40d9-96b5-e8c0888daf7c'];
         const rowDoc = new Y.Doc();
 
         applyYDoc(rowDoc, new Uint8Array(data));
-        rowsFolder.set('2f944220-9f45-40d9-96b5-e8c0888daf7c', rowDoc);
+        rowsFolder['2f944220-9f45-40d9-96b5-e8c0888daf7c'] = rowDoc;
 
         cy.fixture('simple_doc').then((docJson) => {
           const subDoc = new Y.Doc();
@@ -68,7 +67,7 @@ function TestDatabaseRow ({
 }: {
   rowId: string;
   databaseDoc: YDoc;
-  rows: Y.Map<YDoc>;
+  rows: Record<string, YDoc>;
   viewId: string;
   loadView?: (viewId: string) => Promise<YDoc>;
 }) {

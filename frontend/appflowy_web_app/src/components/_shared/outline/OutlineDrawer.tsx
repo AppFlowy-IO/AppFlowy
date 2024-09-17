@@ -7,12 +7,14 @@ import { createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }: {
+export function OutlineDrawer ({ header, variant, open, width, onClose, children, onResizeWidth }: {
   open: boolean;
   width: number;
   onClose: () => void;
   children: React.ReactNode;
   onResizeWidth: (width: number) => void;
+  header?: React.ReactNode;
+  variant?: 'app' | 'publish';
 }) {
   const { t } = useTranslation();
 
@@ -44,18 +46,20 @@ export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }
     >
 
       <div className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
-        <div style={{
-          backdropFilter: 'blur(4px)',
-        }} className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between p-4'}
+        <div
+          style={{
+            backdropFilter: 'blur(4px)',
+          }} className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between'}
         >
-          <div
-            className={'flex cursor-pointer items-center gap-1 text-text-title'}
+          {header ? header : <div
+            className={'flex p-4 cursor-pointer items-center gap-1 text-text-title'}
             onClick={() => {
               navigate('/app');
             }}
           >
             <AppFlowyLogo className={'w-[88px]'} />
-          </div>
+          </div>}
+
           <Tooltip
             title={
               <div className={'flex flex-col'}>
@@ -64,7 +68,7 @@ export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }
               </div>
             }
           >
-            <IconButton onClick={onClose}>
+            <IconButton onClick={onClose} className={'m-4'}>
               <SideOutlined className={'h-4 w-4 text-text-caption rotate-180 transform'} />
             </IconButton>
           </Tooltip>
@@ -72,7 +76,8 @@ export function OutlineDrawer ({ open, width, onClose, children, onResizeWidth }
         <div className={'flex h-fit flex-1 flex-col'}>
           {children}
         </div>
-        <AppFlowyPower width={width} />
+        {variant === 'publish' && <AppFlowyPower width={width} />}
+
 
       </div>
       <Resizer drawerWidth={width} onResize={onResizeWidth} />

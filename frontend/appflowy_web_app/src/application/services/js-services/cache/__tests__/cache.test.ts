@@ -22,25 +22,25 @@ jest.mock('@/application/db', () => ({
 const normalDoc = withTestingYDoc('1');
 const mockFetcher = jest.fn();
 
-async function runTestWithStrategy(strategy: StrategyType) {
+async function runTestWithStrategy (strategy: StrategyType) {
   return getPublishView(
     mockFetcher,
     {
       namespace: 'appflowy',
       publishName: 'test',
     },
-    strategy
+    strategy,
   );
 }
 
-async function runGetPublishViewMetaWithStrategy(strategy: StrategyType) {
+async function runGetPublishViewMetaWithStrategy (strategy: StrategyType) {
   return getPublishViewMeta(
     mockFetcher,
     {
       namespace: 'appflowy',
       publishName: 'test',
     },
-    strategy
+    strategy,
   );
 }
 
@@ -68,14 +68,14 @@ describe('Cache functions', () => {
       (db.view_metas.get as jest.Mock).mockResolvedValue({ view_id: '1' });
       mockFetcher.mockResolvedValue({ data: [1, 2, 3], meta: { metadata: { view: { id: '1' } } } });
       await runTestWithStrategy(StrategyType.CACHE_ONLY);
-      expect(openCollabDB).toBeCalledTimes(2);
+      expect(openCollabDB).toBeCalledTimes(1);
 
       await runTestWithStrategy(StrategyType.CACHE_FIRST);
-      expect(openCollabDB).toBeCalledTimes(4);
+      expect(openCollabDB).toBeCalledTimes(2);
       expect(mockFetcher).toBeCalledTimes(0);
 
       await runTestWithStrategy(StrategyType.CACHE_AND_NETWORK);
-      expect(openCollabDB).toBeCalledTimes(6);
+      expect(openCollabDB).toBeCalledTimes(3);
       expect(mockFetcher).toBeCalledTimes(1);
     });
   });

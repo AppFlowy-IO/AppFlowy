@@ -7,7 +7,7 @@ import {
   ViewId,
   ViewLayout,
   Workspace,
-  Invitation,
+  Invitation, Types,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -199,6 +199,21 @@ interface AFWorkspace {
   icon: string,
   created_at: string,
   member_count: number,
+  database_storage_id: string,
+}
+
+export async function openWorkspace (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/open`;
+  const response = await axiosInstance?.put<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
 }
 
 export async function getUserWorkspaceInfo (): Promise<{
@@ -232,6 +247,7 @@ export async function getUserWorkspaceInfo (): Promise<{
         name: visiting_workspace.workspace_name,
         icon: visiting_workspace.icon,
         memberCount: visiting_workspace.member_count,
+        databaseStorageId: visiting_workspace.database_storage_id,
         owner: {
           uid: visiting_workspace.owner_uid,
           name: visiting_workspace.owner_name,
@@ -243,6 +259,7 @@ export async function getUserWorkspaceInfo (): Promise<{
         icon: workspace.icon,
         memberCount: workspace.member_count,
         createdAt: workspace.created_at,
+        databaseStorageId: workspace.database_storage_id,
         owner: {
           uid: workspace.owner_uid,
           name: workspace.owner_name,
@@ -270,8 +287,8 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   return blobToBytes(response?.data);
 }
 
-export async function getPageCollab (workspaceId: string, viewId: string) {
-  const url = `/api/workspace/v1/${workspaceId}/collab/${viewId}`;
+export async function getCollab (workspaceId: string, objectId: string, collabType: Types) {
+  const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}`;
   const response = await axiosInstance?.get<{
     code: number;
     data: {
@@ -281,7 +298,7 @@ export async function getPageCollab (workspaceId: string, viewId: string) {
     message: string;
   }>(url, {
     params: {
-      collab_type: 0,
+      collab_type: collabType,
     },
   });
 
@@ -293,6 +310,40 @@ export async function getPageCollab (workspaceId: string, viewId: string) {
 
   return {
     data: new Uint8Array(docState),
+  };
+}
+
+export async function getPageCollab (workspaceId: string, viewId: string) {
+  const url = `/api/workspace/${workspaceId}/page-view/${viewId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: {
+      view: View;
+      data: {
+        encoded_collab: number[];
+        row_data: Record<RowId, number[]>;
+        owner?: User;
+        last_editor?: User;
+      }
+    };
+    message: string;
+  }>(url);
+
+  if (!response) {
+    return Promise.reject('No response');
+  }
+
+  if (response.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  const { encoded_collab, row_data, owner, last_editor } = response.data.data.data;
+
+  return {
+    data: new Uint8Array(encoded_collab),
+    rows: row_data,
+    owner,
+    lastEditor: last_editor,
   };
 }
 
@@ -325,6 +376,7 @@ export async function getPublishView (publishNamespace: string, publishName: str
       rows: res.database_row_collabs,
       visibleViewIds: res.visible_database_view_ids,
       relations: res.database_relations,
+      subDocuments: res.database_row_document_collabs,
       meta,
     };
   } catch (e) {
@@ -633,6 +685,7 @@ export async function getWorkspaces (): Promise<Workspace[]> {
       workspace_name: string;
       member_count: number;
       icon: string;
+      database_storage_id?: string;
     }[];
     message: string;
   }>(url);
@@ -646,6 +699,7 @@ export async function getWorkspaces (): Promise<Workspace[]> {
         name: workspace.workspace_name,
         memberCount: workspace.member_count,
         icon: workspace.icon,
+        databaseStorageId: workspace.database_storage_id || '',
       };
     });
   }
@@ -939,7 +993,6 @@ export async function uploadFileToCDN (file: File) {
   const url = '/api/template-center/avatar';
   const formData = new FormData();
 
-  console.log(file);
   formData.append('avatar', file);
 
   const response = await axiosInstance?.request<{

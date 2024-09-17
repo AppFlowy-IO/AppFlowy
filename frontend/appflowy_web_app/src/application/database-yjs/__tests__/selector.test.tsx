@@ -9,7 +9,6 @@ import {
   useGroupsSelector,
   usePrimaryFieldId,
   useRowDataSelector,
-  useRowDocMapSelector,
   useRowMetaSelector,
   useRowOrdersSelector,
   useRowsByGroup,
@@ -26,7 +25,7 @@ import { withNumberTestingField, withTestingFields } from '@/application/databas
 import { withTestingRows } from '@/application/database-yjs/__tests__/withTestingRows';
 
 const wrapperCreator =
-  (viewId: string, doc: YDoc, rowDocMap: Y.Map<YDoc>) =>
+  (viewId: string, doc: YDoc, rowDocMap: Record<string, YDoc>) =>
     ({ children }: { children: React.ReactNode }) => {
       return (
         <DatabaseContextProvider
@@ -39,7 +38,7 @@ const wrapperCreator =
 
 describe('Database selector', () => {
   let wrapper: ({ children }: { children: React.ReactNode }) => JSX.Element;
-  let rowDocMap: Y.Map<YDoc>;
+  let rowDocMap: Record<string, YDoc>;
   let doc: YDoc;
 
   beforeEach(() => {
@@ -179,18 +178,12 @@ describe('Database selector', () => {
     expect(result.current?.map((item) => item.id).join(',')).toEqual('9,2,3,1,6,8,5,7');
   });
 
-  it('should select all row doc map', () => {
-    const { result } = renderHook(() => useRowDocMapSelector(), { wrapper });
-
-    expect(result.current.rows).toEqual(rowDocMap);
-  });
-
   it('should select a row data', () => {
     const rows = withTestingRows();
     const { result } = renderHook(() => useRowDataSelector(rows[0].id), { wrapper });
 
-    expect(result.current.row.toJSON()).toEqual(
-      rowDocMap.get(rows[0].id)?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database_row)?.toJSON(),
+    expect(result.current.row?.toJSON()).toEqual(
+      rowDocMap[rows[0].id]?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database_row)?.toJSON(),
     );
   });
 

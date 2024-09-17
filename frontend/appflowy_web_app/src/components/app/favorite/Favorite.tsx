@@ -1,3 +1,4 @@
+import { UIVariant } from '@/application/types';
 import OutlineItem from '@/components/_shared/outline/OutlineItem';
 import { Popover } from '@/components/_shared/popover';
 import RecentListSkeleton from '@/components/_shared/skeleton/RecentListSkeleton';
@@ -86,7 +87,7 @@ export function Favorite () {
         <div className={'px-1'}>
           {value.map((view) =>
             <OutlineItem
-              variant={'favorite'}
+              variant={UIVariant.Favorite}
               key={view.view_id}
               view={view}
               navigateToView={navigateToView}
@@ -117,7 +118,7 @@ export function Favorite () {
         {
           pinViews?.map((view) =>
             <OutlineItem
-              variant={'favorite'}
+              variant={UIVariant.Favorite}
               key={view.view_id}
               selectedViewId={viewId}
               view={view}

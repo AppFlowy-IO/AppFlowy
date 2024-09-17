@@ -1,5 +1,5 @@
-import { View } from '@/application/types';
-import PublishIcon from '@/components/_shared/breadcrumb/PublishIcon';
+import { UIVariant, View } from '@/application/types';
+import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
 import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
@@ -13,7 +13,7 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
   crumb: View;
   disableClick?: boolean;
   toView?: (viewId: string) => Promise<void>;
-  variant?: 'publish' | 'app'
+  variant?: UIVariant
 }) {
   const { view_id, icon, name, layout, extra, is_published } = crumb;
 
@@ -22,10 +22,24 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
     return icon ? isFlagEmoji(icon.value) : false;
   }, [icon]);
 
+  const className = useMemo(() => {
+    const classList = ['flex', 'items-center', 'gap-1.5', 'text-sm'];
+
+    if (!disableClick && !extra?.is_space) {
+      if ((is_published && variant === 'publish') || variant === 'app') {
+        classList.push('cursor-pointer hover:text-text-title hover:underline');
+      } else {
+        classList.push('flex-1', 'overflow-hidden');
+      }
+    }
+
+    return classList.join(' ');
+  }, [disableClick, extra?.is_space, is_published, variant]);
+
   return (
 
     <div
-      className={`flex items-center gap-1.5 text-sm ${!disableClick && is_published ? 'cursor-pointer' : 'flex-1 overflow-hidden'}`}
+      className={className}
       onClick={async () => {
         if (disableClick || extra?.is_space || (!is_published && variant === 'publish')) return;
         try {
@@ -54,14 +68,13 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
       <Tooltip title={name} placement={'bottom'} enterDelay={1000} enterNextDelay={1000}>
         <span
           className={
-            'max-w-[250px] overflow-hidden truncate ' +
-            (!disableClick && is_published ? 'hover:text-text-title hover:underline' : 'flex-1')
+            'max-w-[250px] overflow-hidden truncate '
           }
         >
           {name || t('menuAppHeader.defaultNewPageName')}
         </span>
       </Tooltip>
-      <PublishIcon variant={variant} crumb={crumb} />
+      <PublishIcon variant={variant} view={crumb} />
     </div>
   );
 }

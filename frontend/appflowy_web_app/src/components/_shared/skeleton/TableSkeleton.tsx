@@ -1,41 +1,33 @@
 import React from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Skeleton,
-} from '@mui/material';
 
 const TableSkeleton = ({ rows = 5, columns = 4 }) => {
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {[...Array(columns)].map((_, index) => (
-              <TableCell key={`header-${index}`}>
-                <Skeleton variant="text" width={100} height={24} />
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {[...Array(rows)].map((_, rowIndex) => (
-            <TableRow key={`row-${rowIndex}`}>
-              {[...Array(columns)].map((_, colIndex) => (
-                <TableCell key={`cell-${rowIndex}-${colIndex}`}>
-                  <Skeleton variant="text" width={colIndex === 0 ? 60 : 100} height={20} />
-                </TableCell>
-              ))}
-            </TableRow>
+    <div className="overflow-x-auto shadow-md sm:rounded-lg mt-4">
+      <table className="w-full text-sm text-left text-gray-500">
+        <thead className="text-xs text-gray-700 uppercase bg-fill-list-hover dark:text-gray-400">
+        <tr>
+          {[...Array(columns)].map((_, index) => (
+            <th key={`header-${index}`} scope="col" className="px-6 py-3">
+              <div className="h-6 bg-fill-list-hover rounded w-24 animate-pulse"></div>
+            </th>
           ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+        </tr>
+        </thead>
+        <tbody>
+        {[...Array(rows)].map((_, rowIndex) => (
+          <tr key={`row-${rowIndex}`} className="bg-bg-body border-b border-line-divider">
+            {[...Array(columns)].map((_, colIndex) => (
+              <td key={`cell-${rowIndex}-${colIndex}`} className="px-6 py-4">
+                <div
+                  className={`h-5 bg-fill-list-hover rounded ${colIndex === 0 ? 'w-14' : 'w-24'} animate-pulse`}
+                ></div>
+              </td>
+            ))}
+          </tr>
+        ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

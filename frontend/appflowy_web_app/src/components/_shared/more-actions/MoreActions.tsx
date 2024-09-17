@@ -1,4 +1,5 @@
 import { invalidToken } from '@/application/session/token';
+import CacheClearingDialog from '@/components/_shared/modal/CacheClearingDialog';
 import { Popover } from '@/components/_shared/popover';
 import { AFConfigContext } from '@/components/main/app.hooks';
 import { ThemeModeContext } from '@/components/main/useAppThemeMode';
@@ -10,6 +11,7 @@ import { ReactComponent as MoonIcon } from '@/assets/moon.svg';
 import { ReactComponent as SunIcon } from '@/assets/sun.svg';
 import { ReactComponent as LoginIcon } from '@/assets/login.svg';
 import { ReactComponent as ReportIcon } from '@/assets/report.svg';
+import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,6 +21,8 @@ function MoreActions () {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const [openConfirm, setOpenConfirm] = React.useState(false);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -65,6 +69,13 @@ function MoreActions () {
           void openUrl('https://report.appflowy.io/', '_blank');
         },
       },
+      {
+        Icon: TrashIcon,
+        label: t('settings.files.clearCache'),
+        onClick: () => {
+          setOpenConfirm(true);
+        },
+      },
     ];
   }, [isAuthenticated, t, handleLogin, isDark, setDark]);
 
@@ -108,6 +119,7 @@ function MoreActions () {
           </div>
         </Popover>
       )}
+      <CacheClearingDialog open={openConfirm} onClose={() => setOpenConfirm(false)} />
     </>
   );
 }

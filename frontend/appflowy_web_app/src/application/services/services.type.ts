@@ -1,4 +1,13 @@
-import { Invitation, DuplicatePublishView, FolderView, User, UserWorkspaceInfo, View, Workspace, YDoc } from '@/application/types';
+import {
+  Invitation,
+  DuplicatePublishView,
+  FolderView,
+  User,
+  UserWorkspaceInfo,
+  View,
+  Workspace,
+  YDoc, DatabaseRelations,
+} from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import {
@@ -8,7 +17,6 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import * as Y from 'yjs';
 
 export type AFService = PublishService;
 
@@ -24,22 +32,17 @@ export interface AFCloudConfig {
 
 export interface PublishService {
   getClientId: () => string;
-  getPageDoc: (workspaceId: string, viewId: string) => Promise<YDoc>;
-  getDatabasePageRows: (workspaceId: string, viewId: string) => Promise<{
-    rows: Y.Map<YDoc>;
-    destroy: () => void;
-  }>;
+  getPageDoc: (workspaceId: string, viewId: string, errorCallback?: (error: {
+    code: number;
+  }) => void) => Promise<YDoc>;
   getPublishViewMeta: (namespace: string, publishName: string) => Promise<ViewMeta>;
   getPublishView: (namespace: string, publishName: string) => Promise<YDoc>;
+  getPublishRowDocument: (viewId: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
-  getPublishDatabaseViewRows: (
-    namespace: string,
-    publishName: string,
-    rowIds?: string[],
-  ) => Promise<{
-    rows: Y.Map<YDoc>;
-    destroy: () => void;
-  }>;
+  createRowDoc: (rowKey: string) => Promise<YDoc>;
+  deleteRowDoc: (rowKey: string) => void;
+  getAppDatabaseViewRelations: (workspaceId: string, databaseStorageId: string) => Promise<DatabaseRelations>;
+  openWorkspace: (workspaceId: string) => Promise<void>;
 
   getPublishOutline (namespace: string): Promise<View[]>;
 

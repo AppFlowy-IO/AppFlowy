@@ -33,7 +33,7 @@ export function GridColumn ({ column, index }: { column: Column; index: number }
           <FieldTypeIcon type={type} className={'mr-1 w-4 h-4 icon'} />
         </div>
         <div className={'flex-1'}>{name}</div>
-        {isAIField && <AIIndicatorSvg className={'text-xl'} />}
+        {isAIField && <AIIndicatorSvg className={'text-xl w-4 h-4'} />}
       </div>
     </Tooltip>
   );

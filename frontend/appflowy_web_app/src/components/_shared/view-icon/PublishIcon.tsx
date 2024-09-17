@@ -1,4 +1,4 @@
-import { View } from '@/application/types';
+import { UIVariant, View } from '@/application/types';
 import { Tooltip } from '@mui/material';
 import React from 'react';
 import { ReactComponent as PublishSvg } from '@/assets/publish.svg';
@@ -6,12 +6,12 @@ import { useTranslation } from 'react-i18next';
 
 function PublishIcon ({
   variant,
-  crumb,
+  view,
 }: {
-  variant?: 'publish' | 'app',
-  crumb: View;
+  variant?: UIVariant,
+  view: View;
 }) {
-  const { extra, is_published } = crumb;
+  const { extra, is_published } = view;
   const { t } = useTranslation();
 
   if (extra?.is_space) {

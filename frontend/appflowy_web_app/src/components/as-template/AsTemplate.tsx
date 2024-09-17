@@ -54,10 +54,11 @@ function AsTemplate ({
         await service?.updateTemplate(template.view_id, formData);
       } else {
         await service?.createTemplate(formData);
-
       }
 
       await loadTemplate();
+
+      notify.success('Template saved successfully');
     } catch (error) {
       // eslint-disable-next-line
       // @ts-ignore
@@ -97,7 +98,8 @@ function AsTemplate ({
 
   return (
     <div className={'flex flex-col gap-4 w-full h-full overflow-hidden'}>
-      <div className={'flex items-center justify-between'}>
+      <div className={'flex items-center justify-end'}>
+
         {template && <Button
           startIcon={<WebsiteIcon />}
           variant={'text'}

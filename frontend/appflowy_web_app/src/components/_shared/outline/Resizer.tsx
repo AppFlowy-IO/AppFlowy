@@ -48,7 +48,7 @@ const Resizer = ({
 
   return (
     <div
-      className="absolute top-0 h-full w-2 border-r-4 border-transparent hover:border-content-blue-300 cursor-col-resize"
+      className="absolute top-0 h-full w-1 border-r-4 border-transparent hover:border-content-blue-300 cursor-col-resize"
       style={{ right: 0, zIndex: 100, borderColor: isResizing ? 'var(--content-blue-300)' : undefined }}
       onMouseDown={startResizing}
     />

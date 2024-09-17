@@ -1,4 +1,4 @@
-import { View } from '@/application/types';
+import { UIVariant, View } from '@/application/types';
 import { AFScroller } from '@/components/_shared/scroller';
 import BreadcrumbItem from '@/components/_shared/breadcrumb/BreadcrumbItem';
 import React, { memo, useMemo } from 'react';
@@ -7,7 +7,7 @@ import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 export function Breadcrumb ({ crumbs, toView, variant }: {
   crumbs: View[];
   toView?: (viewId: string) => Promise<void>;
-  variant?: 'publish' | 'app';
+  variant?: UIVariant;
 }) {
   const renderCrumb = useMemo(() => {
 

@@ -4,6 +4,7 @@ import { ReactComponent as BoardSvg } from '@/assets/board.svg';
 import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';
 import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
 import { ReactComponent as GridSvg } from '@/assets/grid.svg';
+import { ReactComponent as ChatSvg } from '@/assets/chat_ai.svg';
 
 export function ViewIcon ({ layout, size }: { layout: ViewLayout; size: number | 'small' | 'medium' | 'large' }) {
   const iconSize = useMemo(() => {
@@ -22,23 +23,21 @@ export function ViewIcon ({ layout, size }: { layout: ViewLayout; size: number |
     return `h-${size} w-${size}`;
   }, [size]);
 
-  if (layout === ViewLayout.Grid) {
-    return <GridSvg className={iconSize} />;
+  switch (layout) {
+    case ViewLayout.AIChat:
+      return <ChatSvg className={iconSize} />;
+    case ViewLayout.Grid:
+      return <GridSvg className={iconSize} />;
+    case ViewLayout.Board:
+      return <BoardSvg className={iconSize} />;
+    case ViewLayout.Calendar:
+      return <CalendarSvg className={iconSize} />;
+    case ViewLayout.Document:
+      return <DocumentSvg className={iconSize} />;
+    default:
+      return null;
   }
 
-  if (layout === ViewLayout.Board) {
-    return <BoardSvg className={iconSize} />;
-  }
-
-  if (layout === ViewLayout.Calendar) {
-    return <CalendarSvg className={iconSize} />;
-  }
-
-  if (layout === ViewLayout.Document) {
-    return <DocumentSvg className={iconSize} />;
-  }
-
-  return null;
 }
 
 export default ViewIcon;

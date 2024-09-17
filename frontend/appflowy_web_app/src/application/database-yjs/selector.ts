@@ -2,8 +2,7 @@ import {
   FieldId,
   SortId,
   YDatabase,
-  YDatabaseField,
-  YDoc,
+  YDatabaseField, YDatabaseMetas, YDatabaseRow,
   YjsDatabaseKey,
   YjsEditorKey,
 } from '@/application/types';
@@ -23,7 +22,6 @@ import { DateTimeCell } from '@/application/database-yjs/cell.type';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Y from 'yjs';
 import { CalendarLayoutSetting, FieldType, FieldVisibility, Filter, RowMetaKey, SortCondition } from './database.type';
 
 export interface Column {
@@ -433,7 +431,7 @@ export function useRowsByGroup (groupId: string) {
 }
 
 export function useRowOrdersSelector () {
-  const { rows, clock } = useRowDocMapSelector();
+  const rows = useRowDocMap();
   const [rowOrders, setRowOrders] = useState<Row[]>();
   const view = useDatabaseView();
   const sorts = view?.get(YjsDatabaseKey.sorts);
@@ -468,7 +466,7 @@ export function useRowOrdersSelector () {
 
   useEffect(() => {
     onConditionsChange();
-  }, [onConditionsChange, clock]);
+  }, [onConditionsChange]);
 
   useEffect(() => {
     const throttleChange = debounce(onConditionsChange, 200);
@@ -489,52 +487,19 @@ export function useRowOrdersSelector () {
   return rowOrders;
 }
 
-export function useRowDocMapSelector () {
-  const rowMap = useRowDocMap();
-  const [clock, setClock] = useState<number>(0);
-
-  useEffect(() => {
-    if (!rowMap) return;
-    const observerEvent = () => setClock((prev) => prev + 1);
-
-    rowMap.observeDeep(observerEvent);
-
-    return () => {
-      rowMap.unobserveDeep(observerEvent);
-    };
-  }, [rowMap]);
-
-  return {
-    rows: rowMap,
-    clock,
-  };
-}
-
-export function observeDeepRow (
-  rowId: string,
-  rowMap: Y.Map<YDoc>,
-  observerEvent: () => void,
-  key: YjsEditorKey.meta | YjsEditorKey.database_row = YjsEditorKey.database_row,
-) {
-  const rowSharedRoot = rowMap?.get(rowId)?.getMap(YjsEditorKey.data_section);
-  const row = rowSharedRoot?.get(key);
-
-  rowSharedRoot?.observe(observerEvent);
-  row?.observeDeep(observerEvent);
-  return () => {
-    rowSharedRoot?.unobserve(observerEvent);
-    row?.unobserveDeep(observerEvent);
-  };
-}
-
 export function useRowDataSelector (rowId: string) {
   const rowMap = useRowDocMap();
+  const [row, setRow] = useState<YDatabaseRow | null>(null);
 
-  const rowDoc = rowMap?.get(rowId);
+  useEffect(() => {
+    const rowDoc = rowMap?.[rowId];
 
-  const rowSharedRoot = rowDoc?.getMap(YjsEditorKey.data_section);
-  const row = rowSharedRoot?.get(YjsEditorKey.database_row);
+    if (!rowDoc || !rowDoc.share.has(YjsEditorKey.data_section)) return;
+    const rowSharedRoot = rowDoc?.getMap(YjsEditorKey.data_section);
+    const row = rowSharedRoot?.get(YjsEditorKey.database_row);
 
+    setRow(row);
+  }, [rowId, rowMap]);
   return {
     row,
   };
@@ -706,20 +671,34 @@ export const useRowMetaSelector = (rowId: string) => {
   const rowMap = useRowDocMap();
 
   const updateMeta = useCallback(() => {
+
+    const row = rowMap?.[rowId];
+
+    if (!row || !row.share.has(YjsEditorKey.data_section)) return;
+
+    const rowSharedRoot = row.getMap(YjsEditorKey.data_section);
+
+    const yMeta = rowSharedRoot?.get(YjsEditorKey.meta);
+
+    if (!yMeta) return;
+
     const metaKeyMap = getMetaIdMap(rowId);
 
     const iconKey = metaKeyMap.get(RowMetaKey.IconId) ?? '';
     const coverKey = metaKeyMap.get(RowMetaKey.CoverId) ?? '';
     const documentId = metaKeyMap.get(RowMetaKey.DocumentId) ?? '';
     const isEmptyDocumentKey = metaKeyMap.get(RowMetaKey.IsDocumentEmpty) ?? '';
-    const rowSharedRoot = rowMap?.get(rowId)?.getMap(YjsEditorKey.data_section);
-    const yMeta = rowSharedRoot?.get(YjsEditorKey.meta);
-
-    if (!yMeta) return;
     const metaJson = yMeta.toJSON();
 
     const icon = metaJson[iconKey];
-    const cover = metaJson[coverKey];
+    let cover = '';
+
+    try {
+      cover = metaJson[coverKey] ? JSON.parse(metaJson[coverKey])?.url : '';
+    } catch (e) {
+      // do nothing
+    }
+
     const isEmptyDocument = metaJson[isEmptyDocumentKey];
 
     setMeta({
@@ -733,13 +712,17 @@ export const useRowMetaSelector = (rowId: string) => {
   useEffect(() => {
     if (!rowMap) return;
     updateMeta();
-    const observer = observeDeepRow(rowId, rowMap, updateMeta, YjsEditorKey.meta);
+    const observerEvent = () => updateMeta();
 
-    rowMap.observe(updateMeta);
+    const rowDoc = rowMap[rowId];
 
+    if (!rowDoc || !rowDoc.share.has(YjsEditorKey.data_section)) return;
+    const rowSharedRoot = rowDoc.getMap(YjsEditorKey.data_section);
+    const meta = rowSharedRoot?.get(YjsEditorKey.meta) as YDatabaseMetas;
+
+    meta?.observeDeep(observerEvent);
     return () => {
-      rowMap.unobserve(updateMeta);
-      observer();
+      meta?.unobserveDeep(observerEvent);
     };
   }, [rowId, rowMap, updateMeta]);
 

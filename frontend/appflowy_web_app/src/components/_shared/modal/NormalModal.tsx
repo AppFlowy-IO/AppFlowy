@@ -80,7 +80,7 @@ export function NormalModal ({
             }}
             {...okButtonProps}
           >
-            {okLoading ? <CircularProgress size={24} /> : modalOkText}
+            {okLoading ? <CircularProgress color={'inherit'} size={24} /> : modalOkText}
           </Button>
         </div>
       </div>

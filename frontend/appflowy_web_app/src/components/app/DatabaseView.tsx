@@ -1,6 +1,18 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta, YDoc } from '@/application/types';
+import {
+  AppendBreadcrumb,
+  CreateRowDoc,
+  LoadView,
+  LoadViewMeta, ViewLayout,
+  YDatabase,
+  YDoc,
+  YjsEditorKey,
+} from '@/application/types';
 import { findView } from '@/components/_shared/outline/utils';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
+import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
+import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
+import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { useAppOutline } from '@/components/app/app.hooks';
 import { Database } from '@/components/database';
 import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
@@ -12,9 +24,11 @@ function DatabaseView ({ viewMeta, ...props }: {
   doc: YDoc;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
-  getViewRowsMap?: GetViewRowsMap;
+  createRowDoc?: CreateRowDoc;
   loadView?: LoadView;
   viewMeta: ViewMetaProps;
+  appendBreadcrumb?: AppendBreadcrumb;
+  onRendered?: () => void;
 }) {
   const [search, setSearch] = useSearchParams();
   const outline = useAppOutline();
@@ -24,7 +38,10 @@ function DatabaseView ({ viewMeta, ...props }: {
     return findView(outline || [], iidIndex);
   }, [outline, iidIndex]);
 
-  const visibleViewIds = useMemo(() => view?.children?.map(v => v.view_id) || [], [view]);
+  const visibleViewIds = useMemo(() => {
+    if (!view) return [];
+    return [view.view_id, ...(view.children?.map(v => v.view_id) || [])];
+  }, [view]);
 
   const viewId = useMemo(() => {
     return search.get('v') || iidIndex;
@@ -51,8 +68,26 @@ function DatabaseView ({ viewMeta, ...props }: {
   );
 
   const rowId = search.get('r') || undefined;
+  const doc = props.doc;
+  const database = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
+  const skeleton = useMemo(() => {
+    if (rowId) {
+      return <DocumentSkeleton />;
+    }
 
-  if (!viewId) return null;
+    switch (viewMeta.layout) {
+      case ViewLayout.Grid:
+        return <GridSkeleton includeTitle={false} />;
+      case ViewLayout.Board:
+        return <KanbanSkeleton includeTitle={false} />;
+      case ViewLayout.Calendar:
+        return <CalendarSkeleton includeTitle={false} />;
+      default:
+        return <ComponentLoading />;
+    }
+  }, [rowId, viewMeta.layout]);
+
+  if (!viewId || !doc || !database) return null;
 
   return (
     <div
@@ -61,8 +96,9 @@ function DatabaseView ({ viewMeta, ...props }: {
       }}
       className={'relative flex h-full w-full flex-col px-6'}
     >
-      <DatabaseHeader {...viewMeta} />
-      <Suspense fallback={<ComponentLoading />}>
+      {rowId ? null : <DatabaseHeader {...viewMeta} />}
+
+      <Suspense fallback={skeleton}>
         <Database
           iidName={viewMeta.name || ''}
           iidIndex={iidIndex || ''}

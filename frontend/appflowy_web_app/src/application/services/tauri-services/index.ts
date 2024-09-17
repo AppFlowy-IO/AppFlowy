@@ -6,6 +6,7 @@ import {
   UserWorkspaceInfo,
   Workspace,
   YDoc,
+  View, DatabaseRelations,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { AFService } from '@/application/services/services.type';
@@ -16,7 +17,6 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 import { nanoid } from 'nanoid';
-import { View } from 'react-big-calendar';
 import { YMap } from 'yjs/dist/src/types/YMap';
 
 export class AFClientService implements AFService {
@@ -182,7 +182,7 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
-  getAppOutline (_workspaceId: string): Promise<View> {
+  getAppOutline (_workspaceId: string): Promise<View[]> {
     return Promise.reject('Method not implemented');
   }
 
@@ -197,4 +197,41 @@ export class AFClientService implements AFService {
   getUserWorkspaceInfo (): Promise<UserWorkspaceInfo> {
     return Promise.reject('Method not implemented');
   }
+
+  getAppDatabaseViewRelations (_workspaceId: string, _databaseStorageId: string): Promise<DatabaseRelations> {
+    return Promise.reject('Method not implemented');
+  }
+
+  openWorkspace (_workspaceId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppFavorites (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppRecent (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppTrash (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppView (_workspaceId: string, _viewId: string): Promise<View> {
+    return Promise.reject('Method not implemented');
+  }
+
+  createRowDoc (_rowKey: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
+  deleteRowDoc (_rowKey: string): void {
+    return;
+  }
+
+  getPublishRowDocument (_viewId: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
 }

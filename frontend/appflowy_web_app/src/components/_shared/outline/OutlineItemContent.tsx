@@ -1,12 +1,11 @@
-import { View } from '@/application/types';
+import { UIVariant, View, ViewLayout } from '@/application/types';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { ViewIcon } from '@/components/_shared/view-icon';
+import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
 import { renderColor } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { memo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ReactComponent as PublishIcon } from '@/assets/publish.svg';
 
 function OutlineItemContent ({
   item,
@@ -19,18 +18,17 @@ function OutlineItemContent ({
   setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
   navigateToView?: (viewId: string) => Promise<void>;
   level: number;
-  variant?: 'publish' | 'app' | 'recent' | 'favorite';
+  variant?: UIVariant;
 
 }) {
   const { icon, layout, name, view_id, extra } = item;
   const [hovered, setHovered] = React.useState(false);
   const isSpace = extra?.is_space;
-  const { t } = useTranslation();
 
   return (
     <div
       onClick={async () => {
-        if (isSpace || (!item.is_published && variant === 'publish')) {
+        if (isSpace || (!item.is_published && variant === 'publish') || item.layout === ViewLayout.AIChat) {
           setIsExpanded(prev => !prev);
           return;
         }
@@ -44,9 +42,10 @@ function OutlineItemContent ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        cursor: item.layout === ViewLayout.AIChat ? 'not-allowed' : 'pointer',
         paddingLeft: variant === 'favorite' || variant === 'recent' ? '8px' : item.children?.length ? 0 : 1.125 * (level + 1) + 'rem',
       }}
-      className={`flex flex-1 cursor-pointer select-none items-center gap-1.5 overflow-hidden`}
+      className={`flex flex-1 select-none items-center gap-1.5 overflow-hidden`}
     >
       {isSpace && extra ?
         <span
@@ -71,18 +70,7 @@ function OutlineItemContent ({
       <Tooltip title={name} enterDelay={1000} enterNextDelay={1000}>
         <div className={'flex-1 truncate'}>{name}</div>
       </Tooltip>
-      {hovered && variant === 'publish' && !item.is_published && !isSpace && (
-        <Tooltip
-          disableInteractive
-          title={isSpace ? t('publish.spaceHasNotBeenPublished') : t('publish.hasNotBeenPublished')}
-        >
-          <div
-            className={'text-text-caption ml-2 mr-4 cursor-pointer hover:bg-fill-list-hover rounded h-5 w-5 flex items-center justify-center'}
-          >
-            <PublishIcon className={'h-4 w-4'} />
-          </div>
-        </Tooltip>
-      )}
+      {hovered && variant === UIVariant.Publish && <PublishIcon variant={variant} view={item} />}
     </div>
   );
 }

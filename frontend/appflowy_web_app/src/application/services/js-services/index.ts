@@ -1,10 +1,12 @@
-import { getTokenParsed } from '@/application/session/token';
-import { DuplicatePublishView, YDoc } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
+import { openCollabDB } from '@/application/db';
 import {
-  deleteView, getPageDoc,
+  createRowDoc, deleteRowDoc,
+  deleteView,
+  getPageDoc,
   getPublishView,
-  getPublishViewMeta, getUser,
+  getPublishViewMeta,
+  getUser, hasCollabCache,
   hasViewMetaCache,
 } from '@/application/services/js-services/cache';
 import { StrategyType } from '@/application/services/js-services/cache/types';
@@ -19,11 +21,14 @@ import { APIService } from '@/application/services/js-services/http';
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
 import { afterAuth, AUTH_CALLBACK_URL, withSignIn } from '@/application/session/sign_in';
+import { getTokenParsed } from '@/application/session/token';
 import {
   TemplateCategoryFormValues,
   TemplateCreatorFormValues,
   UploadTemplatePayload,
 } from '@/application/template.type';
+import { DatabaseRelations, DuplicatePublishView, Types, YjsEditorKey } from '@/application/types';
+import { applyYDoc } from '@/application/ydoc/apply';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 
@@ -43,10 +48,6 @@ export class AFClientService implements AFService {
       publishName: string;
     }
   > = new Map();
-
-  private cacheDatabaseRowDocMap: Map<string, Y.Doc> = new Map();
-
-  private cacheDatabaseRowFolder: Map<string, Y.Map<YDoc>> = new Map();
 
   constructor (config: AFServiceConfig) {
     APIService.initAPIService(config.cloudConfig);
@@ -83,7 +84,7 @@ export class AFClientService implements AFService {
 
     const isLoaded = this.publishViewLoaded.has(name);
 
-    const { doc, rowMapDoc } = await getPublishView(
+    const { doc } = await getPublishView(
       async () => {
         try {
           return await fetchPublishView(namespace, publishName);
@@ -110,39 +111,45 @@ export class AFClientService implements AFService {
       this.publishViewLoaded.add(name);
     }
 
-    this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
-
     return doc;
   }
 
-  async getPublishDatabaseViewRows (namespace: string, publishName: string) {
-    const name = `${namespace}_${publishName}`;
+  async getPublishRowDocument (viewId: string) {
+    const doc = await openCollabDB(viewId);
 
-    if (!this.publishViewLoaded.has(name) || !this.cacheDatabaseRowDocMap.has(name)) {
-      await this.getPublishView(namespace, publishName);
+    if (hasCollabCache(doc)) {
+      return doc;
     }
 
-    const rootRowsDoc = this.cacheDatabaseRowDocMap.get(name);
+    return Promise.reject(new Error('Document not found'));
 
-    if (!rootRowsDoc) {
-      return Promise.reject(new Error('Root rows doc not found'));
-    }
+  }
 
-    if (!this.cacheDatabaseRowFolder.has(name)) {
-      const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+  async createRowDoc (rowKey: string) {
+    return createRowDoc(rowKey);
+  }
 
-      this.cacheDatabaseRowFolder.set(name, rowsFolder);
-    }
+  deleteRowDoc (rowKey: string) {
+    return deleteRowDoc(rowKey);
+  }
 
-    const rowsFolder = this.cacheDatabaseRowFolder.get(name)!;
+  async getAppDatabaseViewRelations (workspaceId: string, databaseStorageId: string) {
 
-    return {
-      rows: rowsFolder,
-      destroy: () => {
-        this.cacheDatabaseRowFolder.delete(name);
-        this.cacheDatabaseRowDocMap.delete(name);
-      },
-    };
+    const res = await APIService.getCollab(workspaceId, databaseStorageId, Types.WorkspaceDatabase);
+    const doc = new Y.Doc();
+
+    applyYDoc(doc, res.data);
+
+    const { databases } = doc.getMap(YjsEditorKey.data_section).toJSON();
+    const result: DatabaseRelations = {};
+
+    databases.forEach((database: {
+      database_id: string;
+      views: string[]
+    }) => {
+      result[database.database_id] = database.views[0];
+    });
+    return result;
   }
 
   async getPublishInfo (viewId: string) {
@@ -261,6 +268,10 @@ export class AFClientService implements AFService {
     return user;
   }
 
+  async openWorkspace (workspaceId: string) {
+    return APIService.openWorkspace(workspaceId);
+  }
+
   async getUserWorkspaceInfo () {
     const workspaceInfo = await APIService.getUserWorkspaceInfo();
 
@@ -366,7 +377,9 @@ export class AFClientService implements AFService {
     return APIService.uploadFileToCDN(file);
   }
 
-  async getPageDoc (workspaceId: string, viewId: string) {
+  async getPageDoc (workspaceId: string, viewId: string, errorCallback?: (error: {
+    code: number;
+  }) => void) {
 
     const token = getTokenParsed();
     const userId = token?.user.id;
@@ -379,12 +392,15 @@ export class AFClientService implements AFService {
 
     const isLoaded = this.viewLoaded.has(name);
 
-    const { doc, rowMapDoc } = await getPageDoc(
+    const { doc } = await getPageDoc(
       async () => {
         try {
           return await fetchPageCollab(workspaceId, viewId);
-        } catch (e) {
+          // eslint-disable-next-line
+        } catch (e: any) {
           console.error(e);
+
+          errorCallback?.(e);
           void (async () => {
             this.viewLoaded.delete(name);
             void deleteView(name);
@@ -401,47 +417,9 @@ export class AFClientService implements AFService {
       this.viewLoaded.add(name);
     }
 
-    this.cacheDatabaseRowDocMap.set(name, rowMapDoc);
-
     return doc;
   }
 
-  async getDatabasePageRows (workspaceId: string, viewId: string) {
-    const token = getTokenParsed();
-    const userId = token?.user.id;
-
-    if (!userId) {
-      throw new Error('User not found');
-    }
-
-    const name = `${userId}_${workspaceId}_${viewId}`;
-
-    if (!this.publishViewLoaded.has(name) || !this.cacheDatabaseRowDocMap.has(name)) {
-      await this.getPageDoc(workspaceId, viewId);
-    }
-
-    const rootRowsDoc = this.cacheDatabaseRowDocMap.get(name);
-
-    if (!rootRowsDoc) {
-      return Promise.reject(new Error('Root rows doc not found'));
-    }
-
-    if (!this.cacheDatabaseRowFolder.has(name)) {
-      const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
-
-      this.cacheDatabaseRowFolder.set(name, rowsFolder);
-    }
-
-    const rowsFolder = this.cacheDatabaseRowFolder.get(name)!;
-
-    return {
-      rows: rowsFolder,
-      destroy: () => {
-        this.cacheDatabaseRowFolder.delete(name);
-        this.cacheDatabaseRowDocMap.delete(name);
-      },
-    };
-  }
   async getInvitation (invitationId: string) {
     return APIService.getInvitation(invitationId);
   }

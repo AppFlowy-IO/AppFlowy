@@ -1,4 +1,5 @@
 import {
+  RowId,
   YDatabaseCell,
   YDatabaseCells,
   YDatabaseRow,
@@ -10,7 +11,7 @@ import { FieldType, Row } from '@/application/database-yjs';
 import * as Y from 'yjs';
 import * as rowsJson from './fixtures/rows.json';
 
-export function withTestingRows(): Row[] {
+export function withTestingRows (): Row[] {
   return rowsJson.map((row) => {
     return {
       id: row.id,
@@ -19,8 +20,8 @@ export function withTestingRows(): Row[] {
   });
 }
 
-export function withTestingRowDataMap(): Y.Map<YDoc> {
-  const folder = new Y.Map();
+export function withTestingRowDataMap (): Record<RowId, YDoc> {
+  const folder: Record<RowId, YDoc> = {};
   const rows = withTestingRows();
 
   rows.forEach((row, index) => {
@@ -28,13 +29,13 @@ export function withTestingRowDataMap(): Y.Map<YDoc> {
     const rowData = withTestingRowData(row.id, index);
 
     rowDoc.getMap(YjsEditorKey.data_section).set(YjsEditorKey.database_row, rowData);
-    folder.set(row.id, rowDoc);
+    folder[row.id] = rowDoc;
   });
 
-  return folder as Y.Map<YDoc>;
+  return folder;
 }
 
-export function withTestingRowData(id: string, index: number) {
+export function withTestingRowData (id: string, index: number) {
   const rowData = new Y.Map() as YDatabaseRow;
 
   rowData.set(YjsDatabaseKey.id, id);
@@ -88,7 +89,7 @@ export function withTestingRowData(id: string, index: number) {
   return rowData;
 }
 
-export function withTestingCell(cellData: string | number) {
+export function withTestingCell (cellData: string | number) {
   const cell = new Y.Map() as YDatabaseCell;
 
   cell.set(YjsDatabaseKey.data, cellData);

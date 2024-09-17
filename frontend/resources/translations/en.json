@@ -2596,5 +2596,13 @@
       "close": "Back to home",
       "changeAccount": "Change account"
     }
+  },
+  "requestAccess": {
+    "title": "No access to this page",
+    "subtitle": "You can request access from the owner of this page. Once approved, you can view the page.",
+    "requestAccess": "Request access",
+    "backToHome": "Back to home",
+    "tip": "You're currently logged in as <link/>.",
+    "mightBe": "You might need to <login/> with a different account."
   }
 }

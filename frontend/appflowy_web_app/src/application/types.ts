@@ -189,6 +189,7 @@ export enum ViewLayout {
   Grid = 1,
   Board = 2,
   Calendar = 3,
+  AIChat = 4,
 }
 
 export enum YjsEditorKey {
@@ -307,11 +308,12 @@ export interface YDatabaseRow extends Y.Map<unknown> {
 
   get (key: YjsDatabaseKey.visibility): boolean;
 
+  get (key: YjsDatabaseKey.cells): YDatabaseCells;
+
   get (key: YjsDatabaseKey.created_at): CreatedAt;
 
   get (key: YjsDatabaseKey.last_modified): LastModified;
 
-  get (key: YjsDatabaseKey.cells): YDatabaseCells;
 }
 
 export interface YDatabaseCells extends Y.Map<unknown> {
@@ -695,9 +697,10 @@ export interface PublishViewMetaData {
   ancestor_views: ViewInfo[];
 }
 
-export type GetViewRowsMap = (viewId: string) => Promise<{ rows: Y.Map<YDoc>; destroy: () => void }>;
+export type AppendBreadcrumb = (view?: View) => void;
 
-export type LoadView = (viewId: string) => Promise<YDoc>;
+export type CreateRowDoc = (rowKey: string) => Promise<YDoc>;
+export type LoadView = (viewId: string, isSubDocument?: boolean) => Promise<YDoc>;
 
 export type LoadViewMeta = (viewId: string, onChange?: (meta: View | null) => void) => Promise<View>;
 
@@ -712,6 +715,7 @@ export interface Workspace {
     uid: number;
     name: string;
   };
+  databaseStorageId: string;
 }
 
 export interface UserWorkspaceInfo {
@@ -784,6 +788,7 @@ export interface View {
   extra: ViewExtra | null;
   children: View[];
   is_published: boolean;
+  is_private: boolean;
   last_edited_time?: string;
   created_at?: string;
   database_relations?: DatabaseRelations;
@@ -809,4 +814,11 @@ export enum CoverType {
   LocalImage = 'local',
   UpsplashImage = 'unsplash',
   None = 'none',
+}
+
+export enum UIVariant {
+  Publish = 'publish',
+  App = 'app',
+  Recent = 'recent',
+  Favorite = 'favorite',
 }

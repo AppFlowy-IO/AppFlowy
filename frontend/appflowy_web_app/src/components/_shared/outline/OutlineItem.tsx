@@ -1,7 +1,8 @@
-import { View } from '@/application/types';
+import { UIVariant, View } from '@/application/types';
 import OutlineItemContent from '@/components/_shared/outline/OutlineItemContent';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { ReactComponent as ChevronDownIcon } from '@/assets/chevron_down.svg';
+import { ReactComponent as PrivateIcon } from '@/assets/lock.svg';
 
 function getOutlineExpands () {
   const expandView = localStorage.getItem('outline_expanded');
@@ -31,7 +32,7 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
   level?: number;
   selectedViewId?: string;
   navigateToView?: (viewId: string) => Promise<void>
-  variant?: 'publish' | 'app' | 'recent' | 'favorite';
+  variant?: UIVariant;
 
 }) {
   const selected = selectedViewId === view.view_id;
@@ -96,6 +97,7 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
             level={level}
             setIsExpanded={setIsExpanded}
           />
+          {item.is_private && <PrivateIcon className={'h-4 w-4 text-text-caption'} />}
         </div>
       </div>
     );

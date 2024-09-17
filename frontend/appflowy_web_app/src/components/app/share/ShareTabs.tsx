@@ -18,6 +18,7 @@ function ShareTabs () {
   const view = useAppView();
   const [value, setValue] = React.useState<TabKey>(TabKey.PUBLISH);
   const currentUser = useCurrentUser();
+
   const options = useMemo(() => {
     return [{
       value: TabKey.PUBLISH,
@@ -55,7 +56,9 @@ function ShareTabs () {
       </ViewTabs>
       <div className={'p-2'}>
         {options.map((option) => (
-          <TabPanel className={' min-w-[360px]'} key={option.value} index={option.value} value={value}>
+          <TabPanel
+            className={'min-w-[360px] max-sm:min-w-[80vw]'} key={option.value} index={option.value} value={value}
+          >
             <option.Panel />
           </TabPanel>
         ))}

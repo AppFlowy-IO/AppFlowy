@@ -66,7 +66,8 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
       isTemplateThumb={isTemplateThumb} isTemplate={isTemplate} namespace={namespace}
       publishName={publishName}
     >
-      <div className={'h-screen w-screen'} style={isTemplateThumb ? {
+      <div
+        className={'h-screen w-screen'} style={isTemplateThumb ? {
         pointerEvents: 'none',
         transform: 'scale(0.333)',
         transformOrigin: '0 0',
@@ -105,8 +106,9 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
 
         </AFScroller>
         {drawerOpened &&
-          <SideBar onResizeDrawerWidth={setDrawerWidth} drawerWidth={drawerWidth} drawerOpened={drawerOpened}
-                   toggleOpenDrawer={toggleOpenDrawer}
+          <SideBar
+            onResizeDrawerWidth={setDrawerWidth} drawerWidth={drawerWidth} drawerOpened={drawerOpened}
+            toggleOpenDrawer={toggleOpenDrawer}
           />
         }
       </div>

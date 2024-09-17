@@ -10,7 +10,7 @@ import { LoginModal } from '@/components/login';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useSnackbar } from 'notistack';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
 function AppConfig ({ children }: { children: React.ReactNode }) {
   const [appConfig] = useState<AFServiceConfig>(defaultConfig);
@@ -135,13 +135,16 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
     >
       {children}
       {loginOpen && (
-        <LoginModal
-          redirectTo={loginCompletedRedirectTo}
-          open={loginOpen}
-          onClose={() => {
-            setLoginOpen(false);
-          }}
-        />
+        <Suspense>
+          <LoginModal
+            redirectTo={loginCompletedRedirectTo}
+            open={loginOpen}
+            onClose={() => {
+              setLoginOpen(false);
+            }}
+          />
+        </Suspense>
+
       )}
     </AFConfigContext.Provider>
   );

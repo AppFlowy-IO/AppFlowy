@@ -1,13 +1,18 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/types';
-import ViewHelmet from '@/components/_shared/helmet/ViewHelmet';
+import { AppendBreadcrumb, CreateRowDoc, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/types';
+import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
-import PageSkeleton from '@/components/_shared/skeleton/PageSkeleton';
-import { useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
+import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
+import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
+import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
+import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
+import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
+import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
 import { ViewMetaProps } from '@/components/view-meta';
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
-import { Document } from '@/components/document';
+import React, { lazy, Suspense, memo, useCallback, useEffect, useMemo, useContext } from 'react';
+
+const ViewHelmet = lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
 
 function AppPage () {
   const viewId = useAppViewId();
@@ -15,33 +20,40 @@ function AppPage () {
   const {
     toView,
     loadViewMeta,
-    getViewRowsMap,
+    createRowDoc,
     loadView,
+    appendBreadcrumb,
+    onRendered,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
     return findView(outline, viewId);
   }, [outline, viewId]);
+  const rendered = useContext(AppContext)?.rendered;
 
   const helmet = useMemo(() => {
-    return view ? <ViewHelmet name={view.name} icon={view.icon || undefined} /> : null;
-  }, [view]);
+    return view && rendered ? <Suspense><ViewHelmet name={view.name} icon={view.icon || undefined} /></Suspense> : null;
+  }, [rendered, view]);
 
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
   const [notFound, setNotFound] = React.useState(false);
-
   const loadPageDoc = useCallback(async () => {
+
+    if (!viewId) {
+      return;
+    }
+
     setNotFound(false);
     setDoc(undefined);
-    if (!viewId) return;
     try {
       const doc = await loadView(viewId);
 
       setDoc(doc);
     } catch (e) {
-      console.error(e);
       setNotFound(true);
+      console.error(e);
     }
+
   }, [loadView, viewId]);
 
   useEffect(() => {
@@ -63,9 +75,11 @@ function AppPage () {
     doc: YDoc;
     navigateToView?: (viewId: string) => Promise<void>;
     loadViewMeta?: LoadViewMeta;
-    getViewRowsMap?: GetViewRowsMap;
+    createRowDoc?: CreateRowDoc;
     loadView?: LoadView;
     viewMeta: ViewMetaProps;
+    appendBreadcrumb?: AppendBreadcrumb;
+    onRendered?: () => void;
   }>;
 
   const viewMeta: ViewMetaProps | null = useMemo(() => {
@@ -79,6 +93,26 @@ function AppPage () {
     } : null;
   }, [view]);
 
+  const skeleton = useMemo(() => {
+    if (!viewMeta) {
+      return null;
+    }
+
+    switch (viewMeta.layout) {
+      case ViewLayout.Document:
+        return <DocumentSkeleton />;
+      case ViewLayout.Grid:
+        return <GridSkeleton />;
+      case ViewLayout.Board:
+        return <KanbanSkeleton />;
+      case ViewLayout.Calendar:
+        return <CalendarSkeleton />;
+      default:
+        return null;
+    }
+
+  }, [viewMeta]);
+
   const viewDom = useMemo(() => {
     return doc && viewMeta && View ? (
       <View
@@ -86,13 +120,15 @@ function AppPage () {
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}
-        getViewRowsMap={getViewRowsMap} loadView={loadView}
+        createRowDoc={createRowDoc}
+        appendBreadcrumb={appendBreadcrumb}
+        loadView={loadView}
+        onRendered={onRendered}
       />
-    ) : (
-      <PageSkeleton hasCover={!viewMeta || !!viewMeta.cover} hasIcon={!viewMeta || !!viewMeta.icon} hasName />
-    );
-  }, [doc, View, viewMeta, toView, loadViewMeta, getViewRowsMap, loadView]);
+    ) : skeleton;
+  }, [onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
 
+  if (!viewId) return null;
   return (
     <div className={'relative w-full h-full'}>
       {helmet}
@@ -104,6 +140,8 @@ function AppPage () {
           {viewDom}
         </div>
       )}
+      {view && doc && <Help />}
+
     </div>
   );
 }

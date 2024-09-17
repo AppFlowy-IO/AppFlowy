@@ -1,3 +1,4 @@
+import CustomSnackbar from '@/components/_shared/notify/CustomSnackbar';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorHandlerPage } from 'src/components/error/ErrorHandlerPage';
 import AppTheme from '@/components/main/AppTheme';
@@ -31,6 +32,10 @@ export default function withAppWrapper (Component: React.FC): React.FC {
             preventDuplicate
             Components={{
               info: InfoSnackbar,
+              success: CustomSnackbar,
+              error: CustomSnackbar,
+              warning: CustomSnackbar,
+              default: CustomSnackbar,
             }}
           >
             <AppConfig>

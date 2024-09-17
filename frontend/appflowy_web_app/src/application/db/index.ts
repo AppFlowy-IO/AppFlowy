@@ -5,13 +5,14 @@ import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 import BaseDexie from 'dexie';
 import { viewMetasSchema, ViewMetasTable } from '@/application/db/tables/view_metas';
+import { rowSchema, rowTable } from '@/application/db/tables/rows';
 
-type DexieTables = ViewMetasTable & UserTable;
+type DexieTables = ViewMetasTable & UserTable & rowTable;
 
 export type Dexie<T = DexieTables> = BaseDexie & T;
 
 export const db = new BaseDexie(`${databasePrefix}_cache`) as Dexie;
-const schema = Object.assign({}, { ...viewMetasSchema, ...userSchema });
+const schema = Object.assign({}, { ...viewMetasSchema, ...userSchema, ...rowSchema });
 
 db.version(1).stores(schema);
 
@@ -61,37 +62,52 @@ export async function closeCollabDB (docName: string) {
 }
 
 export async function clearData () {
-  try {
-    const databases = await indexedDB.databases();
+  const databases = await indexedDB.databases();
+  
+  const deleteDatabase = async (dbInfo: IDBDatabaseInfo): Promise<boolean> => {
+    const dbName = dbInfo.name;
 
-    databases.forEach((dbInfo) => {
-      const dbName = dbInfo.name as string;
+    if (!dbName) return false;
+
+    return new Promise((resolve) => {
       const request = indexedDB.open(dbName);
 
-      request.onsuccess = function (event) {
+      request.onsuccess = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
 
         db.close();
+
         const deleteRequest = indexedDB.deleteDatabase(dbName);
 
-        deleteRequest.onsuccess = function () {
+        deleteRequest.onsuccess = () => {
           console.log(`Database ${dbName} deleted successfully`);
+          resolve(true);
         };
 
-        deleteRequest.onerror = function (event) {
+        deleteRequest.onerror = (event) => {
           console.error(`Error deleting database ${dbName}`, event);
+          resolve(false);
         };
 
-        deleteRequest.onblocked = function () {
+        deleteRequest.onblocked = () => {
           console.warn(`Delete operation blocked for database ${dbName}`);
+          resolve(false);
         };
       };
 
-      request.onerror = function (event) {
+      request.onerror = (event) => {
         console.error(`Error opening database ${dbName}`, event);
+        resolve(false);
       };
     });
-  } catch (e) {
-    console.error('Error listing databases:', e);
+  };
+
+  try {
+    const results = await Promise.all(databases.map(deleteDatabase));
+
+    return results.every(Boolean);
+  } catch (error) {
+    console.error('Error during database deletion process:', error);
+    return false;
   }
 }

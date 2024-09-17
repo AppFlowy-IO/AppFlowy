@@ -1,4 +1,5 @@
 import {
+  RowId,
   YDatabase,
   YDatabaseFields,
   YDatabaseFilters,
@@ -24,7 +25,7 @@ import { withMultiSelectOptionFilter } from '@/application/database-yjs/__tests_
 import { withRichTextSort } from '@/application/database-yjs/__tests__/withTestingSorts';
 import { metaIdFromRowId, RowMetaKey } from '@/application/database-yjs';
 
-export function withTestingData() {
+export function withTestingData () {
   const doc = new Y.Doc();
   const sharedRoot = doc.getMap();
   const fields = withTestingFields() as YDatabaseFields;
@@ -52,7 +53,7 @@ export function withTestingData() {
   };
 }
 
-export function withTestingDatabase(viewId: string) {
+export function withTestingDatabase (viewId: string) {
   const doc = new Y.Doc();
   const sharedRoot = doc.getMap(YjsEditorKey.data_section);
   const database = new Y.Map() as YDatabase;
@@ -159,9 +160,7 @@ export function withTestingDatabase(viewId: string) {
   view.set(YjsDatabaseKey.field_orders, fieldOrder);
   view.set(YjsDatabaseKey.row_orders, rowOrders);
 
-  const rowMapDoc = new Y.Doc();
-
-  const rowMapFolder = rowMapDoc.getMap();
+  const rowMap: Record<RowId, YDoc> = {};
 
   rows.forEach((row, index) => {
     const rowDoc = new Y.Doc();
@@ -172,11 +171,11 @@ export function withTestingDatabase(viewId: string) {
     rowMeta.set(parser(RowMetaKey.IconId), '😊');
     rowDoc.getMap(YjsEditorKey.data_section).set(YjsEditorKey.meta, rowMeta);
     rowDoc.getMap(YjsEditorKey.data_section).set(YjsEditorKey.database_row, rowData);
-    rowMapFolder.set(row.id, rowDoc);
+    rowMap[row.id] = rowDoc;
   });
 
   return {
-    rowDocMap: rowMapFolder as Y.Map<YDoc>,
+    rowDocMap: rowMap,
     doc: doc as YDoc,
   };
 }

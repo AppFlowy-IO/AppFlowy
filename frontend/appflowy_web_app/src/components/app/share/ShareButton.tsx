@@ -13,6 +13,7 @@ export function ShareButton () {
   return (
     <>
       <Button
+        className={'max-sm:hidden'}
         onClick={() => {
           setOpened(true);
         }} ref={ref} size={'small'} variant={'contained'} color={'primary'}
