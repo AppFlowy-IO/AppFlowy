@@ -5,6 +5,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/tasks/feature_flag_task.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -30,6 +31,8 @@ class FlowyRunnerContext {
 }
 
 Future<void> runAppFlowy({bool isAnon = false}) async {
+  Log.info('restart AppFlowy: isAnon: $isAnon');
+
   if (kReleaseMode) {
     await FlowyRunner.run(
       AppFlowyApplication(),
