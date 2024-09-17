@@ -88,8 +88,16 @@ class _SignInDialogContent extends StatelessWidget {
                   const _OrDivider(),
                   const VSpace(10),
                   SettingThirdPartyLogin(
-                    didLogin: () {},
-                  ), // TODO: Pass onAction
+                    didLogin: () {
+                      // dismiss the setting dialog
+                      Navigator.of(context).popUntil((route) {
+                        if (route.settings.name == '/') {
+                          return true;
+                        }
+                        return false;
+                      });
+                    },
+                  ),
                 ],
               ],
             ),
