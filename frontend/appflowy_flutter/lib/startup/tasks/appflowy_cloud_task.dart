@@ -26,7 +26,8 @@ const appflowyDeepLinkSchema = 'appflowy-flutter';
 class AppFlowyCloudDeepLink {
   AppFlowyCloudDeepLink() {
     if (_deepLinkSubscription == null) {
-      _deepLinkSubscription = _appLinks.uriLinkStream.listen(
+      _deepLinkSubscription =
+          _appLinks.uriLinkStream.asBroadcastStream().listen(
         (Uri? uri) async {
           Log.info('onDeepLink: ${uri.toString()}');
           await _handleUri(uri);
