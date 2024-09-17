@@ -108,7 +108,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         cursorColorIsNull: cursorColor == null,
         selectionColorIsNull: selectionColor == null,
         textDirectionIsNull: defaultTextDirection == null,
-        padding: padding ?? 200.0,
+        padding: padding,
       ),
     );
   }
