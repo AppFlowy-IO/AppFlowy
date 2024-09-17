@@ -25,29 +25,21 @@ const appflowyDeepLinkSchema = 'appflowy-flutter';
 
 class AppFlowyCloudDeepLink {
   AppFlowyCloudDeepLink() {
-    if (_deepLinkSubscription == null) {
-      _deepLinkSubscription =
-          _appLinks.uriLinkStream.asBroadcastStream().listen(
-        (Uri? uri) async {
-          Log.info('onDeepLink: ${uri.toString()}');
-          await _handleUri(uri);
-        },
-        onError: (Object err, StackTrace stackTrace) {
-          Log.error('on DeepLink stream error: ${err.toString()}', stackTrace);
-          _deepLinkSubscription?.cancel();
-          _deepLinkSubscription = null;
-        },
-      );
-      if (Platform.isWindows) {
-        // register deep link for Windows
-        registerProtocolHandler(appflowyDeepLinkSchema);
-      }
-    } else {
-      _deepLinkSubscription?.resume();
+    _deepLinkSubscription = _AppLinkWrapper.instance.listen(
+      (Uri? uri) async {
+        Log.info('onDeepLink: ${uri.toString()}');
+        await _handleUri(uri);
+      },
+      onError: (Object err, StackTrace stackTrace) {
+        Log.error('on DeepLink stream error: ${err.toString()}', stackTrace);
+        _deepLinkSubscription.cancel();
+      },
+    );
+    if (Platform.isWindows) {
+      // register deep link for Windows
+      registerProtocolHandler(appflowyDeepLinkSchema);
     }
   }
-
-  final _appLinks = AppLinks();
 
   ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
 
@@ -58,14 +50,12 @@ class AppFlowyCloudDeepLink {
     _completer = value;
   }
 
-  // The AppLinks is a singleton, so we need to cancel the previous subscription
-  // before creating a new one.
-  static StreamSubscription<Uri?>? _deepLinkSubscription;
+  late final StreamSubscription<Uri?> _deepLinkSubscription;
 
   Future<void> dispose() async {
     Log.debug('AppFlowyCloudDeepLink: $hashCode dispose');
-    await _deepLinkSubscription?.cancel();
-    _deepLinkSubscription = null;
+    await _deepLinkSubscription.cancel();
+
     _stateNotifier?.dispose();
     _stateNotifier = null;
     completer = null;
@@ -230,4 +220,36 @@ enum DeepLinkState {
   none,
   loading,
   finish,
+}
+
+// wrapper for AppLinks to support multiple listeners
+class _AppLinkWrapper {
+  _AppLinkWrapper._() {
+    _appLinkSubscription = _appLinks.uriLinkStream.listen((event) {
+      _streamSubscription.sink.add(event);
+    });
+  }
+
+  static final _AppLinkWrapper instance = _AppLinkWrapper._();
+
+  final AppLinks _appLinks = AppLinks();
+  final _streamSubscription = StreamController<Uri?>.broadcast();
+  late final StreamSubscription<Uri?> _appLinkSubscription;
+
+  StreamSubscription<Uri?> listen(
+    void Function(Uri?) listener, {
+    Function? onError,
+    bool? cancelOnError,
+  }) {
+    return _streamSubscription.stream.listen(
+      listener,
+      onError: onError,
+      cancelOnError: cancelOnError,
+    );
+  }
+
+  void dispose() {
+    _streamSubscription.close();
+    _appLinkSubscription.cancel();
+  }
 }
