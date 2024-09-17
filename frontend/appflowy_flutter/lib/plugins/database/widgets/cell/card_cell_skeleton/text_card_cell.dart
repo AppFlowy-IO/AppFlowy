@@ -141,7 +141,8 @@ class _TextCellState extends State<TextCardCell> {
 
   Widget? _buildIcon(TextCellState state) {
     if (state.emoji?.value.isNotEmpty ?? false) {
-      return FlowyText(
+      return FlowyText.emoji(
+        optimizeEmojiAlign: true,
         state.emoji?.value ?? '',
       );
     }

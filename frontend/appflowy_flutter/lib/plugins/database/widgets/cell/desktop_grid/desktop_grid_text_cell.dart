@@ -65,7 +65,8 @@ class _IconOrEmoji extends StatelessWidget {
             return emoji.isNotEmpty
                 ? Padding(
                     padding: const EdgeInsetsDirectional.only(end: 6.0),
-                    child: FlowyText(
+                    child: FlowyText.emoji(
+                      optimizeEmojiAlign: true,
                       emoji,
                     ),
                   )
