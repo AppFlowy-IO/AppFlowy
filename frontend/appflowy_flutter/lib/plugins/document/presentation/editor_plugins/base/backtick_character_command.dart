@@ -20,11 +20,7 @@ Future<bool> _convertBacktickToCodeBlock({
   required EditorState editorState,
 }) async {
   final selection = editorState.selection;
-  if (selection == null) {
-    return false;
-  }
-
-  if (!selection.isCollapsed) {
+  if (selection == null || !selection.isCollapsed) {
     return false;
   }
 
