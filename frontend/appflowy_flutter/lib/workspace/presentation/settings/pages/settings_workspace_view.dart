@@ -1284,7 +1284,7 @@ class _DocumentPaddingSetting extends StatelessWidget {
                 const Spacer(),
                 SettingsResetButton(
                   onResetRequested: () =>
-                      context.read<DocumentAppearanceCubit>().syncPadding(null),
+                      context.read<DocumentAppearanceCubit>().syncWidth(null),
                 ),
               ],
             ),
@@ -1294,7 +1294,7 @@ class _DocumentPaddingSetting extends StatelessWidget {
               padding: const EdgeInsets.only(right: 4),
               child: _DocumentPaddingSlider(
                 onPaddingChanged: (value) {
-                  context.read<DocumentAppearanceCubit>().syncPadding(value);
+                  context.read<DocumentAppearanceCubit>().syncWidth(value);
                 },
               ),
             ),
@@ -1317,18 +1317,16 @@ class _DocumentPaddingSlider extends StatefulWidget {
 }
 
 class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
-  double padding = 40;
+  double width = 480;
 
-  final double minPadding = 40;
-  final double maxPadding = 580;
+  final double minWidth = 480;
+  final double maxWidth = 480 * 3;
 
   @override
   void initState() {
     super.initState();
 
-    padding = _formatPadding(
-      context.read<DocumentAppearanceCubit>().state.padding,
-    );
+    width = context.read<DocumentAppearanceCubit>().state.width;
   }
 
   @override
@@ -1342,22 +1340,16 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
             overlayShape: SliderComponentShape.noThumb,
           ),
       child: Slider(
-        value: padding,
-        min: minPadding,
-        max: maxPadding,
+        value: width.clamp(minWidth, maxWidth),
+        min: minWidth,
+        max: maxWidth,
         divisions: 10,
         onChanged: (value) {
-          setState(() => padding = value);
+          setState(() => width = value);
 
-          widget.onPaddingChanged(_formatPadding(value));
+          widget.onPaddingChanged(value);
         },
       ),
     );
-  }
-
-  double _formatPadding(double value) {
-    // we use padding to control the width of the document, so the value is inverted
-    final formattedValue = (maxPadding - value) + minPadding;
-    return formattedValue.clamp(minPadding, maxPadding);
   }
 }

@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.d
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
-import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
@@ -108,9 +107,7 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
       editorState: state.editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,
-        padding: EdgeInsets.symmetric(
-          horizontal: context.read<DocumentAppearanceCubit>().state.padding,
-        ),
+        padding: EditorStyleCustomizer.documentPadding,
       ),
       header: _buildDatabaseDataContent(context, state.editorState!),
       initialSelection: widget.initialSelection,
@@ -139,8 +136,7 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
           return state.when(
             loading: () => const SizedBox.shrink(),
             ready: (databaseController, rowController) {
-              final padding =
-                  context.read<DocumentAppearanceCubit>().state.padding;
+              final padding = EditorStyleCustomizer.documentPadding;
               return BlocProvider(
                 create: (context) => RowDetailBloc(
                   fieldController: databaseController.fieldController,
@@ -149,8 +145,8 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
                 child: Padding(
                   padding: EdgeInsets.only(
                     top: 24,
-                    left: padding + 16 + 6,
-                    right: padding,
+                    left: padding.left + 22,
+                    right: padding.right,
                   ),
                   child: Column(
                     children: [

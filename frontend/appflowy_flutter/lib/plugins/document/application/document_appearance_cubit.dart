@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
-import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
-import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +13,7 @@ class DocumentAppearance {
     required this.fontSize,
     required this.fontFamily,
     required this.codeFontFamily,
-    required this.padding,
+    required this.width,
     this.cursorColor,
     this.selectionColor,
     this.defaultTextDirection,
@@ -28,7 +25,7 @@ class DocumentAppearance {
   final Color? cursorColor;
   final Color? selectionColor;
   final String? defaultTextDirection;
-  final double padding;
+  final double width;
 
   /// For nullable fields (like `cursorColor`),
   /// use the corresponding `isNull` flag (like `cursorColorIsNull`) to explicitly set the field to `null`.
@@ -45,7 +42,7 @@ class DocumentAppearance {
     bool cursorColorIsNull = false,
     bool selectionColorIsNull = false,
     bool textDirectionIsNull = false,
-    double? padding,
+    double? width,
   }) {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
@@ -57,7 +54,7 @@ class DocumentAppearance {
       defaultTextDirection: textDirectionIsNull
           ? null
           : defaultTextDirection ?? this.defaultTextDirection,
-      padding: padding ?? this.padding,
+      width: width ?? this.width,
     );
   }
 }
@@ -69,7 +66,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
             fontSize: 16.0,
             fontFamily: defaultFontFamily,
             codeFontFamily: builtInCodeFontFamily,
-            padding: UniversalPlatform.isMobile ? 24 : 40,
+            width: UniversalPlatform.isMobile ? double.infinity : 480,
           ),
         );
 
@@ -91,7 +88,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     final selectionColor = selectionColorString != null
         ? Color(int.parse(selectionColorString))
         : null;
-    final double? padding = prefs.getDouble(KVKeys.kDocumentAppearancePadding);
+    final double? width = prefs.getDouble(KVKeys.kDocumentAppearanceWidth);
 
     final textScaleFactor =
         double.parse(prefs.getString(KVKeys.textScaleFactor) ?? '1.0');
@@ -110,7 +107,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         cursorColorIsNull: cursorColor == null,
         selectionColorIsNull: selectionColor == null,
         textDirectionIsNull: defaultTextDirection == null,
-        padding: padding,
+        width: width,
       ),
     );
   }
@@ -198,26 +195,14 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     }
   }
 
-  Future<void> syncPadding(double? padding) async {
+  Future<void> syncWidth(double? width) async {
     final prefs = await SharedPreferences.getInstance();
 
-    padding ??= UniversalPlatform.isMobile ? 24 : 40;
-    await prefs.setDouble(KVKeys.kDocumentAppearancePadding, padding);
+    width ??= UniversalPlatform.isMobile ? double.infinity : 480;
+    await prefs.setDouble(KVKeys.kDocumentAppearanceWidth, width);
 
     if (!isClosed) {
-      emit(state.copyWith(padding: padding));
+      emit(state.copyWith(width: width));
     }
-  }
-
-  double formattedPadding(BuildContext context) {
-    final homeSetting = context.read<HomeSettingBloc>().state;
-    final menuWidth =
-        homeSetting.isMenuCollapsed ? 0 : HomeLayout(context).menuWidth;
-    final width = MediaQuery.of(context).size.width - menuWidth;
-    // leave at least 220 width for the editor, otherwise, the editor will be too narrow
-    final minWidth = 220 * MediaQuery.of(context).devicePixelRatio;
-    final maxPadding =
-        homeSetting.isMenuCollapsed ? width / 4 : (width - minWidth) / 2;
-    return min(state.padding, max(0, maxPadding));
   }
 }

@@ -31,10 +31,16 @@ class EditorStyleCustomizer {
   EditorStyleCustomizer({
     required this.context,
     required this.padding,
+    this.width,
   });
 
   final BuildContext context;
   final EdgeInsets padding;
+  final double? width;
+
+  static EdgeInsets get documentPadding => UniversalPlatform.isMobile
+      ? const EdgeInsets.symmetric(horizontal: 24)
+      : const EdgeInsets.only(left: 40, right: 40 + 44);
 
   EditorStyle style() {
     if (UniversalPlatform.isDesktopOrWeb) {
@@ -58,6 +64,7 @@ class EditorStyleCustomizer {
 
     return EditorStyle.desktop(
       padding: padding,
+      maxWidth: width,
       cursorColor: appearance.cursorColor ??
           DefaultAppearanceSettings.getDefaultCursorColor(context),
       selectionColor: appearance.selectionColor ??

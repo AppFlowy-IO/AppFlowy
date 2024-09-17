@@ -146,8 +146,10 @@ class _DocumentPageState extends State<DocumentPage>
     DocumentState state,
     EditorDropManagerState dropState,
   ) {
-    final padding =
-        context.read<DocumentAppearanceCubit>().formattedPadding(context);
+    final padding = EdgeInsets.symmetric(
+      horizontal: UniversalPlatform.isMobile ? 24 : 40,
+    );
+    final width = context.read<DocumentAppearanceCubit>().state.width;
 
     final Widget child;
     if (UniversalPlatform.isMobile) {
@@ -157,9 +159,8 @@ class _DocumentPageState extends State<DocumentPage>
             editorState: state.editorState!,
             styleCustomizer: EditorStyleCustomizer(
               context: context,
-              padding: EdgeInsets.symmetric(
-                horizontal: padding,
-              ),
+              width: width,
+              padding: padding,
             ),
             header: _buildCoverAndIcon(context, state),
             initialSelection: widget.initialSelection,
@@ -248,9 +249,8 @@ class _DocumentPageState extends State<DocumentPage>
           editorState: state.editorState!,
           styleCustomizer: EditorStyleCustomizer(
             context: context,
-            padding: EdgeInsets.symmetric(
-              horizontal: padding,
-            ),
+            width: width,
+            padding: padding,
           ),
           header: _buildCoverAndIcon(context, state),
           initialSelection: widget.initialSelection,

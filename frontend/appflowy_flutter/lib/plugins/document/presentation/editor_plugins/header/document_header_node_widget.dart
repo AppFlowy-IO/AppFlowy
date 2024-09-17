@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -13,10 +14,13 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -151,10 +155,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: context
-                    .read<DocumentAppearanceCubit>()
-                    .formattedPadding(context) +
-                44,
+            left: _calculateIconLeft(),
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -168,6 +169,20 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           ),
       ],
     );
+  }
+
+  double _calculateIconLeft() {
+    final editorWidth = min(
+      context.read<EditorState>().renderBox?.size.width ?? 0,
+      context.read<DocumentAppearanceCubit>().state.width,
+    );
+    final menuWidth = context.read<HomeSettingBloc>().state.isMenuCollapsed
+        ? 0
+        : HomeLayout(context).menuWidth;
+    final width = MediaQuery.of(context).size.width - menuWidth;
+    final left = (width - editorWidth) / 2.0 +
+        EditorStyleCustomizer.documentPadding.right;
+    return left;
   }
 
   double _calculateOverallHeight() {
@@ -258,20 +273,10 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       alignment: Alignment.bottomLeft,
       width: double.infinity,
       padding: UniversalPlatform.isDesktopOrWeb
-          ? EdgeInsets.symmetric(
-              horizontal: context
-                  .read<DocumentAppearanceCubit>()
-                  .state
-                  .padding
-                  .toDouble(),
+          ? const EdgeInsets.symmetric(
+              horizontal: 40,
             )
-          : EdgeInsets.symmetric(
-              horizontal: context
-                  .read<DocumentAppearanceCubit>()
-                  .state
-                  .padding
-                  .toDouble(),
-            ),
+          : const EdgeInsets.symmetric(horizontal: 24),
       child: SizedBox(
         height: 28,
         child: Row(
