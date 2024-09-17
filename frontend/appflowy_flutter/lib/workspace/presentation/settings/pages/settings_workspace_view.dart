@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -45,6 +43,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -125,6 +124,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                   _ThemeDropdown(),
                   _DocumentCursorColorSetting(),
                   _DocumentSelectionColorSetting(),
+                  _DocumentPaddingSetting(),
                 ],
               ),
               const SettingsCategorySpacer(),
@@ -1264,5 +1264,120 @@ class _SelectionColorValueWidget extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _DocumentPaddingSetting extends StatelessWidget {
+  const _DocumentPaddingSetting();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+      builder: (context, state) {
+        return SettingListTile(
+          label: LocaleKeys.settings_appearance_documentSettings_width.tr(),
+          resetButtonKey: const Key('DocumentSelectionColorResetButton'),
+          onResetRequested: () {
+            showConfirmDialog(
+              context: context,
+              title: LocaleKeys.settings_workspacePage_resetSelectionColor_title
+                  .tr(),
+              description: LocaleKeys
+                  .settings_workspacePage_resetSelectionColor_description
+                  .tr(),
+              style: ConfirmPopupStyle.cancelAndOk,
+              confirmLabel: LocaleKeys.settings_common_reset.tr(),
+              onConfirm: () =>
+                  context.read<DocumentAppearanceCubit>().syncPadding(null),
+            );
+          },
+          trailing: [
+            AppFlowyPopover(
+              direction: PopoverDirection.bottomWithCenterAligned,
+              offset: const Offset(0, 10),
+              popupBuilder: (context) {
+                return SizedBox(
+                  height: 32,
+                  child: _DocumentPaddingSlider(
+                    onPaddingChanged: (value) {
+                      context
+                          .read<DocumentAppearanceCubit>()
+                          .syncPadding(value);
+                    },
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4.0),
+                child: OutlinedRoundedButton(
+                  text: LocaleKeys
+                      .settings_appearance_documentSettings_changeWidth
+                      .tr(),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DocumentPaddingSlider extends StatefulWidget {
+  const _DocumentPaddingSlider({
+    required this.onPaddingChanged,
+  });
+
+  final void Function(double) onPaddingChanged;
+
+  @override
+  State<_DocumentPaddingSlider> createState() => _DocumentPaddingSliderState();
+}
+
+class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
+  double padding = 40;
+
+  final double minPadding = 40;
+  final double maxPadding = 440;
+
+  @override
+  void initState() {
+    super.initState();
+
+    padding = _formatPadding(
+      context.read<DocumentAppearanceCubit>().state.padding,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SliderTheme(
+      data: Theme.of(context).sliderTheme.copyWith(
+            showValueIndicator: ShowValueIndicator.never,
+            thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 8,
+            ),
+            overlayShape: const RoundSliderOverlayShape(
+              overlayRadius: 16,
+            ),
+          ),
+      child: Slider(
+        value: padding,
+        min: minPadding,
+        max: maxPadding,
+        divisions: 10,
+        onChanged: (value) {
+          setState(() => padding = value);
+
+          widget.onPaddingChanged(_formatPadding(value));
+        },
+      ),
+    );
+  }
+
+  double _formatPadding(double value) {
+    // we use padding to control the width of the document, so the value is inverted
+    final formattedValue = (maxPadding - value) + minPadding;
+    return formattedValue.clamp(minPadding, maxPadding);
   }
 }

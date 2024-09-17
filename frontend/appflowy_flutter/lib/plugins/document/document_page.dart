@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
@@ -145,6 +146,9 @@ class _DocumentPageState extends State<DocumentPage>
     DocumentState state,
     EditorDropManagerState dropState,
   ) {
+    final padding =
+        context.read<DocumentAppearanceCubit>().formattedPadding(context);
+
     final Widget child;
     if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
@@ -153,8 +157,9 @@ class _DocumentPageState extends State<DocumentPage>
             editorState: state.editorState!,
             styleCustomizer: EditorStyleCustomizer(
               context: context,
-              // the 44 is the width of the left action list
-              padding: EditorStyleCustomizer.documentPadding,
+              padding: EdgeInsets.symmetric(
+                horizontal: padding,
+              ),
             ),
             header: _buildCoverAndIcon(context, state),
             initialSelection: widget.initialSelection,
@@ -243,8 +248,9 @@ class _DocumentPageState extends State<DocumentPage>
           editorState: state.editorState!,
           styleCustomizer: EditorStyleCustomizer(
             context: context,
-            // the 44 is the width of the left action list
-            padding: EditorStyleCustomizer.documentPadding,
+            padding: EdgeInsets.symmetric(
+              horizontal: padding,
+            ),
           ),
           header: _buildCoverAndIcon(context, state),
           initialSelection: widget.initialSelection,

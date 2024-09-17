@@ -28,7 +28,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class EditorStyleCustomizer {
-  EditorStyleCustomizer({required this.context, required this.padding});
+  EditorStyleCustomizer({
+    required this.context,
+    required this.padding,
+  });
 
   final BuildContext context;
   final EdgeInsets padding;
@@ -41,10 +44,6 @@ class EditorStyleCustomizer {
     }
     throw UnimplementedError();
   }
-
-  static EdgeInsets get documentPadding => UniversalPlatform.isMobile
-      ? const EdgeInsets.only(left: 24, right: 24)
-      : const EdgeInsets.only(left: 40, right: 40 + 44);
 
   EditorStyle desktop() {
     final theme = Theme.of(context);

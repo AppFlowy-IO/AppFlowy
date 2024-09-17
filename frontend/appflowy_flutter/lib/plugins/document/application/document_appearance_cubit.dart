@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
@@ -6,12 +7,14 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DocumentAppearance {
   const DocumentAppearance({
     required this.fontSize,
     required this.fontFamily,
     required this.codeFontFamily,
+    required this.padding,
     this.cursorColor,
     this.selectionColor,
     this.defaultTextDirection,
@@ -23,6 +26,7 @@ class DocumentAppearance {
   final Color? cursorColor;
   final Color? selectionColor;
   final String? defaultTextDirection;
+  final double padding;
 
   /// For nullable fields (like `cursorColor`),
   /// use the corresponding `isNull` flag (like `cursorColorIsNull`) to explicitly set the field to `null`.
@@ -39,6 +43,7 @@ class DocumentAppearance {
     bool cursorColorIsNull = false,
     bool selectionColorIsNull = false,
     bool textDirectionIsNull = false,
+    double? padding,
   }) {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
@@ -50,6 +55,7 @@ class DocumentAppearance {
       defaultTextDirection: textDirectionIsNull
           ? null
           : defaultTextDirection ?? this.defaultTextDirection,
+      padding: padding ?? this.padding,
     );
   }
 }
@@ -57,10 +63,11 @@ class DocumentAppearance {
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit()
       : super(
-          const DocumentAppearance(
+          DocumentAppearance(
             fontSize: 16.0,
             fontFamily: defaultFontFamily,
             codeFontFamily: builtInCodeFontFamily,
+            padding: UniversalPlatform.isMobile ? 24 : 40,
           ),
         );
 
@@ -82,6 +89,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     final selectionColor = selectionColorString != null
         ? Color(int.parse(selectionColorString))
         : null;
+    final double? padding = prefs.getDouble(KVKeys.kDocumentAppearancePadding);
 
     final textScaleFactor =
         double.parse(prefs.getString(KVKeys.textScaleFactor) ?? '1.0');
@@ -100,6 +108,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         cursorColorIsNull: cursorColor == null,
         selectionColorIsNull: selectionColor == null,
         textDirectionIsNull: defaultTextDirection == null,
+        padding: padding ?? 200.0,
       ),
     );
   }
@@ -185,5 +194,26 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         ),
       );
     }
+  }
+
+  Future<void> syncPadding(double? padding) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    padding ??= UniversalPlatform.isMobile ? 24 : 40;
+    await prefs.setDouble(KVKeys.kDocumentAppearancePadding, padding);
+
+    if (!isClosed) {
+      emit(state.copyWith(padding: padding));
+    }
+  }
+
+  double formattedPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    double padding = state.padding;
+    // leave at least 360 width for the editor, otherwise, the editor will be too narrow
+    final double minWidth = 360 * MediaQuery.of(context).devicePixelRatio;
+    final double maxPadding = (width - minWidth) / 2;
+    padding = min(padding, maxPadding);
+    return padding;
   }
 }

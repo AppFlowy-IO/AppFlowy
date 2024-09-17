@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -14,7 +13,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
-import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -25,6 +23,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
@@ -152,7 +151,10 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: UniversalPlatform.isDesktopOrWeb ? 80 : 20,
+            left: context
+                    .read<DocumentAppearanceCubit>()
+                    .formattedPadding(context) +
+                44,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -257,10 +259,18 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       width: double.infinity,
       padding: UniversalPlatform.isDesktopOrWeb
           ? EdgeInsets.symmetric(
-              horizontal: EditorStyleCustomizer.documentPadding.right,
+              horizontal: context
+                  .read<DocumentAppearanceCubit>()
+                  .state
+                  .padding
+                  .toDouble(),
             )
           : EdgeInsets.symmetric(
-              horizontal: EditorStyleCustomizer.documentPadding.left,
+              horizontal: context
+                  .read<DocumentAppearanceCubit>()
+                  .state
+                  .padding
+                  .toDouble(),
             ),
       child: SizedBox(
         height: 28,
