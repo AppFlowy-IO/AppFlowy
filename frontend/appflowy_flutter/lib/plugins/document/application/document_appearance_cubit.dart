@@ -3,9 +3,11 @@ import 'dart:math';
 
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
-import 'package:bloc/bloc.dart';
+import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -208,10 +210,14 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   }
 
   double formattedPadding(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    // leave at least 360 width for the editor, otherwise, the editor will be too narrow
-    final minWidth = 360 * MediaQuery.of(context).devicePixelRatio;
-    final maxPadding = (width - minWidth) / 2;
+    final homeSetting = context.read<HomeSettingBloc>().state;
+    final menuWidth =
+        homeSetting.isMenuCollapsed ? 0 : HomeLayout(context).menuWidth;
+    final width = MediaQuery.of(context).size.width - menuWidth;
+    // leave at least 220 width for the editor, otherwise, the editor will be too narrow
+    final minWidth = 220 * MediaQuery.of(context).devicePixelRatio;
+    final maxPadding =
+        homeSetting.isMenuCollapsed ? width / 4 : (width - minWidth) / 2;
     return min(state.padding, max(0, maxPadding));
   }
 }

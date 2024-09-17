@@ -1274,40 +1274,28 @@ class _DocumentPaddingSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (context, state) {
-        return SettingListTile(
-          label: LocaleKeys.settings_appearance_documentSettings_width.tr(),
-          resetButtonKey: const Key('DocumentSelectionColorResetButton'),
-          onResetRequested: () {
-            context.read<DocumentAppearanceCubit>().syncPadding(null);
-            showToastNotification(
-              context,
-              message: LocaleKeys.settings_workspacePage_resetWidth_resetSuccess
-                  .tr(),
-            );
-          },
-          trailing: [
-            AppFlowyPopover(
-              direction: PopoverDirection.bottomWithCenterAligned,
-              offset: const Offset(0, 10),
-              popupBuilder: (context) {
-                return SizedBox(
-                  height: 32,
-                  child: _DocumentPaddingSlider(
-                    onPaddingChanged: (value) {
-                      context
-                          .read<DocumentAppearanceCubit>()
-                          .syncPadding(value);
-                    },
-                  ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4.0),
-                child: OutlinedRoundedButton(
-                  text: LocaleKeys
-                      .settings_appearance_documentSettings_changeWidth
-                      .tr(),
+        return Column(
+          children: [
+            Row(
+              children: [
+                FlowyText.medium(
+                  LocaleKeys.settings_appearance_documentSettings_width.tr(),
                 ),
+                const Spacer(),
+                SettingsResetButton(
+                  onResetRequested: () =>
+                      context.read<DocumentAppearanceCubit>().syncPadding(null),
+                ),
+              ],
+            ),
+            const VSpace(6),
+            Container(
+              height: 32,
+              padding: const EdgeInsets.only(right: 4),
+              child: _DocumentPaddingSlider(
+                onPaddingChanged: (value) {
+                  context.read<DocumentAppearanceCubit>().syncPadding(value);
+                },
               ),
             ),
           ],
@@ -1332,7 +1320,7 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
   double padding = 40;
 
   final double minPadding = 40;
-  final double maxPadding = 440;
+  final double maxPadding = 580;
 
   @override
   void initState() {
@@ -1351,9 +1339,7 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 8,
             ),
-            overlayShape: const RoundSliderOverlayShape(
-              overlayRadius: 16,
-            ),
+            overlayShape: SliderComponentShape.noThumb,
           ),
       child: Slider(
         value: padding,
