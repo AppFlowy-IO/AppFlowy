@@ -454,11 +454,6 @@ class _GridRowsState extends State<_GridRows> {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
-    final rowController = RowController(
-      viewId: viewId,
-      rowMeta: rowMeta,
-      rowCache: rowCache,
-    );
 
     final child = GridRow(
       key: ValueKey(rowId),
@@ -466,18 +461,31 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
-      rowController: rowController,
+      rowController: RowController(
+        viewId: viewId,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      ),
       cellBuilder: EditableCellBuilder(databaseController: databaseController),
       openDetailPage: (rowDetailContext) => FlowyOverlay.show(
         context: rowDetailContext,
-        builder: (_) => BlocProvider.value(
-          value: context.read<ViewBloc>(),
-          child: RowDetailPage(
-            rowController: rowController,
-            databaseController: databaseController,
-            userProfile: context.read<GridBloc>().userProfile,
-          ),
-        ),
+        builder: (_) {
+          final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+          return rowMeta == null
+              ? const SizedBox.shrink()
+              : BlocProvider.value(
+                  value: context.read<ViewBloc>(),
+                  child: RowDetailPage(
+                    rowController: RowController(
+                      viewId: viewId,
+                      rowMeta: rowMeta,
+                      rowCache: rowCache,
+                    ),
+                    databaseController: databaseController,
+                    userProfile: context.read<GridBloc>().userProfile,
+                  ),
+                );
+        },
       ),
     );
 
