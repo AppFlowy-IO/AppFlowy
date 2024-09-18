@@ -300,7 +300,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           reset: (userProfile, workspaceId, openFirstPage) async {
-            if (workspaceId == workspaceId) {
+            if (this.workspaceId == workspaceId) {
               return;
             }
 
@@ -443,9 +443,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
+    Log.info('initial(or reset) space bloc: $workspaceId, ${userProfile.id}');
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
-    workspaceId = workspaceId;
+
     this.userProfile = userProfile;
+    this.workspaceId = workspaceId;
 
     _listener = WorkspaceSectionsListener(
       user: userProfile,
@@ -465,7 +467,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     _listener?.stop();
     _listener = null;
 
-    _initial(userProfile, workspaceId);
+    this.userProfile = userProfile;
+    this.workspaceId = workspaceId;
   }
 
   Future<ViewPB?> _getLastOpenedSpace(List<ViewPB> spaces) async {
