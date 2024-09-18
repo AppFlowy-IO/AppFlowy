@@ -1,3 +1,9 @@
+import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/appflowy_cache_manager.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/share_log_files.dart';
+import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/settings_ai_view.dart';
@@ -7,11 +13,16 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_d
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -159,39 +170,148 @@ class _SimpleSettingsDialogState extends State<SimpleSettingsDialog> {
     return FlowyDialog(
       width: MediaQuery.of(context).size.width * 0.7,
       constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
-      child: ScaffoldMessenger(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                width: 200,
-                child: SimpleSettingsMenu(),
-              ),
-              Expanded(
-                child: getSettingsView(),
-              ),
-            ],
-          ),
+      child: const Padding(
+        padding: EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // language
+            _LanguageSettings(),
+            SettingsCategorySpacer(),
+            // self-host cloud
+            _SelfHostSettings(),
+            SettingsCategorySpacer(),
+            // support
+            _SupportSettings(),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget getSettingsView() {
-    switch (page) {
-      case SettingsPage.cloud:
-        return SettingCloud(
-          restartAppFlowy: () {
-            // Navigator.of(dialogContext).pop();
-            // await runAppFlowy();
-          },
-        );
-      case SettingsPage.featureFlags:
-        return const FeatureFlagsPage();
-      default:
-        return const SizedBox.shrink();
+class _LanguageSettings extends StatelessWidget {
+  const _LanguageSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsCategory(
+      title: LocaleKeys.settings_workspacePage_language_title.tr(),
+      children: const [LanguageDropdown()],
+    );
+  }
+}
+
+class _SelfHostSettings extends StatefulWidget {
+  const _SelfHostSettings();
+
+  @override
+  State<_SelfHostSettings> createState() => _SelfHostSettingsState();
+}
+
+class _SelfHostSettingsState extends State<_SelfHostSettings> {
+  final textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    getAppFlowyCloudUrl().then((url) {
+      textController.text = url;
+    });
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsCategory(
+      title: LocaleKeys.settings_menu_cloudAppFlowySelfHost.tr(),
+      children: [
+        SizedBox(
+          height: 48,
+          child: FlowyTextField(
+            controller: textController,
+            autoFocus: false,
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+            onEditingComplete: _saveSelfHostUrl,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _saveSelfHostUrl() {
+    final url = textController.text;
+    if (url.isEmpty) {
+      return;
     }
+
+    validateUrl(url).fold(
+      (url) async {
+        Navigator.of(context).pop();
+        await useSelfHostedAppFlowyCloudWithURL(url);
+        await runAppFlowy();
+      },
+      (err) => Log.error(err),
+    );
+  }
+}
+
+class _SupportSettings extends StatelessWidget {
+  const _SupportSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsCategory(
+      title: LocaleKeys.settings_mobile_support.tr(),
+      children: [
+        // export logs
+        Row(
+          children: [
+            FlowyText(
+              LocaleKeys.workspace_errorActions_exportLogFiles.tr(),
+            ),
+            const Spacer(),
+            OutlinedRoundedButton(
+              text: LocaleKeys.settings_files_export.tr(),
+              onTap: () {
+                shareLogFiles(context);
+              },
+            ),
+          ],
+        ),
+        // clear cache
+        Row(
+          children: [
+            FlowyText(
+              LocaleKeys.settings_files_clearCache.tr(),
+            ),
+            const Spacer(),
+            OutlinedRoundedButton(
+              text: LocaleKeys.button_clear.tr(),
+              onTap: () async {
+                await getIt<FlowyCacheManager>().clearAllCache();
+                if (context.mounted) {
+                  showToastNotification(
+                    context,
+                    message: LocaleKeys
+                        .settings_manageDataPage_cache_dialog_successHint
+                        .tr(),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

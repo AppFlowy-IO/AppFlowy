@@ -108,9 +108,7 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
             },
             child: BlocBuilder<AnonUserBloc, AnonUserState>(
               builder: (context, state) {
-                final text = state.anonUsers.isEmpty
-                    ? LocaleKeys.signIn_loginStartWithAnonymous.tr()
-                    : LocaleKeys.signIn_anonymous.tr();
+                final text = LocaleKeys.signIn_anonymous.tr();
                 final onTap = state.anonUsers.isEmpty
                     ? () {
                         context
