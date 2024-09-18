@@ -17,10 +17,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
-import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
-import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -131,66 +129,74 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final offset = _calculateIconLeft();
-    return Stack(
-      children: [
-        SizedBox(
-          height: _calculateOverallHeight(),
-          child: DocumentHeaderToolbar(
-            onIconOrCoverChanged: _saveIconOrCover,
-            node: widget.node,
-            editorState: widget.editorState,
-            hasCover: hasCover,
-            hasIcon: hasIcon,
-            offset: offset,
-          ),
-        ),
-        if (hasCover)
-          DocumentCover(
-            view: view,
-            editorState: widget.editorState,
-            node: widget.node,
-            coverType: coverType,
-            coverDetails: coverDetails,
-            onChangeCover: (type, details) =>
-                _saveIconOrCover(cover: (type, details)),
-          ),
-        if (hasIcon)
-          Positioned(
-            left: offset,
-            // if hasCover, there shouldn't be icons present so the icon can
-            // be closer to the bottom.
-            bottom:
-                hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
-            child: DocumentIcon(
-              editorState: widget.editorState,
-              node: widget.node,
-              icon: viewIcon,
-              onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final offset = _calculateIconLeft(context, constraints);
+        return Stack(
+          children: [
+            SizedBox(
+              height: _calculateOverallHeight(),
+              child: DocumentHeaderToolbar(
+                onIconOrCoverChanged: _saveIconOrCover,
+                node: widget.node,
+                editorState: widget.editorState,
+                hasCover: hasCover,
+                hasIcon: hasIcon,
+                offset: offset,
+              ),
             ),
-          ),
-      ],
+            if (hasCover)
+              DocumentCover(
+                view: view,
+                editorState: widget.editorState,
+                node: widget.node,
+                coverType: coverType,
+                coverDetails: coverDetails,
+                onChangeCover: (type, details) =>
+                    _saveIconOrCover(cover: (type, details)),
+              ),
+            if (hasIcon)
+              Positioned(
+                left: offset,
+                // if hasCover, there shouldn't be icons present so the icon can
+                // be closer to the bottom.
+                bottom: hasCover
+                    ? kToolbarHeight - kIconHeight / 2
+                    : kToolbarHeight,
+                child: DocumentIcon(
+                  editorState: widget.editorState,
+                  node: widget.node,
+                  icon: viewIcon,
+                  onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
-  double _calculateIconLeft() {
+  double _calculateIconLeft(BuildContext context, BoxConstraints constraints) {
     final editorState = context.read<EditorState>();
+    final appearanceCubit = context.read<DocumentAppearanceCubit>();
+
     final renderBox = editorState.renderBox;
     var renderBoxWidth = 0.0;
     if (renderBox != null && renderBox.hasSize) {
       renderBoxWidth = renderBox.size.width;
     }
-    final editorWidth = min(
-      renderBoxWidth,
-      context.read<DocumentAppearanceCubit>().state.width,
-    );
-    final menuWidth = context.read<HomeSettingBloc>().state.isMenuCollapsed
-        ? 0
-        : HomeLayout(context).menuWidth;
-    final width = MediaQuery.of(context).size.width - menuWidth;
-    final left = (width - editorWidth) / 2.0 +
+
+    // if the renderBox width equals to 0, it means the editor is not initialized
+    final editorWidth = renderBoxWidth != 0
+        ? min(renderBoxWidth, appearanceCubit.state.width)
+        : appearanceCubit.state.width;
+
+    // left padding + editor width + right padding = the width of the editor
+    final leftOffset = (constraints.maxWidth - editorWidth) / 2.0 +
         EditorStyleCustomizer.documentPadding.right;
-    return max(0, left);
+
+    // ensure the offset is not negative
+    return max(0, leftOffset);
   }
 
   double _calculateOverallHeight() {
