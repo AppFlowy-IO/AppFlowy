@@ -2051,7 +2051,6 @@ dependencies = [
  "strum",
  "strum_macros 0.25.2",
  "tokio",
- "tokio-retry",
  "tokio-util",
  "tracing",
  "url",
