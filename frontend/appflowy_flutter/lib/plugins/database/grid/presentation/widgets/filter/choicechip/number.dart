@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -32,27 +33,50 @@ class _NumberFilterChoiceChipState extends State<NumberFilterChoiceChip> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => NumberFilterEditorBloc(
+      create: (_) => NumberFilterBloc(
         filterInfo: widget.filterInfo,
       ),
-      child: BlocBuilder<NumberFilterEditorBloc, NumberFilterEditorState>(
-        builder: (context, state) {
+      child: Builder(
+        builder: (context) {
           return AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(200, 100)),
             direction: PopoverDirection.bottomWithCenterAligned,
             popupBuilder: (_) {
-              return BlocProvider.value(
-                value: context.read<NumberFilterEditorBloc>(),
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(
+                    value: context.read<NumberFilterBloc>(),
+                  ),
+                  BlocProvider.value(
+                    value: context.read<FilterEditorBloc>(),
+                  ),
+                ],
                 child: const NumberFilterEditor(),
               );
             },
-            child: ChoiceChipButton(
-              filterInfo: state.filterInfo,
+            child: BlocBuilder<NumberFilterBloc, NumberFilterState>(
+              builder: (context, state) {
+                return ChoiceChipButton(
+                  filterInfo: state.filterInfo,
+                  filterDesc: _makeFilterDesc(state),
+                );
+              },
             ),
           );
         },
       ),
     );
+  }
+
+  String _makeFilterDesc(NumberFilterState state) {
+    final condition = state.filter.condition;
+
+    if (condition == NumberFilterConditionPB.NumberIsEmpty ||
+        condition == NumberFilterConditionPB.NumberIsNotEmpty) {
+      return condition.shortName;
+    }
+
+    return "${condition.shortName} ${state.filter.content}";
   }
 }
 
@@ -74,10 +98,10 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NumberFilterEditorBloc, NumberFilterEditorState>(
+    return BlocBuilder<NumberFilterBloc, NumberFilterState>(
       builder: (context, state) {
         final List<Widget> children = [
-          _buildFilterPanel(context, state),
+          _buildFilterPanel(state),
           if (state.filter.condition != NumberFilterConditionPB.NumberIsEmpty &&
               state.filter.condition !=
                   NumberFilterConditionPB.NumberIsNotEmpty) ...[
@@ -95,8 +119,7 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-    BuildContext context,
-    NumberFilterEditorState state,
+    NumberFilterState state,
   ) {
     return SizedBox(
       height: 20,
@@ -115,8 +138,8 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
               popoverMutex: popoverMutex,
               onCondition: (condition) {
                 context
-                    .read<NumberFilterEditorBloc>()
-                    .add(NumberFilterEditorEvent.updateCondition(condition));
+                    .read<NumberFilterBloc>()
+                    .add(NumberFilterEvent.updateCondition(condition));
               },
             ),
           ),
@@ -126,9 +149,11 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
             onAction: (action) {
               switch (action) {
                 case FilterDisclosureAction.delete:
-                  context
-                      .read<NumberFilterEditorBloc>()
-                      .add(const NumberFilterEditorEvent.delete());
+                  context.read<FilterEditorBloc>().add(
+                        FilterEditorEvent.deleteFilter(
+                          state.filterInfo.filterId,
+                        ),
+                      );
                   break;
               }
             },
@@ -140,7 +165,7 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
 
   Widget _buildFilterNumberField(
     BuildContext context,
-    NumberFilterEditorState state,
+    NumberFilterState state,
   ) {
     return FlowyTextField(
       text: state.filter.content,
@@ -149,8 +174,8 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
       autoFocus: false,
       onChanged: (text) {
         context
-            .read<NumberFilterEditorBloc>()
-            .add(NumberFilterEditorEvent.updateContent(text));
+            .read<NumberFilterBloc>()
+            .add(NumberFilterEvent.updateContent(text));
       },
     );
   }
@@ -212,6 +237,22 @@ class ConditionWrapper extends ActionCell {
 }
 
 extension NumberFilterConditionPBExtension on NumberFilterConditionPB {
+  String get shortName {
+    return switch (this) {
+      NumberFilterConditionPB.Equal => "=",
+      NumberFilterConditionPB.NotEqual => "≠",
+      NumberFilterConditionPB.LessThan => "<",
+      NumberFilterConditionPB.LessThanOrEqualTo => "≤",
+      NumberFilterConditionPB.GreaterThan => ">",
+      NumberFilterConditionPB.GreaterThanOrEqualTo => "≥",
+      NumberFilterConditionPB.NumberIsEmpty =>
+        LocaleKeys.grid_numberFilter_isEmpty.tr(),
+      NumberFilterConditionPB.NumberIsNotEmpty =>
+        LocaleKeys.grid_numberFilter_isNotEmpty.tr(),
+      _ => "",
+    };
+  }
+
   String get filterName {
     return switch (this) {
       NumberFilterConditionPB.Equal => LocaleKeys.grid_numberFilter_equal.tr(),

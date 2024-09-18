@@ -9,15 +9,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'number_filter_editor_bloc.freezed.dart';
 
-class NumberFilterEditorBloc
-    extends Bloc<NumberFilterEditorEvent, NumberFilterEditorState> {
-  NumberFilterEditorBloc({required this.filterInfo})
+class NumberFilterBloc extends Bloc<NumberFilterEvent, NumberFilterState> {
+  NumberFilterBloc({required this.filterInfo})
       : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
-        super(NumberFilterEditorState.initial(filterInfo)) {
+        super(NumberFilterState.initial(filterInfo)) {
     _dispatch();
     _startListening();
   }
@@ -27,7 +26,7 @@ class NumberFilterEditorBloc
   final FilterListener _listener;
 
   void _dispatch() {
-    on<NumberFilterEditorEvent>(
+    on<NumberFilterEvent>(
       (event, emit) async {
         event.when(
           didReceiveFilter: (filter) {
@@ -55,12 +54,6 @@ class NumberFilterEditorBloc
               content: content,
             );
           },
-          delete: () {
-            _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
-              filterId: filterInfo.filter.id,
-            );
-          },
         );
       },
     );
@@ -70,7 +63,7 @@ class NumberFilterEditorBloc
     _listener.start(
       onUpdated: (filter) {
         if (!isClosed) {
-          add(NumberFilterEditorEvent.didReceiveFilter(filter));
+          add(NumberFilterEvent.didReceiveFilter(filter));
         }
       },
     );
@@ -84,26 +77,25 @@ class NumberFilterEditorBloc
 }
 
 @freezed
-class NumberFilterEditorEvent with _$NumberFilterEditorEvent {
-  const factory NumberFilterEditorEvent.didReceiveFilter(FilterPB filter) =
+class NumberFilterEvent with _$NumberFilterEvent {
+  const factory NumberFilterEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
-  const factory NumberFilterEditorEvent.updateCondition(
+  const factory NumberFilterEvent.updateCondition(
     NumberFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory NumberFilterEditorEvent.updateContent(String content) =
+  const factory NumberFilterEvent.updateContent(String content) =
       _UpdateContent;
-  const factory NumberFilterEditorEvent.delete() = _Delete;
 }
 
 @freezed
-class NumberFilterEditorState with _$NumberFilterEditorState {
-  const factory NumberFilterEditorState({
+class NumberFilterState with _$NumberFilterState {
+  const factory NumberFilterState({
     required FilterInfo filterInfo,
     required NumberFilterPB filter,
   }) = _NumberFilterEditorState;
 
-  factory NumberFilterEditorState.initial(FilterInfo filterInfo) {
-    return NumberFilterEditorState(
+  factory NumberFilterState.initial(FilterInfo filterInfo) {
+    return NumberFilterState(
       filterInfo: filterInfo,
       filter: filterInfo.numberFilter()!,
     );

@@ -51,6 +51,9 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
           createFilter: (field) {
             return _createDefaultFilter(field);
           },
+          deleteFilter: (filterId) async {
+            return _filterBackendSvc.deleteFilter(filterId: filterId);
+          },
         );
       },
     );
@@ -164,6 +167,7 @@ class FilterEditorEvent with _$FilterEditorEvent {
   const factory FilterEditorEvent.didReceiveFields(List<FieldInfo> fields) =
       _DidReceiveFields;
   const factory FilterEditorEvent.createFilter(FieldInfo field) = _CreateFilter;
+  const factory FilterEditorEvent.deleteFilter(String filterId) = _DeleteFilter;
 }
 
 @freezed

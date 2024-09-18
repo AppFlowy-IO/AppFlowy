@@ -35,7 +35,6 @@ void main() {
     // delete the filter
     final textFilter = context.fieldController.filterInfos.first;
     await service.deleteFilter(
-      fieldId: textField.id,
       filterId: textFilter.filter.id,
     );
     await gridResponseFuture();
@@ -62,7 +61,6 @@ void main() {
     // delete the filter
     final textFilter = context.fieldController.filterInfos.first;
     await service.deleteFilter(
-      fieldId: textField.id,
       filterId: textFilter.filter.id,
     );
     await gridResponseFuture();
@@ -103,7 +101,6 @@ void main() {
 
     // delete the filter
     await service.deleteFilter(
-      fieldId: textField.id,
       filterId: textFilter.filter.id,
     );
     await gridResponseFuture();
@@ -160,7 +157,6 @@ void main() {
 
     // delete the filter
     await service.deleteFilter(
-      fieldId: textField.id,
       filterId: textFilter.filter.id,
     );
     await gridResponseFuture();

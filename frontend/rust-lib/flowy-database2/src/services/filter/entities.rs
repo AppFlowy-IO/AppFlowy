@@ -490,7 +490,6 @@ pub enum FilterChangeset {
   },
   Delete {
     filter_id: String,
-    field_id: String,
   },
   DeleteAllWithFieldId {
     field_id: String,

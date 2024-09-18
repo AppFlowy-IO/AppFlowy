@@ -8,18 +8,19 @@ import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'checklist_filter_bloc.freezed.dart';
+part 'checklist_filter_editor_bloc.freezed.dart';
 
-class ChecklistFilterEditorBloc
-    extends Bloc<ChecklistFilterEditorEvent, ChecklistFilterEditorState> {
-  ChecklistFilterEditorBloc({required this.filterInfo})
+class ChecklistFilterBloc
+    extends Bloc<ChecklistFilterEvent, ChecklistFilterState> {
+  ChecklistFilterBloc({required this.filterInfo})
       : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
-        super(ChecklistFilterEditorState.initial(filterInfo)) {
+        super(ChecklistFilterState.initial(filterInfo)) {
     _dispatch();
+    _startListening();
   }
 
   final FilterInfo filterInfo;
@@ -27,26 +28,17 @@ class ChecklistFilterEditorBloc
   final FilterListener _listener;
 
   void _dispatch() {
-    on<ChecklistFilterEditorEvent>(
+    on<ChecklistFilterEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            _startListening();
-          },
           updateCondition: (ChecklistFilterConditionPB condition) {
-            _filterBackendSvc.insertChecklistFilter(
+            return _filterBackendSvc.insertChecklistFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
               condition: condition,
             );
           },
-          delete: () {
-            _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
-              filterId: filterInfo.filter.id,
-            );
-          },
-          didReceiveFilter: (FilterPB filter) {
+          didReceiveFilter: (filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final checklistFilter = filterInfo.checklistFilter()!;
             emit(
@@ -65,7 +57,7 @@ class ChecklistFilterEditorBloc
     _listener.start(
       onUpdated: (filter) {
         if (!isClosed) {
-          add(ChecklistFilterEditorEvent.didReceiveFilter(filter));
+          add(ChecklistFilterEvent.didReceiveFilter(filter));
         }
       },
     );
@@ -79,29 +71,25 @@ class ChecklistFilterEditorBloc
 }
 
 @freezed
-class ChecklistFilterEditorEvent with _$ChecklistFilterEditorEvent {
-  const factory ChecklistFilterEditorEvent.initial() = _Initial;
-  const factory ChecklistFilterEditorEvent.didReceiveFilter(FilterPB filter) =
+class ChecklistFilterEvent with _$ChecklistFilterEvent {
+  const factory ChecklistFilterEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
-  const factory ChecklistFilterEditorEvent.updateCondition(
+  const factory ChecklistFilterEvent.updateCondition(
     ChecklistFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory ChecklistFilterEditorEvent.delete() = _Delete;
 }
 
 @freezed
-class ChecklistFilterEditorState with _$ChecklistFilterEditorState {
-  const factory ChecklistFilterEditorState({
+class ChecklistFilterState with _$ChecklistFilterState {
+  const factory ChecklistFilterState({
     required FilterInfo filterInfo,
     required ChecklistFilterPB filter,
-    required String filterDesc,
-  }) = _GridFilterState;
+  }) = _ChecklistFilterState;
 
-  factory ChecklistFilterEditorState.initial(FilterInfo filterInfo) {
-    return ChecklistFilterEditorState(
+  factory ChecklistFilterState.initial(FilterInfo filterInfo) {
+    return ChecklistFilterState(
       filterInfo: filterInfo,
       filter: filterInfo.checklistFilter()!,
-      filterDesc: '',
     );
   }
 }

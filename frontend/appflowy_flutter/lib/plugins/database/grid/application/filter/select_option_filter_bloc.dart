@@ -4,16 +4,15 @@ import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'select_option_filter_bloc.freezed.dart';
 
-class SelectOptionFilterEditorBloc
-    extends Bloc<SelectOptionFilterEditorEvent, SelectOptionFilterEditorState> {
-  SelectOptionFilterEditorBloc({
+class SelectOptionFilterBloc
+    extends Bloc<SelectOptionFilterEvent, SelectOptionFilterState> {
+  SelectOptionFilterBloc({
     required this.filterInfo,
     required this.delegate,
   })  : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
@@ -21,8 +20,14 @@ class SelectOptionFilterEditorBloc
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
-        super(SelectOptionFilterEditorState.initial(filterInfo)) {
+        super(
+          SelectOptionFilterState.initial(
+            filterInfo,
+            delegate.loadOptions(),
+          ),
+        ) {
     _dispatch();
+    _startListening();
   }
 
   final FilterInfo filterInfo;
@@ -31,13 +36,9 @@ class SelectOptionFilterEditorBloc
   final SelectOptionFilterDelegate delegate;
 
   void _dispatch() {
-    on<SelectOptionFilterEditorEvent>(
+    on<SelectOptionFilterEvent>(
       (event, emit) async {
         event.when(
-          initial: () {
-            _startListening();
-            _loadOptions();
-          },
           updateCondition: (SelectOptionFilterConditionPB condition) {
             _filterBackendSvc.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
@@ -56,12 +57,6 @@ class SelectOptionFilterEditorBloc
               fieldType: state.filterInfo.fieldInfo.fieldType,
             );
           },
-          delete: () {
-            _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
-              filterId: filterInfo.filter.id,
-            );
-          },
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final selectOptionFilter = filterInfo.selectOptionFilter()!;
@@ -72,9 +67,6 @@ class SelectOptionFilterEditorBloc
               ),
             );
           },
-          updateFilterDescription: (String desc) {
-            emit(state.copyWith(filterDesc: desc));
-          },
         );
       },
     );
@@ -84,23 +76,10 @@ class SelectOptionFilterEditorBloc
     _listener.start(
       onUpdated: (filter) {
         if (!isClosed) {
-          add(SelectOptionFilterEditorEvent.didReceiveFilter(filter));
+          add(SelectOptionFilterEvent.didReceiveFilter(filter));
         }
       },
     );
-  }
-
-  void _loadOptions() {
-    if (!isClosed) {
-      final options = delegate.loadOptions();
-      String filterDesc = '';
-      for (final option in options) {
-        if (state.filter.optionIds.contains(option.id)) {
-          filterDesc += "${option.name} ";
-        }
-      }
-      add(SelectOptionFilterEditorEvent.updateFilterDescription(filterDesc));
-    }
   }
 
   @override
@@ -111,36 +90,34 @@ class SelectOptionFilterEditorBloc
 }
 
 @freezed
-class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
-  const factory SelectOptionFilterEditorEvent.initial() = _Initial;
-  const factory SelectOptionFilterEditorEvent.didReceiveFilter(
+class SelectOptionFilterEvent with _$SelectOptionFilterEvent {
+  const factory SelectOptionFilterEvent.didReceiveFilter(
     FilterPB filter,
   ) = _DidReceiveFilter;
-  const factory SelectOptionFilterEditorEvent.updateCondition(
+  const factory SelectOptionFilterEvent.updateCondition(
     SelectOptionFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory SelectOptionFilterEditorEvent.updateContent(
+  const factory SelectOptionFilterEvent.updateContent(
     List<String> optionIds,
   ) = _UpdateContent;
-  const factory SelectOptionFilterEditorEvent.updateFilterDescription(
-    String desc,
-  ) = _UpdateDesc;
-  const factory SelectOptionFilterEditorEvent.delete() = _Delete;
 }
 
 @freezed
-class SelectOptionFilterEditorState with _$SelectOptionFilterEditorState {
-  const factory SelectOptionFilterEditorState({
+class SelectOptionFilterState with _$SelectOptionFilterState {
+  const factory SelectOptionFilterState({
     required FilterInfo filterInfo,
     required SelectOptionFilterPB filter,
-    required String filterDesc,
-  }) = _GridFilterState;
+    required List<SelectOptionPB> options,
+  }) = _SelectOptionFilterState;
 
-  factory SelectOptionFilterEditorState.initial(FilterInfo filterInfo) {
-    return SelectOptionFilterEditorState(
+  factory SelectOptionFilterState.initial(
+    FilterInfo filterInfo,
+    List<SelectOptionPB> options,
+  ) {
+    return SelectOptionFilterState(
       filterInfo: filterInfo,
       filter: filterInfo.selectOptionFilter()!,
-      filterDesc: '',
+      options: options,
     );
   }
 }

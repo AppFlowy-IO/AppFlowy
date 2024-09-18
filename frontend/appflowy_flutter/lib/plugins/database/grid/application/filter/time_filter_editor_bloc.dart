@@ -57,7 +57,6 @@ class TimeFilterEditorBloc
           },
           delete: () {
             _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
             );
           },

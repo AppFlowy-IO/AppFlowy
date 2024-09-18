@@ -95,7 +95,7 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
                   SelectOptionFilterListEvent.selectOption(
                     widget.option,
                     context
-                        .read<SelectOptionFilterEditorBloc>()
+                        .read<SelectOptionFilterBloc>()
                         .state
                         .filter
                         .condition,

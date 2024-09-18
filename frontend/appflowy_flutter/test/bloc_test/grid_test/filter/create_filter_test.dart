@@ -40,7 +40,6 @@ void main() {
 
     final filterInfo = context.fieldController.filterInfos.first;
     await service.deleteFilter(
-      fieldId: textField.id,
       filterId: filterInfo.filter.id,
     );
     await gridResponseFuture();

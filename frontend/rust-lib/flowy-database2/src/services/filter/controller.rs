@@ -200,10 +200,7 @@ impl FilterController {
           }
         }
       },
-      FilterChangeset::Delete {
-        filter_id,
-        field_id: _,
-      } => Self::delete_filter(&mut filters, &filter_id),
+      FilterChangeset::Delete { filter_id } => Self::delete_filter(&mut filters, &filter_id),
       FilterChangeset::DeleteAllWithFieldId { field_id } => {
         let mut filter_ids = vec![];
         for filter in filters.iter() {

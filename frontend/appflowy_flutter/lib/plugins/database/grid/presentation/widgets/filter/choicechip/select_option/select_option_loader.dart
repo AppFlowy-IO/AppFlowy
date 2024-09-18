@@ -62,8 +62,9 @@ class MultiSelectOptionFilterDelegateImpl
 
   @override
   List<SelectOptionPB> loadOptions() {
-    final parser = MultiSelectTypeOptionDataParser();
-    return parser.fromBuffer(filterInfo.fieldInfo.field.typeOptionData).options;
+    return MultiSelectTypeOptionDataParser()
+        .fromBuffer(filterInfo.fieldInfo.field.typeOptionData)
+        .options;
   }
 
   @override

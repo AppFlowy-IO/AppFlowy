@@ -9,16 +9,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'text_filter_editor_bloc.freezed.dart';
 
-class TextFilterEditorBloc
-    extends Bloc<TextFilterEditorEvent, TextFilterEditorState> {
-  TextFilterEditorBloc({required this.filterInfo, required this.fieldType})
+class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
+  TextFilterBloc({required this.filterInfo, required this.fieldType})
       : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
-        super(TextFilterEditorState.initial(filterInfo)) {
+        super(TextFilterState.initial(filterInfo)) {
     _dispatch();
+    _startListening();
   }
 
   final FilterInfo filterInfo;
@@ -27,12 +27,9 @@ class TextFilterEditorBloc
   final FilterListener _listener;
 
   void _dispatch() {
-    on<TextFilterEditorEvent>(
+    on<TextFilterEvent>(
       (event, emit) async {
         event.when(
-          initial: () {
-            _startListening();
-          },
           updateCondition: (TextFilterConditionPB condition) {
             fieldType == FieldType.RichText
                 ? _filterBackendSvc.insertTextFilter(
@@ -63,12 +60,6 @@ class TextFilterEditorBloc
                     content: content,
                   );
           },
-          delete: () {
-            _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
-              filterId: filterInfo.filter.id,
-            );
-          },
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final textFilter = filterInfo.textFilter()!;
@@ -88,7 +79,7 @@ class TextFilterEditorBloc
     _listener.start(
       onUpdated: (filter) {
         if (!isClosed) {
-          add(TextFilterEditorEvent.didReceiveFilter(filter));
+          add(TextFilterEvent.didReceiveFilter(filter));
         }
       },
     );
@@ -102,27 +93,24 @@ class TextFilterEditorBloc
 }
 
 @freezed
-class TextFilterEditorEvent with _$TextFilterEditorEvent {
-  const factory TextFilterEditorEvent.initial() = _Initial;
-  const factory TextFilterEditorEvent.didReceiveFilter(FilterPB filter) =
+class TextFilterEvent with _$TextFilterEvent {
+  const factory TextFilterEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
-  const factory TextFilterEditorEvent.updateCondition(
+  const factory TextFilterEvent.updateCondition(
     TextFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory TextFilterEditorEvent.updateContent(String content) =
-      _UpdateContent;
-  const factory TextFilterEditorEvent.delete() = _Delete;
+  const factory TextFilterEvent.updateContent(String content) = _UpdateContent;
 }
 
 @freezed
-class TextFilterEditorState with _$TextFilterEditorState {
-  const factory TextFilterEditorState({
+class TextFilterState with _$TextFilterState {
+  const factory TextFilterState({
     required FilterInfo filterInfo,
     required TextFilterPB filter,
-  }) = _GridFilterState;
+  }) = _TextFilterState;
 
-  factory TextFilterEditorState.initial(FilterInfo filterInfo) {
-    return TextFilterEditorState(
+  factory TextFilterState.initial(FilterInfo filterInfo) {
+    return TextFilterState(
       filterInfo: filterInfo,
       filter: filterInfo.textFilter()!,
     );

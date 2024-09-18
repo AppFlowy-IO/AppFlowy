@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/text_filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -17,24 +18,35 @@ class URLFilterChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => TextFilterEditorBloc(
+      create: (_) => TextFilterBloc(
         filterInfo: filterInfo,
         fieldType: FieldType.URL,
       ),
-      child: BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
-        builder: (context, state) {
+      child: Builder(
+        builder: (context) {
           return AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(200, 76)),
             direction: PopoverDirection.bottomWithCenterAligned,
             popupBuilder: (popoverContext) {
-              return BlocProvider.value(
-                value: context.read<TextFilterEditorBloc>(),
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(
+                    value: context.read<TextFilterBloc>(),
+                  ),
+                  BlocProvider.value(
+                    value: context.read<FilterEditorBloc>(),
+                  ),
+                ],
                 child: const TextFilterEditor(),
               );
             },
-            child: ChoiceChipButton(
-              filterInfo: filterInfo,
-              filterDesc: _makeFilterDesc(state),
+            child: BlocBuilder<TextFilterBloc, TextFilterState>(
+              builder: (context, state) {
+                return ChoiceChipButton(
+                  filterInfo: filterInfo,
+                  filterDesc: _makeFilterDesc(state),
+                );
+              },
             ),
           );
         },
@@ -42,7 +54,7 @@ class URLFilterChoiceChip extends StatelessWidget {
     );
   }
 
-  String _makeFilterDesc(TextFilterEditorState state) {
+  String _makeFilterDesc(TextFilterState state) {
     String filterDesc = state.filter.condition.choicechipPrefix;
     if (state.filter.condition == TextFilterConditionPB.TextIsEmpty ||
         state.filter.condition == TextFilterConditionPB.TextIsNotEmpty) {

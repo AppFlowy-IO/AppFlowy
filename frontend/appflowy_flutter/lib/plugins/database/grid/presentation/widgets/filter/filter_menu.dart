@@ -35,14 +35,19 @@ class FilterMenu extends StatelessWidget {
                 .map(
                   (filterInfo) => FilterMenuItem(
                     key: ValueKey(filterInfo.filter.id),
-                    filterInfo: filterInfo,
+                    viewId: fieldController.viewId,
+                    filterId: filterInfo.filterId,
                   ),
                 )
                 .toList(),
           );
 
           if (state.fields.isNotEmpty) {
-            children.add(AddFilterButton(viewId: state.viewId));
+            children.add(
+              AddFilterButton(
+                viewId: state.viewId,
+              ),
+            );
           }
 
           return Wrap(

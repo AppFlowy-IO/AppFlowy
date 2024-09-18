@@ -10,43 +10,39 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'checkbox_filter_editor_bloc.freezed.dart';
 
-class CheckboxFilterEditorBloc
-    extends Bloc<CheckboxFilterEditorEvent, CheckboxFilterEditorState> {
-  CheckboxFilterEditorBloc({required this.filterInfo})
-      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+class CheckboxFilterBloc
+    extends Bloc<CheckboxFilterEvent, CheckboxFilterState> {
+  CheckboxFilterBloc({
+    required FilterInfo filterInfo,
+  })  : filterId = filterInfo.filterId,
+        fieldId = filterInfo.fieldId,
+        _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
-          filterId: filterInfo.filter.id,
+          filterId: filterInfo.filterId,
         ),
-        super(CheckboxFilterEditorState.initial(filterInfo)) {
+        super(CheckboxFilterState.initial(filterInfo)) {
     _dispatch();
+    _startListening();
   }
 
-  final FilterInfo filterInfo;
+  final String filterId;
+  final String fieldId;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
 
   void _dispatch() {
-    on<CheckboxFilterEditorEvent>(
+    on<CheckboxFilterEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            _startListening();
-          },
-          updateCondition: (CheckboxFilterConditionPB condition) {
-            _filterBackendSvc.insertCheckboxFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+          updateCondition: (condition) {
+            return _filterBackendSvc.insertCheckboxFilter(
+              filterId: filterId,
+              fieldId: fieldId,
               condition: condition,
             );
           },
-          delete: () {
-            _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
-              filterId: filterInfo.filter.id,
-            );
-          },
-          didReceiveFilter: (FilterPB filter) {
+          didReceiveFilter: (filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final checkboxFilter = filterInfo.checkboxFilter()!;
             emit(
@@ -65,7 +61,7 @@ class CheckboxFilterEditorBloc
     _listener.start(
       onUpdated: (filter) {
         if (!isClosed) {
-          add(CheckboxFilterEditorEvent.didReceiveFilter(filter));
+          add(CheckboxFilterEvent.didReceiveFilter(filter));
         }
       },
     );
@@ -79,25 +75,24 @@ class CheckboxFilterEditorBloc
 }
 
 @freezed
-class CheckboxFilterEditorEvent with _$CheckboxFilterEditorEvent {
-  const factory CheckboxFilterEditorEvent.initial() = _Initial;
-  const factory CheckboxFilterEditorEvent.didReceiveFilter(FilterPB filter) =
-      _DidReceiveFilter;
-  const factory CheckboxFilterEditorEvent.updateCondition(
+class CheckboxFilterEvent with _$CheckboxFilterEvent {
+  const factory CheckboxFilterEvent.didReceiveFilter(
+    FilterPB filter,
+  ) = _DidReceiveFilter;
+  const factory CheckboxFilterEvent.updateCondition(
     CheckboxFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory CheckboxFilterEditorEvent.delete() = _Delete;
 }
 
 @freezed
-class CheckboxFilterEditorState with _$CheckboxFilterEditorState {
-  const factory CheckboxFilterEditorState({
+class CheckboxFilterState with _$CheckboxFilterState {
+  const factory CheckboxFilterState({
     required FilterInfo filterInfo,
     required CheckboxFilterPB filter,
-  }) = _GridFilterState;
+  }) = _CheckboxFilterState;
 
-  factory CheckboxFilterEditorState.initial(FilterInfo filterInfo) {
-    return CheckboxFilterEditorState(
+  factory CheckboxFilterState.initial(FilterInfo filterInfo) {
+    return CheckboxFilterState(
       filterInfo: filterInfo,
       filter: filterInfo.checkboxFilter()!,
     );
