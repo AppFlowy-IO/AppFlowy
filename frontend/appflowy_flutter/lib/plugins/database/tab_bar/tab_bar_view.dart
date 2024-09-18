@@ -170,9 +170,15 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
     final tabBar = state.tabBars[state.selectedIndex];
     final controller =
         state.tabBarControllerByViewId[tabBar.viewId]!.controller;
-    return tabBar.builder.settingBarExtension(
-      context,
-      controller,
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal:
+            context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+      ),
+      child: tabBar.builder.settingBarExtension(
+        context,
+        controller,
+      ),
     );
   }
 }
