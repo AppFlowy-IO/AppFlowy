@@ -488,7 +488,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final name = FlowyText.regular(
-      widget.view.name,
+      widget.view.name.isEmpty
+          ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+          : widget.view.name,
       overflow: TextOverflow.ellipsis,
       fontSize: 14.0,
       figmaLineHeight: 18.0,

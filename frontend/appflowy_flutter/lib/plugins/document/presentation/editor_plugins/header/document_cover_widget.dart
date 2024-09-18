@@ -31,7 +31,9 @@ import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const double kCoverHeight = 250.0;
+import 'cover_title.dart';
+
+const double kCoverHeight = 280.0;
 const double kIconHeight = 60.0;
 const double kToolbarHeight = 40.0; // with padding to the top
 
@@ -97,6 +99,9 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   late ViewPB view;
   late final ViewListener viewListener;
 
+  final titleTextController = TextEditingController();
+  final titleFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -104,11 +109,15 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     viewIcon = value.isNotEmpty ? value : icon ?? '';
     cover = widget.view.cover;
     view = widget.view;
+    titleTextController.text = view.name;
     widget.node.addListener(_reload);
     viewListener = ViewListener(
       viewId: widget.view.id,
     )..start(
         onViewUpdated: (p0) {
+          if (titleTextController.text != p0.name) {
+            titleTextController.text = p0.name;
+          }
           setState(() {
             viewIcon = p0.icon.value;
             cover = p0.cover;
@@ -122,6 +131,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   void dispose() {
     viewListener.stop();
     widget.node.removeListener(_reload);
+    titleTextController.dispose();
+    titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -132,42 +143,56 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final offset = _calculateIconLeft(context, constraints);
-        return Stack(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              height: _calculateOverallHeight(),
-              child: DocumentHeaderToolbar(
-                onIconOrCoverChanged: _saveIconOrCover,
-                node: widget.node,
-                editorState: widget.editorState,
-                hasCover: hasCover,
-                hasIcon: hasIcon,
-                offset: offset,
-              ),
+            Stack(
+              children: [
+                SizedBox(
+                  height: _calculateOverallHeight(),
+                  child: DocumentHeaderToolbar(
+                    onIconOrCoverChanged: _saveIconOrCover,
+                    node: widget.node,
+                    editorState: widget.editorState,
+                    hasCover: hasCover,
+                    hasIcon: hasIcon,
+                    offset: offset,
+                  ),
+                ),
+                if (hasCover)
+                  DocumentCover(
+                    view: view,
+                    editorState: widget.editorState,
+                    node: widget.node,
+                    coverType: coverType,
+                    coverDetails: coverDetails,
+                    onChangeCover: (type, details) =>
+                        _saveIconOrCover(cover: (type, details)),
+                  ),
+                // don't render the icon if the offset is 0
+                if (hasIcon && offset != 0)
+                  Positioned(
+                    left: offset,
+                    // if hasCover, there shouldn't be icons present so the icon can
+                    // be closer to the bottom.
+                    bottom: hasCover
+                        ? kToolbarHeight - kIconHeight / 2
+                        : kToolbarHeight,
+                    child: DocumentIcon(
+                      editorState: widget.editorState,
+                      node: widget.node,
+                      icon: viewIcon,
+                      onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+                    ),
+                  ),
+              ],
             ),
-            if (hasCover)
-              DocumentCover(
-                view: view,
-                editorState: widget.editorState,
-                node: widget.node,
-                coverType: coverType,
-                coverDetails: coverDetails,
-                onChangeCover: (type, details) =>
-                    _saveIconOrCover(cover: (type, details)),
-              ),
-            if (hasIcon)
-              Positioned(
-                left: offset,
-                // if hasCover, there shouldn't be icons present so the icon can
-                // be closer to the bottom.
-                bottom: hasCover
-                    ? kToolbarHeight - kIconHeight / 2
-                    : kToolbarHeight,
-                child: DocumentIcon(
-                  editorState: widget.editorState,
-                  node: widget.node,
-                  icon: viewIcon,
-                  onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+            if (offset != 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: CoverTitle(
+                  view: widget.view,
+                  offset: offset,
                 ),
               ),
           ],
@@ -200,16 +225,14 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   }
 
   double _calculateOverallHeight() {
-    switch ((hasIcon, hasCover)) {
-      case (true, true):
-        return kCoverHeight + kToolbarHeight;
-      case (true, false):
-        return 50 + kIconHeight + kToolbarHeight;
-      case (false, true):
-        return kCoverHeight + kToolbarHeight;
-      case (false, false):
-        return kToolbarHeight;
-    }
+    final height = switch ((hasIcon, hasCover)) {
+      (true, true) => kCoverHeight + kToolbarHeight,
+      (true, false) => 50 + kIconHeight + kToolbarHeight,
+      (false, true) => kCoverHeight + kToolbarHeight,
+      (false, false) => kToolbarHeight,
+    };
+
+    return height;
   }
 
   void _saveIconOrCover({(CoverType, String?)? cover, String? icon}) async {

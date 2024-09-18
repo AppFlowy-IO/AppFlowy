@@ -244,6 +244,7 @@ class _DocumentPageState extends State<DocumentPage>
         },
         child: AppFlowyEditorPage(
           editorState: state.editorState!,
+          autoFocus: widget.view.name.isEmpty ? false : null,
           styleCustomizer: EditorStyleCustomizer(
             context: context,
             width: width,

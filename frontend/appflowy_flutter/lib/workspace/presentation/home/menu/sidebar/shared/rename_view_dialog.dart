@@ -1,9 +1,7 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 /// Creates a new view and shows the rename dialog if needed.
@@ -25,11 +23,11 @@ Future<void> createViewAndShowRenameDialogIfNeeded(
   if (context.mounted && showRenameDialog) {
     await NavigatorTextFieldDialog(
       title: dialogTitle,
-      value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+      value: '',
       autoSelectAllText: true,
       onConfirm: createView,
     ).show(context);
   } else if (context.mounted) {
-    createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), context);
+    createView('', context);
   }
 }
