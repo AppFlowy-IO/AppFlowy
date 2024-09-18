@@ -35,6 +35,7 @@ class KVKeys {
       'kDocumentAppearanceCursorColor';
   static const String kDocumentAppearanceSelectionColor =
       'kDocumentAppearanceSelectionColor';
+  static const String kDocumentAppearanceWidth = 'kDocumentAppearanceWidth';
 
   /// The key for saving the expanded views
   ///

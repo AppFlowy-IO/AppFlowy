@@ -458,6 +458,9 @@
         "title": "Reset document selection color",
         "description": "Are you sure you want to reset the selection color?"
       },
+      "resetWidth": {
+        "resetSuccess": "Reset document width successfully"
+      },
       "theme": {
         "title": "Theme",
         "description": "Select a preset theme, or upload your own custom theme.",
@@ -1040,6 +1043,8 @@
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",
+        "width": "Document width",
+        "changeWidth": "Change",
         "pickColor": "Select a color",
         "colorShade": "Color shade",
         "opacity": "Opacity",
