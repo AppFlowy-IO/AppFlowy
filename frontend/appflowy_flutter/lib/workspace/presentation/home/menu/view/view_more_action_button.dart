@@ -122,12 +122,18 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   ViewMoreActionTypeWrapper(
     this.inner,
     this.sourceView,
-    this.onTap,
-  );
+    this.onTap, {
+    this.moveActionDirection,
+    this.moveActionOffset,
+  });
 
   final ViewMoreActionType inner;
   final ViewPB sourceView;
   final void Function(PopoverController controller, dynamic data) onTap;
+
+  // custom the move to action button
+  final PopoverDirection? moveActionDirection;
+  final Offset? moveActionOffset;
 
   @override
   Widget buildWithContext(BuildContext context, PopoverController controller) {
@@ -174,9 +180,12 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
     BuildContext context,
     PopoverController controller,
   ) {
+    // move to feature doesn't support in local mode
+    if (context.read<SpaceBloc>().state.spaces.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final child = _buildActionButton(context, null);
-    final userProfile = context.read<SpaceBloc>().userProfile;
-    final workspaceId = context.read<SpaceBloc>().state.currentSpace?.id;
 
     return AppFlowyPopover(
       constraints: const BoxConstraints(
@@ -188,18 +197,17 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
         vertical: 12.0,
       ),
       clickHandler: PopoverClickHandler.gestureDetector,
+      direction: moveActionDirection ?? PopoverDirection.rightWithTopAligned,
+      offset: moveActionOffset,
       popupBuilder: (_) {
-        if (workspaceId == null) {
-          return const SizedBox();
-        }
-
-        return MovePageMenu(
-          sourceView: sourceView,
-          userProfile: userProfile,
-          workspaceId: workspaceId,
-          onSelected: (space, view) {
-            onTap(controller, (space, view));
-          },
+        return BlocProvider.value(
+          value: context.read<SpaceBloc>(),
+          child: MovePageMenu(
+            sourceView: sourceView,
+            onSelected: (space, view) {
+              onTap(controller, (space, view));
+            },
+          ),
         );
       },
       child: child,

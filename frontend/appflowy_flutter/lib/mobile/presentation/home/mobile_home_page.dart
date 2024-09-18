@@ -225,11 +225,11 @@ class _HomePageState extends State<_HomePage> {
                         FavoriteBloc()..add(const FavoriteEvent.initial()),
                   ),
                   BlocProvider(
-                    create: (_) => SpaceBloc()
-                      ..add(
-                        SpaceEvent.initial(
-                          widget.userProfile,
-                          workspaceId,
+                    create: (_) => SpaceBloc(
+                      userProfile: widget.userProfile,
+                      workspaceId: workspaceId,
+                    )..add(
+                        const SpaceEvent.initial(
                           openFirstPage: false,
                         ),
                       ),
