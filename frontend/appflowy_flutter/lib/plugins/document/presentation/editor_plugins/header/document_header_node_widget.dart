@@ -96,6 +96,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   PageStyleCover? cover;
   late ViewPB view;
   late final ViewListener viewListener;
+  int retryCount = 0;
 
   @override
   void initState() {
@@ -125,8 +126,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     super.dispose();
   }
 
-  void _reload() => setState(() {});
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -155,7 +154,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                 onChangeCover: (type, details) =>
                     _saveIconOrCover(cover: (type, details)),
               ),
-            if (hasIcon)
+            // don't render the icon if the offset is 0
+            if (hasIcon && offset != 0)
               Positioned(
                 left: offset,
                 // if hasCover, there shouldn't be icons present so the icon can
@@ -176,14 +176,26 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     );
   }
 
+  void _reload() => setState(() {});
+
   double _calculateIconLeft(BuildContext context, BoxConstraints constraints) {
     final editorState = context.read<EditorState>();
     final appearanceCubit = context.read<DocumentAppearanceCubit>();
 
     final renderBox = editorState.renderBox;
+
+    if (renderBox == null || !renderBox.hasSize) {}
+
     var renderBoxWidth = 0.0;
     if (renderBox != null && renderBox.hasSize) {
       renderBoxWidth = renderBox.size.width;
+    } else if (retryCount <= 3) {
+      retryCount++;
+      // this is a workaround for the issue that the renderBox is not initialized
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        _reload();
+      });
+      return 0;
     }
 
     // if the renderBox width equals to 0, it means the editor is not initialized
