@@ -89,10 +89,7 @@ class SignInAnonymousButton extends StatelessWidget {
 class SignInAnonymousButtonV2 extends StatelessWidget {
   const SignInAnonymousButtonV2({
     super.key,
-    this.child,
   });
-
-  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +110,7 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
               builder: (context, state) {
                 final text = state.anonUsers.isEmpty
                     ? LocaleKeys.signIn_loginStartWithAnonymous.tr()
-                    : LocaleKeys.signIn_continueAnonymousUser.tr();
+                    : LocaleKeys.signIn_anonymous.tr();
                 final onTap = state.anonUsers.isEmpty
                     ? () {
                         context
@@ -125,16 +122,14 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
                         final user = bloc.state.anonUsers.first;
                         bloc.add(AnonUserEvent.openAnonUser(user));
                       };
-                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: onTap,
-                    child: child ??
-                        FlowyText(
-                          text,
-                          color: Colors.blue,
-                          fontSize: 12,
-                        ),
+                return FlowyButton(
+                  useIntrinsicWidth: true,
+                  onTap: onTap,
+                  text: FlowyText(
+                    text,
+                    color: Colors.grey,
+                    decoration: TextDecoration.underline,
+                    fontSize: 12,
                   ),
                 );
               },

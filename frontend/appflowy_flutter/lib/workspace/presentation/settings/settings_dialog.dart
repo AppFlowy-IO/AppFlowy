@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/settings_ai_view.dart';
@@ -15,6 +13,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.d
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'widgets/setting_cloud.dart';
@@ -28,11 +27,11 @@ class SettingsDialog extends StatelessWidget {
     this.initPage,
   }) : super(key: ValueKey(user.id));
 
+  final UserProfilePB user;
+  final SettingsPage? initPage;
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
   final VoidCallback restartApp;
-  final UserProfilePB user;
-  final SettingsPage? initPage;
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +136,58 @@ class SettingsDialog extends StatelessWidget {
         return SettingsPlanView(workspaceId: workspaceId, user: user);
       case SettingsPage.billing:
         return SettingsBillingView(workspaceId: workspaceId, user: user);
+      case SettingsPage.featureFlags:
+        return const FeatureFlagsPage();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+}
+
+class SimpleSettingsDialog extends StatefulWidget {
+  const SimpleSettingsDialog({super.key});
+
+  @override
+  State<SimpleSettingsDialog> createState() => _SimpleSettingsDialogState();
+}
+
+class _SimpleSettingsDialogState extends State<SimpleSettingsDialog> {
+  SettingsPage page = SettingsPage.cloud;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyDialog(
+      width: MediaQuery.of(context).size.width * 0.7,
+      constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
+      child: ScaffoldMessenger(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                width: 200,
+                child: SimpleSettingsMenu(),
+              ),
+              Expanded(
+                child: getSettingsView(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getSettingsView() {
+    switch (page) {
+      case SettingsPage.cloud:
+        return SettingCloud(
+          restartAppFlowy: () {
+            // Navigator.of(dialogContext).pop();
+            // await runAppFlowy();
+          },
+        );
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:
