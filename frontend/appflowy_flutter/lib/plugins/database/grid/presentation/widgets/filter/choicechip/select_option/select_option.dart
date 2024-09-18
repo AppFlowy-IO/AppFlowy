@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -38,7 +37,7 @@ class SelectOptionFilterChoicechip extends StatelessWidget {
         builder: (context, filter, field) {
           return ChoiceChipButton(
             fieldInfo: field,
-            filterDesc: filter.getDescription(field),
+            filterDesc: filter.getContentDescription(field),
           );
         },
       ),
@@ -81,7 +80,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
           SelectOptionFilterConditionPB.OptionIsEmpty,
           SelectOptionFilterConditionPB.OptionIsNotEmpty,
         ].contains(filter.condition)) {
-          final delegate = makeDelegate(field);
+          final delegate = filter.makeDelegate(field);
           slivers
             ..add(const SliverToBoxAdapter(child: VSpace(4)))
             ..add(
@@ -150,9 +149,4 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
       ),
     );
   }
-
-  SelectOptionFilterDelegate makeDelegate(FieldInfo field) =>
-      field.fieldType == FieldType.SingleSelect
-          ? const SingleSelectOptionFilterDelegateImpl()
-          : const MultiSelectOptionFilterDelegateImpl();
 }
