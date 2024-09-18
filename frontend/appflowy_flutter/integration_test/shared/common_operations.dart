@@ -571,8 +571,7 @@ extension CommonOperations on WidgetTester {
 
   Future<void> openMoreViewActions() async {
     final button = find.byType(MoreViewActions);
-    await tap(button);
-    await pumpAndSettle();
+    await tapButton(button);
   }
 
   /// Presses on the Duplicate ViewAction in the [MoreViewActions] popup.
