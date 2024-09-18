@@ -580,12 +580,9 @@ extension CommonOperations on WidgetTester {
   /// [openMoreViewActions] must be called beforehand!
   ///
   Future<void> duplicateByMoreViewActions() async {
-    final button = find.descendant(
-      of: find.byType(ListView),
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is ViewAction && widget.type == ViewMoreActionType.duplicate,
-      ),
+    final button = find.byWidgetPredicate(
+      (widget) =>
+          widget is ViewAction && widget.type == ViewMoreActionType.duplicate,
     );
     await tap(button);
     await pump();
