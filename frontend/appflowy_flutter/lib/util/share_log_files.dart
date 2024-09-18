@@ -5,7 +5,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:archive/archive_io.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -68,7 +68,7 @@ Future<void> shareLogFiles(BuildContext? context) async {
       await zipFile.delete();
     } else {
       // open the directory
-      await OpenFile.open(zipFile.path);
+      await OpenFilex.open(zipFile.path);
     }
   } catch (e) {
     if (context != null && context.mounted) {

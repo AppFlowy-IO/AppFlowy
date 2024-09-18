@@ -102,7 +102,6 @@ dependencies:
   numerus: ^2.1.2
 
   # Used to open local files on Mobile
-  open_file: ^3.5.4
   open_filex: ^4.5.0
   package_info_plus: ^8.0.2
   path: ^1.8.3
