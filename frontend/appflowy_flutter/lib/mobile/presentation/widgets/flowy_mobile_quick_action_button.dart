@@ -10,6 +10,7 @@ class MobileQuickActionButton extends StatelessWidget {
     required this.text,
     this.textColor,
     this.iconColor,
+    this.iconSize,
     this.enable = true,
   });
 
@@ -18,10 +19,12 @@ class MobileQuickActionButton extends StatelessWidget {
   final String text;
   final Color? textColor;
   final Color? iconColor;
+  final Size? iconSize;
   final bool enable;
 
   @override
   Widget build(BuildContext context) {
+    final iconSize = this.iconSize ?? const Size.square(18);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
@@ -37,10 +40,10 @@ class MobileQuickActionButton extends StatelessWidget {
             children: [
               FlowySvg(
                 icon,
-                size: const Size.square(18),
+                size: iconSize,
                 color: enable ? iconColor : Theme.of(context).disabledColor,
               ),
-              const HSpace(12),
+              HSpace(30 - iconSize.width),
               Expanded(
                 child: FlowyText.regular(
                   text,

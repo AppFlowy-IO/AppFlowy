@@ -159,7 +159,8 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         // ),
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_visitSite.tr(),
-          icon: FlowySvgs.copy_s,
+          icon: FlowySvgs.share_s,
+          iconSize: const Size.square(20),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.visitSite,
           ),
