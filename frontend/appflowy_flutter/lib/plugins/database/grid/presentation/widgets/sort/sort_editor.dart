@@ -38,12 +38,12 @@ class _SortEditorState extends State<SortEditor> {
   Widget build(BuildContext context) {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
-        final sortInfos = state.sortInfos;
+        final sortInfos = state.sorts;
         return ReorderableListView.builder(
           onReorder: (oldIndex, newIndex) => context
               .read<SortEditorBloc>()
               .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
-          itemCount: state.sortInfos.length,
+          itemCount: state.sorts.length,
           itemBuilder: (context, index) => DatabaseSortItem(
             key: ValueKey(sortInfos[index].sortId),
             index: index,
@@ -215,9 +215,6 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
           ),
         );
       },
-      onClose: () => context
-          .read<SortEditorBloc>()
-          .add(const SortEditorEvent.updateCreateSortFilter("")),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(

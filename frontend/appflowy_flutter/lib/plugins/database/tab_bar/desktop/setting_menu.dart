@@ -68,7 +68,9 @@ class _DatabaseViewSettingContent extends StatelessWidget {
               children: [
                 SortMenu(fieldController: fieldController),
                 const HSpace(6),
-                FilterMenu(fieldController: fieldController),
+                Expanded(
+                  child: FilterMenu(fieldController: fieldController),
+                ),
               ],
             ),
           ),

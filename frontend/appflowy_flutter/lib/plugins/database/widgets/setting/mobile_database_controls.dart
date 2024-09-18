@@ -4,9 +4,8 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_field_list.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_sort_bottom_sheet.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -18,21 +17,19 @@ class MobileDatabaseControls extends StatelessWidget {
   const MobileDatabaseControls({
     super.key,
     required this.controller,
-    required this.toggleExtension,
   });
 
   final DatabaseController controller;
-  final ToggleExtensionNotifier toggleExtension;
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<DatabaseFilterMenuBloc>(
-          create: (context) => DatabaseFilterMenuBloc(
+        BlocProvider(
+          create: (context) => FilterEditorBloc(
             viewId: controller.viewId,
             fieldController: controller.fieldController,
-          )..add(const DatabaseFilterMenuEvent.initial()),
+          ),
         ),
         BlocProvider<SortEditorBloc>(
           create: (context) => SortEditorBloc(
@@ -41,38 +38,34 @@ class MobileDatabaseControls extends StatelessWidget {
           ),
         ),
       ],
-      child: BlocListener<DatabaseFilterMenuBloc, DatabaseFilterMenuState>(
-        listenWhen: (p, c) => p.isVisible != c.isVisible,
-        listener: (context, state) => toggleExtension.toggle(),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: controller.isLoading,
-          builder: (context, isLoading, child) {
-            if (isLoading) {
-              return const SizedBox.shrink();
-            }
+      child: ValueListenableBuilder<bool>(
+        valueListenable: controller.isLoading,
+        builder: (context, isLoading, child) {
+          if (isLoading) {
+            return const SizedBox.shrink();
+          }
 
-            return SeparatedRow(
-              separatorBuilder: () => const HSpace(8.0),
-              children: [
-                _DatabaseControlButton(
-                  icon: FlowySvgs.sort_ascending_s,
-                  count: context.watch<SortEditorBloc>().state.sortInfos.length,
-                  onTap: () => _showEditSortPanelFromToolbar(
-                    context,
-                    controller,
-                  ),
+          return SeparatedRow(
+            separatorBuilder: () => const HSpace(8.0),
+            children: [
+              _DatabaseControlButton(
+                icon: FlowySvgs.sort_ascending_s,
+                count: context.watch<SortEditorBloc>().state.sorts.length,
+                onTap: () => _showEditSortPanelFromToolbar(
+                  context,
+                  controller,
                 ),
-                _DatabaseControlButton(
-                  icon: FlowySvgs.m_field_hide_s,
-                  onTap: () => _showDatabaseFieldListFromToolbar(
-                    context,
-                    controller,
-                  ),
+              ),
+              _DatabaseControlButton(
+                icon: FlowySvgs.m_field_hide_s,
+                onTap: () => _showDatabaseFieldListFromToolbar(
+                  context,
+                  controller,
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

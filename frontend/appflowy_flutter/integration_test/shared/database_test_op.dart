@@ -959,7 +959,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapCreateFilterByFieldType(FieldType type, String title) async {
     final findFilter = find.byWidgetPredicate(
       (widget) =>
-          widget is GridFilterPropertyCell &&
+          widget is FilterableFieldButton &&
           widget.fieldInfo.fieldType == type &&
           widget.fieldInfo.name == title,
     );

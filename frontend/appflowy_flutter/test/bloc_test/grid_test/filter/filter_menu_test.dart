@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,12 +13,12 @@ void main() {
 
   test('test filter menu after create a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final menuBloc = DatabaseFilterMenuBloc(
+    final menuBloc = FilterEditorBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const DatabaseFilterMenuEvent.initial());
+    );
     await gridResponseFuture();
-    assert(menuBloc.state.creatableFields.length == 3);
+    assert(menuBloc.state.fields.length == 3);
 
     final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
@@ -28,15 +28,15 @@ void main() {
       content: "",
     );
     await gridResponseFuture();
-    assert(menuBloc.state.creatableFields.length == 3);
+    assert(menuBloc.state.fields.length == 3);
   });
 
   test('test filter menu after update existing text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final menuBloc = DatabaseFilterMenuBloc(
+    final menuBloc = FilterEditorBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const DatabaseFilterMenuEvent.initial());
+    );
     await gridResponseFuture();
 
     final service = FilterBackendService(viewId: context.gridView.id);
