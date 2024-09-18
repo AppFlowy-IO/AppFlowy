@@ -255,6 +255,10 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   Future<void> insertMultipleLocalImages(List<String> urls) async {
     controller.close();
 
+    if (urls.isEmpty) {
+      return;
+    }
+
     setState(() {
       showLoading = true;
       errorMessage = null;
@@ -263,10 +267,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     bool hasError = false;
 
     if (_isLocalMode()) {
-      if (urls.isEmpty) {
-        return;
-      }
-
       final first = urls.removeAt(0);
       final firstPath = await saveImageToLocalStorage(first);
       final transaction = editorState.transaction;
