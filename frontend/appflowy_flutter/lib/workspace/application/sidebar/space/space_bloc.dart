@@ -63,11 +63,14 @@ class SidebarSection {
 /// The [SpaceBloc] is responsible for
 ///   managing the root views in different sections of the workspace.
 class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
-  SpaceBloc() : super(SpaceState.initial()) {
+  SpaceBloc({
+    required this.userProfile,
+    required this.workspaceId,
+  }) : super(SpaceState.initial()) {
     on<SpaceEvent>(
       (event, emit) async {
         await event.when(
-          initial: (userProfile, workspaceId, openFirstPage) async {
+          initial: (openFirstPage) async {
             this.openFirstPage = openFirstPage;
 
             _initial(userProfile, workspaceId);
@@ -297,7 +300,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           reset: (userProfile, workspaceId, openFirstPage) async {
-            if (workspaceId == _workspaceId) {
+            if (workspaceId == workspaceId) {
               return;
             }
 
@@ -305,8 +308,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             add(
               SpaceEvent.initial(
-                userProfile,
-                workspaceId,
                 openFirstPage: openFirstPage,
               ),
             );
@@ -352,7 +353,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   late WorkspaceService _workspaceService;
-  String? _workspaceId;
+  late String workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
   bool openFirstPage = false;
@@ -443,7 +444,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
-    _workspaceId = workspaceId;
+    workspaceId = workspaceId;
     this.userProfile = userProfile;
 
     _listener = WorkspaceSectionsListener(
@@ -522,16 +523,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   Future<bool> migrate({bool auto = true}) async {
-    if (_workspaceId == null) {
-      return false;
-    }
-
     try {
       final user =
           await UserBackendService.getCurrentUserProfile().getOrThrow();
       final service = UserBackendService(userId: user.id);
       final members =
-          await service.getWorkspaceMembers(_workspaceId!).getOrThrow();
+          await service.getWorkspaceMembers(workspaceId).getOrThrow();
       final isOwner = members.items
           .any((e) => e.role == AFRolePB.Owner && e.email == user.email);
 
@@ -563,7 +560,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         }
 
         final viewId = fixedUuid(
-          user.id.toInt() + (_workspaceId?.hashCode ?? 0),
+          user.id.toInt() + workspaceId.hashCode,
           UuidType.publicSpace,
         );
         final publicSpace = await _createSpace(
@@ -702,9 +699,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
 @freezed
 class SpaceEvent with _$SpaceEvent {
-  const factory SpaceEvent.initial(
-    UserProfilePB userProfile,
-    String workspaceId, {
+  const factory SpaceEvent.initial({
     required bool openFirstPage,
   }) = _Initial;
   const factory SpaceEvent.create({

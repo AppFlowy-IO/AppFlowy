@@ -20,14 +20,10 @@ class MovePageMenu extends StatefulWidget {
   const MovePageMenu({
     super.key,
     required this.sourceView,
-    required this.userProfile,
-    required this.workspaceId,
     required this.onSelected,
   });
 
   final ViewPB sourceView;
-  final UserProfilePB userProfile;
-  final String workspaceId;
   final MovePageMenuOnSelected onSelected;
 
   @override
@@ -47,25 +43,11 @@ class _MovePageMenuState extends State<MovePageMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => SpaceBloc()
-            ..add(
-              SpaceEvent.initial(
-                widget.userProfile,
-                widget.workspaceId,
-                openFirstPage: false,
-              ),
-            ),
+    return BlocProvider(
+      create: (context) => SpaceSearchBloc()
+        ..add(
+          const SpaceSearchEvent.initial(),
         ),
-        BlocProvider(
-          create: (context) => SpaceSearchBloc()
-            ..add(
-              const SpaceSearchEvent.initial(),
-            ),
-        ),
-      ],
       child: BlocBuilder<SpaceBloc, SpaceState>(
         builder: (context, state) {
           final space = state.currentSpace;

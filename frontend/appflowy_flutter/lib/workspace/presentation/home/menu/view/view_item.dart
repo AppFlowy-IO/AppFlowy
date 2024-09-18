@@ -335,7 +335,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           _isDragging = isDragging;
         },
         onMove: widget.isPlaceholder
-            ? (from, to) => _moveViewCrossSection(
+            ? (from, to) => moveViewCrossSpace(
                   context,
                   null,
                   widget.view,
@@ -766,7 +766,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               }
               final space = value.$1;
               final target = value.$2;
-              _moveViewCrossSection(
+              moveViewCrossSpace(
                 context,
                 space,
                 widget.view,
@@ -827,7 +827,7 @@ bool isReferencedDatabaseView(ViewPB view, ViewPB? parentView) {
   return view.layout.isDatabaseView && parentView.layout.isDatabaseView;
 }
 
-void _moveViewCrossSection(
+void moveViewCrossSpace(
   BuildContext context,
   ViewPB? toSpace,
   ViewPB view,
