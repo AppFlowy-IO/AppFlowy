@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/share_log_files.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -14,7 +15,6 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_vie
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
@@ -26,6 +26,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 import 'widgets/setting_cloud.dart';
 
@@ -167,22 +168,35 @@ class _SimpleSettingsDialogState extends State<SimpleSettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<AppearanceSettingsCubit>();
+
     return FlowyDialog(
       width: MediaQuery.of(context).size.width * 0.7,
       constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
-      child: const Padding(
-        padding: EdgeInsets.all(24.0),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // header
+            FlowyText(
+              LocaleKeys.signIn_settings.tr(),
+              fontSize: 36.0,
+              fontWeight: FontWeight.w600,
+            ),
+            const VSpace(18.0),
+
             // language
-            _LanguageSettings(),
-            SettingsCategorySpacer(),
+            const _LanguageSettings(),
+            const VSpace(22.0),
+
             // self-host cloud
-            _SelfHostSettings(),
-            SettingsCategorySpacer(),
+            const _SelfHostSettings(),
+            const VSpace(22.0),
+
             // support
-            _SupportSettings(),
+            const _SupportSettings(),
           ],
         ),
       ),
@@ -232,17 +246,33 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
     return SettingsCategory(
       title: LocaleKeys.settings_menu_cloudAppFlowySelfHost.tr(),
       children: [
-        SizedBox(
-          height: 48,
-          child: FlowyTextField(
-            controller: textController,
-            autoFocus: false,
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 36,
+                child: FlowyTextField(
+                  controller: textController,
+                  autoFocus: false,
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  hintText: 'https://beta.appflowy.cloud',
+                  onEditingComplete: _saveSelfHostUrl,
+                ),
+              ),
             ),
-            onEditingComplete: _saveSelfHostUrl,
-          ),
+            const HSpace(12.0),
+            Container(
+              height: 36,
+              constraints: const BoxConstraints(minWidth: 78),
+              child: OutlinedRoundedButton(
+                text: LocaleKeys.button_save.tr(),
+                onTap: _saveSelfHostUrl,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -251,16 +281,33 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
   void _saveSelfHostUrl() {
     final url = textController.text;
     if (url.isEmpty) {
+      showToastNotification(
+        context,
+        message: LocaleKeys.settings_menu_pleaseInputValidURL.tr(),
+        type: ToastificationType.error,
+      );
       return;
     }
 
     validateUrl(url).fold(
       (url) async {
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_menu_changeUrl.tr(args: [url]),
+        );
+
         Navigator.of(context).pop();
         await useSelfHostedAppFlowyCloudWithURL(url);
         await runAppFlowy();
       },
-      (err) => Log.error(err),
+      (err) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_menu_pleaseInputValidURL.tr(),
+          type: ToastificationType.error,
+        );
+        Log.error(err);
+      },
     );
   }
 }
@@ -280,11 +327,14 @@ class _SupportSettings extends StatelessWidget {
               LocaleKeys.workspace_errorActions_exportLogFiles.tr(),
             ),
             const Spacer(),
-            OutlinedRoundedButton(
-              text: LocaleKeys.settings_files_export.tr(),
-              onTap: () {
-                shareLogFiles(context);
-              },
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 78),
+              child: OutlinedRoundedButton(
+                text: LocaleKeys.settings_files_export.tr(),
+                onTap: () {
+                  shareLogFiles(context);
+                },
+              ),
             ),
           ],
         ),
@@ -295,19 +345,22 @@ class _SupportSettings extends StatelessWidget {
               LocaleKeys.settings_files_clearCache.tr(),
             ),
             const Spacer(),
-            OutlinedRoundedButton(
-              text: LocaleKeys.button_clear.tr(),
-              onTap: () async {
-                await getIt<FlowyCacheManager>().clearAllCache();
-                if (context.mounted) {
-                  showToastNotification(
-                    context,
-                    message: LocaleKeys
-                        .settings_manageDataPage_cache_dialog_successHint
-                        .tr(),
-                  );
-                }
-              },
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 78),
+              child: OutlinedRoundedButton(
+                text: LocaleKeys.button_clear.tr(),
+                onTap: () async {
+                  await getIt<FlowyCacheManager>().clearAllCache();
+                  if (context.mounted) {
+                    showToastNotification(
+                      context,
+                      message: LocaleKeys
+                          .settings_manageDataPage_cache_dialog_successHint
+                          .tr(),
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),
