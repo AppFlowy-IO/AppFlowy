@@ -953,6 +953,8 @@
       "selfHostStart": "If you don't have a server, please refer to the",
       "selfHostContent": "document",
       "selfHostEnd": "for guidance on how to self-host your own server",
+      "pleaseInputValidURL": "Please input a valid URL",
+      "changeUrl": "Change self-hosted url to {}",
       "cloudURLHint": "Input the base URL of your server",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Input the websocket address of your server",
