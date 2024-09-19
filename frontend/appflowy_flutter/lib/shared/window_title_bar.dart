@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:window_manager/window_manager.dart';
 
 class WindowsButtonListener extends WindowListener {
@@ -38,7 +37,7 @@ class _WindowTitleBarState extends State<WindowTitleBar> {
   void initState() {
     super.initState();
 
-    if (PlatformExtension.isWindows || PlatformExtension.isLinux) {
+    if (UniversalPlatform.isWindows || UniversalPlatform.isLinux) {
       windowsButtonListener = WindowsButtonListener();
       windowManager.addListener(windowsButtonListener!);
       windowsButtonListener!.isMaximized.addListener(() {

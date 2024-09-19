@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -5,17 +7,17 @@ import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/calendar_card_cell_style.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../application/calendar_bloc.dart';
+
 import 'calendar_event_editor.dart';
 
 class EventCard extends StatefulWidget {
@@ -80,8 +82,9 @@ class _EventCardState extends State<EventCard> {
       rowCache: rowCache,
       isEditing: false,
       cellBuilder: cellBuilder,
+      isCompact: true,
       onTap: (context) {
-        if (PlatformExtension.isMobile) {
+        if (UniversalPlatform.isMobile) {
           context.push(
             MobileRowDetailPage.routeName,
             extra: {
@@ -107,6 +110,7 @@ class _EventCardState extends State<EventCard> {
       ),
       onStartEditing: () {},
       onEndEditing: () {},
+      userProfile: context.read<CalendarBloc>().userProfile,
     );
 
     final decoration = BoxDecoration(

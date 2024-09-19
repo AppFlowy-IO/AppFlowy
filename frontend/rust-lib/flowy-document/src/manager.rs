@@ -2,6 +2,7 @@ use std::sync::Arc;
 use std::sync::Weak;
 
 use collab::core::collab::DataSource;
+use collab::core::collab_plugin::CollabPersistence;
 use collab::core::origin::CollabOrigin;
 use collab::entity::EncodedCollab;
 use collab::lock::RwLock;
@@ -13,8 +14,7 @@ use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use collab_plugins::local_storage::kv::doc::CollabKVAction;
-use collab_plugins::local_storage::kv::KVTransactionDB;
+
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
@@ -25,7 +25,7 @@ use crate::document::{
   subscribe_document_changed, subscribe_document_snapshot_state, subscribe_document_sync_state,
 };
 use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+  AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -86,7 +86,7 @@ impl DocumentManager {
   pub fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let uid = self.user_service.user_id()?;
     let doc_state =
-      KVDBCollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
+      CollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
     let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
     let encoded_collab = collab
       .try_read()
@@ -122,6 +122,12 @@ impl DocumentManager {
     }
   }
 
+  fn persistence(&self) -> FlowyResult<CollabPersistenceImpl> {
+    let uid = self.user_service.user_id()?;
+    let db = self.user_service.collab_db(uid)?;
+    Ok(CollabPersistenceImpl::new(db, uid))
+  }
+
   /// Create a new document.
   ///
   /// if the document already exists, return the existing document.
@@ -129,7 +135,7 @@ impl DocumentManager {
   #[instrument(level = "info", skip(self, data))]
   pub async fn create_document(
     &self,
-    uid: i64,
+    _uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<EncodedCollab> {
@@ -139,27 +145,22 @@ impl DocumentManager {
         format!("document {} already exists", doc_id),
       ))
     } else {
-      let db = self
-        .user_service
-        .collab_db(uid)?
-        .upgrade()
-        .ok_or_else(|| FlowyError::internal().with_context("Failed to get collab db"))?;
-      let encoded_collab = doc_state_from_document_data(
-        doc_id,
-        data.unwrap_or_else(|| default_document_data(doc_id)),
-      )
-      .await?;
+      let encoded_collab = doc_state_from_document_data(doc_id, data).await?;
+      self
+        .persistence()?
+        .save_collab_to_disk(doc_id, encoded_collab.clone())
+        .map_err(internal_error)?;
 
-      db.with_write_txn(|write_txn| {
-        write_txn.flush_doc(
-          uid,
-          doc_id,
-          encoded_collab.state_vector.to_vec(),
-          encoded_collab.doc_state.to_vec(),
-        )?;
-        Ok(())
-      })?;
-
+      // Send the collab data to server with a background task.
+      let cloud_service = self.cloud_service.clone();
+      let cloned_encoded_collab = encoded_collab.clone();
+      let document_id = doc_id.to_string();
+      let workspace_id = self.user_service.workspace_id()?;
+      tokio::spawn(async move {
+        let _ = cloud_service
+          .create_document_collab(&workspace_id, &document_id, cloned_encoded_collab)
+          .await;
+      });
       Ok(encoded_collab)
     }
   }
@@ -210,8 +211,7 @@ impl DocumentManager {
     enable_sync: bool,
   ) -> FlowyResult<Arc<RwLock<Document>>> {
     let uid = self.user_service.user_id()?;
-    let mut doc_state =
-      KVDBCollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
+    let mut doc_state = self.persistence()?.into_data_source();
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
     // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
@@ -254,9 +254,7 @@ impl DocumentManager {
       },
       Err(err) => {
         if err.is_invalid_data() {
-          if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-            db.delete_doc(uid, doc_id).await?;
-          }
+          self.delete_document(doc_id).await?;
         }
         return Err(err);
       },
@@ -464,9 +462,10 @@ impl DocumentManager {
 
 async fn doc_state_from_document_data(
   doc_id: &str,
-  data: DocumentData,
+  data: Option<DocumentData>,
 ) -> Result<EncodedCollab, FlowyError> {
   let doc_id = doc_id.to_string();
+  let data = data.unwrap_or_else(|| default_document_data(&doc_id));
   // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
   let encoded_collab = tokio::task::spawn_blocking(move || {
     let collab = Collab::new_with_origin(CollabOrigin::Empty, doc_id, vec![], false);

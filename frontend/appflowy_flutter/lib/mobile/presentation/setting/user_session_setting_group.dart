@@ -172,7 +172,6 @@ class _DeleteAccountBottomSheetState extends State<_DeleteAccountBottomSheet> {
               context,
               controller.text.trim(),
               isChecked.value,
-              onSuccess: () => Navigator.of(context).pop(),
             ),
           ),
           const VSpace(12.0),

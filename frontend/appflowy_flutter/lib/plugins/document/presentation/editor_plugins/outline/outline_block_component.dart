@@ -8,6 +8,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class OutlineBlockKeys {
   const OutlineBlockKeys._();
@@ -101,7 +102,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
       builder: (context, snapshot) {
         Widget child = _buildOutlineBlock();
 
-        if (PlatformExtension.isDesktopOrWeb) {
+        if (UniversalPlatform.isDesktopOrWeb) {
           if (widget.showActions && widget.actionBuilder != null) {
             child = BlockComponentActionWrapper(
               node: widget.node,

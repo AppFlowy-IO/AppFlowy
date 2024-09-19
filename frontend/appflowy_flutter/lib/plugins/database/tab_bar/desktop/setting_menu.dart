@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_accessory_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_menu.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_menu.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -55,27 +54,22 @@ class _DatabaseViewSettingContent extends StatelessWidget {
     return BlocBuilder<DatabaseViewSettingExtensionBloc,
         DatabaseViewSettingExtensionState>(
       builder: (context, state) {
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: GridSize.horizontalHeaderPadding,
-          ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                ),
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).dividerColor,
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                children: [
-                  SortMenu(fieldController: fieldController),
-                  const HSpace(6),
-                  FilterMenu(fieldController: fieldController),
-                ],
-              ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              children: [
+                SortMenu(fieldController: fieldController),
+                const HSpace(6),
+                FilterMenu(fieldController: fieldController),
+              ],
             ),
           ),
         );

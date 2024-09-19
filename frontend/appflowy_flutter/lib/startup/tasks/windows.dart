@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/helpers.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:scaled_app/scaled_app.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
   InitAppWindowTask({this.title = 'AppFlowy'});
@@ -44,7 +43,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
     final position = await windowSizeManager.getPosition();
 
-    if (PlatformExtension.isWindows) {
+    if (UniversalPlatform.isWindows) {
       doWhenWindowReady(() async {
         appWindow.minSize = windowOptions.minimumSize;
         appWindow.maxSize = windowOptions.maximumSize;

@@ -2,11 +2,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use super::{notify_did_rename_group, notify_did_update_calculation};
+use super::notify_did_update_calculation;
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
   DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
-  GroupChangesPB, GroupPB, GroupRenameNotificationPB, LayoutSettingChangeset, LayoutSettingParams,
+  GroupChangesPB, GroupPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams,
   RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
@@ -159,6 +159,7 @@ impl DatabaseViewEditor {
     params: CreateRowPayloadPB,
   ) -> FlowyResult<CreateRowParams> {
     let timestamp = timestamp();
+    trace!("[Database]: will create row at: {:?}", params.row_position);
     let mut result = CreateRowParams {
       collab_params: collab_database::rows::CreateRowParams {
         id: gen_row_id(),
@@ -207,27 +208,45 @@ impl DatabaseViewEditor {
 
   pub async fn v_did_create_row(
     &self,
-    row: &Row,
+    row_detail: &RowDetail,
     index: u32,
     is_move_row: bool,
-    is_local_change: bool,
+    _is_local_change: bool,
+    row_changes: &DashMap<String, RowsChangePB>,
   ) {
     // Send the group notification if the current view has groups
-
-    if !is_move_row || !is_local_change {
-      if let Some(controller) = self.group_controller.write().await.as_mut() {
-        let mut rows = vec![Arc::new(row.clone())];
-        self.v_filter_rows(&mut rows).await;
-        if let Some(row) = rows.pop() {
-          let changesets = controller.did_create_row(&row, index as usize);
-          for changeset in changesets {
-            notify_did_update_group_rows(changeset).await;
-          }
+    if let Some(controller) = self.group_controller.write().await.as_mut() {
+      let rows = vec![Arc::new(row_detail.row.clone())];
+      let mut rows = self.v_filter_rows(rows).await;
+      if let Some(row) = rows.pop() {
+        let changesets = controller.did_create_row(&row, index as usize);
+        for changeset in changesets {
+          notify_did_update_group_rows(changeset).await;
         }
       }
     }
 
-    self.gen_did_create_row_view_tasks(index, row.clone()).await;
+    if let Some(index) = self
+      .sort_controller
+      .write()
+      .await
+      .did_create_row(&row_detail.row)
+      .await
+    {
+      row_changes
+        .entry(self.view_id.clone())
+        .or_insert_with(|| {
+          let mut change = RowsChangePB::new();
+          change.is_move_row = is_move_row;
+          change
+        })
+        .inserted_rows
+        .push(InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32));
+    };
+
+    self
+      .gen_did_create_row_view_tasks(row_detail.row.clone())
+      .await;
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
@@ -270,8 +289,8 @@ impl DatabaseViewEditor {
         .await;
 
       if let Some(field) = field {
-        let mut rows = vec![Arc::new(row.clone())];
-        self.v_filter_rows(&mut rows).await;
+        let rows = vec![Arc::new(row.clone())];
+        let mut rows = self.v_filter_rows(rows).await;
 
         if let Some(row) = rows.pop() {
           let result = controller.did_update_group_row(old_row, &row, &field);
@@ -312,7 +331,7 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn v_filter_rows(&self, rows: Vec<Arc<Row>>) -> Vec<Arc<Row>> {
     self.filter_controller.filter_rows(rows).await
   }
 
@@ -336,8 +355,8 @@ impl DatabaseViewEditor {
   #[instrument(level = "info", skip(self))]
   pub async fn v_get_all_rows(&self) -> Vec<Arc<Row>> {
     let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
-    let mut rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
-    self.v_filter_rows(&mut rows).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    let mut rows = self.v_filter_rows(rows).await;
     self.v_sort_rows(&mut rows).await;
     rows
   }
@@ -529,43 +548,6 @@ impl DatabaseViewEditor {
         ..Default::default()
       };
       notify_did_update_num_of_groups(&self.view_id, notification).await;
-    }
-
-    Ok(())
-  }
-
-  pub async fn v_rename_group(&self, changeset: GroupChangeset) -> FlowyResult<()> {
-    let mut type_option_data = None;
-    let (old_field, updated_group) =
-      if let Some(controller) = self.group_controller.write().await.as_mut() {
-        let old_field = self
-          .delegate
-          .get_field(controller.get_grouping_field_id())
-          .await;
-        let (updated_group, new_type_option) = controller.apply_group_rename(&changeset).await?;
-
-        if new_type_option.is_some() {
-          type_option_data = new_type_option;
-        }
-
-        (old_field, Some(updated_group))
-      } else {
-        (None, None)
-      };
-
-    if let (Some(old_field), Some(updated_group)) = (old_field, updated_group) {
-      if let Some(type_option_data) = type_option_data {
-        self
-          .delegate
-          .update_field(type_option_data, old_field)
-          .await?;
-      }
-
-      let notification = GroupRenameNotificationPB {
-        view_id: self.view_id.clone(),
-        group_id: updated_group.group_id.clone(),
-      };
-      notify_did_rename_group(&self.view_id, notification).await;
     }
 
     Ok(())
@@ -1226,18 +1208,9 @@ impl DatabaseViewEditor {
     });
   }
 
-  async fn gen_did_create_row_view_tasks(&self, preliminary_index: u32, row: Row) {
-    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
+  async fn gen_did_create_row_view_tasks(&self, row: Row) {
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
     tokio::spawn(async move {
-      if let Some(sort_controller) = weak_sort_controller.upgrade() {
-        sort_controller
-          .read()
-          .await
-          .did_create_row(preliminary_index, &row)
-          .await;
-      }
-
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
           .did_receive_row_changed(row.clone())

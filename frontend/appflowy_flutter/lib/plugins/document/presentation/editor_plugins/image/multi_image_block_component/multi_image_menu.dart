@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -15,15 +18,14 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu, Log;
+import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
@@ -128,7 +130,6 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
                   UploadImageType.local,
                   UploadImageType.url,
                   UploadImageType.unsplash,
-
                 ],
                 onSelectedLocalImages: insertLocalImages,
                 onSelectedAIImage: insertAIImage,
@@ -277,11 +278,16 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
     );
   }
 
-  Future<void> insertLocalImages(List<String?> urls) async {
+  Future<void> insertLocalImages(List<XFile> files) async {
     controller.close();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (urls.isEmpty || urls.every((path) => path?.isEmpty ?? true)) {
+      final urls = files
+          .map((file) => file.path)
+          .where((path) => path.isNotEmpty)
+          .toList();
+
+      if (urls.isEmpty || urls.every((url) => url.isEmpty)) {
         return;
       }
 
@@ -332,7 +338,7 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
 
       final response = await get(uri);
       await File(copyToPath).writeAsBytes(response.bodyBytes);
-      await insertLocalImages([copyToPath]);
+      await insertLocalImages([XFile(copyToPath)]);
       await File(copyToPath).delete();
     } catch (e) {
       Log.error('cannot save image file', e);

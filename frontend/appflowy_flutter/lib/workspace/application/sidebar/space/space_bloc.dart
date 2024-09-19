@@ -17,7 +17,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,6 +25,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 part 'space_bloc.freezed.dart';
 
@@ -63,11 +63,14 @@ class SidebarSection {
 /// The [SpaceBloc] is responsible for
 ///   managing the root views in different sections of the workspace.
 class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
-  SpaceBloc() : super(SpaceState.initial()) {
+  SpaceBloc({
+    required this.userProfile,
+    required this.workspaceId,
+  }) : super(SpaceState.initial()) {
     on<SpaceEvent>(
       (event, emit) async {
         await event.when(
-          initial: (userProfile, workspaceId, openFirstPage) async {
+          initial: (openFirstPage) async {
             this.openFirstPage = openFirstPage;
 
             _initial(userProfile, workspaceId);
@@ -233,7 +236,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
 
             // don't open the page automatically on mobile
-            if (PlatformExtension.isDesktop) {
+            if (UniversalPlatform.isDesktop) {
               // open the first page by default
               if (currentSpace.childViews.isNotEmpty) {
                 final firstPage = currentSpace.childViews.first;
@@ -297,7 +300,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           reset: (userProfile, workspaceId, openFirstPage) async {
-            if (workspaceId == _workspaceId) {
+            if (this.workspaceId == workspaceId) {
               return;
             }
 
@@ -305,8 +308,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             add(
               SpaceEvent.initial(
-                userProfile,
-                workspaceId,
                 openFirstPage: openFirstPage,
               ),
             );
@@ -352,7 +353,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   late WorkspaceService _workspaceService;
-  String? _workspaceId;
+  late String workspaceId;
   late UserProfilePB userProfile;
   WorkspaceSectionsListener? _listener;
   bool openFirstPage = false;
@@ -442,9 +443,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
+    Log.info('initial(or reset) space bloc: $workspaceId, ${userProfile.id}');
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
-    _workspaceId = workspaceId;
+
     this.userProfile = userProfile;
+    this.workspaceId = workspaceId;
 
     _listener = WorkspaceSectionsListener(
       user: userProfile,
@@ -464,7 +467,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     _listener?.stop();
     _listener = null;
 
-    _initial(userProfile, workspaceId);
+    this.userProfile = userProfile;
+    this.workspaceId = workspaceId;
   }
 
   Future<ViewPB?> _getLastOpenedSpace(List<ViewPB> spaces) async {
@@ -522,16 +526,12 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   Future<bool> migrate({bool auto = true}) async {
-    if (_workspaceId == null) {
-      return false;
-    }
-
     try {
       final user =
           await UserBackendService.getCurrentUserProfile().getOrThrow();
       final service = UserBackendService(userId: user.id);
       final members =
-          await service.getWorkspaceMembers(_workspaceId!).getOrThrow();
+          await service.getWorkspaceMembers(workspaceId).getOrThrow();
       final isOwner = members.items
           .any((e) => e.role == AFRolePB.Owner && e.email == user.email);
 
@@ -563,7 +563,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         }
 
         final viewId = fixedUuid(
-          user.id.toInt() + (_workspaceId?.hashCode ?? 0),
+          user.id.toInt() + workspaceId.hashCode,
           UuidType.publicSpace,
         );
         final publicSpace = await _createSpace(
@@ -702,9 +702,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
 @freezed
 class SpaceEvent with _$SpaceEvent {
-  const factory SpaceEvent.initial(
-    UserProfilePB userProfile,
-    String workspaceId, {
+  const factory SpaceEvent.initial({
     required bool openFirstPage,
   }) = _Initial;
   const factory SpaceEvent.create({

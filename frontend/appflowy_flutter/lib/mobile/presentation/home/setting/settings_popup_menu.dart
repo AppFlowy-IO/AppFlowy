@@ -28,7 +28,6 @@ class HomePageSettingsPopupMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return PopupMenuButton<_MobileSettingsPopupMenuItem>(
       offset: const Offset(0, 36),
       padding: EdgeInsets.zero,

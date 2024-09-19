@@ -22,7 +22,7 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
 
   const openLoginModal = useCallback((redirectTo?: string) => {
     setLoginOpen(true);
-    setLoginCompletedRedirectTo(redirectTo || '');
+    setLoginCompletedRedirectTo(redirectTo || window.location.href);
   }, []);
 
   useEffect(() => {

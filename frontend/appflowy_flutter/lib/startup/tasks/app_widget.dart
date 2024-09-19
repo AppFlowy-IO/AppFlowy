@@ -18,7 +18,6 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -27,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'prelude.dart';
 
@@ -175,7 +175,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           final action = state.action;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (action?.type == ActionType.openView &&
-                PlatformExtension.isDesktop) {
+                UniversalPlatform.isDesktop) {
               final view = action!.arguments?[ActionArgumentKeys.view];
               final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
               if (view != null) {
@@ -185,7 +185,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 );
               }
             } else if (action?.type == ActionType.openRow &&
-                PlatformExtension.isMobile) {
+                UniversalPlatform.isMobile) {
               final view = action!.arguments?[ActionArgumentKeys.view];
               if (view != null) {
                 final view = action.arguments?[ActionArgumentKeys.view];
@@ -213,7 +213,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                   ),
                   child: overlayManagerBuilder(
                     context,
-                    !PlatformExtension.isMobile && FeatureFlag.search.isOn
+                    !UniversalPlatform.isMobile && FeatureFlag.search.isOn
                         ? CommandPalette(
                             notifier: _commandPaletteNotifier,
                             child: child,

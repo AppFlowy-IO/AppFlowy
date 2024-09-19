@@ -6,7 +6,7 @@ import GalleryToolbar from '@/components/editor/components/blocks/gallery/Galler
 import ImageGallery from '@/components/editor/components/blocks/gallery/ImageGallery';
 import { EditorElementProps, GalleryBlockNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
-import React, { forwardRef, memo, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, memo, Suspense, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const GalleryBlock = memo(
@@ -74,8 +74,9 @@ const GalleryBlock = memo(
     }, []);
 
     return (
-      <div ref={ref} {...attributes} className={className} onMouseEnter={() => setHovered(true)}
-           onMouseLeave={() => setHovered(false)}
+      <div
+        ref={ref} {...attributes} className={className} onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         <div className={'absolute left-0 top-0 h-full w-full pointer-events-none'}>
           {children}
@@ -97,14 +98,14 @@ const GalleryBlock = memo(
         {hovered &&
           <GalleryToolbar onCopy={handleCopy} onDownload={handleDownload} onOpenPreview={handleOpenPreview} />}
 
-        {openPreview && <GalleryPreview
+        {openPreview && <Suspense><GalleryPreview
           images={photos}
           previewIndex={previewIndexRef.current}
           open={openPreview}
           onClose={() => {
             setOpenPreview(false);
           }}
-        />}
+        /></Suspense>}
 
       </div>
     );

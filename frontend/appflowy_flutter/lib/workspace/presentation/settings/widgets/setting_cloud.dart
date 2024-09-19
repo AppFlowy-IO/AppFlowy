@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -13,18 +11,22 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_body.da
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'setting_appflowy_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
-  const SettingCloud({required this.restartAppFlowy, super.key});
+  const SettingCloud({
+    super.key,
+    required this.restartAppFlowy,
+  });
 
   final VoidCallback restartAppFlowy;
 
@@ -112,7 +114,7 @@ class CloudTypeSwitcher extends StatelessWidget {
 
       return isDevelopMode || element != AuthenticatorType.appflowyCloudDevelop;
     }).toList();
-    return PlatformExtension.isDesktopOrWeb
+    return UniversalPlatform.isDesktopOrWeb
         ? SettingsDropdown(
             selectedOption: cloudType,
             onChanged: (type) {

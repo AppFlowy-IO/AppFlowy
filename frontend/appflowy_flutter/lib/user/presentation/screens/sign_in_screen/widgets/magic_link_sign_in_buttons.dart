@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SignInWithMagicLinkButtons extends StatefulWidget {
   const SignInWithMagicLinkButtons({super.key});
@@ -36,7 +36,7 @@ class _SignInWithMagicLinkButtonsState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: PlatformExtension.isMobile ? 38.0 : 48.0,
+          height: UniversalPlatform.isMobile ? 38.0 : 48.0,
           child: FlowyTextField(
             autoFocus: false,
             focusNode: _focusNode,
@@ -97,7 +97,7 @@ class _ConfirmButton extends StatelessWidget {
           LoginType.signIn => LocaleKeys.signIn_signInWithMagicLink.tr(),
           LoginType.signUp => LocaleKeys.signIn_signUpWithMagicLink.tr(),
         };
-        if (PlatformExtension.isMobile) {
+        if (UniversalPlatform.isMobile) {
           return ElevatedButton(
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 32),

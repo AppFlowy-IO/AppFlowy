@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -13,6 +12,7 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
@@ -313,7 +313,7 @@ void showToastNotification(
   ToastificationCallbacks? callbacks,
   double bottomPadding = 100,
 }) {
-  if (PlatformExtension.isMobile) {
+  if (UniversalPlatform.isMobile) {
     toastification.showCustom(
       alignment: Alignment.bottomCenter,
       autoCloseDuration: const Duration(milliseconds: 3000),
@@ -466,6 +466,7 @@ Future<void> showCancelAndConfirmDialog({
   required String title,
   required String description,
   VoidCallback? onConfirm,
+  VoidCallback? onCancel,
   String? confirmLabel,
 }) {
   return showDialog(
@@ -483,6 +484,7 @@ Future<void> showCancelAndConfirmDialog({
             onConfirm: () => onConfirm?.call(),
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.primary,
+            onCancel: () => onCancel?.call(),
           ),
         ),
       );
@@ -528,9 +530,10 @@ Future<void> showCancelAndDeleteDialog({
   required BuildContext context,
   required String title,
   required String description,
-  required Widget Function(BuildContext) builder,
+  Widget Function(BuildContext)? builder,
   VoidCallback? onDelete,
   String? confirmLabel,
+  bool closeOnAction = false,
 }) {
   return showDialog(
     context: context,
@@ -545,10 +548,10 @@ Future<void> showCancelAndDeleteDialog({
             title: title,
             description: description,
             onConfirm: () => onDelete?.call(),
-            closeOnAction: false,
+            closeOnAction: closeOnAction,
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.error,
-            child: builder(context),
+            child: builder?.call(context),
           ),
         ),
       );

@@ -88,6 +88,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Summary => const Color(0xFF6859A7),
         FieldType.Time => const Color(0xFFFDEDA7),
         FieldType.Translate => const Color(0xFF6859A7),
+        FieldType.Media => const Color(0xFFBE9090),
         _ => throw UnimplementedError(),
       };
 }

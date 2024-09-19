@@ -1,16 +1,4 @@
 import { View } from '@/application/types';
-import { getOS, openAppOrDownload } from '@/utils/open_schema';
-import { iosDownloadLink, androidDownloadLink, desktopDownloadLink, openAppFlowySchema } from '@/utils/url';
-
-export function openOrDownload () {
-  const os = getOS();
-  const downloadUrl = os === 'ios' ? iosDownloadLink : os === 'android' ? androidDownloadLink : desktopDownloadLink;
-
-  return openAppOrDownload({
-    appScheme: openAppFlowySchema,
-    downloadUrl,
-  });
-}
 
 export function findAncestors (data: View[], targetId: string, currentPath: View[] = []): View[] | null {
   for (const item of data) {

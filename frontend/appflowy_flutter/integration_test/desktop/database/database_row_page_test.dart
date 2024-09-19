@@ -321,7 +321,7 @@ void main() {
       await tester.tapRowDetailPageDeleteRowButton();
       await tester.tapEscButton();
 
-      await tester.assertNumberOfRowsInGridPage(2);
+      tester.assertNumberOfRowsInGridPage(2);
     });
 
     testWidgets('duplicate row', (tester) async {
@@ -338,7 +338,7 @@ void main() {
       await tester.tapRowDetailPageDuplicateRowButton();
       await tester.tapEscButton();
 
-      await tester.assertNumberOfRowsInGridPage(4);
+      tester.assertNumberOfRowsInGridPage(4);
     });
   });
 }

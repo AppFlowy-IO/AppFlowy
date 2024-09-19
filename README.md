@@ -31,22 +31,21 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 <p align="center"><img src="https://appflowy.io/_next/static/media/ai.e1460982.png" alt="AppFlowy AI" /></p>
 <p align="center"><img src="https://appflowy.io/_next/static/media/template.9ea13c3b.png" alt="AppFlowy Templates"  /></p>
 
-<p align="center">
-    <img src="https://appflowy.io/_next/static/media/home.b7ebab00.png" alt="Work across devices" width="350px">
-    <img src="https://appflowy.io/_next/static/media/ai_chat.09fc526e.png" alt="Ask AI" width="350px">
-    <img src="https://appflowy.io/_next/static/media/doc.d37c302c.png" alt="Capture anything" width="350px">
-    <img src="https://appflowy.io/_next/static/media/toolbar.d4029705.png" alt="Quickly take notes" width="350px">
-    <img src="https://appflowy.io/_next/static/media/block.e023dd25.png" alt="Perform and look great" width="350px">
-    <img src="https://appflowy.io/_next/static/media/database_card_view.880a4c12.png" alt="Designed and built for mobile" width="350px">
-</p>
+<br></br>
+<p align="center" >
+    <img src="https://github.com/user-attachments/assets/5841c491-b564-4a26-b9b6-191def430911" alt="Work across devices" width="1040px" /></p>
+<p align="center" >
+    <img src="https://github.com/user-attachments/assets/c2ba6bb8-746c-4743-9393-d008a669be95" alt="Work across devices" width="1040px" /></p>
+<p align="center" >
+    <img src="https://github.com/user-attachments/assets/e83dd1a3-4975-4d0e-91a1-9eb6e0d248cd" alt="Work across devices" width="1040px" /></p>
 
 ## User Installation
 
 - [Download AppFlowy Desktop (macOS, Windows, and Linux)](https://github.com/AppFlowy-IO/AppFlowy/releases)
 - Other channels: [FlatHub](https://flathub.org/apps/io.appflowy.AppFlowy), [Snapcraft](https://snapcraft.io/appflowy), [Sourceforge](https://sourceforge.net/projects/appflowy/)
 - Available on
-  - App Store: iPhone
-  - Play Store: Android 10 or above; ARMv7 is not supported
+  - [App Store](https://apps.apple.com/app/appflowy/id6457261352): iPhone
+  - [Play Store](https://play.google.com/store/apps/details?id=io.appflowy.appflowy): Android 10 or above; ARMv7 is not supported
 - [Self-hosting AppFlowy](https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 

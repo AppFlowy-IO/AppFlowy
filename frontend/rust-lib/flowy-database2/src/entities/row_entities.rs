@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowDetail, RowId};
+use collab_database::rows::{Row, RowCover, RowDetail, RowId};
 use collab_database::views::RowOrder;
 
 use flowy_derive::ProtoBuf;
@@ -12,6 +12,8 @@ use validator::Validate;
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::position_entities::OrderObjectPositionPB;
 use crate::services::database::{InsertedRow, UpdatedRow};
+
+use super::FileUploadTypePB;
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
 #[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
@@ -66,6 +68,36 @@ pub struct RowMetaPB {
 
   #[pb(index = 5, one_of)]
   pub attachment_count: Option<i64>,
+
+  #[pb(index = 6, one_of)]
+  pub cover: Option<RowCoverPB>,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf, Serialize, Deserialize)]
+pub struct RowCoverPB {
+  #[pb(index = 1)]
+  pub url: String,
+
+  #[pb(index = 2)]
+  pub upload_type: FileUploadTypePB,
+}
+
+impl From<RowCoverPB> for RowCover {
+  fn from(data: RowCoverPB) -> Self {
+    Self {
+      url: data.url,
+      upload_type: data.upload_type.into(),
+    }
+  }
+}
+
+impl From<RowCover> for RowCoverPB {
+  fn from(data: RowCover) -> Self {
+    Self {
+      url: data.url,
+      upload_type: data.upload_type.into(),
+    }
+  }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -82,6 +114,20 @@ impl From<RowOrder> for RowMetaPB {
       icon: None,
       is_document_empty: None,
       attachment_count: None,
+      cover: None,
+    }
+  }
+}
+
+impl From<&Row> for RowMetaPB {
+  fn from(data: &Row) -> Self {
+    Self {
+      id: data.id.clone().into_inner(),
+      document_id: None,
+      icon: None,
+      cover: None,
+      is_document_empty: None,
+      attachment_count: None,
     }
   }
 }
@@ -94,6 +140,7 @@ impl From<Row> for RowMetaPB {
       icon: None,
       is_document_empty: None,
       attachment_count: None,
+      cover: None,
     }
   }
 }
@@ -102,10 +149,11 @@ impl From<RowDetail> for RowMetaPB {
   fn from(row_detail: RowDetail) -> Self {
     Self {
       id: row_detail.row.id.to_string(),
-      document_id: Some(row_detail.document_id),
-      icon: row_detail.meta.icon_url,
+      document_id: Some(row_detail.document_id.clone()),
+      icon: row_detail.meta.icon_url.clone(),
       is_document_empty: Some(row_detail.meta.is_document_empty),
       attachment_count: Some(row_detail.meta.attachment_count),
+      cover: row_detail.meta.cover.map(|cover| cover.into()),
     }
   }
 }
@@ -118,10 +166,10 @@ impl From<&RowDetail> for RowMetaPB {
       icon: row_detail.meta.icon_url.clone(),
       is_document_empty: Some(row_detail.meta.is_document_empty),
       attachment_count: Some(row_detail.meta.attachment_count),
+      cover: row_detail.meta.clone().cover.map(|cover| cover.into()),
     }
   }
 }
-//
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UpdateRowMetaChangesetPB {
@@ -135,7 +183,7 @@ pub struct UpdateRowMetaChangesetPB {
   pub icon_url: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub cover_url: Option<String>,
+  pub cover: Option<RowCoverPB>,
 
   #[pb(index = 5, one_of)]
   pub is_document_empty: Option<bool>,
@@ -144,12 +192,12 @@ pub struct UpdateRowMetaChangesetPB {
   pub attachment_count: Option<i64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UpdateRowMetaParams {
   pub id: String,
   pub view_id: String,
   pub icon_url: Option<String>,
-  pub cover_url: Option<String>,
+  pub cover: Option<RowCover>,
   pub is_document_empty: Option<bool>,
   pub attachment_count: Option<i64>,
 }
@@ -169,7 +217,7 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
       id: row_id,
       view_id,
       icon_url: self.icon_url,
-      cover_url: self.cover_url,
+      cover: self.cover.map(|cover| cover.into()),
       is_document_empty: self.is_document_empty,
       attachment_count: self.attachment_count,
     })

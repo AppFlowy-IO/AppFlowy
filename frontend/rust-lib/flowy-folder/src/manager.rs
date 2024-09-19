@@ -29,7 +29,7 @@ use collab_folder::{
   Workspace,
 };
 use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+  AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -160,7 +160,7 @@ impl FolderManager {
     let config = CollabBuilderConfig::default().sync_enable(true);
 
     let data_source = data_source
-      .unwrap_or_else(|| KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
+      .unwrap_or_else(|| CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
 
     let object_id = workspace_id;
     let collab_object =
@@ -194,7 +194,7 @@ impl FolderManager {
     }
   }
 
-  pub(crate) async fn create_empty_collab(
+  pub(crate) async fn create_folder_with_data(
     &self,
     uid: i64,
     workspace_id: &str,
@@ -208,7 +208,7 @@ impl FolderManager {
         .collab_builder
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
 
-    let doc_state = KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
+    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
     let folder = self.collab_builder.create_folder(
       collab_object,
       doc_state,
@@ -1290,11 +1290,17 @@ impl FolderManager {
         .into_iter()
         .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
         .collect::<HashMap<String, Vec<u8>>>();
+        let database_row_document_collabs = v
+          .database_row_document_encoded_collabs
+          .into_iter()
+          .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
+          .collect::<HashMap<String, Vec<u8>>>();
 
         let data = PublishDatabaseData {
           database_collab,
           database_row_collabs,
           database_relations,
+          database_row_document_collabs,
           ..Default::default()
         };
         PublishPayload::Database(PublishDatabasePayload { meta, data })

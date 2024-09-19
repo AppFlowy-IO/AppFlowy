@@ -23,6 +23,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SettingsShortcutsView extends StatefulWidget {
   const SettingsShortcutsView({super.key});
@@ -607,7 +608,7 @@ extension CommandLabel on CommandShortcutEvent {
       label =
           LocaleKeys.settings_shortcutsPage_keybindings_deleteLeftSentence.tr();
     } else if (key == deleteCommand.key) {
-      label = PlatformExtension.isMacOS
+      label = UniversalPlatform.isMacOS
           ? LocaleKeys.settings_shortcutsPage_keybindings_deleteMacOS.tr()
           : LocaleKeys.settings_shortcutsPage_keybindings_delete.tr();
     } else if (key == deleteRightWordCommand.key) {

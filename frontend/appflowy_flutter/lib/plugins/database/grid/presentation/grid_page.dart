@@ -1,6 +1,10 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
@@ -9,11 +13,12 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +28,7 @@ import '../../application/row/row_controller.dart';
 import '../../tab_bar/tab_bar_view.dart';
 import '../../widgets/row/row_detail.dart';
 import '../application/grid_bloc.dart';
+
 import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -197,6 +203,7 @@ class _GridPageState extends State<GridPage> {
           child: RowDetailPage(
             databaseController: context.read<GridBloc>().databaseController,
             rowController: rowController,
+            userProfile: context.read<GridBloc>().userProfile,
           ),
         ),
       );
@@ -293,12 +300,14 @@ class _GridRowsState extends State<_GridRows> {
 
   void _evaluateFloatingCalculations() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        // maxScrollExtent is 0.0 if scrolling is not possible
-        showFloatingCalculations = widget
-                .scrollController.verticalController.position.maxScrollExtent >
-            0;
-      });
+      if (mounted) {
+        setState(() {
+          // maxScrollExtent is 0.0 if scrolling is not possible
+          showFloatingCalculations = widget.scrollController.verticalController
+                  .position.maxScrollExtent >
+              0;
+        });
+      }
     });
   }
 
@@ -349,7 +358,7 @@ class _GridRowsState extends State<_GridRows> {
           child: ReorderableListView.builder(
             ///  This is a workaround related to
             ///  https://github.com/flutter/flutter/issues/25652
-            cacheExtent: max(layoutConstraints.maxHeight * 2, 500),
+            cacheExtent: max(layoutConstraints.maxHeight, 500),
             scrollController: widget.scrollController.verticalController,
             physics: const ClampingScrollPhysics(),
             buildDefaultDragHandles: false,
@@ -361,11 +370,34 @@ class _GridRowsState extends State<_GridRows> {
               ),
             ),
             onReorder: (fromIndex, newIndex) {
-              final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-              if (fromIndex != toIndex) {
-                context
-                    .read<GridBloc>()
-                    .add(GridEvent.moveRow(fromIndex, toIndex));
+              void moveRow() {
+                final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+                if (fromIndex != toIndex) {
+                  context
+                      .read<GridBloc>()
+                      .add(GridEvent.moveRow(fromIndex, toIndex));
+                }
+              }
+
+              if (state.sorts.isNotEmpty) {
+                showCancelAndDeleteDialog(
+                  context: context,
+                  title: LocaleKeys.grid_sort_sortsActive.tr(
+                    namedArgs: {
+                      'intention':
+                          LocaleKeys.grid_row_reorderRowDescription.tr(),
+                    },
+                  ),
+                  description: LocaleKeys.grid_sort_removeSorting.tr(),
+                  confirmLabel: LocaleKeys.button_remove.tr(),
+                  closeOnAction: true,
+                  onDelete: () {
+                    SortBackendService(viewId: widget.viewId).deleteAllSorts();
+                    moveRow();
+                  },
+                );
+              } else {
+                moveRow();
               }
             },
             itemCount: itemCount,
@@ -374,7 +406,6 @@ class _GridRowsState extends State<_GridRows> {
                 return _renderRow(
                   context,
                   state.rowInfos[index].rowId,
-                  isDraggable: state.reorderable,
                   index: index,
                 );
               }
@@ -411,8 +442,7 @@ class _GridRowsState extends State<_GridRows> {
   Widget _renderRow(
     BuildContext context,
     RowId rowId, {
-    int? index,
-    required bool isDraggable,
+    required int index,
     Animation<double>? animation,
   }) {
     final databaseController = context.read<GridBloc>().databaseController;
@@ -424,11 +454,6 @@ class _GridRowsState extends State<_GridRows> {
       Log.warn('RowMeta is null for rowId: $rowId');
       return const SizedBox.shrink();
     }
-    final rowController = RowController(
-      viewId: viewId,
-      rowMeta: rowMeta,
-      rowCache: rowCache,
-    );
 
     final child = GridRow(
       key: ValueKey(rowId),
@@ -436,21 +461,32 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
-      isDraggable: isDraggable,
-      rowController: rowController,
+      rowController: RowController(
+        viewId: viewId,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      ),
       cellBuilder: EditableCellBuilder(databaseController: databaseController),
-      openDetailPage: (rowDetailContext) {
-        FlowyOverlay.show(
-          context: rowDetailContext,
-          builder: (_) => BlocProvider.value(
-            value: context.read<ViewBloc>(),
-            child: RowDetailPage(
-              rowController: rowController,
-              databaseController: databaseController,
-            ),
-          ),
-        );
-      },
+      openDetailPage: (rowDetailContext) => FlowyOverlay.show(
+        context: rowDetailContext,
+        builder: (_) {
+          final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+          return rowMeta == null
+              ? const SizedBox.shrink()
+              : BlocProvider.value(
+                  value: context.read<ViewBloc>(),
+                  child: RowDetailPage(
+                    rowController: RowController(
+                      viewId: viewId,
+                      rowMeta: rowMeta,
+                      rowCache: rowCache,
+                    ),
+                    databaseController: databaseController,
+                    userProfile: context.read<GridBloc>().userProfile,
+                  ),
+                );
+        },
+      ),
     );
 
     if (animation != null) {

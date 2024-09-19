@@ -6,9 +6,11 @@ import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27,11 +29,20 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   String get viewId => databaseController.viewId;
 
+  UserProfilePB? _userProfile;
+  UserProfilePB? get userProfile => _userProfile;
+
   void _dispatch() {
     on<GridEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
+            final response = await UserEventGetUserProfile().send();
+            response.fold(
+              (userProfile) => _userProfile = userProfile,
+              (err) => Log.error(err),
+            );
+
             _startListening();
             await _openGrid(emit);
           },

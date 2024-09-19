@@ -20,7 +20,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -198,7 +198,6 @@ class _HomePageState extends State<_HomePage> {
               padding: const EdgeInsets.only(
                 left: HomeSpaceViewSizes.mHorizontalPadding,
                 right: 8.0,
-
               ),
               child: MobileHomePageHeader(
                 userProfile: widget.userProfile,
@@ -226,11 +225,11 @@ class _HomePageState extends State<_HomePage> {
                         FavoriteBloc()..add(const FavoriteEvent.initial()),
                   ),
                   BlocProvider(
-                    create: (_) => SpaceBloc()
-                      ..add(
-                        SpaceEvent.initial(
-                          widget.userProfile,
-                          workspaceId,
+                    create: (_) => SpaceBloc(
+                      userProfile: widget.userProfile,
+                      workspaceId: workspaceId,
+                    )..add(
+                        const SpaceEvent.initial(
                           openFirstPage: false,
                         ),
                       ),

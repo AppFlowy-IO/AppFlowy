@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -12,11 +10,12 @@ import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 final GlobalKey _settingsDialogKey = GlobalKey();
 
@@ -29,7 +28,7 @@ HotKeyItem openSettingsHotKey(
         KeyCode.comma,
         scope: HotKeyScope.inapp,
         modifiers: [
-          PlatformExtension.isMacOS ? KeyModifier.meta : KeyModifier.control,
+          UniversalPlatform.isMacOS ? KeyModifier.meta : KeyModifier.control,
         ],
       ),
       keyDownHandler: (_) {
@@ -43,9 +42,14 @@ HotKeyItem openSettingsHotKey(
     );
 
 class UserSettingButton extends StatefulWidget {
-  const UserSettingButton({required this.userProfile, super.key});
+  const UserSettingButton({
+    super.key,
+    required this.userProfile,
+    this.isHover = false,
+  });
 
   final UserProfilePB userProfile;
+  final bool isHover;
 
   @override
   State<UserSettingButton> createState() => _UserSettingButtonState();
@@ -79,8 +83,10 @@ class _UserSettingButtonState extends State<UserSettingButton> {
             _userWorkspaceBloc,
           ),
           margin: EdgeInsets.zero,
-          text: const FlowySvg(
+          text: FlowySvg(
             FlowySvgs.settings_s,
+            color:
+                widget.isHover ? Theme.of(context).colorScheme.onSurface : null,
             opacity: 0.7,
           ),
         ),

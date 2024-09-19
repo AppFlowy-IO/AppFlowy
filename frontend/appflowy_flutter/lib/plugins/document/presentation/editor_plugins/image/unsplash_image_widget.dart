@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
 const _accessKeyA = 'YyD-LbW5bVolHWZBq5fWRM_';
@@ -154,7 +153,7 @@ class _UnsplashImagesState extends State<_UnsplashImages> {
           photo: photo,
           isSelected: index == _selectedPhotoIndex,
           onTap: () {
-            widget.onSelectUnsplashImage(photo.urls.regular.toString());
+            widget.onSelectUnsplashImage(photo.urls.full.toString());
             setState(() => _selectedPhotoIndex = index);
           },
         );
