@@ -41,6 +41,12 @@ typedef ViewItemRightIconsBuilder = List<Widget> Function(
   ViewPB view,
 );
 
+enum IgnoreViewType {
+  none,
+  hide,
+  disable,
+}
+
 class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
@@ -125,7 +131,7 @@ class ViewItem extends StatelessWidget {
   final bool? disableSelectedStatus;
 
   // ignore the views when rendering the child views
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
@@ -144,10 +150,14 @@ class ViewItem extends StatelessWidget {
           var childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((childView) => !shouldIgnoreView!(childView))
+                .where(
+                  (childView) =>
+                      shouldIgnoreView!(childView) != IgnoreViewType.hide,
+                )
                 .toList();
           }
-          return InnerViewItem(
+
+          final Widget child = InnerViewItem(
             view: state.view,
             parentView: parentView,
             childViews: childViews,
@@ -173,6 +183,23 @@ class ViewItem extends StatelessWidget {
             extendBuilder: extendBuilder,
             shouldIgnoreView: shouldIgnoreView,
           );
+
+          if (shouldIgnoreView?.call(view) == IgnoreViewType.disable) {
+            return Opacity(
+              opacity: 0.5,
+              child: FlowyTooltip(
+                message: 'Cannot move to a database',
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.forbidden,
+                  child: IgnorePointer(
+                    child: child,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return child;
         },
       ),
     );
@@ -239,7 +266,7 @@ class InnerViewItem extends StatefulWidget {
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(ViewPB view)? extendBuilder;
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
   @override
   State<InnerViewItem> createState() => _InnerViewItemState();
@@ -441,7 +468,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
   final bool isSelected;
 
   @override
