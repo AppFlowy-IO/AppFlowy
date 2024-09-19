@@ -1,4 +1,30 @@
 # Release Notes
+## Version 0.7.0 - 19/09/2024
+### New Features
+- Support reordering blocks in document with drag and drop
+- Support for adding a cover to a row/card in databases
+- Added support for accessing settings on the sign-in page
+- Added "Move to" option to the document menu in top right corner
+- Support for adjusting the document width from settings
+- Show full name of a group on hover
+- Colored group names in kanban boards
+- Support "Ask AI" on multiple lines of text
+- Support for keyboard gestures to move cursor on Mobile
+- Added markdown support for quickly inserting a code block using three backticks
+
+### Bug Fixes
+- Fixed a critical bug where the backtick character would crash the application
+- Fixed an issue with signing-in from the settings dialog where the dialog would persist
+- Fixed a visual bug with icon alignment in primary cell of database rows
+- Fixed a bug with filters applied where new rows were inserted in wrong position
+- Fixed a bug where "Untitled" would override the name of the row
+- Fixed page title not updating after renaming from "More"-menu
+- Fixed File block breaking row detail document
+- Fixed issues with reordering rows with sorting rules applied
+- Improvements to the File & Media type in Database
+- Performance improvement in Grid view
+- Fixed filters sometimes not applying properly in databases
+
 ## Version 0.6.9 - 09/09/2024
 ### New Features
 - Added a new property type, 'Files & media'
