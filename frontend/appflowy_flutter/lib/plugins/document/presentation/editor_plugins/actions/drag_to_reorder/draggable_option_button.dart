@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -232,8 +234,11 @@ class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
     }
 
     return IntrinsicHeight(
-      child: Provider.value(
-        value: widget.editorState,
+      child: MultiProvider(
+        providers: [
+          Provider.value(value: widget.editorState),
+          Provider.value(value: getIt<ReminderBloc>()),
+        ],
         child: builder.build(blockComponentContext),
       ),
     );
