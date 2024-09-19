@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -14,7 +15,6 @@ import '../choicechip.dart';
 
 import 'condition_list.dart';
 import 'option_list.dart';
-import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatelessWidget {
   const SelectOptionFilterChoicechip({
@@ -33,12 +33,8 @@ class SelectOptionFilterChoicechip extends StatelessWidget {
         fieldController: fieldController,
         filterInfo: filterInfo,
         delegate: filterInfo.fieldInfo.fieldType == FieldType.SingleSelect
-            ? SingleSelectOptionFilterDelegateImpl(
-                filterInfo: filterInfo,
-              )
-            : MultiSelectOptionFilterDelegateImpl(
-                filterInfo: filterInfo,
-              ),
+            ? const SingleSelectOptionFilterDelegateImpl()
+            : const MultiSelectOptionFilterDelegateImpl(),
       ),
       child: Builder(
         builder: (context) {
@@ -126,13 +122,6 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
                 child: SelectOptionFilterList(
                   filterInfo: state.filterInfo,
                   selectedOptionIds: state.filter.optionIds,
-                  onSelectedOptions: (optionIds) {
-                    context.read<SelectOptionFilterBloc>().add(
-                          SelectOptionFilterEvent.updateContent(
-                            optionIds,
-                          ),
-                        );
-                  },
                 ),
               ),
             );

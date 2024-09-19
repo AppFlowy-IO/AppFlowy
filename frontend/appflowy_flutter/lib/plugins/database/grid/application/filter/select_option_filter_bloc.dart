@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,7 +28,7 @@ class SelectOptionFilterBloc
         super(
           SelectOptionFilterState.initial(
             filterInfo,
-            delegate.loadOptions(),
+            delegate.getOptions(filterInfo.fieldInfo),
           ),
         ) {
     _dispatch();
@@ -81,8 +81,24 @@ class SelectOptionFilterBloc
             emit(
               state.copyWith(
                 filterInfo: filterInfo,
+                options: delegate.getOptions(field),
               ),
             );
+          },
+          selectOption: (option) {
+            final selectedOptionIds = delegate.selectOption(
+              state.filter.optionIds,
+              option.id,
+              state.filter.condition,
+            );
+
+            _updateSelectOptions(selectedOptionIds);
+          },
+          unSelectOption: (option) {
+            final selectedOptionIds = Set<String>.from(state.filter.optionIds)
+              ..remove(option.id);
+
+            _updateSelectOptions(selectedOptionIds);
           },
         );
       },
@@ -119,6 +135,22 @@ class SelectOptionFilterBloc
     }
     return super.close();
   }
+
+  void _updateSelectOptions(
+    Set<String> selectedOptionIds,
+  ) {
+    final optionIds = state.options
+        .map((e) => e.id)
+        .where(selectedOptionIds.contains)
+        .toList();
+    _filterBackendSvc.insertSelectOptionFilter(
+      filterId: filterId,
+      fieldId: fieldId,
+      condition: state.filter.condition,
+      optionIds: optionIds,
+      fieldType: state.filterInfo.fieldInfo.fieldType,
+    );
+  }
 }
 
 @freezed
@@ -135,6 +167,12 @@ class SelectOptionFilterEvent with _$SelectOptionFilterEvent {
   const factory SelectOptionFilterEvent.updateContent(
     List<String> optionIds,
   ) = _UpdateContent;
+  const factory SelectOptionFilterEvent.selectOption(
+    SelectOptionPB option,
+  ) = _SelectOption;
+  const factory SelectOptionFilterEvent.unSelectOption(
+    SelectOptionPB option,
+  ) = _UnSelectOption;
 }
 
 @freezed
