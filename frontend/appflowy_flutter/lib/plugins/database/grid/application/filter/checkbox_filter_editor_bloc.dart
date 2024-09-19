@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
@@ -13,6 +15,7 @@ part 'checkbox_filter_editor_bloc.freezed.dart';
 class CheckboxFilterBloc
     extends Bloc<CheckboxFilterEvent, CheckboxFilterState> {
   CheckboxFilterBloc({
+    required this.fieldController,
     required FilterInfo filterInfo,
   })  : filterId = filterInfo.filterId,
         fieldId = filterInfo.fieldId,
@@ -26,10 +29,13 @@ class CheckboxFilterBloc
     _startListening();
   }
 
+  final FieldController fieldController;
   final String filterId;
   final String fieldId;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
+
+  void Function(FieldInfo)? _onFieldChanged;
 
   void _dispatch() {
     on<CheckboxFilterEvent>(
@@ -52,6 +58,14 @@ class CheckboxFilterBloc
               ),
             );
           },
+          didReceiveField: (field) {
+            final filterInfo = state.filterInfo.copyWith(fieldInfo: field);
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
+              ),
+            );
+          },
         );
       },
     );
@@ -65,11 +79,26 @@ class CheckboxFilterBloc
         }
       },
     );
+    _onFieldChanged = (field) {
+      if (!isClosed) {
+        add(CheckboxFilterEvent.didReceiveField(field));
+      }
+    };
+    fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _onFieldChanged!,
+    );
   }
 
   @override
   Future<void> close() async {
     await _listener.stop();
+    if (_onFieldChanged != null) {
+      fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: _onFieldChanged!,
+      );
+    }
     return super.close();
   }
 }
@@ -79,6 +108,9 @@ class CheckboxFilterEvent with _$CheckboxFilterEvent {
   const factory CheckboxFilterEvent.didReceiveFilter(
     FilterPB filter,
   ) = _DidReceiveFilter;
+  const factory CheckboxFilterEvent.didReceiveField(
+    FieldInfo field,
+  ) = _DidReceiveField;
   const factory CheckboxFilterEvent.updateCondition(
     CheckboxFilterConditionPB condition,
   ) = _UpdateCondition;

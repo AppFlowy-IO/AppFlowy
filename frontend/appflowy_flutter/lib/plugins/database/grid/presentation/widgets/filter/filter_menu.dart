@@ -6,6 +6,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,6 +29,11 @@ class FilterMenu extends StatelessWidget {
         fieldController: fieldController,
       ),
       child: BlocBuilder<FilterEditorBloc, FilterEditorState>(
+        buildWhen: (previous, current) {
+          final previousIds = previous.filters.map((e) => e.filterId).toList();
+          final currentIds = current.filters.map((e) => e.filterId).toList();
+          return !listEquals(previousIds, currentIds);
+        },
         builder: (context, state) {
           final List<Widget> children = [];
           children.addAll(
@@ -35,7 +41,7 @@ class FilterMenu extends StatelessWidget {
                 .map(
                   (filterInfo) => FilterMenuItem(
                     key: ValueKey(filterInfo.filter.id),
-                    viewId: fieldController.viewId,
+                    fieldController: fieldController,
                     filterId: filterInfo.filterId,
                   ),
                 )

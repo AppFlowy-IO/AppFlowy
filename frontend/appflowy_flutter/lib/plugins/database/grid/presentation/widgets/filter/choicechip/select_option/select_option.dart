@@ -1,11 +1,11 @@
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../disclosure_button.dart';
@@ -17,14 +17,20 @@ import 'option_list.dart';
 import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatelessWidget {
-  const SelectOptionFilterChoicechip({required this.filterInfo, super.key});
+  const SelectOptionFilterChoicechip({
+    super.key,
+    required this.fieldController,
+    required this.filterInfo,
+  });
 
+  final FieldController fieldController;
   final FilterInfo filterInfo;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => SelectOptionFilterBloc(
+        fieldController: fieldController,
         filterInfo: filterInfo,
         delegate: filterInfo.fieldInfo.fieldType == FieldType.SingleSelect
             ? SingleSelectOptionFilterDelegateImpl(

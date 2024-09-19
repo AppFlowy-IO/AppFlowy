@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
@@ -12,8 +14,12 @@ part 'checklist_filter_editor_bloc.freezed.dart';
 
 class ChecklistFilterBloc
     extends Bloc<ChecklistFilterEvent, ChecklistFilterState> {
-  ChecklistFilterBloc({required this.filterInfo})
-      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  ChecklistFilterBloc({
+    required this.fieldController,
+    required FilterInfo filterInfo,
+  })  : filterId = filterInfo.filterId,
+        fieldId = filterInfo.fieldId,
+        _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
@@ -23,9 +29,13 @@ class ChecklistFilterBloc
     _startListening();
   }
 
-  final FilterInfo filterInfo;
+  final FieldController fieldController;
+  final String filterId;
+  final String fieldId;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
+
+  void Function(FieldInfo)? _onFieldChanged;
 
   void _dispatch() {
     on<ChecklistFilterEvent>(
@@ -33,8 +43,8 @@ class ChecklistFilterBloc
         await event.when(
           updateCondition: (ChecklistFilterConditionPB condition) {
             return _filterBackendSvc.insertChecklistFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              filterId: filterId,
+              fieldId: fieldId,
               condition: condition,
             );
           },
@@ -45,6 +55,14 @@ class ChecklistFilterBloc
               state.copyWith(
                 filterInfo: filterInfo,
                 filter: checklistFilter,
+              ),
+            );
+          },
+          didReceiveField: (field) {
+            final filterInfo = state.filterInfo.copyWith(fieldInfo: field);
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
               ),
             );
           },
@@ -61,11 +79,26 @@ class ChecklistFilterBloc
         }
       },
     );
+    _onFieldChanged = (field) {
+      if (!isClosed) {
+        add(ChecklistFilterEvent.didReceiveField(field));
+      }
+    };
+    fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _onFieldChanged!,
+    );
   }
 
   @override
   Future<void> close() async {
     await _listener.stop();
+    if (_onFieldChanged != null) {
+      fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: _onFieldChanged!,
+      );
+    }
     return super.close();
   }
 }
@@ -74,6 +107,9 @@ class ChecklistFilterBloc
 class ChecklistFilterEvent with _$ChecklistFilterEvent {
   const factory ChecklistFilterEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
+  const factory ChecklistFilterEvent.didReceiveField(
+    FieldInfo field,
+  ) = _DidReceiveField;
   const factory ChecklistFilterEvent.updateCondition(
     ChecklistFilterConditionPB condition,
   ) = _UpdateCondition;

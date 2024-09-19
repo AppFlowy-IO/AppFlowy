@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
@@ -10,8 +12,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'text_filter_editor_bloc.freezed.dart';
 
 class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
-  TextFilterBloc({required this.filterInfo, required this.fieldType})
-      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  TextFilterBloc({
+    required this.fieldController,
+    required FilterInfo filterInfo,
+    required this.fieldType,
+  })  : filterId = filterInfo.filterId,
+        fieldId = filterInfo.fieldId,
+        _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
@@ -21,10 +28,14 @@ class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
     _startListening();
   }
 
-  final FilterInfo filterInfo;
+  final FieldController fieldController;
+  final String filterId;
+  final String fieldId;
   final FieldType fieldType;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
+
+  void Function(FieldInfo)? _onFieldChanged;
 
   void _dispatch() {
     on<TextFilterEvent>(
@@ -33,14 +44,14 @@ class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
           updateCondition: (TextFilterConditionPB condition) {
             fieldType == FieldType.RichText
                 ? _filterBackendSvc.insertTextFilter(
-                    filterId: filterInfo.filter.id,
-                    fieldId: filterInfo.fieldInfo.id,
+                    filterId: filterId,
+                    fieldId: fieldId,
                     condition: condition,
                     content: state.filter.content,
                   )
                 : _filterBackendSvc.insertURLFilter(
-                    filterId: filterInfo.filter.id,
-                    fieldId: filterInfo.fieldInfo.id,
+                    filterId: filterId,
+                    fieldId: fieldId,
                     condition: condition,
                     content: state.filter.content,
                   );
@@ -48,14 +59,14 @@ class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
           updateContent: (String content) {
             fieldType == FieldType.RichText
                 ? _filterBackendSvc.insertTextFilter(
-                    filterId: filterInfo.filter.id,
-                    fieldId: filterInfo.fieldInfo.id,
+                    filterId: filterId,
+                    fieldId: fieldId,
                     condition: state.filter.condition,
                     content: content,
                   )
                 : _filterBackendSvc.insertURLFilter(
-                    filterId: filterInfo.filter.id,
-                    fieldId: filterInfo.fieldInfo.id,
+                    filterId: filterId,
+                    fieldId: fieldId,
                     condition: state.filter.condition,
                     content: content,
                   );
@@ -67,6 +78,14 @@ class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
               state.copyWith(
                 filterInfo: filterInfo,
                 filter: textFilter,
+              ),
+            );
+          },
+          didReceiveField: (field) {
+            final filterInfo = state.filterInfo.copyWith(fieldInfo: field);
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
               ),
             );
           },
@@ -83,11 +102,26 @@ class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
         }
       },
     );
+    _onFieldChanged = (field) {
+      if (!isClosed) {
+        add(TextFilterEvent.didReceiveField(field));
+      }
+    };
+    fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _onFieldChanged!,
+    );
   }
 
   @override
   Future<void> close() async {
     await _listener.stop();
+    if (_onFieldChanged != null) {
+      fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: _onFieldChanged!,
+      );
+    }
     return super.close();
   }
 }
@@ -96,6 +130,9 @@ class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
 class TextFilterEvent with _$TextFilterEvent {
   const factory TextFilterEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
+  const factory TextFilterEvent.didReceiveField(
+    FieldInfo field,
+  ) = _DidReceiveField;
   const factory TextFilterEvent.updateCondition(
     TextFilterConditionPB condition,
   ) = _UpdateCondition;

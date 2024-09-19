@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -16,11 +17,11 @@ import 'filter_info.dart';
 class FilterMenuItem extends StatelessWidget {
   const FilterMenuItem({
     super.key,
-    required this.viewId,
+    required this.fieldController,
     required this.filterId,
   });
 
-  final String viewId;
+  final FieldController fieldController;
   final String filterId;
 
   @override
@@ -33,17 +34,33 @@ class FilterMenuItem extends StatelessWidget {
           return const SizedBox.shrink();
         }
         return switch (filterInfo.fieldInfo.fieldType) {
-          FieldType.RichText => TextFilterChoicechip(filterInfo: filterInfo),
-          FieldType.Number => NumberFilterChoiceChip(filterInfo: filterInfo),
-          FieldType.URL => URLFilterChoiceChip(filterInfo: filterInfo),
-          FieldType.Checkbox =>
-            CheckboxFilterChoicechip(filterInfo: filterInfo),
-          FieldType.Checklist =>
-            ChecklistFilterChoicechip(filterInfo: filterInfo),
+          FieldType.RichText => TextFilterChoicechip(
+              fieldController: fieldController,
+              filterInfo: filterInfo,
+            ),
+          FieldType.Number => NumberFilterChoiceChip(
+              fieldController: fieldController,
+              filterInfo: filterInfo,
+            ),
+          FieldType.URL => URLFilterChoiceChip(
+              fieldController: fieldController,
+              filterInfo: filterInfo,
+            ),
+          FieldType.Checkbox => CheckboxFilterChoicechip(
+              fieldController: fieldController,
+              filterInfo: filterInfo,
+            ),
+          FieldType.Checklist => ChecklistFilterChoicechip(
+              fieldController: fieldController,
+              filterInfo: filterInfo,
+            ),
           // FieldType.DateTime => DateFilterChoicechip(filterInfo: filterInfo),
           FieldType.SingleSelect ||
           FieldType.MultiSelect =>
-            SelectOptionFilterChoicechip(filterInfo: filterInfo),
+            SelectOptionFilterChoicechip(
+              fieldController: fieldController,
+              filterInfo: filterInfo,
+            ),
           // FieldType.Time =>
           //   TimeFilterChoiceChip(filterInfo: filterInfo),
           _ => const SizedBox.shrink(),

@@ -1,14 +1,14 @@
-import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/checkbox_filter_editor_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../condition_button.dart';
@@ -20,15 +20,18 @@ import 'choicechip.dart';
 class CheckboxFilterChoicechip extends StatelessWidget {
   const CheckboxFilterChoicechip({
     super.key,
+    required this.fieldController,
     required this.filterInfo,
   });
 
+  final FieldController fieldController;
   final FilterInfo filterInfo;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => CheckboxFilterBloc(
+        fieldController: fieldController,
         filterInfo: filterInfo,
       ),
       child: Builder(

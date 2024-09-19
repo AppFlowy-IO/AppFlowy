@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
@@ -13,9 +15,12 @@ part 'select_option_filter_bloc.freezed.dart';
 class SelectOptionFilterBloc
     extends Bloc<SelectOptionFilterEvent, SelectOptionFilterState> {
   SelectOptionFilterBloc({
-    required this.filterInfo,
+    required this.fieldController,
+    required FilterInfo filterInfo,
     required this.delegate,
-  })  : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  })  : filterId = filterInfo.filterId,
+        fieldId = filterInfo.fieldId,
+        _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
@@ -30,10 +35,14 @@ class SelectOptionFilterBloc
     _startListening();
   }
 
-  final FilterInfo filterInfo;
+  final FieldController fieldController;
+  final String filterId;
+  final String fieldId;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
   final SelectOptionFilterDelegate delegate;
+
+  void Function(FieldInfo)? _onFieldChanged;
 
   void _dispatch() {
     on<SelectOptionFilterEvent>(
@@ -41,8 +50,8 @@ class SelectOptionFilterBloc
         event.when(
           updateCondition: (SelectOptionFilterConditionPB condition) {
             _filterBackendSvc.insertSelectOptionFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              filterId: filterId,
+              fieldId: fieldId,
               condition: condition,
               optionIds: state.filter.optionIds,
               fieldType: state.filterInfo.fieldInfo.fieldType,
@@ -50,8 +59,8 @@ class SelectOptionFilterBloc
           },
           updateContent: (List<String> optionIds) {
             _filterBackendSvc.insertSelectOptionFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              filterId: filterId,
+              fieldId: fieldId,
               condition: state.filter.condition,
               optionIds: optionIds,
               fieldType: state.filterInfo.fieldInfo.fieldType,
@@ -64,6 +73,14 @@ class SelectOptionFilterBloc
               state.copyWith(
                 filterInfo: filterInfo,
                 filter: selectOptionFilter,
+              ),
+            );
+          },
+          didReceiveField: (field) {
+            final filterInfo = state.filterInfo.copyWith(fieldInfo: field);
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
               ),
             );
           },
@@ -80,11 +97,26 @@ class SelectOptionFilterBloc
         }
       },
     );
+    _onFieldChanged = (field) {
+      if (!isClosed) {
+        add(SelectOptionFilterEvent.didReceiveField(field));
+      }
+    };
+    fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _onFieldChanged!,
+    );
   }
 
   @override
   Future<void> close() async {
     await _listener.stop();
+    if (_onFieldChanged != null) {
+      fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: _onFieldChanged!,
+      );
+    }
     return super.close();
   }
 }
@@ -94,6 +126,9 @@ class SelectOptionFilterEvent with _$SelectOptionFilterEvent {
   const factory SelectOptionFilterEvent.didReceiveFilter(
     FilterPB filter,
   ) = _DidReceiveFilter;
+  const factory SelectOptionFilterEvent.didReceiveField(
+    FieldInfo field,
+  ) = _DidReceiveField;
   const factory SelectOptionFilterEvent.updateCondition(
     SelectOptionFilterConditionPB condition,
   ) = _UpdateCondition;

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
@@ -10,8 +12,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'number_filter_editor_bloc.freezed.dart';
 
 class NumberFilterBloc extends Bloc<NumberFilterEvent, NumberFilterState> {
-  NumberFilterBloc({required this.filterInfo})
-      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  NumberFilterBloc({
+    required this.fieldController,
+    required FilterInfo filterInfo,
+  })  : filterId = filterInfo.filterId,
+        fieldId = filterInfo.fieldId,
+        _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
@@ -21,9 +27,13 @@ class NumberFilterBloc extends Bloc<NumberFilterEvent, NumberFilterState> {
     _startListening();
   }
 
-  final FilterInfo filterInfo;
+  final FieldController fieldController;
+  final String filterId;
+  final String fieldId;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
+
+  void Function(FieldInfo)? _onFieldChanged;
 
   void _dispatch() {
     on<NumberFilterEvent>(
@@ -38,18 +48,26 @@ class NumberFilterBloc extends Bloc<NumberFilterEvent, NumberFilterState> {
               ),
             );
           },
+          didReceiveField: (field) {
+            final filterInfo = state.filterInfo.copyWith(fieldInfo: field);
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
+              ),
+            );
+          },
           updateCondition: (NumberFilterConditionPB condition) {
             _filterBackendSvc.insertNumberFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              filterId: filterId,
+              fieldId: fieldId,
               condition: condition,
               content: state.filter.content,
             );
           },
           updateContent: (content) {
             _filterBackendSvc.insertNumberFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              filterId: filterId,
+              fieldId: fieldId,
               condition: state.filter.condition,
               content: content,
             );
@@ -67,11 +85,26 @@ class NumberFilterBloc extends Bloc<NumberFilterEvent, NumberFilterState> {
         }
       },
     );
+    _onFieldChanged = (field) {
+      if (!isClosed) {
+        add(NumberFilterEvent.didReceiveField(field));
+      }
+    };
+    fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _onFieldChanged!,
+    );
   }
 
   @override
   Future<void> close() async {
     await _listener.stop();
+    if (_onFieldChanged != null) {
+      fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: _onFieldChanged!,
+      );
+    }
     return super.close();
   }
 }
@@ -80,6 +113,9 @@ class NumberFilterBloc extends Bloc<NumberFilterEvent, NumberFilterState> {
 class NumberFilterEvent with _$NumberFilterEvent {
   const factory NumberFilterEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
+  const factory NumberFilterEvent.didReceiveField(
+    FieldInfo field,
+  ) = _DidReceiveField;
   const factory NumberFilterEvent.updateCondition(
     NumberFilterConditionPB condition,
   ) = _UpdateCondition;

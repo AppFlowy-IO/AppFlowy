@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/text_filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
@@ -11,14 +12,20 @@ import '../filter_info.dart';
 import 'choicechip.dart';
 
 class URLFilterChoiceChip extends StatelessWidget {
-  const URLFilterChoiceChip({required this.filterInfo, super.key});
+  const URLFilterChoiceChip({
+    super.key,
+    required this.fieldController,
+    required this.filterInfo,
+  });
 
+  final FieldController fieldController;
   final FilterInfo filterInfo;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => TextFilterBloc(
+        fieldController: fieldController,
         filterInfo: filterInfo,
         fieldType: FieldType.URL,
       ),
@@ -43,7 +50,7 @@ class URLFilterChoiceChip extends StatelessWidget {
             child: BlocBuilder<TextFilterBloc, TextFilterState>(
               builder: (context, state) {
                 return ChoiceChipButton(
-                  filterInfo: filterInfo,
+                  filterInfo: state.filterInfo,
                   filterDesc: _makeFilterDesc(state),
                 );
               },
