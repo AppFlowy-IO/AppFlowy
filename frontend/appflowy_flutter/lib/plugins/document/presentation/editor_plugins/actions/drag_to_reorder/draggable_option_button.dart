@@ -15,6 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
+// this flag is used to disable the tooltip of the block when it is dragged
+ValueNotifier<bool> _isDraggingAppFlowyEditorBlock = ValueNotifier(false);
+
 class DraggableOptionButton extends StatefulWidget {
   const DraggableOptionButton({
     super.key,
@@ -64,9 +67,13 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
         blockComponentBuilder: widget.blockComponentBuilder,
       ),
       onDragStarted: () {
+        _isDraggingAppFlowyEditorBlock.value = true;
+
         widget.editorState.selectionService.removeDropTarget();
       },
       onDragUpdate: (details) {
+        _isDraggingAppFlowyEditorBlock.value = true;
+
         widget.editorState.selectionService
             .renderDropTargetForOffset(details.globalPosition);
 
@@ -78,6 +85,8 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
         );
       },
       onDragEnd: (details) {
+        _isDraggingAppFlowyEditorBlock.value = false;
+
         widget.editorState.selectionService.removeDropTarget();
 
         if (globalPosition == null) {
@@ -256,34 +265,43 @@ class _OptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlockActionButton(
-      svg: FlowySvgs.drag_element_s,
-      richMessage: TextSpan(
-        children: [
-          TextSpan(
-            text: LocaleKeys.document_plugins_optionAction_drag.tr(),
-            style: context.tooltipTextStyle(),
-          ),
-          TextSpan(
-            text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
-            style: context.tooltipTextStyle(),
-          ),
-          const TextSpan(text: '\n'),
-          TextSpan(
-            text: LocaleKeys.document_plugins_optionAction_click.tr(),
-            style: context.tooltipTextStyle(),
-          ),
-          TextSpan(
-            text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
-            style: context.tooltipTextStyle(),
-          ),
-        ],
-      ),
-      onTap: () {
-        controller.show();
+    return ValueListenableBuilder(
+      valueListenable: _isDraggingAppFlowyEditorBlock,
+      builder: (context, isDragging, child) {
+        return BlockActionButton(
+          svg: FlowySvgs.drag_element_s,
+          richMessage: isDragging
+              ? const TextSpan()
+              : TextSpan(
+                  children: [
+                    TextSpan(
+                      text: LocaleKeys.document_plugins_optionAction_drag.tr(),
+                      style: context.tooltipTextStyle(),
+                    ),
+                    TextSpan(
+                      text:
+                          LocaleKeys.document_plugins_optionAction_toMove.tr(),
+                      style: context.tooltipTextStyle(),
+                    ),
+                    const TextSpan(text: '\n'),
+                    TextSpan(
+                      text: LocaleKeys.document_plugins_optionAction_click.tr(),
+                      style: context.tooltipTextStyle(),
+                    ),
+                    TextSpan(
+                      text: LocaleKeys.document_plugins_optionAction_toOpenMenu
+                          .tr(),
+                      style: context.tooltipTextStyle(),
+                    ),
+                  ],
+                ),
+          onTap: () {
+            controller.show();
 
-        // update selection
-        _updateBlockSelection();
+            // update selection
+            _updateBlockSelection();
+          },
+        );
       },
     );
   }
