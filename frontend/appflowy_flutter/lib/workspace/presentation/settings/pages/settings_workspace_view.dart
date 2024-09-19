@@ -1329,28 +1329,35 @@ class _DocumentPaddingSliderState extends State<_DocumentPaddingSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return SliderTheme(
-      data: Theme.of(context).sliderTheme.copyWith(
-            showValueIndicator: ShowValueIndicator.never,
-            thumbShape: const RoundSliderThumbShape(
-              enabledThumbRadius: 8,
+    return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+      builder: (context, state) {
+        if (state.width != width) {
+          width = state.width;
+        }
+        return SliderTheme(
+          data: Theme.of(context).sliderTheme.copyWith(
+                showValueIndicator: ShowValueIndicator.never,
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 8,
+                ),
+                overlayShape: SliderComponentShape.noThumb,
+              ),
+          child: Slider(
+            value: width.clamp(
+              EditorStyleCustomizer.minDocumentWidth,
+              EditorStyleCustomizer.maxDocumentWidth,
             ),
-            overlayShape: SliderComponentShape.noThumb,
-          ),
-      child: Slider(
-        value: width.clamp(
-          EditorStyleCustomizer.minDocumentWidth,
-          EditorStyleCustomizer.maxDocumentWidth,
-        ),
-        min: EditorStyleCustomizer.minDocumentWidth,
-        max: EditorStyleCustomizer.maxDocumentWidth,
-        divisions: 10,
-        onChanged: (value) {
-          setState(() => width = value);
+            min: EditorStyleCustomizer.minDocumentWidth,
+            max: EditorStyleCustomizer.maxDocumentWidth,
+            divisions: 10,
+            onChanged: (value) {
+              setState(() => width = value);
 
-          widget.onPaddingChanged(value);
-        },
-      ),
+              widget.onPaddingChanged(value);
+            },
+          ),
+        );
+      },
     );
   }
 }
