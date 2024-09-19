@@ -27,15 +27,15 @@ class CreateDatabaseViewFilterList extends StatelessWidget {
   Widget build(BuildContext context) {
     final filterBloc = context.read<FilterEditorBloc>();
     return BlocProvider(
-      create: (_) => SimpleTextFilterBloc(
-        values: filterBloc.state.fields,
+      create: (_) => SimpleTextFilterBloc<FieldInfo>(
+        values: List.from(filterBloc.state.fields),
         comparator: (val) => val.name,
       ),
       child: BlocListener<FilterEditorBloc, FilterEditorState>(
         listenWhen: (previous, current) => previous.fields != current.fields,
         listener: (context, state) {
           context
-              .read<SimpleTextFilterBloc>()
+              .read<SimpleTextFilterBloc<FieldInfo>>()
               .add(SimpleTextFilterEvent.receiveNewValues(state.fields));
         },
         child: BlocBuilder<SimpleTextFilterBloc<FieldInfo>,

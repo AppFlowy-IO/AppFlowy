@@ -27,15 +27,15 @@ class CreateDatabaseViewSortList extends StatelessWidget {
   Widget build(BuildContext context) {
     final sortBloc = context.read<SortEditorBloc>();
     return BlocProvider(
-      create: (_) => SimpleTextFilterBloc(
-        values: sortBloc.state.creatableFields,
+      create: (_) => SimpleTextFilterBloc<FieldInfo>(
+        values: List.from(sortBloc.state.creatableFields),
         comparator: (val) => val.name,
       ),
       child: BlocListener<SortEditorBloc, SortEditorState>(
         listenWhen: (previous, current) =>
             previous.creatableFields != current.creatableFields,
         listener: (context, state) {
-          context.read<SimpleTextFilterBloc>().add(
+          context.read<SimpleTextFilterBloc<FieldInfo>>().add(
                 SimpleTextFilterEvent.receiveNewValues(state.creatableFields),
               );
         },

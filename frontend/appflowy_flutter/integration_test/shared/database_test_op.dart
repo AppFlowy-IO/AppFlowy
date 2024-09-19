@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/choicechip.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,6 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choic
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/disclosure_button.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
@@ -967,8 +967,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapFilterButtonInGrid(String name) async {
-    final findFilter = find.byType(FilterMenuItem);
-    final button = find.descendant(of: findFilter, matching: find.text(name));
+    final button = find.byWidgetPredicate(
+      (widget) =>
+          widget is ChoiceChipButton &&
+          widget.filterInfo.fieldInfo.name == name,
+    );
     await tapButton(button);
   }
 
