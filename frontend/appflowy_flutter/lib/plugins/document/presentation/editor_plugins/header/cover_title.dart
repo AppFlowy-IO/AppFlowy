@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -6,6 +8,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+FocusNode? coverTitleFocusNode;
 
 class CoverTitle extends StatelessWidget {
   const CoverTitle({
@@ -51,20 +55,16 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     super.initState();
 
     titleTextController.addListener(_onViewNameChanged);
-    titleFocusNode.onKeyEvent = (_, event) {
-      if (event.logicalKey == LogicalKeyboardKey.enter) {
-        // if enter is pressed, jump the first line of editor.
-        _createNewLine();
-        return KeyEventResult.handled;
-      }
-
-      return KeyEventResult.ignored;
-    };
+    titleFocusNode.onKeyEvent = _onKeyEvent;
     _requestFocusIfNeeded(widget.view, null);
+
+    coverTitleFocusNode = titleFocusNode;
   }
 
   @override
   void dispose() {
+    coverTitleFocusNode = null;
+
     titleTextController.dispose();
     titleFocusNode.dispose();
 
@@ -82,24 +82,34 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         }
       },
       builder: (context, state) {
+        final appearance = context.read<DocumentAppearanceCubit>().state;
         return Container(
           padding: EdgeInsets.symmetric(horizontal: widget.offset),
-          child: TextField(
-            controller: titleTextController,
-            focusNode: titleFocusNode,
-            maxLines: null,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-              hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 38.0,
-                    color: Theme.of(context).hintColor,
-                  ),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: appearance.selectionColor,
+                selectionColor: appearance.selectionColor ??
+                    DefaultAppearanceSettings.getDefaultSelectionColor(context),
+              ),
             ),
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(fontSize: 38.0),
+            child: TextField(
+              controller: titleTextController,
+              focusNode: titleFocusNode,
+              maxLines: null,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 38.0,
+                      color: Theme.of(context).hintColor,
+                    ),
+              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(fontSize: 38.0),
+            ),
           ),
         );
       },
@@ -149,6 +159,20 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     );
   }
 
+  KeyEventResult _onKeyEvent(FocusNode focusNode, KeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      // if enter is pressed, jump the first line of editor.
+      _createNewLine();
+      return KeyEventResult.handled;
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      return _moveCursorToNextLine(event.logicalKey);
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      return _moveCursorToNextLine(event.logicalKey);
+    }
+
+    return KeyEventResult.ignored;
+  }
+
   Future<void> _createNewLine() async {
     titleFocusNode.unfocus();
 
@@ -167,5 +191,35 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     await editorState.apply(transaction);
 
     editorState.selection = Selection.collapsed(Position(path: [0]));
+  }
+
+  KeyEventResult _moveCursorToNextLine(LogicalKeyboardKey key) {
+    final selection = titleTextController.selection;
+    final text = titleTextController.text;
+
+    // if the cursor is not at the end of the text, ignore the event
+    if (!selection.isCollapsed || text.length != selection.extentOffset) {
+      return KeyEventResult.ignored;
+    }
+
+    final editorState = context.read<EditorState>();
+    final node = editorState.getNodeAtPath([0]);
+    if (node == null) {
+      _createNewLine();
+      return KeyEventResult.handled;
+    }
+
+    titleFocusNode.unfocus();
+
+    int offset = 0;
+    if (key == LogicalKeyboardKey.arrowDown) {
+      offset = node.delta?.length ?? 0;
+    } else if (key == LogicalKeyboardKey.arrowRight) {
+      offset = 0;
+    }
+    editorState.selection = Selection.collapsed(
+      Position(path: [0], offset: offset),
+    );
+    return KeyEventResult.handled;
   }
 }
