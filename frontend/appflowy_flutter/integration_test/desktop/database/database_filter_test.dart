@@ -140,23 +140,23 @@ void main() {
     });
 
     testWidgets('add date filter', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
 
       // create a filter
       await tester.tapDatabaseFilterButton();
       await tester.tapCreateFilterByFieldType(FieldType.DateTime, 'date');
 
       // By default, the condition of date filter is current day and time
-      await tester.assertNumberOfRowsInGridPage(0);
+      tester.assertNumberOfRowsInGridPage(0);
 
       await tester.tapFilterButtonInGrid('date');
       await tester.tapDateFilterButtonInGrid();
       await tester.tapDateFilterCondition(DateFilterConditionPB.DateBefore);
-      await tester.assertNumberOfRowsInGridPage(7);
+      tester.assertNumberOfRowsInGridPage(7);
 
       await tester.tapDateFilterButtonInGrid();
       await tester.tapDateFilterCondition(DateFilterConditionPB.DateIsEmpty);
-      await tester.assertNumberOfRowsInGridPage(3);
+      tester.assertNumberOfRowsInGridPage(3);
 
       await tester.pumpAndSettle();
     });
