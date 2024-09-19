@@ -178,32 +178,18 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
               return AppFlowyDatePicker(
                 isRange: isRange,
                 timeHintText: LocaleKeys.grid_field_selectTime.tr(),
-                includeTime: true,
+                includeTime: false,
                 dateFormat: DateFormatPB.Friendly,
                 timeFormat: TimeFormatPB.TwentyFourHour,
                 selectedDay: filter.timestamp.dateTime,
                 startDay: isRange ? filter.start.dateTime : null,
                 endDay: isRange ? filter.end.dateTime : null,
-                timeStr: isRange
-                    ? filter.start.dateTime?.timeStr
-                    : filter.timestamp.dateTime?.timeStr,
-                endTimeStr: isRange ? filter.end.dateTime?.timeStr : null,
                 onDaySelected: (selectedDay, _) {
-                  selectedDay = selectedDay.considerLocal;
-                  final filter =
-                      context.read<DateFilterEditorBloc>().state.filter;
-                  String? timeStr = filter.timestamp.dateTime?.timeStr;
                   Function(DateTime) event =
                       (date) => DateFilterEditorEvent.updateDate(date);
                   if (isRange) {
-                    timeStr = filter.start.dateTime?.timeStr;
-                    event = (date) => DateFilterEditorEvent.updateRange(
-                          start: date,
-                        );
-                  }
-
-                  if (timeStr != null) {
-                    selectedDay = timeStr.dateTime(selectedDay);
+                    event = (date) =>
+                        DateFilterEditorEvent.updateRange(start: date);
                   }
 
                   context.read<DateFilterEditorBloc>().add(event(selectedDay));
@@ -211,66 +197,13 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                     _popover.close();
                   }
                 },
-                onRangeSelected: (start, end, _) {
-                  start = start?.considerLocal;
-                  end = end?.considerLocal;
-                  final filter =
-                      context.read<DateFilterEditorBloc>().state.filter;
-
-                  final startTimeStr = filter.start.dateTime?.timeStr;
-                  if (startTimeStr != null && start != null) {
-                    start = startTimeStr.dateTime(start);
-                  }
-
-                  final endTimeStr = filter.end.dateTime?.timeStr;
-                  if (endTimeStr != null && end != null) {
-                    end = endTimeStr.dateTime(end);
-                  }
-
-                  context.read<DateFilterEditorBloc>().add(
-                        DateFilterEditorEvent.updateRange(
-                          start: start,
-                          end: end,
+                onRangeSelected: (start, end, _) =>
+                    context.read<DateFilterEditorBloc>().add(
+                          DateFilterEditorEvent.updateRange(
+                            start: start,
+                            end: end,
+                          ),
                         ),
-                      );
-                },
-                onStartTimeSubmitted: (timeStr) {
-                  final filter =
-                      context.read<DateFilterEditorBloc>().state.filter;
-                  DateTime? date = filter.timestamp.dateTime;
-                  Function(DateTime) event =
-                      (date) => DateFilterEditorEvent.updateDate(date);
-                  if (isRange) {
-                    event = (date) => DateFilterEditorEvent.updateRange(
-                          start: date,
-                        );
-                    date = filter.start.dateTime;
-                  }
-                  if (date == null) {
-                    return;
-                  }
-
-                  context
-                      .read<DateFilterEditorBloc>()
-                      .add(event(timeStr.dateTime(date)));
-                },
-                onEndTimeSubmitted: (timeStr) {
-                  final date = context
-                      .read<DateFilterEditorBloc>()
-                      .state
-                      .filter
-                      .end
-                      .dateTime;
-                  if (date == null) {
-                    return;
-                  }
-
-                  context.read<DateFilterEditorBloc>().add(
-                        DateFilterEditorEvent.updateRange(
-                          end: timeStr.dateTime(date),
-                        ),
-                      );
-                },
                 onIncludeTimeChanged: (_) => {},
               );
             },
@@ -359,29 +292,13 @@ extension DateFilterConditionPBExtension on DateFilterConditionPB {
 }
 
 extension DateTimeChoicechipExtension on DateTime {
-  String get timeStr {
-    return DateFormat('HH:mm').format(this);
-  }
-
   DateTime get considerLocal {
-    return DateTime(year, month, day, hour, minute);
+    return DateTime(year, month, day);
   }
 }
 
 extension DateTimeDefaultFormatExtension on DateTime? {
   String? get defaultFormat {
-    return this != null ? DateFormat('dd/MM/yyyy HH:mm').format(this!) : null;
-  }
-}
-
-extension StringDateExtension on String {
-  DateTime dateTime(DateTime date) {
-    String timeStr = trim() == "" ? "00:00" : this;
-    timeStr = timeStr.contains(":") ? timeStr : "$timeStr:00";
-
-    final time = timeStr.split(":");
-    final hour = int.parse(time[0]);
-    final minute = int.parse(time[1]);
-    return DateTime(date.year, date.month, date.day, hour, minute);
+    return this != null ? DateFormat('dd/MM/yyyy').format(this!) : null;
   }
 }

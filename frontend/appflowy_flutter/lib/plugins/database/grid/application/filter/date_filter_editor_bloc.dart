@@ -54,7 +54,7 @@ class DateFilterEditorBloc
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
-              timestamp: date.toUtc().millisecondsSinceEpoch ~/ 1000,
+              timestamp: date.millisecondsSinceEpoch ~/ 1000,
             );
           },
           updateRange: (start, end) {
@@ -64,10 +64,10 @@ class DateFilterEditorBloc
               fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
               start: start != null
-                  ? start.toUtc().millisecondsSinceEpoch ~/ 1000
+                  ? start.millisecondsSinceEpoch ~/ 1000
                   : state.filter.start.toInt(),
               end: end != null
-                  ? end.toUtc().millisecondsSinceEpoch ~/ 1000
+                  ? end.millisecondsSinceEpoch ~/ 1000
                   : state.filter.end.toInt(),
             );
           },
