@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -12,6 +13,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 class DraggableOptionButton extends StatefulWidget {
   const DraggableOptionButton({
@@ -103,6 +105,23 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
     }
 
     Log.info('move node($node) to path($acceptedPath)');
+
+    // check the move target is a valid path
+    // - cannot move to its children
+    if (widget.blockComponentContext.node.path.isParentOf(acceptedPath)) {
+      Log.info('cannot move to its children');
+      showToastNotification(
+        context,
+        message: LocaleKeys.document_plugins_cannotMoveToItsChildren.tr(),
+        type: ToastificationType.error,
+      );
+      return;
+    }
+
+    if (widget.blockComponentContext.node.path.equals(acceptedPath)) {
+      Log.info('cannot move to the same path');
+      return;
+    }
 
     final transaction = widget.editorState.transaction;
     // use the node in document instead of the local node

@@ -1726,7 +1726,8 @@
         "uploadedAt": "Uploaded on {}",
         "linkedAt": "Link added on {}",
         "failedToOpenMsg": "Failed to open, file not found"
-      }
+      },
+      "cannotMoveToItsChildren": "Cannot move to its children"
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -2381,6 +2382,7 @@
     "quicklySwitch": "Quickly switch to the next space",
     "duplicate": "Duplicate Space",
     "movePageToSpace": "Move page to space",
+    "cannotMovePageToDatabase": "Cannot move page to database",
     "switchSpace": "Switch space",
     "spaceNameCannotBeEmpty": "Space name cannot be empty"
   },

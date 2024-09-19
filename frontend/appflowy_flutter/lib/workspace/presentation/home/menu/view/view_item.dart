@@ -188,7 +188,7 @@ class ViewItem extends StatelessWidget {
             return Opacity(
               opacity: 0.5,
               child: FlowyTooltip(
-                message: 'Cannot move to a database',
+                message: LocaleKeys.space_cannotMovePageToDatabase.tr(),
                 child: MouseRegion(
                   cursor: SystemMouseCursors.forbidden,
                   child: IgnorePointer(
