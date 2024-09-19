@@ -52,6 +52,8 @@ final localizedCodeBlockCommands =
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
   backspaceToTitle,
+  arrowUpToTitle,
+  arrowLeftToTitle,
   toggleToggleListCommand,
   ...localizedCodeBlockCommands,
   customCopyCommand,

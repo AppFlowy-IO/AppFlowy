@@ -1,8 +1,8 @@
 export 'actions/block_action_list.dart';
 export 'actions/option_action.dart';
 export 'align_toolbar_item/align_toolbar_item.dart';
-export 'base/backspace_to_title_command.dart';
 export 'base/backtick_character_command.dart';
+export 'base/cover_title_command.dart';
 export 'base/toolbar_extension.dart';
 export 'bulleted_list/bulleted_list_icon.dart';
 export 'callout/callout_block_component.dart';
