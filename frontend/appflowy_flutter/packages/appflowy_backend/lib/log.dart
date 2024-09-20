@@ -9,6 +9,7 @@ import 'ffi.dart';
 
 class Log {
   static final shared = Log();
+  // ignore: unused_field
   late Logger _logger;
 
   Log() {
@@ -27,7 +28,9 @@ class Log {
   // Generic internal logging function to reduce code duplication
   static void _log(Level level, int rustLevel, dynamic msg,
       [dynamic error, StackTrace? stackTrace]) {
-    if (kDebugMode) {
+    final enableFlutterLog = false;
+    // ignore: dead_code
+    if (enableFlutterLog) {
       switch (level) {
         case Level.info:
           shared._logger.i(msg, stackTrace: stackTrace);
@@ -83,8 +86,8 @@ Pointer<ffi.Utf8> toNativeUtf8(dynamic msg) {
 }
 
 String _formatMessageWithStackTrace(dynamic msg, StackTrace? stackTrace) {
-   if (stackTrace != null) {
-     return "$msg\nStackTrace:\n$stackTrace"; // Append the stack trace to the message
-   }
-   return msg.toString();
- }
+  if (stackTrace != null) {
+    return "$msg\nStackTrace:\n$stackTrace"; // Append the stack trace to the message
+  }
+  return msg.toString();
+}
