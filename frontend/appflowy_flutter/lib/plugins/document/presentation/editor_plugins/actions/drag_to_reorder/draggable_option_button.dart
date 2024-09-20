@@ -18,7 +18,6 @@ import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
-ValueNotifier<bool> _isDraggingAppFlowyEditorBlock = ValueNotifier(false);
 
 class DraggableOptionButton extends StatefulWidget {
   const DraggableOptionButton({
@@ -43,6 +42,8 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
 
   Offset? globalPosition;
 
+  ValueNotifier<bool> isDraggingAppFlowyEditorBlock = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +55,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
   @override
   void dispose() {
     node.dispose();
+    isDraggingAppFlowyEditorBlock.dispose();
 
     super.dispose();
   }
@@ -69,12 +71,12 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
         blockComponentBuilder: widget.blockComponentBuilder,
       ),
       onDragStarted: () {
-        _isDraggingAppFlowyEditorBlock.value = true;
+        isDraggingAppFlowyEditorBlock.value = true;
 
         widget.editorState.selectionService.removeDropTarget();
       },
       onDragUpdate: (details) {
-        _isDraggingAppFlowyEditorBlock.value = true;
+        isDraggingAppFlowyEditorBlock.value = true;
 
         widget.editorState.selectionService
             .renderDropTargetForOffset(details.globalPosition);
@@ -87,7 +89,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
         );
       },
       onDragEnd: (details) {
-        _isDraggingAppFlowyEditorBlock.value = false;
+        isDraggingAppFlowyEditorBlock.value = false;
 
         widget.editorState.selectionService.removeDropTarget();
 
@@ -102,6 +104,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
         _moveNodeToNewPosition(node, acceptedPath);
       },
       child: _OptionButton(
+        isDragging: isDraggingAppFlowyEditorBlock,
         controller: widget.controller,
         editorState: widget.editorState,
         blockComponentContext: widget.blockComponentContext,
@@ -262,16 +265,18 @@ class _OptionButton extends StatelessWidget {
     required this.controller,
     required this.editorState,
     required this.blockComponentContext,
+    required this.isDragging,
   });
 
   final PopoverController controller;
   final EditorState editorState;
   final BlockComponentContext blockComponentContext;
+  final ValueNotifier<bool> isDragging;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: _isDraggingAppFlowyEditorBlock,
+      valueListenable: isDragging,
       builder: (context, isDragging, child) {
         return BlockActionButton(
           svg: FlowySvgs.drag_element_s,
