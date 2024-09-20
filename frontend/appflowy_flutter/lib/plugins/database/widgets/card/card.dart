@@ -215,6 +215,7 @@ class _CardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         CardCover(
