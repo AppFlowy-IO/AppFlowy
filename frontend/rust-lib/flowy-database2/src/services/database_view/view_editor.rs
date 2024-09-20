@@ -26,7 +26,6 @@ use crate::services::database_view::{
   notify_did_update_setting, notify_did_update_sort, DatabaseLayoutDepsResolver,
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
 use crate::services::group::{
@@ -889,66 +888,17 @@ impl DatabaseViewEditor {
       // If the id of the grouping field is equal to the updated field's id
       // and something critical changed, then we need to update the group setting
       if self.is_grouping_field(field_id).await
-        && self.did_type_options_change(field.field_type.into(), old_field, &field)
+        && (old_field.field_type != field.field_type
+          || matches!(
+            FieldType::from(field.field_type),
+            FieldType::SingleSelect | FieldType::MultiSelect
+          ))
       {
         self.v_group_by_field(field_id).await?;
       }
     }
 
     Ok(())
-  }
-
-  /// This method returns true if the field type options have changed enough to warrant
-  /// updating the group by field in the client.
-  ///
-  /// This check should only be done when the field is the grouping field, and will by default
-  /// return false for fields that don't quality to be grouped by.
-  ///
-  fn did_type_options_change(
-    &self,
-    field_type: FieldType,
-    old_field: &Field,
-    new_field: &Field,
-  ) -> bool {
-    if old_field.field_type != new_field.field_type {
-      return true;
-    }
-
-    if !field_type.can_be_group() {
-      return false;
-    }
-
-    match field_type {
-      // Checkbox & Url can also be grouped by, but they work differently to select fields
-      // and thus don't need to be updated when the type option itself changes
-      FieldType::Checkbox | FieldType::URL => false,
-      FieldType::SingleSelect => {
-        let old_field_type_option = old_field.get_type_option::<SingleSelectTypeOption>(field_type);
-        let new_field_type_option = new_field.get_type_option::<SingleSelectTypeOption>(field_type);
-
-        if let (Some(old_field_type_option), Some(new_field_type_option)) =
-          (old_field_type_option, new_field_type_option)
-        {
-          return old_field_type_option.options.len() != new_field_type_option.options.len();
-        }
-
-        false
-      },
-      FieldType::MultiSelect => {
-        let old_field_type_option = old_field.get_type_option::<MultiSelectTypeOption>(field_type);
-        let new_field_type_option = new_field.get_type_option::<MultiSelectTypeOption>(field_type);
-
-        if let (Some(old_field_type_option), Some(new_field_type_option)) =
-          (old_field_type_option, new_field_type_option)
-        {
-          return old_field_type_option.options.len() != new_field_type_option.options.len();
-        }
-
-        false
-      },
-      // All other FieldTypes
-      _ => false,
-    }
   }
 
   /// Called when a grouping field is updated.
