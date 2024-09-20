@@ -1,21 +1,20 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/visual_drag_area.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toastification/toastification.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
 
@@ -64,45 +63,15 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
   Widget build(BuildContext context) {
     return Draggable<Node>(
       data: node,
+      onDragStarted: _onDragStart,
+      onDragUpdate: _onDragUpdate,
+      onDragEnd: _onDragEnd,
       feedback: _OptionButtonFeedback(
         controller: widget.controller,
         editorState: widget.editorState,
         blockComponentContext: widget.blockComponentContext,
         blockComponentBuilder: widget.blockComponentBuilder,
       ),
-      onDragStarted: () {
-        isDraggingAppFlowyEditorBlock.value = true;
-
-        widget.editorState.selectionService.removeDropTarget();
-      },
-      onDragUpdate: (details) {
-        isDraggingAppFlowyEditorBlock.value = true;
-
-        widget.editorState.selectionService
-            .renderDropTargetForOffset(details.globalPosition);
-
-        globalPosition = details.globalPosition;
-
-        // auto scroll the page when the drag position is at the edge of the screen
-        widget.editorState.scrollService?.startAutoScroll(
-          details.localPosition,
-        );
-      },
-      onDragEnd: (details) {
-        isDraggingAppFlowyEditorBlock.value = false;
-
-        widget.editorState.selectionService.removeDropTarget();
-
-        if (globalPosition == null) {
-          return;
-        }
-
-        final data = widget.editorState.selectionService
-            .getDropTargetRenderData(globalPosition!);
-        final acceptedPath = data?.dropPath;
-
-        _moveNodeToNewPosition(node, acceptedPath);
-      },
       child: _OptionButton(
         isDragging: isDraggingAppFlowyEditorBlock,
         controller: widget.controller,
@@ -112,35 +81,50 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
     );
   }
 
-  Future<void> _moveNodeToNewPosition(Node node, Path? acceptedPath) async {
-    if (acceptedPath == null) {
-      Log.info('acceptedPath is null');
+  void _onDragStart() {
+    isDraggingAppFlowyEditorBlock.value = true;
+    widget.editorState.selectionService.removeDropTarget();
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    isDraggingAppFlowyEditorBlock.value = true;
+
+    widget.editorState.selectionService.renderDropTargetForOffset(
+      details.globalPosition,
+      builder: (context, data) {
+        return VisualDragArea(
+          data: data,
+          dragNode: widget.blockComponentContext.node,
+        );
+      },
+    );
+
+    globalPosition = details.globalPosition;
+
+    // auto scroll the page when the drag position is at the edge of the screen
+    widget.editorState.scrollService?.startAutoScroll(
+      details.localPosition,
+    );
+  }
+
+  void _onDragEnd(DraggableDetails details) {
+    isDraggingAppFlowyEditorBlock.value = false;
+
+    widget.editorState.selectionService.removeDropTarget();
+
+    if (globalPosition == null) {
       return;
     }
 
-    Log.info('move node($node) to path($acceptedPath)');
-
-    // check the move target is a valid path
-    // - cannot move to its children
-    if (widget.blockComponentContext.node.path.isParentOf(acceptedPath)) {
-      Log.info('cannot move to its children');
-      showToastNotification(
-        context,
-        message: LocaleKeys.document_plugins_cannotMoveToItsChildren.tr(),
-        type: ToastificationType.error,
-      );
-      return;
-    }
-
-    if (widget.blockComponentContext.node.path.equals(acceptedPath)) {
-      Log.info('cannot move to the same path');
-      return;
-    }
-
-    final transaction = widget.editorState.transaction;
-    // use the node in document instead of the local node
-    transaction.moveNode(acceptedPath, widget.blockComponentContext.node);
-    await widget.editorState.apply(transaction);
+    final data = widget.editorState.selectionService.getDropTargetRenderData(
+      globalPosition!,
+    );
+    dragToMoveNode(
+      context,
+      node: widget.blockComponentContext.node,
+      acceptedPath: data?.cursorNode?.path,
+      dragOffset: globalPosition!,
+    );
   }
 }
 
