@@ -87,7 +87,7 @@ Future<void> dragToMoveNode(
   VerticalPosition verticalPosition;
 
   // Horizontal position
-  if (dragOffset.dx < globalBlockRect.left + 44) {
+  if (dragOffset.dx < globalBlockRect.left + 88) {
     horizontalPosition = HorizontalPosition.left;
   } else {
     // ignore the middle here, it's not used in this example

@@ -264,31 +264,28 @@ class _OptionButton extends StatelessWidget {
       builder: (context, isDragging, child) {
         return BlockActionButton(
           svg: FlowySvgs.drag_element_s,
-          richMessage: isDragging
-              ? const TextSpan()
-              : TextSpan(
-                  children: [
-                    TextSpan(
-                      text: LocaleKeys.document_plugins_optionAction_drag.tr(),
-                      style: context.tooltipTextStyle(),
-                    ),
-                    TextSpan(
-                      text:
-                          LocaleKeys.document_plugins_optionAction_toMove.tr(),
-                      style: context.tooltipTextStyle(),
-                    ),
-                    const TextSpan(text: '\n'),
-                    TextSpan(
-                      text: LocaleKeys.document_plugins_optionAction_click.tr(),
-                      style: context.tooltipTextStyle(),
-                    ),
-                    TextSpan(
-                      text: LocaleKeys.document_plugins_optionAction_toOpenMenu
-                          .tr(),
-                      style: context.tooltipTextStyle(),
-                    ),
-                  ],
-                ),
+          showTooltip: !isDragging,
+          richMessage: TextSpan(
+            children: [
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_drag.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+              const TextSpan(text: '\n'),
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_click.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+            ],
+          ),
           onTap: () {
             controller.show();
 
