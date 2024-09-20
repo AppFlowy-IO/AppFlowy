@@ -110,17 +110,17 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
   Widget _buildTitle() {
     final (backgroundColor, dotColor) = _generateGroupColor();
     final groupName = _generateGroupName();
-    return FlowyTooltip(
-      message: groupName,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            widget.isEditing.value = true;
-          },
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          widget.isEditing.value = true;
+        },
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: FlowyTooltip(
+            message: groupName,
             child: Container(
               height: 20,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
