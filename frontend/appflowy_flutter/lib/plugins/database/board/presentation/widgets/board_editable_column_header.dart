@@ -146,6 +146,7 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
                     child: FlowyText.medium(
                       groupName,
                       overflow: TextOverflow.ellipsis,
+                      lineHeight: 1.0,
                     ),
                   ),
                 ],
