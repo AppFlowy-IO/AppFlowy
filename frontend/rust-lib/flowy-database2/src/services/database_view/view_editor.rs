@@ -43,7 +43,7 @@ use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{instrument, trace};
+use tracing::{instrument, trace, warn};
 
 pub struct DatabaseViewEditor {
   database_id: String,
@@ -125,6 +125,22 @@ impl DatabaseViewEditor {
       row_by_row_id: Default::default(),
       notifier,
     })
+  }
+
+  pub async fn insert_row(&self, row: Option<Arc<Row>>, index: u32, row_order: &RowOrder) {
+    let mut row_orders = self.row_orders.write().await;
+    if row_orders.len() >= index as usize {
+      row_orders.insert(index as usize, row_order.clone());
+    } else {
+      warn!(
+        "[RowOrder]: insert row at index:{} out of range:{}",
+        index,
+        row_orders.len()
+      );
+    }
+    if let Some(row) = row {
+      self.row_by_row_id.insert(row.id.to_string(), row);
+    }
   }
 
   pub async fn set_row_orders(&self, row_orders: Vec<RowOrder>) {

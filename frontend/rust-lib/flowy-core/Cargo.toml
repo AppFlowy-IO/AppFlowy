@@ -15,7 +15,7 @@ flowy-folder-pub = { workspace = true }
 flowy-database2 = { workspace = true }
 flowy-database-pub = { workspace = true }
 flowy-sqlite = { workspace = true }
-flowy-document = { workspace = true, features = ["verbose_log"] }
+flowy-document = { workspace = true }
 flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
 flowy-server = { workspace = true, features = ["enable_supabase"] }

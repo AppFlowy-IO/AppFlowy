@@ -3,8 +3,8 @@ use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowId};
-
 use flowy_error::FlowyResult;
+use tracing::trace;
 
 use crate::entities::{
   GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
@@ -100,6 +100,11 @@ impl GroupController for DefaultGroupController {
   fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
     let mut changeset = GroupRowsNotificationPB::new(self.group.id.clone());
     if self.group.contains_row(&row.id) {
+      trace!(
+        "[RowOrder]: delete row:{} from group: {}",
+        row.id,
+        self.group.id
+      );
       self.group.remove_row(&row.id);
       changeset.deleted_rows.push(row.id.clone().into_inner());
     }
