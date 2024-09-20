@@ -69,6 +69,11 @@ Future<void> dragToMoveNode(
     return null;
   }
 
+  // disable the table cell block
+  if (dragTargetNode.parent?.type == TableCellBlockKeys.type) {
+    return null;
+  }
+
   final globalBlockOffset = renderBox.localToGlobal(Offset.zero);
   final globalBlockRect = globalBlockOffset & renderBox.size;
 
@@ -83,13 +88,14 @@ Future<void> dragToMoveNode(
   }
 
   // Determine the relative position
-  HorizontalPosition horizontalPosition;
+  HorizontalPosition horizontalPosition = HorizontalPosition.left;
   VerticalPosition verticalPosition;
 
   // Horizontal position
   if (dragOffset.dx < globalBlockRect.left + 88) {
     horizontalPosition = HorizontalPosition.left;
-  } else {
+  } else if (indentableBlockTypes.contains(dragTargetNode.type)) {
+    // For indentable blocks, it means the block can contain a child block.
     // ignore the middle here, it's not used in this example
     horizontalPosition = HorizontalPosition.right;
   }
