@@ -1,77 +1,41 @@
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/text_filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../filter_info.dart';
 import 'choicechip.dart';
 
-class URLFilterChoiceChip extends StatelessWidget {
-  const URLFilterChoiceChip({
+class URLFilterChoicechip extends StatelessWidget {
+  const URLFilterChoicechip({
     super.key,
-    required this.fieldController,
-    required this.filterInfo,
+    required this.filterId,
   });
 
-  final FieldController fieldController;
-  final FilterInfo filterInfo;
+  final String filterId;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TextFilterBloc(
-        fieldController: fieldController,
-        filterInfo: filterInfo,
-        fieldType: FieldType.URL,
-      ),
-      child: Builder(
-        builder: (context) {
-          return AppFlowyPopover(
-            constraints: BoxConstraints.loose(const Size(200, 76)),
-            direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (popoverContext) {
-              return MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(
-                    value: context.read<TextFilterBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<FilterEditorBloc>(),
-                  ),
-                ],
-                child: const TextFilterEditor(),
-              );
-            },
-            child: BlocBuilder<TextFilterBloc, TextFilterState>(
-              builder: (context, state) {
-                return ChoiceChipButton(
-                  filterInfo: state.filterInfo,
-                  filterDesc: _makeFilterDesc(state),
-                );
-              },
-            ),
+    return AppFlowyPopover(
+      constraints: BoxConstraints.loose(const Size(200, 76)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: TextFilterEditor(filterId: filterId),
+        );
+      },
+      child: SingleFilterBlocSelector<TextFilter>(
+        filterId: filterId,
+        builder: (context, filter, field) {
+          return ChoiceChipButton(
+            fieldInfo: field,
+            filterDesc: filter.getDescription(field),
           );
         },
       ),
     );
-  }
-
-  String _makeFilterDesc(TextFilterState state) {
-    String filterDesc = state.filter.condition.choicechipPrefix;
-    if (state.filter.condition == TextFilterConditionPB.TextIsEmpty ||
-        state.filter.condition == TextFilterConditionPB.TextIsNotEmpty) {
-      return filterDesc;
-    }
-
-    if (state.filter.content.isNotEmpty) {
-      filterDesc += " ${state.filter.content}";
-    }
-
-    return filterDesc;
   }
 }

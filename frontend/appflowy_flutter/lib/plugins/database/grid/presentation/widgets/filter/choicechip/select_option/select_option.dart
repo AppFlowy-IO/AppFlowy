@@ -1,16 +1,14 @@
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../disclosure_button.dart';
-import '../../filter_info.dart';
 import '../choicechip.dart';
 
 import 'condition_list.dart';
@@ -19,75 +17,42 @@ import 'option_list.dart';
 class SelectOptionFilterChoicechip extends StatelessWidget {
   const SelectOptionFilterChoicechip({
     super.key,
-    required this.fieldController,
-    required this.filterInfo,
+    required this.filterId,
   });
 
-  final FieldController fieldController;
-  final FilterInfo filterInfo;
+  final String filterId;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => SelectOptionFilterBloc(
-        fieldController: fieldController,
-        filterInfo: filterInfo,
-        delegate: filterInfo.fieldInfo.fieldType == FieldType.SingleSelect
-            ? const SingleSelectOptionFilterDelegateImpl()
-            : const MultiSelectOptionFilterDelegateImpl(),
-      ),
-      child: Builder(
-        builder: (context) {
-          return AppFlowyPopover(
-            constraints: BoxConstraints.loose(const Size(240, 160)),
-            direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (_) {
-              return MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(
-                    value: context.read<SelectOptionFilterBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<FilterEditorBloc>(),
-                  ),
-                ],
-                child: const SelectOptionFilterEditor(),
-              );
-            },
-            child: BlocBuilder<SelectOptionFilterBloc, SelectOptionFilterState>(
-              builder: (context, state) {
-                return ChoiceChipButton(
-                  filterInfo: state.filterInfo,
-                  filterDesc: _makeFilterDesc(state),
-                );
-              },
-            ),
+    return AppFlowyPopover(
+      constraints: BoxConstraints.loose(const Size(240, 160)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: SelectOptionFilterEditor(filterId: filterId),
+        );
+      },
+      child: SingleFilterBlocSelector<SelectOptionFilter>(
+        filterId: filterId,
+        builder: (context, filter, field) {
+          return ChoiceChipButton(
+            fieldInfo: field,
+            filterDesc: filter.getDescription(field),
           );
         },
       ),
     );
   }
-
-  String _makeFilterDesc(SelectOptionFilterState state) {
-    final condition = state.filter.condition;
-
-    if (condition == SelectOptionFilterConditionPB.OptionIsEmpty ||
-        condition == SelectOptionFilterConditionPB.OptionIsNotEmpty) {
-      return condition.i18n;
-    }
-
-    String optionNames = "";
-    for (final option in state.options) {
-      if (state.filter.optionIds.contains(option.id)) {
-        optionNames += "${option.name} ";
-      }
-    }
-    return "${condition.i18n} $optionNames";
-  }
 }
 
 class SelectOptionFilterEditor extends StatefulWidget {
-  const SelectOptionFilterEditor({super.key});
+  const SelectOptionFilterEditor({
+    super.key,
+    required this.filterId,
+  });
+
+  final String filterId;
 
   @override
   State<SelectOptionFilterEditor> createState() =>
@@ -105,23 +70,27 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionFilterBloc, SelectOptionFilterState>(
-      builder: (context, state) {
+    return SingleFilterBlocSelector<SelectOptionFilter>(
+      filterId: widget.filterId,
+      builder: (context, filter, field) {
         final List<Widget> slivers = [
-          SliverToBoxAdapter(child: _buildFilterPanel(state)),
+          SliverToBoxAdapter(child: _buildFilterPanel(filter, field)),
         ];
 
-        if (state.filter.condition !=
-                SelectOptionFilterConditionPB.OptionIsEmpty &&
-            state.filter.condition !=
-                SelectOptionFilterConditionPB.OptionIsNotEmpty) {
+        if (![
+          SelectOptionFilterConditionPB.OptionIsEmpty,
+          SelectOptionFilterConditionPB.OptionIsNotEmpty,
+        ].contains(filter.condition)) {
+          final delegate = makeDelegate(field);
           slivers
             ..add(const SliverToBoxAdapter(child: VSpace(4)))
             ..add(
               SliverToBoxAdapter(
                 child: SelectOptionFilterList(
-                  filterInfo: state.filterInfo,
-                  selectedOptionIds: state.filter.optionIds,
+                  filter: filter,
+                  field: field,
+                  delegate: delegate,
+                  options: delegate.getOptions(field),
                 ),
               ),
             );
@@ -140,7 +109,8 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-    SelectOptionFilterState state,
+    SelectOptionFilter filter,
+    FieldInfo field,
   ) {
     return SizedBox(
       height: 20,
@@ -148,18 +118,20 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.field.name,
+              field.field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           const HSpace(4),
           SelectOptionFilterConditionList(
-            filterInfo: state.filterInfo,
+            filter: filter,
+            fieldType: field.fieldType,
             popoverMutex: popoverMutex,
             onCondition: (condition) {
-              context.read<SelectOptionFilterBloc>().add(
-                    SelectOptionFilterEvent.updateCondition(condition),
-                  );
+              final newFilter = filter.copyWith(condition: condition);
+              context
+                  .read<FilterEditorBloc>()
+                  .add(FilterEditorEvent.updateFilter(newFilter));
             },
           ),
           DisclosureButton(
@@ -167,11 +139,9 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             onAction: (action) {
               switch (action) {
                 case FilterDisclosureAction.delete:
-                  context.read<FilterEditorBloc>().add(
-                        FilterEditorEvent.deleteFilter(
-                          state.filterInfo.filterId,
-                        ),
-                      );
+                  context
+                      .read<FilterEditorBloc>()
+                      .add(FilterEditorEvent.deleteFilter(filter.filterId));
                   break;
               }
             },
@@ -180,4 +150,9 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
       ),
     );
   }
+
+  SelectOptionFilterDelegate makeDelegate(FieldInfo field) =>
+      field.fieldType == FieldType.SingleSelect
+          ? const SingleSelectOptionFilterDelegateImpl()
+          : const MultiSelectOptionFilterDelegateImpl();
 }

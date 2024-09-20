@@ -24,8 +24,8 @@ void main() {
     );
     await gridResponseFuture();
     assert(
-      context.fieldController.filterInfos.length == 1,
-      "expect 1 but receive ${context.fieldController.filterInfos.length}",
+      context.fieldController.filters.length == 1,
+      "expect 1 but receive ${context.fieldController.filters.length}",
     );
     assert(
       context.rowInfos.length == 1,
@@ -33,9 +33,9 @@ void main() {
     );
 
     // delete the filter
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.fieldController.filters.first;
     await service.deleteFilter(
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -59,9 +59,9 @@ void main() {
     );
 
     // delete the filter
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.fieldController.filters.first;
     await service.deleteFilter(
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -80,8 +80,8 @@ void main() {
     );
     await gridResponseFuture();
     assert(
-      context.fieldController.filterInfos.length == 1,
-      "expect 1 but receive ${context.fieldController.filterInfos.length}",
+      context.fieldController.filters.length == 1,
+      "expect 1 but receive ${context.fieldController.filters.length}",
     );
     assert(
       context.rowInfos.length == 1,
@@ -89,10 +89,10 @@ void main() {
     );
 
     // Update the existing filter
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.fieldController.filters.first;
     await service.insertTextFilter(
       fieldId: textField.id,
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
       condition: TextFilterConditionPB.TextIsNotEmpty,
       content: "",
     );
@@ -101,7 +101,7 @@ void main() {
 
     // delete the filter
     await service.deleteFilter(
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -125,10 +125,10 @@ void main() {
     );
 
     // Update the existing filter's content from 'A' to 'B'
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.fieldController.filters.first;
     await service.insertTextFilter(
       fieldId: textField.id,
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
       condition: TextFilterConditionPB.TextIs,
       content: "B",
     );
@@ -138,7 +138,7 @@ void main() {
     // Update the existing filter's content from 'B' to 'b'
     await service.insertTextFilter(
       fieldId: textField.id,
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
       condition: TextFilterConditionPB.TextIs,
       content: "b",
     );
@@ -148,7 +148,7 @@ void main() {
     // Update the existing filter with content 'C'
     await service.insertTextFilter(
       fieldId: textField.id,
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
       condition: TextFilterConditionPB.TextIs,
       content: "C",
     );
@@ -157,7 +157,7 @@ void main() {
 
     // delete the filter
     await service.deleteFilter(
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);

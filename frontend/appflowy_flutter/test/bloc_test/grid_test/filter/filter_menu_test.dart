@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
@@ -50,19 +51,19 @@ void main() {
     );
     await gridResponseFuture();
 
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.fieldController.filters.first;
     // Update the existing filter
     await service.insertTextFilter(
       fieldId: textField.id,
-      filterId: textFilter.filter.id,
+      filterId: textFilter.filterId,
       condition: TextFilterConditionPB.TextIs,
       content: "ABC",
     );
     await gridResponseFuture();
     assert(
-      menuBloc.state.filters.first.textFilter()!.condition ==
+      (menuBloc.state.filters.first as TextFilter).condition ==
           TextFilterConditionPB.TextIs,
     );
-    assert(menuBloc.state.filters.first.textFilter()!.content == "ABC");
+    assert((menuBloc.state.filters.first as TextFilter).content == "ABC");
   });
 }

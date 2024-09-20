@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/text_filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -13,77 +13,48 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../condition_button.dart';
 import '../disclosure_button.dart';
-import '../filter_info.dart';
 
 import 'choicechip.dart';
 
 class TextFilterChoicechip extends StatelessWidget {
   const TextFilterChoicechip({
     super.key,
-    required this.fieldController,
-    required this.filterInfo,
+    required this.filterId,
   });
 
-  final FieldController fieldController;
-  final FilterInfo filterInfo;
+  final String filterId;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TextFilterBloc(
-        fieldController: fieldController,
-        filterInfo: filterInfo,
-        fieldType: FieldType.RichText,
-      ),
-      child: Builder(
-        builder: (context) {
-          return AppFlowyPopover(
-            constraints: BoxConstraints.loose(const Size(200, 76)),
-            direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (_) {
-              return MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(
-                    value: context.read<TextFilterBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<FilterEditorBloc>(),
-                  ),
-                ],
-                child: const TextFilterEditor(),
-              );
-            },
-            child: BlocBuilder<TextFilterBloc, TextFilterState>(
-              builder: (context, state) {
-                return ChoiceChipButton(
-                  filterInfo: state.filterInfo,
-                  filterDesc: _makeFilterDesc(state),
-                );
-              },
-            ),
+    return AppFlowyPopover(
+      constraints: BoxConstraints.loose(const Size(200, 76)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: TextFilterEditor(filterId: filterId),
+        );
+      },
+      child: SingleFilterBlocSelector<TextFilter>(
+        filterId: filterId,
+        builder: (context, filter, field) {
+          return ChoiceChipButton(
+            fieldInfo: field,
+            filterDesc: filter.getDescription(field),
           );
         },
       ),
     );
   }
-
-  String _makeFilterDesc(TextFilterState state) {
-    String filterDesc = state.filter.condition.choicechipPrefix;
-    if (state.filter.condition == TextFilterConditionPB.TextIsEmpty ||
-        state.filter.condition == TextFilterConditionPB.TextIsNotEmpty) {
-      return filterDesc;
-    }
-
-    if (state.filter.content.isNotEmpty) {
-      filterDesc += " ${state.filter.content}";
-    }
-
-    return filterDesc;
-  }
 }
 
 class TextFilterEditor extends StatefulWidget {
-  const TextFilterEditor({super.key});
+  const TextFilterEditor({
+    super.key,
+    required this.filterId,
+  });
+
+  final String filterId;
 
   @override
   State<TextFilterEditor> createState() => _TextFilterEditorState();
@@ -100,16 +71,17 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TextFilterBloc, TextFilterState>(
-      builder: (context, state) {
+    return SingleFilterBlocSelector<TextFilter>(
+      filterId: widget.filterId,
+      builder: (context, filter, field) {
         final List<Widget> children = [
-          _buildFilterPanel(context, state),
+          _buildFilterPanel(filter, field),
         ];
 
-        if (state.filter.condition != TextFilterConditionPB.TextIsEmpty &&
-            state.filter.condition != TextFilterConditionPB.TextIsNotEmpty) {
+        if (filter.condition != TextFilterConditionPB.TextIsEmpty &&
+            filter.condition != TextFilterConditionPB.TextIsNotEmpty) {
           children.add(const VSpace(4));
-          children.add(_buildFilterTextField(context, state));
+          children.add(_buildFilterTextField(filter, field));
         }
 
         return Padding(
@@ -120,26 +92,27 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     );
   }
 
-  Widget _buildFilterPanel(BuildContext context, TextFilterState state) {
+  Widget _buildFilterPanel(TextFilter filter, FieldInfo field) {
     return SizedBox(
       height: 20,
       child: Row(
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.name,
+              field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           const HSpace(4),
           Expanded(
-            child: TextFilterConditionPBList(
-              filterInfo: state.filterInfo,
+            child: TextFilterConditionList(
+              filter: filter,
               popoverMutex: popoverMutex,
               onCondition: (condition) {
+                final newFilter = filter.copyWith(condition: condition);
                 context
-                    .read<TextFilterBloc>()
-                    .add(TextFilterEvent.updateCondition(condition));
+                    .read<FilterEditorBloc>()
+                    .add(FilterEditorEvent.updateFilter(newFilter));
               },
             ),
           ),
@@ -149,11 +122,9 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
             onAction: (action) {
               switch (action) {
                 case FilterDisclosureAction.delete:
-                  context.read<FilterEditorBloc>().add(
-                        FilterEditorEvent.deleteFilter(
-                          state.filterInfo.filterId,
-                        ),
-                      );
+                  context
+                      .read<FilterEditorBloc>()
+                      .add(FilterEditorEvent.deleteFilter(filter.filterId));
                   break;
               }
             },
@@ -163,37 +134,36 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     );
   }
 
-  Widget _buildFilterTextField(
-    BuildContext context,
-    TextFilterState state,
-  ) {
+  Widget _buildFilterTextField(TextFilter filter, FieldInfo field) {
     return FlowyTextField(
-      text: state.filter.content,
+      text: filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),
       debounceDuration: const Duration(milliseconds: 300),
       autoFocus: false,
       onChanged: (text) {
-        context.read<TextFilterBloc>().add(TextFilterEvent.updateContent(text));
+        final newFilter = filter.copyWith(content: text);
+        context
+            .read<FilterEditorBloc>()
+            .add(FilterEditorEvent.updateFilter(newFilter));
       },
     );
   }
 }
 
-class TextFilterConditionPBList extends StatelessWidget {
-  const TextFilterConditionPBList({
+class TextFilterConditionList extends StatelessWidget {
+  const TextFilterConditionList({
     super.key,
-    required this.filterInfo,
+    required this.filter,
     required this.popoverMutex,
     required this.onCondition,
   });
 
-  final FilterInfo filterInfo;
+  final TextFilter filter;
   final PopoverMutex popoverMutex;
-  final Function(TextFilterConditionPB) onCondition;
+  final void Function(TextFilterConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
-    final textFilter = filterInfo.textFilter()!;
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       mutex: popoverMutex,
@@ -202,13 +172,13 @@ class TextFilterConditionPBList extends StatelessWidget {
           .map(
             (action) => ConditionWrapper(
               action,
-              textFilter.condition == action,
+              filter.condition == action,
             ),
           )
           .toList(),
       buildChild: (controller) {
         return ConditionButton(
-          conditionName: textFilter.condition.filterName,
+          conditionName: filter.condition.filterName,
           onTap: () => controller.show(),
         );
       },

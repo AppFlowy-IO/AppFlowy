@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
@@ -19,7 +19,7 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
         super(
           FilterEditorState.initial(
             viewId,
-            fieldController.filterInfos,
+            fieldController.filters,
             _getCreatableFilter(fieldController.fieldInfos),
           ),
         ) {
@@ -31,7 +31,7 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
   final FieldController fieldController;
   final FilterBackendService _filterBackendSvc;
 
-  void Function(List<FilterInfo>)? _onFilterFn;
+  void Function(List<DatabaseFilter>)? _onFilterFn;
   void Function(List<FieldInfo>)? _onFieldFn;
 
   void _dispatch() {
@@ -50,6 +50,14 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
           },
           createFilter: (field) {
             return _createDefaultFilter(field);
+          },
+          updateFilter: (filter) {
+            return _filterBackendSvc.updateFilter(
+              filterId: filter.filterId,
+              fieldId: filter.fieldId,
+              fieldType: filter.fieldType,
+              data: filter.writeToBuffer(),
+            );
           },
           deleteFilter: (filterId) async {
             return _filterBackendSvc.deleteFilter(filterId: filterId);
@@ -162,11 +170,14 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
 
 @freezed
 class FilterEditorEvent with _$FilterEditorEvent {
-  const factory FilterEditorEvent.didReceiveFilters(List<FilterInfo> filters) =
-      _DidReceiveFilters;
+  const factory FilterEditorEvent.didReceiveFilters(
+    List<DatabaseFilter> filters,
+  ) = _DidReceiveFilters;
   const factory FilterEditorEvent.didReceiveFields(List<FieldInfo> fields) =
       _DidReceiveFields;
   const factory FilterEditorEvent.createFilter(FieldInfo field) = _CreateFilter;
+  const factory FilterEditorEvent.updateFilter(DatabaseFilter filter) =
+      _UpdateFilter;
   const factory FilterEditorEvent.deleteFilter(String filterId) = _DeleteFilter;
 }
 
@@ -174,13 +185,13 @@ class FilterEditorEvent with _$FilterEditorEvent {
 class FilterEditorState with _$FilterEditorState {
   const factory FilterEditorState({
     required String viewId,
-    required List<FilterInfo> filters,
+    required List<DatabaseFilter> filters,
     required List<FieldInfo> fields,
   }) = _FilterEditorState;
 
   factory FilterEditorState.initial(
     String viewId,
-    List<FilterInfo> filterInfos,
+    List<DatabaseFilter> filterInfos,
     List<FieldInfo> fields,
   ) =>
       FilterEditorState(

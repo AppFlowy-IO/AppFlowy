@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../filter_info.dart';
-import 'choicechip.dart';
-
 class DateFilterChoicechip extends StatelessWidget {
-  const DateFilterChoicechip({required this.filterInfo, super.key});
+  const DateFilterChoicechip({
+    super.key,
+    required this.filterId,
+  });
 
-  final FilterInfo filterInfo;
+  final String filterId;
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChipButton(filterInfo: filterInfo);
+    return const SizedBox.shrink();
   }
 }

@@ -24,7 +24,7 @@ void main() {
     );
     await gridResponseFuture();
 
-    assert(context.fieldController.filterInfos.length == 1);
+    assert(context.fieldController.filters.length == 1);
   });
 
   test('delete a text filter)', () async {
@@ -38,13 +38,13 @@ void main() {
     );
     await gridResponseFuture();
 
-    final filterInfo = context.fieldController.filterInfos.first;
+    final filter = context.fieldController.filters.first;
     await service.deleteFilter(
-      filterId: filterInfo.filter.id,
+      filterId: filter.filterId,
     );
     await gridResponseFuture();
 
-    expect(context.fieldController.filterInfos.length, 0);
+    expect(context.fieldController.filters.length, 0);
   });
 
   test('filter rows with condition: text is empty', () async {

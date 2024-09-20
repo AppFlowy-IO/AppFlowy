@@ -39,10 +39,14 @@ class FilterMenu extends StatelessWidget {
           children.addAll(
             state.filters
                 .map(
-                  (filterInfo) => FilterMenuItem(
-                    key: ValueKey(filterInfo.filter.id),
-                    fieldController: fieldController,
-                    filterId: filterInfo.filterId,
+                  (filter) => FilterMenuItem(
+                    key: ValueKey(filter.filterId),
+                    filterId: filter.filterId,
+                    fieldType: state.fields
+                        .firstWhere(
+                          (element) => element.id == filter.fieldId,
+                        )
+                        .fieldType,
                   ),
                 )
                 .toList(),

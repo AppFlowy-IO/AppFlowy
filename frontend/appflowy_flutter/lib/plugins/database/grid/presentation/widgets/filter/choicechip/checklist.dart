@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/checklist_filter_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pbenum.dart';
@@ -12,68 +11,48 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../condition_button.dart';
 import '../disclosure_button.dart';
-import '../filter_info.dart';
 import 'choicechip.dart';
 
 class ChecklistFilterChoicechip extends StatelessWidget {
   const ChecklistFilterChoicechip({
     super.key,
-    required this.fieldController,
-    required this.filterInfo,
+    required this.filterId,
   });
 
-  final FieldController fieldController;
-  final FilterInfo filterInfo;
+  final String filterId;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ChecklistFilterBloc(
-        fieldController: fieldController,
-        filterInfo: filterInfo,
-      ),
-      child: Builder(
-        builder: (context) {
-          return AppFlowyPopover(
-            controller: PopoverController(),
-            constraints: BoxConstraints.loose(const Size(200, 160)),
-            direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (_) {
-              return MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(
-                    value: context.read<ChecklistFilterBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<FilterEditorBloc>(),
-                  ),
-                ],
-                child: const ChecklistFilterEditor(),
-              );
-            },
-            child: BlocBuilder<ChecklistFilterBloc, ChecklistFilterState>(
-              builder: (context, state) {
-                return ChoiceChipButton(
-                  filterInfo: state.filterInfo,
-                  filterDesc: _makeFilterDesc(state),
-                );
-              },
-            ),
+    return AppFlowyPopover(
+      controller: PopoverController(),
+      constraints: BoxConstraints.loose(const Size(200, 160)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: ChecklistFilterEditor(filterId: filterId),
+        );
+      },
+      child: SingleFilterBlocSelector<ChecklistFilter>(
+        filterId: filterId,
+        builder: (context, filter, field) {
+          return ChoiceChipButton(
+            fieldInfo: field,
+            filterDesc: filter.getDescription(field),
           );
         },
       ),
     );
-  }
-
-  String _makeFilterDesc(ChecklistFilterState state) {
-    return state.filter.condition.filterName;
   }
 }
 
 class ChecklistFilterEditor extends StatefulWidget {
   const ChecklistFilterEditor({
     super.key,
+    required this.filterId,
   });
+
+  final String filterId;
 
   @override
   ChecklistState createState() => ChecklistState();
@@ -90,33 +69,38 @@ class ChecklistState extends State<ChecklistFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChecklistFilterBloc, ChecklistFilterState>(
-      builder: (context, state) {
+    return SingleFilterBlocSelector<ChecklistFilter>(
+      filterId: widget.filterId,
+      builder: (context, filter, field) {
         return SizedBox(
           height: 20,
           child: Row(
             children: [
               Expanded(
                 child: FlowyText(
-                  state.filterInfo.fieldInfo.field.name,
+                  field.name,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               const HSpace(4),
               ChecklistFilterConditionList(
-                filterInfo: state.filterInfo,
+                filter: filter,
                 popoverMutex: popoverMutex,
+                onCondition: (condition) {
+                  final newFilter = filter.copyWith(condition: condition);
+                  context
+                      .read<FilterEditorBloc>()
+                      .add(FilterEditorEvent.updateFilter(newFilter));
+                },
               ),
               DisclosureButton(
                 popoverMutex: popoverMutex,
                 onAction: (action) {
                   switch (action) {
                     case FilterDisclosureAction.delete:
-                      context.read<FilterEditorBloc>().add(
-                            FilterEditorEvent.deleteFilter(
-                              state.filterInfo.filterId,
-                            ),
-                          );
+                      context
+                          .read<FilterEditorBloc>()
+                          .add(FilterEditorEvent.deleteFilter(filter.filterId));
                       break;
                   }
                 },
@@ -132,16 +116,17 @@ class ChecklistState extends State<ChecklistFilterEditor> {
 class ChecklistFilterConditionList extends StatelessWidget {
   const ChecklistFilterConditionList({
     super.key,
-    required this.filterInfo,
+    required this.filter,
     required this.popoverMutex,
+    required this.onCondition,
   });
 
-  final FilterInfo filterInfo;
+  final ChecklistFilter filter;
   final PopoverMutex popoverMutex;
+  final void Function(ChecklistFilterConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
-    final checklistFilter = filterInfo.checklistFilter()!;
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       direction: PopoverDirection.bottomWithCenterAligned,
@@ -151,14 +136,12 @@ class ChecklistFilterConditionList extends StatelessWidget {
           .toList(),
       buildChild: (controller) {
         return ConditionButton(
-          conditionName: checklistFilter.condition.filterName,
+          conditionName: filter.condition.filterName,
           onTap: () => controller.show(),
         );
       },
       onSelected: (action, controller) {
-        context
-            .read<ChecklistFilterBloc>()
-            .add(ChecklistFilterEvent.updateCondition(action.inner));
+        onCondition(action.inner);
         controller.close();
       },
     );
