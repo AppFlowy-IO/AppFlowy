@@ -54,7 +54,8 @@ Future<void> dragToMoveNode(
 
   // Perform the node move operation
   final transaction = editorState.transaction;
-  transaction.moveNode(newPath, node);
+  transaction.deleteNode(node);
+  transaction.insertNode(newPath, node.copyWith());
   await editorState.apply(transaction);
 }
 
