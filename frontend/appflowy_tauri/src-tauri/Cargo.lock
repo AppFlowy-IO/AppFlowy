@@ -976,7 +976,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1001,7 +1001,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1027,18 +1027,20 @@ dependencies = [
  "tokio-util",
  "tracing",
  "uuid",
+ "yrs",
 ]
 
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "arc-swap",
  "collab",
  "collab-entity",
  "getrandom 0.2.10",
+ "markdown",
  "nanoid",
  "serde",
  "serde_json",
@@ -1052,7 +1054,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1072,7 +1074,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1115,7 +1117,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1195,7 +1197,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9a07a19181a509b6c3237d71ac9bb602322ebe0b#9a07a19181a509b6c3237d71ac9bb602322ebe0b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=87d1f8b086ab4005ce2fbd4e13d355a48e95763d#87d1f8b086ab4005ce2fbd4e13d355a48e95763d"
 dependencies = [
  "anyhow",
  "collab",
@@ -2223,7 +2225,6 @@ dependencies = [
  "strum",
  "strum_macros 0.25.2",
  "tokio",
- "tokio-retry",
  "tokio-util",
  "tracing",
  "url",
@@ -4094,6 +4095,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "markdown"
+version = "1.0.0-alpha.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "911a8325e6fb87b89890cd4529a2ab34c2669c026279e61c26b7140a3d821ccb"
+dependencies = [
+ "unicode-id",
 ]
 
 [[package]]
@@ -7618,6 +7628,12 @@ name = "unicode-bidi"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92888ba5573ff080736b3648696b70cafad7d250551175acbaa4e0385b3e1460"
+
+[[package]]
+name = "unicode-id"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1b6def86329695390197b82c1e244a54a131ceb66c996f2088a3876e2ae083f"
 
 [[package]]
 name = "unicode-ident"
