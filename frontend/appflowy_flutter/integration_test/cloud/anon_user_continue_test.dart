@@ -75,18 +75,6 @@ void main() {
 
       await tester.logout();
       await tester.pumpAndSettle();
-
-      // tap the continue as anonymous button
-      // await tester
-      //     .tapButton(find.text(LocaleKeys.signIn_loginStartWithAnonymous.tr()));
-      // await tester.expectToSeeHomePage();
-
-      // // New anon user name
-      // await tester.openSettings();
-      // await tester.openSettingsPage(SettingsPage.account);
-      // final userNameInput =
-      //     tester.widget(find.byType(AccountUserProfile)) as AccountUserProfile;
-      // expect(userNameInput.name, 'Me');
     });
   });
 }
