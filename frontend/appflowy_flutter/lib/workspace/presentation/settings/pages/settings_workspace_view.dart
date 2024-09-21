@@ -125,7 +125,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                   _ThemeDropdown(),
                   _DocumentCursorColorSetting(),
                   _DocumentSelectionColorSetting(),
-                  _DocumentPaddingSetting(),
+                  DocumentPaddingSetting(),
                 ],
               ),
               const SettingsCategorySpacer(),
@@ -1268,8 +1268,10 @@ class _SelectionColorValueWidget extends StatelessWidget {
   }
 }
 
-class _DocumentPaddingSetting extends StatelessWidget {
-  const _DocumentPaddingSetting();
+class DocumentPaddingSetting extends StatelessWidget {
+  const DocumentPaddingSetting({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
