@@ -266,4 +266,23 @@ class EditorOperations {
       },
     );
   }
+
+  // Drag block
+  Future<void> dragBlock(
+    Path path,
+    Offset offset,
+  ) async {
+    final optionMenuButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is BlockComponentActionWrapper &&
+          widget.node.path.equals(path),
+    );
+    await tester.hoverOnWidget(
+      optionMenuButton,
+      onHover: () async {
+        await tester.drag(optionMenuButton, offset);
+      },
+    );
+    await tester.pumpAndSettle();
+  }
 }

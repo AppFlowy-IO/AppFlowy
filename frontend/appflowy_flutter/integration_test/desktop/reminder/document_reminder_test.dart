@@ -15,7 +15,7 @@ import 'package:integration_test/integration_test.dart';
 
 import '../../shared/base.dart';
 import '../../shared/common_operations.dart';
-import '../../shared/editor_test_operations.dart';
+import '../../shared/document_test_operations.dart';
 import '../../shared/expectation.dart';
 import '../../shared/keyboard.dart';
 
