@@ -12,6 +12,8 @@ class Log {
   // ignore: unused_field
   late Logger _logger;
 
+  bool _enabled = false;
+
   Log() {
     _logger = Logger(
       printer: PrettyPrinter(
@@ -25,12 +27,14 @@ class Log {
     );
   }
 
+  static void enableFlutterLog() {
+    shared._enabled = true;
+  }
+
   // Generic internal logging function to reduce code duplication
   static void _log(Level level, int rustLevel, dynamic msg,
       [dynamic error, StackTrace? stackTrace]) {
-    final enableFlutterLog = false;
-    // ignore: dead_code
-    if (enableFlutterLog) {
+    if (shared._enabled) {
       switch (level) {
         case Level.info:
           shared._logger.i(msg, stackTrace: stackTrace);
