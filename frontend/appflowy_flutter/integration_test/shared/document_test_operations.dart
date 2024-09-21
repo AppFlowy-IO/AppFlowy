@@ -303,14 +303,12 @@ class EditorOperations {
         await tester.pump();
 
         // divide the steps to small move to avoid the drag area not found error
-        const steps = 10;
+        const steps = 5;
         final stepOffset = Offset(offset.dx / steps, offset.dy / steps);
 
         for (var i = 0; i < steps; i++) {
           await gesture.moveBy(stepOffset);
-          await tester.pump(
-            const Duration(milliseconds: 50),
-          );
+          await tester.pump(Durations.short1);
         }
 
         // check if the drag to move action is dragging
@@ -323,6 +321,6 @@ class EditorOperations {
         await tester.pump();
       },
     );
-    await tester.pumpAndSettle(Durations.long1);
+    await tester.pumpAndSettle(Durations.short1);
   }
 }

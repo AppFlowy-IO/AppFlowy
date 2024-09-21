@@ -54,10 +54,37 @@ void main() {
       );
 
       // wait for the move animation to complete
-      await tester.pumpAndSettle(Durations.long1);
+      await tester.pumpAndSettle(Durations.short1);
 
       // check if the block is moved to the top
       final afterMoveBlock = tester.editor.getNodeAtPath([0]);
+      expect(afterMoveBlock.delta, beforeMoveBlock.delta);
+    });
+
+    testWidgets('drag block to other block\'s child', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      // open getting started page
+      await tester.openPage(Constants.gettingStartedPageName);
+
+      // before move
+      final beforeMoveBlock = tester.editor.getNodeAtPath([10]);
+
+      // move the checkbox to the child of the block at path [9]
+      await tester.editor.dragBlock(
+        [10],
+        const Offset(80, -30),
+      );
+
+      // wait for the move animation to complete
+      await tester.pumpAndSettle(Durations.short1);
+
+      // check if the block is moved to the child of the block at path [9]
+      final afterMoveBlock = tester.editor.getNodeAtPath([9, 0]);
       expect(afterMoveBlock.delta, beforeMoveBlock.delta);
     });
   });
