@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
+@visibleForTesting
+ValueNotifier<bool> isDraggingAppFlowyEditorBlock = ValueNotifier(false);
 
 class DraggableOptionButton extends StatefulWidget {
   const DraggableOptionButton({
@@ -41,8 +43,6 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
 
   Offset? globalPosition;
 
-  ValueNotifier<bool> isDraggingAppFlowyEditorBlock = ValueNotifier(false);
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +54,6 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
   @override
   void dispose() {
     node.dispose();
-    isDraggingAppFlowyEditorBlock.dispose();
 
     super.dispose();
   }

@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -32,6 +33,11 @@ class EditorOperations {
 
   EditorState getCurrentEditorState() =>
       tester.widget<AppFlowyEditor>(find.byType(AppFlowyEditor)).editorState;
+
+  Node getNodeAtPath(Path path) {
+    final editorState = getCurrentEditorState();
+    return editorState.getNodeAtPath(path)!;
+  }
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
@@ -267,22 +273,56 @@ class EditorOperations {
     );
   }
 
-  // Drag block
+  /// Drag block
+  ///
+  /// [offset] is the offset to move the block.
+  ///
+  /// [path] is the path of the block to move.
   Future<void> dragBlock(
     Path path,
     Offset offset,
   ) async {
-    final optionMenuButton = find.byWidgetPredicate(
+    final dragToMoveAction = find.byWidgetPredicate(
       (widget) =>
-          widget is BlockComponentActionWrapper &&
-          widget.node.path.equals(path),
+          widget is DraggableOptionButton &&
+          widget.blockComponentContext.node.path.equals(path),
     );
+
     await tester.hoverOnWidget(
-      optionMenuButton,
+      dragToMoveAction,
       onHover: () async {
-        await tester.drag(optionMenuButton, offset);
+        final dragToMoveTooltip = find.findFlowyTooltip(
+          LocaleKeys.blockActions_dragTooltip.tr(),
+        );
+        await tester.pumpUntilFound(dragToMoveTooltip);
+        final location = tester.getCenter(dragToMoveAction);
+        final gesture = await tester.startGesture(
+          location,
+          pointer: 7,
+        );
+        await tester.pump();
+
+        // divide the steps to small move to avoid the drag area not found error
+        const steps = 10;
+        final stepOffset = Offset(offset.dx / steps, offset.dy / steps);
+
+        for (var i = 0; i < steps; i++) {
+          await gesture.moveBy(stepOffset);
+          await tester.pump(
+            const Duration(milliseconds: 50),
+          );
+        }
+
+        // check if the drag to move action is dragging
+        expect(
+          isDraggingAppFlowyEditorBlock.value,
+          isTrue,
+        );
+
+        await gesture.up();
+        await tester.pump();
       },
     );
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(Durations.long1);
   }
 }

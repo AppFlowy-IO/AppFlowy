@@ -18,6 +18,7 @@ import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -43,13 +44,21 @@ void main() {
       // open getting started page
       await tester.openPage(Constants.gettingStartedPageName);
 
+      // before move
+      final beforeMoveBlock = tester.editor.getNodeAtPath([1]);
+
       // move the desktop guide to the top, above the getting started
       await tester.editor.dragBlock(
         [1],
-        const Offset(100, 100),
+        const Offset(20, -80),
       );
 
-      await tester.pumpAndSettle();
+      // wait for the move animation to complete
+      await tester.pumpAndSettle(Durations.long1);
+
+      // check if the block is moved to the top
+      final afterMoveBlock = tester.editor.getNodeAtPath([0]);
+      expect(afterMoveBlock.delta, beforeMoveBlock.delta);
     });
   });
 }
