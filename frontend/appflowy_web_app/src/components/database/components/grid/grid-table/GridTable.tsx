@@ -103,7 +103,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       if (row.type === RenderRowType.CalculateRow && column.fieldId) {
         return (
-          <div style={style}>
+          <div style={style} className={'pb-36'}>
             <GridCalculateRowCell fieldId={column.fieldId} />
           </div>
         );
