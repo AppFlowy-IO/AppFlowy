@@ -39,7 +39,7 @@ export function DatabaseRowSubDocument ({ rowId }: { rowId: string }) {
     );
   }
 
-  if (!doc) return <EditorSkeleton />;
+  if (!doc) return null;
   return (
 
     <Editor
