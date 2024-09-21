@@ -122,12 +122,18 @@ function RelationItems ({ style, cell, fieldId }: {
               onClick={async (e) => {
                 if (!relatedViewId) return;
                 e.stopPropagation();
-                if (navigateToRow) {
-                  navigateToRow(rowId);
-                  return;
-                }
-                
+
                 try {
+                  if (navigateToRow) {
+                    if (relatedViewId !== viewId) {
+                      await navigateToView?.(relatedViewId);
+                      return;
+                    }
+
+                    navigateToRow(rowId);
+                    return;
+                  }
+
                   await navigateToView?.(relatedViewId);
                   // eslint-disable-next-line
                 } catch (e: any) {
