@@ -46,7 +46,7 @@ export const Document = ({
     <div
       style={{
         minHeight: `calc(100vh - 48px)`,
-      }} className={'mb-36 flex h-full w-full flex-col items-center'}
+      }} className={'flex h-full w-full flex-col items-center'}
     >
       <ViewMetaPreview {...viewMeta} />
       <Suspense fallback={<EditorSkeleton />}>
