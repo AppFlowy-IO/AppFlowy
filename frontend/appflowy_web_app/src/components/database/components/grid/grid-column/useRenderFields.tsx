@@ -1,4 +1,4 @@
-import { FieldId } from '@/application/collab.type';
+import { FieldId } from '@/application/types';
 import { FieldVisibility } from '@/application/database-yjs/database.type';
 import { useFieldsSelector } from '@/application/database-yjs/selector';
 import { useCallback, useMemo } from 'react';

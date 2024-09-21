@@ -1,10 +1,10 @@
-import { YDoc } from '@/application/collab.type';
-import { DocumentTest } from '@/../cypress/support/document';
+import { YDoc } from '@/application/types';
+import { DocumentTest } from 'cypress/support/document';
 import { applyYDoc } from '@/application/ydoc/apply';
 import React from 'react';
 import * as Y from 'yjs';
 import { Editor } from './Editor';
-import withAppWrapper from '@/components/app/withAppWrapper';
+import withAppWrapper from '@/components/main/withAppWrapper';
 
 describe('<Editor />', () => {
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('<Editor />', () => {
   });
 });
 
-function renderEditor(doc: YDoc) {
+function renderEditor (doc: YDoc) {
   const AppWrapper = withAppWrapper(() => {
     return (
       <div className={'h-screen w-screen overflow-y-auto'}>

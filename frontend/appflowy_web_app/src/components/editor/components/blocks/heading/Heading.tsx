@@ -1,4 +1,4 @@
-import { HEADER_HEIGHT } from '@/components/publish/header';
+import { HEADER_HEIGHT } from '@/application/constants';
 import { getHeadingCssProperty } from './utils';
 import { EditorElementProps, HeadingNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo } from 'react';
@@ -24,7 +24,7 @@ export const Heading = memo(
         {children}
       </div>
     );
-  })
+  }),
 );
 
 export default Heading;

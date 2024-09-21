@@ -1,4 +1,4 @@
-import { CollabOrigin } from '@/application/collab.type';
+import { CollabOrigin } from '@/application/types';
 import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
 import { generateId, insertBlock, withTestingYDoc, withTestingYjsEditor } from './withTestingYjsEditor';
 import { createEditor } from 'slate';

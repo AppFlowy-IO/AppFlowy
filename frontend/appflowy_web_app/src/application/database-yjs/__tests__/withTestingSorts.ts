@@ -1,4 +1,4 @@
-import { YDatabaseSort, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseSort, YjsDatabaseKey } from '@/application/types';
 import * as Y from 'yjs';
 import * as sortsJson from './fixtures/sorts.json';
 

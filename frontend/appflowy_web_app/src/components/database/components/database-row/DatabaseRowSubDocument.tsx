@@ -1,14 +1,14 @@
-import { YDoc } from '@/application/collab.type';
+import { YDoc } from '@/application/types';
 import { DatabaseContext, useRowMetaSelector } from '@/application/database-yjs';
+import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
-import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
+export function DatabaseRowSubDocument ({ rowId }: { rowId: string }) {
   const meta = useRowMetaSelector(rowId);
   const documentId = meta?.documentId;
   const loadView = useContext(DatabaseContext)?.loadView;
-  const getViewRowsMap = useContext(DatabaseContext)?.getViewRowsMap;
+  const createRowDoc = useContext(DatabaseContext)?.createRowDoc;
   const navigateToView = useContext(DatabaseContext)?.navigateToView;
   const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
 
@@ -19,9 +19,8 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
     if (!loadView || !documentId) return;
     try {
       setDoc(null);
-      const doc = await loadView(documentId);
+      const doc = await loadView(documentId, true);
 
-      console.log('doc', doc);
       setDoc(doc);
     } catch (e) {
       console.error(e);
@@ -36,20 +35,18 @@ export function DatabaseRowSubDocument({ rowId }: { rowId: string }) {
 
   if (loading) {
     return (
-      <div className={'flex h-[260px] w-full items-center justify-center'}>
-        <CircularProgress />
-      </div>
+      <EditorSkeleton />
     );
   }
 
-  if (!doc) return null;
-
+  if (!doc) return <EditorSkeleton />;
   return (
+
     <Editor
       doc={doc}
       loadViewMeta={loadViewMeta}
       navigateToView={navigateToView}
-      getViewRowsMap={getViewRowsMap}
+      createRowDoc={createRowDoc}
       readOnly={true}
       loadView={loadView}
     />

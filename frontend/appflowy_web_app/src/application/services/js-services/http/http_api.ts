@@ -1,4 +1,14 @@
-import { DatabaseId, RowId, ViewId, ViewLayout } from '@/application/collab.type';
+import {
+  DatabaseId,
+  FolderView,
+  RowId,
+  User,
+  View,
+  ViewId,
+  ViewLayout,
+  Workspace,
+  Invitation, Types,
+} from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
 import { blobToBytes } from '@/application/services/js-services/http/utils';
@@ -11,7 +21,6 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import { FolderView, Invitation, User, View, Workspace } from '@/application/types';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 
@@ -175,6 +184,87 @@ export async function getCurrentUser (): Promise<User> {
       email,
       name,
       avatar: metadata.icon_url,
+      latestWorkspaceId: data.data.latest_workspace_id,
+    };
+  }
+
+  return Promise.reject(data);
+}
+
+interface AFWorkspace {
+  workspace_id: string,
+  owner_uid: number,
+  owner_name: string,
+  workspace_name: string,
+  icon: string,
+  created_at: string,
+  member_count: number,
+  database_storage_id: string,
+}
+
+export async function openWorkspace (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/open`;
+  const response = await axiosInstance?.put<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function getUserWorkspaceInfo (): Promise<{
+  user_id: string;
+  selected_workspace: Workspace;
+  workspaces: Workspace[];
+}> {
+  const url = '/api/user/workspace';
+  const response = await axiosInstance?.get<{
+    code: number,
+    message: string,
+    data: {
+      user_profile: {
+        uuid: string;
+      },
+      visiting_workspace: AFWorkspace,
+      workspaces: AFWorkspace[]
+    }
+
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0) {
+    const { visiting_workspace, workspaces, user_profile } = data.data;
+
+    return {
+      user_id: user_profile.uuid,
+      selected_workspace: {
+        id: visiting_workspace.workspace_id,
+        name: visiting_workspace.workspace_name,
+        icon: visiting_workspace.icon,
+        memberCount: visiting_workspace.member_count,
+        databaseStorageId: visiting_workspace.database_storage_id,
+        owner: {
+          uid: visiting_workspace.owner_uid,
+          name: visiting_workspace.owner_name,
+        },
+      },
+      workspaces: workspaces.map(workspace => ({
+        id: workspace.workspace_id,
+        name: workspace.workspace_name,
+        icon: workspace.icon,
+        memberCount: workspace.member_count,
+        createdAt: workspace.created_at,
+        databaseStorageId: workspace.database_storage_id,
+        owner: {
+          uid: workspace.owner_uid,
+          name: workspace.owner_name,
+        },
+      })),
     };
   }
 
@@ -195,6 +285,66 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   });
 
   return blobToBytes(response?.data);
+}
+
+export async function getCollab (workspaceId: string, objectId: string, collabType: Types) {
+  const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: {
+      doc_state: number[];
+      object_id: string;
+    };
+    message: string;
+  }>(url, {
+    params: {
+      collab_type: collabType,
+    },
+  });
+
+  if (response?.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  const docState = response?.data.data.doc_state;
+
+  return {
+    data: new Uint8Array(docState),
+  };
+}
+
+export async function getPageCollab (workspaceId: string, viewId: string) {
+  const url = `/api/workspace/${workspaceId}/page-view/${viewId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: {
+      view: View;
+      data: {
+        encoded_collab: number[];
+        row_data: Record<RowId, number[]>;
+        owner?: User;
+        last_editor?: User;
+      }
+    };
+    message: string;
+  }>(url);
+
+  if (!response) {
+    return Promise.reject('No response');
+  }
+
+  if (response.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  const { encoded_collab, row_data, owner, last_editor } = response.data.data.data;
+
+  return {
+    data: new Uint8Array(encoded_collab),
+    rows: row_data,
+    owner,
+    lastEditor: last_editor,
+  };
 }
 
 export async function getPublishView (publishNamespace: string, publishName: string) {
@@ -226,6 +376,7 @@ export async function getPublishView (publishNamespace: string, publishName: str
       rows: res.database_row_collabs,
       visibleViewIds: res.visible_database_view_ids,
       relations: res.database_relations,
+      subDocuments: res.database_row_document_collabs,
       meta,
     };
   } catch (e) {
@@ -253,6 +404,98 @@ export async function getPublishInfoWithViewId (viewId: string) {
   return Promise.reject(data);
 }
 
+export async function getAppFavorites (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/favorite`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      views: View[]
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.views;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppTrash (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/trash`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      views: View[]
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.views;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppRecent (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/recent`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      views: View[]
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.views;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getAppOutline (workspaceId: string) {
+  const url = `/api/workspace/${workspaceId}/folder?depth=10`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: View;
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data.children;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getView (workspaceId: string, viewId: string, depth: number = 1) {
+  const url = `/api/workspace/${workspaceId}/folder?depth=${depth}&root_view_id=${viewId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: View;
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
 export async function getPublishOutline (publishNamespace: string) {
   const url = `/api/workspace/published-outline/${publishNamespace}`;
   const response = await axiosInstance?.get<{
@@ -264,7 +507,7 @@ export async function getPublishOutline (publishNamespace: string) {
   const data = response?.data;
 
   if (data?.code === 0 && data.data) {
-    return data.data;
+    return data.data.children;
   }
 
   return Promise.reject(data);
@@ -442,6 +685,7 @@ export async function getWorkspaces (): Promise<Workspace[]> {
       workspace_name: string;
       member_count: number;
       icon: string;
+      database_storage_id?: string;
     }[];
     message: string;
   }>(url);
@@ -455,6 +699,7 @@ export async function getWorkspaces (): Promise<Workspace[]> {
         name: workspace.workspace_name,
         memberCount: workspace.member_count,
         icon: workspace.icon,
+        databaseStorageId: workspace.database_storage_id || '',
       };
     });
   }
@@ -748,7 +993,6 @@ export async function uploadFileToCDN (file: File) {
   const url = '/api/template-center/avatar';
   const formData = new FormData();
 
-  console.log(file);
   formData.append('avatar', file);
 
   const response = await axiosInstance?.request<{

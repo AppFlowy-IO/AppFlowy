@@ -1,6 +1,6 @@
 import { getRedirectTo } from '@/application/session/sign_in';
 import { NormalModal } from '@/components/_shared/modal';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import LinearBuffer from '@/components/login/LinearBuffer';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
