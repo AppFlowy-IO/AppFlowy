@@ -57,6 +57,14 @@ extension CommonOperations on WidgetTester {
     }
   }
 
+  Future<void> tapContinousAnotherWay() async {
+    // local version
+    await tapButtonWithName(LocaleKeys.signIn_continueAnotherWay.tr());
+    if (Platform.isWindows) {
+      await pumpAndSettle(const Duration(milliseconds: 200));
+    }
+  }
+
   /// Tap the + button on the home page.
   Future<void> tapAddViewButton({
     String name = gettingStarted,
