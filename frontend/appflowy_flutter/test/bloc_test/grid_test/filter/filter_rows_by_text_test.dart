@@ -15,7 +15,7 @@ void main() {
     final context = await createTestFilterGrid(gridTest);
 
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     // create a new filter
     await service.insertTextFilter(
       fieldId: textField.id,
@@ -45,7 +45,7 @@ void main() {
     final context = await createTestFilterGrid(gridTest);
 
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     // create a new filter
     await service.insertTextFilter(
       fieldId: textField.id,
@@ -71,7 +71,7 @@ void main() {
     final context = await createTestFilterGrid(gridTest);
 
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     // create a new filter
     await service.insertTextFilter(
       fieldId: textField.id,
@@ -111,7 +111,7 @@ void main() {
     final context = await createTestFilterGrid(gridTest);
 
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     // create a new filter
     await service.insertTextFilter(
       fieldId: textField.id,
