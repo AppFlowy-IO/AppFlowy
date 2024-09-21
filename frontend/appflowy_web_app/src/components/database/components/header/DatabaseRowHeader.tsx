@@ -9,7 +9,7 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
 
   const ref = React.useRef<HTMLDivElement>(null);
   const [offsetLeft, setOffsetLeft] = React.useState(0);
-  const [width, setWidth] = React.useState(0);
+  const [width, setWidth] = React.useState<number | undefined>(undefined);
   const meta = useRowMetaSelector(rowId);
   const cover = meta?.cover;
 
@@ -42,7 +42,7 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
 
     if (!el) return;
 
-    const container = getScrollParent(el);
+    const container = document.querySelector('.appflowy-scroll-container') || getScrollParent(el);
 
     if (!container) return;
 
