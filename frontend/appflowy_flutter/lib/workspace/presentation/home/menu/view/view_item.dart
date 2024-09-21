@@ -639,39 +639,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
-    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
-      return const _DotIconWidget();
-    }
-
-    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
-      return HSpace(widget.leftPadding);
-    }
-
-    final child = FlowyHover(
-      child: GestureDetector(
-        child: FlowySvg(
-          widget.isExpanded
-              ? FlowySvgs.view_item_expand_s
-              : FlowySvgs.view_item_unexpand_s,
-          size: const Size.square(16.0),
-        ),
-        onTap: () => context
-            .read<ViewBloc>()
-            .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
-      ),
+    return ViewItemDefaultLeftIcon(
+      view: widget.view,
+      parentView: widget.parentView,
+      isExpanded: widget.isExpanded,
+      leftPadding: widget.leftPadding,
+      isHovered: widget.isHovered,
     );
-
-    if (widget.isHovered != null) {
-      return ValueListenableBuilder<bool>(
-        valueListenable: widget.isHovered!,
-        builder: (_, isHovered, child) {
-          return Opacity(opacity: isHovered ? 1.0 : 0.0, child: child);
-        },
-        child: child,
-      );
-    }
-
-    return child;
   }
 
   // + button
@@ -911,4 +885,57 @@ void moveViewCrossSpace(
           spaceType == FolderSpaceType.public,
         ),
       );
+}
+
+class ViewItemDefaultLeftIcon extends StatelessWidget {
+  const ViewItemDefaultLeftIcon({
+    super.key,
+    required this.view,
+    required this.parentView,
+    required this.isExpanded,
+    required this.leftPadding,
+    required this.isHovered,
+  });
+
+  final ViewPB view;
+  final ViewPB? parentView;
+  final bool isExpanded;
+  final double leftPadding;
+  final ValueNotifier<bool>? isHovered;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isReferencedDatabaseView(view, parentView)) {
+      return const _DotIconWidget();
+    }
+
+    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+      return HSpace(leftPadding);
+    }
+
+    final child = FlowyHover(
+      child: GestureDetector(
+        child: FlowySvg(
+          isExpanded
+              ? FlowySvgs.view_item_expand_s
+              : FlowySvgs.view_item_unexpand_s,
+          size: const Size.square(16.0),
+        ),
+        onTap: () =>
+            context.read<ViewBloc>().add(ViewEvent.setIsExpanded(!isExpanded)),
+      ),
+    );
+
+    if (isHovered != null) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: isHovered!,
+        builder: (_, isHovered, child) {
+          return Opacity(opacity: isHovered ? 1.0 : 0.0, child: child);
+        },
+        child: child,
+      );
+    }
+
+    return child;
+  }
 }
