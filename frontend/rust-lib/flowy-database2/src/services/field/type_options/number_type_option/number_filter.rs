@@ -1,12 +1,12 @@
 use std::str::FromStr;
 
+use collab_database::fields::number_type_option::NumberCellFormat;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 use rust_decimal::Decimal;
 
 use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
 use crate::services::cell::insert_text_cell;
-use crate::services::field::NumberCellFormat;
 use crate::services::filter::PreFillCellsWithFilter;
 
 impl NumberFilterPB {
@@ -108,7 +108,7 @@ impl NumberFilterStrategy {
 #[cfg(test)]
 mod tests {
   use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
-  use crate::services::field::{NumberCellFormat, NumberFormat};
+  use collab_database::fields::number_type_option::{NumberCellFormat, NumberFormat};
 
   #[test]
   fn number_filter_equal_test() {

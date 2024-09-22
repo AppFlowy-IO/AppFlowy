@@ -1,11 +1,10 @@
 use collab::util::AnyMapExt;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
+use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-
-use flowy_error::FlowyResult;
 
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
@@ -178,7 +177,7 @@ mod tests {
   use crate::services::cell::CellDataChangeset;
   use crate::services::field::type_options::selection_type_option::*;
   use crate::services::field::MultiSelectTypeOption;
-  use collab_database::entity::SelectOption;
+  use collab_database::fields::select_type_option::SelectOption;
 
   #[test]
   fn multi_select_insert_multi_option_test() {

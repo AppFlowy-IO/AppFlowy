@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::entity::{DatabaseView, SelectOption, SelectOptionColor};
+use collab_database::entity::DatabaseView;
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionColor};
 use collab_database::views::{DatabaseLayout, LayoutSetting, LayoutSettings};
 use strum::IntoEnumIterator;
 

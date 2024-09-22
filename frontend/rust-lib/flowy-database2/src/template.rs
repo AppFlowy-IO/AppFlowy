@@ -1,7 +1,6 @@
 use collab_database::database::{gen_database_id, gen_row_id, timestamp};
-use collab_database::entity::{
-  CreateDatabaseParams, CreateViewParams, SelectOption, SelectOptionColor,
-};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionColor};
 use collab_database::rows::CreateRowParams;
 use collab_database::views::{DatabaseLayout, LayoutSettings};
 

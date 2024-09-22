@@ -1,5 +1,7 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::entity::{DatabaseView, SelectOption, SelectOptionColor};
+use collab_database::entity::DatabaseView;
+use collab_database::fields::number_type_option::{NumberFormat, NumberTypeOption};
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionColor};
 use collab_database::views::DatabaseLayout;
 use strum::IntoEnumIterator;
 
@@ -10,8 +12,8 @@ use flowy_database2::services::field::summary_type_option::summary::Summarizatio
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MediaTypeOption,
-  MultiSelectTypeOption, NumberFormat, NumberTypeOption, RelationTypeOption,
-  SingleSelectTypeOption, TimeFormat, TimeTypeOption, TimestampTypeOption,
+  MultiSelectTypeOption, RelationTypeOption, SingleSelectTypeOption, TimeFormat, TimeTypeOption,
+  TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 

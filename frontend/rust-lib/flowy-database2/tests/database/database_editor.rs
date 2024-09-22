@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::gen_database_view_id;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use lib_infra::box_any::BoxAny;

@@ -4,7 +4,7 @@ mod tests {
   use crate::services::cell::{insert_select_option_cell, stringify_cell};
   use crate::services::field::FieldBuilder;
   use crate::services::field::*;
-  use collab_database::entity::SelectOption;
+  use collab_database::fields::select_type_option::SelectOption;
 
   // Test parser the cell data which field's type is FieldType::Date to cell data
   // which field's type is FieldType::Text

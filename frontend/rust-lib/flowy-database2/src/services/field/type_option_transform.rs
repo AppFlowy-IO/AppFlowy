@@ -3,11 +3,12 @@ use crate::services::field::summary_type_option::summary::SummarizationTypeOptio
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption,
-  NumberTypeOption, RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
+  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
   TimestampTypeOption, TypeOptionTransform, URLTypeOption,
 };
 use async_trait::async_trait;
 use collab_database::database::Database;
+use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::TypeOptionData;
 
 pub async fn transform_type_option(

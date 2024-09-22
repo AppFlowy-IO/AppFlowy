@@ -1,5 +1,5 @@
 use collab_database::database::gen_option_id;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use flowy_database2::entities::{FieldChangesetParams, FieldType};
 use flowy_database2::services::field::{SingleSelectTypeOption, CHECK, UNCHECK};
 

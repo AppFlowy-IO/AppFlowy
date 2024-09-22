@@ -1,12 +1,3 @@
-use async_trait::async_trait;
-use bytes::Bytes;
-use collab_database::database::Database;
-use collab_database::entity::{SelectOption, SelectOptionColor};
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::Cell;
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use std::str::FromStr;
-
 use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
@@ -15,6 +6,14 @@ use crate::services::field::{
   SingleSelectTypeOption, StringCellData, TypeOption, TypeOptionCellDataSerde, TypeOptionTransform,
   SELECTION_IDS_SEPARATOR,
 };
+use async_trait::async_trait;
+use bytes::Bytes;
+use collab_database::database::Database;
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionColor};
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::Cell;
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use std::str::FromStr;
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
 pub trait SelectTypeOptionSharedAction: Send + Sync {

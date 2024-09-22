@@ -5,7 +5,7 @@ use crate::services::field::{
   SingleSelectTypeOption, TypeOption, CHECK, UNCHECK,
 };
 use collab_database::database::Database;
-use collab_database::entity::{SelectOption, SelectOptionColor};
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionColor};
 use collab_database::fields::TypeOptionData;
 use collab_database::template::option_parse::build_options_from_cells;
 use tracing::info;

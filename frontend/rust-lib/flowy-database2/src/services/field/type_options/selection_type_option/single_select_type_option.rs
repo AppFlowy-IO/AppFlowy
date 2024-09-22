@@ -9,7 +9,7 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 use collab::util::AnyMapExt;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -152,7 +152,7 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
 mod tests {
   use crate::services::cell::CellDataChangeset;
   use crate::services::field::type_options::*;
-  use collab_database::entity::SelectOption;
+  use collab_database::fields::select_type_option::SelectOption;
 
   #[test]
   fn single_select_insert_multi_option_test() {

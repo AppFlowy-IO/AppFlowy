@@ -1,13 +1,13 @@
 use async_trait::async_trait;
 use bytes::Bytes;
 use collab_database::database::Database;
+use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
+use flowy_error::FlowyResult;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;
-
-use flowy_error::FlowyResult;
 
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType, MediaTypeOptionPB,
@@ -20,9 +20,8 @@ use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RelationTypeOption, RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption,
-  TimestampTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MediaTypeOption, MultiSelectTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimeTypeOption, TimestampTypeOption, URLTypeOption,
 };
 use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;

@@ -1,8 +1,6 @@
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
-use std::time::Duration;
-
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
@@ -10,6 +8,7 @@ use flowy_database2::services::cell::{
 use flowy_database2::services::field::{
   edit_single_select_type_option, SelectTypeOptionSharedAction, SingleSelectTypeOption,
 };
+use std::time::Duration;
 
 use crate::database::database_editor::DatabaseEditorTest;
 

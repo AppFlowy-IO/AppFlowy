@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::{FlowyError, FlowyResult};
