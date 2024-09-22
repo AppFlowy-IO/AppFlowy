@@ -9,17 +9,17 @@ use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, MediaTypeOption, RelationTypeOption, RichTextTypeOption, TimeTypeOption,
-  TimestampTypeOption,
+  CheckboxTypeOption, MediaTypeOption, RelationTypeOption, RichTextTypeOption,
 };
 use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
 use async_trait::async_trait;
 use bytes::Bytes;
 use collab_database::database::Database;
+use collab_database::fields::date_type_option::{DateTypeOption, TimeTypeOption};
 use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
-use collab_database::fields::time_type_option::DateTypeOption;
+use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
@@ -294,7 +294,7 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::Number => NumberTypeOption::default().into(),
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
-      field_type,
+      field_type: field_type.into(),
       ..Default::default()
     }
     .into(),

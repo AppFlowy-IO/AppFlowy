@@ -1,6 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use collab_database::fields::time_type_option::{
+use collab_database::fields::date_type_option::{
   DateCellData, DateFormat, DateTypeOption, TimeFormat,
 };
 use strum_macros::EnumIter;

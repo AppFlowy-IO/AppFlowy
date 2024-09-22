@@ -1,12 +1,13 @@
+use collab_database::fields::date_type_option::{
+  DateFormat, DateTypeOption, TimeFormat, TimeTypeOption,
+};
 use collab_database::fields::select_type_option::{SelectOption, SingleSelectTypeOption};
-use collab_database::fields::time_type_option::{DateFormat, DateTypeOption, TimeFormat};
+use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::Field;
 use collab_database::views::OrderObjectPosition;
 
 use flowy_database2::entities::{CreateFieldParams, FieldType};
-use flowy_database2::services::field::{
-  type_option_to_pb, FieldBuilder, RichTextTypeOption, TimeTypeOption, TimestampTypeOption,
-};
+use flowy_database2::services::field::{type_option_to_pb, FieldBuilder, RichTextTypeOption};
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {
   let field_type = FieldType::RichText;
@@ -75,7 +76,7 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
     date_format: DateFormat::US,
     time_format: TimeFormat::TwentyFourHour,
     include_time: true,
-    field_type,
+    field_type: field_type.into(),
   };
 
   let field: Field = match field_type {

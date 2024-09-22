@@ -1,4 +1,4 @@
-use collab_database::fields::time_type_option::DateCellData;
+use collab_database::fields::date_type_option::DateCellData;
 use flowy_database2::entities::FieldType;
 use lib_infra::util::timestamp;
 use std::time::Duration;

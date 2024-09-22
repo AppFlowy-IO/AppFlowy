@@ -1,9 +1,10 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::date_type_option::{DateFormat, DateTypeOption, TimeFormat};
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
-use collab_database::fields::time_type_option::{DateFormat, DateTypeOption, TimeFormat};
+use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::views::{DatabaseLayout, LayoutSetting, LayoutSettings};
 use strum::IntoEnumIterator;
 
@@ -12,7 +13,7 @@ use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
-use flowy_database2::services::field::{FieldBuilder, RelationTypeOption, TimestampTypeOption};
+use flowy_database2::services::field::{FieldBuilder, RelationTypeOption};
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use flowy_database2::services::setting::BoardLayoutSetting;
 
@@ -57,7 +58,7 @@ pub fn make_test_board() -> DatabaseData {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
-          field_type,
+          field_type: field_type.into(),
         };
         let name = match field_type {
           FieldType::LastEditedTime => "Last Modified",

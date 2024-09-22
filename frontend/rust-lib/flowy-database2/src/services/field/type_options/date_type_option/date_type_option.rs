@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use collab::util::AnyMapExt;
 use collab_database::database::Database;
-use collab_database::fields::time_type_option::{DateCellData, DateTypeOption};
+use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
 use collab_database::template::date_parse::cast_string_to_timestamp;

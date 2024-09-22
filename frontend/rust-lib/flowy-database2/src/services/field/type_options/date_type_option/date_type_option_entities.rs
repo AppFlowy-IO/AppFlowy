@@ -1,7 +1,7 @@
 #![allow(clippy::upper_case_acronyms)]
 
 use bytes::Bytes;
-use collab_database::fields::time_type_option::DateCellData;
+use collab_database::fields::date_type_option::DateCellData;
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::DateCellDataPB;

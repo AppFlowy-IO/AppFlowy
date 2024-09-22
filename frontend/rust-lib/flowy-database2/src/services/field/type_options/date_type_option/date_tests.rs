@@ -1,14 +1,15 @@
 #[cfg(test)]
 mod tests {
   use chrono::format::strftime::StrftimeItems;
-  use chrono::{FixedOffset, NaiveDateTime};
+  use chrono::FixedOffset;
   use collab_database::fields::Field;
   use collab_database::rows::Cell;
+  use strum::IntoEnumIterator;
 
   use crate::entities::FieldType;
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
   use crate::services::field::{DateCellChangeset, FieldBuilder};
-  use collab_database::fields::time_type_option::{DateFormat, DateTypeOption, TimeFormat};
+  use collab_database::fields::date_type_option::{DateFormat, DateTypeOption, TimeFormat};
 
   #[test]
   fn date_type_option_date_format_test() {
@@ -288,7 +289,9 @@ mod tests {
   #[test]
   fn utc_to_native_test() {
     let native_timestamp = 1647251762;
-    let native = NaiveDateTime::from_timestamp_opt(native_timestamp, 0).unwrap();
+    let native = chrono::DateTime::from_timestamp(native_timestamp, 0)
+      .unwrap()
+      .naive_utc();
 
     let utc = chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(native, chrono::Utc);
     // utc_timestamp doesn't  carry timezone

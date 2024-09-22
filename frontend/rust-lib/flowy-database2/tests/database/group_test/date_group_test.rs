@@ -3,7 +3,7 @@ use std::vec;
 
 use chrono::NaiveDateTime;
 use chrono::{offset, Duration};
-use collab_database::fields::time_type_option::DateCellData;
+use collab_database::fields::date_type_option::DateCellData;
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
 
 use crate::database::group_test::script::DatabaseGroupTest;

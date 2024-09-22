@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Datelike, Days, Duration, Local};
 use collab_database::database::timestamp;
-use collab_database::fields::time_type_option::{DateCellData, DateTypeOption};
+use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::{internal_error, FlowyResult};
@@ -344,7 +344,7 @@ mod tests {
     get_date_group_id, GROUP_ID_DATE_FORMAT,
   };
   use chrono::{offset, Days, Duration};
-  use collab_database::fields::time_type_option::{DateCellData, DateTypeOption};
+  use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
 
   #[test]
   fn group_id_name_test() {
