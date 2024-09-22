@@ -6,16 +6,16 @@ use crate::services::field::{
 };
 use crate::services::field::{SelectOptionCellChangeset, SelectTypeOptionSharedAction};
 use crate::services::sort::SortCondition;
-use collab::util::AnyMapExt;
+
 use collab_database::fields::select_type_option::{
-  SelectOption, SelectOptionIds, SelectTypeOption, SingleSelectTypeOption,
+  SelectOption, SelectOptionIds, SingleSelectTypeOption,
 };
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
+
 use std::cmp::Ordering;
-use std::ops::{Deref, DerefMut};
+
 // Single select
 
 impl TypeOption for SingleSelectTypeOption {
@@ -131,16 +131,18 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
 mod tests {
   use crate::services::cell::CellDataChangeset;
   use crate::services::field::type_options::*;
-  use collab_database::fields::select_type_option::SelectOption;
+  use collab_database::fields::select_type_option::{
+    SelectOption, SelectTypeOption, SingleSelectTypeOption,
+  };
 
   #[test]
   fn single_select_insert_multi_option_test() {
     let google = SelectOption::new("Google");
     let facebook = SelectOption::new("Facebook");
-    let single_select = SelectTypeOption {
+    let single_select = SingleSelectTypeOption(SelectTypeOption {
       options: vec![google.clone(), facebook.clone()],
       disable_color: false,
-    };
+    });
 
     let option_ids = vec![google.id.clone(), facebook.id];
     let changeset = SelectOptionCellChangeset::from_insert_options(option_ids);
@@ -152,10 +154,10 @@ mod tests {
   fn single_select_unselect_multi_option_test() {
     let google = SelectOption::new("Google");
     let facebook = SelectOption::new("Facebook");
-    let single_select = SelectTypeOption {
+    let single_select = SingleSelectTypeOption(SelectTypeOption {
       options: vec![google.clone(), facebook.clone()],
       disable_color: false,
-    };
+    });
     let option_ids = vec![google.id.clone(), facebook.id];
 
     // insert

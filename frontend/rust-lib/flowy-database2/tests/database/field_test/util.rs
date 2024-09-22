@@ -1,11 +1,11 @@
-use collab_database::fields::select_type_option::SelectOption;
+use collab_database::fields::select_type_option::{SelectOption, SingleSelectTypeOption};
 use collab_database::fields::Field;
 use collab_database::views::OrderObjectPosition;
 
 use flowy_database2::entities::{CreateFieldParams, FieldType};
 use flowy_database2::services::field::{
-  type_option_to_pb, DateFormat, DateTypeOption, FieldBuilder, RichTextTypeOption,
-  SingleSelectTypeOption, TimeFormat, TimeTypeOption, TimestampTypeOption,
+  type_option_to_pb, DateFormat, DateTypeOption, FieldBuilder, RichTextTypeOption, TimeFormat,
+  TimeTypeOption, TimestampTypeOption,
 };
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {

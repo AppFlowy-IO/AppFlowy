@@ -6,6 +6,7 @@ use std::hash::{Hash, Hasher};
 
 use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, RowId};
 use flowy_error::FlowyResult;
@@ -19,7 +20,7 @@ use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MediaTypeOption, RelationTypeOption,
   RichTextTypeOption, TimeTypeOption, TimestampTypeOption, TypeOption, TypeOptionCellData,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
-  TypeOptionTransform, URLTypeOption,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 

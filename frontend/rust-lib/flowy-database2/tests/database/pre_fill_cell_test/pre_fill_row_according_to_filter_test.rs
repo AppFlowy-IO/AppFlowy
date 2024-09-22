@@ -1,12 +1,11 @@
+use crate::database::pre_fill_cell_test::script::{
+  DatabasePreFillRowCellTest, PreFillRowCellTestScript::*,
+};
+use collab_database::fields::select_type_option::SELECTION_IDS_SEPARATOR;
 use flowy_database2::entities::{
   CheckboxFilterConditionPB, CheckboxFilterPB, DateFilterConditionPB, DateFilterPB, FieldType,
   FilterDataPB, SelectOptionFilterConditionPB, SelectOptionFilterPB, TextFilterConditionPB,
   TextFilterPB,
-};
-use flowy_database2::services::field::SELECTION_IDS_SEPARATOR;
-
-use crate::database::pre_fill_cell_test::script::{
-  DatabasePreFillRowCellTest, PreFillRowCellTestScript::*,
 };
 
 // This suite of tests cover creating an empty row into a database that has

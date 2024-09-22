@@ -1,11 +1,12 @@
 use collab_database::database::gen_option_id;
-use collab_database::fields::select_type_option::SelectOption;
+use collab_database::fields::select_type_option::{SelectOption, SelectTypeOption};
 use flowy_database2::entities::{FieldChangesetParams, FieldType};
-use flowy_database2::services::field::{SingleSelectTypeOption, CHECK, UNCHECK};
+use flowy_database2::services::field::{CHECK, UNCHECK};
 
 use crate::database::field_test::script::DatabaseFieldTest;
 use crate::database::field_test::script::FieldScript::*;
 use crate::database::field_test::util::*;
+use collab_database::fields::select_type_option::SingleSelectTypeOption;
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -143,10 +144,10 @@ async fn grid_switch_from_select_option_to_checkbox_test() {
   let scripts = vec![
     UpdateTypeOption {
       field_id: field.id.clone(),
-      type_option: SingleSelectTypeOption {
+      type_option: SingleSelectTypeOption(SelectTypeOption {
         options,
         disable_color: false,
-      }
+      })
       .into(),
     },
     SwitchToField {

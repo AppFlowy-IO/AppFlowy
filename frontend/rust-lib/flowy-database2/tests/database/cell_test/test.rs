@@ -1,12 +1,12 @@
-use std::time::Duration;
-
+use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, DateCellData, MediaFile, MediaFileType,
-  MediaUploadType, MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset,
-  SingleSelectTypeOption, StringCellData, TimeCellData, URLCellData,
+  MediaUploadType, RelationCellChangeset, SelectOptionCellChangeset, StringCellData, TimeCellData,
+  URLCellData,
 };
 use lib_infra::box_any::BoxAny;
+use std::time::Duration;
 
 use crate::database::cell_test::script::CellScript::UpdateCell;
 use crate::database::cell_test::script::DatabaseCellTest;

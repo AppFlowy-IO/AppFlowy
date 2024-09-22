@@ -4,7 +4,7 @@ mod tests {
   use crate::services::cell::{insert_select_option_cell, stringify_cell};
   use crate::services::field::FieldBuilder;
   use crate::services::field::*;
-  use collab_database::fields::select_type_option::SelectOption;
+  use collab_database::fields::select_type_option::{SelectOption, SelectTypeOption};
 
   // Test parser the cell data which field's type is FieldType::Date to cell data
   // which field's type is FieldType::Text
@@ -68,7 +68,7 @@ mod tests {
     let done_option = SelectOption::new("Done");
     let option_id = done_option.id.clone();
 
-    let single_select = SingleSelectTypeOption {
+    let single_select = SelectTypeOption {
       options: vec![done_option.clone()],
       disable_color: false,
     };
@@ -85,7 +85,7 @@ mod tests {
 
     let france = SelectOption::new("france");
     let argentina = SelectOption::new("argentina");
-    let multi_select = MultiSelectTypeOption {
+    let multi_select = SelectTypeOption {
       options: vec![france.clone(), argentina.clone()],
       disable_color: false,
     };
