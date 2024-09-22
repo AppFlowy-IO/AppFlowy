@@ -3,15 +3,16 @@ mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::{insert_select_option_cell, stringify_cell};
   use crate::services::field::FieldBuilder;
-  use crate::services::field::*;
+
   use collab_database::fields::select_type_option::{SelectOption, SelectTypeOption};
+  use collab_database::fields::time_type_option::{DateCellData, DateTypeOption};
 
   // Test parser the cell data which field's type is FieldType::Date to cell data
   // which field's type is FieldType::Text
   #[test]
   fn date_type_to_text_type() {
     let field_type = FieldType::DateTime;
-    let field = FieldBuilder::new(field_type, DateTypeOption::test()).build();
+    let field = FieldBuilder::new(field_type, DateTypeOption::default_utc()).build();
 
     let data = DateCellData {
       timestamp: Some(1647251762),

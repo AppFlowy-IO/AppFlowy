@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use chrono::{DateTime, Local, Offset};
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
+use collab_database::fields::time_type_option::{DateFormat, TimeFormat};
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -11,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::entities::{DateFilterPB, FieldType, TimestampCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, DateFormat, TimeFormat, TimestampCellData, TypeOption, TypeOptionCellDataCompare,
+  default_order, TimestampCellData, TypeOption, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;

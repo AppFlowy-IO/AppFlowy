@@ -1,9 +1,9 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
 use crate::services::cell::insert_date_cell;
-use crate::services::field::DateCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
 use chrono::{Duration, NaiveDate, NaiveDateTime};
+use collab_database::fields::time_type_option::DateCellData;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 
@@ -32,7 +32,7 @@ impl DateFilterPB {
 
 #[inline]
 fn naive_date_from_timestamp(timestamp: i64) -> Option<NaiveDate> {
-  NaiveDateTime::from_timestamp_opt(timestamp, 0).map(|date_time: NaiveDateTime| date_time.date())
+  chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc().date())
 }
 
 enum DateFilterStrategy {
@@ -134,7 +134,7 @@ impl PreFillCellsWithFilter for DateFilterPB {
 #[cfg(test)]
 mod tests {
   use crate::entities::{DateFilterConditionPB, DateFilterPB};
-  use crate::services::field::DateCellData;
+  use collab_database::fields::time_type_option::DateCellData;
 
   fn to_cell_data(timestamp: i32) -> DateCellData {
     DateCellData::new(timestamp as i64, false, false, "".to_string())

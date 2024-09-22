@@ -1,11 +1,13 @@
 #![allow(clippy::upper_case_acronyms)]
 
+use collab_database::fields::time_type_option::{
+  DateCellData, DateFormat, DateTypeOption, TimeFormat,
+};
 use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::entities::CellIdPB;
-use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateCellDataPB {
@@ -35,6 +37,17 @@ pub struct DateCellDataPB {
 
   #[pb(index = 9)]
   pub reminder_id: String,
+}
+impl From<&DateCellDataPB> for DateCellData {
+  fn from(data: &DateCellDataPB) -> Self {
+    Self {
+      timestamp: Some(data.timestamp),
+      end_timestamp: Some(data.end_timestamp),
+      include_time: data.include_time,
+      is_range: data.is_range,
+      reminder_id: data.reminder_id.to_owned(),
+    }
+  }
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]

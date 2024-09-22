@@ -1,18 +1,18 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Datelike, Days, Duration, Local, NaiveDateTime};
+use chrono::{DateTime, Datelike, Days, Duration, Local};
 use collab_database::database::timestamp;
+use collab_database::fields::time_type_option::{DateCellData, DateTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
-
-use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::insert_date_cell;
-use crate::services::field::{DateCellData, DateCellDataParser, DateTypeOption, TypeOption};
+use crate::services::field::{DateCellDataParser, TypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
@@ -327,7 +327,9 @@ fn get_date_group_id(cell_data: &DateCellData, setting_content: &str) -> String 
 fn date_time_from_timestamp(timestamp: Option<i64>) -> DateTime<Local> {
   match timestamp {
     Some(timestamp) => {
-      let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+      let naive = DateTime::from_timestamp(timestamp, 0)
+        .unwrap_or_default()
+        .naive_utc();
       let offset = *Local::now().offset();
 
       DateTime::<Local>::from_naive_utc_and_offset(naive, offset)
@@ -338,13 +340,11 @@ fn date_time_from_timestamp(timestamp: Option<i64>) -> DateTime<Local> {
 
 #[cfg(test)]
 mod tests {
-  use chrono::{offset, Days, Duration, NaiveDateTime};
-
-  use crate::services::field::date_type_option::DateTypeOption;
-  use crate::services::field::DateCellData;
   use crate::services::group::controller_impls::date_controller::{
     get_date_group_id, GROUP_ID_DATE_FORMAT,
   };
+  use chrono::{offset, Days, Duration};
+  use collab_database::fields::time_type_option::{DateCellData, DateTypeOption};
 
   #[test]
   fn group_id_name_test() {
@@ -354,9 +354,11 @@ mod tests {
       exp_group_id: String,
     }
 
-    let mar_14_2022 = NaiveDateTime::from_timestamp_opt(1647251762, 0).unwrap();
+    let mar_14_2022 = chrono::DateTime::from_timestamp(1647251762, 0)
+      .unwrap()
+      .naive_utc();
     let mar_14_2022_cd = DateCellData {
-      timestamp: Some(mar_14_2022.timestamp()),
+      timestamp: Some(mar_14_2022.and_utc().timestamp()),
       include_time: false,
       ..Default::default()
     };
@@ -407,6 +409,7 @@ mod tests {
             mar_14_2022
               .checked_add_signed(Duration::days(3))
               .unwrap()
+              .and_utc()
               .timestamp(),
           ),
           include_time: false,

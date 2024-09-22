@@ -2,13 +2,14 @@ use crate::entities::FieldType;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MediaTypeOption, RelationTypeOption,
-  RichTextTypeOption, TimeTypeOption, TimestampTypeOption, TypeOptionTransform,
+  CheckboxTypeOption, ChecklistTypeOption, MediaTypeOption, RelationTypeOption, RichTextTypeOption,
+  TimeTypeOption, TimestampTypeOption, TypeOptionTransform,
 };
 use async_trait::async_trait;
 use collab_database::database::Database;
 use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::time_type_option::DateTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::TypeOptionData;
 

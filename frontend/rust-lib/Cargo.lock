@@ -655,9 +655,9 @@ checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "chrono"
-version = "0.4.33"
+version = "0.4.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f13690e35a5e4ace198e7beea2895d29f3a9cc55015fcebe6336bd2010af9eb"
+checksum = "a21f936df1771bf62b77f047b726c4625ff2e8aa607c01ec06e5a05bd8463401"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
@@ -675,7 +675,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1369bc6b9e9a7dfdae2055f6ec151fe9c554a9d23d357c0237cee2e25eaabb7"
 dependencies = [
  "chrono",
- "chrono-tz-build",
+ "chrono-tz-build 0.2.0",
+ "phf 0.11.2",
+]
+
+[[package]]
+name = "chrono-tz"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd6dd8046d00723a59a2f8c5f295c515b9bb9a331ee4f8f3d4dd49e428acd3b6"
+dependencies = [
+ "chrono",
+ "chrono-tz-build 0.4.0",
  "phf 0.11.2",
 ]
 
@@ -687,6 +698,16 @@ checksum = "e2f5ebdc942f57ed96d560a6d1a459bae5851102a25d5bf89dc04ae453e31ecf"
 dependencies = [
  "parse-zoneinfo",
  "phf 0.11.2",
+ "phf_codegen 0.11.2",
+]
+
+[[package]]
+name = "chrono-tz-build"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e94fea34d77a245229e7746bd2beb786cd2a896f306ff491fb8cecb3074b10a7"
+dependencies = [
+ "parse-zoneinfo",
  "phf_codegen 0.11.2",
 ]
 
@@ -822,7 +843,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -847,11 +868,12 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
+ "chrono-tz 0.10.0",
  "collab",
  "collab-entity",
  "csv",
@@ -882,7 +904,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -903,7 +925,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "bytes",
@@ -923,7 +945,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -944,7 +966,7 @@ dependencies = [
 [[package]]
 name = "collab-importer"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -995,7 +1017,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1075,7 +1097,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ba54ddd72452f3482c212b93114113a22de031f7#ba54ddd72452f3482c212b93114113a22de031f7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b78375f9d590433b05463a1a82d53fa02a52d18d#b78375f9d590433b05463a1a82d53fa02a52d18d"
 dependencies = [
  "anyhow",
  "collab",
@@ -1304,7 +1326,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -2048,7 +2070,7 @@ dependencies = [
  "async-trait",
  "bytes",
  "chrono",
- "chrono-tz",
+ "chrono-tz 0.8.3",
  "collab",
  "collab-database",
  "collab-entity",
@@ -4207,7 +4229,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros 0.8.0",
+ "phf_macros",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -4227,7 +4249,6 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
- "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4293,19 +4314,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
-dependencies = [
- "phf_generator 0.11.2",
- "phf_shared 0.11.2",
- "proc-macro2",
- "quote",
- "syn 2.0.47",
 ]
 
 [[package]]
@@ -6029,7 +6037,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "970dff17c11e884a4a09bc76e3a17ef71e01bb13447a11e85226e254fe6d10b8"
 dependencies = [
  "chrono",
- "chrono-tz",
+ "chrono-tz 0.8.3",
  "globwalk",
  "humansize",
  "lazy_static",

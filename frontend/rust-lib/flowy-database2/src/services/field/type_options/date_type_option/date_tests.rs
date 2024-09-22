@@ -4,17 +4,15 @@ mod tests {
   use chrono::{FixedOffset, NaiveDateTime};
   use collab_database::fields::Field;
   use collab_database::rows::Cell;
-  use strum::IntoEnumIterator;
 
   use crate::entities::FieldType;
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-  use crate::services::field::{
-    DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat,
-  };
+  use crate::services::field::{DateCellChangeset, FieldBuilder};
+  use collab_database::fields::time_type_option::{DateFormat, DateTypeOption, TimeFormat};
 
   #[test]
   fn date_type_option_date_format_test() {
-    let mut type_option = DateTypeOption::test();
+    let mut type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
     for date_format in DateFormat::iter() {
       type_option.date_format = date_format;
@@ -95,7 +93,7 @@ mod tests {
 
   #[test]
   fn date_type_option_different_time_format_test() {
-    let mut type_option = DateTypeOption::test();
+    let mut type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     for time_format in TimeFormat::iter() {
@@ -185,7 +183,7 @@ mod tests {
   #[should_panic]
   fn date_type_option_invalid_include_time_str_test() {
     let field_type = FieldType::DateTime;
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(field_type).build();
 
     assert_date(
@@ -206,7 +204,7 @@ mod tests {
   #[should_panic]
   fn date_type_option_empty_include_time_str_test() {
     let field_type = FieldType::DateTime;
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(field_type).build();
 
     assert_date(
@@ -226,7 +224,7 @@ mod tests {
   #[test]
   fn date_type_midnight_include_time_str_test() {
     let field_type = FieldType::DateTime;
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(field_type).build();
     assert_date(
       &type_option,
@@ -247,7 +245,7 @@ mod tests {
   #[test]
   #[should_panic]
   fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
     assert_date(
       &type_option,
@@ -269,7 +267,7 @@ mod tests {
   #[should_panic]
   fn date_type_option_twenty_four_hours_include_time_str_in_twelve_hours_format() {
     let field_type = FieldType::DateTime;
-    let mut type_option = DateTypeOption::test();
+    let mut type_option = DateTypeOption::default_utc();
     type_option.time_format = TimeFormat::TwelveHour;
     let field = FieldBuilder::from_field_type(field_type).build();
 
@@ -320,7 +318,7 @@ mod tests {
   #[test]
   #[should_panic]
   fn update_date_keep_time() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -348,7 +346,7 @@ mod tests {
 
   #[test]
   fn update_time_keep_date() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -376,7 +374,7 @@ mod tests {
 
   #[test]
   fn clear_date() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -405,7 +403,7 @@ mod tests {
 
   #[test]
   fn end_date_time_test() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     assert_date(
@@ -456,7 +454,7 @@ mod tests {
 
   #[test]
   fn turn_on_date_range() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -482,7 +480,7 @@ mod tests {
 
   #[test]
   fn add_an_end_time() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -514,7 +512,7 @@ mod tests {
   #[test]
   #[should_panic]
   fn end_date_with_no_start_date() {
-    let type_option = DateTypeOption::test();
+    let type_option = DateTypeOption::default_utc();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     assert_date(
