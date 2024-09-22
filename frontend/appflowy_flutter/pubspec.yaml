@@ -1,5 +1,7 @@
 name: appflowy
-description: Bring projects, wikis, and teams together with AI. AppFlowy is an AI collaborative workspace where you achieve more without losing control of your data. The best open source alternative to Notion.
+description: Bring projects, wikis, and teams together with AI. AppFlowy is an
+  AI collaborative workspace where you achieve more without losing control of
+  your data. The best open source alternative to Notion.
 publish_to: "none"
 
 version: 0.7.0
@@ -175,7 +177,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "0a0154ff7d10d13de755623e56527aa4bed26241"
+      ref: "8582191"
 
   appflowy_editor_plugins:
     git:

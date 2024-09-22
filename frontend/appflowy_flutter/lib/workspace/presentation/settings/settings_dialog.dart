@@ -168,7 +168,7 @@ class _SimpleSettingsDialogState extends State<SimpleSettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AppearanceSettingsCubit>();
+    final settings = context.watch<AppearanceSettingsCubit>().state;
 
     return FlowyDialog(
       width: MediaQuery.of(context).size.width * 0.7,
@@ -188,15 +188,15 @@ class _SimpleSettingsDialogState extends State<SimpleSettingsDialog> {
             const VSpace(18.0),
 
             // language
-            const _LanguageSettings(),
+            _LanguageSettings(key: ValueKey('language${settings.hashCode}')),
             const VSpace(22.0),
 
             // self-host cloud
-            const _SelfHostSettings(),
+            _SelfHostSettings(key: ValueKey('selfhost${settings.hashCode}')),
             const VSpace(22.0),
 
             // support
-            const _SupportSettings(),
+            _SupportSettings(key: ValueKey('support${settings.hashCode}')),
           ],
         ),
       ),
@@ -205,7 +205,9 @@ class _SimpleSettingsDialogState extends State<SimpleSettingsDialog> {
 }
 
 class _LanguageSettings extends StatelessWidget {
-  const _LanguageSettings();
+  const _LanguageSettings({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +219,9 @@ class _LanguageSettings extends StatelessWidget {
 }
 
 class _SelfHostSettings extends StatefulWidget {
-  const _SelfHostSettings();
+  const _SelfHostSettings({
+    super.key,
+  });
 
   @override
   State<_SelfHostSettings> createState() => _SelfHostSettingsState();
@@ -313,7 +317,9 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
 }
 
 class _SupportSettings extends StatelessWidget {
-  const _SupportSettings();
+  const _SupportSettings({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
