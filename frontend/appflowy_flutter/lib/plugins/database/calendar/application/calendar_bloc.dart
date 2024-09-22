@@ -7,6 +7,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:fixnum/fixnum.dart';
@@ -33,11 +34,20 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
+  UserProfilePB? _userProfile;
+  UserProfilePB? get userProfile => _userProfile;
+
   void _dispatch() {
     on<CalendarEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
+            final result = await UserEventGetUserProfile().send();
+            result.fold(
+              (profile) => _userProfile = profile,
+              (err) => Log.error('Failed to get user profile: $err'),
+            );
+
             _startListening();
             await _openDatabase(emit);
             _loadAllEvents();

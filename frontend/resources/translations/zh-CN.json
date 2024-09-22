@@ -1201,8 +1201,8 @@
         "addHeadingToCreateOutline": "添加标题以创建目录。"
       },
       "table": {
-        "addAfter": "在前面添加",
-        "addBefore": "在后面添加",
+        "addAfter": "在后面添加",
+        "addBefore": "在前面添加",
         "delete": "删除",
         "clear": "清空内容",
         "duplicate": "创建副本",

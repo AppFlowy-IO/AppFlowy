@@ -150,6 +150,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // code block
+        formatBacktickToCodeBlock,
         ...codeBlockCharacterEvents,
 
         // callout block
@@ -235,7 +236,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     _initEditorL10n();
     _initializeShortcuts();
-    appFlowyEditorAutoScrollEdgeOffset = 220;
+
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();

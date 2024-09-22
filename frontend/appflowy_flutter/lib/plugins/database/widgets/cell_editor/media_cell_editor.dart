@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
@@ -11,11 +9,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_upload_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
-import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:cross_file/cross_file.dart';
@@ -115,8 +114,8 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                             url: path,
                             name: file.name,
                             uploadType: isLocalMode
-                                ? MediaUploadTypePB.LocalMedia
-                                : MediaUploadTypePB.CloudMedia,
+                                ? FileUploadTypePB.LocalFile
+                                : FileUploadTypePB.CloudFile,
                             fileType: file.fileType.toMediaFileTypePB(),
                           ),
                         );
@@ -152,7 +151,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                             MediaCellEvent.addFile(
                               url: url,
                               name: name,
-                              uploadType: MediaUploadTypePB.NetworkMedia,
+                              uploadType: FileUploadTypePB.NetworkFile,
                               fileType: fileType,
                             ),
                           );
@@ -193,10 +192,10 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
   }
 }
 
-extension ToCustomImageType on MediaUploadTypePB {
+extension ToCustomImageType on FileUploadTypePB {
   CustomImageType toCustomImageType() => switch (this) {
-        MediaUploadTypePB.NetworkMedia => CustomImageType.external,
-        MediaUploadTypePB.CloudMedia => CustomImageType.internal,
+        FileUploadTypePB.NetworkFile => CustomImageType.external,
+        FileUploadTypePB.CloudFile => CustomImageType.internal,
         _ => CustomImageType.local,
       };
 }
@@ -265,37 +264,18 @@ class _RenderMediaState extends State<RenderMedia> {
                   child: const FlowySvg(FlowySvgs.drag_element_s),
                 ),
                 const HSpace(8),
-                if (file.fileType == MediaFileTypePB.Image &&
-                    file.uploadType == MediaUploadTypePB.CloudMedia) ...[
+                if (widget.file.fileType == MediaFileTypePB.Image) ...[
                   Expanded(
                     child: _openInteractiveViewer(
                       context,
                       files: widget.images,
                       index: imageIndex!,
-                      child: FlowyNetworkImage(
-                        url: file.url,
-                        userProfilePB:
+                      child: AFImage(
+                        url: widget.file.url,
+                        uploadType: widget.file.uploadType,
+                        userProfile:
                             context.read<MediaCellBloc>().state.userProfile,
                       ),
-                    ),
-                  ),
-                ] else if (file.fileType == MediaFileTypePB.Image) ...[
-                  Expanded(
-                    child: _openInteractiveViewer(
-                      context,
-                      files: widget.images,
-                      index: imageIndex!,
-                      child: file.uploadType == MediaUploadTypePB.NetworkMedia
-                          ? Image.network(
-                              file.url,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.centerLeft,
-                            )
-                          : Image.file(
-                              File(file.url),
-                              fit: BoxFit.cover,
-                              alignment: Alignment.centerLeft,
-                            ),
                     ),
                   ),
                 ] else ...[

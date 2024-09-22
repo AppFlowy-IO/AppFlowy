@@ -3,7 +3,7 @@ import { useRenderFields, GridHeader, GridTable } from '@/components/database/co
 import { CircularProgress } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
-export function Grid() {
+export function Grid () {
   const database = useDatabase();
   const viewId = useViewId() || '';
   const [scrollLeft, setScrollLeft] = useState(0);

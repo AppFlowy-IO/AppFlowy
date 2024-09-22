@@ -1,36 +1,17 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-enum ViewActionType {
-  delete,
-  duplicate;
-
-  String get label => switch (this) {
-        ViewActionType.delete => LocaleKeys.moreAction_deleteView.tr(),
-        ViewActionType.duplicate => LocaleKeys.moreAction_duplicateView.tr(),
-      };
-
-  FlowySvgData get icon => switch (this) {
-        ViewActionType.delete => FlowySvgs.delete_s,
-        ViewActionType.duplicate => FlowySvgs.m_duplicate_s,
-      };
-
-  ViewEvent get actionEvent => switch (this) {
-        ViewActionType.delete => const ViewEvent.delete(),
-        ViewActionType.duplicate => const ViewEvent.duplicate(),
-      };
-}
 
 class ViewAction extends StatelessWidget {
   const ViewAction({
@@ -40,49 +21,77 @@ class ViewAction extends StatelessWidget {
     this.mutex,
   });
 
-  final ViewActionType type;
+  final ViewMoreActionType type;
   final ViewPB view;
   final PopoverMutex? mutex;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: () async {
-        await _onAction(context);
+    final wrapper = ViewMoreActionTypeWrapper(
+      type,
+      view,
+      (controller, data) async {
+        await _onAction(context, data);
         mutex?.close();
       },
-      text: FlowyText.regular(
-        type.label,
-        color: AFThemeExtension.of(context).textColor,
-      ),
-      leftIcon: FlowySvg(
-        type.icon,
-        color: Theme.of(context).iconTheme.color,
-        size: const Size.square(18),
-      ),
-      leftIconSize: const Size(18, 18),
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      moveActionDirection: PopoverDirection.leftWithTopAligned,
+      moveActionOffset: const Offset(-10, 0),
+    );
+    return wrapper.buildWithContext(
+      context,
+      // this is a dummy controller, we don't need to control the popover here.
+      PopoverController(),
     );
   }
 
-  Future<void> _onAction(BuildContext context) async {
-    if (type == ViewActionType.delete) {
-      final (containPublishedPage, _) =
-          await ViewBackendService.containPublishedPage(view);
-      if (containPublishedPage && context.mounted) {
-        await showConfirmDeletionDialog(
-          context: context,
-          name: view.name,
-          description: LocaleKeys.publish_containsPublishedPage.tr(),
-          onConfirm: () {
-            context.read<ViewBloc>().add(const ViewEvent.delete());
-          },
+  Future<void> _onAction(
+    BuildContext context,
+    dynamic data,
+  ) async {
+    switch (type) {
+      case ViewMoreActionType.delete:
+        final (containPublishedPage, _) =
+            await ViewBackendService.containPublishedPage(view);
+
+        if (containPublishedPage && context.mounted) {
+          await showConfirmDeletionDialog(
+            context: context,
+            name: view.name,
+            description: LocaleKeys.publish_containsPublishedPage.tr(),
+            onConfirm: () {
+              context.read<ViewBloc>().add(const ViewEvent.delete());
+            },
+          );
+        } else if (context.mounted) {
+          context.read<ViewBloc>().add(const ViewEvent.delete());
+        }
+      case ViewMoreActionType.duplicate:
+        context.read<ViewBloc>().add(const ViewEvent.duplicate());
+      case ViewMoreActionType.moveTo:
+        final value = data;
+        if (value is! (ViewPB, ViewPB)) {
+          return;
+        }
+        final space = value.$1;
+        final target = value.$2;
+        final result = await ViewBackendService.getView(view.parentViewId);
+        result.fold(
+          (parentView) => moveViewCrossSpace(
+            context,
+            space,
+            view,
+            parentView,
+            FolderSpaceType.public,
+            view,
+            target.id,
+          ),
+          (f) => Log.error(f),
         );
-      } else if (context.mounted) {
-        context.read<ViewBloc>().add(const ViewEvent.delete());
-      }
-    } else {
-      context.read<ViewBloc>().add(type.actionEvent);
+
+        // the move action is handled in the button itself
+        break;
+      default:
+        throw UnimplementedError();
     }
   }
 }

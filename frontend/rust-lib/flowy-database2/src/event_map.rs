@@ -41,6 +41,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::DeleteRows, delete_rows_handler)
          .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
          .event(DatabaseEvent::MoveRow, move_row_handler)
+         .event(DatabaseEvent::RemoveCover, remove_cover_handler)
          // Cell
          .event(DatabaseEvent::GetCell, get_cell_handler)
          .event(DatabaseEvent::UpdateCell, update_cell_handler)
@@ -243,6 +244,9 @@ pub enum DatabaseEvent {
 
   #[event(input = "UpdateRowMetaChangesetPB")]
   UpdateRowMeta = 56,
+
+  #[event(input = "RemoveCoverPayloadPB")]
+  RemoveCover = 57,
 
   #[event(input = "CellIdPB", output = "CellPB")]
   GetCell = 70,

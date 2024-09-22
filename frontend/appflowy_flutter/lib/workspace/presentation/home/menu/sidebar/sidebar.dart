@@ -116,11 +116,11 @@ class HomeSideBar extends StatelessWidget {
                 ),
             ),
             BlocProvider(
-              create: (_) => SpaceBloc()
-                ..add(
-                  SpaceEvent.initial(
-                    userProfile,
-                    workspaceId,
+              create: (_) => SpaceBloc(
+                userProfile: userProfile,
+                workspaceId: workspaceId,
+              )..add(
+                  const SpaceEvent.initial(
                     openFirstPage: false,
                   ),
                 ),

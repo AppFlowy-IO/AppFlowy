@@ -1,6 +1,6 @@
 import { CommentUser, GlobalComment, Reaction } from '@/application/comment.type';
 import { PublishContext } from '@/application/publish';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { stringAvatar } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import dayjs from 'dayjs';

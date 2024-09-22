@@ -1,3 +1,4 @@
+use collab_importer::util::FileId;
 use flowy_sqlite::Database;
 use flowy_storage::sqlite_sql::{
   batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
@@ -162,7 +163,7 @@ pub async fn create_upload_file_record(
     .to_string();
 
   // Calculate file ID
-  let file_id = fxhash::hash(&chunked_bytes.data).to_string();
+  let file_id = FileId::from_bytes(&chunked_bytes.data, "b".to_string());
 
   // Create UploadFileTable record
   UploadFileTable {

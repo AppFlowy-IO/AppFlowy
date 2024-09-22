@@ -4,6 +4,7 @@ use collab_database::database::gen_database_group_id;
 use collab_database::rows::{Row, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -103,6 +104,12 @@ pub struct GroupData {
   pub is_default: bool,
   pub is_visible: bool,
   pub(crate) rows: Vec<Row>,
+}
+
+impl Display for GroupData {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "GroupData:{}, {} rows", self.id, self.rows.len())
+  }
 }
 
 impl GroupData {

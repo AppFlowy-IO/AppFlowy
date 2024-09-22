@@ -1,10 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -17,11 +12,14 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
@@ -35,6 +33,10 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'emoji.dart';
@@ -53,6 +55,14 @@ extension CommonOperations on WidgetTester {
       await tapButton(anonymousButton);
     }
 
+    if (Platform.isWindows) {
+      await pumpAndSettle(const Duration(milliseconds: 200));
+    }
+  }
+
+  Future<void> tapContinousAnotherWay() async {
+    // local version
+    await tapButtonWithName(LocaleKeys.signIn_continueAnotherWay.tr());
     if (Platform.isWindows) {
       await pumpAndSettle(const Duration(milliseconds: 200));
     }
@@ -236,6 +246,17 @@ extension CommonOperations on WidgetTester {
     await tapButton(okButton);
   }
 
+  /// Expand or collapse the page.
+  Future<void> expandOrCollapsePage({
+    required String pageName,
+    required ViewLayoutPB layout,
+  }) async {
+    final page = findPageName(pageName, layout: layout);
+    await hoverOnWidget(page);
+    final expandButton = find.byType(ViewItemDefaultLeftIcon);
+    await tapButton(expandButton.first);
+  }
+
   /// Tap the restore button.
   ///
   /// the restore button will show after the current page is deleted.
@@ -317,6 +338,67 @@ extension CommonOperations on WidgetTester {
     }
   }
 
+  /// Create a new page in the space
+  Future<void> createNewPageInSpace({
+    required String spaceName,
+    required ViewLayoutPB layout,
+    bool openAfterCreated = true,
+    String? pageName,
+  }) async {
+    final currentSpace = find.byWidgetPredicate(
+      (widget) => widget is CurrentSpace && widget.space.name == spaceName,
+    );
+    if (currentSpace.evaluate().isEmpty) {
+      throw Exception('Current space not found');
+    }
+
+    await hoverOnWidget(
+      currentSpace,
+      onHover: () async {
+        // click the + button
+        await clickAddPageButtonInSpaceHeader();
+        await tapButtonWithName(layout.menuName);
+      },
+    );
+    await pumpAndSettle();
+
+    if (pageName != null) {
+      // move the cursor to other place to disable to tooltips
+      await tapAt(Offset.zero);
+
+      // hover on new created page and change it's name
+      await hoverOnPageName(
+        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        layout: layout,
+        onHover: () async {
+          await renamePage(pageName);
+          await pumpAndSettle();
+        },
+      );
+      await pumpAndSettle();
+    }
+
+    // open the page after created
+    if (openAfterCreated) {
+      await openPage(
+        // if the name is null, use the default name
+        pageName ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        layout: layout,
+      );
+      await pumpAndSettle();
+    }
+  }
+
+  /// Click the + button in the space header
+  Future<void> clickAddPageButtonInSpaceHeader() async {
+    final addPageButton = find.descendant(
+      of: find.byType(SidebarSpaceHeader),
+      matching: find.byType(ViewAddButton),
+    );
+    await tapButton(addPageButton);
+  }
+
+  /// Create a new page on the top level
   Future<void> createNewPage({
     ViewLayoutPB layout = ViewLayoutPB.Document,
     bool openAfterCreated = true,
@@ -572,8 +654,7 @@ extension CommonOperations on WidgetTester {
 
   Future<void> openMoreViewActions() async {
     final button = find.byType(MoreViewActions);
-    await tap(button);
-    await pumpAndSettle();
+    await tapButton(button);
   }
 
   /// Presses on the Duplicate ViewAction in the [MoreViewActions] popup.
@@ -581,12 +662,9 @@ extension CommonOperations on WidgetTester {
   /// [openMoreViewActions] must be called beforehand!
   ///
   Future<void> duplicateByMoreViewActions() async {
-    final button = find.descendant(
-      of: find.byType(ListView),
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is ViewAction && widget.type == ViewActionType.duplicate,
-      ),
+    final button = find.byWidgetPredicate(
+      (widget) =>
+          widget is ViewAction && widget.type == ViewMoreActionType.duplicate,
     );
     await tap(button);
     await pump();
@@ -601,7 +679,7 @@ extension CommonOperations on WidgetTester {
       of: find.byType(ListView),
       matching: find.byWidgetPredicate(
         (widget) =>
-            widget is ViewAction && widget.type == ViewActionType.delete,
+            widget is ViewAction && widget.type == ViewMoreActionType.delete,
       ),
     );
     await tap(button);

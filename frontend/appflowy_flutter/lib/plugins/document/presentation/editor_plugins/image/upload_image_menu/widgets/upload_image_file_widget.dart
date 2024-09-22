@@ -19,7 +19,7 @@ class UploadImageFileWidget extends StatelessWidget {
     this.allowMultipleImages = false,
   });
 
-  final void Function(List<String?>) onPickFiles;
+  final void Function(List<XFile>) onPickFiles;
   final List<String> allowedExtensions;
   final bool allowMultipleImages;
 
@@ -59,7 +59,7 @@ class UploadImageFileWidget extends StatelessWidget {
         allowedExtensions: allowedExtensions,
         allowMultiple: allowMultipleImages,
       );
-      onPickFiles(result?.files.map((f) => f.path).toList() ?? const []);
+      onPickFiles(result?.files.map((f) => f.xFile).toList() ?? const []);
     } else {
       final photoPermission =
           await PermissionChecker.checkPhotoPermission(context);
@@ -69,7 +69,7 @@ class UploadImageFileWidget extends StatelessWidget {
       }
       // on mobile, the users can pick a image file from camera or image library
       final result = await ImagePicker().pickMultiImage();
-      onPickFiles(result.map((f) => f.path).toList());
+      onPickFiles(result);
     }
   }
 }

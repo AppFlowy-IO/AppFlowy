@@ -29,7 +29,7 @@ void main() {
         },
       );
       await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
-      await tester.tapOKButton();
+      await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
       expect(find.text(name), findsNothing);
     });
 
@@ -49,6 +49,37 @@ void main() {
       );
       await tester.tapButtonWithName(LocaleKeys.button_duplicate.tr());
       expect(find.textContaining(name, findRichText: true), findsNWidgets(2));
+    });
+
+    testWidgets('duplicate item in ToDo card then delete', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      const name = 'Card 1';
+      final card1 = find.text(name);
+      await tester.hoverOnWidget(
+        card1,
+        onHover: () async {
+          final moreOption = find.byType(MoreCardOptionsAccessory);
+          await tester.tapButton(moreOption);
+        },
+      );
+      await tester.tapButtonWithName(LocaleKeys.button_duplicate.tr());
+      expect(find.textContaining(name, findRichText: true), findsNWidgets(2));
+
+      // get the last widget that contains the name
+      final duplicatedCard = find.textContaining(name, findRichText: true).last;
+      await tester.hoverOnWidget(
+        duplicatedCard,
+        onHover: () async {
+          final moreOption = find.byType(MoreCardOptionsAccessory);
+          await tester.tapButton(moreOption);
+        },
+      );
+      await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
+      await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
+      expect(find.textContaining(name, findRichText: true), findsNWidgets(1));
     });
 
     testWidgets('add new group', (tester) async {

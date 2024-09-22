@@ -21,6 +21,7 @@ class CheckboxColumnHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final customData = groupData.customData as GroupData;
+    final groupName = customData.group.generateGroupName(databaseController);
     return Row(
       children: [
         FlowySvg(
@@ -32,9 +33,15 @@ class CheckboxColumnHeader extends StatelessWidget {
         ),
         const HSpace(6),
         Expanded(
-          child: FlowyText.medium(
-            customData.group.generateGroupName(databaseController),
-            overflow: TextOverflow.ellipsis,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FlowyTooltip(
+              message: groupName,
+              child: FlowyText.medium(
+                groupName,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
         ),
         const HSpace(6),

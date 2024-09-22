@@ -107,7 +107,6 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
       editorState: state.editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,
-        // the 44 is the width of the left action list
         padding: EditorStyleCustomizer.documentPadding,
       ),
       header: _buildDatabaseDataContent(context, state.editorState!),
@@ -137,6 +136,7 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
           return state.when(
             loading: () => const SizedBox.shrink(),
             ready: (databaseController, rowController) {
+              final padding = EditorStyleCustomizer.documentPadding;
               return BlocProvider(
                 create: (context) => RowDetailBloc(
                   fieldController: databaseController.fieldController,
@@ -145,8 +145,8 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
                 child: Padding(
                   padding: EdgeInsets.only(
                     top: 24,
-                    left: EditorStyleCustomizer.documentPadding.left + 16 + 6,
-                    right: EditorStyleCustomizer.documentPadding.right,
+                    left: padding.left + 22,
+                    right: padding.right,
                   ),
                   child: Column(
                     children: [

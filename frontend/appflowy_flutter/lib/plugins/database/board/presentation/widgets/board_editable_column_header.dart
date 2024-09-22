@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
@@ -7,7 +6,6 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:collection/collection.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -111,17 +109,18 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
 
   Widget _buildTitle() {
     final (backgroundColor, dotColor) = _generateGroupColor();
-    return FlowyTooltip(
-      message: LocaleKeys.board_column_renameGroupTooltip.tr(),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            widget.isEditing.value = true;
-          },
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
+    final groupName = _generateGroupName();
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          widget.isEditing.value = true;
+        },
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: FlowyTooltip(
+            message: groupName,
             child: Container(
               height: 20,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
@@ -143,9 +142,12 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
                     ),
                   ),
                   const HSpace(4.0),
-                  FlowyText.medium(
-                    _generateGroupName(),
-                    overflow: TextOverflow.ellipsis,
+                  Flexible(
+                    child: FlowyText.medium(
+                      groupName,
+                      overflow: TextOverflow.ellipsis,
+                      lineHeight: 1.0,
+                    ),
                   ),
                 ],
               ),

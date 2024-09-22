@@ -1,5 +1,5 @@
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1,15 +1,15 @@
 import { Table } from 'dexie';
-import { PublishViewInfo } from '@/application/collab.type';
+import { ViewInfo } from '@/application/types';
 
 export type ViewMeta = {
   publish_name: string;
 
-  child_views: PublishViewInfo[];
-  ancestor_views: PublishViewInfo[];
+  child_views: ViewInfo[];
+  ancestor_views: ViewInfo[];
 
   visible_view_ids: string[];
   database_relations: Record<string, string>;
-} & PublishViewInfo;
+} & ViewInfo;
 
 export type ViewMetasTable = {
   view_metas: Table<ViewMeta>;

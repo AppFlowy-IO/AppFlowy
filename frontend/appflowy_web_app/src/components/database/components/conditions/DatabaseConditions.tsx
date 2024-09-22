@@ -5,7 +5,7 @@ import React from 'react';
 import Filters from 'src/components/database/components/filters/Filters';
 import Sorts from 'src/components/database/components/sorts/Sorts';
 
-export function DatabaseConditions() {
+export function DatabaseConditions () {
   const conditionsContext = useConditionsContext();
   const expanded = conditionsContext?.expanded ?? false;
   const sorts = useSortsSelector();
@@ -18,12 +18,12 @@ export function DatabaseConditions() {
         borderTopWidth: expanded ? '1px' : '0',
       }}
       className={
-        'database-conditions relative mx-16 transform overflow-hidden border-t border-line-divider transition-all max-md:mx-4'
+        'database-conditions relative transform overflow-hidden border-t border-line-divider transition-all'
       }
     >
       <AFScroller overflowYHidden className={'flex items-center gap-2'}>
         <Sorts />
-        {sorts.length > 0 && filters.length > 0 && <div className='h-[20px] w-0 border border-line-divider' />}
+        {sorts.length > 0 && filters.length > 0 && <div className="h-[20px] w-0 border border-line-divider" />}
         <Filters />
       </AFScroller>
     </div>

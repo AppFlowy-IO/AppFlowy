@@ -20,6 +20,7 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
     return Padding(
       padding: GridSize.cellContentInsets,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _IconOrEmoji(),
           Expanded(
@@ -29,6 +30,7 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
               maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
               style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
+                contentPadding: EdgeInsets.only(top: 4),
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -52,39 +54,38 @@ class _IconOrEmoji extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TextCellBloc, TextCellState>(
       builder: (context, state) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (state.emoji != null)
-              ValueListenableBuilder<String>(
-                valueListenable: state.emoji!,
-                builder: (context, value, child) {
-                  if (value.isEmpty) {
-                    return const SizedBox.shrink();
-                  } else {
-                    return FlowyText(
-                      value,
-                      fontSize: 16,
-                    );
-                  }
-                },
-              ),
-            if (state.hasDocument != null)
-              ValueListenableBuilder<bool>(
-                valueListenable: state.hasDocument!,
-                builder: (context, hasDocument, child) {
-                  if ((state.emoji?.value.isEmpty ?? true) && hasDocument) {
-                    return FlowySvg(
-                      FlowySvgs.notes_s,
-                      color: Theme.of(context).hintColor,
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            const HSpace(6),
-          ],
+        // if not a title cell, return empty widget
+        if (state.emoji == null || state.hasDocument == null) {
+          return const SizedBox.shrink();
+        }
+
+        return ValueListenableBuilder<String>(
+          valueListenable: state.emoji!,
+          builder: (context, emoji, _) {
+            return emoji.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 6.0),
+                    child: FlowyText.emoji(
+                      optimizeEmojiAlign: true,
+                      emoji,
+                    ),
+                  )
+                : ValueListenableBuilder<bool>(
+                    valueListenable: state.hasDocument!,
+                    builder: (context, hasDocument, _) {
+                      return hasDocument
+                          ? Padding(
+                              padding:
+                                  const EdgeInsetsDirectional.only(end: 6.0),
+                              child: FlowySvg(
+                                FlowySvgs.notes_s,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    },
+                  );
+          },
         );
       },
     );

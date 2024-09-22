@@ -145,7 +145,7 @@ class _TitleSkin extends IEditableTextCellSkin {
     TextEditingController textEditingController,
   ) {
     return BlocSelector<TextCellBloc, TextCellState, String>(
-      selector: (state) => state.content,
+      selector: (state) => state.content ?? "",
       builder: (context, content) {
         final name = content.isEmpty
             ? LocaleKeys.grid_row_titlePlaceholder.tr()

@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -16,6 +15,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 class SidebarWorkspace extends StatefulWidget {
   const SidebarWorkspace({super.key, required this.userProfile});
@@ -170,7 +170,14 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     }
 
     if (message != null) {
-      showSnackBarMessage(context, message);
+      showToastNotification(
+        context,
+        message: message,
+        type: result.fold(
+          (_) => ToastificationType.success,
+          (_) => ToastificationType.error,
+        ),
+      );
     }
   }
 }

@@ -34,6 +34,16 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     }
   }
 
+  async fn create_database_encode_collab(
+    &self,
+    _object_id: &str,
+    _collab_type: CollabType,
+    _workspace_id: &str,
+    _encoded_collab: EncodedCollab,
+  ) -> Result<(), Error> {
+    Ok(())
+  }
+
   async fn batch_get_database_encode_collab(
     &self,
     _object_ids: Vec<String>,

@@ -13,6 +13,7 @@ import { ReactComponent as CreatedSvg } from '@/assets/created_at.svg';
 import { ReactComponent as RelationSvg } from '@/assets/relation.svg';
 import { ReactComponent as AISummariesSvg } from '@/assets/ai_summary.svg';
 import { ReactComponent as AITranslationsSvg } from '@/assets/ai_translate.svg';
+import { ReactComponent as FileMediaSvg } from '@/assets/media.svg';
 
 export const FieldTypeSvgMap: Record<FieldType, FC<React.SVGProps<SVGSVGElement>>> = {
   [FieldType.RichText]: TextSvg,
@@ -28,6 +29,7 @@ export const FieldTypeSvgMap: Record<FieldType, FC<React.SVGProps<SVGSVGElement>
   [FieldType.Relation]: RelationSvg,
   [FieldType.AISummaries]: AISummariesSvg,
   [FieldType.AITranslations]: AITranslationsSvg,
+  [FieldType.FileMedia]: FileMediaSvg,
 };
 
 export const FieldTypeIcon: FC<{ type: FieldType; className?: string }> = memo(({ type, ...props }) => {

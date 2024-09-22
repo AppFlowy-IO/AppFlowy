@@ -424,7 +424,7 @@ impl From<UpdateUserWorkspaceSettingPB> for AFWorkspaceSettingsChange {
 pub enum AIModelPB {
   #[default]
   DefaultModel = 0,
-  GPT35 = 1,
+  GPT4oMini = 1,
   GPT4o = 2,
   Claude3Sonnet = 3,
   Claude3Opus = 4,
@@ -434,7 +434,7 @@ impl AIModelPB {
   pub fn to_str(&self) -> &str {
     match self {
       AIModelPB::DefaultModel => "default-model",
-      AIModelPB::GPT35 => "gpt-3.5-turbo",
+      AIModelPB::GPT4oMini => "gpt-4o-mini",
       AIModelPB::GPT4o => "gpt-4o",
       AIModelPB::Claude3Sonnet => "claude-3-sonnet",
       AIModelPB::Claude3Opus => "claude-3-opus",
@@ -447,7 +447,7 @@ impl FromStr for AIModelPB {
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     match s {
-      "gpt-3.5-turbo" => Ok(AIModelPB::GPT35),
+      "gpt-3.5-turbo" => Ok(AIModelPB::GPT4oMini),
       "gpt-4o" => Ok(AIModelPB::GPT4o),
       "claude-3-sonnet" => Ok(AIModelPB::Claude3Sonnet),
       "claude-3-opus" => Ok(AIModelPB::Claude3Opus),

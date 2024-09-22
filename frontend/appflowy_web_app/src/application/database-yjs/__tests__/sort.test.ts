@@ -26,7 +26,7 @@ import {
 import { sortBy, parseCellDataForSort } from '../sort';
 import * as Y from 'yjs';
 import { expect } from '@jest/globals';
-import { YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { RowId, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 
 describe('parseCellDataForSort', () => {
   it('should parse data correctly based on field type', () => {
@@ -162,7 +162,7 @@ describe('Database sortBy', () => {
 
   it('should not sort rows if no rows are provided', () => {
     const { sorts, fields } = withTestingData();
-    const rowMap = new Y.Map() as Y.Map<Y.Doc>;
+    const rowMap: Record<RowId, YDoc> = {};
     const sortedRows = sortBy(rows, sorts, fields, rowMap)
       .map((row) => row.id)
       .join(',');
@@ -173,7 +173,7 @@ describe('Database sortBy', () => {
     const { sorts, fields, rowMap } = withTestingData();
     const sort = withNumberSort();
     sorts.push([sort]);
-    rowMap.delete('1');
+    delete rowMap['1'];
 
     const sortedRows = sortBy(rows, sorts, fields, rowMap)
       .map((row) => row.id)
@@ -185,7 +185,7 @@ describe('Database sortBy', () => {
     const { sorts, fields, rowMap } = withTestingData();
     const sort = withNumberSort();
     sorts.push([sort]);
-    const rowDoc = rowMap.get('1');
+    const rowDoc = rowMap['1'];
     rowDoc
       ?.getMap(YjsEditorKey.data_section)
       .get(YjsEditorKey.database_row)

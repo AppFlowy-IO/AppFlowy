@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -13,12 +11,13 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_upload_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
-import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -195,8 +194,8 @@ class _AddFileButton extends StatelessWidget {
                 url: path,
                 name: file.name,
                 uploadType: isLocalMode
-                    ? MediaUploadTypePB.LocalMedia
-                    : MediaUploadTypePB.CloudMedia,
+                    ? FileUploadTypePB.LocalFile
+                    : FileUploadTypePB.CloudFile,
                 fileType: file.fileType.toMediaFileTypePB(),
               ),
             );
@@ -229,7 +228,7 @@ class _AddFileButton extends StatelessWidget {
                 MediaCellEvent.addFile(
                   url: url,
                   name: name,
-                  uploadType: MediaUploadTypePB.NetworkMedia,
+                  uploadType: FileUploadTypePB.NetworkFile,
                   fileType: fileType,
                 ),
               );
@@ -297,17 +296,11 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
   Widget build(BuildContext context) {
     Widget child;
     if (file.fileType == MediaFileTypePB.Image) {
-      if (file.uploadType == MediaUploadTypePB.NetworkMedia) {
-        child = Image.network(file.url, fit: BoxFit.cover);
-      } else if (file.uploadType == MediaUploadTypePB.LocalMedia) {
-        child = Image.file(File(file.url), fit: BoxFit.cover);
-      } else {
-        // Cloud
-        child = FlowyNetworkImage(
-          url: file.url,
-          userProfilePB: context.read<MediaCellBloc>().state.userProfile,
-        );
-      }
+      child = AFImage(
+        url: file.url,
+        uploadType: file.uploadType,
+        userProfile: context.read<MediaCellBloc>().state.userProfile,
+      );
     } else {
       child = DecoratedBox(
         decoration: BoxDecoration(color: file.fileType.color),

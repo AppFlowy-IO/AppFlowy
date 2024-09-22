@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/error.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -101,8 +102,8 @@ Future<void> downloadMediaFile(
   UserProfilePB? userProfile,
 }) async {
   if ([
-    MediaUploadTypePB.NetworkMedia,
-    MediaUploadTypePB.LocalMedia,
+    FileUploadTypePB.NetworkFile,
+    FileUploadTypePB.LocalFile,
   ].contains(file.uploadType)) {
     /// When the file is a network file or a local file, we can directly open the file.
     await afLaunchUrl(Uri.parse(file.url));

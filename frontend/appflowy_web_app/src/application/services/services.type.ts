@@ -1,4 +1,13 @@
-import { YDoc } from '@/application/collab.type';
+import {
+  Invitation,
+  DuplicatePublishView,
+  FolderView,
+  User,
+  UserWorkspaceInfo,
+  View,
+  Workspace,
+  YDoc, DatabaseRelations,
+} from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
 import {
@@ -8,8 +17,6 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import * as Y from 'yjs';
-import { DuplicatePublishView, FolderView, User, View, Workspace } from '@/application/types';
 
 export type AFService = PublishService;
 
@@ -25,19 +32,25 @@ export interface AFCloudConfig {
 
 export interface PublishService {
   getClientId: () => string;
+  getPageDoc: (workspaceId: string, viewId: string, errorCallback?: (error: {
+    code: number;
+  }) => void) => Promise<YDoc>;
   getPublishViewMeta: (namespace: string, publishName: string) => Promise<ViewMeta>;
   getPublishView: (namespace: string, publishName: string) => Promise<YDoc>;
+  getPublishRowDocument: (viewId: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
-  getPublishDatabaseViewRows: (
-    namespace: string,
-    publishName: string,
-    rowIds?: string[],
-  ) => Promise<{
-    rows: Y.Map<YDoc>;
-    destroy: () => void;
-  }>;
+  createRowDoc: (rowKey: string) => Promise<YDoc>;
+  deleteRowDoc: (rowKey: string) => void;
+  getAppDatabaseViewRelations: (workspaceId: string, databaseStorageId: string) => Promise<DatabaseRelations>;
+  openWorkspace: (workspaceId: string) => Promise<void>;
 
-  getPublishOutline (namespace: string): Promise<View>;
+  getPublishOutline (namespace: string): Promise<View[]>;
+
+  getAppOutline: (workspaceId: string) => Promise<View[]>;
+  getAppView: (workspaceId: string, viewId: string) => Promise<View>;
+  getAppFavorites: (workspaceId: string) => Promise<View[]>;
+  getAppRecent: (workspaceId: string) => Promise<View[]>;
+  getAppTrash: (workspaceId: string) => Promise<View[]>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;
@@ -56,6 +69,7 @@ export interface PublishService {
   getWorkspaces: () => Promise<Workspace[]>;
   getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;
   getCurrentUser: () => Promise<User>;
+  getUserWorkspaceInfo: () => Promise<UserWorkspaceInfo>;
   duplicatePublishView: (params: DuplicatePublishView) => Promise<void>;
 
   getTemplateCategories: () => Promise<TemplateCategory[]>;
@@ -75,4 +89,6 @@ export interface PublishService {
   updateTemplateCategory: (categoryId: string, category: TemplateCategoryFormValues) => Promise<void>;
   updateTemplateCreator: (creatorId: string, creator: TemplateCreatorFormValues) => Promise<void>;
   uploadFileToCDN: (file: File) => Promise<string>;
+  getInvitation: (invitationId: string) => Promise<Invitation>;
+  acceptInvitation: (invitationId: string) => Promise<void>;
 }

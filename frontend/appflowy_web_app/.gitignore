@@ -33,3 +33,5 @@ src/application/services/tauri-services/backend/events/
 
 coverage
 .nyc_output
+
+cypress/snapshots/**/__diff_output__/

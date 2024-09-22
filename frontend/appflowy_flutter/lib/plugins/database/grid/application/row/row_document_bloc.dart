@@ -81,7 +81,7 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
               // new document for the given document id of the row.
               final documentView =
                   await _createRowDocumentView(rowMeta.documentId);
-              if (documentView != null) {
+              if (documentView != null && !isClosed) {
                 add(RowDocumentEvent.didReceiveRowDocument(documentView));
               }
             } else {

@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_p
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -122,12 +123,18 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   ViewMoreActionTypeWrapper(
     this.inner,
     this.sourceView,
-    this.onTap,
-  );
+    this.onTap, {
+    this.moveActionDirection,
+    this.moveActionOffset,
+  });
 
   final ViewMoreActionType inner;
   final ViewPB sourceView;
   final void Function(PopoverController controller, dynamic data) onTap;
+
+  // custom the move to action button
+  final PopoverDirection? moveActionDirection;
+  final Offset? moveActionOffset;
 
   @override
   Widget buildWithContext(BuildContext context, PopoverController controller) {
@@ -174,35 +181,44 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
     BuildContext context,
     PopoverController controller,
   ) {
-    final child = _buildActionButton(context, null);
     final userProfile = context.read<SpaceBloc>().userProfile;
-    final workspaceId = context.read<SpaceBloc>().state.currentSpace?.id;
-
-    return AppFlowyPopover(
-      constraints: const BoxConstraints(
-        maxWidth: 260,
-        maxHeight: 345,
+    // move to feature doesn't support in local mode
+    if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
+      return const SizedBox.shrink();
+    }
+    return BlocProvider.value(
+      value: context.read<SpaceBloc>(),
+      child: BlocBuilder<SpaceBloc, SpaceState>(
+        builder: (context, state) {
+          final child = _buildActionButton(context, null);
+          return AppFlowyPopover(
+            constraints: const BoxConstraints(
+              maxWidth: 260,
+              maxHeight: 345,
+            ),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 12.0,
+            ),
+            clickHandler: PopoverClickHandler.gestureDetector,
+            direction:
+                moveActionDirection ?? PopoverDirection.rightWithTopAligned,
+            offset: moveActionOffset,
+            popupBuilder: (_) {
+              return BlocProvider.value(
+                value: context.read<SpaceBloc>(),
+                child: MovePageMenu(
+                  sourceView: sourceView,
+                  onSelected: (space, view) {
+                    onTap(controller, (space, view));
+                  },
+                ),
+              );
+            },
+            child: child,
+          );
+        },
       ),
-      margin: const EdgeInsets.symmetric(
-        horizontal: 14.0,
-        vertical: 12.0,
-      ),
-      clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (_) {
-        if (workspaceId == null) {
-          return const SizedBox();
-        }
-
-        return MovePageMenu(
-          sourceView: sourceView,
-          userProfile: userProfile,
-          workspaceId: workspaceId,
-          onSelected: (space, view) {
-            onTap(controller, (space, view));
-          },
-        );
-      },
-      child: child,
     );
   }
 

@@ -108,9 +108,10 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
               UploadImageType.url,
               UploadImageType.unsplash,
             ],
-            onSelectedLocalImages: (paths) {
+            onSelectedLocalImages: (files) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                final paths = files.map((file) => file.path).toList();
                 await insertLocalImages(paths);
               });
             },
@@ -191,9 +192,10 @@ class MultiImagePlaceholderState extends State<MultiImagePlaceholder> {
                 UploadImageType.url,
                 UploadImageType.unsplash,
               ],
-              onSelectedLocalImages: (paths) async {
+              onSelectedLocalImages: (files) async {
                 context.pop();
-                await insertLocalImages(paths);
+                final items = files.map((file) => file.path).toList();
+                await insertLocalImages(items);
               },
               onSelectedAIImage: (url) async {
                 context.pop();

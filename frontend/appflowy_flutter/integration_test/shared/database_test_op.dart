@@ -70,6 +70,7 @@ import 'package:appflowy/plugins/database/widgets/setting/database_setting_actio
 import 'package:appflowy/plugins/database/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
@@ -95,8 +96,11 @@ import 'common_operations.dart';
 import 'expectation.dart';
 import 'mock/mock_file_picker.dart';
 
+const v020GridFileName = "v020.afdb";
+const v069GridFileName = "v069.afdb";
+
 extension AppFlowyDatabaseTest on WidgetTester {
-  Future<void> openV020database() async {
+  Future<void> openTestDatabase(String fileName) async {
     final context = await initializeAppFlowy();
     await tapAnonymousSignInButton();
 
@@ -106,29 +110,24 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapAddViewButton();
     await tapImportButton();
 
-    final testFileNames = ['v020.afdb'];
-    final paths = <String>[];
-    for (final fileName in testFileNames) {
-      // Don't use the p.join to build the path that used in loadString. It
-      // is not working on windows.
-      final str = await rootBundle
-          .loadString("assets/test/workspaces/database/$fileName");
+    // Don't use the p.join to build the path that used in loadString. It
+    // is not working on windows.
+    final str = await rootBundle
+        .loadString("assets/test/workspaces/database/$fileName");
 
-      // Write the content to the file.
-      final path = p.join(
-        context.applicationDataDirectory,
-        fileName,
-      );
-      paths.add(path);
-      File(path).writeAsStringSync(str);
-    }
+    // Write the content to the file.
+    final path = p.join(
+      context.applicationDataDirectory,
+      fileName,
+    );
+    final pageName = p.basenameWithoutExtension(path);
+    File(path).writeAsStringSync(str);
     // mock get files
     mockPickFilePaths(
-      paths: paths,
+      paths: [path],
     );
     await tapDatabaseRawDataButton();
-    await pumpAndSettle();
-    await openPage('v020', layout: ViewLayoutPB.Grid);
+    await openPage(pageName, layout: ViewLayoutPB.Grid);
   }
 
   Future<void> hoverOnFirstRowOfGrid([Future<void> Function()? onHover]) async {
@@ -571,6 +570,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
+  /// Used to open the add cover popover, by pressing on "Add cover"-button.
+  ///
+  /// Should call [hoverRowBanner] first.
+  ///
+  Future<void> tapAddCoverButton() async {
+    await tapButtonWithName(
+      LocaleKeys.document_plugins_cover_addCover.tr(),
+    );
+    await pumpAndSettle();
+    expect(find.byType(UploadImageMenu), findsOneWidget);
+  }
+
   Future<void> openEmojiPicker() async =>
       tapButton(find.byType(AddEmojiButton));
 
@@ -787,7 +798,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(finder, findsWidgets);
   }
 
-  Future<void> assertNumberOfRowsInGridPage(int num) async {
+  void assertNumberOfRowsInGridPage(int num) {
     expect(
       find.byType(GridRow, skipOffstage: false),
       findsNWidgets(num),
@@ -872,19 +883,49 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(GridAddRowButton));
   }
 
-  Future<void> tapCreateRowButtonInRowMenuOfGrid() async {
+  Future<void> tapCreateRowButtonAfterHoveringOnGridRow() async {
     await tapButton(find.byType(InsertRowButton));
   }
 
   Future<void> tapRowMenuButtonInGrid() async {
-    expect(find.byType(RowMenuButton), findsOneWidget);
     await tapButton(find.byType(RowMenuButton));
   }
 
   /// Should call [tapRowMenuButtonInGrid] first.
+  Future<void> tapCreateRowAboveButtonInRowMenu() async {
+    await tapButtonWithName(LocaleKeys.grid_row_insertRecordAbove.tr());
+  }
+
+  /// Should call [tapRowMenuButtonInGrid] first.
   Future<void> tapDeleteOnRowMenu() async {
-    expect(find.text(LocaleKeys.grid_row_delete.tr()), findsOneWidget);
     await tapButtonWithName(LocaleKeys.grid_row_delete.tr());
+  }
+
+  Future<void> reorderRow(
+    String from,
+    String to,
+  ) async {
+    final fromRow = find.byWidgetPredicate(
+      (widget) => widget is GridRow && widget.rowId == from,
+    );
+    final toRow = find.byWidgetPredicate(
+      (widget) => widget is GridRow && widget.rowId == to,
+    );
+    await hoverOnWidget(
+      fromRow,
+      onHover: () async {
+        final dragElement = find.descendant(
+          of: fromRow,
+          matching: find.byType(ReorderableDragStartListener),
+        );
+        await timedDrag(
+          dragElement,
+          getCenter(toRow) - getCenter(fromRow),
+          const Duration(milliseconds: 200),
+        );
+        await pumpAndSettle();
+      },
+    );
   }
 
   Future<void> createField(
@@ -1015,7 +1056,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// Must call [tapSortMenuInSettingBar] first.
-  Future<void> tapAllSortButton() async {
+  Future<void> tapDeleteAllSortsButton() async {
     await tapButton(find.byType(DeleteAllSortsButton));
   }
 
@@ -1252,7 +1293,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: find.byType(EventCard),
     );
 
-    await tapButton(cards.at(index));
+    await tapButton(cards.at(index), milliseconds: 1000);
   }
 
   void assertEventEditorOpen() =>
@@ -1268,6 +1309,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await enterText(textField, title);
+    await testTextInput.receiveAction(TextInputAction.done);
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 

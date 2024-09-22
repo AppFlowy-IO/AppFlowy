@@ -1,13 +1,13 @@
-import { YDoc } from '@/application/collab.type';
+import { YDoc } from '@/application/types';
 import { PublishProvider } from '@/application/publish';
+import { useOutlineDrawer } from '@/components/_shared/outline/outline.hooks';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
 import { AFScroller } from '@/components/_shared/scroller';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { GlobalCommentProvider } from '@/components/global-comment';
 import CollabView from '@/components/publish/CollabView';
-import { OutlineDrawer } from '@/components/publish/outline';
-import { getPlatform } from '@/utils/platform';
-import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import SideBar from '@/components/publish/SideBar';
+import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import { PublishViewHeader } from '@/components/publish/header';
 import NotFound from '@/components/error/NotFound';
 import { useSearchParams } from 'react-router-dom';
@@ -16,8 +16,6 @@ export interface PublishViewProps {
   namespace: string;
   publishName: string;
 }
-
-const drawerWidth = 268;
 
 export function PublishView ({ namespace, publishName }: PublishViewProps) {
   const [doc, setDoc] = useState<YDoc | undefined>();
@@ -42,46 +40,22 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
     void openPublishView();
   }, [openPublishView]);
 
-  const [open, setOpen] = useState(() => {
-    return localStorage.getItem('publish_outline_open') === 'true';
-  });
-
   const [search] = useSearchParams();
 
   const isTemplate = search.get('template') === 'true';
   const isTemplateThumb = isTemplate && search.get('thumbnail') === 'true';
 
   useEffect(() => {
-    localStorage.setItem('publish_outline_open', open ? 'true' : 'false');
-  }, [open]);
-
-  useEffect(() => {
     if (!isTemplateThumb) return;
     document.documentElement.setAttribute('thumbnail', 'true');
   }, [isTemplateThumb]);
 
-  const drawerOpened = useMemo(() => open && !getPlatform().isMobile, [open]);
-  const siderWidth = drawerOpened ? drawerWidth : 0;
-
-  useEffect(() => {
-    const onResize = () => {
-      const isMobile = getPlatform().isMobile;
-
-      if (!isMobile && window.innerWidth - siderWidth < 640) {
-
-        setOpen(false);
-      }
-
-    };
-
-    onResize();
-
-    window.addEventListener('resize', onResize);
-
-    return () => {
-      window.removeEventListener('resize', onResize);
-    };
-  }, [siderWidth]);
+  const {
+    drawerOpened,
+    drawerWidth,
+    setDrawerWidth,
+    toggleOpenDrawer,
+  } = useOutlineDrawer();
 
   if (notFound && !doc) {
     return <NotFound />;
@@ -92,7 +66,8 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
       isTemplateThumb={isTemplateThumb} isTemplate={isTemplate} namespace={namespace}
       publishName={publishName}
     >
-      <div className={'h-screen w-screen'} style={isTemplateThumb ? {
+      <div
+        className={'h-screen w-screen'} style={isTemplateThumb ? {
         pointerEvents: 'none',
         transform: 'scale(0.333)',
         transformOrigin: '0 0',
@@ -113,11 +88,11 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
         >
           {!isTemplate && <PublishViewHeader
             onOpenDrawer={() => {
-              setOpen(true);
+              toggleOpenDrawer(true);
             }}
             drawerWidth={drawerWidth}
             onCloseDrawer={() => {
-              setOpen(false);
+              toggleOpenDrawer(false);
             }}
             openDrawer={drawerOpened}
           />}
@@ -131,7 +106,11 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
 
         </AFScroller>
         {drawerOpened &&
-          <OutlineDrawer width={drawerWidth} open={drawerOpened} onClose={() => setOpen(false)} />}
+          <SideBar
+            onResizeDrawerWidth={setDrawerWidth} drawerWidth={drawerWidth} drawerOpened={drawerOpened}
+            toggleOpenDrawer={toggleOpenDrawer}
+          />
+        }
       </div>
     </PublishProvider>
   );

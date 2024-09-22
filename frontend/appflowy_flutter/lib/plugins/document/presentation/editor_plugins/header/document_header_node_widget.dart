@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -94,6 +96,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   PageStyleCover? cover;
   late ViewPB view;
   late final ViewListener viewListener;
+  int retryCount = 0;
 
   @override
   void initState() {
@@ -123,48 +126,89 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     super.dispose();
   }
 
-  void _reload() => setState(() {});
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SizedBox(
-          height: _calculateOverallHeight(),
-          child: DocumentHeaderToolbar(
-            onIconOrCoverChanged: _saveIconOrCover,
-            node: widget.node,
-            editorState: widget.editorState,
-            hasCover: hasCover,
-            hasIcon: hasIcon,
-          ),
-        ),
-        if (hasCover)
-          DocumentCover(
-            view: view,
-            editorState: widget.editorState,
-            node: widget.node,
-            coverType: coverType,
-            coverDetails: coverDetails,
-            onChangeCover: (type, details) =>
-                _saveIconOrCover(cover: (type, details)),
-          ),
-        if (hasIcon)
-          Positioned(
-            left: UniversalPlatform.isDesktopOrWeb ? 80 : 20,
-            // if hasCover, there shouldn't be icons present so the icon can
-            // be closer to the bottom.
-            bottom:
-                hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
-            child: DocumentIcon(
-              editorState: widget.editorState,
-              node: widget.node,
-              icon: viewIcon,
-              onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final offset = _calculateIconLeft(context, constraints);
+        return Stack(
+          children: [
+            SizedBox(
+              height: _calculateOverallHeight(),
+              child: DocumentHeaderToolbar(
+                onIconOrCoverChanged: _saveIconOrCover,
+                node: widget.node,
+                editorState: widget.editorState,
+                hasCover: hasCover,
+                hasIcon: hasIcon,
+                offset: offset,
+              ),
             ),
-          ),
-      ],
+            if (hasCover)
+              DocumentCover(
+                view: view,
+                editorState: widget.editorState,
+                node: widget.node,
+                coverType: coverType,
+                coverDetails: coverDetails,
+                onChangeCover: (type, details) =>
+                    _saveIconOrCover(cover: (type, details)),
+              ),
+            // don't render the icon if the offset is 0
+            if (hasIcon && offset != 0)
+              Positioned(
+                left: offset,
+                // if hasCover, there shouldn't be icons present so the icon can
+                // be closer to the bottom.
+                bottom: hasCover
+                    ? kToolbarHeight - kIconHeight / 2
+                    : kToolbarHeight,
+                child: DocumentIcon(
+                  editorState: widget.editorState,
+                  node: widget.node,
+                  icon: viewIcon,
+                  onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+                ),
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  void _reload() => setState(() {});
+
+  double _calculateIconLeft(BuildContext context, BoxConstraints constraints) {
+    final editorState = context.read<EditorState>();
+    final appearanceCubit = context.read<DocumentAppearanceCubit>();
+
+    final renderBox = editorState.renderBox;
+
+    if (renderBox == null || !renderBox.hasSize) {}
+
+    var renderBoxWidth = 0.0;
+    if (renderBox != null && renderBox.hasSize) {
+      renderBoxWidth = renderBox.size.width;
+    } else if (retryCount <= 3) {
+      retryCount++;
+      // this is a workaround for the issue that the renderBox is not initialized
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        _reload();
+      });
+      return 0;
+    }
+
+    // if the renderBox width equals to 0, it means the editor is not initialized
+    final editorWidth = renderBoxWidth != 0
+        ? min(renderBoxWidth, appearanceCubit.state.width)
+        : appearanceCubit.state.width;
+
+    // left padding + editor width + right padding = the width of the editor
+    final leftOffset = (constraints.maxWidth - editorWidth) / 2.0 +
+        EditorStyleCustomizer.documentPadding.right;
+
+    // ensure the offset is not negative
+    return max(0, leftOffset);
   }
 
   double _calculateOverallHeight() {
@@ -223,6 +267,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.hasCover,
     required this.hasIcon,
     required this.onIconOrCoverChanged,
+    required this.offset,
   });
 
   final Node node;
@@ -231,6 +276,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final bool hasIcon;
   final void Function({(CoverType, String?)? cover, String? icon})
       onIconOrCoverChanged;
+  final double offset;
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -254,13 +300,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     Widget child = Container(
       alignment: Alignment.bottomLeft,
       width: double.infinity,
-      padding: UniversalPlatform.isDesktopOrWeb
-          ? EdgeInsets.symmetric(
-              horizontal: EditorStyleCustomizer.documentPadding.right,
-            )
-          : EdgeInsets.symmetric(
-              horizontal: EditorStyleCustomizer.documentPadding.left,
-            ),
+      padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
         child: Row(
@@ -484,11 +524,16 @@ class DocumentCoverState extends State<DocumentCover> {
                                   UploadImageType.url,
                                   UploadImageType.unsplash,
                                 ],
-                                onSelectedLocalImages: (paths) async {
+                                onSelectedLocalImages: (files) async {
                                   context.pop();
+
+                                  if (files.isEmpty) {
+                                    return;
+                                  }
+
                                   widget.onChangeCover(
                                     CoverType.file,
-                                    paths.first,
+                                    files.first.path,
                                   );
                                 },
                                 onSelectedAIImage: (_) {
@@ -613,9 +658,14 @@ class DocumentCoverState extends State<DocumentCover> {
                   UploadImageType.url,
                   UploadImageType.unsplash,
                 ],
-                onSelectedLocalImages: (paths) {
+                onSelectedLocalImages: (files) {
                   popoverController.close();
-                  onCoverChanged(CoverType.file, paths.first);
+                  if (files.isEmpty) {
+                    return;
+                  }
+
+                  final item = files.map((file) => file.path).first;
+                  onCoverChanged(CoverType.file, item);
                 },
                 onSelectedAIImage: (_) {
                   throw UnimplementedError();

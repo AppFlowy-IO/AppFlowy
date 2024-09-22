@@ -146,6 +146,7 @@ export default defineConfig({
           : `${__dirname}/src/application/services/js-services`,
       },
       { find: '$icons', replacement: `${resourcesPath}/flowy_icons/` },
+      { find: 'cypress/support', replacement: `${__dirname}/cypress/support` },
     ],
   },
 

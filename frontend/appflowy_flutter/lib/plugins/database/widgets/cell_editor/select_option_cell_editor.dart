@@ -454,17 +454,15 @@ class SelectOptionTagCell extends StatelessWidget {
             onTap: onSelected,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Align(
+              child: Container(
                 alignment: AlignmentDirectional.centerStart,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: SelectOptionTag(
-                    fontSize: 14,
-                    option: option,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
+                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                child: SelectOptionTag(
+                  fontSize: 14,
+                  option: option,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
                   ),
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
@@ -145,6 +146,8 @@ class _DocumentPageState extends State<DocumentPage>
     DocumentState state,
     EditorDropManagerState dropState,
   ) {
+    final width = context.read<DocumentAppearanceCubit>().state.width;
+
     final Widget child;
     if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
@@ -153,7 +156,7 @@ class _DocumentPageState extends State<DocumentPage>
             editorState: state.editorState!,
             styleCustomizer: EditorStyleCustomizer(
               context: context,
-              // the 44 is the width of the left action list
+              width: width,
               padding: EditorStyleCustomizer.documentPadding,
             ),
             header: _buildCoverAndIcon(context, state),
@@ -171,7 +174,7 @@ class _DocumentPageState extends State<DocumentPage>
               .getDropTargetRenderData(details.globalPosition);
 
           if (data != null &&
-              data.dropTarget != null &&
+              data.dropPath != null &&
 
               // We implement custom Drop logic for image blocks, this is
               // how we can exclude them from the Drop Target
@@ -184,14 +187,28 @@ class _DocumentPageState extends State<DocumentPage>
           }
         },
         onDragDone: (details) async {
-          state.editorState!.selectionService.removeDropTarget();
+          final editorState = state.editorState;
+          if (editorState == null) {
+            return;
+          }
 
-          final data = state.editorState!.selectionService
+          editorState.selectionService.removeDropTarget();
+
+          final data = editorState.selectionService
               .getDropTargetRenderData(details.globalPosition);
 
           if (data != null) {
-            if (data.cursorNode != null) {
-              if (_excludeFromDropTarget.contains(data.cursorNode?.type)) {
+            final cursorNode = data.cursorNode;
+            final dropPath = data.dropPath;
+
+            if (cursorNode != null && dropPath != null) {
+              if (_excludeFromDropTarget.contains(cursorNode.type)) {
+                return;
+              }
+
+              final node = editorState.getNodeAtPath(dropPath);
+
+              if (node == null) {
                 return;
               }
 
@@ -209,14 +226,15 @@ class _DocumentPageState extends State<DocumentPage>
                 }
               }
 
-              await editorState!.dropImages(
-                data.dropTarget!,
+              await editorState.dropImages(
+                node,
                 imageFiles,
                 widget.view.id,
                 isLocalMode,
               );
-              await editorState!.dropFiles(
-                data.dropTarget!,
+
+              await editorState.dropFiles(
+                node,
                 otherFiles,
                 widget.view.id,
                 isLocalMode,
@@ -228,7 +246,7 @@ class _DocumentPageState extends State<DocumentPage>
           editorState: state.editorState!,
           styleCustomizer: EditorStyleCustomizer(
             context: context,
-            // the 44 is the width of the left action list
+            width: width,
             padding: EditorStyleCustomizer.documentPadding,
           ),
           header: _buildCoverAndIcon(context, state),

@@ -1,6 +1,8 @@
 import { defineConfig } from 'cypress';
 import registerCodeCoverageTasks from '@cypress/code-coverage/task';
 
+import { addMatchImageSnapshotPlugin } from 'cypress-image-snapshot/plugin';
+
 export default defineConfig({
   env: {
     codeCoverage: {
@@ -12,8 +14,9 @@ export default defineConfig({
       framework: 'react',
       bundler: 'vite',
     },
-    setupNodeEvents(on, config) {
+    setupNodeEvents (on, config) {
       registerCodeCoverageTasks(on, config);
+      addMatchImageSnapshotPlugin(on, config);
       return config;
     },
     supportFile: 'cypress/support/component.ts',

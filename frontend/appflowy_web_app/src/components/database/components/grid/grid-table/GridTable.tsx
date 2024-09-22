@@ -59,7 +59,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       return `${rowIndex}:${columnIndex}`;
     },
-    [columns, rows]
+    [columns, rows],
   );
   const Cell = useCallback(
     ({ columnIndex, rowIndex, style, data }: GridChildComponentProps) => {
@@ -103,7 +103,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       if (row.type === RenderRowType.CalculateRow && column.fieldId) {
         return (
-          <div style={style}>
+          <div style={style} className={'pb-36'}>
             <GridCalculateRowCell fieldId={column.fieldId} />
           </div>
         );
@@ -111,7 +111,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       return <div style={style} />;
     },
-    [onResize]
+    [onResize],
   );
 
   return (

@@ -1,4 +1,4 @@
-import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
+import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/types';
 import { applyToYjs } from '@/application/slate-yjs/utils/applyToYjs';
 import { Editor, Operation, Descendant } from 'slate';
 import Y, { YEvent, Transaction } from 'yjs';
@@ -74,6 +74,7 @@ export function withYjs<T extends Editor> (
       return;
     }
 
+    console.log('===', content.children);
     if (readSummary) {
       e.children = content.children.slice(0, 10);
     } else {
@@ -146,7 +147,7 @@ export function withYjs<T extends Editor> (
     // parse changes and apply to ydoc
     doc.transact(() => {
       changes.forEach((change) => {
-        applyToYjs(doc, { children: change.slateContent }, change.op);
+        applyToYjs(doc, editor, change.op);
       });
     }, localOrigin);
   };

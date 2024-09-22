@@ -122,9 +122,7 @@ class _TextCellState extends State<TextCardCell> {
       child: BlocListener<TextCellBloc, TextCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
-          if (!state.enableEdit) {
-            _textEditingController.text = state.content;
-          }
+          _textEditingController.text = state.content ?? "";
         },
         child: isTitle ? _buildTitle() : _buildText(),
       ),
@@ -143,9 +141,9 @@ class _TextCellState extends State<TextCardCell> {
 
   Widget? _buildIcon(TextCellState state) {
     if (state.emoji?.value.isNotEmpty ?? false) {
-      return Text(
+      return FlowyText.emoji(
+        optimizeEmojiAlign: true,
         state.emoji?.value ?? '',
-        style: widget.style.titleTextStyle,
       );
     }
 
@@ -164,7 +162,7 @@ class _TextCellState extends State<TextCardCell> {
   Widget _buildText() {
     return BlocBuilder<TextCellBloc, TextCellState>(
       builder: (context, state) {
-        final content = state.content;
+        final content = state.content ?? "";
 
         return content.isEmpty
             ? const SizedBox.shrink()
@@ -187,6 +185,7 @@ class _TextCellState extends State<TextCardCell> {
       builder: (context, state) {
         final icon = _buildIcon(state);
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (icon != null) ...[
               icon,
@@ -224,8 +223,7 @@ class _TextCellState extends State<TextCardCell> {
               enableInteractiveSelection: isEditing,
               style: widget.style.titleTextStyle,
               decoration: InputDecoration(
-                contentPadding: widget.style.padding
-                    .add(const EdgeInsets.symmetric(vertical: 4.0)),
+                contentPadding: widget.style.padding,
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 isDense: true,

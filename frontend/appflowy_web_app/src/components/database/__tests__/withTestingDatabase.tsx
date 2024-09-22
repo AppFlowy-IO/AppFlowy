@@ -1,12 +1,12 @@
-import { YDoc } from '@/application/collab.type';
+import { RowId, YDoc } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
-import withAppWrapper from '@/components/app/withAppWrapper';
+import withAppWrapper from '@/components/main/withAppWrapper';
 import { DatabaseContextProvider } from '@/components/database/DatabaseContext';
 import DatabaseViews from '@/components/database/DatabaseViews';
 import { useState } from 'react';
 import * as Y from 'yjs';
 
-export function renderDatabase(
+export function renderDatabase (
   {
     databaseId,
     viewId,
@@ -16,13 +16,12 @@ export function renderDatabase(
     viewId: string;
     onNavigateToView: (viewId: string) => void;
   },
-  onAfterRender?: () => void
+  onAfterRender?: () => void,
 ) {
   cy.fixture(`database/${databaseId}`).then((database) => {
     cy.fixture(`database/rows/${databaseId}`).then((rows) => {
       const doc = new Y.Doc();
-      const rootRowsDoc = new Y.Doc();
-      const rowsFolder: Y.Map<YDoc> = rootRowsDoc.getMap();
+      const rowsFolder: Record<RowId, YDoc> = {};
       const databaseState = new Uint8Array(database.data.doc_state);
 
       applyYDoc(doc, databaseState);
@@ -32,7 +31,7 @@ export function renderDatabase(
         const rowDoc = new Y.Doc();
 
         applyYDoc(rowDoc, new Uint8Array(data));
-        rowsFolder.set(key, rowDoc);
+        rowsFolder[key] = rowDoc;
       });
 
       const AppWrapper = withAppWrapper(() => {
@@ -55,7 +54,7 @@ export function renderDatabase(
   });
 }
 
-export function TestDatabase({
+export function TestDatabase ({
   databaseDoc,
   rows,
   iidIndex,
@@ -63,7 +62,7 @@ export function TestDatabase({
   onNavigateToView,
 }: {
   databaseDoc: YDoc;
-  rows: Y.Map<YDoc>;
+  rows: Record<RowId, YDoc>;
   iidIndex: string;
   initialViewId: string;
   onNavigateToView: (viewId: string) => void;

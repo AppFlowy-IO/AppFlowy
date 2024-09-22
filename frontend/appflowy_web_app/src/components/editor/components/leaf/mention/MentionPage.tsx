@@ -1,5 +1,4 @@
-import { ViewLayout } from '@/application/collab.type';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import { ViewLayout, View } from '@/application/types';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { isFlagEmoji } from '@/utils/emoji';
@@ -10,7 +9,7 @@ function MentionPage ({ pageId }: { pageId: string }) {
   const context = useEditorContext();
   const { navigateToView, loadViewMeta } = context;
   const [unPublished, setUnPublished] = useState(false);
-  const [meta, setMeta] = useState<ViewMeta | null>(null);
+  const [meta, setMeta] = useState<View | null>(null);
 
   useEffect(() => {
     void (async () => {
