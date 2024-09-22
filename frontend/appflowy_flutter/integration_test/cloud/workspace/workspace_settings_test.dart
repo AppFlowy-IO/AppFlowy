@@ -71,11 +71,11 @@ void main() {
         // change the document width
         final slider = find.byType(Slider);
         final oldValue = tester.widget<Slider>(slider).value;
-        await tester.drag(slider, const Offset(100, 0));
+        await tester.drag(slider, const Offset(-100, 0));
         await tester.pumpAndSettle();
 
         // check the document width is changed
-        expect(tester.widget<Slider>(slider).value, greaterThan(oldValue));
+        expect(tester.widget<Slider>(slider).value, lessThan(oldValue));
 
         // click the reset button
         final resetButton = find.descendant(

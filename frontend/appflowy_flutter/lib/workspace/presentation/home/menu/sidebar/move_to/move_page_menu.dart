@@ -127,9 +127,6 @@ class _MovePageMenuState extends State<MovePageMenu> {
               isHovered: isHoveredNotifier,
               isExpandedNotifier: isExpandedNotifier,
               shouldIgnoreView: (view) {
-                debugPrint(
-                  'view: ${view.id}, layout: ${view.layout}, sourceView: ${widget.sourceView.id}',
-                );
                 if (_shouldIgnoreView(view, widget.sourceView)) {
                   return IgnoreViewType.hide;
                 }
