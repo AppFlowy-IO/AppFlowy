@@ -73,7 +73,7 @@ class FlowySvg extends StatelessWidget {
 
   /// The opacity of the svg
   ///
-  /// The default value is 1.0
+  /// if null then use the opacity of the iconColor
   final double? opacity;
 
   @override
