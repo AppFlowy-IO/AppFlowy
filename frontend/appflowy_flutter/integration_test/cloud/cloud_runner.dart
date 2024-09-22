@@ -8,6 +8,7 @@ import 'workspace/change_name_and_icon_test.dart'
     as change_workspace_name_and_icon_test;
 import 'workspace/collaborative_workspace_test.dart'
     as collaboration_workspace_test;
+import 'workspace/workspace_settings_test.dart' as workspace_settings_test;
 
 Future<void> main() async {
   preset_af_cloud_env_test.main();
@@ -18,6 +19,7 @@ Future<void> main() async {
   // workspace
   collaboration_workspace_test.main();
   change_workspace_name_and_icon_test.main();
+  workspace_settings_test.main();
 
   // document
   document_drag_block_test.main();
