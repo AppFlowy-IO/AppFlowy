@@ -11,11 +11,11 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'util.dart';
 
@@ -184,7 +184,7 @@ extension Expectation on WidgetTester {
     String? parentName,
     ViewLayoutPB parentLayout = ViewLayoutPB.Document,
   }) {
-    if (PlatformExtension.isDesktop) {
+    if (UniversalPlatform.isDesktop) {
       if (parentName == null) {
         return find.byWidgetPredicate(
           (widget) =>

@@ -98,7 +98,7 @@ impl GroupCustomize for URLGroupController {
         if !group.contains_row(&row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+            .push(InsertedRowPB::new(RowMetaPB::from(row)));
           group.add_row(row.clone());
         }
       } else if group.contains_row(&row.id) {
@@ -154,7 +154,7 @@ impl GroupCustomize for URLGroupController {
     group_changeset
   }
 
-  fn delete_group_when_move_row(
+  fn delete_group_after_moving_row(
     &mut self,
     _row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,

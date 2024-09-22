@@ -27,6 +27,7 @@ dashmap.workspace = true
 strum_macros = "0.25.2"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 futures-util = "0.3.30"
+collab-importer = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

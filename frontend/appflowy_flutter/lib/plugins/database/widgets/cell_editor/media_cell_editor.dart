@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
@@ -11,11 +9,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_upload_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
-import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:cross_file/cross_file.dart';
@@ -47,6 +46,10 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
   Widget build(BuildContext context) {
     return BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {
+        final images = state.files
+            .where((file) => file.fileType == MediaFileTypePB.Image)
+            .toList();
+
         return Padding(
           padding: const EdgeInsets.all(4),
           child: SingleChildScrollView(
@@ -55,6 +58,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
               children: [
                 if (state.files.isNotEmpty) ...[
                   ReorderableListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     buildDefaultDragHandles: false,
                     itemBuilder: (_, index) => BlocProvider.value(
@@ -62,6 +66,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                       value: context.read<MediaCellBloc>(),
                       child: RenderMedia(
                         file: state.files[index],
+                        images: images,
                         index: index,
                         enableReordering: state.files.length > 1,
                         mutex: itemMutex,
@@ -91,13 +96,14 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                   ),
                   triggerActions: PopoverTriggerFlags.none,
                   popupBuilder: (popoverContext) => FileUploadMenu(
-                    onInsertLocalFile: (file) async => insertLocalFile(
+                    allowMultipleFiles: true,
+                    onInsertLocalFile: (files) async => insertLocalFiles(
                       context,
-                      file,
+                      files,
                       userProfile:
                           context.read<MediaCellBloc>().state.userProfile,
                       documentId: context.read<MediaCellBloc>().rowId,
-                      onUploadSuccess: (path, isLocalMode) {
+                      onUploadSuccess: (file, path, isLocalMode) {
                         final mediaCellBloc = context.read<MediaCellBloc>();
                         if (mediaCellBloc.isClosed) {
                           return;
@@ -108,8 +114,8 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                             url: path,
                             name: file.name,
                             uploadType: isLocalMode
-                                ? MediaUploadTypePB.LocalMedia
-                                : MediaUploadTypePB.CloudMedia,
+                                ? FileUploadTypePB.LocalFile
+                                : FileUploadTypePB.CloudFile,
                             fileType: file.fileType.toMediaFileTypePB(),
                           ),
                         );
@@ -145,7 +151,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                             MediaCellEvent.addFile(
                               url: url,
                               name: name,
-                              uploadType: MediaUploadTypePB.NetworkMedia,
+                              uploadType: FileUploadTypePB.NetworkFile,
                               fileType: fileType,
                             ),
                           );
@@ -186,10 +192,10 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
   }
 }
 
-extension ToCustomImageType on MediaUploadTypePB {
+extension ToCustomImageType on FileUploadTypePB {
   CustomImageType toCustomImageType() => switch (this) {
-        MediaUploadTypePB.NetworkMedia => CustomImageType.external,
-        MediaUploadTypePB.CloudMedia => CustomImageType.internal,
+        FileUploadTypePB.NetworkFile => CustomImageType.external,
+        FileUploadTypePB.CloudFile => CustomImageType.internal,
         _ => CustomImageType.local,
       };
 }
@@ -200,12 +206,14 @@ class RenderMedia extends StatefulWidget {
     super.key,
     required this.index,
     required this.file,
+    required this.images,
     required this.enableReordering,
     required this.mutex,
   });
 
   final int index;
   final MediaFilePB file;
+  final List<MediaFilePB> images;
   final bool enableReordering;
   final PopoverMutex mutex;
 
@@ -215,6 +223,21 @@ class RenderMedia extends StatefulWidget {
 
 class _RenderMediaState extends State<RenderMedia> {
   bool isHovering = false;
+  int? imageIndex;
+
+  MediaFilePB get file => widget.file;
+
+  @override
+  void initState() {
+    super.initState();
+    imageIndex = widget.images.indexOf(file);
+  }
+
+  @override
+  void didUpdateWidget(covariant RenderMedia oldWidget) {
+    imageIndex = widget.images.indexOf(file);
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -241,53 +264,35 @@ class _RenderMediaState extends State<RenderMedia> {
                   child: const FlowySvg(FlowySvgs.drag_element_s),
                 ),
                 const HSpace(8),
-                if (widget.file.fileType == MediaFileTypePB.Image &&
-                    widget.file.uploadType == MediaUploadTypePB.CloudMedia) ...[
+                if (widget.file.fileType == MediaFileTypePB.Image) ...[
                   Expanded(
                     child: _openInteractiveViewer(
                       context,
-                      file: widget.file,
-                      child: FlowyNetworkImage(
+                      files: widget.images,
+                      index: imageIndex!,
+                      child: AFImage(
                         url: widget.file.url,
-                        userProfilePB:
+                        uploadType: widget.file.uploadType,
+                        userProfile:
                             context.read<MediaCellBloc>().state.userProfile,
                       ),
-                    ),
-                  ),
-                ] else if (widget.file.fileType == MediaFileTypePB.Image) ...[
-                  Expanded(
-                    child: _openInteractiveViewer(
-                      context,
-                      file: widget.file,
-                      child: widget.file.uploadType ==
-                              MediaUploadTypePB.NetworkMedia
-                          ? Image.network(
-                              widget.file.url,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.centerLeft,
-                            )
-                          : Image.file(
-                              File(widget.file.url),
-                              fit: BoxFit.cover,
-                              alignment: Alignment.centerLeft,
-                            ),
                     ),
                   ),
                 ] else ...[
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => afLaunchUrlString(widget.file.url),
+                      onTap: () => afLaunchUrlString(file.url),
                       child: Row(
                         children: [
                           FlowySvg(
-                            widget.file.fileType.icon,
+                            file.fileType.icon,
                             color: AFThemeExtension.of(context).strongText,
                             size: const Size.square(18),
                           ),
                           const HSpace(8),
                           Flexible(
                             child: FlowyText(
-                              widget.file.name,
+                              file.name,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -306,7 +311,7 @@ class _RenderMediaState extends State<RenderMedia> {
                     popupBuilder: (popoverContext) => BlocProvider.value(
                       value: context.read<MediaCellBloc>(),
                       child: MediaItemMenu(
-                        file: widget.file,
+                        file: file,
                         closeContext: popoverContext,
                       ),
                     ),
@@ -329,17 +334,21 @@ class _RenderMediaState extends State<RenderMedia> {
 
   Widget _openInteractiveViewer(
     BuildContext context, {
-    required MediaFilePB file,
+    required List<MediaFilePB> files,
+    required int index,
     required Widget child,
   }) =>
       GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => openInteractiveViewerFromFile(
+        onTap: () => openInteractiveViewerFromFiles(
           context,
-          file,
-          onDeleteImage: (_) =>
-              context.read<MediaCellBloc>().deleteFile(file.id),
+          files,
+          onDeleteImage: (index) {
+            final deleteFile = files[index];
+            context.read<MediaCellBloc>().deleteFile(deleteFile.id);
+          },
           userProfile: context.read<MediaCellBloc>().state.userProfile,
+          initialIndex: index,
         ),
         child: child,
       );
@@ -465,19 +474,22 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
         ),
         FlowyButton(
-          onTap: () => context.read<MediaCellBloc>().add(
-                MediaCellEvent.removeFile(
-                  fileId: widget.file.id,
-                ),
-              ),
+          onTap: () => showConfirmDeletionDialog(
+            context: context,
+            name: widget.file.name,
+            description: LocaleKeys.grid_media_deleteFileDescription.tr(),
+            onConfirm: () => context
+                .read<MediaCellBloc>()
+                .add(MediaCellEvent.removeFile(fileId: widget.file.id)),
+          ),
           leftIcon: FlowySvg(
             FlowySvgs.delete_s,
-            color: Theme.of(context).iconTheme.color,
+            color: Theme.of(context).colorScheme.error,
             size: const Size.square(18),
           ),
           text: FlowyText.regular(
             LocaleKeys.button_delete.tr(),
-            color: AFThemeExtension.of(context).textColor,
+            color: Theme.of(context).colorScheme.error,
           ),
           leftIconSize: const Size(18, 18),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,

@@ -29,7 +29,7 @@ use collab_folder::{
   Workspace,
 };
 use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabBuilderConfig, KVDBCollabPersistenceImpl,
+  AppFlowyCollabBuilder, CollabBuilderConfig, CollabPersistenceImpl,
 };
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -160,7 +160,7 @@ impl FolderManager {
     let config = CollabBuilderConfig::default().sync_enable(true);
 
     let data_source = data_source
-      .unwrap_or_else(|| KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
+      .unwrap_or_else(|| CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
 
     let object_id = workspace_id;
     let collab_object =
@@ -194,7 +194,7 @@ impl FolderManager {
     }
   }
 
-  pub(crate) async fn create_empty_collab(
+  pub(crate) async fn create_folder_with_data(
     &self,
     uid: i64,
     workspace_id: &str,
@@ -208,7 +208,7 @@ impl FolderManager {
         .collab_builder
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
 
-    let doc_state = KVDBCollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
+    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
     let folder = self.collab_builder.create_folder(
       collab_object,
       doc_state,
@@ -1290,11 +1290,17 @@ impl FolderManager {
         .into_iter()
         .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
         .collect::<HashMap<String, Vec<u8>>>();
+        let database_row_document_collabs = v
+          .database_row_document_encoded_collabs
+          .into_iter()
+          .map(|v| (v.0, v.1.doc_state.to_vec())) // Convert to HashMap
+          .collect::<HashMap<String, Vec<u8>>>();
 
         let data = PublishDatabaseData {
           database_collab,
           database_row_collabs,
           database_relations,
+          database_row_document_collabs,
           ..Default::default()
         };
         PublishPayload::Database(PublishDatabasePayload { meta, data })
@@ -1481,16 +1487,20 @@ impl FolderManager {
     Ok((view, encoded_collab))
   }
 
+  #[allow(dead_code)]
+  pub(crate) async fn import_zip_file(
+    &self,
+    _parent_view_id: &str,
+    _zip_file_path: &str,
+  ) -> FlowyResult<RepeatedViewPB> {
+    todo!()
+  }
+
   /// Import function to handle the import of data.
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<RepeatedViewPB> {
     let workspace_id = self.user.workspace_id()?;
-
-    // Initialize an empty vector to store the objects
-    let sync_after_create = import_data.sync_after_create;
     let mut objects = vec![];
     let mut views = vec![];
-
-    // Iterate over the values in the import data
     for data in import_data.values {
       // Import a single file and get the view and encoded collab data
       let (view, encoded_collabs) = self
@@ -1498,26 +1508,21 @@ impl FolderManager {
         .await?;
       views.push(view_pb_without_child_views(view));
 
-      if sync_after_create {
-        for (object_id, collab_type, encode_collab) in encoded_collabs {
-          match self.get_folder_collab_params(object_id, collab_type, encode_collab) {
-            Ok(params) => objects.push(params),
-            Err(e) => {
-              error!("import error {}", e);
-            },
-          }
+      for (object_id, collab_type, encode_collab) in encoded_collabs {
+        match self.get_folder_collab_params(object_id, collab_type, encode_collab) {
+          Ok(params) => objects.push(params),
+          Err(e) => {
+            error!("import error {}", e);
+          },
         }
       }
     }
 
-    // Sync the view to the cloud
-    if sync_after_create {
-      info!("Syncing the imported {} collab to the cloud", objects.len());
-      self
-        .cloud_service
-        .batch_create_folder_collab_objects(&workspace_id, objects)
-        .await?;
-    }
+    info!("Syncing the imported {} collab to the cloud", objects.len());
+    self
+      .cloud_service
+      .batch_create_folder_collab_objects(&workspace_id, objects)
+      .await?;
 
     // Notify that the parent view has changed
     if let Some(lock) = self.mutex_folder.load_full() {

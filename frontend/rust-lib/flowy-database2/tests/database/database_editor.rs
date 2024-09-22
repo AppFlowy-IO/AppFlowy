@@ -10,7 +10,7 @@ use strum::EnumCount;
 
 use event_integration_test::folder_event::ViewTest;
 use event_integration_test::EventIntegrationTest;
-use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
+use flowy_database2::entities::{DatabasePB, FieldType, FilterPB, RowMetaPB};
 
 use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
@@ -93,15 +93,21 @@ impl DatabaseEditorTest {
       .collect();
 
     let view_id = test.child_view.id;
-    Self {
+    let this = Self {
       sdk,
-      view_id,
+      view_id: view_id.clone(),
       editor,
       fields,
       rows,
       field_count: FieldType::COUNT,
       row_by_row_id: HashMap::default(),
-    }
+    };
+    this.get_database_data(&view_id).await;
+    this
+  }
+
+  pub async fn get_database_data(&self, view_id: &str) -> DatabasePB {
+    self.editor.open_database_view(view_id, None).await.unwrap()
   }
 
   pub async fn database_filters(&self) -> Vec<FilterPB> {
@@ -284,7 +290,7 @@ impl DatabaseEditorTest {
     self
       .sdk
       .database_manager
-      .get_database_editor(database_id)
+      .get_or_init_database_editor(database_id)
       .await
       .ok()
   }

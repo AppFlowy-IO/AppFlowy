@@ -14,6 +14,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/comm
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/image_render.dart';
 import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -68,19 +69,19 @@ class MobileMediaCellEditor extends StatelessWidget {
                                 minHeight: 80,
                               ),
                               child: FileUploadMenu(
-                                onInsertLocalFile: (file) async {
+                                onInsertLocalFile: (files) async {
                                   dialogContext.pop();
 
-                                  await insertLocalFile(
+                                  await insertLocalFiles(
                                     context,
-                                    file,
+                                    files,
                                     userProfile: context
                                         .read<MediaCellBloc>()
                                         .state
                                         .userProfile,
                                     documentId:
                                         context.read<MediaCellBloc>().rowId,
-                                    onUploadSuccess: (path, isLocalMode) {
+                                    onUploadSuccess: (file, path, isLocalMode) {
                                       final mediaCellBloc =
                                           context.read<MediaCellBloc>();
                                       if (mediaCellBloc.isClosed) {
@@ -92,8 +93,8 @@ class MobileMediaCellEditor extends StatelessWidget {
                                           url: path,
                                           name: file.name,
                                           uploadType: isLocalMode
-                                              ? MediaUploadTypePB.LocalMedia
-                                              : MediaUploadTypePB.CloudMedia,
+                                              ? FileUploadTypePB.LocalFile
+                                              : FileUploadTypePB.CloudFile,
                                           fileType:
                                               file.fileType.toMediaFileTypePB(),
                                         ),
@@ -166,7 +167,7 @@ class MobileMediaCellEditor extends StatelessWidget {
           MediaCellEvent.addFile(
             url: url,
             name: name,
-            uploadType: MediaUploadTypePB.NetworkMedia,
+            uploadType: FileUploadTypePB.NetworkFile,
             fileType: fileType,
           ),
         );

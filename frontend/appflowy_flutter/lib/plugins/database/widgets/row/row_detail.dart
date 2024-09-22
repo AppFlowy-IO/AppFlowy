@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -10,9 +12,9 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cell/editable_cell_builder.dart';
@@ -26,11 +28,13 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
     required this.rowController,
     required this.databaseController,
     this.allowOpenAsFullPage = true,
+    this.userProfile,
   });
 
   final RowController rowController;
   final DatabaseController databaseController;
   final bool allowOpenAsFullPage;
+  final UserProfilePB? userProfile;
 
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();
@@ -71,6 +75,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
                   rowController: widget.rowController,
                   cellBuilder: cellBuilder,
                   allowOpenAsFullPage: widget.allowOpenAsFullPage,
+                  userProfile: widget.userProfile,
                 ),
                 const VSpace(16),
                 Padding(

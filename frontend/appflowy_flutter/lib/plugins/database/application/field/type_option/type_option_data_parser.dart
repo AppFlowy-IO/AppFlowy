@@ -64,3 +64,10 @@ class URLTypeOptionDataParser extends TypeOptionParser<URLTypeOptionPB> {
     return URLTypeOptionPB.fromBuffer(buffer);
   }
 }
+
+class MediaTypeOptionDataParser extends TypeOptionParser<MediaTypeOptionPB> {
+  @override
+  MediaTypeOptionPB fromBuffer(List<int> buffer) {
+    return MediaTypeOptionPB.fromBuffer(buffer);
+  }
+}

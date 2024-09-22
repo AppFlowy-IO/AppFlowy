@@ -22,7 +22,7 @@ export function Toolbar ({
   const { t } = useTranslation();
 
   return (
-    <div className={'sticky left-0 flex items-center justify-between overflow-x-auto overflow-y-hidden'}>
+    <div className={'flex items-center justify-between overflow-x-auto overflow-y-hidden'}>
       <div className={'whitespace-nowrap text-sm font-medium'}>{dateStr}</div>
       <div className={'flex items-center justify-end gap-2 max-sm:gap-1'}>
         <IconButton size={'small'} onClick={() => onNavigate('PREV')}>

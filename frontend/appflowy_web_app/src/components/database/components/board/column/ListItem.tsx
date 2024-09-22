@@ -27,7 +27,7 @@ export const ListItem = memo(
       </div>
     );
   },
-  areEqual
+  areEqual,
 );
 
 export default ListItem;

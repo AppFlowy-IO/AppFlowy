@@ -1,4 +1,5 @@
 use anyhow::Error;
+use collab::entity::EncodedCollab;
 pub use collab_document::blocks::DocumentData;
 
 use flowy_error::FlowyError;
@@ -27,6 +28,13 @@ pub trait DocumentCloudService: Send + Sync + 'static {
     document_id: &str,
     workspace_id: &str,
   ) -> Result<Option<DocumentData>, Error>;
+
+  async fn create_document_collab(
+    &self,
+    workspace_id: &str,
+    document_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error>;
 }
 
 pub struct DocumentSnapshot {

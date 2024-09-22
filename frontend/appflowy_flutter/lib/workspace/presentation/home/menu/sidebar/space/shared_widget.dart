@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
   const SpacePermissionSwitch({
@@ -322,11 +323,8 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 20.0,
-          horizontal: 20.0,
-        ),
-        color: PlatformExtension.isDesktop
+        padding: const EdgeInsets.all(20),
+        color: UniversalPlatform.isDesktop
             ? null
             : Theme.of(context).colorScheme.surface,
         child: Column(
@@ -474,10 +472,12 @@ class CurrentSpace extends StatelessWidget {
     super.key,
     this.onTapBlankArea,
     required this.space,
+    this.isHovered = false,
   });
 
   final ViewPB space;
   final VoidCallback? onTapBlankArea;
+  final bool isHovered;
 
   @override
   Widget build(BuildContext context) {
@@ -497,6 +497,7 @@ class CurrentSpace extends StatelessWidget {
             fontSize: 14.0,
             figmaLineHeight: 18.0,
             overflow: TextOverflow.ellipsis,
+            color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
           ),
         ),
         const HSpace(4.0),
@@ -504,6 +505,7 @@ class CurrentSpace extends StatelessWidget {
           context.read<SpaceBloc>().state.isExpanded
               ? FlowySvgs.workspace_drop_down_menu_show_s
               : FlowySvgs.workspace_drop_down_menu_hide_s,
+          color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
         ),
       ],
     );

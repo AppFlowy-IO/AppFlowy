@@ -91,6 +91,7 @@ class OutlinedRoundedButton extends StatelessWidget {
         text: FlowyText.regular(
           text,
           lineHeight: 1.0,
+          textAlign: TextAlign.center,
         ),
         onTap: onTap,
       ),

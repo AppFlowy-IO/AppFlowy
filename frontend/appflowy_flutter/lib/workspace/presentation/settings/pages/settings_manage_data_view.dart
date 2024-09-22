@@ -6,6 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/util/share_log_files.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/setting_file_importer_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
@@ -112,6 +113,20 @@ class SettingsManageDataView extends StatelessWidget {
                   ],
                 ),
               ],
+              SettingsCategory(
+                title: LocaleKeys.workspace_errorActions_exportLogFiles.tr(),
+                children: [
+                  SingleSettingAction(
+                    labelMaxLines: 4,
+                    label:
+                        LocaleKeys.workspace_errorActions_exportLogFiles.tr(),
+                    buttonLabel: LocaleKeys.settings_files_export.tr(),
+                    onPressed: () {
+                      shareLogFiles(context);
+                    },
+                  ),
+                ],
+              ),
               SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_cache_title.tr(),
                 children: [

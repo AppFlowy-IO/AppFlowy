@@ -86,6 +86,7 @@ class FieldInfo with _$FieldInfo {
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
       case FieldType.Checklist:
+      case FieldType.URL:
       case FieldType.Time:
         return true;
       default:

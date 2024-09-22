@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_events_screen.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -12,6 +11,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../application/calendar_bloc.dart';
@@ -65,14 +65,14 @@ class CalendarDayCard extends StatelessWidget {
                 const VSpace(6.0),
 
                 // List of cards or empty space
-                if (events.isNotEmpty && !PlatformExtension.isMobile) ...[
+                if (events.isNotEmpty && !UniversalPlatform.isMobile) ...[
                   _EventList(
                     events: events,
                     viewId: viewId,
                     rowCache: rowCache,
                     constraints: constraints,
                   ),
-                ] else if (events.isNotEmpty && PlatformExtension.isMobile) ...[
+                ] else if (events.isNotEmpty && UniversalPlatform.isMobile) ...[
                   const _EventIndicator(),
                 ],
               ],
@@ -82,7 +82,7 @@ class CalendarDayCard extends StatelessWidget {
               children: [
                 GestureDetector(
                   onDoubleTap: () => onCreateEvent(date),
-                  onTap: PlatformExtension.isMobile
+                  onTap: UniversalPlatform.isMobile
                       ? () => _mobileOnTap(context)
                       : null,
                   child: Container(
@@ -106,7 +106,7 @@ class CalendarDayCard extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 5.0),
                           child: child,
                         ),
-                        if (candidate.isEmpty && !PlatformExtension.isMobile)
+                        if (candidate.isEmpty && !UniversalPlatform.isMobile)
                           NewEventButton(
                             onCreate: () => onCreateEvent(date),
                           ),
@@ -303,16 +303,16 @@ class _DayBadge extends StatelessWidget {
       dayTextColor = Theme.of(context).colorScheme.onPrimary;
     }
 
-    final double size = PlatformExtension.isMobile ? 20 : 18;
+    final double size = UniversalPlatform.isMobile ? 20 : 18;
 
     return SizedBox(
       height: size,
       child: Row(
-        mainAxisAlignment: PlatformExtension.isMobile
+        mainAxisAlignment: UniversalPlatform.isMobile
             ? MainAxisAlignment.center
             : MainAxisAlignment.end,
         children: [
-          if (date.day == 1 && !PlatformExtension.isMobile)
+          if (date.day == 1 && !UniversalPlatform.isMobile)
             FlowyText.medium(
               monthString,
               fontSize: 11,
@@ -328,7 +328,7 @@ class _DayBadge extends StatelessWidget {
             child: Center(
               child: FlowyText.medium(
                 dayString,
-                fontSize: PlatformExtension.isMobile ? 12 : 11,
+                fontSize: UniversalPlatform.isMobile ? 12 : 11,
                 color: dayTextColor,
               ),
             ),

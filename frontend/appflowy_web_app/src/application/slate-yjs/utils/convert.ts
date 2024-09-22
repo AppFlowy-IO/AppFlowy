@@ -9,7 +9,7 @@ import {
   YTextMap,
   BlockData,
   BlockType,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { sortTableCells } from '@/application/slate-yjs/utils/table';
 import { BlockJson } from '@/application/slate-yjs/utils/types';
 import { TableCellNode } from '@/components/editor/editor.type';

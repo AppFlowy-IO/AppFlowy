@@ -1,13 +1,12 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
   CalculationChangesetNotificationPB, DatabaseViewSettingPB, FilterChangesetNotificationPB,
-  GroupChangesPB, GroupRenameNotificationPB, GroupRowsNotificationPB, InsertedRowPB,
-  ReorderAllRowsPB, ReorderSingleRowPB, RowMetaPB, RowsChangePB, RowsVisibilityChangePB,
-  SortChangesetNotificationPB,
+  GroupChangesPB, GroupRowsNotificationPB, ReorderAllRowsPB, ReorderSingleRowPB,
+  RowsVisibilityChangePB, SortChangesetNotificationPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
-use crate::services::sort::{InsertRowResult, ReorderAllRowsResult, ReorderSingleRowResult};
+use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast;
@@ -17,7 +16,6 @@ pub enum DatabaseViewChanged {
   FilterNotification(FilterResultNotification),
   ReorderAllRowsNotification(ReorderAllRowsResult),
   ReorderSingleRowNotification(ReorderSingleRowResult),
-  InsertRowNotification(InsertRowResult),
   CalculationValueNotification(CalculationChangesetNotificationPB),
 }
 
@@ -80,17 +78,6 @@ impl DatabaseViewChangedReceiverRunner {
             .payload(reorder_row)
             .send()
           },
-          DatabaseViewChanged::InsertRowNotification(result) => {
-            let inserted_row = InsertedRowPB {
-              row_meta: RowMetaPB::from(result.row),
-              index: Some(result.index as i32),
-              is_new: true,
-            };
-            let changes = RowsChangePB::from_insert(inserted_row);
-            send_notification(&result.view_id, DatabaseNotification::DidUpdateRow)
-              .payload(changes)
-              .send();
-          },
           DatabaseViewChanged::CalculationValueNotification(notification) => send_notification(
             &notification.view_id,
             DatabaseNotification::DidUpdateCalculation,
@@ -135,15 +122,6 @@ pub async fn notify_did_update_sort(notification: SortChangesetNotificationPB) {
 pub(crate) async fn notify_did_update_num_of_groups(view_id: &str, changeset: GroupChangesPB) {
   send_notification(view_id, DatabaseNotification::DidUpdateNumOfGroups)
     .payload(changeset)
-    .send();
-}
-
-pub(crate) async fn notify_did_rename_group(
-  view_id: &str,
-  notification: GroupRenameNotificationPB,
-) {
-  send_notification(view_id, DatabaseNotification::DidRenameGroup)
-    .payload(notification)
     .send();
 }
 

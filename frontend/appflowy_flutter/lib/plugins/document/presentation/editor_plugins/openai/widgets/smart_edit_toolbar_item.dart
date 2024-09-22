@@ -59,6 +59,7 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
   @override
   Widget build(BuildContext context) {
     return PopoverActionList<SmartEditActionWrapper>(
+      offset: const Offset(-5, 5),
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: SmartEditAction.values
           .map((action) => SmartEditActionWrapper(action))
@@ -120,10 +121,10 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
     if (selection == null) {
       return;
     }
-    final input = widget.editorState.getTextInSelection(selection);
-    while (input.last.isEmpty) {
-      input.removeLast();
-    }
+
+    // support multiple paragraphs
+    final input = _getTextInSelection(selection);
+
     final transaction = widget.editorState.transaction;
     transaction.insertNode(
       selection.normalized.end.path.next,
@@ -139,5 +140,25 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       ),
       withUpdateSelection: false,
     );
+  }
+
+  List<String> _getTextInSelection(
+    Selection selection,
+  ) {
+    final res = <String>[];
+    if (selection.isCollapsed) {
+      return res;
+    }
+    final nodes = widget.editorState.getNodesInSelection(selection);
+    for (final node in nodes) {
+      final delta = node.delta;
+      if (delta == null) {
+        continue;
+      }
+      final startIndex = node == nodes.first ? selection.startIndex : 0;
+      final endIndex = node == nodes.last ? selection.endIndex : delta.length;
+      res.add(delta.slice(startIndex, endIndex).toPlainText());
+    }
+    return res;
   }
 }

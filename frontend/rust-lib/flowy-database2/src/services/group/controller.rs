@@ -4,11 +4,10 @@ use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowId};
-use futures::executor::block_on;
+use flowy_error::{FlowyError, FlowyResult};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-
-use flowy_error::{FlowyError, FlowyResult};
+use tracing::trace;
 
 use crate::entities::{
   FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
@@ -63,8 +62,7 @@ where
       .get_type_option::<T>(&field_type)
       .unwrap_or_else(|| T::from(default_type_option_data_from_type(field_type)));
 
-    // TODO(nathan): remove block_on
-    let generated_groups = block_on(G::build(grouping_field, &configuration, &type_option));
+    let generated_groups = G::build(grouping_field, &configuration, &type_option).await;
     let _ = configuration.init_groups(generated_groups)?;
 
     Ok(Self {
@@ -115,7 +113,7 @@ where
     if !no_status_group_rows.is_empty() {
       changeset
         .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(row.clone())));
+        .push(InsertedRowPB::new(RowMetaPB::from(row)));
       no_status_group.add_row(row.clone());
     }
 
@@ -239,16 +237,14 @@ where
 
     if let Some(cell) = cell {
       let cell_data = <T as TypeOption>::CellData::from(&cell);
-
       let mut suitable_group_ids = vec![];
-
       for group in self.get_all_groups() {
         if self.can_group(&group.id, &cell_data) {
           suitable_group_ids.push(group.id.clone());
           let changeset = GroupRowsNotificationPB::insert(
             group.id.clone(),
             vec![InsertedRowPB {
-              row_meta: (*row).clone().into(),
+              row_meta: row.into(),
               index: Some(index as i32),
               is_new: true,
             }],
@@ -267,7 +263,7 @@ where
         let changeset = GroupRowsNotificationPB::insert(
           no_status_group.id.clone(),
           vec![InsertedRowPB {
-            row_meta: (*row).clone().into(),
+            row_meta: row.into(),
             index: Some(index as i32),
             is_new: true,
           }],
@@ -312,11 +308,13 @@ where
   }
 
   fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
+    trace!("[RowOrder]: group did_delete_row: {:?}", row.id);
     let mut result = DidMoveGroupRowResult {
       deleted_group: None,
       row_changesets: vec![],
     };
-    // early return if the row is not in the default group
+
+    // remove row from its group if it is in a group
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
       let cell_data = <T as TypeOption>::CellData::from(cell);
       if !cell_data.is_cell_empty() {
@@ -325,6 +323,7 @@ where
       }
     }
 
+    // when the deleted row is not in current group. It should be in the no status group
     match self.context.get_mut_no_status_group() {
       None => {
         tracing::error!("Unexpected None value. It should have the no status group");
@@ -357,7 +356,7 @@ where
     if let Some(cell) = cell {
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
-      result.deleted_group = self.delete_group_when_move_row(context.row, &cell_data);
+      result.deleted_group = self.delete_group_after_moving_row(context.row, &cell_data);
       result.row_changesets = self.move_row(context);
     } else {
       tracing::warn!("Unexpected moving group row, changes should not be empty");
@@ -425,31 +424,6 @@ where
 
     Ok((
       updated_groups,
-      updated_type_option.map(|type_option| type_option.into()),
-    ))
-  }
-
-  async fn apply_group_rename(
-    &mut self,
-    changeset: &GroupChangeset,
-  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)> {
-    let type_option = self.get_grouping_field_type_option().await.ok_or_else(|| {
-      FlowyError::internal().with_context("Failed to get grouping field type option")
-    })?;
-
-    let mut updated_type_option = None;
-
-    if let Some(type_option) = self.update_type_option_when_update_group(changeset, &type_option) {
-      updated_type_option = Some(type_option);
-    }
-
-    let updated_group = self
-      .get_group(&changeset.group_id)
-      .map(|(_, group)| GroupPB::from(group))
-      .ok_or_else(|| FlowyError::internal().with_context("Failed to get group"))?;
-
-    Ok((
-      updated_group,
       updated_type_option.map(|type_option| type_option.into()),
     ))
   }

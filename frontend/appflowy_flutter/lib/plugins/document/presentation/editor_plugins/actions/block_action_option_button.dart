@@ -1,48 +1,59 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
-class BlockOptionButton extends StatelessWidget {
+import 'drag_to_reorder/draggable_option_button.dart';
+
+class BlockOptionButton extends StatefulWidget {
   const BlockOptionButton({
     super.key,
     required this.blockComponentContext,
     required this.blockComponentState,
     required this.actions,
     required this.editorState,
+    required this.blockComponentBuilder,
   });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
   final List<OptionAction> actions;
   final EditorState editorState;
+  final Map<String, BlockComponentBuilder> blockComponentBuilder;
 
   @override
-  Widget build(BuildContext context) {
-    final popoverActions = actions.map((e) {
+  State<BlockOptionButton> createState() => _BlockOptionButtonState();
+}
+
+class _BlockOptionButtonState extends State<BlockOptionButton> {
+  late final List<PopoverAction> popoverActions;
+
+  @override
+  void initState() {
+    super.initState();
+
+    popoverActions = widget.actions.map((e) {
       switch (e) {
         case OptionAction.divider:
           return DividerOptionAction();
         case OptionAction.color:
-          return ColorOptionAction(editorState: editorState);
+          return ColorOptionAction(editorState: widget.editorState);
         case OptionAction.align:
-          return AlignOptionAction(editorState: editorState);
+          return AlignOptionAction(editorState: widget.editorState);
         case OptionAction.depth:
-          return DepthOptionAction(editorState: editorState);
+          return DepthOptionAction(editorState: widget.editorState);
         default:
           return OptionActionWrapper(e);
       }
     }).toList();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return PopoverActionList<PopoverAction>(
       popoverMutex: PopoverMutex(),
       direction:
@@ -53,13 +64,13 @@ class BlockOptionButton extends StatelessWidget {
       actions: popoverActions,
       onPopupBuilder: () {
         keepEditorFocusNotifier.increase();
-        blockComponentState.alwaysShowActions = true;
+        widget.blockComponentState.alwaysShowActions = true;
       },
       onClosed: () {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          editorState.selectionType = null;
-          editorState.selection = null;
-          blockComponentState.alwaysShowActions = false;
+          widget.editorState.selectionType = null;
+          widget.editorState.selection = null;
+          widget.blockComponentState.alwaysShowActions = false;
           keepEditorFocusNotifier.decrease();
         });
       },
@@ -69,62 +80,18 @@ class BlockOptionButton extends StatelessWidget {
           controller.close();
         }
       },
-      buildChild: (controller) => _buildOptionButton(context, controller),
-    );
-  }
-
-  Widget _buildOptionButton(
-    BuildContext context,
-    PopoverController controller,
-  ) {
-    return BlockActionButton(
-      svg: FlowySvgs.drag_element_s,
-      richMessage: TextSpan(
-        children: [
-          TextSpan(
-            // todo: customize the color to highlight the text.
-            text: LocaleKeys.document_plugins_optionAction_click.tr(),
-            style: context.tooltipTextStyle(),
-          ),
-          TextSpan(
-            text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
-            style: context.tooltipTextStyle(),
-          ),
-        ],
+      buildChild: (controller) => DraggableOptionButton(
+        controller: controller,
+        editorState: widget.editorState,
+        blockComponentContext: widget.blockComponentContext,
+        blockComponentBuilder: widget.blockComponentBuilder,
       ),
-      onTap: () {
-        controller.show();
-
-        // update selection
-        _updateBlockSelection();
-      },
-    );
-  }
-
-  void _updateBlockSelection() {
-    final startNode = blockComponentContext.node;
-    var endNode = startNode;
-    while (endNode.children.isNotEmpty) {
-      endNode = endNode.children.last;
-    }
-
-    final start = Position(path: startNode.path);
-    final end = endNode.selectable?.end() ??
-        Position(
-          path: endNode.path,
-          offset: endNode.delta?.length ?? 0,
-        );
-
-    editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection(
-      start: start,
-      end: end,
     );
   }
 
   void _onSelectAction(BuildContext context, OptionAction action) {
-    final node = blockComponentContext.node;
-    final transaction = editorState.transaction;
+    final node = widget.blockComponentContext.node;
+    final transaction = widget.editorState.transaction;
     switch (action) {
       case OptionAction.delete:
         transaction.deleteNode(node);
@@ -146,7 +113,7 @@ class BlockOptionButton extends StatelessWidget {
       case OptionAction.depth:
         throw UnimplementedError();
     }
-    editorState.apply(transaction);
+    widget.editorState.apply(transaction);
   }
 
   void _duplicateBlock(
@@ -156,8 +123,7 @@ class BlockOptionButton extends StatelessWidget {
   ) {
     // 1. verify the node integrity
     final type = node.type;
-    final builder =
-        context.read<EditorState>().renderer.blockComponentBuilder(type);
+    final builder = widget.editorState.renderer.blockComponentBuilder(type);
 
     if (builder == null) {
       Log.error('Block type $type is not supported');
@@ -184,8 +150,7 @@ class BlockOptionButton extends StatelessWidget {
     Node copiedNode = node.copyWith();
 
     final type = node.type;
-    final builder =
-        context.read<EditorState>().renderer.blockComponentBuilder(type);
+    final builder = widget.editorState.renderer.blockComponentBuilder(type);
 
     if (builder == null) {
       Log.error('Block type $type is not supported');

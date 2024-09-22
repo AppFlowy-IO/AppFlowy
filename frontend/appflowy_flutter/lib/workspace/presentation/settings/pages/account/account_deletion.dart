@@ -2,18 +2,17 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const _confirmText = 'DELETE MY ACCOUNT';
 const _acceptableConfirmTexts = [
@@ -194,7 +193,7 @@ Future<void> deleteMyAccount(
   VoidCallback? onSuccess,
   VoidCallback? onFailure,
 }) async {
-  final bottomPadding = PlatformExtension.isMobile
+  final bottomPadding = UniversalPlatform.isMobile
       ? MediaQuery.of(context).viewInsets.bottom
       : 0.0;
 
@@ -209,7 +208,6 @@ Future<void> deleteMyAccount(
     );
     return;
   }
-
   if (!context.mounted) {
     return;
   }
@@ -238,7 +236,6 @@ Future<void> deleteMyAccount(
         message: LocaleKeys
             .newSettings_myAccount_deleteAccount_deleteAccountSuccess
             .tr(),
-        bottomPadding: bottomPadding,
       );
 
       // delay 1 second to make sure the toast notification is shown
@@ -246,7 +243,6 @@ Future<void> deleteMyAccount(
         onSuccess?.call();
 
         // restart the application
-        await getIt<AuthService>().signOut();
         await runAppFlowy();
       });
     },

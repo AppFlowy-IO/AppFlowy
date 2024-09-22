@@ -4,7 +4,6 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
-
 use flowy_error::FlowyResult;
 
 use crate::entities::FieldType;
@@ -37,36 +36,15 @@ pub struct GeneratedGroups {
 
 pub struct MoveGroupRowContext<'a> {
   pub row: &'a Row,
-  pub row_changeset: &'a mut RowChangeset,
+  pub updated_cells: &'a mut UpdatedCells,
   pub field: &'a Field,
   pub to_group_id: &'a str,
   pub to_row_id: Option<RowId>,
 }
 
-#[derive(Debug, Clone)]
-pub struct RowChangeset {
-  pub row_id: RowId,
-  pub height: Option<i32>,
-  pub visibility: Option<bool>,
-  // Contains the key/value changes represents as the update of the cells. For example,
-  // if there is one cell was changed, then the `cell_by_field_id` will only have one key/value.
-  pub cell_by_field_id: HashMap<String, Cell>,
-}
-
-impl RowChangeset {
-  pub fn new(row_id: RowId) -> Self {
-    Self {
-      row_id,
-      height: None,
-      visibility: None,
-      cell_by_field_id: Default::default(),
-    }
-  }
-
-  pub fn is_empty(&self) -> bool {
-    self.height.is_none() && self.visibility.is_none() && self.cell_by_field_id.is_empty()
-  }
-}
+/// A map of the updated cells.
+/// The key is the field id, the value is the updated cell.
+pub type UpdatedCells = HashMap<String, Cell>;
 
 /// Returns a group controller.
 ///
@@ -165,14 +143,18 @@ where
 
   // Separates the rows into different groups
   let row_details = delegate.get_all_rows(view_id).await;
-
   let rows = row_details
     .iter()
     .map(|row| row.as_ref())
     .collect::<Vec<_>>();
 
   group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
-
+  #[cfg(feature = "verbose_log")]
+  {
+    for group in group_controller.get_all_groups() {
+      tracing::trace!("[Database]: group: {}", group);
+    }
+  }
   Ok(group_controller)
 }
 

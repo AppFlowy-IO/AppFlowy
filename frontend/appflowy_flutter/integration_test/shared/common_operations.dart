@@ -1,10 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -35,6 +30,10 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'emoji.dart';
@@ -53,6 +52,14 @@ extension CommonOperations on WidgetTester {
       await tapButton(anonymousButton);
     }
 
+    if (Platform.isWindows) {
+      await pumpAndSettle(const Duration(milliseconds: 200));
+    }
+  }
+
+  Future<void> tapContinousAnotherWay() async {
+    // local version
+    await tapButtonWithName(LocaleKeys.signIn_continueAnotherWay.tr());
     if (Platform.isWindows) {
       await pumpAndSettle(const Duration(milliseconds: 200));
     }
@@ -572,8 +579,7 @@ extension CommonOperations on WidgetTester {
 
   Future<void> openMoreViewActions() async {
     final button = find.byType(MoreViewActions);
-    await tap(button);
-    await pumpAndSettle();
+    await tapButton(button);
   }
 
   /// Presses on the Duplicate ViewAction in the [MoreViewActions] popup.
@@ -581,12 +587,9 @@ extension CommonOperations on WidgetTester {
   /// [openMoreViewActions] must be called beforehand!
   ///
   Future<void> duplicateByMoreViewActions() async {
-    final button = find.descendant(
-      of: find.byType(ListView),
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is ViewAction && widget.type == ViewActionType.duplicate,
-      ),
+    final button = find.byWidgetPredicate(
+      (widget) =>
+          widget is ViewAction && widget.type == ViewMoreActionType.duplicate,
     );
     await tap(button);
     await pump();
@@ -601,7 +604,7 @@ extension CommonOperations on WidgetTester {
       of: find.byType(ListView),
       matching: find.byWidgetPredicate(
         (widget) =>
-            widget is ViewAction && widget.type == ViewActionType.delete,
+            widget is ViewAction && widget.type == ViewMoreActionType.delete,
       ),
     );
     await tap(button);

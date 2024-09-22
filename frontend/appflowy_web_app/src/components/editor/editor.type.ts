@@ -18,7 +18,7 @@ import {
   BlockData,
   DatabaseNodeData,
   LinkPreviewBlockData, FileBlockData, GalleryBlockData,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
 

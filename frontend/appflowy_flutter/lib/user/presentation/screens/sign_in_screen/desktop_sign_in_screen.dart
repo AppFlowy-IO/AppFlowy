@@ -1,15 +1,16 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/settings/show_settings.dart';
 import 'package:appflowy/shared/window_title_bar.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DesktopSignInScreen extends StatelessWidget {
   const DesktopSignInScreen({
@@ -63,8 +64,15 @@ class DesktopSignInScreen extends StatelessWidget {
 
                 const Spacer(),
 
-                // anonymous sign in
-                const SignInAnonymousButtonV2(),
+                // anonymous sign in and settings
+                const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _SettingsButton(),
+                    HSpace(42),
+                    SignInAnonymousButtonV2(),
+                  ],
+                ),
                 const VSpace(16),
               ],
             ),
@@ -76,10 +84,32 @@ class DesktopSignInScreen extends StatelessWidget {
 
   PreferredSize _buildAppBar() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(PlatformExtension.isWindows ? 40 : 60),
-      child: PlatformExtension.isWindows
+      preferredSize: Size.fromHeight(UniversalPlatform.isWindows ? 40 : 60),
+      child: UniversalPlatform.isWindows
           ? const WindowTitleBar()
           : const MoveWindowDetector(),
+    );
+  }
+}
+
+class _SettingsButton extends StatelessWidget {
+  const _SettingsButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: FlowyText(
+        LocaleKeys.signIn_settings.tr(),
+        textAlign: TextAlign.center,
+        fontSize: 12.0,
+        // fontWeight: FontWeight.w500,
+        color: Colors.grey,
+        decoration: TextDecoration.underline,
+      ),
+      onTap: () {
+        showSimpleSettingsDialog(context);
+      },
     );
   }
 }

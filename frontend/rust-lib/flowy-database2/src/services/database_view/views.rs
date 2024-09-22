@@ -37,7 +37,7 @@ impl DatabaseViews {
     })
   }
 
-  pub async fn close_view(&self, view_id: &str) {
+  pub async fn remove_view(&self, view_id: &str) {
     let mut lock_guard = self.view_editors.write().await;
     if let Some(view) = lock_guard.remove(view_id) {
       view.close().await;
@@ -52,16 +52,17 @@ impl DatabaseViews {
     self.view_editors.read().await.values().cloned().collect()
   }
 
-  pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseViewEditor>> {
+  pub async fn get_or_init_view_editor(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<Arc<DatabaseViewEditor>> {
     debug_assert!(!view_id.is_empty());
     if let Some(editor) = self.view_editors.read().await.get(view_id) {
       return Ok(editor.clone());
     }
 
-    //FIXME: not thread-safe
     let mut editor_map = self.view_editors.write().await;
     let database_id = self.database.read().await.get_database_id();
-    //FIXME: that method below is not Send+Sync
     let editor = Arc::new(
       DatabaseViewEditor::new(
         database_id,
@@ -73,6 +74,10 @@ impl DatabaseViews {
     );
     editor_map.insert(view_id.to_owned(), editor.clone());
     Ok(editor)
+  }
+
+  pub async fn get_view_editor(&self, view_id: &str) -> Option<Arc<DatabaseViewEditor>> {
+    self.view_editors.read().await.get(view_id).cloned()
   }
 }
 

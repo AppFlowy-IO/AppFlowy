@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { FieldType } from '@/application/database-yjs/database.type';
 import { Column, useFieldSelector } from '@/application/database-yjs/selector';
 import { FieldTypeIcon } from '@/components/database/components/field';
@@ -33,7 +33,7 @@ export function GridColumn ({ column, index }: { column: Column; index: number }
           <FieldTypeIcon type={type} className={'mr-1 w-4 h-4 icon'} />
         </div>
         <div className={'flex-1'}>{name}</div>
-        {isAIField && <AIIndicatorSvg className={'text-xl'} />}
+        {isAIField && <AIIndicatorSvg className={'text-xl w-4 h-4'} />}
       </div>
     </Tooltip>
   );

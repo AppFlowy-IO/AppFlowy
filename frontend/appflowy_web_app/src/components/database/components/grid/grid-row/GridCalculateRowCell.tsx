@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { useDatabaseView } from '@/application/database-yjs';
 import { CalculationType } from '@/application/database-yjs/database.type';
 import { CalculationCell, ICalculationCell } from '../grid-calculation-cell';

@@ -1,4 +1,4 @@
-import { CollabType } from '@/application/collab.type';
+import { Types } from '@/application/types';
 import { withTestingYDoc } from '@/application/slate-yjs/__tests__/withTestingYjsEditor';
 import { expect } from '@jest/globals';
 import { collabTypeToDBType, getPublishView, getPublishViewMeta } from '@/application/services/js-services/cache';
@@ -22,25 +22,25 @@ jest.mock('@/application/db', () => ({
 const normalDoc = withTestingYDoc('1');
 const mockFetcher = jest.fn();
 
-async function runTestWithStrategy(strategy: StrategyType) {
+async function runTestWithStrategy (strategy: StrategyType) {
   return getPublishView(
     mockFetcher,
     {
       namespace: 'appflowy',
       publishName: 'test',
     },
-    strategy
+    strategy,
   );
 }
 
-async function runGetPublishViewMetaWithStrategy(strategy: StrategyType) {
+async function runGetPublishViewMetaWithStrategy (strategy: StrategyType) {
   return getPublishViewMeta(
     mockFetcher,
     {
       namespace: 'appflowy',
       publishName: 'test',
     },
-    strategy
+    strategy,
   );
 }
 
@@ -68,14 +68,14 @@ describe('Cache functions', () => {
       (db.view_metas.get as jest.Mock).mockResolvedValue({ view_id: '1' });
       mockFetcher.mockResolvedValue({ data: [1, 2, 3], meta: { metadata: { view: { id: '1' } } } });
       await runTestWithStrategy(StrategyType.CACHE_ONLY);
-      expect(openCollabDB).toBeCalledTimes(2);
+      expect(openCollabDB).toBeCalledTimes(1);
 
       await runTestWithStrategy(StrategyType.CACHE_FIRST);
-      expect(openCollabDB).toBeCalledTimes(4);
+      expect(openCollabDB).toBeCalledTimes(2);
       expect(mockFetcher).toBeCalledTimes(0);
 
       await runTestWithStrategy(StrategyType.CACHE_AND_NETWORK);
-      expect(openCollabDB).toBeCalledTimes(6);
+      expect(openCollabDB).toBeCalledTimes(3);
       expect(mockFetcher).toBeCalledTimes(1);
     });
   });
@@ -115,12 +115,12 @@ describe('Cache functions', () => {
 
 describe('collabTypeToDBType', () => {
   it('should return correct DB type', () => {
-    expect(collabTypeToDBType(CollabType.Document)).toBe('document');
-    expect(collabTypeToDBType(CollabType.Folder)).toBe('folder');
-    expect(collabTypeToDBType(CollabType.Database)).toBe('database');
-    expect(collabTypeToDBType(CollabType.WorkspaceDatabase)).toBe('databases');
-    expect(collabTypeToDBType(CollabType.DatabaseRow)).toBe('database_row');
-    expect(collabTypeToDBType(CollabType.UserAwareness)).toBe('user_awareness');
-    expect(collabTypeToDBType(CollabType.Empty)).toBe('');
+    expect(collabTypeToDBType(Types.Document)).toBe('document');
+    expect(collabTypeToDBType(Types.Folder)).toBe('folder');
+    expect(collabTypeToDBType(Types.Database)).toBe('database');
+    expect(collabTypeToDBType(Types.WorkspaceDatabase)).toBe('databases');
+    expect(collabTypeToDBType(Types.DatabaseRow)).toBe('database_row');
+    expect(collabTypeToDBType(Types.UserAwareness)).toBe('user_awareness');
+    expect(collabTypeToDBType(Types.Empty)).toBe('');
   });
 });

@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -58,7 +60,15 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
             emit(state.copyWith(files: files));
           },
           didUpdateField: (fieldName) {
-            emit(state.copyWith(fieldName: fieldName));
+            final typeOption =
+                cellController.getTypeOption(MediaTypeOptionDataParser());
+
+            emit(
+              state.copyWith(
+                fieldName: fieldName,
+                hideFileNames: typeOption.hideFileNames,
+              ),
+            );
           },
           addFile: (url, name, uploadType, fileType) async {
             final newFile = MediaFilePB(
@@ -140,6 +150,9 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
             final result = await DatabaseEventRenameMediaFile(payload).send();
             result.fold((l) => null, (err) => Log.error(err));
           },
+          toggleShowAllFiles: () {
+            emit(state.copyWith(showAllFiles: !state.showAllFiles));
+          },
         );
       },
     );
@@ -182,7 +195,7 @@ class MediaCellEvent with _$MediaCellEvent {
   const factory MediaCellEvent.addFile({
     required String url,
     required String name,
-    required MediaUploadTypePB uploadType,
+    required FileUploadTypePB uploadType,
     required MediaFileTypePB fileType,
   }) = _AddFile;
 
@@ -199,6 +212,8 @@ class MediaCellEvent with _$MediaCellEvent {
     required String fileId,
     required String name,
   }) = _RenameFile;
+
+  const factory MediaCellEvent.toggleShowAllFiles() = _ToggleShowAllFiles;
 }
 
 @freezed
@@ -207,14 +222,19 @@ class MediaCellState with _$MediaCellState {
     UserProfilePB? userProfile,
     required String fieldName,
     @Default([]) List<MediaFilePB> files,
+    @Default(false) showAllFiles,
+    @Default(false) hideFileNames,
   }) = _MediaCellState;
 
   factory MediaCellState.initial(MediaCellController cellController) {
     final cellData = cellController.getCellData();
+    final typeOption =
+        cellController.getTypeOption(MediaTypeOptionDataParser());
 
     return MediaCellState(
       fieldName: cellController.fieldInfo.field.name,
       files: cellData?.files ?? const [],
+      hideFileNames: typeOption.hideFileNames,
     );
   }
 }

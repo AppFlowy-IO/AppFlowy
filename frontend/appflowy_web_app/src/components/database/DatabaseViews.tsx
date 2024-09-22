@@ -1,6 +1,8 @@
-import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/collab.type';
+import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/types';
 import { useDatabaseViewsSelector } from '@/application/database-yjs';
-import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
+import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
+import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { Board } from '@/components/database/board';
 import { Calendar } from '@/components/database/calendar';
 import { DatabaseConditionsContext } from '@/components/database/components/conditions/context';
@@ -11,7 +13,7 @@ import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import DatabaseConditions from 'src/components/database/components/conditions/DatabaseConditions';
 
-function DatabaseViews({
+function DatabaseViews ({
   onChangeView,
   viewId,
   iidIndex,
@@ -31,7 +33,7 @@ function DatabaseViews({
   const value = useMemo(() => {
     return Math.max(
       0,
-      viewIds.findIndex((id) => id === viewId)
+      viewIds.findIndex((id) => id === viewId),
     );
   }, [viewId, viewIds]);
 
@@ -60,6 +62,19 @@ function DatabaseViews({
     }
   }, [layout]);
 
+  const skeleton = useMemo(() => {
+    switch (layout) {
+      case DatabaseViewLayout.Grid:
+        return <GridSkeleton includeTitle={false} includeTabs={false} />;
+      case DatabaseViewLayout.Board:
+        return <KanbanSkeleton includeTitle={false} includeTabs={false} />;
+      case DatabaseViewLayout.Calendar:
+        return <CalendarSkeleton includeTitle={false} includeTabs={false} />;
+      default:
+        return null;
+    }
+  }, [layout]);
+
   return (
     <>
       <DatabaseConditionsContext.Provider
@@ -79,7 +94,7 @@ function DatabaseViews({
         {layout === DatabaseViewLayout.Calendar || hideConditions ? null : <DatabaseConditions />}
       </DatabaseConditionsContext.Provider>
       <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
-        <Suspense fallback={<ComponentLoading />}>
+        <Suspense fallback={skeleton}>
           <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
         </Suspense>
       </div>

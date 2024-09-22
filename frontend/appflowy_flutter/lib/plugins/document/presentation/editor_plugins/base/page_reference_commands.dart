@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const _bracketChar = '[';
 const _plusChar = '+';
@@ -54,7 +54,7 @@ Future<bool> inlinePageReferenceCommandHandler(
   String? previousChar,
 }) async {
   final selection = editorState.selection;
-  if (PlatformExtension.isMobile || selection == null) {
+  if (UniversalPlatform.isMobile || selection == null) {
     return false;
   }
 

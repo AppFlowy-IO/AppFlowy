@@ -1,5 +1,5 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/widgets.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class GridSize {
   static double scale = 1;
@@ -9,7 +9,7 @@ class GridSize {
   static double get buttonHeight => 38 * scale;
   static double get footerHeight => 40 * scale;
   static double get horizontalHeaderPadding =>
-      PlatformExtension.isDesktop ? 40 * scale : 16 * scale;
+      UniversalPlatform.isDesktop ? 40 * scale : 16 * scale;
   static double get trailHeaderPadding => 140 * scale;
   static double get cellHPadding => 10 * scale;
   static double get cellVPadding => 10 * scale;
@@ -36,8 +36,8 @@ class GridSize {
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         GridSize.horizontalHeaderPadding,
         0,
-        PlatformExtension.isMobile ? GridSize.horizontalHeaderPadding : 0,
-        PlatformExtension.isMobile ? 100 : 0,
+        UniversalPlatform.isMobile ? GridSize.horizontalHeaderPadding : 0,
+        UniversalPlatform.isMobile ? 100 : 0,
       );
 
   static EdgeInsets get contentInsets => EdgeInsets.symmetric(

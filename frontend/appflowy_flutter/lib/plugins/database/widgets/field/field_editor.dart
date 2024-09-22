@@ -196,6 +196,7 @@ class FieldActionCell extends StatelessWidget {
     }
 
     return FlowyButton(
+      resetHoverOnRebuild: false,
       disable: !enable,
       text: FlowyText.medium(
         action.title(fieldInfo),

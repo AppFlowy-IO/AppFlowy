@@ -47,6 +47,14 @@ pub trait DatabaseCloudService: Send + Sync {
     workspace_id: &str,
   ) -> Result<Option<EncodedCollab>, Error>;
 
+  async fn create_database_encode_collab(
+    &self,
+    object_id: &str,
+    collab_type: CollabType,
+    workspace_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), Error>;
+
   async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,

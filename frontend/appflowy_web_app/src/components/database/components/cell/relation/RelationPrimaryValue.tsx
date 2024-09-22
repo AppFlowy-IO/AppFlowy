@@ -1,4 +1,4 @@
-import { FieldId, YDatabaseCell, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { FieldId, YDatabaseCell, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 import { FieldType } from '@/application/database-yjs';
 import { parseYDatabaseCellToCell } from '@/application/database-yjs/cell.parse';
 import React, { useEffect, useState } from 'react';

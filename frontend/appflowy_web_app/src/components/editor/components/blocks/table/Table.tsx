@@ -1,4 +1,5 @@
 import { EditorElementProps, TableCellNode, TableNode } from '@/components/editor/editor.type';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import { getScrollParent } from '@/components/global-comment/utils';
 import React, { forwardRef, memo, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Grid } from '@atlaskit/primitives';
@@ -8,9 +9,11 @@ import { ReactEditor, useSlateStatic } from 'slate-react';
 
 const Table = memo(
   forwardRef<HTMLDivElement, EditorElementProps<TableNode>>(({ node, children, className, ...attributes }, ref) => {
+    const context = useEditorContext();
+    const readSummary = context.readSummary;
     const { rowsLen, colsLen, rowDefaultHeight, colsHeight } = node.data;
     const cells = node.children as TableCellNode[];
-    const [width, setWidth] = React.useState(0);
+    const [width, setWidth] = React.useState<number | undefined>(undefined);
     const offsetLeftRef = useRef(0);
 
     const columnGroup = useMemo(() => {
@@ -44,7 +47,6 @@ const Table = memo(
     const editor = useSlateStatic();
 
     const calcTableWidth = useCallback((editorDom: HTMLElement, scrollContainer: HTMLElement) => {
-
       const scrollRect = scrollContainer.getBoundingClientRect();
 
       setWidth(scrollRect.width);
@@ -52,6 +54,7 @@ const Table = memo(
     }, []);
 
     useEffect(() => {
+      if (readSummary) return;
       const editorDom = ReactEditor.toDOMNode(editor, editor);
       const scrollContainer = getScrollParent(editorDom) as HTMLElement;
 
@@ -67,7 +70,7 @@ const Table = memo(
       return () => {
         resizeObserver.disconnect();
       };
-    }, [calcTableWidth, editor]);
+    }, [calcTableWidth, editor, readSummary]);
 
     return (
       <div
@@ -82,15 +85,16 @@ const Table = memo(
           left: -offsetLeftRef.current,
         }}
       >
-        <div className={'h-full w-full overflow-x-auto overflow-y-hidden'} style={{
+        <div
+          className={'h-full w-full overflow-x-auto overflow-y-hidden'} style={{
           paddingLeft: offsetLeftRef.current + 'px',
         }}
         >
           <Grid
             id={`table-${node.blockId}`}
-            rowGap="space.0"
-            autoFlow="column"
-            columnGap="space.0"
+            rowGap='space.0'
+            autoFlow='column'
+            columnGap='space.0'
             templateRows={templateRows}
             templateColumns={templateColumns}
           >

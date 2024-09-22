@@ -1,4 +1,5 @@
 import {
+  RowId,
   YDatabaseFields,
   YDatabaseFilter,
   YDatabaseFilters,
@@ -6,7 +7,7 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { FieldType } from '@/application/database-yjs/database.type';
 import {
   CheckboxFilter,
@@ -24,10 +25,9 @@ import {
 } from '@/application/database-yjs/fields';
 import { Row } from '@/application/database-yjs/selector';
 import Decimal from 'decimal.js';
-import * as Y from 'yjs';
 import { every, filter, some } from 'lodash-es';
 
-export function parseFilter(fieldType: FieldType, filter: YDatabaseFilter) {
+export function parseFilter (fieldType: FieldType, filter: YDatabaseFilter) {
   const fieldId = filter.get(YjsDatabaseKey.field_id);
   const filterType = Number(filter.get(YjsDatabaseKey.filter_type));
   const id = filter.get(YjsDatabaseKey.id);
@@ -70,16 +70,16 @@ export function parseFilter(fieldType: FieldType, filter: YDatabaseFilter) {
   return value;
 }
 
-function createPredicate(conditions: ((row: Row) => boolean)[]) {
+function createPredicate (conditions: ((row: Row) => boolean)[]) {
   return function (item: Row) {
     return every(conditions, (condition) => condition(item));
   };
 }
 
-export function filterBy(rows: Row[], filters: YDatabaseFilters, fields: YDatabaseFields, rowMetas: Y.Map<YDoc>) {
+export function filterBy (rows: Row[], filters: YDatabaseFilters, fields: YDatabaseFields, rowMetas: Record<RowId, YDoc>) {
   const filterArray = filters.toArray();
 
-  if (filterArray.length === 0 || rowMetas.size === 0 || fields.size === 0) return rows;
+  if (filterArray.length === 0 || Object.keys(rowMetas).length === 0 || fields.size === 0) return rows;
 
   const conditions = filterArray.map((filter) => {
     return (row: { id: string }) => {
@@ -87,7 +87,7 @@ export function filterBy(rows: Row[], filters: YDatabaseFilters, fields: YDataba
       const field = fields.get(fieldId);
       const fieldType = Number(field.get(YjsDatabaseKey.type));
       const rowId = row.id;
-      const rowMeta = rowMetas.get(rowId);
+      const rowMeta = rowMetas[rowId];
 
       if (!rowMeta) return false;
       const filterValue = parseFilter(fieldType, filter);
@@ -124,7 +124,7 @@ export function filterBy(rows: Row[], filters: YDatabaseFilters, fields: YDataba
   return filter(rows, predicate);
 }
 
-export function textFilterCheck(data: string, content: string, condition: TextFilterCondition) {
+export function textFilterCheck (data: string, content: string, condition: TextFilterCondition) {
   switch (condition) {
     case TextFilterCondition.TextContains:
       return data.includes(content);
@@ -143,7 +143,7 @@ export function textFilterCheck(data: string, content: string, condition: TextFi
   }
 }
 
-export function numberFilterCheck(data: string, content: string, condition: number) {
+export function numberFilterCheck (data: string, content: string, condition: number) {
   if (isNaN(Number(data)) || isNaN(Number(content)) || data === '' || content === '') {
     if (condition === NumberFilterCondition.NumberIsEmpty) {
       return data === '';
@@ -177,7 +177,7 @@ export function numberFilterCheck(data: string, content: string, condition: numb
   }
 }
 
-export function checkboxFilterCheck(data: string, condition: number) {
+export function checkboxFilterCheck (data: string, condition: number) {
   switch (condition) {
     case CheckboxFilterCondition.IsChecked:
       return data === 'Yes';
@@ -188,7 +188,7 @@ export function checkboxFilterCheck(data: string, condition: number) {
   }
 }
 
-export function checklistFilterCheck(data: string, content: string, condition: number) {
+export function checklistFilterCheck (data: string, content: string, condition: number) {
   const percentage = parseChecklistData(data)?.percentage ?? 0;
 
   if (condition === ChecklistFilterCondition.IsComplete) {
@@ -198,7 +198,7 @@ export function checklistFilterCheck(data: string, content: string, condition: n
   return percentage !== 1;
 }
 
-export function selectOptionFilterCheck(data: string, content: string, condition: number) {
+export function selectOptionFilterCheck (data: string, content: string, condition: number) {
   if (SelectOptionFilterCondition.OptionIsEmpty === condition) {
     return data === '';
   }

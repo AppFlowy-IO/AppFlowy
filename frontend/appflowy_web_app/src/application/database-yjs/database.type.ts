@@ -1,4 +1,4 @@
-import { FieldId } from '@/application/collab.type';
+import { FieldId } from '@/application/types';
 
 export enum FieldVisibility {
   AlwaysShown = 0,
@@ -20,6 +20,7 @@ export enum FieldType {
   Relation = 10,
   AISummaries = 11,
   AITranslations = 12,
+  FileMedia = 14
 }
 
 export enum CalculationType {

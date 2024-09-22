@@ -9,11 +9,12 @@ use crate::sqlite_sql::{
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use allo_isolate::Isolate;
 use async_trait::async_trait;
+use collab_importer::util::FileId;
 use dashmap::DashMap;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
-use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::{
   CompletedPartRequest, CreatedUpload, FileProgress, FileProgressReceiver, FileUploadState,
   ProgressNotifier, StorageService, UploadPartResponse,
@@ -26,7 +27,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 use tokio::sync::{broadcast, watch};
 use tracing::{debug, error, info, instrument, trace};
 
@@ -457,7 +458,7 @@ async fn create_upload_record(
   let content_type = mime_guess::from_path(&local_file_path)
     .first_or_octet_stream()
     .to_string();
-  let file_id = format!("{}.{}", fxhash::hash(&chunked_bytes.data), ext);
+  let file_id = FileId::from_bytes(&chunked_bytes.data, ext);
   let record = UploadFileTable {
     workspace_id,
     file_id,
@@ -799,33 +800,4 @@ async fn complete_upload(
     },
   }
   Ok(())
-}
-
-pub async fn object_from_disk(
-  workspace_id: &str,
-  local_file_path: &str,
-) -> Result<(ObjectIdentity, ObjectValue), FlowyError> {
-  let ext = Path::new(local_file_path)
-    .extension()
-    .and_then(std::ffi::OsStr::to_str)
-    .unwrap_or("")
-    .to_owned();
-  let mut file = tokio::fs::File::open(local_file_path).await?;
-  let mut content = Vec::new();
-  let n = file.read_to_end(&mut content).await?;
-  info!("read {} bytes from file: {}", n, local_file_path);
-  let mime = mime_guess::from_path(local_file_path).first_or_octet_stream();
-  let hash = fxhash::hash(&content);
-
-  Ok((
-    ObjectIdentity {
-      workspace_id: workspace_id.to_owned(),
-      file_id: hash.to_string(),
-      ext,
-    },
-    ObjectValue {
-      raw: content.into(),
-      mime,
-    },
-  ))
 }

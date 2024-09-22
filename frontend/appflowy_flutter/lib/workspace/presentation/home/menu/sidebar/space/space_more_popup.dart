@@ -19,11 +19,13 @@ class SpaceMorePopup extends StatelessWidget {
     required this.space,
     required this.onAction,
     required this.onEditing,
+    this.isHovered = false,
   });
 
   final ViewPB space;
   final void Function(SpaceMoreActionType type, dynamic data) onAction;
   final void Function(bool value) onEditing;
+  final bool isHovered;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,10 @@ class SpaceMorePopup extends StatelessWidget {
       buildChild: (popover) {
         return FlowyIconButton(
           width: 24,
-          icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+          icon: FlowySvg(
+            FlowySvgs.workspace_three_dots_s,
+            color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
+          ),
           tooltipText: LocaleKeys.space_manage.tr(),
           onPressed: () {
             onEditing(true);

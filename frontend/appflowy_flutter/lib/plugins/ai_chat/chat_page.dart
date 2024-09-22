@@ -14,7 +14,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/platform_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +22,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
 import 'package:styled_widget/styled_widget.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'application/chat_member_bloc.dart';
 import 'application/chat_side_pannel_bloc.dart';
@@ -152,7 +152,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   @override
   Widget build(BuildContext context) {
     if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      if (PlatformExtension.isDesktop) {
+      if (UniversalPlatform.isDesktop) {
         return BlocSelector<ChatSidePannelBloc, ChatSidePannelState, bool>(
           selector: (state) => state.isShowPannel,
           builder: (context, isShowPannel) {
@@ -228,7 +228,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   }
 
   Widget buildChatSidePannel() {
-    if (PlatformExtension.isDesktop) {
+    if (UniversalPlatform.isDesktop) {
       return BlocBuilder<ChatSidePannelBloc, ChatSidePannelState>(
         builder: (context, state) {
           if (state.metadata != null) {
@@ -425,7 +425,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   },
                 ),
                 const VSpace(6),
-                if (PlatformExtension.isDesktop)
+                if (UniversalPlatform.isDesktop)
                   Opacity(
                     opacity: 0.6,
                     child: FlowyText(

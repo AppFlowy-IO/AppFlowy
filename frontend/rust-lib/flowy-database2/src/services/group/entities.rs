@@ -4,6 +4,7 @@ use collab_database::database::gen_database_group_id;
 use collab_database::rows::{Row, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -21,7 +22,6 @@ pub struct GroupSetting {
 #[derive(Clone, Default, Debug)]
 pub struct GroupChangeset {
   pub group_id: String,
-  pub field_id: String,
   pub name: Option<String>,
   pub visible: Option<bool>,
 }
@@ -106,6 +106,12 @@ pub struct GroupData {
   pub(crate) rows: Vec<Row>,
 }
 
+impl Display for GroupData {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "GroupData:{}, {} rows", self.id, self.rows.len())
+  }
+}
+
 impl GroupData {
   pub fn new(id: String, field_id: String, is_visible: bool) -> Self {
     let is_default = id == field_id;
@@ -123,6 +129,13 @@ impl GroupData {
   }
 
   pub fn remove_row(&mut self, row_id: &RowId) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Remove row:{} from group:{}",
+      row_id,
+      self.id
+    );
+
     match self.rows.iter().position(|row| &row.id == row_id) {
       None => {},
       Some(pos) => {
@@ -132,6 +145,8 @@ impl GroupData {
   }
 
   pub fn add_row(&mut self, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!("[Database Group]: Add row:{} to group:{}", row.id, self.id);
     match self.rows.iter().find(|r| r.id == row.id) {
       None => {
         self.rows.push(row);
@@ -141,6 +156,13 @@ impl GroupData {
   }
 
   pub fn insert_row(&mut self, index: usize, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Insert row:{} to group:{} at index:{}",
+      row.id,
+      self.id,
+      index
+    );
     if index < self.rows.len() {
       self.rows.insert(index, row);
     } else {

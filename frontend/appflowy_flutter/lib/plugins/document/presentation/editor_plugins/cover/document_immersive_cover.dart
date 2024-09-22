@@ -77,7 +77,7 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         child: BlocConsumer<DocumentImmersiveCoverBloc,
             DocumentImmersiveCoverState>(
           listener: (context, state) {
-            if (textEditingController.text.isEmpty) {
+            if (textEditingController.text != state.name) {
               textEditingController.text = state.name;
             }
           },

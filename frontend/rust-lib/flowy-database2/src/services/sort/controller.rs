@@ -21,7 +21,7 @@ use crate::services::field::{
   default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
 };
 use crate::services::sort::{
-  InsertRowResult, ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
+  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
 
 #[async_trait]
@@ -99,27 +99,31 @@ impl SortController {
     }
   }
 
-  pub async fn did_create_row(&self, preliminary_index: usize, row: &Row) {
+  pub async fn did_create_row(&mut self, row: &Row) -> Option<u32> {
     if !self.delegate.filter_row(row).await {
-      return;
+      return None;
     }
 
     if !self.sorts.is_empty() {
-      self
-        .gen_task(
-          SortEvent::NewRowInserted(row.clone()),
-          QualityOfService::Background,
-        )
-        .await;
+      let mut rows = self.delegate.get_rows(&self.view_id).await;
+      self.sort_rows(&mut rows).await;
+
+      let row_index = self
+        .row_index_cache
+        .get(&row.id)
+        .cloned()
+        .map(|val| val as u32);
+
+      if row_index.is_none() {
+        tracing::trace!("The row index cache is outdated");
+      }
+      row_index
     } else {
-      let result = InsertRowResult {
-        view_id: self.view_id.clone(),
-        row: row.clone(),
-        index: preliminary_index,
-      };
-      let _ = self
-        .notifier
-        .send(DatabaseViewChanged::InsertRowNotification(result));
+      let rows = self.delegate.get_rows(&self.view_id).await;
+      rows
+        .iter()
+        .position(|val| val.id == row.id)
+        .map(|val| val as u32)
     }
   }
 
@@ -164,24 +168,6 @@ impl SortController {
           _ => tracing::trace!("The row index cache is outdated"),
         }
       },
-      SortEvent::NewRowInserted(row) => {
-        self.sort_rows(&mut rows).await;
-        let row_index = self.row_index_cache.get(&row.id).cloned();
-        match row_index {
-          Some(row_index) => {
-            let notification = InsertRowResult {
-              view_id: self.view_id.clone(),
-              row: row.clone(),
-              index: row_index,
-            };
-            self.row_index_cache.insert(row.id, row_index);
-            let _ = self
-              .notifier
-              .send(DatabaseViewChanged::InsertRowNotification(notification));
-          },
-          _ => tracing::trace!("The row index cache is outdated"),
-        }
-      },
     }
     Ok(())
   }
@@ -218,10 +204,6 @@ impl SortController {
   }
 
   pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<Row>>) {
-    if self.sorts.is_empty() {
-      return;
-    }
-
     let fields = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter().rev() {
       rows.par_sort_by(|left, right| cmp_row(left, right, sort, &fields, &self.cell_cache));
@@ -367,7 +349,6 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
-  NewRowInserted(Row),
   DeleteAllSorts,
 }
 
