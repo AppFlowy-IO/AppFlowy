@@ -229,13 +229,13 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
     },
     FieldType::SingleSelect => {
       let single_select_type_option: SingleSelectTypeOption = type_option.into();
-      SingleSelectTypeOptionPB::from(single_select_type_option)
+      SingleSelectTypeOptionPB::from(single_select_type_option.0)
         .try_into()
         .unwrap()
     },
     FieldType::MultiSelect => {
       let multi_select_type_option: MultiSelectTypeOption = type_option.into();
-      MultiSelectTypeOptionPB::from(multi_select_type_option)
+      MultiSelectTypeOptionPB::from(multi_select_type_option.0)
         .try_into()
         .unwrap()
     },

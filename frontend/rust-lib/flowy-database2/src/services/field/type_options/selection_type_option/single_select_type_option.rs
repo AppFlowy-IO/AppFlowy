@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde,
+  default_order, MultiSelectTypeOption, TypeOption, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde,
 };
 use crate::services::field::{
   SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
@@ -15,10 +15,37 @@ use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 // Single select
 
-pub type SingleSelectTypeOption = SelectTypeOption;
+#[derive(Clone, Default, Debug)]
+pub struct SingleSelectTypeOption(pub SelectTypeOption);
+
+impl Deref for SingleSelectTypeOption {
+  type Target = SelectTypeOption;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
+  }
+}
+
+impl DerefMut for SingleSelectTypeOption {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut self.0
+  }
+}
+
+impl From<TypeOptionData> for SingleSelectTypeOption {
+  fn from(data: TypeOptionData) -> Self {
+    SingleSelectTypeOption(SelectTypeOption::from(data))
+  }
+}
+
+impl From<SingleSelectTypeOption> for TypeOptionData {
+  fn from(data: SingleSelectTypeOption) -> Self {
+    data.0.into()
+  }
+}
 
 impl TypeOption for SingleSelectTypeOption {
   type CellData = SelectOptionIds;
