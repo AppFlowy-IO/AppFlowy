@@ -1,48 +1,20 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  default_order, SelectOptionCellChangeset, SelectTypeOptionSharedAction, TypeOption,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
 };
 use crate::services::sort::SortCondition;
 use collab::util::AnyMapExt;
-use collab_database::fields::select_type_option::{SelectOption, SelectTypeOption};
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SelectOptionIds, SelectTypeOption,
+};
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::ops::{Deref, DerefMut};
-
-// Multiple select
-#[derive(Clone, Default, Debug)]
-pub struct MultiSelectTypeOption(pub SelectTypeOption);
-
-impl Deref for MultiSelectTypeOption {
-  type Target = SelectTypeOption;
-
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-impl DerefMut for MultiSelectTypeOption {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-    &mut self.0
-  }
-}
-
-impl From<TypeOptionData> for MultiSelectTypeOption {
-  fn from(data: TypeOptionData) -> Self {
-    MultiSelectTypeOption(SelectTypeOption::from(data))
-  }
-}
-
-impl From<MultiSelectTypeOption> for TypeOptionData {
-  fn from(data: MultiSelectTypeOption) -> Self {
-    data.0.into()
-  }
-}
 
 impl TypeOption for MultiSelectTypeOption {
   type CellData = SelectOptionIds;

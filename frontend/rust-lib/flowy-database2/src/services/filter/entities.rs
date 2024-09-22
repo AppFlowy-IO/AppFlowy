@@ -6,6 +6,7 @@ use anyhow::bail;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
+use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 use flowy_error::{FlowyError, FlowyResult};
@@ -17,7 +18,6 @@ use crate::entities::{
   InsertedRowPB, MediaFilterPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB,
   TextFilterPB, TimeFilterPB,
 };
-use crate::services::field::SelectOptionIds;
 
 pub trait ParseFilterData {
   fn parse(condition: u8, content: String) -> Self;

@@ -1,9 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellIdPB, CellIdParams};
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use collab_database::fields::select_type_option::{
-  SelectOption, SelectOptionColor, SelectTypeOption,
+  MultiSelectTypeOption, SelectOption, SelectOptionColor, SelectTypeOption, SingleSelectTypeOption,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;

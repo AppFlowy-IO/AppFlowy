@@ -1,12 +1,11 @@
 use crate::entities::FieldType;
 use crate::services::cell::CellDataDecoder;
 use crate::services::field::{
-  MultiSelectTypeOption, RichTextTypeOption, SelectOptionIds, SelectTypeOptionSharedAction,
-  SingleSelectTypeOption, TypeOption, CHECK, UNCHECK,
+  RichTextTypeOption, SelectTypeOptionSharedAction, TypeOption, CHECK, UNCHECK,
 };
 use collab_database::database::Database;
 use collab_database::fields::select_type_option::{
-  SelectOption, SelectOptionColor, SelectTypeOption,
+  SelectOption, SelectOptionColor, SelectOptionIds, SelectTypeOption,
 };
 use collab_database::fields::TypeOptionData;
 use collab_database::template::option_parse::build_options_from_cells;

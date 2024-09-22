@@ -26,7 +26,6 @@ use crate::services::database_view::{
   notify_did_update_setting, notify_did_update_sort, DatabaseLayoutDepsResolver,
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
 use crate::services::group::{
@@ -36,6 +35,7 @@ use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
 use collab_database::fields::Field;
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};

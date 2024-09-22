@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 

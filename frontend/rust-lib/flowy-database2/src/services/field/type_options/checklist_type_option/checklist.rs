@@ -3,10 +3,10 @@ use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab_database::fields::select_type_option::SelectOption;
+use collab_database::fields::select_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
