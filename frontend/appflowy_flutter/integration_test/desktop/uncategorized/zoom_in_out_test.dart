@@ -1,5 +1,6 @@
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:integration_test/integration_test.dart';
@@ -37,7 +38,14 @@ void main() {
             keycode.logicalKey,
             isControlPressed: !UniversalPlatform.isMacOS,
             isMetaPressed: UniversalPlatform.isMacOS,
+            // Register the physical key for the "Add" key, otherwise the test will fail and throw an error:
+            //  Physical key for LogicalKeyboardKey#79c9b(keyId: "0x0000002b", keyLabel: "+", debugName: "Add")
+            //  not found in known physical keys
+            physicalKey: keycode.logicalKey == LogicalKeyboardKey.add
+                ? PhysicalKeyboardKey.equal
+                : null,
           );
+
           await tester.pumpAndSettle();
 
           currentScaleFactor += 0.1;
