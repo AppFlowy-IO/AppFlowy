@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::gen_database_view_id;
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
 };
@@ -18,7 +19,7 @@ use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,
 };
-use flowy_database2::services::field::{CheckboxTypeOption, SelectOptionCellChangeset};
+use flowy_database2::services::field::SelectOptionCellChangeset;
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
 

@@ -2,12 +2,12 @@ use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
-  TypeOptionTransform, URLCellData,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use async_trait::async_trait;
 use collab_database::database::Database;
-use collab_database::fields::url_type_option::URLTypeOption;
+use collab_database::fields::url_type_option::{URLCellData, URLTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;

@@ -2,16 +2,17 @@ use collab_database::fields::date_type_option::{
   DateFormat, DateTypeOption, TimeFormat, TimeTypeOption,
 };
 use collab_database::fields::select_type_option::{SelectOption, SingleSelectTypeOption};
+use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::Field;
 use collab_database::views::OrderObjectPosition;
 
 use flowy_database2::entities::{CreateFieldParams, FieldType};
-use flowy_database2::services::field::{type_option_to_pb, FieldBuilder, RichTextTypeOption};
+use flowy_database2::services::field::{type_option_to_pb, FieldBuilder};
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {
   let field_type = FieldType::RichText;
-  let type_option = RichTextTypeOption::default();
+  let type_option = RichTextTypeOption;
   let text_field = FieldBuilder::new(field_type, type_option.clone())
     .name("Name")
     .primary(true)

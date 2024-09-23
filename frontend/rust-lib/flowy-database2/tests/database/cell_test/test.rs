@@ -2,10 +2,11 @@ use crate::database::cell_test::script::CellScript::UpdateCell;
 use crate::database::cell_test::script::DatabaseCellTest;
 use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::url_type_option::URLCellData;
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, MediaFile, MediaFileType, MediaUploadType,
-  RelationCellChangeset, SelectOptionCellChangeset, StringCellData, TimeCellData, URLCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, StringCellData, TimeCellData,
 };
 use lib_infra::box_any::BoxAny;
 use std::time::Duration;

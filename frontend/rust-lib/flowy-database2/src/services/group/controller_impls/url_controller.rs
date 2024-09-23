@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use collab_database::fields::url_type_option::URLTypeOption;
+use collab_database::fields::url_type_option::{URLCellData, URLTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,7 @@ use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::insert_url_cell;
-use crate::services::field::{TypeOption, URLCellData, URLCellDataParser};
+use crate::services::field::{TypeOption, URLCellDataParser};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;

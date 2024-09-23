@@ -121,6 +121,7 @@ pub enum DateFormatPB {
   #[default]
   Friendly = 3,
   DayMonthYear = 4,
+  FriendlyFull = 5,
 }
 
 impl From<DateFormatPB> for DateFormat {
@@ -131,6 +132,7 @@ impl From<DateFormatPB> for DateFormat {
       DateFormatPB::ISO => DateFormat::ISO,
       DateFormatPB::Friendly => DateFormat::Friendly,
       DateFormatPB::DayMonthYear => DateFormat::DayMonthYear,
+      DateFormatPB::FriendlyFull => DateFormat::FriendlyFull,
     }
   }
 }
@@ -143,6 +145,7 @@ impl From<DateFormat> for DateFormatPB {
       DateFormat::ISO => DateFormatPB::ISO,
       DateFormat::Friendly => DateFormatPB::Friendly,
       DateFormat::DayMonthYear => DateFormatPB::DayMonthYear,
+      DateFormat::FriendlyFull => DateFormatPB::FriendlyFull,
     }
   }
 }

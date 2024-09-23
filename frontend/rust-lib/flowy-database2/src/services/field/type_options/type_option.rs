@@ -8,17 +8,17 @@ use crate::services::cell::CellDataDecoder;
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
-use crate::services::field::{
-  CheckboxTypeOption, MediaTypeOption, RelationTypeOption, RichTextTypeOption,
-};
+use crate::services::field::{MediaTypeOption, RelationTypeOption};
 use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
 use async_trait::async_trait;
 use bytes::Bytes;
 use collab_database::database::Database;
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::date_type_option::{DateTypeOption, TimeTypeOption};
 use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::TypeOptionData;
@@ -290,7 +290,7 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
 
 pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionData {
   match field_type {
-    FieldType::RichText => RichTextTypeOption::default().into(),
+    FieldType::RichText => RichTextTypeOption.into(),
     FieldType::Number => NumberTypeOption::default().into(),
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
@@ -300,7 +300,7 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),
     FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
-    FieldType::Checkbox => CheckboxTypeOption::default().into(),
+    FieldType::Checkbox => CheckboxTypeOption.into(),
     FieldType::URL => URLTypeOption::default().into(),
     FieldType::Checklist => ChecklistTypeOption.into(),
     FieldType::Relation => RelationTypeOption::default().into(),

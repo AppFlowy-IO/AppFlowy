@@ -545,7 +545,7 @@ async fn update_date_cell_event_test() {
   let cell = test
     .get_date_cell(&grid_view.id, &database.rows[0].id, &date_field.id)
     .await;
-  assert_eq!(cell.date, "Jun 09, 2023");
+  assert_eq!(cell.date, "June 9, 2023");
   assert_eq!(cell.timestamp, timestamp);
 }
 

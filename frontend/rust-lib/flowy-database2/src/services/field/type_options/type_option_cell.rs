@@ -1,27 +1,28 @@
 use collab::preclude::Any;
-use std::cmp::Ordering;
-use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
-use std::hash::{Hash, Hasher};
-
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::date_type_option::{DateTypeOption, TimeTypeOption};
 use collab_database::fields::number_type_option::NumberTypeOption;
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, RowId};
 use flowy_error::FlowyResult;
 use lib_infra::box_any::BoxAny;
+use std::cmp::Ordering;
+use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob};
 use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
 use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, MediaTypeOption, RelationTypeOption, RichTextTypeOption,
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  ChecklistTypeOption, MediaTypeOption, RelationTypeOption, TypeOption, TypeOptionCellData,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 
