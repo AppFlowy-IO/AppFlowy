@@ -294,18 +294,21 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: buildRowChildren(),
+        child: Visibility(
+          visible: !isHidden || isPopoverOpen,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: buildRowChildren(),
+          ),
         ),
       ),
     );
 
     if (UniversalPlatform.isDesktopOrWeb) {
       child = MouseRegion(
-        onEnter: (event) => setHidden(false),
-        onExit: isPopoverOpen ? null : (event) => setHidden(true),
         opaque: false,
+        onEnter: (event) => setHidden(false),
+        onExit: isPopoverOpen ? null : (_) => setHidden(true),
         child: child,
       );
     }
@@ -314,9 +317,10 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   }
 
   List<Widget> buildRowChildren() {
-    if (isHidden || widget.hasCover && widget.hasIcon) {
+    if (widget.hasCover && widget.hasIcon) {
       return [];
     }
+
     final List<Widget> children = [];
 
     if (!widget.hasCover) {
@@ -374,7 +378,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
 
       if (UniversalPlatform.isDesktop) {
         child = AppFlowyPopover(
-          onClose: () => isPopoverOpen = false,
+          onClose: () => setState(() => isPopoverOpen = false),
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
