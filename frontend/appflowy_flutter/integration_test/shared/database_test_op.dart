@@ -1165,6 +1165,44 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
+  /// Should call [tapDatabaseSettingButton] first.
+  Future<void> tapDatabaseGroupSettingsButton() async {
+    final findSettingItem = find.byType(DatabaseSettingsList);
+    final findLayoutButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.text == DatabaseSettingAction.showGroup.title(),
+    );
+
+    final button = find.descendant(
+      of: findSettingItem,
+      matching: findLayoutButton,
+    );
+
+    await tapButton(button);
+  }
+
+  /// Should call [tapDatabaseGroupSettingsButton] first.
+  Future<void> toggleFetchURLMetaData() async {
+    final findFetchURLText = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.text == LocaleKeys.board_fetchURLMetaData.tr(),
+    );
+
+    final findRow = find.ancestor(
+      of: findFetchURLText,
+      matching: find.byType(Row),
+    );
+
+    final findToggle = find.descendant(
+      of: findRow,
+      matching: find.byType(Toggle),
+    );
+
+    await tapButton(findToggle);
+  }
+
   Future<void> tapCalendarLayoutSettingButton() async {
     final findSettingItem = find.byType(DatabaseSettingsList);
     final findLayoutButton = find.byWidgetPredicate(
