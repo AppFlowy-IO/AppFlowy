@@ -19,9 +19,16 @@ typedef KeyDownHandler = void Function(HotKey hotKey);
 ValueNotifier<int> switchToTheNextSpace = ValueNotifier(0);
 ValueNotifier<int> createNewPageNotifier = ValueNotifier(0);
 
-final _zoomInKeyCodes = [KeyCode.equal, KeyCode.add, KeyCode.numpadAdd];
-final _zoomOutKeyCodes = [KeyCode.minus, KeyCode.numpadSubtract];
-final _resetZoomKeyCodes = [KeyCode.digit0, KeyCode.numpad0];
+@visibleForTesting
+final zoomInKeyCodes = [KeyCode.equal, KeyCode.numpadAdd, KeyCode.add];
+@visibleForTesting
+final zoomOutKeyCodes = [KeyCode.minus, KeyCode.numpadSubtract];
+@visibleForTesting
+final resetZoomKeyCodes = [KeyCode.digit0, KeyCode.numpad0];
+
+// Use a global value to store the zoom level and update it in the hotkeys.
+@visibleForTesting
+double appflowyScaleFactor = 1.0;
 
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
@@ -142,7 +149,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     // Scale up/down the app
     // In some keyboards, the system returns equal as + keycode, while others may return add as + keycode, so add them both as zoom in key.
-    ..._zoomInKeyCodes.map(
+    ...zoomInKeyCodes.map(
       (keycode) => HotKeyItem(
         hotKey: HotKey(
           keycode,
@@ -155,12 +162,12 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       ),
     ),
 
-    ..._zoomOutKeyCodes.map(
+    ...zoomOutKeyCodes.map(
       (keycode) => HotKeyItem(
         hotKey: HotKey(
           keycode,
           modifiers: [
-            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
           ],
           scope: HotKeyScope.inapp,
         ),
@@ -169,16 +176,16 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
     ),
 
     // Reset app scaling
-    ..._resetZoomKeyCodes.map(
+    ...resetZoomKeyCodes.map(
       (keycode) => HotKeyItem(
         hotKey: HotKey(
           keycode,
           modifiers: [
-            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
           ],
           scope: HotKeyScope.inapp,
         ),
-        keyDownHandler: (_) => _scaleToSize(1),
+        keyDownHandler: (_) => _scale(1),
       ),
     ),
 
@@ -241,11 +248,19 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     Log.info('scale the app from $currentScaleFactor to $textScale');
 
-    await _scaleToSize(textScale);
+    await _scale(textScale);
   }
 
-  Future<void> _scaleToSize(double size) async {
-    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => size;
-    await windowSizeManager.setScaleFactor(size);
+  Future<void> _scale(double scaleFactor) async {
+    if (FlowyRunner.currentMode == IntegrationMode.integrationTest) {
+      // The integration test will fail if we check the scale factor in the test.
+      // #0      ScaledWidgetsFlutterBinding.Eval ()
+      // #1      ScaledWidgetsFlutterBinding.instance (package:scaled_app/scaled_app.dart:66:62)
+      appflowyScaleFactor = scaleFactor;
+    } else {
+      ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => scaleFactor;
+    }
+
+    await windowSizeManager.setScaleFactor(scaleFactor);
   }
 }
