@@ -32,6 +32,13 @@ void main() {
 
       // zoom in 2 times
       for (final keycode in zoomInKeyCodes) {
+        if (UniversalPlatform.isLinux &&
+            keycode.logicalKey == LogicalKeyboardKey.add) {
+          // Key LogicalKeyboardKey#79c9b(keyId: "0x0000002b", keyLabel: "+", debugName: "Add") not found in
+          // linux keyCode map
+          continue;
+        }
+
         // test each keycode 2 times
         for (var i = 0; i < 2; i++) {
           await tester.simulateKeyEvent(
@@ -88,15 +95,18 @@ void main() {
 
       // zoom out 2 times
       for (final keycode in zoomOutKeyCodes) {
+        if (UniversalPlatform.isLinux &&
+            keycode.logicalKey == LogicalKeyboardKey.numpadSubtract) {
+          //  Key LogicalKeyboardKey#2c39f(keyId: "0x20000022d", keyLabel: "Numpad Subtract", debugName: "Numpad
+          // Subtract") not found in linux keyCode map
+          continue;
+        }
         // test each keycode 2 times
         for (var i = 0; i < 2; i++) {
           await tester.simulateKeyEvent(
             keycode.logicalKey,
             isControlPressed: !UniversalPlatform.isMacOS,
             isMetaPressed: UniversalPlatform.isMacOS,
-            physicalKey: keycode.logicalKey == LogicalKeyboardKey.numpadSubtract
-                ? PhysicalKeyboardKey.minus
-                : null,
           );
           await tester.pumpAndSettle();
 
