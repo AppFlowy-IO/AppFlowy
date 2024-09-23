@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../shared/util.dart';
 
@@ -60,7 +61,8 @@ void main() {
         find.findTextInFlowyText(LocaleKeys.button_save.tr()),
       );
 
-      // wait the app to restart
+      // wait the app to restart, and the tooltip to disappear
+      await tester.pumpUntilNotFound(find.byType(BuiltInToastBuilder));
       await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       // open settings page to check the result
@@ -80,13 +82,14 @@ void main() {
       // reset to appflowy cloud
       await tester.tapButton(
         findServerType(AuthenticatorType.appflowyCloudSelfHost),
-      );
+      );    
       // change the server type to appflowy cloud
       await tester.tapButton(
         findServerType(AuthenticatorType.appflowyCloud),
       );
 
-      // wait the app to restart
+      // wait the app to restart, and the tooltip to disappear
+      await tester.pumpUntilNotFound(find.byType(BuiltInToastBuilder));
       await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       // check the server type
