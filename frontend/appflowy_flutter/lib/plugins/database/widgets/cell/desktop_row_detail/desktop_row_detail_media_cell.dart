@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/media_cell_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/media.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
@@ -17,8 +18,7 @@ import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
@@ -79,7 +79,7 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
-                              vertical: 5,
+                              vertical: 6,
                             ),
                             child: FlowyText.medium(
                               LocaleKeys.grid_row_textPlaceholder.tr(),
@@ -318,7 +318,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
 
     return AppFlowyPopover(
       controller: controller,
-      constraints: const BoxConstraints(maxWidth: 150),
+      constraints: const BoxConstraints(maxWidth: 165),
       offset: const Offset(0, 5),
       onClose: () => setState(() => isSelected = false),
       popupBuilder: (_) => SeparatedColumn(
@@ -359,6 +359,31 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
               ),
               text: FlowyText.regular(
                 LocaleKeys.settings_files_open.tr(),
+                color: AFThemeExtension.of(context).textColor,
+              ),
+              leftIconSize: const Size(18, 18),
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            ),
+            FlowyButton(
+              onTap: () {
+                controller.close();
+                context.read<RowDetailBloc>().add(
+                      RowDetailEvent.setCover(
+                        RowCoverPB(
+                          data: file.url,
+                          uploadType: file.uploadType,
+                          coverType: CoverTypePB.FileCover,
+                        ),
+                      ),
+                    );
+              },
+              leftIcon: FlowySvg(
+                FlowySvgs.add_cover_s,
+                color: Theme.of(context).iconTheme.color,
+                size: const Size.square(18),
+              ),
+              text: FlowyText.regular(
+                LocaleKeys.grid_media_setAsCover.tr(),
                 color: AFThemeExtension.of(context).textColor,
               ),
               leftIconSize: const Size(18, 18),

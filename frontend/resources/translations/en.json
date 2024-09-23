@@ -1495,7 +1495,8 @@
       "deleteFileDescription": "Are you sure you want to delete this file? This action is irreversible.",
       "hideFileNames": "Hide file names",
       "downloadSuccess": "Successfully saved file",
-      "downloadFailedToken": "Failed to download file, user token unavailable"
+      "downloadFailedToken": "Failed to download file, user token unavailable",
+      "setAsCover": "Set as cover"
     }
   },
   "document": {
