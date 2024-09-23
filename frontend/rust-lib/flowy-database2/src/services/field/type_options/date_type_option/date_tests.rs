@@ -88,6 +88,20 @@ mod tests {
             "14/03/2022",
           );
         },
+        DateFormat::FriendlyFull => {
+          assert_date(
+            &type_option,
+            &field,
+            DateCellChangeset {
+              date: Some(1647251762),
+              time: None,
+              include_time: None,
+              ..Default::default()
+            },
+            None,
+            "March 14, 2022",
+          );
+        },
       }
     }
   }

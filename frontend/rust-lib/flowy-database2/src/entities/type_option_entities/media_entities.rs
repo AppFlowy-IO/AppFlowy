@@ -1,9 +1,7 @@
+use collab_database::fields::media_type_option::{MediaCellData, MediaFile, MediaFileType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-use crate::{
-  entities::{CellIdPB, FileUploadTypePB},
-  services::field::{MediaCellData, MediaFile, MediaFileType},
-};
+use crate::entities::{CellIdPB, FileUploadTypePB};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MediaCellDataPB {

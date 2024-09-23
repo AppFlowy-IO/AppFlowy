@@ -3,6 +3,7 @@ use collab_database::entity::DatabaseView;
 use collab_database::fields::date_type_option::{
   DateFormat, DateTypeOption, TimeFormat, TimeTypeOption,
 };
+use collab_database::fields::media_type_option::MediaTypeOption;
 use collab_database::fields::number_type_option::{NumberFormat, NumberTypeOption};
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
@@ -16,9 +17,7 @@ use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
-use flowy_database2::services::field::{
-  ChecklistTypeOption, FieldBuilder, MediaTypeOption, RelationTypeOption,
-};
+use flowy_database2::services::field::{ChecklistTypeOption, FieldBuilder, RelationTypeOption};
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
 pub fn make_test_grid() -> DatabaseData {
