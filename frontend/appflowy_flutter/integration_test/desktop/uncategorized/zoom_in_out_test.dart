@@ -94,6 +94,9 @@ void main() {
             keycode.logicalKey,
             isControlPressed: !UniversalPlatform.isMacOS,
             isMetaPressed: UniversalPlatform.isMacOS,
+            physicalKey: keycode.logicalKey == LogicalKeyboardKey.numpadSubtract
+                ? PhysicalKeyboardKey.minus
+                : null,
           );
           await tester.pumpAndSettle();
 
