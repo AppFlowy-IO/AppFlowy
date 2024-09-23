@@ -127,7 +127,7 @@ collab-document = { path = "../../AppFlowy-Collab/collab-document" }
 collab-database = { path = "../../AppFlowy-Collab/collab-database" }
 collab-plugins = { path = "../../AppFlowy-Collab/collab-plugins" }
 collab-user = { path = "../../AppFlowy-Collab/collab-user" }
-collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2af6d29503e214d957b6ea4fb56846289dbc9d8f" }
+collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "37a48f51c889adf1482a189400c8ce15ed77b25d" }
 
 
 # Working directory: frontend
