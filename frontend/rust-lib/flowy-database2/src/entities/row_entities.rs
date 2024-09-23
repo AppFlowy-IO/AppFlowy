@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowCover, RowDetail, RowId};
+use collab_database::rows::{CoverType, Row, RowCover, RowDetail, RowId};
 use collab_database::views::RowOrder;
 
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use lib_infra::validator_fn::required_not_empty_str;
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
@@ -76,26 +77,63 @@ pub struct RowMetaPB {
 #[derive(Debug, Default, Clone, ProtoBuf, Serialize, Deserialize)]
 pub struct RowCoverPB {
   #[pb(index = 1)]
-  pub url: String,
+  pub data: String,
 
   #[pb(index = 2)]
   pub upload_type: FileUploadTypePB,
+
+  #[pb(index = 3)]
+  pub cover_type: CoverTypePB,
 }
 
 impl From<RowCoverPB> for RowCover {
-  fn from(data: RowCoverPB) -> Self {
+  fn from(cover: RowCoverPB) -> Self {
     Self {
-      url: data.url,
-      upload_type: data.upload_type.into(),
+      data: cover.data,
+      upload_type: cover.upload_type.into(),
+      cover_type: cover.cover_type.into(),
     }
   }
 }
 
 impl From<RowCover> for RowCoverPB {
-  fn from(data: RowCover) -> Self {
+  fn from(cover: RowCover) -> Self {
     Self {
-      url: data.url,
-      upload_type: data.upload_type.into(),
+      data: cover.data,
+      upload_type: cover.upload_type.into(),
+      cover_type: cover.cover_type.into(),
+    }
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum CoverTypePB {
+  #[default]
+  ColorCover = 0,
+  FileCover = 1,
+  AssetCover = 2,
+  GradientCover = 3,
+}
+
+impl From<CoverTypePB> for CoverType {
+  fn from(data: CoverTypePB) -> Self {
+    match data {
+      CoverTypePB::ColorCover => CoverType::ColorCover,
+      CoverTypePB::FileCover => CoverType::FileCover,
+      CoverTypePB::AssetCover => CoverType::AssetCover,
+      CoverTypePB::GradientCover => CoverType::GradientCover,
+    }
+  }
+}
+
+impl From<CoverType> for CoverTypePB {
+  fn from(data: CoverType) -> Self {
+    match data {
+      CoverType::ColorCover => CoverTypePB::ColorCover,
+      CoverType::FileCover => CoverTypePB::FileCover,
+      CoverType::AssetCover => CoverTypePB::AssetCover,
+      CoverType::GradientCover => CoverTypePB::GradientCover,
     }
   }
 }

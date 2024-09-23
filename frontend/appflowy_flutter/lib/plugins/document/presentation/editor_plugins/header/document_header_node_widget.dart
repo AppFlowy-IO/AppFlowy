@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -25,7 +27,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
@@ -106,16 +107,13 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     cover = widget.view.cover;
     view = widget.view;
     widget.node.addListener(_reload);
-    viewListener = ViewListener(
-      viewId: widget.view.id,
-    )..start(
-        onViewUpdated: (p0) {
-          setState(() {
-            viewIcon = p0.icon.value;
-            cover = p0.cover;
-            view = p0;
-          });
-        },
+    viewListener = ViewListener(viewId: widget.view.id)
+      ..start(
+        onViewUpdated: (view) => setState(() {
+          viewIcon = view.icon.value;
+          cover = view.cover;
+          view = view;
+        }),
       );
   }
 
@@ -283,17 +281,10 @@ class DocumentHeaderToolbar extends StatefulWidget {
 }
 
 class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
-  bool isHidden = true;
+  final _popoverController = PopoverController();
+
+  bool isHidden = UniversalPlatform.isDesktopOrWeb;
   bool isPopoverOpen = false;
-
-  final PopoverController _popoverController = PopoverController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    isHidden = UniversalPlatform.isDesktopOrWeb;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -303,22 +294,21 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: buildRowChildren(),
+        child: Visibility(
+          visible: !isHidden || isPopoverOpen,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: buildRowChildren(),
+          ),
         ),
       ),
     );
 
     if (UniversalPlatform.isDesktopOrWeb) {
       child = MouseRegion(
-        onEnter: (event) => setHidden(false),
-        onExit: (event) {
-          if (!isPopoverOpen) {
-            setHidden(true);
-          }
-        },
         opaque: false,
+        onEnter: (event) => setHidden(false),
+        onExit: isPopoverOpen ? null : (_) => setHidden(true),
         child: child,
       );
     }
@@ -327,9 +317,10 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   }
 
   List<Widget> buildRowChildren() {
-    if (isHidden || widget.hasCover && widget.hasIcon) {
+    if (widget.hasCover && widget.hasIcon) {
       return [];
     }
+
     final List<Widget> children = [];
 
     if (!widget.hasCover) {
@@ -387,7 +378,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
 
       if (UniversalPlatform.isDesktop) {
         child = AppFlowyPopover(
-          onClose: () => isPopoverOpen = false,
+          onClose: () => setState(() => isPopoverOpen = false),
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
@@ -444,9 +435,10 @@ class DocumentCover extends StatefulWidget {
 }
 
 class DocumentCoverState extends State<DocumentCover> {
+  final popoverController = PopoverController();
+
   bool isOverlayButtonsHidden = true;
   bool isPopoverOpen = false;
-  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {

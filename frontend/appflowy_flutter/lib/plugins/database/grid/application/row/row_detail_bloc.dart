@@ -22,6 +22,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     required this.fieldController,
     required this.rowController,
   })  : _metaListener = RowMetaListener(rowController.rowId),
+        _rowService = RowBackendService(viewId: rowController.viewId),
         super(RowDetailState.initial(rowController.rowMeta)) {
     _dispatch();
     _startListening();
@@ -33,7 +34,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   final FieldController fieldController;
   final RowController rowController;
   final RowMetaListener _metaListener;
-
+  final RowBackendService _rowService;
   final List<CellContext> allCells = [];
 
   @override
@@ -99,10 +100,9 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           endEditingField: () {
             emit(state.copyWith(editingFieldId: "", newFieldId: ""));
           },
-          removeCover: () {
-            RowBackendService(viewId: rowController.viewId)
-                .removeCover(rowController.rowId);
-          },
+          removeCover: () => _rowService.removeCover(rowController.rowId),
+          setCover: (cover) =>
+              _rowService.updateMeta(rowId: rowController.rowId, cover: cover),
           didReceiveRowMeta: (rowMeta) {
             emit(state.copyWith(rowMeta: rowMeta));
           },
@@ -263,6 +263,8 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.endEditingField() = _EndEditingField;
 
   const factory RowDetailEvent.removeCover() = _RemoveCover;
+
+  const factory RowDetailEvent.setCover(RowCoverPB cover) = _SetCover;
 
   const factory RowDetailEvent.didReceiveRowMeta(RowMetaPB rowMeta) =
       _DidReceiveRowMeta;

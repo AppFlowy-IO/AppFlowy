@@ -99,9 +99,6 @@ impl ToString for MediaCellData {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MediaTypeOption {
   #[serde(default)]
-  pub files: Vec<MediaFile>,
-
-  #[serde(default)]
   pub hide_file_names: bool,
 }
 
@@ -131,7 +128,6 @@ impl From<MediaTypeOption> for TypeOptionData {
 impl From<MediaTypeOption> for MediaTypeOptionPB {
   fn from(value: MediaTypeOption) -> Self {
     Self {
-      files: value.files.into_iter().map(Into::into).collect(),
       hide_file_names: value.hide_file_names,
     }
   }
@@ -140,7 +136,6 @@ impl From<MediaTypeOption> for MediaTypeOptionPB {
 impl From<MediaTypeOptionPB> for MediaTypeOption {
   fn from(value: MediaTypeOptionPB) -> Self {
     Self {
-      files: value.files.into_iter().map(Into::into).collect(),
       hide_file_names: value.hide_file_names,
     }
   }

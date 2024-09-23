@@ -153,7 +153,6 @@ pub fn make_test_grid() -> DatabaseData {
       },
       FieldType::Media => {
         let type_option = MediaTypeOption {
-          files: vec![],
           hide_file_names: false,
         };
 
