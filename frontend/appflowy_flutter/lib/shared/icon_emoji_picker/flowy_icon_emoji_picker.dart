@@ -149,7 +149,6 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     return FlowyIconPicker(
       requireIconBackgroundColor: widget.requireIconBackgroundColor,
       onSelectedIcon: (iconGroup, icon, color) {
-        debugPrint('icon: ${icon.toJson()}, color: $color');
         widget.onSelectedIcon?.call(iconGroup, icon, color);
       },
     );
