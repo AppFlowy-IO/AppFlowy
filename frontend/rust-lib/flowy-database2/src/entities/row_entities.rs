@@ -7,6 +7,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use lib_infra::validator_fn::required_not_empty_str;
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
@@ -105,7 +106,7 @@ impl From<RowCover> for RowCoverPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum CoverTypePB {
   #[default]
