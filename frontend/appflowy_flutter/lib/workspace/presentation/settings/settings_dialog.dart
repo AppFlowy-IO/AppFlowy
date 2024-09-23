@@ -32,6 +32,10 @@ import 'package:toastification/toastification.dart';
 
 import 'widgets/setting_cloud.dart';
 
+@visibleForTesting
+const kSelfHostedTextInputFieldKey =
+    ValueKey('self_hosted_url_input_text_field');
+
 class SettingsDialog extends StatelessWidget {
   SettingsDialog(
     this.user, {
@@ -278,6 +282,7 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
           child: SizedBox(
             height: 36,
             child: FlowyTextField(
+              key: kSelfHostedTextInputFieldKey,
               controller: textController,
               autoFocus: false,
               textStyle: const TextStyle(
@@ -285,7 +290,10 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
                 fontWeight: FontWeight.w400,
               ),
               hintText: kAppflowyCloudUrl,
-              onEditingComplete: _saveSelfHostUrl,
+              onEditingComplete: () => _saveUrl(
+                url: textController.text,
+                type: AuthenticatorType.appflowyCloudSelfHost,
+              ),
             ),
           ),
         ),
@@ -295,7 +303,10 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
           constraints: const BoxConstraints(minWidth: 78),
           child: OutlinedRoundedButton(
             text: LocaleKeys.button_save.tr(),
-            onTap: _saveSelfHostUrl,
+            onTap: () => _saveUrl(
+              url: textController.text,
+              type: AuthenticatorType.appflowyCloudSelfHost,
+            ),
           ),
         ),
       ],
@@ -315,12 +326,17 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
 
     if (type == AuthenticatorType.appflowyCloud) {
       textController.text = kAppflowyCloudUrl;
-      _saveSelfHostUrl();
+      _saveUrl(
+        url: textController.text,
+        type: type,
+      );
     }
   }
 
-  void _saveSelfHostUrl() {
-    final url = textController.text;
+  void _saveUrl({
+    required String url,
+    required AuthenticatorType type,
+  }) {
     if (url.isEmpty) {
       showToastNotification(
         context,
@@ -338,7 +354,7 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
         );
 
         Navigator.of(context).pop();
-        await useSelfHostedAppFlowyCloudWithURL(url);
+        await useAppFlowyBetaCloudWithURL(url, type);
         await runAppFlowy();
       },
       (err) {
@@ -353,7 +369,8 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
   }
 }
 
-extension on AuthenticatorType {
+@visibleForTesting
+extension SettingsServerDropdownMenuExtension on AuthenticatorType {
   String get label {
     switch (this) {
       case AuthenticatorType.appflowyCloud:

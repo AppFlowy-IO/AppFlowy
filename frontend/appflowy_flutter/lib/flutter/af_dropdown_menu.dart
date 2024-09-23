@@ -391,17 +391,23 @@ class _AFDropdownMenuState<T> extends State<AFDropdownMenu<T>> {
     );
   }
 
+  // Remove the code here, it will throw a FlutterError
+  // Unless we upgrade to Flutter 3.24 https://github.com/flutter/flutter/issues/146764
   void scrollToHighlight() {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        final BuildContext? highlightContext =
-            buttonItemKeys[currentHighlight!].currentContext;
-        if (highlightContext != null) {
-          Scrollable.ensureVisible(highlightContext);
-        }
-      },
-      debugLabel: 'DropdownMenu.scrollToHighlight',
-    );
+    // WidgetsBinding.instance.addPostFrameCallback(
+    //   (_) {
+    //     // try {
+    //   final BuildContext? highlightContext =
+    //       buttonItemKeys[currentHighlight!].currentContext;
+    //   if (highlightContext != null) {
+    //     Scrollable.ensureVisible(highlightContext);
+    //   }
+    // } catch (_) {
+    //   return;
+    // }
+    //   },
+    //   debugLabel: 'DropdownMenu.scrollToHighlight',
+    // );
   }
 
   double? getWidth(GlobalKey key) {
