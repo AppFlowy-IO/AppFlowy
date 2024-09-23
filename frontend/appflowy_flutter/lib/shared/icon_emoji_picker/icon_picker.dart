@@ -77,10 +77,10 @@ class FlowyIconPicker extends StatefulWidget {
   const FlowyIconPicker({
     super.key,
     required this.onSelectedIcon,
-    required this.requireIconBackgroundColor,
+    required this.enableBackgroundColorSelection,
   });
 
-  final bool requireIconBackgroundColor;
+  final bool enableBackgroundColorSelection;
   final void Function(IconGroup group, Icon icon, String? color) onSelectedIcon;
 
   @override
@@ -165,13 +165,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
               .toList();
           return IconPicker(
             iconGroups: filteredIconGroups,
-            enableBackgroundColor: widget.requireIconBackgroundColor,
+            enableBackgroundColorSelection:
+                widget.enableBackgroundColorSelection,
             onSelectedIcon: widget.onSelectedIcon,
           );
         }
         return IconPicker(
           iconGroups: iconGroups,
-          enableBackgroundColor: widget.requireIconBackgroundColor,
+          enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
           onSelectedIcon: widget.onSelectedIcon,
         );
       },
@@ -183,12 +184,12 @@ class IconPicker extends StatefulWidget {
   const IconPicker({
     super.key,
     required this.onSelectedIcon,
-    required this.enableBackgroundColor,
+    required this.enableBackgroundColorSelection,
     required this.iconGroups,
   });
 
   final List<IconGroup> iconGroups;
-  final bool enableBackgroundColor;
+  final bool enableBackgroundColorSelection;
   final void Function(IconGroup group, Icon icon, String? color) onSelectedIcon;
 
   @override
@@ -218,7 +219,7 @@ class _IconPickerState extends State<IconPicker> {
             Wrap(
               children: iconGroup.icons.map(
                 (icon) {
-                  return widget.enableBackgroundColor
+                  return widget.enableBackgroundColorSelection
                       ? _Icon(
                           icon: icon,
                           mutex: mutex,
