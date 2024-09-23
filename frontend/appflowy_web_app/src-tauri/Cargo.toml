@@ -118,14 +118,14 @@ custom-protocol = ["tauri/custom-protocol"]
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
-collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "44efb8214aaf1bb7326401b891af0626886509ce" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
+collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b3581aad2dcea8c02c807858e05b62358e38c24e" }
 
 
 # Working directory: frontend

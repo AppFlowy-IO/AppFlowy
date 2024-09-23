@@ -29,6 +29,8 @@ class FieldInfo with _$FieldInfo {
 
   String get name => field.name;
 
+  String get icon => field.icon;
+
   bool get isPrimary => field.isPrimary;
 
   double? get width => fieldSettings?.width.toDouble();

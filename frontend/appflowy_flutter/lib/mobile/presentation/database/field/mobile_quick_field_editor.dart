@@ -76,7 +76,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
               const VSpace(16),
               OptionTextField(
                 controller: controller,
-                type: state.field.fieldType,
+                fieldType: state.field.fieldType,
                 onTextChanged: (text) {
                   context
                       .read<FieldEditorBloc>()
