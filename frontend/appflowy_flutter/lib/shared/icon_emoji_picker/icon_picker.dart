@@ -77,9 +77,11 @@ class FlowyIconPicker extends StatefulWidget {
   const FlowyIconPicker({
     super.key,
     required this.onSelectedIcon,
+    required this.requireIconBackgroundColor,
   });
 
-  final void Function(IconGroup group, Icon icon, String color) onSelectedIcon;
+  final bool requireIconBackgroundColor;
+  final void Function(IconGroup group, Icon icon, String? color) onSelectedIcon;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
@@ -163,11 +165,13 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
               .toList();
           return IconPicker(
             iconGroups: filteredIconGroups,
+            enableBackgroundColor: widget.requireIconBackgroundColor,
             onSelectedIcon: widget.onSelectedIcon,
           );
         }
         return IconPicker(
           iconGroups: iconGroups,
+          enableBackgroundColor: widget.requireIconBackgroundColor,
           onSelectedIcon: widget.onSelectedIcon,
         );
       },
@@ -179,11 +183,13 @@ class IconPicker extends StatefulWidget {
   const IconPicker({
     super.key,
     required this.onSelectedIcon,
+    required this.enableBackgroundColor,
     required this.iconGroups,
   });
 
   final List<IconGroup> iconGroups;
-  final void Function(IconGroup group, Icon icon, String color) onSelectedIcon;
+  final bool enableBackgroundColor;
+  final void Function(IconGroup group, Icon icon, String? color) onSelectedIcon;
 
   @override
   State<IconPicker> createState() => _IconPickerState();
@@ -212,14 +218,21 @@ class _IconPickerState extends State<IconPicker> {
             Wrap(
               children: iconGroup.icons.map(
                 (icon) {
-                  return _Icon(
-                    icon: icon,
-                    mutex: mutex,
-                    onSelectedColor: (context, color) {
-                      widget.onSelectedIcon(iconGroup, icon, color);
-                      PopoverContainer.of(context).close();
-                    },
-                  );
+                  return widget.enableBackgroundColor
+                      ? _Icon(
+                          icon: icon,
+                          mutex: mutex,
+                          onSelectedColor: (context, color) {
+                            widget.onSelectedIcon(iconGroup, icon, color);
+                            PopoverContainer.of(context).close();
+                          },
+                        )
+                      : _IconNoBackground(
+                          icon: icon,
+                          onSelectedIcon: () {
+                            widget.onSelectedIcon(iconGroup, icon, null);
+                          },
+                        );
                 },
               ).toList(),
             ),
@@ -235,7 +248,38 @@ class _IconPickerState extends State<IconPicker> {
   }
 }
 
-class _Icon extends StatelessWidget {
+class _IconNoBackground extends StatelessWidget {
+  const _IconNoBackground({
+    required this.icon,
+    required this.onSelectedIcon,
+  });
+
+  final Icon icon;
+  final VoidCallback onSelectedIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyTooltip(
+      message: icon.displayName,
+      preferBelow: false,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        onTap: () => onSelectedIcon(),
+        margin: const EdgeInsets.all(8.0),
+        text: Center(
+          child: FlowySvg.string(
+            icon.content,
+            size: const Size.square(20),
+            color: context.pickerIconColor,
+            opacity: 0.7,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Icon extends StatefulWidget {
   const _Icon({
     required this.icon,
     required this.mutex,
@@ -247,32 +291,27 @@ class _Icon extends StatelessWidget {
   final void Function(BuildContext context, String color) onSelectedColor;
 
   @override
+  State<_Icon> createState() => _IconState();
+}
+
+class _IconState extends State<_Icon> {
+  final PopoverController _popoverController = PopoverController();
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 6),
-      mutex: mutex,
-      child: FlowyTooltip(
-        message: icon.displayName,
-        preferBelow: false,
-        child: FlowyButton(
-          useIntrinsicWidth: true,
-          margin: const EdgeInsets.all(8.0),
-          text: Center(
-            child: FlowySvg.string(
-              icon.content,
-              size: const Size.square(20),
-              color: context.pickerIconColor,
-              opacity: 0.7,
-            ),
-          ),
-        ),
+      mutex: widget.mutex,
+      child: _IconNoBackground(
+        icon: widget.icon,
+        onSelectedIcon: () => _popoverController.show(),
       ),
       popupBuilder: (context) {
         return Container(
           padding: const EdgeInsets.all(6.0),
           child: IconColorPicker(
-            onSelected: (color) => onSelectedColor(context, color),
+            onSelected: (color) => widget.onSelectedColor(context, color),
           ),
         );
       },

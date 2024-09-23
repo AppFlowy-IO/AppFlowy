@@ -50,12 +50,14 @@ class FlowyIconEmojiPicker extends StatefulWidget {
     super.key,
     this.onSelectedEmoji,
     this.onSelectedIcon,
+    this.requireIconBackgroundColor = true,
     this.tabs = const [PickerTabType.emoji],
   });
 
   final void Function(EmojiPickerResult result)? onSelectedEmoji;
   final void Function(IconGroup? group, Icon? icon, String? color)?
       onSelectedIcon;
+  final bool requireIconBackgroundColor;
   final List<PickerTabType> tabs;
 
   @override
@@ -145,6 +147,7 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildIconPicker() {
     return FlowyIconPicker(
+      requireIconBackgroundColor: widget.requireIconBackgroundColor,
       onSelectedIcon: (iconGroup, icon, color) {
         debugPrint('icon: ${icon.toJson()}, color: $color');
         widget.onSelectedIcon?.call(iconGroup, icon, color);
