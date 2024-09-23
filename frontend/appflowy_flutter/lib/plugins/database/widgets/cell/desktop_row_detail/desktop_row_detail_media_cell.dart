@@ -33,11 +33,9 @@ const _defaultFilesToDisplay = 5;
 
 class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
   final mutex = PopoverMutex();
-  final addFileController = PopoverController();
 
   @override
   void dispose() {
-    addFileController.close();
     mutex.dispose();
   }
 
@@ -67,7 +65,7 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                 builder: (context, constraints) {
                   if (state.files.isEmpty) {
                     return _AddFileButton(
-                      controller: addFileController,
+                      controller: popoverController,
                       direction: PopoverDirection.bottomWithLeftAligned,
                       mutex: mutex,
                       child: FlowyHover(
@@ -76,12 +74,12 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                               AFThemeExtension.of(context).lightGreyHover,
                         ),
                         child: GestureDetector(
-                          onTap: addFileController.show,
+                          onTap: popoverController.show,
                           behavior: HitTestBehavior.translucent,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
-                              vertical: 6,
+                              vertical: 5,
                             ),
                             child: FlowyText.medium(
                               LocaleKeys.grid_row_textPlaceholder.tr(),
@@ -114,12 +112,12 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                         width: size,
                         height: size / 2,
                         child: _AddFileButton(
-                          controller: addFileController,
+                          controller: popoverController,
                           mutex: mutex,
                           child: FlowyHover(
                             resetHoverOnRebuild: false,
                             child: GestureDetector(
-                              onTap: addFileController.show,
+                              onTap: popoverController.show,
                               behavior: HitTestBehavior.translucent,
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -176,6 +174,7 @@ class _AddFileButton extends StatelessWidget {
       mutex: mutex,
       offset: const Offset(0, 10),
       direction: direction,
+      constraints: const BoxConstraints(maxWidth: 350),
       popupBuilder: (_) => FileUploadMenu(
         allowMultipleFiles: true,
         onInsertLocalFile: (files) => insertLocalFiles(
