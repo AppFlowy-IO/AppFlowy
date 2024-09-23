@@ -412,6 +412,7 @@ extension CommonOperations on WidgetTester {
     bool isShiftPressed = false,
     bool isAltPressed = false,
     bool isMetaPressed = false,
+    PhysicalKeyboardKey? physicalKey,
   }) async {
     if (isControlPressed) {
       await simulateKeyDownEvent(LogicalKeyboardKey.control);
@@ -425,8 +426,14 @@ extension CommonOperations on WidgetTester {
     if (isMetaPressed) {
       await simulateKeyDownEvent(LogicalKeyboardKey.meta);
     }
-    await simulateKeyDownEvent(key);
-    await simulateKeyUpEvent(key);
+    await simulateKeyDownEvent(
+      key,
+      physicalKey: physicalKey,
+    );
+    await simulateKeyUpEvent(
+      key,
+      physicalKey: physicalKey,
+    );
     if (isControlPressed) {
       await simulateKeyUpEvent(LogicalKeyboardKey.control);
     }
