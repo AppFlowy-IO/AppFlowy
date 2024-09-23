@@ -19,6 +19,10 @@ typedef KeyDownHandler = void Function(HotKey hotKey);
 ValueNotifier<int> switchToTheNextSpace = ValueNotifier(0);
 ValueNotifier<int> createNewPageNotifier = ValueNotifier(0);
 
+final _zoomInKeyCodes = [KeyCode.equal, KeyCode.add, KeyCode.numpadAdd];
+final _zoomOutKeyCodes = [KeyCode.minus, KeyCode.numpadSubtract];
+final _resetZoomKeyCodes = [KeyCode.digit0, KeyCode.numpad0];
+
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
 ///
@@ -138,7 +142,7 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
 
     // Scale up/down the app
     // In some keyboards, the system returns equal as + keycode, while others may return add as + keycode, so add them both as zoom in key.
-    ...[KeyCode.equal, KeyCode.add].map(
+    ..._zoomInKeyCodes.map(
       (keycode) => HotKeyItem(
         hotKey: HotKey(
           keycode,
@@ -151,23 +155,31 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       ),
     ),
 
-    HotKeyItem(
-      hotKey: HotKey(
-        KeyCode.minus,
-        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        scope: HotKeyScope.inapp,
+    ..._zoomOutKeyCodes.map(
+      (keycode) => HotKeyItem(
+        hotKey: HotKey(
+          keycode,
+          modifiers: [
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control
+          ],
+          scope: HotKeyScope.inapp,
+        ),
+        keyDownHandler: (_) => _scaleWithStep(-0.1),
       ),
-      keyDownHandler: (_) => _scaleWithStep(-0.1),
     ),
 
     // Reset app scaling
-    HotKeyItem(
-      hotKey: HotKey(
-        KeyCode.digit0,
-        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        scope: HotKeyScope.inapp,
+    ..._resetZoomKeyCodes.map(
+      (keycode) => HotKeyItem(
+        hotKey: HotKey(
+          keycode,
+          modifiers: [
+            Platform.isMacOS ? KeyModifier.meta : KeyModifier.control
+          ],
+          scope: HotKeyScope.inapp,
+        ),
+        keyDownHandler: (_) => _scaleToSize(1),
       ),
-      keyDownHandler: (_) => _scaleToSize(1),
     ),
 
     // Switch to the next space
