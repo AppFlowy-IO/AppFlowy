@@ -838,7 +838,7 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn v_did_delete_field(&self, deleted_field_id: &str) {
+  pub async fn v_did_delete_field(&self, deleted_field_id: &str) -> FlowyResult<()> {
     let changeset = FilterChangeset::DeleteAllWithFieldId {
       field_id: deleted_field_id.to_string(),
     };
@@ -864,6 +864,27 @@ impl DatabaseViewEditor {
       .calculations_controller
       .did_receive_field_deleted(deleted_field_id.to_string())
       .await;
+
+    let layout_settings = self
+      .v_get_layout_settings(&self.v_get_layout_type().await)
+      .await;
+    if let Some(mut board_settings) = layout_settings.board {
+      if board_settings
+        .url_field_to_fill_id
+        .is_some_and(|s| s == deleted_field_id)
+      {
+        board_settings.url_field_to_fill_id = None;
+        let params = LayoutSettingChangeset {
+          view_id: self.view_id.clone(),
+          layout_type: DatabaseLayout::Board,
+          board: Some(board_settings),
+          calendar: None,
+        };
+        self.v_set_layout_settings(params).await?;
+      }
+    }
+
+    Ok(())
   }
 
   pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: FieldType) {

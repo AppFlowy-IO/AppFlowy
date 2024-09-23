@@ -1877,6 +1877,8 @@
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "fetchURLMetaData": "Fetch url meta data",
+    "urlFieldToFill": "URL field to fill",
+    "urlFieldNone": "None",
     "ungroupedButtonText": "Ungrouped",
     "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",

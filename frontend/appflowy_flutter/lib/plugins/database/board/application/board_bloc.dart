@@ -111,7 +111,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                 .firstWhereOrNull((element) => element.isPrimary)!;
             final urlField =
                 databaseController.fieldController.fieldInfos.firstWhereOrNull(
-              (element) => element.fieldType == FieldType.URL,
+              (field) =>
+                  field.id ==
+                  databaseController
+                      .databaseLayoutSetting?.board.urlFieldToFillId,
             );
             final void Function(RowDataBuilder)? cellBuilder = title == null
                 ? null

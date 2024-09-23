@@ -13,11 +13,10 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 class DatabaseGroupList extends StatelessWidget {
   const DatabaseGroupList({
@@ -105,6 +104,97 @@ class DatabaseGroupList extends StatelessWidget {
                 ),
               ),
             ),
+            if (state.layoutSettings.fetchUrlMetaData)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: AppFlowyPopover(
+                  triggerActions:
+                      PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+                  margin: EdgeInsets.zero,
+                  offset: const Offset(14, 0),
+                  constraints: BoxConstraints.loose(const Size(120, 300)),
+                  child: SizedBox(
+                    height: GridSize.popoverItemHeight,
+                    child: FlowyButton(
+                      hoverColor: AFThemeExtension.of(context).lightGreyHover,
+                      text: FlowyText.medium(
+                        LocaleKeys.board_urlFieldToFill.tr(),
+                        lineHeight: 1.0,
+                        color: AFThemeExtension.of(context).textColor,
+                      ),
+                      rightIcon: FlowySvg(
+                        FlowySvgs.more_s,
+                        color: Theme.of(context).iconTheme.color,
+                      ),
+                    ),
+                  ),
+                  popupBuilder: (popoverContext) {
+                    final menuItems = state.fieldInfos
+                        .where((fi) => fi.fieldType == FieldType.URL);
+                    final selectedField = state.fieldInfos.firstWhereOrNull(
+                      (fi) => fi.id == state.layoutSettings.urlFieldToFillId,
+                    );
+                    return SizedBox(
+                      width: 180,
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: StyledScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(vertical: 3.0),
+                        children: [
+                          Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 6.0),
+                            margin: const EdgeInsets.symmetric(vertical: 3.0),
+                            child: FlowyButton(
+                              text: FlowyText.medium(
+                                LocaleKeys.board_urlFieldNone.tr(),
+                                lineHeight: 1.0,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              rightIcon: selectedField == null
+                                  ? const FlowySvg(FlowySvgs.check_s)
+                                  : null,
+                              onTap: () {
+                                _updateLayoutSettings(
+                                  state.layoutSettings,
+                                  (message) =>
+                                      message.clearOneOfUrlFieldToFillId(),
+                                );
+                                PopoverContainer.of(popoverContext).close();
+                              },
+                            ),
+                          ),
+                          ...menuItems.map(
+                            (item) => Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6.0),
+                              margin: const EdgeInsets.symmetric(vertical: 3.0),
+                              child: FlowyButton(
+                                text: FlowyText.medium(
+                                  item.name,
+                                  lineHeight: 1.0,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                rightIcon: selectedField?.id == item.id
+                                    ? const FlowySvg(FlowySvgs.check_s)
+                                    : null,
+                                onTap: () {
+                                  _updateLayoutSettings(
+                                    state.layoutSettings,
+                                    (message) =>
+                                        message.urlFieldToFillId = item.id,
+                                  );
+                                  PopoverContainer.of(popoverContext).close();
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
             const TypeOptionSeparator(spacing: 0),
             SizedBox(
               height: GridSize.popoverItemHeight,

@@ -419,7 +419,7 @@ impl DatabaseEditor {
     self.notify_did_update_database(notified_changeset).await?;
 
     for view in self.database_views.editors().await {
-      view.v_did_delete_field(field_id).await;
+      view.v_did_delete_field(field_id).await?;
     }
 
     Ok(())
