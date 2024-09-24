@@ -4,9 +4,11 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/number.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/condition_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -64,6 +66,17 @@ abstract class DatabaseFilter {
           fieldType: fieldType,
           condition: data.condition,
           optionIds: data.optionIds,
+        );
+      case FieldType.DateTime:
+        final data = DateFilterPB.fromBuffer(filterPB.data.data);
+        return DateTimeFilter(
+          filterId: filterPB.id,
+          fieldId: fieldId,
+          fieldType: fieldType,
+          condition: data.condition,
+          timestamp: data.hasTimestamp() ? data.timestamp.toDateTime() : null,
+          start: data.hasStart() ? data.start.toDateTime() : null,
+          end: data.hasEnd() ? data.end.toDateTime() : null,
         );
       default:
         throw ArgumentError();
@@ -330,10 +343,10 @@ final class DateTimeFilter extends DatabaseFilter {
     return switch (condition) {
       DateFilterConditionPB.DateIsEmpty ||
       DateFilterConditionPB.DateIsNotEmpty =>
-        condition.name,
+        condition.filterName,
       DateFilterConditionPB.DateWithIn =>
-        "${condition.name} ${start ?? ""} - ${end ?? ""}",
-      _ => "${condition.name} ${timestamp ?? ""}"
+        "${condition.filterName} ${start?.defaultFormat ?? ""} - ${end?.defaultFormat ?? ""}",
+      _ => "${condition.filterName} ${timestamp?.defaultFormat ?? ""}"
     };
   }
 
@@ -371,18 +384,31 @@ final class DateTimeFilter extends DatabaseFilter {
 
   DateTimeFilter copyWith({
     DateFilterConditionPB? condition,
-    DateTime? start,
-    DateTime? end,
     DateTime? timestamp,
   }) {
     return DateTimeFilter(
       filterId: filterId,
       fieldId: fieldId,
       fieldType: fieldType,
+      start: start,
+      end: end,
       condition: condition ?? this.condition,
-      start: start ?? this.start,
-      end: end ?? this.end,
       timestamp: timestamp ?? this.timestamp,
+    );
+  }
+
+  DateTimeFilter copyWithRange({
+    required DateTime? start,
+    required DateTime? end,
+  }) {
+    return DateTimeFilter(
+      filterId: filterId,
+      fieldId: fieldId,
+      fieldType: fieldType,
+      condition: condition,
+      start: start,
+      end: end,
+      timestamp: timestamp,
     );
   }
 }

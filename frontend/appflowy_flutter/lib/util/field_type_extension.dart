@@ -111,7 +111,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.SingleSelect ||
         FieldType.Checklist ||
         FieldType.URL ||
-        FieldType.Time =>
+        FieldType.DateTime =>
           true,
         _ => false
       };

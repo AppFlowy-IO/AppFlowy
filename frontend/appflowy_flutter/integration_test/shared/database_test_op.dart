@@ -1099,7 +1099,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapDateFilterButtonInGrid() async {
-    await tapButton(find.byType(DateFilterConditionPBList));
+    await tapButton(find.byType(DateFilterConditionList));
   }
 
   /// The [SelectOptionFilterList] must show up first.

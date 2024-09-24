@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'choicechip/checkbox.dart';
 import 'choicechip/checklist.dart';
-// import 'choicechip/date.dart';
+import 'choicechip/date.dart';
 import 'choicechip/number.dart';
 import 'choicechip/select_option/select_option.dart';
 import 'choicechip/text.dart';
@@ -27,7 +27,7 @@ class FilterMenuItem extends StatelessWidget {
       FieldType.URL => URLFilterChoicechip(filterId: filterId),
       FieldType.Checkbox => CheckboxFilterChoicechip(filterId: filterId),
       FieldType.Checklist => ChecklistFilterChoicechip(filterId: filterId),
-      // FieldType.DateTime => DateFilterChoicechip(filterInfo: filterInfo),
+      FieldType.DateTime => DateFilterChoicechip(filterId: filterId),
       FieldType.SingleSelect ||
       FieldType.MultiSelect =>
         SelectOptionFilterChoicechip(filterId: filterId),
