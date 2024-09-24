@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1135,7 +1136,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
-  Future<void> tapDateFilterCondition(DateFilterConditionPB condition) async {
+  Future<void> tapDateFilterCondition(DateTimeFilterCondition condition) async {
     final button = find.descendant(
       of: find.byType(HoverButton),
       matching: find.text(condition.filterName),

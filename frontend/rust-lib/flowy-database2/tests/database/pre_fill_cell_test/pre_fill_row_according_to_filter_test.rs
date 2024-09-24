@@ -215,7 +215,7 @@ async fn according_to_date_time_is_filter_test() {
         field_id: datetime_field.id.clone(),
         field_type: FieldType::DateTime,
         data: DateFilterPB {
-          condition: DateFilterConditionPB::DateIs,
+          condition: DateFilterConditionPB::DateStartsOn,
           timestamp: Some(1710510086),
           ..Default::default()
         }
@@ -262,7 +262,7 @@ async fn according_to_invalid_date_time_is_filter_test() {
         field_id: datetime_field.id.clone(),
         field_type: FieldType::DateTime,
         data: DateFilterPB {
-          condition: DateFilterConditionPB::DateIs,
+          condition: DateFilterConditionPB::DateStartsOn,
           timestamp: None,
           ..Default::default()
         }

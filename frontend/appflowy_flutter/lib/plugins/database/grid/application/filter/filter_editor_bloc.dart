@@ -115,7 +115,7 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
         final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         return _filterBackendSvc.insertDateFilter(
           fieldId: fieldId,
-          condition: DateFilterConditionPB.DateIs,
+          condition: DateFilterConditionPB.DateStartsOn,
           timestamp: timestamp,
         );
       case FieldType.MultiSelect:
