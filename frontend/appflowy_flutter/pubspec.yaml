@@ -126,7 +126,6 @@ dependencies:
   sized_context: ^1.0.0+4
   string_validator: ^1.0.0
   styled_widget: ^0.4.1
-  supabase_flutter: ^1.10.4
   super_clipboard: ^0.8.4
   synchronized: ^3.1.0+1
   table_calendar: ^3.0.9
@@ -162,12 +161,6 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
-
-  supabase_flutter:
-    git:
-      url: https://github.com/supabase/supabase-flutter
-      ref: 9b05eea
-      path: packages/supabase_flutter
 
   url_protocol:
     git:

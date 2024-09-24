@@ -210,8 +210,7 @@
       "language": "Nyelv",
       "user": "Felhasználó",
       "files": "Fájlok",
-      "open": "Beállítások megnyitása",
-      "supabaseSetting": "Supabase beállítás"
+      "open": "Beállítások megnyitása"
     },
     "appearance": {
       "fontFamily": {
