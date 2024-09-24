@@ -459,9 +459,7 @@ class _RowHeaderToolbarState extends State<RowHeaderToolbar> {
         child: SizedBox(
           height: 28,
           child: Visibility(
-            visible: !isHidden ||
-                isPopoverOpen ||
-                (!widget.hasIcon || !widget.hasCover),
+            visible: !isHidden || isPopoverOpen,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
