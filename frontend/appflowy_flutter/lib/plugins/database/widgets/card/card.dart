@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy/shared/af_image.dart';
+import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +44,7 @@ class RowCard extends StatefulWidget {
     this.onShiftTap,
     this.groupingFieldId,
     this.groupId,
-    this.userProfile,
+    required this.userProfile,
     this.isCompact = false,
   });
 
@@ -140,6 +144,7 @@ class _RowCardState extends State<RowCard> {
       onTap: () => widget.onTap(context),
       behavior: HitTestBehavior.opaque,
       child: MobileCardContent(
+        userProfile: widget.userProfile,
         rowMeta: state.rowMeta,
         cellBuilder: widget.cellBuilder,
         styleConfiguration: widget.styleConfiguration,
@@ -215,6 +220,7 @@ class _CardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         CardCover(
@@ -281,7 +287,7 @@ class CardCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (cover == null ||
-        cover!.url.isEmpty ||
+        cover!.data.isEmpty ||
         cover!.uploadType == FileUploadTypePB.CloudFile &&
             userProfile == null) {
       return const SizedBox.shrink();
@@ -298,17 +304,59 @@ class CardCover extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: AFImage(
-              url: cover!.url,
-              uploadType: cover!.uploadType,
-              userProfile: userProfile,
-              height: isCompact ? 50 : 100,
-            ),
-          ),
+          Expanded(child: _renderCover(context, cover!)),
         ],
       ),
     );
+  }
+
+  Widget _renderCover(BuildContext context, RowCoverPB cover) {
+    final height = isCompact ? 50.0 : 100.0;
+
+    if (cover.coverType == CoverTypePB.FileCover) {
+      return SizedBox(
+        height: height,
+        width: double.infinity,
+        child: AFImage(
+          url: cover.data,
+          uploadType: cover.uploadType,
+          userProfile: userProfile,
+        ),
+      );
+    }
+
+    if (cover.coverType == CoverTypePB.AssetCover) {
+      return SizedBox(
+        height: height,
+        width: double.infinity,
+        child: Image.asset(
+          PageStyleCoverImageType.builtInImagePath(cover.data),
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    if (cover.coverType == CoverTypePB.ColorCover) {
+      final color = FlowyTint.fromId(cover.data)?.color(context) ??
+          cover.data.tryToColor();
+      return Container(
+        height: height,
+        width: double.infinity,
+        color: color,
+      );
+    }
+
+    if (cover.coverType == CoverTypePB.GradientCover) {
+      return Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: FlowyGradientColor.fromId(cover.data).linear,
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }
 

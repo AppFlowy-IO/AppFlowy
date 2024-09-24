@@ -238,11 +238,23 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           return;
         }
 
+        if (enableDocumentInternalLog) {
+          Log.debug(
+            '[TransactionAdapter] 1. transaction before apply: ${transaction.hashCode}',
+          );
+        }
+
         // apply transaction to backend
         await _transactionAdapter.apply(transaction, editorState);
 
         // check if the document is empty.
         await _applyRules();
+
+        if (enableDocumentInternalLog) {
+          Log.debug(
+            '[TransactionAdapter] 4. transaction after apply: ${transaction.hashCode}',
+          );
+        }
 
         if (!isClosed) {
           // ignore: invalid_use_of_visible_for_testing_member
@@ -270,23 +282,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   Future<void> _applyRules() async {
     await Future.wait([
       _ensureAtLeastOneParagraphExists(),
-      _ensureLastNodeIsEditable(),
     ]);
-  }
-
-  Future<void> _ensureLastNodeIsEditable() async {
-    final editorState = state.editorState;
-    if (editorState == null) {
-      return;
-    }
-    final document = editorState.document;
-    final lastNode = document.root.children.lastOrNull;
-    if (lastNode == null || lastNode.delta == null) {
-      final transaction = editorState.transaction;
-      transaction.insertNode([document.root.children.length], paragraphNode());
-      transaction.afterSelection = transaction.beforeSelection;
-      await editorState.apply(transaction);
-    }
   }
 
   Future<void> _ensureAtLeastOneParagraphExists() async {

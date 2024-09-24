@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -16,13 +17,15 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
     required this.node,
     required this.editorState,
     required this.action,
+    this.enableLogging = true,
   }) : super(
           SmartEditState.initial(action),
         ) {
     on<SmartEditEvent>((event, emit) async {
       await event.when(
-        initial: () async {
-          aiRepository = await getIt.getAsync<AIRepository>();
+        initial: (aiRepositoryProvider) async {
+          aiRepository = await aiRepositoryProvider;
+          aiRepositoryCompleter.complete();
         },
         started: () async {
           await _requestCompletions();
@@ -57,7 +60,9 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
   final Node node;
   final EditorState editorState;
   final SmartEditAction action;
-
+  final bool enableLogging;
+  // used to wait for the aiRepository to be initialized
+  final aiRepositoryCompleter = Completer();
   late final AIRepository aiRepository;
 
   bool isCanceled = false;
@@ -65,11 +70,15 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
   Future<void> _requestCompletions({
     bool rewrite = false,
   }) async {
+    await aiRepositoryCompleter.future;
+
     if (rewrite) {
       add(const SmartEditEvent.update('', true));
     }
 
-    Log.info('[smart_edit] request completions');
+    if (enableLogging) {
+      Log.info('[smart_edit] request completions');
+    }
 
     final content = node.attributes[SmartEditBlockKeys.content] as String;
     await aiRepository.streamCompletion(
@@ -79,7 +88,9 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (isCanceled) {
           return;
         }
-        Log.info('[smart_edit] start generating');
+        if (enableLogging) {
+          Log.info('[smart_edit] start generating');
+        }
         add(const SmartEditEvent.update('', true));
       },
       onProcess: (text) async {
@@ -87,7 +98,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
           return;
         }
         // only display the log in debug mode
-        if (kDebugMode) {
+        if (enableLogging) {
           Log.debug('[smart_edit] onProcess: $text');
         }
         final newResult = state.result + text;
@@ -97,14 +108,18 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (isCanceled) {
           return;
         }
-        Log.info('[smart_edit] end generating');
+        if (enableLogging) {
+          Log.info('[smart_edit] end generating');
+        }
         add(SmartEditEvent.update('${state.result}\n', false));
       },
       onError: (error) async {
         if (isCanceled) {
           return;
         }
-        Log.info('[smart_edit] onError: $error');
+        if (enableLogging) {
+          Log.info('[smart_edit] onError: $error');
+        }
         await _exit();
       },
     );
@@ -196,7 +211,9 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
 
 @freezed
 class SmartEditEvent with _$SmartEditEvent {
-  const factory SmartEditEvent.initial() = _Initial;
+  const factory SmartEditEvent.initial(
+    Future<AIRepository> aiRepositoryProvider,
+  ) = _Initial;
   const factory SmartEditEvent.started() = _Started;
   const factory SmartEditEvent.rewrite() = _Rewrite;
   const factory SmartEditEvent.replace() = _Replace;

@@ -27,35 +27,25 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
     final typeOption = _parseTypeOptionData(field.typeOptionData);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       height: GridSize.popoverItemHeight,
       alignment: Alignment.centerLeft,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: FlowyButton(
-                  resetHoverOnRebuild: false,
-                  text: FlowyText.medium(
-                    LocaleKeys.grid_media_hideFileNames.tr(),
-                    lineHeight: 1.0,
-                  ),
-                  rightIcon: Toggle(
-                    value: typeOption.hideFileNames,
-                    onChanged: (value) {
-                      onTypeOptionUpdated(
-                        _toggleHideFiles(typeOption, !value).writeToBuffer(),
-                      );
-                    },
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      child: FlowyButton(
+        resetHoverOnRebuild: false,
+        text: FlowyText.medium(
+          LocaleKeys.grid_media_hideFileNames.tr(),
+          lineHeight: 1.0,
+        ),
+        onHover: (_) => popoverMutex.close(),
+        rightIcon: Toggle(
+          value: typeOption.hideFileNames,
+          onChanged: (value) {
+            onTypeOptionUpdated(
+              _toggleHideFiles(typeOption, !value).writeToBuffer(),
+            );
+          },
+          padding: EdgeInsets.zero,
+        ),
       ),
     );
   }

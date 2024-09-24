@@ -1,5 +1,5 @@
 use collab_database::fields::media_type_option::MediaCellData;
-use collab_database::rows::{Cell, RowCover, RowId};
+use collab_database::rows::{Cell, CoverType, RowCover, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
@@ -1361,8 +1361,9 @@ pub(crate) async fn update_media_cell_handler(
         id: cell_id.row_id.clone().into(),
         view_id: cell_id.view_id.clone(),
         cover: Some(RowCover {
-          url: file.url.clone(),
+          data: file.url.clone(),
           upload_type: file.upload_type.into(),
+          cover_type: CoverType::FileCover,
         }),
         ..UpdateRowMetaParams::default()
       };

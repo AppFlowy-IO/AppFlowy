@@ -208,11 +208,14 @@ class _DefaultColumnHeaderContent extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FlowyTooltip(
-            message: groupName,
-            child: FlowyText.medium(
-              groupName,
-              overflow: TextOverflow.ellipsis,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FlowyTooltip(
+              message: groupName,
+              child: FlowyText.medium(
+                groupName,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),
