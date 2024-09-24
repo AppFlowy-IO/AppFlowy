@@ -39,7 +39,11 @@ import 'package:universal_platform/universal_platform.dart';
 
 import '../../../document/presentation/editor_plugins/plugins.dart';
 
-const _coverHeight = 250.0;
+/// We have the cover height as public as it is used in the row_detail.dart file
+/// Used to determine the position of the row actions depending on if there is a cover or not.
+///
+const rowCoverHeight = 250.0;
+
 const _iconHeight = 60.0;
 const _toolbarHeight = 40.0;
 
@@ -181,11 +185,11 @@ class _RowBannerState extends State<RowBanner> {
   double _calculateOverallHeight(bool hasIcon, bool hasCover) {
     switch ((hasIcon, hasCover)) {
       case (true, true):
-        return _coverHeight + _toolbarHeight;
+        return rowCoverHeight + _toolbarHeight;
       case (true, false):
         return 50 + _iconHeight + _toolbarHeight;
       case (false, true):
-        return _coverHeight + _toolbarHeight;
+        return rowCoverHeight + _toolbarHeight;
       case (false, false):
         return _toolbarHeight;
     }
@@ -224,7 +228,7 @@ class _RowCoverState extends State<RowCover> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _coverHeight,
+      height: rowCoverHeight,
       child: MouseRegion(
         onEnter: (_) => setState(() => isOverlayButtonsHidden = false),
         onExit: (_) => setState(() => isOverlayButtonsHidden = true),
@@ -364,7 +368,7 @@ class _DesktopRowCoverState extends State<DesktopRowCover> {
   Widget build(BuildContext context) {
     if (cover.coverType == CoverTypePB.FileCover) {
       return SizedBox(
-        height: _coverHeight,
+        height: rowCoverHeight,
         width: double.infinity,
         child: AFImage(
           url: cover.data,
@@ -376,7 +380,7 @@ class _DesktopRowCoverState extends State<DesktopRowCover> {
 
     if (cover.coverType == CoverTypePB.AssetCover) {
       return SizedBox(
-        height: _coverHeight,
+        height: rowCoverHeight,
         width: double.infinity,
         child: Image.asset(
           PageStyleCoverImageType.builtInImagePath(cover.data),
@@ -389,7 +393,7 @@ class _DesktopRowCoverState extends State<DesktopRowCover> {
       final color = FlowyTint.fromId(cover.data)?.color(context) ??
           cover.data.tryToColor();
       return Container(
-        height: _coverHeight,
+        height: rowCoverHeight,
         width: double.infinity,
         color: color,
       );
@@ -397,7 +401,7 @@ class _DesktopRowCoverState extends State<DesktopRowCover> {
 
     if (cover.coverType == CoverTypePB.GradientCover) {
       return Container(
-        height: _coverHeight,
+        height: rowCoverHeight,
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: FlowyGradientColor.fromId(cover.data).linear,
