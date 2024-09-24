@@ -1353,6 +1353,7 @@ pub(crate) async fn update_media_cell_handler(
   let row_meta = database_editor
     .get_row_meta(&cell_id.view_id, &cell_id.row_id)
     .await;
+
   if let (Some(row_meta), Some(file)) = (row_meta, image_file) {
     let row_meta = row_meta.clone();
     if row_meta.cover.is_none() {
@@ -1445,7 +1446,7 @@ pub(crate) async fn rename_media_cell_file_handler(
       &cell_id.view_id,
       &cell_id.row_id,
       &cell_id.field_id,
-      Cell::from(&new_data),
+      Cell::from(new_data),
     )
     .await;
 

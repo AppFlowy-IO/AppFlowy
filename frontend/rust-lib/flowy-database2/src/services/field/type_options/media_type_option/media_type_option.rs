@@ -4,7 +4,7 @@ use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
 use crate::{
-  entities::{FieldType, MediaCellChangeset, MediaCellDataPB, MediaFilterPB, MediaTypeOptionPB},
+  entities::{FieldType, MediaCellChangeset, MediaCellDataPB, MediaFilterPB},
   services::{
     cell::{CellDataChangeset, CellDataDecoder},
     field::{
@@ -26,24 +26,6 @@ impl TypeOption for MediaTypeOption {
   type CellChangeset = MediaCellChangeset;
   type CellProtobufType = MediaCellDataPB;
   type CellFilter = MediaFilterPB;
-}
-
-impl From<MediaTypeOption> for MediaTypeOptionPB {
-  fn from(value: MediaTypeOption) -> Self {
-    Self {
-      files: value.files.into_iter().map(Into::into).collect(),
-      hide_file_names: value.hide_file_names,
-    }
-  }
-}
-
-impl From<MediaTypeOptionPB> for MediaTypeOption {
-  fn from(value: MediaTypeOptionPB) -> Self {
-    Self {
-      files: value.files.into_iter().map(Into::into).collect(),
-      hide_file_names: value.hide_file_names,
-    }
-  }
 }
 
 impl TypeOptionTransform for MediaTypeOption {}
@@ -110,7 +92,7 @@ impl CellDataChangeset for MediaTypeOption {
       let cell_data = MediaCellData {
         files: changeset.inserted_files,
       };
-      return Ok(((&cell_data).into(), cell_data));
+      return Ok((cell_data.clone().into(), cell_data));
     }
 
     let cell_data: MediaCellData = MediaCellData::from(&cell.unwrap());
@@ -129,7 +111,7 @@ impl CellDataChangeset for MediaTypeOption {
 
     let cell_data = MediaCellData { files };
 
-    Ok((Cell::from(&cell_data), cell_data))
+    Ok((Cell::from(cell_data.clone()), cell_data))
   }
 }
 

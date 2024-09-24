@@ -262,7 +262,7 @@ impl<'a> CellBuilder<'a> {
             cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
           FieldType::Media => {
-            cells.insert(field_id, (&MediaCellData::from(cell_str)).into());
+            cells.insert(field_id, MediaCellData::from(cell_str).into());
           },
         }
       }

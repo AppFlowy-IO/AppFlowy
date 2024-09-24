@@ -1,4 +1,6 @@
-use collab_database::fields::media_type_option::{MediaCellData, MediaFile, MediaFileType};
+use collab_database::fields::media_type_option::{
+  MediaCellData, MediaFile, MediaFileType, MediaTypeOption,
+};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::entities::{CellIdPB, FileUploadTypePB};
@@ -28,10 +30,23 @@ impl From<MediaCellDataPB> for MediaCellData {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MediaTypeOptionPB {
   #[pb(index = 1)]
-  pub files: Vec<MediaFilePB>,
-
-  #[pb(index = 2)]
   pub hide_file_names: bool,
+}
+
+impl From<MediaTypeOption> for MediaTypeOptionPB {
+  fn from(value: MediaTypeOption) -> Self {
+    Self {
+      hide_file_names: value.hide_file_names,
+    }
+  }
+}
+
+impl From<MediaTypeOptionPB> for MediaTypeOption {
+  fn from(value: MediaTypeOptionPB) -> Self {
+    Self {
+      hide_file_names: value.hide_file_names,
+    }
+  }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
