@@ -68,6 +68,9 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
       },
       onClosed: () {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if (!mounted) {
+            return;
+          }
           widget.editorState.selectionType = null;
           widget.editorState.selection = null;
           widget.blockComponentState.alwaysShowActions = false;
