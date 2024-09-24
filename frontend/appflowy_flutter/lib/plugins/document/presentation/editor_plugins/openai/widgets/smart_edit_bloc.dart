@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -23,6 +25,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
       await event.when(
         initial: () async {
           aiRepository = await getIt.getAsync<AIRepository>();
+          aiRepositoryCompleter.complete();
         },
         started: () async {
           await _requestCompletions();
@@ -58,6 +61,8 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
   final EditorState editorState;
   final SmartEditAction action;
 
+  // used to wait for the aiRepository to be initialized
+  final aiRepositoryCompleter = Completer();
   late final AIRepository aiRepository;
 
   bool isCanceled = false;
@@ -65,6 +70,8 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
   Future<void> _requestCompletions({
     bool rewrite = false,
   }) async {
+    await aiRepositoryCompleter.future;
+
     if (rewrite) {
       add(const SmartEditEvent.update('', true));
     }
