@@ -117,7 +117,6 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
           fieldId: fieldId,
           condition: DateFilterConditionPB.DateIs,
           timestamp: timestamp,
-          fieldType: field.fieldType,
         );
       case FieldType.MultiSelect:
         return _filterBackendSvc.insertSelectOptionFilter(

@@ -40,6 +40,9 @@ class AFImage extends StatelessWidget {
         height: height,
         width: width,
         fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          return const SizedBox.shrink();
+        },
       );
     } else if (uploadType == FileUploadTypePB.LocalFile) {
       child = Image.file(
@@ -47,6 +50,9 @@ class AFImage extends StatelessWidget {
         height: height,
         width: width,
         fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          return const SizedBox.shrink();
+        },
       );
     } else {
       child = FlowyNetworkImage(
@@ -54,6 +60,9 @@ class AFImage extends StatelessWidget {
         userProfilePB: userProfile,
         height: height,
         width: width,
+        errorWidgetBuilder: (context, url, error) {
+          return const SizedBox.shrink();
+        },
       );
     }
 

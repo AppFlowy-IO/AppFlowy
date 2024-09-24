@@ -569,6 +569,20 @@ impl DatabaseEditor {
       .await
       .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
     let (index, row_order) = database.create_row_in_view(view_id, params).await?;
+
+    let row_meta = database.get_row_meta(row_id).await;
+    if let Some(row_meta) = row_meta {
+      database
+        .update_row_meta(&row_order.id, |meta_update| {
+          meta_update
+            .insert_cover_if_not_none(row_meta.cover)
+            .insert_icon_if_not_none(row_meta.icon_url)
+            .update_is_document_empty_if_not_none(Some(row_meta.is_document_empty))
+            .update_attachment_count_if_not_none(Some(row_meta.attachment_count));
+        })
+        .await;
+    }
+
     drop(database);
 
     trace!(

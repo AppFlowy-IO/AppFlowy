@@ -86,10 +86,13 @@ void main() {
       // Open the setting page and sign out
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.cloud);
+      await tester.pumpAndSettle();
 
       // the switch should be on by default
       tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
       await tester.toggleEnableSync(AppFlowyCloudEnableSync);
+      // wait for the switch animation
+      await tester.wait(250);
 
       // the switch should be off
       tester.assertAppFlowyCloudEnableSyncSwitchValue(false);
@@ -97,6 +100,7 @@ void main() {
       // the switch should be on after toggling
       await tester.toggleEnableSync(AppFlowyCloudEnableSync);
       tester.assertAppFlowyCloudEnableSyncSwitchValue(true);
+      await tester.wait(250);
     });
   });
 }

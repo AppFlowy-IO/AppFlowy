@@ -23,7 +23,7 @@ class FlowySvg extends StatelessWidget {
     this.size,
     this.color,
     this.blendMode = BlendMode.srcIn,
-    this.opacity = 1.0,
+    this.opacity,
     this.svgString,
   });
 
@@ -34,7 +34,7 @@ class FlowySvg extends StatelessWidget {
     Size? size,
     Color? color,
     BlendMode? blendMode = BlendMode.srcIn,
-    double opacity = 1.0,
+    double? opacity,
   }) {
     return FlowySvg(
       const FlowySvgData(''),
@@ -73,13 +73,16 @@ class FlowySvg extends StatelessWidget {
 
   /// The opacity of the svg
   ///
-  /// The default value is 1.0
-  final double opacity;
+  /// if null then use the opacity of the iconColor
+  final double? opacity;
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        (color ?? Theme.of(context).iconTheme.color)?.withOpacity(opacity);
+    Color? iconColor = color ?? Theme.of(context).iconTheme.color;
+    if (opacity != null) {
+      iconColor = iconColor?.withOpacity(opacity!);
+    }
+
     final textScaleFactor = MediaQuery.textScalerOf(context).scale(1);
 
     final Widget svg;
