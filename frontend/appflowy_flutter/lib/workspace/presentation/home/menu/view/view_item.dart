@@ -13,7 +13,6 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -666,24 +665,17 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           openAfterCreated,
           createNewView,
         ) {
-          if (createNewView) {
-            createViewAndShowRenameDialogIfNeeded(
-              context,
-              _convertLayoutToHintText(pluginBuilder.layoutType!),
-              (viewName, _) {
-                if (viewName.isNotEmpty) {
-                  viewBloc.add(
-                    ViewEvent.createView(
-                      viewName,
-                      pluginBuilder.layoutType!,
-                      openAfterCreated: openAfterCreated,
-                      section: widget.spaceType.toViewSectionPB,
-                    ),
-                  );
-                }
-              },
-            );
-          }
+          viewBloc.add(
+            ViewEvent.createView(
+              // use empty name instead of null
+              //  to make it compatible with the old version.
+              '',
+              pluginBuilder.layoutType!,
+              openAfterCreated: openAfterCreated,
+              section: widget.spaceType.toViewSectionPB,
+            ),
+          );
+
           viewBloc.add(
             const ViewEvent.setIsExpanded(true),
           );
