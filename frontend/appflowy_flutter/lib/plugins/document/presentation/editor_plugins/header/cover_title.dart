@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -8,8 +9,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-FocusNode? coverTitleFocusNode;
 
 class CoverTitle extends StatelessWidget {
   const CoverTitle({
@@ -58,12 +57,12 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleFocusNode.onKeyEvent = _onKeyEvent;
     _requestFocusIfNeeded(widget.view, null);
 
-    coverTitleFocusNode = titleFocusNode;
+    context.read<SharedEditorContext>().coverTitleFocusNode = titleFocusNode;
   }
 
   @override
   void dispose() {
-    coverTitleFocusNode = null;
+    context.read<SharedEditorContext>().coverTitleFocusNode = null;
 
     titleTextController.dispose();
     titleFocusNode.dispose();
@@ -74,13 +73,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ViewBloc, ViewState>(
-      listener: (context, state) {
-        _requestFocusIfNeeded(widget.view, state);
-
-        if (state.view.name != titleTextController.text) {
-          titleTextController.text = state.view.name;
-        }
-      },
+      listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
         return Container(
@@ -114,6 +107,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         );
       },
     );
+  }
+
+  void _onListen(BuildContext context, ViewState state) {
+    _requestFocusIfNeeded(widget.view, state);
+
+    if (state.view.name != titleTextController.text) {
+      titleTextController.text = state.view.name;
+    }
   }
 
   bool _shouldFocus(ViewPB view, ViewState? state) {

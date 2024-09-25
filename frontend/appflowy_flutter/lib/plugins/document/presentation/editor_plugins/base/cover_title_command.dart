@@ -1,6 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_title.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Press the backspace at the first position of first line to go to the title
 ///
@@ -20,6 +21,9 @@ final CommandShortcutEvent backspaceToTitle = CommandShortcutEvent(
 KeyEventResult _backspaceToTitle({
   required EditorState editorState,
 }) {
+  final coverTitleFocusNode = editorState.document.root.context
+      ?.read<SharedEditorContext>()
+      .coverTitleFocusNode;
   if (coverTitleFocusNode == null) {
     return KeyEventResult.ignored;
   }
@@ -39,7 +43,7 @@ KeyEventResult _backspaceToTitle({
   }
 
   editorState.selection = null;
-  coverTitleFocusNode?.requestFocus();
+  coverTitleFocusNode.requestFocus();
 
   return KeyEventResult.handled;
 }
@@ -78,6 +82,9 @@ final CommandShortcutEvent arrowUpToTitle = CommandShortcutEvent(
 KeyEventResult _arrowUpToTitle({
   required EditorState editorState,
 }) {
+  final coverTitleFocusNode = editorState.document.root.context
+      ?.read<SharedEditorContext>()
+      .coverTitleFocusNode;
   if (coverTitleFocusNode == null) {
     return KeyEventResult.ignored;
   }
@@ -96,7 +103,7 @@ KeyEventResult _arrowUpToTitle({
   }
 
   editorState.selection = null;
-  coverTitleFocusNode?.requestFocus();
+  coverTitleFocusNode.requestFocus();
 
   return KeyEventResult.handled;
 }
