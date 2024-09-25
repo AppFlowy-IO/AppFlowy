@@ -189,5 +189,28 @@ void main() {
         ),
       );
     });
+
+    testWidgets('change the title via sidebar, check the title is updated',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      expect(title, findsOneWidget);
+
+      await tester.hoverOnPageName(
+        '',
+        onHover: () async {
+          await tester.renamePage(_testDocumentName);
+          await tester.pumpAndSettle();
+        },
+      );
+      await tester.pumpAndSettle();
+
+      final newTitle = tester.editor.findDocumentTitle(_testDocumentName);
+      expect(newTitle, findsOneWidget);
+    });
   });
 }
