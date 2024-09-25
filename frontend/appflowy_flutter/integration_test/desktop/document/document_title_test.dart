@@ -9,7 +9,7 @@ void main() {
 
   group('document title', () {
     testWidgets(
-        '''create a new document, the title will be displayed at the first line''',
+        'create a new document, the title will be displayed at the first line',
         (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
