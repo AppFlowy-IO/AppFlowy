@@ -126,10 +126,15 @@ class _MovePageMenuState extends State<MovePageMenu> {
               space: space,
               isHovered: isHoveredNotifier,
               isExpandedNotifier: isExpandedNotifier,
-              shouldIgnoreView: (view) => _shouldIgnoreView(
-                view,
-                widget.sourceView,
-              ),
+              shouldIgnoreView: (view) {
+                if (_shouldIgnoreView(view, widget.sourceView)) {
+                  return IgnoreViewType.hide;
+                }
+                if (view.layout != ViewLayoutPB.Document) {
+                  return IgnoreViewType.disable;
+                }
+                return IgnoreViewType.none;
+              },
               // hide the hover status and disable the editing actions
               disableSelectedStatus: true,
               // hide the ... and + buttons
@@ -157,31 +162,29 @@ class _MovePageGroupedViews extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: views
-            .map(
-              (e) => ViewItem(
-                key: ValueKey(e.id),
-                view: e,
-                spaceType: FolderSpaceType.unknown,
-                level: 0,
-                onSelected: (_, view) => onSelected(view),
-                isFeedback: false,
-                isDraggable: false,
-                shouldRenderChildren: false,
-                leftIconBuilder: (_, __) => const HSpace(0.0),
-                rightIconsBuilder: (_, view) => [],
-              ),
-            )
-            .toList(),
+        children: views.map(
+          (e) {
+            final child = ViewItem(
+              key: ValueKey(e.id),
+              view: e,
+              spaceType: FolderSpaceType.unknown,
+              level: 0,
+              onSelected: (_, view) => onSelected(view),
+              isFeedback: false,
+              isDraggable: false,
+              shouldRenderChildren: false,
+              leftIconBuilder: (_, __) => const HSpace(0.0),
+              rightIconsBuilder: (_, view) => [],
+            );
+
+            return child;
+          },
+        ).toList(),
       ),
     );
   }
 }
 
 bool _shouldIgnoreView(ViewPB view, ViewPB sourceView) {
-  // ignore the source view and database view, don't render it in the list.
-  if (view.layout != ViewLayoutPB.Document) {
-    return true;
-  }
   return view.id == sourceView.id;
 }

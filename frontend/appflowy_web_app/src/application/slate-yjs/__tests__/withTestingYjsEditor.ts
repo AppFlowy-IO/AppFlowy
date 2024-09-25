@@ -6,7 +6,7 @@ import {
   YMeta,
   YSharedRoot,
   YTextMap,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { withYjs } from '@/application/slate-yjs';
 import { YDelta } from '@/application/slate-yjs/utils/convert';
 import { Editor } from 'slate';

@@ -1,4 +1,4 @@
-import { ViewLayout, ViewMetaIcon } from '@/application/collab.type';
+import { ViewLayout, ViewMetaIcon } from '@/application/types';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import { isFlagEmoji } from '@/utils/emoji';
 import React, { useMemo } from 'react';

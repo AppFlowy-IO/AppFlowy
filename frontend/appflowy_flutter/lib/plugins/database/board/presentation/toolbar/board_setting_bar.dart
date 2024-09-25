@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
@@ -19,35 +19,33 @@ class BoardSettingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<DatabaseFilterMenuBloc>(
-      create: (context) => DatabaseFilterMenuBloc(
+    return BlocProvider(
+      create: (context) => FilterEditorBloc(
         viewId: databaseController.viewId,
         fieldController: databaseController.fieldController,
-      )..add(const DatabaseFilterMenuEvent.initial()),
-      child: BlocListener<DatabaseFilterMenuBloc, DatabaseFilterMenuState>(
-        listenWhen: (p, c) => p.isVisible != c.isVisible,
-        listener: (context, state) => toggleExtension.toggle(),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: databaseController.isLoading,
-          builder: (context, value, child) {
-            if (value) {
-              return const SizedBox.shrink();
-            }
-            return SizedBox(
-              height: 20,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const FilterButton(),
-                  const HSpace(2),
-                  SettingButton(
-                    databaseController: databaseController,
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+      ),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: databaseController.isLoading,
+        builder: (context, value, child) {
+          if (value) {
+            return const SizedBox.shrink();
+          }
+          return SizedBox(
+            height: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FilterButton(
+                  toggleExtension: toggleExtension,
+                ),
+                const HSpace(2),
+                SettingButton(
+                  databaseController: databaseController,
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

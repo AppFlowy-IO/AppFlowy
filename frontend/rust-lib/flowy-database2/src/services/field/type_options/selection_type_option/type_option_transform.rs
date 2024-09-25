@@ -1,11 +1,11 @@
 use crate::entities::FieldType;
 use crate::services::cell::CellDataDecoder;
-use crate::services::field::{
-  MultiSelectTypeOption, RichTextTypeOption, SelectOptionIds, SelectTypeOptionSharedAction,
-  SingleSelectTypeOption, TypeOption, CHECK, UNCHECK,
-};
+use crate::services::field::{SelectTypeOptionSharedAction, TypeOption, CHECK, UNCHECK};
 use collab_database::database::Database;
-use collab_database::entity::{SelectOption, SelectOptionColor};
+use collab_database::fields::select_type_option::{
+  SelectOption, SelectOptionColor, SelectOptionIds, SelectTypeOption,
+};
+use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::TypeOptionData;
 use collab_database::template::option_parse::build_options_from_cells;
 use tracing::info;
@@ -89,7 +89,7 @@ impl SelectOptionTypeOptionTransformHelper {
         }
       },
       FieldType::MultiSelect => {
-        let options = MultiSelectTypeOption::from(old_type_option_data).options;
+        let options = SelectTypeOption::from(old_type_option_data).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()
@@ -101,7 +101,7 @@ impl SelectOptionTypeOptionTransformHelper {
         })
       },
       FieldType::SingleSelect => {
-        let options = SingleSelectTypeOption::from(old_type_option_data).options;
+        let options = SelectTypeOption::from(old_type_option_data).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()

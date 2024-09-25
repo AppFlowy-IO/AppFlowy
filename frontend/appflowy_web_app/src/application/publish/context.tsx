@@ -1,12 +1,18 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta } from '@/application/collab.type';
+import {
+  AppendBreadcrumb,
+  CreateRowDoc,
+  LoadView,
+  LoadViewMeta,
+  View,
+  ViewInfo,
+} from '@/application/types';
 import { db } from '@/application/db';
 import { ViewMeta } from '@/application/db/tables/view_metas';
-import { View } from '@/application/types';
-import { useService } from '@/components/app/app.hooks';
+import { findAncestors, findView } from '@/components/_shared/outline/utils';
+import { useService } from '@/components/main/app.hooks';
 import { notify } from '@/components/_shared/notify';
-import { findView } from '@/components/publish/header/utils';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export interface PublishContextType {
@@ -17,9 +23,13 @@ export interface PublishContextType {
   viewMeta?: ViewMeta;
   toView: (viewId: string) => Promise<void>;
   loadViewMeta: LoadViewMeta;
-  getViewRowsMap?: GetViewRowsMap;
+  createRowDoc?: CreateRowDoc;
   loadView: LoadView;
-  outline?: View;
+  outline?: View[];
+  appendBreadcrumb?: AppendBreadcrumb;
+  breadcrumbs: View[];
+  rendered?: boolean;
+  onRendered?: () => void;
 }
 
 export const PublishContext = createContext<PublishContextType | null>(null);
@@ -37,8 +47,9 @@ export const PublishProvider = ({
   isTemplateThumb?: boolean;
   isTemplate?: boolean;
 }) => {
-
-  const [outline, setOutline] = useState<View>();
+  const [outline, setOutline] = useState<View[]>([]);
+  const createdRowKeys = useRef<string[]>([]);
+  const [rendered, setRendered] = useState(false);
 
   const [subscribers, setSubscribers] = useState<Map<string, (meta: ViewMeta) => void>>(new Map());
 
@@ -57,9 +68,65 @@ export const PublishProvider = ({
 
     return {
       ...view,
-      name: findView(outline?.children || [], view.view_id)?.name || view.name,
+      name: findView(outline, view.view_id)?.name || view.name,
     };
   }, [namespace, publishName, outline]);
+
+  const originalCrumbs = useMemo(() => {
+    if (!viewMeta || !outline) return [];
+    const ancestors = findAncestors(outline, viewMeta?.view_id);
+
+    if (ancestors) return ancestors;
+    if (!viewMeta?.ancestor_views) return [];
+    const parseToView = (ancestor: ViewInfo): View => {
+      let extra = null;
+
+      try {
+        extra = ancestor.extra ? JSON.parse(ancestor.extra) : null;
+      } catch (e) {
+        // do nothing
+      }
+
+      return {
+        view_id: ancestor.view_id,
+        name: ancestor.name,
+        icon: ancestor.icon,
+        layout: ancestor.layout,
+        extra,
+        is_published: true,
+        children: [],
+        is_private: false,
+      };
+    };
+
+    const currentView = parseToView(viewMeta);
+
+    return viewMeta?.ancestor_views.slice(1).map(item => findView(outline, item.view_id) || parseToView(item)) || [currentView];
+  }, [viewMeta, outline]);
+
+  const [breadcrumbs, setBreadcrumbs] = useState<View[]>([]);
+
+  useEffect(() => {
+    setBreadcrumbs(originalCrumbs);
+  }, [originalCrumbs]);
+
+  const appendBreadcrumb = useCallback((view?: View) => {
+    setBreadcrumbs((prev) => {
+      if (!view) {
+        return prev.slice(0, -1);
+      }
+
+      const index = prev.findIndex((v) => v.view_id === view.view_id);
+
+      if (index === -1) {
+        return [...prev, view];
+      }
+
+      const rest = prev.slice(0, index);
+
+      return [...rest, view];
+    });
+  }, []);
 
   useEffect(() => {
     db.view_metas.hook('creating', (primaryKey, obj) => {
@@ -92,6 +159,21 @@ export const PublishProvider = ({
 
   const service = useService();
 
+  useEffect(() => {
+    const rowKeys = createdRowKeys.current;
+
+    createdRowKeys.current = [];
+
+    if (!rowKeys.length) return;
+    rowKeys.forEach((rowKey) => {
+      try {
+        service?.deleteRowDoc(rowKey);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+  }, [service, publishName]);
   const navigate = useNavigate();
   const toView = useCallback(
     async (viewId: string) => {
@@ -132,7 +214,7 @@ export const PublishProvider = ({
   }, [namespace, service]);
 
   const loadViewMeta = useCallback(
-    async (viewId: string, callback?: (meta: ViewMeta) => void) => {
+    async (viewId: string, callback?: (meta: View) => void) => {
       try {
         const info = await service?.getPublishInfo(viewId);
 
@@ -150,38 +232,32 @@ export const PublishProvider = ({
           return Promise.reject(new Error('View meta has not been published yet'));
         }
 
-        callback?.(meta);
+        const parseMetaToView = (meta: ViewInfo | ViewMeta): View => {
+          return {
+            is_private: false,
+            view_id: meta.view_id,
+            name: meta.name,
+            layout: meta.layout,
+            extra: meta.extra ? JSON.parse(meta.extra) : undefined,
+            icon: meta.icon,
+            children: meta.child_views?.map(parseMetaToView) || [],
+            is_published: true,
+            database_relations: 'database_relations' in meta ? meta.database_relations : undefined,
+          };
+        };
+
+        const res = parseMetaToView(meta);
+
+        callback?.(res);
 
         if (callback) {
           setSubscribers((prev) => {
-            prev.set(name, callback);
+            prev.set(name, (meta) => {
+              return callback?.(parseMetaToView(meta));
+            });
 
             return prev;
           });
-        }
-
-        return meta;
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
-    [service],
-  );
-
-  const getViewRowsMap = useCallback(
-    async (viewId: string, rowIds?: string[]) => {
-      try {
-        const info = await service?.getPublishInfo(viewId);
-
-        if (!info) {
-          throw new Error('View has not been published yet');
-        }
-
-        const { namespace, publishName } = info;
-        const res = await service?.getPublishDatabaseViewRows(namespace, publishName, rowIds);
-
-        if (!res) {
-          throw new Error('View has not been published yet');
         }
 
         return res;
@@ -192,8 +268,36 @@ export const PublishProvider = ({
     [service],
   );
 
+  const createRowDoc = useCallback(
+    async (rowKey: string) => {
+      try {
+        const doc = await service?.createRowDoc(rowKey);
+
+        if (!doc) {
+          throw new Error('Failed to create row doc');
+        }
+
+        createdRowKeys.current.push(rowKey);
+        return doc;
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    [service],
+  );
+
   const loadView = useCallback(
-    async (viewId: string) => {
+    async (viewId: string, isSubDocument?: boolean) => {
+      if (isSubDocument) {
+        const data = await service?.getPublishRowDocument(viewId);
+
+        if (!data) {
+          return Promise.reject(new Error('View has not been published yet'));
+        }
+
+        return data;
+      }
+
       try {
         const res = await service?.getPublishInfo(viewId);
 
@@ -217,6 +321,10 @@ export const PublishProvider = ({
     [service],
   );
 
+  const onRendered = useCallback(() => {
+    setRendered(true);
+  }, []);
+
   useEffect(() => {
     if (!viewMeta && prevViewMeta.current) {
       window.location.reload();
@@ -235,13 +343,17 @@ export const PublishProvider = ({
       value={{
         loadView,
         viewMeta,
-        getViewRowsMap,
+        createRowDoc,
         loadViewMeta,
         toView,
         namespace,
         publishName,
         isTemplateThumb,
         outline,
+        breadcrumbs,
+        appendBreadcrumb,
+        onRendered,
+        rendered,
       }}
     >
       {children}

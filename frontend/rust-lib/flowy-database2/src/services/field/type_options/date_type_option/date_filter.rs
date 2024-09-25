@@ -1,9 +1,9 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
 use crate::services::cell::insert_date_cell;
-use crate::services::field::DateCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
-use chrono::{Duration, NaiveDate, NaiveDateTime};
+use chrono::{Duration, NaiveDate};
+use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 
@@ -32,7 +32,7 @@ impl DateFilterPB {
 
 #[inline]
 fn naive_date_from_timestamp(timestamp: i64) -> Option<NaiveDate> {
-  NaiveDateTime::from_timestamp_opt(timestamp, 0).map(|date_time: NaiveDateTime| date_time.date())
+  chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc().date())
 }
 
 enum DateFilterStrategy {
@@ -106,17 +106,21 @@ impl PreFillCellsWithFilter for DateFilterPB {
       | DateFilterConditionPB::DateOnOrAfter => self.timestamp,
       DateFilterConditionPB::DateBefore => self
         .timestamp
-        .and_then(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0))
+        .and_then(|timestamp| {
+          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+        })
         .map(|date_time| {
           let answer = date_time - Duration::days(1);
-          answer.timestamp()
+          answer.and_utc().timestamp()
         }),
       DateFilterConditionPB::DateAfter => self
         .timestamp
-        .and_then(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0))
+        .and_then(|timestamp| {
+          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+        })
         .map(|date_time| {
           let answer = date_time + Duration::days(1);
-          answer.timestamp()
+          answer.and_utc().timestamp()
         }),
       DateFilterConditionPB::DateWithIn => self.start,
       _ => None,
@@ -134,7 +138,7 @@ impl PreFillCellsWithFilter for DateFilterPB {
 #[cfg(test)]
 mod tests {
   use crate::entities::{DateFilterConditionPB, DateFilterPB};
-  use crate::services::field::DateCellData;
+  use collab_database::fields::date_type_option::DateCellData;
 
   fn to_cell_data(timestamp: i32) -> DateCellData {
     DateCellData::new(timestamp as i64, false, false, "".to_string())

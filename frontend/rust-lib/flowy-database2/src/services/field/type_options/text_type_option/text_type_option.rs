@@ -1,9 +1,9 @@
 use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::text_type_option::RichTextTypeOption;
+use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell};
-use serde::{Deserialize, Serialize};
 
 use flowy_error::{FlowyError, FlowyResult};
 
@@ -16,33 +16,11 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-/// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
-/// used yet.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct RichTextTypeOption {
-  #[serde(default)]
-  pub inner: String,
-}
-
 impl TypeOption for RichTextTypeOption {
   type CellData = StringCellData;
   type CellChangeset = String;
   type CellProtobufType = ProtobufStr;
   type CellFilter = TextFilterPB;
-}
-
-impl From<TypeOptionData> for RichTextTypeOption {
-  fn from(data: TypeOptionData) -> Self {
-    Self {
-      inner: data.get_as(CELL_DATA).unwrap_or_default(),
-    }
-  }
-}
-
-impl From<RichTextTypeOption> for TypeOptionData {
-  fn from(data: RichTextTypeOption) -> Self {
-    TypeOptionDataBuilder::from([(CELL_DATA.into(), data.inner.into())])
-  }
 }
 
 impl TypeOptionTransform for RichTextTypeOption {}

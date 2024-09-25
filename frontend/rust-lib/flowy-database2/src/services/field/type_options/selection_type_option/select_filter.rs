@@ -1,4 +1,4 @@
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 
@@ -133,7 +133,7 @@ impl PreFillCellsWithFilter for SelectOptionFilterPB {
 #[cfg(test)]
 mod tests {
   use crate::entities::{SelectOptionFilterConditionPB, SelectOptionFilterPB};
-  use collab_database::entity::SelectOption;
+  use collab_database::fields::select_type_option::SelectOption;
 
   #[test]
   fn select_option_filter_is_empty_test() {

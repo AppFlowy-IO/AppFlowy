@@ -1,4 +1,4 @@
-import { FieldId } from '@/application/collab.type';
+import { FieldId } from '@/application/types';
 
 export enum FieldVisibility {
   AlwaysShown = 0,

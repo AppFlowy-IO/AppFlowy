@@ -5,7 +5,7 @@ mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::CellDataChangeset;
   use crate::services::field::FieldBuilder;
-  use crate::services::field::URLTypeOption;
+  use collab_database::fields::url_type_option::URLTypeOption;
 
   #[test]
   fn url_test() {

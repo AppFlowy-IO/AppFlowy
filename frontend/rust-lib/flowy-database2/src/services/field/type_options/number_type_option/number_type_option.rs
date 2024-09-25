@@ -1,50 +1,29 @@
 use async_trait::async_trait;
-use collab::preclude::encoding::serde::from_any;
-use collab::preclude::Any;
+
 use collab::util::AnyMapExt;
 use collab_database::database::Database;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::number_type_option::{
+  NumberCellFormat, NumberFormat, NumberTypeOption,
+};
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell};
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
-use rust_decimal::Decimal;
-use serde::{Deserialize, Deserializer, Serialize};
+
 use std::cmp::Ordering;
 use std::default::Default;
-use std::str::FromStr;
+
 use tracing::info;
 
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
-
-// Number
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct NumberTypeOption {
-  #[serde(default, deserialize_with = "number_format_from_i64")]
-  pub format: NumberFormat,
-  #[serde(default)]
-  pub scale: u32,
-  #[serde(default)]
-  pub symbol: String,
-  #[serde(default)]
-  pub name: String,
-}
-
-fn number_format_from_i64<'de, D>(deserializer: D) -> Result<NumberFormat, D::Error>
-where
-  D: Deserializer<'de>,
-{
-  let value = i64::deserialize(deserializer)?;
-  Ok(NumberFormat::from(value))
-}
 
 #[derive(Clone, Debug, Default)]
 pub struct NumberCellData(pub String);
@@ -94,23 +73,6 @@ impl TypeOption for NumberTypeOption {
   type CellFilter = NumberFilterPB;
 }
 
-impl From<TypeOptionData> for NumberTypeOption {
-  fn from(data: TypeOptionData) -> Self {
-    from_any(&Any::from(data)).unwrap()
-  }
-}
-
-impl From<NumberTypeOption> for TypeOptionData {
-  fn from(data: NumberTypeOption) -> Self {
-    TypeOptionDataBuilder::from([
-      ("format".into(), Any::BigInt(data.format.value())),
-      ("scale".into(), Any::BigInt(data.scale as i64)),
-      ("name".into(), data.name.into()),
-      ("symbol".into(), data.symbol.into()),
-    ])
-  }
-}
-
 impl TypeOptionCellDataSerde for NumberTypeOption {
   fn protobuf_encode(
     &self,
@@ -121,63 +83,6 @@ impl TypeOptionCellDataSerde for NumberTypeOption {
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(NumberCellData::from(cell))
-  }
-}
-
-impl NumberTypeOption {
-  pub fn new() -> Self {
-    Self::default()
-  }
-
-  fn format_cell_data<T: AsRef<str>>(&self, num_cell_data: T) -> FlowyResult<NumberCellFormat> {
-    match self.format {
-      NumberFormat::Num => {
-        if SCIENTIFIC_NOTATION_REGEX
-          .is_match(num_cell_data.as_ref())
-          .unwrap()
-        {
-          match Decimal::from_scientific(&num_cell_data.as_ref().to_lowercase()) {
-            Ok(value, ..) => Ok(NumberCellFormat::from_decimal(value)),
-            Err(_) => Ok(NumberCellFormat::new()),
-          }
-        } else {
-          // Test the input string is start with dot and only contains number.
-          // If it is, add a 0 before the dot. For example, ".123" -> "0.123"
-          let num_str = match START_WITH_DOT_NUM_REGEX.captures(num_cell_data.as_ref()) {
-            Ok(Some(captures)) => match captures.get(0).map(|m| m.as_str().to_string()) {
-              Some(s) => {
-                format!("0{}", s)
-              },
-              None => "".to_string(),
-            },
-            // Extract the number from the string.
-            // For example, "123abc" -> "123". check out the number_type_option_input_test test for
-            // more examples.
-            _ => match EXTRACT_NUM_REGEX.captures(num_cell_data.as_ref()) {
-              Ok(Some(captures)) => captures
-                .get(0)
-                .map(|m| m.as_str().to_string())
-                .unwrap_or_default(),
-              _ => "".to_string(),
-            },
-          };
-
-          match Decimal::from_str(&num_str) {
-            Ok(decimal, ..) => Ok(NumberCellFormat::from_decimal(decimal)),
-            Err(_) => Ok(NumberCellFormat::new()),
-          }
-        }
-      },
-      _ => {
-        // If the format is not number, use the format string to format the number.
-        NumberCellFormat::from_format_str(num_cell_data.as_ref(), &self.format)
-      },
-    }
-  }
-
-  pub fn set_format(&mut self, format: NumberFormat) {
-    self.format = format;
-    self.symbol = format.symbol();
   }
 }
 
@@ -208,7 +113,7 @@ impl TypeOptionTransform for NumberTypeOption {
         for (row_id, cell_data) in rows {
           if let Ok(num_cell) = self
             .parse_cell(&cell_data)
-            .and_then(|num_cell_data| self.format_cell_data(num_cell_data))
+            .and_then(|num_cell_data| self.format_cell_data(num_cell_data).map_err(Into::into))
           {
             database
               .update_row(row_id, |row| {
@@ -331,19 +236,6 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
           (Err(_), Err(_)) => Ordering::Equal,
         }
       },
-    }
-  }
-}
-
-impl std::default::Default for NumberTypeOption {
-  fn default() -> Self {
-    let format = NumberFormat::default();
-    let symbol = format.symbol();
-    NumberTypeOption {
-      format,
-      scale: 0,
-      symbol,
-      name: "Number".to_string(),
     }
   }
 }

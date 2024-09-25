@@ -1,15 +1,16 @@
-use std::time::Duration;
-
-use flowy_database2::entities::{FieldType, MediaCellChangeset};
-use flowy_database2::services::field::{
-  ChecklistCellChangeset, DateCellChangeset, DateCellData, MediaFile, MediaFileType,
-  MediaUploadType, MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset,
-  SingleSelectTypeOption, StringCellData, TimeCellData, URLCellData,
-};
-use lib_infra::box_any::BoxAny;
-
 use crate::database::cell_test::script::CellScript::UpdateCell;
 use crate::database::cell_test::script::DatabaseCellTest;
+use collab_database::fields::date_type_option::DateCellData;
+use collab_database::fields::media_type_option::{MediaFile, MediaFileType, MediaUploadType};
+use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::url_type_option::URLCellData;
+use flowy_database2::entities::{FieldType, MediaCellChangeset};
+use flowy_database2::services::field::{
+  ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset, SelectOptionCellChangeset,
+  StringCellData, TimeCellData,
+};
+use lib_infra::box_any::BoxAny;
+use std::time::Duration;
 
 #[tokio::test]
 async fn grid_cell_update() {
@@ -63,7 +64,7 @@ async fn grid_cell_update() {
             name: "link".to_string(),
             url: "https://www.appflowy.io".to_string(),
             file_type: MediaFileType::Link,
-            upload_type: MediaUploadType::NetworkMedia,
+            upload_type: MediaUploadType::Network,
           }],
           removed_ids: vec![],
         }),

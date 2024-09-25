@@ -112,17 +112,17 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     view = widget.view;
     titleTextController.text = view.name;
     widget.node.addListener(_reload);
-    viewListener = ViewListener(
-      viewId: widget.view.id,
-    )..start(
-        onViewUpdated: (p0) {
-          if (titleTextController.text != p0.name) {
-            titleTextController.text = p0.name;
+
+    viewListener = ViewListener(viewId: widget.view.id)
+      ..start(
+        onViewUpdated: (view) {
+          if (titleTextController.text != view.name) {
+            titleTextController.text = view.name;
           }
           setState(() {
-            viewIcon = p0.icon.value;
-            cover = p0.cover;
-            view = p0;
+            viewIcon = view.icon.value;
+            cover = view.cover;
+            view = view;
           });
         },
       );
@@ -305,17 +305,10 @@ class DocumentHeaderToolbar extends StatefulWidget {
 }
 
 class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
-  bool isHidden = true;
+  final _popoverController = PopoverController();
+
+  bool isHidden = UniversalPlatform.isDesktopOrWeb;
   bool isPopoverOpen = false;
-
-  final PopoverController _popoverController = PopoverController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    isHidden = UniversalPlatform.isDesktopOrWeb;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -325,22 +318,21 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: buildRowChildren(),
+        child: Visibility(
+          visible: !isHidden || isPopoverOpen,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: buildRowChildren(),
+          ),
         ),
       ),
     );
 
     if (UniversalPlatform.isDesktopOrWeb) {
       child = MouseRegion(
-        onEnter: (event) => setHidden(false),
-        onExit: (event) {
-          if (!isPopoverOpen) {
-            setHidden(true);
-          }
-        },
         opaque: false,
+        onEnter: (event) => setHidden(false),
+        onExit: isPopoverOpen ? null : (_) => setHidden(true),
         child: child,
       );
     }
@@ -349,9 +341,10 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   }
 
   List<Widget> buildRowChildren() {
-    if (isHidden || widget.hasCover && widget.hasIcon) {
+    if (widget.hasCover && widget.hasIcon) {
       return [];
     }
+
     final List<Widget> children = [];
 
     if (!widget.hasCover) {
@@ -409,7 +402,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
 
       if (UniversalPlatform.isDesktop) {
         child = AppFlowyPopover(
-          onClose: () => isPopoverOpen = false,
+          onClose: () => setState(() => isPopoverOpen = false),
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
@@ -466,9 +459,10 @@ class DocumentCover extends StatefulWidget {
 }
 
 class DocumentCoverState extends State<DocumentCover> {
+  final popoverController = PopoverController();
+
   bool isOverlayButtonsHidden = true;
   bool isPopoverOpen = false;
-  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {

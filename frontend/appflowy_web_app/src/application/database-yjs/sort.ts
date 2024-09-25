@@ -1,4 +1,5 @@
 import {
+  RowId,
   YDatabaseField,
   YDatabaseFields,
   YDatabaseRow,
@@ -6,17 +7,16 @@ import {
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { FieldType, SortCondition } from '@/application/database-yjs/database.type';
 import { parseChecklistData, parseSelectOptionCellData } from '@/application/database-yjs/fields';
 import { Row } from '@/application/database-yjs/selector';
 import { orderBy } from 'lodash-es';
-import * as Y from 'yjs';
 
-export function sortBy(rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFields, rowMetas: Y.Map<YDoc>) {
+export function sortBy (rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFields, rowMetas: Record<RowId, YDoc>) {
   const sortArray = sorts.toArray();
 
-  if (sortArray.length === 0 || rowMetas.size === 0 || fields.size === 0) return rows;
+  if (sortArray.length === 0 || Object.keys(rowMetas).length === 0 || fields.size === 0) return rows;
   const iteratees = sortArray.map((sort) => {
     return (row: { id: string }) => {
       const fieldId = sort.get(YjsDatabaseKey.field_id);
@@ -24,7 +24,7 @@ export function sortBy(rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFiel
       const fieldType = Number(field.get(YjsDatabaseKey.type));
 
       const rowId = row.id;
-      const rowMeta = rowMetas.get(rowId);
+      const rowMeta = rowMetas[rowId];
 
       const defaultData = parseCellDataForSort(field, '');
 
@@ -57,7 +57,7 @@ export function sortBy(rows: Row[], sorts: YDatabaseSorts, fields: YDatabaseFiel
   return orderBy(rows, iteratees, orders);
 }
 
-export function parseCellDataForSort(field: YDatabaseField, data: string | boolean | number | object) {
+export function parseCellDataForSort (field: YDatabaseField, data: string | boolean | number | object) {
   const fieldType = Number(field.get(YjsDatabaseKey.type));
 
   switch (fieldType) {

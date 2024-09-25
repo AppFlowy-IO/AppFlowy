@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use collab_database::fields::media_type_option::MediaCellData;
+use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
@@ -260,7 +262,7 @@ impl<'a> CellBuilder<'a> {
             cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
           FieldType::Media => {
-            cells.insert(field_id, (&MediaCellData::from(cell_str)).into());
+            cells.insert(field_id, MediaCellData::from(cell_str).into());
           },
         }
       }

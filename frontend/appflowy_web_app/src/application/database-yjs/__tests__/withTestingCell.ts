@@ -1,5 +1,5 @@
 import * as Y from 'yjs';
-import { YDatabaseCell, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseCell, YjsDatabaseKey } from '@/application/types';
 import { FieldType } from '@/application/database-yjs';
 
 export function withTestingDateCell() {

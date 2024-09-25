@@ -1,4 +1,13 @@
-import { YDoc } from '@/application/collab.type';
+import {
+  DuplicatePublishView,
+  FolderView,
+  Invitation,
+  User,
+  UserWorkspaceInfo,
+  Workspace,
+  YDoc,
+  View, DatabaseRelations,
+} from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { AFService } from '@/application/services/services.type';
 import {
@@ -9,7 +18,6 @@ import {
 } from '@/application/template.type';
 import { nanoid } from 'nanoid';
 import { YMap } from 'yjs/dist/src/types/YMap';
-import { DuplicatePublishView, FolderView, Invitation, User, Workspace } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -173,4 +181,57 @@ export class AFClientService implements AFService {
   getInvitation (_invitationId: string): Promise<Invitation> {
     return Promise.reject('Method not implemented');
   }
+
+  getAppOutline (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getDatabasePageRows (_workspaceId: string, _viewId: string): Promise<{ rows: YMap<YDoc>; destroy: () => void }> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getPageDoc (_workspaceId: string, _viewId: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getUserWorkspaceInfo (): Promise<UserWorkspaceInfo> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppDatabaseViewRelations (_workspaceId: string, _databaseStorageId: string): Promise<DatabaseRelations> {
+    return Promise.reject('Method not implemented');
+  }
+
+  openWorkspace (_workspaceId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppFavorites (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppRecent (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppTrash (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppView (_workspaceId: string, _viewId: string): Promise<View> {
+    return Promise.reject('Method not implemented');
+  }
+
+  createRowDoc (_rowKey: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
+  deleteRowDoc (_rowKey: string): void {
+    return;
+  }
+
+  getPublishRowDocument (_viewId: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
 }

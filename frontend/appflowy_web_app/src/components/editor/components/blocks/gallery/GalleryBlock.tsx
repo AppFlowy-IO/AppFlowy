@@ -1,4 +1,5 @@
-import { GalleryLayout } from '@/application/collab.type';
+import { ReactComponent as ImageIcon } from '@/assets/gallery.svg';
+import { GalleryLayout } from '@/application/types';
 import { GalleryPreview } from '@/components/_shared/gallery-preview';
 import { notify } from '@/components/_shared/notify';
 import Carousel from '@/components/editor/components/blocks/gallery/Carousel';
@@ -75,7 +76,10 @@ const GalleryBlock = memo(
 
     return (
       <div
-        ref={ref} {...attributes} className={className} onMouseEnter={() => setHovered(true)}
+        ref={ref} {...attributes} className={className} onMouseEnter={() => {
+        if (!photos.length) return;
+        setHovered(true);
+      }}
         onMouseLeave={() => setHovered(false)}
       >
         <div className={'absolute left-0 top-0 h-full w-full pointer-events-none'}>
@@ -94,7 +98,14 @@ const GalleryBlock = memo(
                   handleOpenPreview();
                 }} images={photos}
               />
-          ) : null}
+          ) : <div
+            className={
+              'container-bg border border-line-divider flex h-[48px] w-full rounded-[8px] select-none items-center gap-[10px] bg-fill-list-active px-4 text-text-caption'
+            }
+          >
+            <ImageIcon />
+            {t('document.plugins.image.addAnImageMobile')}
+          </div>}
         {hovered &&
           <GalleryToolbar onCopy={handleCopy} onDownload={handleDownload} onOpenPreview={handleOpenPreview} />}
 

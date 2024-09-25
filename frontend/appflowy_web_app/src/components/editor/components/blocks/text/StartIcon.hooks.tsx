@@ -1,4 +1,4 @@
-import { BlockType } from '@/application/collab.type';
+import { BlockType } from '@/application/types';
 import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted-list';
 import { NumberListIcon } from '@/components/editor/components/blocks/numbered-list';
 import QuoteIcon from '@/components/editor/components/blocks/quote/QuoteIcon';

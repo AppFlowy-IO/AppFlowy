@@ -12,11 +12,13 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
+import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
 
 // Import commands.js using ES2015 syntax:
 import '@cypress/code-coverage/support';
 import './commands';
 import './document';
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
@@ -69,3 +71,9 @@ Cypress.Commands.add('clickOutside', () => {
 // Example use:
 // cy.mount(<MyComponent />)
 
+addMatchImageSnapshotCommand({
+  failureThreshold: 0.03, // 允许 3% 的像素差异
+  failureThresholdType: 'percent',
+  customDiffConfig: { threshold: 0.1 },
+  capture: 'viewport',
+});

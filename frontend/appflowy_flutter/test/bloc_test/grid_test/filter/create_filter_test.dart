@@ -16,7 +16,7 @@ void main() {
   test('create a text filter)', () async {
     final context = await gridTest.createTestGrid();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     await service.insertTextFilter(
       fieldId: textField.id,
       condition: TextFilterConditionPB.TextIsEmpty,
@@ -24,13 +24,13 @@ void main() {
     );
     await gridResponseFuture();
 
-    assert(context.fieldController.filterInfos.length == 1);
+    assert(context.fieldController.filters.length == 1);
   });
 
   test('delete a text filter)', () async {
     final context = await gridTest.createTestGrid();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     await service.insertTextFilter(
       fieldId: textField.id,
       condition: TextFilterConditionPB.TextIsEmpty,
@@ -38,14 +38,13 @@ void main() {
     );
     await gridResponseFuture();
 
-    final filterInfo = context.fieldController.filterInfos.first;
+    final filter = context.fieldController.filters.first;
     await service.deleteFilter(
-      fieldId: textField.id,
-      filterId: filterInfo.filter.id,
+      filterId: filter.filterId,
     );
     await gridResponseFuture();
 
-    expect(context.fieldController.filterInfos.length, 0);
+    expect(context.fieldController.filters.length, 0);
   });
 
   test('filter rows with condition: text is empty', () async {
@@ -60,7 +59,7 @@ void main() {
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     await service.insertTextFilter(
       fieldId: textField.id,
       condition: TextFilterConditionPB.TextIsEmpty,
@@ -84,7 +83,7 @@ void main() {
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     await service.insertTextFilter(
       fieldId: textField.id,
       condition: TextFilterConditionPB.TextIsEmpty,
@@ -105,7 +104,7 @@ void main() {
   test('filter rows with condition: text is not empty', () async {
     final context = await gridTest.createTestGrid();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final textField = context.textFieldContext();
+    final textField = context.getTextField();
     await gridResponseFuture();
     await service.insertTextFilter(
       fieldId: textField.id,
@@ -118,7 +117,7 @@ void main() {
 
   test('filter rows with condition: checkbox uncheck', () async {
     final context = await gridTest.createTestGrid();
-    final checkboxField = context.checkboxFieldContext();
+    final checkboxField = context.getCheckboxField();
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
@@ -139,7 +138,7 @@ void main() {
 
   test('filter rows with condition: checkbox check', () async {
     final context = await gridTest.createTestGrid();
-    final checkboxField = context.checkboxFieldContext();
+    final checkboxField = context.getCheckboxField();
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,

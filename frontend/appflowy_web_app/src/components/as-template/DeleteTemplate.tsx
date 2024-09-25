@@ -1,33 +1,34 @@
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function DeleteTemplate ({ id, onClose, onDeleted, open }: {
+function DeleteTemplate ({ onDeleted, id, onClose, open }: {
   id: string;
   onClose: () => void;
-  onDeleted: () => void;
   open: boolean;
+  onDeleted?: () => void;
 }) {
   const { t } = useTranslation();
   const service = useService();
   const onSubmit = useCallback(async () => {
     try {
       await service?.deleteTemplate(id);
-      onDeleted();
       onClose();
+      onDeleted?.();
+      notify.success(t('template.deleteSuccess'));
     } catch (error) {
       notify.error('Failed to delete template');
     }
-  }, [onDeleted, onClose, service, id]);
+  }, [t, onClose, service, id, onDeleted]);
 
   return (
     <NormalModal
       onOk={onSubmit}
       danger
       okText={t('button.delete')}
-      title={<div className={'text-left'}>{t('template.deleteTemplate')}</div>}
+      title={<div className={'text-left font-semibold'}>{t('template.deleteFromTemplate')}</div>}
       onCancel={onClose}
       open={open}
       onClose={onClose}

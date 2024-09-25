@@ -1,14 +1,14 @@
-import { BlockType } from '@/application/collab.type';
-import { CustomEditor } from '@/components/editor/command';
+import { BlockType } from '@/application/types';
+import { CustomEditor } from 'src/application/slate-yjs/command';
 import { HeadingNode } from '@/components/editor/editor.type';
 import { Element, Text } from 'slate';
 import { ReactEditor } from 'slate-react';
 
-export function extractHeadings(editor: ReactEditor, maxDepth: number): HeadingNode[] {
+export function extractHeadings (editor: ReactEditor, maxDepth: number): HeadingNode[] {
   const headings: HeadingNode[] = [];
   const blocks = editor.children;
 
-  function traverse(children: (Element | Text)[]) {
+  function traverse (children: (Element | Text)[]) {
     for (const block of children) {
       if (Text.isText(block)) continue;
       if (block.type === BlockType.HeadingBlock && (block as HeadingNode).data?.level <= maxDepth) {
@@ -31,7 +31,7 @@ export function extractHeadings(editor: ReactEditor, maxDepth: number): HeadingN
   return traverse(blocks);
 }
 
-export function nestHeadings(headings: HeadingNode[]): HeadingNode[] {
+export function nestHeadings (headings: HeadingNode[]): HeadingNode[] {
   const root: HeadingNode[] = [];
   const stack: HeadingNode[] = [];
 

@@ -1,4 +1,4 @@
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 

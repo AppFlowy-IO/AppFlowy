@@ -94,18 +94,11 @@ class FilterBackendService {
     required String fieldId,
     String? filterId,
     required DateFilterConditionPB condition,
-    required FieldType fieldType,
     int? start,
     int? end,
     int? timestamp,
   }) {
-    assert(
-      fieldType == FieldType.DateTime ||
-          fieldType == FieldType.LastEditedTime ||
-          fieldType == FieldType.CreatedTime,
-    );
-
-    final filter = DateFilterPB();
+    final filter = DateFilterPB()..condition = condition;
 
     if (timestamp != null) {
       filter.timestamp = $fixnum.Int64(timestamp);
@@ -306,12 +299,9 @@ class FilterBackendService {
   }
 
   Future<FlowyResult<void, FlowyError>> deleteFilter({
-    required String fieldId,
     required String filterId,
   }) async {
-    final deleteFilterPayload = DeleteFilterPB()
-      ..fieldId = fieldId
-      ..filterId = filterId;
+    final deleteFilterPayload = DeleteFilterPB()..filterId = filterId;
 
     final payload = DatabaseSettingChangesetPB()
       ..viewId = viewId

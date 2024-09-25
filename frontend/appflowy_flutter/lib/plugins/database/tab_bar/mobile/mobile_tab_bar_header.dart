@@ -14,16 +14,9 @@ import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../grid/presentation/grid_page.dart';
-
-class MobileTabBarHeader extends StatefulWidget {
+class MobileTabBarHeader extends StatelessWidget {
   const MobileTabBarHeader({super.key});
 
-  @override
-  State<MobileTabBarHeader> createState() => _MobileTabBarHeaderState();
-}
-
-class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,7 +43,6 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
               return MobileDatabaseControls(
                 controller: state
                     .tabBarControllerByViewId[currentView.viewId]!.controller,
-                toggleExtension: ToggleExtensionNotifier(),
               );
             },
           ),

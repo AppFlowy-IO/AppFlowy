@@ -68,7 +68,7 @@ class DesktopSignInScreen extends StatelessWidget {
                 const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _SettingsButton(),
+                    DesktopSignInSettingsButton(),
                     HSpace(42),
                     SignInAnonymousButtonV2(),
                   ],
@@ -92,8 +92,10 @@ class DesktopSignInScreen extends StatelessWidget {
   }
 }
 
-class _SettingsButton extends StatelessWidget {
-  const _SettingsButton();
+class DesktopSignInSettingsButton extends StatelessWidget {
+  const DesktopSignInSettingsButton({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

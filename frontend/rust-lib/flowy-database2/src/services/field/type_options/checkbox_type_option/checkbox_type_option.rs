@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
+use collab_database::fields::Field;
 use collab_database::rows::Cell;
-use serde::{Deserialize, Serialize};
 
 use flowy_error::FlowyResult;
 
@@ -15,9 +15,6 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct CheckboxTypeOption();
-
 impl TypeOption for CheckboxTypeOption {
   type CellData = CheckboxCellDataPB;
   type CellChangeset = CheckboxCellChangeset;
@@ -26,18 +23,6 @@ impl TypeOption for CheckboxTypeOption {
 }
 
 impl TypeOptionTransform for CheckboxTypeOption {}
-
-impl From<TypeOptionData> for CheckboxTypeOption {
-  fn from(_data: TypeOptionData) -> Self {
-    Self()
-  }
-}
-
-impl From<CheckboxTypeOption> for TypeOptionData {
-  fn from(_data: CheckboxTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-  }
-}
 
 impl TypeOptionCellDataSerde for CheckboxTypeOption {
   fn protobuf_encode(

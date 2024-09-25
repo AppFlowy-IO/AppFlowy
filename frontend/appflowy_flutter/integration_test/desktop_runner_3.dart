@@ -18,6 +18,7 @@ import 'desktop/uncategorized/hotkeys_test.dart' as hotkeys_test;
 import 'desktop/uncategorized/import_files_test.dart' as import_files_test;
 import 'desktop/uncategorized/share_markdown_test.dart' as share_markdown_test;
 import 'desktop/uncategorized/tabs_test.dart' as tabs_test;
+import 'desktop/uncategorized/zoom_in_out_test.dart' as zoom_in_out_test;
 
 Future<void> main() async {
   await runIntegration3OnDesktop();
@@ -44,5 +45,6 @@ Future<void> runIntegration3OnDesktop() async {
   grid_create_row_test_runner.main();
   grid_reorder_row_test_runner.main();
   grid_filter_and_sort_test_runner.main();
+  zoom_in_out_test.main();
   document_title_test.main();
 }

@@ -558,7 +558,7 @@ class SpacePages extends StatelessWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
@@ -571,7 +571,10 @@ class SpacePages extends StatelessWidget {
           var childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((childView) => !shouldIgnoreView!(childView))
+                .where(
+                  (childView) =>
+                      shouldIgnoreView!(childView) != IgnoreViewType.hide,
+                )
                 .toList();
           }
           return Column(

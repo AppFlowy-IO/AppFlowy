@@ -158,7 +158,7 @@ impl Chat {
             match message {
               Ok(message) => {
                 if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
-                  trace!("[Chat] stop streaming message");
+                  trace!("[Chat] client stop streaming message");
                   break;
                 }
                 match message {
@@ -190,7 +190,7 @@ impl Chat {
           }
         },
         Err(err) => {
-          error!("[Chat] failed to stream answer: {}", err);
+          error!("[Chat] failed to start streaming: {}", err);
           if err.is_ai_response_limit_exceeded() {
             let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
           } else {

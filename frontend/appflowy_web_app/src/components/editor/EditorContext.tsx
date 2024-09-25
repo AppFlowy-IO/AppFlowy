@@ -1,4 +1,10 @@
-import { FontLayout, GetViewRowsMap, LineHeightLayout, LoadView, LoadViewMeta } from '@/application/collab.type';
+import {
+  CreateRowDoc,
+  FontLayout,
+  LineHeightLayout,
+  LoadView,
+  LoadViewMeta,
+} from '@/application/types';
 import { createContext, useContext } from 'react';
 
 export interface EditorLayoutStyle {
@@ -13,6 +19,11 @@ export const defaultLayoutStyle: EditorLayoutStyle = {
   lineHeightLayout: LineHeightLayout.normal,
 };
 
+export enum EditorVariant {
+  publish = 'publish',
+  app = 'app',
+}
+
 export interface EditorContextState {
   readOnly: boolean;
   layoutStyle?: EditorLayoutStyle;
@@ -21,8 +32,12 @@ export interface EditorContextState {
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   loadView?: LoadView;
-  getViewRowsMap?: GetViewRowsMap;
+  createRowDoc?: CreateRowDoc;
   readSummary?: boolean;
+  jumpBlockId?: string;
+  onJumpedBlockId?: () => void;
+  variant?: EditorVariant;
+  onRendered?: () => void;
 }
 
 export const EditorContext = createContext<EditorContextState>({

@@ -1,12 +1,13 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::select_type_option::MultiSelectTypeOption;
 use collab_database::views::{DatabaseLayout, LayoutSetting, LayoutSettings};
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
 use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::{FieldBuilder, MultiSelectTypeOption};
+use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::setting::CalendarLayoutSetting;
 
 // Calendar unit test mock data

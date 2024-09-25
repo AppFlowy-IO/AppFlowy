@@ -28,7 +28,7 @@ class RowCardContainer extends StatelessWidget {
       create: (_) => _CardContainerNotifier(),
       child: Consumer<_CardContainerNotifier>(
         builder: (context, notifier, _) {
-          Widget container = Center(child: child);
+          Widget container = child;
           bool shouldBuildAccessory = true;
           if (buildAccessoryWhen != null) {
             shouldBuildAccessory = buildAccessoryWhen!.call();
@@ -52,7 +52,7 @@ class RowCardContainer extends StatelessWidget {
               }
             },
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 30),
+              constraints: const BoxConstraints(minHeight: 42),
               child: container,
             ),
           );

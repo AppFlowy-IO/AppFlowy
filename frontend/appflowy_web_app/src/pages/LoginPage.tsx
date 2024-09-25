@@ -1,9 +1,9 @@
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { Login } from '@/components/login';
 import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-function LoginPage() {
+function LoginPage () {
   const [search] = useSearchParams();
   const redirectTo = search.get('redirectTo') || '';
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;

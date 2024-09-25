@@ -33,11 +33,14 @@ class CheckboxColumnHeader extends StatelessWidget {
         ),
         const HSpace(6),
         Expanded(
-          child: FlowyTooltip(
-            message: groupName,
-            child: FlowyText.medium(
-              groupName,
-              overflow: TextOverflow.ellipsis,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FlowyTooltip(
+              message: groupName,
+              child: FlowyText.medium(
+                groupName,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),
