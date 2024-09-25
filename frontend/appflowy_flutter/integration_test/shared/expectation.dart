@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';

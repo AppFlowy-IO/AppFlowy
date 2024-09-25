@@ -12,7 +12,7 @@ import '../../shared/common_operations.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Zoom in/out: ', () {
+  group('Zoom in/out:', () {
     Future<void> resetAppFlowyScaleFactor(
       WindowSizeManager windowSizeManager,
     ) async {

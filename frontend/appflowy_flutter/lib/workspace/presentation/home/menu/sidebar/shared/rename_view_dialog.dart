@@ -22,14 +22,15 @@ Future<void> createViewAndShowRenameDialogIfNeeded(
     (value) => bool.parse(value),
   );
   final showRenameDialog = value ?? false;
+  final defaultName = LocaleKeys.menuAppHeader_defaultNewPageName.tr();
   if (context.mounted && showRenameDialog) {
     await NavigatorTextFieldDialog(
       title: dialogTitle,
-      value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+      value: defaultName,
       autoSelectAllText: true,
       onConfirm: createView,
     ).show(context);
   } else if (context.mounted) {
-    createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), context);
+    createView(defaultName, context);
   }
 }

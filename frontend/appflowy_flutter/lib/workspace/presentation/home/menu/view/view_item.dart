@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -515,7 +516,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final name = FlowyText.regular(
-      widget.view.name,
+      widget.view.name.isEmpty
+          ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+          : widget.view.name,
       overflow: TextOverflow.ellipsis,
       fontSize: 14.0,
       figmaLineHeight: 18.0,
@@ -650,43 +653,49 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    final viewBloc = context.read<ViewBloc>();
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onSelected: (
-          pluginBuilder,
-          name,
-          initialDataBytes,
-          openAfterCreated,
-          createNewView,
-        ) {
-          if (createNewView) {
-            createViewAndShowRenameDialogIfNeeded(
-              context,
-              _convertLayoutToHintText(pluginBuilder.layoutType!),
-              (viewName, _) {
-                if (viewName.isNotEmpty) {
-                  viewBloc.add(
-                    ViewEvent.createView(
-                      viewName,
-                      pluginBuilder.layoutType!,
-                      openAfterCreated: openAfterCreated,
-                      section: widget.spaceType.toViewSectionPB,
-                    ),
-                  );
-                }
-              },
-            );
+        onSelected: _onSelected,
+      ),
+    );
+  }
+
+  void _onSelected(
+    PluginBuilder pluginBuilder,
+    String? name,
+    List<int>? initialDataBytes,
+    bool openAfterCreated,
+    bool createNewView,
+  ) {
+    final viewBloc = context.read<ViewBloc>();
+
+    if (createNewView) {
+      createViewAndShowRenameDialogIfNeeded(
+        context,
+        _convertLayoutToHintText(pluginBuilder.layoutType!),
+        (viewName, _) {
+          // the name of new document should be empty
+          if (pluginBuilder.layoutType == ViewLayoutPB.Document) {
+            viewName = '';
           }
           viewBloc.add(
-            const ViewEvent.setIsExpanded(true),
+            ViewEvent.createView(
+              viewName,
+              pluginBuilder.layoutType!,
+              openAfterCreated: openAfterCreated,
+              section: widget.spaceType.toViewSectionPB,
+            ),
           );
         },
-      ),
+      );
+    }
+
+    viewBloc.add(
+      const ViewEvent.setIsExpanded(true),
     );
   }
 

@@ -85,22 +85,20 @@ class _SectionFolderState extends State<SectionFolder> {
         createViewAndShowRenameDialogIfNeeded(
           context,
           LocaleKeys.newPageText.tr(),
-          (viewName, _) {
-            if (viewName.isNotEmpty) {
-              context.read<SidebarSectionsBloc>().add(
-                    SidebarSectionsEvent.createRootViewInSection(
-                      name: viewName,
-                      index: 0,
-                      viewSection: widget.spaceType.toViewSectionPB,
-                    ),
-                  );
+          (_, __) {
+            context.read<SidebarSectionsBloc>().add(
+                  SidebarSectionsEvent.createRootViewInSection(
+                    name: '',
+                    index: 0,
+                    viewSection: widget.spaceType.toViewSectionPB,
+                  ),
+                );
 
-              context.read<FolderBloc>().add(
-                    const FolderEvent.expandOrUnExpand(
-                      isExpanded: true,
-                    ),
-                  );
-            }
+            context.read<FolderBloc>().add(
+                  const FolderEvent.expandOrUnExpand(
+                    isExpanded: true,
+                  ),
+                );
           },
         );
       },
