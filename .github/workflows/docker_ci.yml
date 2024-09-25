@@ -2,18 +2,10 @@ name: Docker-CI
 
 on:
   push:
-    branches:
-      - main
-      - release/*
-    paths:
-      - frontend/**
+    branches: ["main", "release/*"]
   pull_request:
-    branches:
-      - main
-      - release/*
-    paths:
-      - frontend/**
-    types: [ opened, synchronize, reopened, unlocked, ready_for_review ]
+    branches: ["main", "release/*"]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -27,25 +19,28 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Compose
-        run: |
-          docker-compose --version || {
-            echo "Docker Compose not found, installing..."
-            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-            docker-compose --version
-          }
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # cache the docker layers
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Build the app
-        shell: bash
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./frontend/scripts/docker-buildfiles/Dockerfile
+          push: false
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
         run: |
-          set -eu -o pipefail
-          cd frontend/scripts/docker-buildfiles
-          docker-compose build --no-cache --progress=plain \
-          | while read line; do \
-              if [[ "$line" =~ ^Step[[:space:]] ]]; then \
-                echo "$(date -u '+%H:%M:%S') | $line"; \
-              else \
-                echo "$line"; \
-              fi; \
-            done
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
