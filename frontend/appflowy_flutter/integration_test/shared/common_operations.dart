@@ -372,7 +372,7 @@ extension CommonOperations on WidgetTester {
 
       // hover on new created page and change it's name
       await hoverOnPageName(
-        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        '',
         layout: layout,
         onHover: () async {
           await renamePage(pageName);
