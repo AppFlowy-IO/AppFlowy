@@ -7,10 +7,8 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('document title', () {
-    testWidgets(
-        'create a new document, the title will be displayed at the first line',
-        (tester) async {
+  group('document title: ', () {
+    testWidgets('create a new document and edit title', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 

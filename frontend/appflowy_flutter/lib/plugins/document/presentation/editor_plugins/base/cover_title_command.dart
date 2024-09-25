@@ -42,8 +42,19 @@ KeyEventResult _backspaceToTitle({
     return KeyEventResult.ignored;
   }
 
-  editorState.selection = null;
-  coverTitleFocusNode.requestFocus();
+  // delete the first line
+  () async {
+    // only delete the first line if it is empty
+    if (node.delta == null || node.delta!.isEmpty) {
+      final transaction = editorState.transaction;
+      transaction.deleteNode(node);
+      transaction.afterSelection = null;
+      await editorState.apply(transaction);
+    }
+
+    editorState.selection = null;
+    coverTitleFocusNode.requestFocus();
+  }();
 
   return KeyEventResult.handled;
 }

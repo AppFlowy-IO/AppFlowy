@@ -48,6 +48,7 @@ class _InnerCoverTitle extends StatefulWidget {
 class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleTextController = TextEditingController();
   final titleFocusNode = FocusNode();
+  late final editorContext = context.read<SharedEditorContext>();
 
   @override
   void initState() {
@@ -57,12 +58,12 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleFocusNode.onKeyEvent = _onKeyEvent;
     _requestFocusIfNeeded(widget.view, null);
 
-    context.read<SharedEditorContext>().coverTitleFocusNode = titleFocusNode;
+    editorContext.coverTitleFocusNode = titleFocusNode;
   }
 
   @override
   void dispose() {
-    context.read<SharedEditorContext>().coverTitleFocusNode = null;
+    editorContext.coverTitleFocusNode = null;
 
     titleTextController.dispose();
     titleFocusNode.dispose();
@@ -191,7 +192,13 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     transaction.insertNode([0], paragraphNode(text: parts[1]));
     await editorState.apply(transaction);
 
-    editorState.selection = Selection.collapsed(Position(path: [0]));
+    // update selection instead of using afterSelection in transaction,
+    //  because it will cause the cursor to jump
+    await editorState.updateSelectionWithReason(
+      Selection.collapsed(Position(path: [0])),
+      // trigger the keyboard service.
+      reason: SelectionUpdateReason.uiEvent,
+    );
   }
 
   KeyEventResult _moveCursorToNextLine(LogicalKeyboardKey key) {
