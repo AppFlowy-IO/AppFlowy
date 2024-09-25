@@ -785,22 +785,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       ),
     );
   }
-
-  String _convertLayoutToHintText(ViewLayoutPB layout) {
-    switch (layout) {
-      case ViewLayoutPB.Document:
-        return LocaleKeys.newDocumentText.tr();
-      case ViewLayoutPB.Grid:
-        return LocaleKeys.newGridText.tr();
-      case ViewLayoutPB.Board:
-        return LocaleKeys.newBoardText.tr();
-      case ViewLayoutPB.Calendar:
-        return LocaleKeys.newCalendarText.tr();
-      case ViewLayoutPB.Chat:
-        return LocaleKeys.chat_newChat.tr();
-    }
-    return LocaleKeys.newPageText.tr();
-  }
 }
 
 class _DotIconWidget extends StatelessWidget {
