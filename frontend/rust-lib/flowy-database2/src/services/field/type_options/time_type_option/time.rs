@@ -5,32 +5,18 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::date_type_option::TimeTypeOption;
+
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
-#[derive(Clone, Debug, Serialize, Deserialize, Default)]
-pub struct TimeTypeOption;
+use std::cmp::Ordering;
 
 impl TypeOption for TimeTypeOption {
   type CellData = TimeCellData;
   type CellChangeset = TimeCellChangeset;
   type CellProtobufType = TimeCellDataPB;
   type CellFilter = TimeFilterPB;
-}
-
-impl From<TypeOptionData> for TimeTypeOption {
-  fn from(_data: TypeOptionData) -> Self {
-    Self
-  }
-}
-
-impl From<TimeTypeOption> for TypeOptionData {
-  fn from(_data: TimeTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-  }
 }
 
 impl TypeOptionCellDataSerde for TimeTypeOption {
@@ -48,12 +34,6 @@ impl TypeOptionCellDataSerde for TimeTypeOption {
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(TimeCellData::from(cell))
-  }
-}
-
-impl TimeTypeOption {
-  pub fn new() -> Self {
-    Self
   }
 }
 

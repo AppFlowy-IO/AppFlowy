@@ -10,9 +10,8 @@ use crate::services::database_view::{
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
-  ChecklistCellChangeset, MediaCellData, RelationTypeOption, SelectOptionCellChangeset,
-  StringCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
-  TypeOptionCellExt,
+  ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset, StringCellData,
+  TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -27,6 +26,7 @@ use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
+use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, DatabaseRow, Row, RowCell, RowDetail, RowId, RowUpdate};
 use collab_database::views::{

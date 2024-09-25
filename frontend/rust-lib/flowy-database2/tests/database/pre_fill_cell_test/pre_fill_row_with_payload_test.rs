@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
-use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
-use flowy_database2::services::field::{DateCellData, SELECTION_IDS_SEPARATOR};
-
 use crate::database::pre_fill_cell_test::script::{
   DatabasePreFillRowCellTest, PreFillRowCellTestScript::*,
 };
+use collab_database::fields::date_type_option::DateCellData;
+use collab_database::fields::select_type_option::SELECTION_IDS_SEPARATOR;
+use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
+use std::collections::HashMap;
 
 // This suite of tests cover creating a row using `CreateRowPayloadPB` that passes
 // in some cell data in its `data` field of `HashMap<String, String>` which is a

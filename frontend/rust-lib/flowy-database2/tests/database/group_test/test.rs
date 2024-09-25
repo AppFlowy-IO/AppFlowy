@@ -1,6 +1,6 @@
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::SelectOption;
 
 #[tokio::test]
 async fn group_init_test() {

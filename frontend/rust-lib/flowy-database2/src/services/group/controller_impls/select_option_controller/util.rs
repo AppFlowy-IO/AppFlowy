@@ -4,10 +4,10 @@ use crate::entities::{
 use crate::services::cell::{
   insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
-use crate::services::field::{SelectOptionIds, CHECK};
+use crate::services::field::CHECK;
 use crate::services::group::{Group, GroupData, MoveGroupRowContext};
 use chrono::NaiveDateTime;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::{SelectOption, SelectOptionIds};
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
 use tracing::debug;
@@ -157,7 +157,7 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
       let date =
         NaiveDateTime::parse_from_str(&format!("{} 00:00:00", group_id), "%Y/%m/%d %H:%M:%S")
           .unwrap();
-      let cell = insert_date_cell(date.timestamp(), None, Some(false), field);
+      let cell = insert_date_cell(date.and_utc().timestamp(), None, Some(false), field);
       Some(cell)
     },
     _ => {
