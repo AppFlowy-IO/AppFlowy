@@ -3,17 +3,25 @@ name: Docker-CI
 on:
   push:
     branches:
-      - main
-      - release/*
+      - "main"
+      - "release/*"
     paths:
-      - frontend/**
+      - ".github/workflows/docker_ci.yaml"
+      - "frontend/scripts/docker-buildfiles/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
+
   pull_request:
     branches:
-      - main
-      - release/*
+      - "main"
+      - "release/*"
     paths:
-      - frontend/**
-    types: [ opened, synchronize, reopened, unlocked, ready_for_review ]
+      - ".github/workflows/docker_ci.yaml"
+      - "frontend/scripts/docker-buildfiles/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
