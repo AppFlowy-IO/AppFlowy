@@ -633,7 +633,11 @@ extension CommonOperations on WidgetTester {
     expect(createWorkspaceDialog, findsOneWidget);
 
     // input the workspace name
-    await enterText(find.byType(TextField), name);
+    final workspaceNameInput = find.descendant(
+      of: createWorkspaceDialog,
+      matching: find.byType(TextField),
+    );
+    await enterText(workspaceNameInput, name);
 
     await tapButtonWithName(LocaleKeys.button_ok.tr(), pumpAndSettle: false);
     await pump(const Duration(seconds: 5));
