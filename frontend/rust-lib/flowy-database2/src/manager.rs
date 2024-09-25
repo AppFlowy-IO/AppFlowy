@@ -9,6 +9,7 @@ use collab_database::database::{Database, DatabaseData};
 use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::error::DatabaseError;
 use collab_database::rows::RowId;
+use collab_database::template::csv::CSVTemplate;
 use collab_database::views::DatabaseLayout;
 use collab_database::workspace_database::{
   CollabPersistenceImpl, DatabaseCollabPersistenceService, DatabaseCollabService, DatabaseMeta,
@@ -437,11 +438,20 @@ impl DatabaseManager {
     content: String,
     format: CSVFormat,
   ) -> FlowyResult<ImportResult> {
-    let params = tokio::task::spawn_blocking(move || {
-      CSVImporter.import_csv_from_string(view_id, content, format)
-    })
-    .await
-    .map_err(internal_error)??;
+    let params = match format {
+      CSVFormat::Original => {
+        let mut csv_template = CSVTemplate::try_from_reader(content.as_bytes(), true, None)?;
+        csv_template.reset_view_id(view_id.clone());
+
+        let database_template = csv_template.try_into_database_template().await?;
+        database_template.into_params()
+      },
+      CSVFormat::META => tokio::task::spawn_blocking(move || {
+        CSVImporter.import_csv_from_string(view_id, content, format)
+      })
+      .await
+      .map_err(internal_error)??,
+    };
 
     let view_id = params.inline_view_id.clone();
     let database_id = params.database_id.clone();
