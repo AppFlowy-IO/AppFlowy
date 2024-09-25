@@ -13,7 +13,7 @@ const _testDocumentName = 'Test Document';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('document title: ', () {
+  group('document title:', () {
     testWidgets('create a new document and edit title', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -50,9 +50,19 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // wait for the cursor to be visible
+      if (UniversalPlatform.isLinux) {
+        await tester.wait(250);
+      }
+
       // press arrow left to delete the first line
       await tester.simulateKeyEvent(LogicalKeyboardKey.arrowLeft);
       await tester.pumpAndSettle();
+
+      // wait for the cursor to be visible
+      if (UniversalPlatform.isLinux) {
+        await tester.wait(250);
+      }
 
       // check if the title is on focus
       final titleOnFocus = tester.editor.findDocumentTitle(_testDocumentName);
@@ -88,6 +98,11 @@ void main() {
       // input name
       await tester.enterText(title, _testDocumentName);
       await tester.pumpAndSettle();
+
+      if (UniversalPlatform.isLinux) {
+        // wait for the name to be saved
+        await tester.wait(250);
+      }
 
       // go to the get started page
       await tester.tapButton(

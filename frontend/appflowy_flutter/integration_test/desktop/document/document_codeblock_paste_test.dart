@@ -19,7 +19,7 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent();
+      await tester.createNewPageWithNameUnderParent(name: 'Test Document');
 
       // mock the clipboard
       const lines = 3;
