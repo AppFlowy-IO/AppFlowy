@@ -350,7 +350,7 @@ class _SortItem extends StatelessWidget {
           ),
           Positioned(
             right: 8,
-            top: 9,
+            top: 6,
             child: InkWell(
               onTap: () => context
                   .read<SortEditorBloc>()
@@ -515,6 +515,9 @@ class _SortDetailContent extends StatelessWidget {
                     isSelected: isSelected,
                     textColor: enabled ? null : Theme.of(context).disabledColor,
                     showTopBorder: false,
+                    leftIcon: FlowySvg(
+                      fieldInfo.fieldType.svgData,
+                    ),
                     onTap: () {
                       if (isSelected) {
                         return;

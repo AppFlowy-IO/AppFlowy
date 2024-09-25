@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/view/database_filter_bottom_sheet.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
@@ -9,10 +10,13 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choic
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/number.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/condition_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/widgets.dart';
 
 abstract class DatabaseFilter {
   const DatabaseFilter({
@@ -91,7 +95,16 @@ abstract class DatabaseFilter {
 
   String get conditionName;
 
-  String getDescription(FieldInfo field);
+  bool get canAttachContent;
+
+  String getContentDescription(FieldInfo field);
+
+  Widget getMobileDescription(
+    FieldInfo field, {
+    required VoidCallback onExpand,
+    required void Function(DatabaseFilter filter) onUpdate,
+  }) =>
+      const SizedBox.shrink();
 
   Uint8List writeToBuffer();
 }
@@ -112,7 +125,12 @@ final class TextFilter extends DatabaseFilter {
   String get conditionName => condition.filterName;
 
   @override
-  String getDescription(FieldInfo field) {
+  bool get canAttachContent =>
+      condition != TextFilterConditionPB.TextIsEmpty &&
+      condition != TextFilterConditionPB.TextIsNotEmpty;
+
+  @override
+  String getContentDescription(FieldInfo field) {
     final filterDesc = condition.choicechipPrefix;
 
     if (condition == TextFilterConditionPB.TextIsEmpty ||
@@ -121,6 +139,22 @@ final class TextFilter extends DatabaseFilter {
     }
 
     return content.isEmpty ? filterDesc : "$filterDesc $content";
+  }
+
+  @override
+  Widget getMobileDescription(
+    FieldInfo field, {
+    required VoidCallback onExpand,
+    required void Function(DatabaseFilter filter) onUpdate,
+  }) {
+    return FilterItemInnerTextField(
+      content: content,
+      enabled: canAttachContent,
+      onSubmitted: (content) {
+        final newFilter = copyWith(content: content);
+        onUpdate(newFilter);
+      },
+    );
   }
 
   @override
@@ -164,13 +198,34 @@ final class NumberFilter extends DatabaseFilter {
   String get conditionName => condition.filterName;
 
   @override
-  String getDescription(FieldInfo field) {
+  bool get canAttachContent =>
+      condition != NumberFilterConditionPB.NumberIsEmpty &&
+      condition != NumberFilterConditionPB.NumberIsNotEmpty;
+
+  @override
+  String getContentDescription(FieldInfo field) {
     if (condition == NumberFilterConditionPB.NumberIsEmpty ||
         condition == NumberFilterConditionPB.NumberIsNotEmpty) {
       return condition.shortName;
     }
 
     return "${condition.shortName} $content";
+  }
+
+  @override
+  Widget getMobileDescription(
+    FieldInfo field, {
+    required VoidCallback onExpand,
+    required void Function(DatabaseFilter filter) onUpdate,
+  }) {
+    return FilterItemInnerTextField(
+      content: content,
+      enabled: canAttachContent,
+      onSubmitted: (content) {
+        final newFilter = copyWith(content: content);
+        onUpdate(newFilter);
+      },
+    );
   }
 
   @override
@@ -212,7 +267,10 @@ final class CheckboxFilter extends DatabaseFilter {
   String get conditionName => condition.filterName;
 
   @override
-  String getDescription(FieldInfo field) => condition.filterName;
+  bool get canAttachContent => false;
+
+  @override
+  String getContentDescription(FieldInfo field) => condition.filterName;
 
   @override
   Uint8List writeToBuffer() {
@@ -245,7 +303,10 @@ final class ChecklistFilter extends DatabaseFilter {
   String get conditionName => condition.filterName;
 
   @override
-  String getDescription(FieldInfo field) => condition.filterName;
+  bool get canAttachContent => false;
+
+  @override
+  String getContentDescription(FieldInfo field) => condition.filterName;
 
   @override
   Uint8List writeToBuffer() {
@@ -280,15 +341,17 @@ final class SelectOptionFilter extends DatabaseFilter {
   String get conditionName => condition.i18n;
 
   @override
-  String getDescription(FieldInfo field) {
-    if (condition == SelectOptionFilterConditionPB.OptionIsEmpty ||
-        condition == SelectOptionFilterConditionPB.OptionIsNotEmpty) {
+  bool get canAttachContent =>
+      condition != SelectOptionFilterConditionPB.OptionIsEmpty &&
+      condition != SelectOptionFilterConditionPB.OptionIsNotEmpty;
+
+  @override
+  String getContentDescription(FieldInfo field) {
+    if (!canAttachContent) {
       return condition.i18n;
     }
 
-    final delegate = fieldType == FieldType.SingleSelect
-        ? const SingleSelectOptionFilterDelegateImpl()
-        : const MultiSelectOptionFilterDelegateImpl();
+    final delegate = makeDelegate(field);
     final options = delegate.getOptions(field);
 
     final optionNames =
@@ -297,13 +360,43 @@ final class SelectOptionFilter extends DatabaseFilter {
   }
 
   @override
+  Widget getMobileDescription(
+    FieldInfo field, {
+    required VoidCallback onExpand,
+    required void Function(DatabaseFilter filter) onUpdate,
+  }) {
+    final delegate = makeDelegate(field);
+    final options = delegate
+        .getOptions(field)
+        .where((option) => optionIds.contains(option.id))
+        .toList();
+
+    return FilterItemInnerButton(
+      onTap: onExpand,
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        separatorBuilder: (context, index) => const HSpace(8),
+        itemCount: options.length,
+        itemBuilder: (context, index) => SelectOptionTag(
+          option: options[index],
+          fontSize: 14,
+          borderRadius: BorderRadius.circular(9),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+      ),
+    );
+  }
+
+  @override
   Uint8List writeToBuffer() {
     final filterPB = SelectOptionFilterPB()..condition = condition;
 
-    if (condition != SelectOptionFilterConditionPB.OptionIsEmpty &&
-        condition != SelectOptionFilterConditionPB.OptionIsNotEmpty) {
+    if (canAttachContent) {
       filterPB.optionIds.addAll(optionIds);
     }
+
     return filterPB.writeToBuffer();
   }
 
@@ -311,6 +404,12 @@ final class SelectOptionFilter extends DatabaseFilter {
     SelectOptionFilterConditionPB? condition,
     List<String>? optionIds,
   }) {
+    final options = optionIds ?? this.optionIds;
+    if (fieldType == FieldType.SingleSelect &&
+        condition == SelectOptionFilterConditionPB.OptionIs &&
+        options.length > 1) {
+      options.removeRange(1, options.length);
+    }
     return SelectOptionFilter(
       filterId: filterId,
       fieldId: fieldId,
@@ -319,6 +418,11 @@ final class SelectOptionFilter extends DatabaseFilter {
       optionIds: optionIds ?? this.optionIds,
     );
   }
+
+  SelectOptionFilterDelegate makeDelegate(FieldInfo field) =>
+      field.fieldType == FieldType.SingleSelect
+          ? const SingleSelectOptionFilterDelegateImpl()
+          : const MultiSelectOptionFilterDelegateImpl();
 }
 
 enum DateTimeFilterCondition {
@@ -399,10 +503,18 @@ final class DateTimeFilter extends DatabaseFilter {
   final DateTime? end;
 
   @override
-  String get conditionName => condition.name;
+  String get conditionName => condition.toCondition().filterName;
 
   @override
-  String getDescription(FieldInfo field) {
+  bool get canAttachContent => ![
+        DateFilterConditionPB.DateStartIsEmpty,
+        DateFilterConditionPB.DateStartIsNotEmpty,
+        DateFilterConditionPB.DateEndIsEmpty,
+        DateFilterConditionPB.DateEndIsNotEmpty,
+      ].contains(condition);
+
+  @override
+  String getContentDescription(FieldInfo field) {
     return switch (condition) {
       DateFilterConditionPB.DateStartIsEmpty ||
       DateFilterConditionPB.DateStartIsNotEmpty ||
@@ -418,6 +530,29 @@ final class DateTimeFilter extends DatabaseFilter {
       _ =>
         "${condition.toCondition().choiceChipPrefix} ${timestamp?.defaultFormat ?? ""}"
     };
+  }
+
+  @override
+  Widget getMobileDescription(
+    FieldInfo field, {
+    required VoidCallback onExpand,
+    required void Function(DatabaseFilter filter) onUpdate,
+  }) {
+    String? text;
+
+    if (condition.isRange) {
+      text = "${start?.defaultFormat ?? ""} - ${end?.defaultFormat ?? ""}";
+      text = text == " - " ? null : text;
+    } else {
+      text = timestamp.defaultFormat;
+    }
+    return FilterItemInnerButton(
+      onTap: onExpand,
+      child: FlowyText(
+        text ?? "",
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
   }
 
   @override
@@ -520,7 +655,12 @@ final class TimeFilter extends DatabaseFilter {
   String get conditionName => condition.filterName;
 
   @override
-  String getDescription(FieldInfo field) {
+  bool get canAttachContent =>
+      condition != NumberFilterConditionPB.NumberIsEmpty &&
+      condition != NumberFilterConditionPB.NumberIsNotEmpty;
+
+  @override
+  String getContentDescription(FieldInfo field) {
     if (condition == NumberFilterConditionPB.NumberIsEmpty ||
         condition == NumberFilterConditionPB.NumberIsNotEmpty) {
       return condition.shortName;

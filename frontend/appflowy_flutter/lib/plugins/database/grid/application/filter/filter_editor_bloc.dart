@@ -49,7 +49,10 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
             );
           },
           createFilter: (field) {
-            return _createDefaultFilter(field);
+            return _createDefaultFilter(null, field);
+          },
+          changeFilteringField: (filterId, field) {
+            return _createDefaultFilter(filterId, field);
           },
           updateFilter: (filter) {
             return _filterBackendSvc.updateFilter(
@@ -100,12 +103,14 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
   }
 
   Future<FlowyResult<void, FlowyError>> _createDefaultFilter(
+    String? filterId,
     FieldInfo field,
   ) async {
     final fieldId = field.id;
     switch (field.fieldType) {
       case FieldType.Checkbox:
         return _filterBackendSvc.insertCheckboxFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: CheckboxFilterConditionPB.IsChecked,
         );
@@ -114,50 +119,59 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
       case FieldType.CreatedTime:
         final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         return _filterBackendSvc.insertDateFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: DateFilterConditionPB.DateStartsOn,
           timestamp: timestamp,
         );
       case FieldType.MultiSelect:
         return _filterBackendSvc.insertSelectOptionFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: SelectOptionFilterConditionPB.OptionContains,
           fieldType: FieldType.MultiSelect,
         );
       case FieldType.Checklist:
         return _filterBackendSvc.insertChecklistFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: ChecklistFilterConditionPB.IsIncomplete,
         );
       case FieldType.Number:
         return _filterBackendSvc.insertNumberFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
         );
       case FieldType.Time:
         return _filterBackendSvc.insertTimeFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
         );
       case FieldType.RichText:
         return _filterBackendSvc.insertTextFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: TextFilterConditionPB.TextContains,
           content: '',
         );
       case FieldType.SingleSelect:
         return _filterBackendSvc.insertSelectOptionFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: SelectOptionFilterConditionPB.OptionIs,
           fieldType: FieldType.SingleSelect,
         );
       case FieldType.URL:
         return _filterBackendSvc.insertURLFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: TextFilterConditionPB.TextContains,
         );
       case FieldType.Media:
         return _filterBackendSvc.insertMediaFilter(
+          filterId: filterId,
           fieldId: fieldId,
           condition: MediaFilterConditionPB.MediaIsNotEmpty,
         );
@@ -177,6 +191,10 @@ class FilterEditorEvent with _$FilterEditorEvent {
   const factory FilterEditorEvent.createFilter(FieldInfo field) = _CreateFilter;
   const factory FilterEditorEvent.updateFilter(DatabaseFilter filter) =
       _UpdateFilter;
+  const factory FilterEditorEvent.changeFilteringField(
+    String filterId,
+    FieldInfo field,
+  ) = _ChangeFilteringField;
   const factory FilterEditorEvent.deleteFilter(String filterId) = _DeleteFilter;
 }
 

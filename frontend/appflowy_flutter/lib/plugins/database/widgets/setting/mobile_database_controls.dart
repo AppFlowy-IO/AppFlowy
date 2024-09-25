@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_field_list.dart';
+import 'package:appflowy/mobile/presentation/database/view/database_filter_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_sort_bottom_sheet.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
@@ -13,13 +14,17 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+enum MobileDatabaseControlFeatures { sort, filter }
+
 class MobileDatabaseControls extends StatelessWidget {
   const MobileDatabaseControls({
     super.key,
     required this.controller,
+    required this.features,
   });
 
   final DatabaseController controller;
+  final List<MobileDatabaseControlFeatures> features;
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +53,24 @@ class MobileDatabaseControls extends StatelessWidget {
           return SeparatedRow(
             separatorBuilder: () => const HSpace(8.0),
             children: [
-              _DatabaseControlButton(
-                icon: FlowySvgs.sort_ascending_s,
-                count: context.watch<SortEditorBloc>().state.sorts.length,
-                onTap: () => _showEditSortPanelFromToolbar(
-                  context,
-                  controller,
+              if (features.contains(MobileDatabaseControlFeatures.sort))
+                _DatabaseControlButton(
+                  icon: FlowySvgs.sort_ascending_s,
+                  count: context.watch<SortEditorBloc>().state.sorts.length,
+                  onTap: () => _showEditSortPanelFromToolbar(
+                    context,
+                    controller,
+                  ),
                 ),
-              ),
+              if (features.contains(MobileDatabaseControlFeatures.filter))
+                _DatabaseControlButton(
+                  icon: FlowySvgs.filter_s,
+                  count: context.watch<FilterEditorBloc>().state.filters.length,
+                  onTap: () => _showEditFilterPanelFromToolbar(
+                    context,
+                    controller,
+                  ),
+                ),
               _DatabaseControlButton(
                 icon: FlowySvgs.m_field_hide_s,
                 onTap: () => _showDatabaseFieldListFromToolbar(
@@ -148,6 +163,25 @@ void _showEditSortPanelFromToolbar(
       return BlocProvider.value(
         value: context.read<SortEditorBloc>(),
         child: const MobileSortEditor(),
+      );
+    },
+  );
+}
+
+void _showEditFilterPanelFromToolbar(
+  BuildContext context,
+  DatabaseController databaseController,
+) {
+  showMobileBottomSheet(
+    context,
+    showDragHandle: true,
+    showDivider: false,
+    useSafeArea: false,
+    backgroundColor: AFThemeExtension.of(context).background,
+    builder: (_) {
+      return BlocProvider.value(
+        value: context.read<FilterEditorBloc>(),
+        child: const MobileFilterEditor(),
       );
     },
   );

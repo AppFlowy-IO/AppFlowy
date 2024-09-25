@@ -38,7 +38,7 @@ class ChecklistFilterChoicechip extends StatelessWidget {
         builder: (context, filter, field) {
           return ChoiceChipButton(
             fieldInfo: field,
-            filterDesc: filter.getDescription(field),
+            filterDesc: filter.getContentDescription(field),
           );
         },
       ),

@@ -42,7 +42,7 @@ class DateFilterChoicechip extends StatelessWidget {
         builder: (context, filter, field) {
           return ChoiceChipButton(
             fieldInfo: field,
-            filterDesc: filter.getDescription(field),
+            filterDesc: filter.getContentDescription(field),
           );
         },
       ),
@@ -156,9 +156,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
   }
 
   Widget _buildFilterContentField(DateTimeFilter filter) {
-    final isRange =
-        filter.condition == DateFilterConditionPB.DateStartsBetween ||
-            filter.condition == DateFilterConditionPB.DateEndsBetween;
+    final isRange = filter.condition.isRange;
     String? text;
 
     if (isRange) {
@@ -365,6 +363,15 @@ extension DateFilterConditionPBExtension on DateFilterConditionPB {
     };
   }
 
+  bool get isRange {
+    return switch (this) {
+      DateFilterConditionPB.DateStartsBetween ||
+      DateFilterConditionPB.DateEndsBetween =>
+        true,
+      _ => false,
+    };
+  }
+
   DateTimeFilterCondition toCondition() {
     return switch (this) {
       DateFilterConditionPB.DateStartsOn ||
@@ -386,10 +393,10 @@ extension DateFilterConditionPBExtension on DateFilterConditionPB {
       DateFilterConditionPB.DateEndsBetween =>
         DateTimeFilterCondition.between,
       DateFilterConditionPB.DateStartIsEmpty ||
-      DateFilterConditionPB.DateStartIsEmpty =>
+      DateFilterConditionPB.DateEndIsEmpty =>
         DateTimeFilterCondition.isEmpty,
       DateFilterConditionPB.DateStartIsNotEmpty ||
-      DateFilterConditionPB.DateStartIsNotEmpty =>
+      DateFilterConditionPB.DateEndIsNotEmpty =>
         DateTimeFilterCondition.isNotEmpty,
       _ => throw ArgumentError(),
     };

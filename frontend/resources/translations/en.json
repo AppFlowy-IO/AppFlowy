@@ -1226,7 +1226,7 @@
       "group": "Group",
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
-      "filterBy": "Filter by...",
+      "filterBy": "Filter by",
       "typeAValue": "Type a value...",
       "layout": "Layout",
       "databaseLayout": "Layout",
@@ -1242,6 +1242,13 @@
       "duplicateView": "Duplicate view",
       "deleteView": "Delete view",
       "numberOfVisibleFields": "{} shown"
+    },
+    "filter": {
+      "empty": "No active filters",
+      "addFilter": "Add filter",
+      "cannotFindCreatableField": "Cannot find a suitable field to filter by",
+      "conditon": "Condition",
+      "where": "Where"
     },
     "textFilter": {
       "contains": "Contains",
@@ -1268,8 +1275,8 @@
       }
     },
     "checklistFilter": {
-      "isComplete": "is complete",
-      "isIncomplted": "is incomplete"
+      "isComplete": "Is complete",
+      "isIncomplted": "Is incomplete"
     },
     "selectOptionFilter": {
       "is": "Is",
@@ -1395,7 +1402,7 @@
       "empty": "No active sorts",
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add new sort",
+      "addSort": "Add sort",
       "sortsActive": "Cannot {intention} while sorting",
       "removeSorting": "Would you like to remove all the sorts in this view and continue?",
       "fieldInUse": "You are already sorting by this field"
