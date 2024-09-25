@@ -54,6 +54,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   void initState() {
     super.initState();
 
+    titleTextController.text = widget.view.name;
     titleTextController.addListener(_onViewNameChanged);
     titleFocusNode.onKeyEvent = _onKeyEvent;
     _requestFocusIfNeeded(widget.view, null);
@@ -113,8 +114,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   void _onListen(BuildContext context, ViewState state) {
     _requestFocusIfNeeded(widget.view, state);
 
-    if (widget.view.name.isEmpty &&
-        state.view.name != titleTextController.text) {
+    if (state.view.name != titleTextController.text) {
       titleTextController.text = state.view.name;
     }
   }
@@ -152,6 +152,9 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       'update view name',
       const Duration(milliseconds: 250),
       () {
+        if (!mounted) {
+          return;
+        }
         if (context.read<ViewBloc>().state.view.name !=
             titleTextController.text) {
           context

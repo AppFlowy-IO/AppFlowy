@@ -5,16 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../shared/constants.dart';
 import '../../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('document title: ', () {
-    // 1. create a new document
-    // 2. edit title
-    // 3. press enter to create a new line
-    // 4. insert text
     testWidgets('create a new document and edit title', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -78,5 +75,33 @@ void main() {
       expect(editorState.selection, null);
       expect(titleWidget.focusNode?.hasFocus, isTrue);
     });
+  });
+
+  testWidgets('check if the title is saved', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+
+    // create a new document
+    await tester.createNewPageWithNameUnderParent();
+
+    const name = 'Hello World';
+    final title = tester.editor.findDocumentTitle('');
+    expect(title, findsOneWidget);
+
+    // input name
+    await tester.enterText(title, name);
+    await tester.pumpAndSettle();
+
+    // go to the get started page
+    await tester.tapButton(
+      tester.findPageName(Constants.gettingStartedPageName),
+    );
+
+    // go back to the hello world page
+    await tester.tapButton(tester.findPageName(name));
+
+    // check if the title is saved
+    final titleOnHelloWorldPage = tester.editor.findDocumentTitle(name);
+    expect(titleOnHelloWorldPage, findsOneWidget);
   });
 }
