@@ -43,26 +43,19 @@ void main() {
       expect(firstLineText, findsOneWidget);
 
       // press cmd/ctrl+left to move the cursor to the start of the line
-      await tester.simulateKeyEvent(
-        LogicalKeyboardKey.arrowLeft,
-        isControlPressed: !UniversalPlatform.isMacOS,
-        isMetaPressed: UniversalPlatform.isMacOS,
-      );
-      await tester.pumpAndSettle();
-
-      // wait for the cursor to be visible
-      if (UniversalPlatform.isLinux) {
-        await tester.wait(250);
+      if (UniversalPlatform.isMacOS) {
+        await tester.simulateKeyEvent(
+          LogicalKeyboardKey.arrowLeft,
+          isMetaPressed: true,
+        );
+      } else {
+        await tester.simulateKeyEvent(LogicalKeyboardKey.home);
       }
+      await tester.pumpAndSettle();
 
       // press arrow left to delete the first line
       await tester.simulateKeyEvent(LogicalKeyboardKey.arrowLeft);
       await tester.pumpAndSettle();
-
-      // wait for the cursor to be visible
-      if (UniversalPlatform.isLinux) {
-        await tester.wait(250);
-      }
 
       // check if the title is on focus
       final titleOnFocus = tester.editor.findDocumentTitle(_testDocumentName);
