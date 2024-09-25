@@ -74,7 +74,9 @@ class DateFormatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cells = DateFormatPB.values.map((format) {
+    final cells = DateFormatPB.values
+        .where((value) => value != DateFormatPB.FriendlyFull)
+        .map((format) {
       return DateFormatCell(
         dateFormat: format,
         onSelected: onSelected,
@@ -144,6 +146,8 @@ extension DateFormatExtension on DateFormatPB {
         return LocaleKeys.grid_field_dateFormatUS.tr();
       case DateFormatPB.DayMonthYear:
         return LocaleKeys.grid_field_dateFormatDayMonthYear.tr();
+      case DateFormatPB.FriendlyFull:
+        return LocaleKeys.grid_field_dateFormatFriendly.tr();
       default:
         throw UnimplementedError;
     }
