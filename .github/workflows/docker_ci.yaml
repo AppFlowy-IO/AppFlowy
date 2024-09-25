@@ -1,0 +1,59 @@
+name: Docker-CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - ".github/workflows/docker_ci.yaml"
+      - "frontend/scripts/docker-buildfiles/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
+
+  pull_request:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - ".github/workflows/docker_ci.yaml"
+      - "frontend/scripts/docker-buildfiles/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
+
+env:
+  FLUTTER_VERSION: "3.22.0"
+  # use 1.80.1 here to avoid cargo-binstall error
+  RUST_TOOLCHAIN: "1.80.1"
+
+jobs:
+  docker-build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: frontend/scripts/docker-buildfiles
+          file: frontend/scripts/docker-buildfiles/Dockerfile
+          push: false
+          load: true
+          tags: app:pr-check
+
+      #   - name: Verify docker-compose
+      #     run: |
+      #       cd frontend/scripts/docker-buildfiles
+      #       docker-compose -f docker-compose.yml config
+      #       docker-compose -f docker-compose.yml up -d
+      #       docker-compose -f docker-compose.yml down
+
+      - name: Clean up
+        if: always()
+        run: docker image rm app:pr-check
