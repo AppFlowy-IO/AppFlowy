@@ -245,6 +245,7 @@ class _DocumentPageState extends State<DocumentPage>
         },
         child: AppFlowyEditorPage(
           editorState: state.editorState!,
+          // if the view's name is empty, focus on the title
           autoFocus: widget.view.name.isEmpty ? false : null,
           styleCustomizer: EditorStyleCustomizer(
             context: context,

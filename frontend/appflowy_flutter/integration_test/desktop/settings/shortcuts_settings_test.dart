@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -16,8 +15,8 @@ import '../board/board_hide_groups_test.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('shortcuts test', () {
-    testWidgets('can change and overwrite shortcut', (tester) async {
+  group('shortcuts:', () {
+    testWidgets('change and overwrite shortcut', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -29,7 +28,11 @@ void main() {
           LocaleKeys.settings_shortcutsPage_keybindings_backspace.tr();
 
       // Input "Delete" into the search field
-      await tester.enterText(find.byType(TextField), backspaceCmd);
+      final inputField = find.descendant(
+        of: find.byType(SettingsShortcutsView),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(inputField, backspaceCmd);
       await tester.pumpAndSettle();
 
       await tester.hoverOnWidget(

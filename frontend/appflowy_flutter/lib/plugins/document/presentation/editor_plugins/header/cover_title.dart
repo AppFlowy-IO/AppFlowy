@@ -49,6 +49,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleTextController = TextEditingController();
   final titleFocusNode = FocusNode();
   late final editorContext = context.read<SharedEditorContext>();
+  late final editorState = context.read<EditorState>();
 
   @override
   void initState() {
@@ -57,6 +58,11 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleTextController.text = widget.view.name;
     titleTextController.addListener(_onViewNameChanged);
     titleFocusNode.onKeyEvent = _onKeyEvent;
+    titleFocusNode.addListener(() {
+      if (titleFocusNode.hasFocus && editorState.selection != null) {
+        editorState.selection = null;
+      }
+    });
     _requestFocusIfNeeded(widget.view, null);
 
     editorContext.coverTitleFocusNode = titleFocusNode;
@@ -127,22 +133,12 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       return true;
     }
 
-    // if the view's name equals to the default name, focus on the title
-    // this is to be compatible with the old version
-    if (name == LocaleKeys.menuAppHeader_defaultNewPageName.tr()) {
-      return true;
-    }
-
     return false;
   }
 
   void _requestFocusIfNeeded(ViewPB view, ViewState? state) {
     final shouldFocus = _shouldFocus(view, state);
-    final editorState = context.read<EditorState>();
     if (shouldFocus) {
-      if (editorState.selection != null) {
-        editorState.selection = null;
-      }
       titleFocusNode.requestFocus();
     }
   }
@@ -191,7 +187,6 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     ];
     titleTextController.text = parts[0];
 
-    final editorState = context.read<EditorState>();
     final transaction = editorState.transaction;
     transaction.insertNode([0], paragraphNode(text: parts[1]));
     await editorState.apply(transaction);
@@ -214,7 +209,6 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       return KeyEventResult.ignored;
     }
 
-    final editorState = context.read<EditorState>();
     final node = editorState.getNodeAtPath([0]);
     if (node == null) {
       _createNewLine();
