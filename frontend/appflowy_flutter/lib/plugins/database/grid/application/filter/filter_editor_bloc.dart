@@ -2,87 +2,101 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'filter_create_bloc.freezed.dart';
+part 'filter_editor_bloc.freezed.dart';
 
-class GridCreateFilterBloc
-    extends Bloc<GridCreateFilterEvent, GridCreateFilterState> {
-  GridCreateFilterBloc({required this.viewId, required this.fieldController})
+class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
+  FilterEditorBloc({required this.viewId, required this.fieldController})
       : _filterBackendSvc = FilterBackendService(viewId: viewId),
-        super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
+        super(
+          FilterEditorState.initial(
+            viewId,
+            fieldController.filters,
+            _getCreatableFilter(fieldController.fieldInfos),
+          ),
+        ) {
     _dispatch();
+    _startListening();
   }
 
   final String viewId;
-  final FilterBackendService _filterBackendSvc;
   final FieldController fieldController;
+  final FilterBackendService _filterBackendSvc;
+
+  void Function(List<DatabaseFilter>)? _onFilterFn;
   void Function(List<FieldInfo>)? _onFieldFn;
 
   void _dispatch() {
-    on<GridCreateFilterEvent>(
+    on<FilterEditorEvent>(
       (event, emit) async {
-        event.when(
-          initial: () {
-            _startListening();
+        await event.when(
+          didReceiveFilters: (filters) {
+            emit(state.copyWith(filters: filters));
           },
           didReceiveFields: (List<FieldInfo> fields) {
             emit(
               state.copyWith(
-                allFields: fields,
-                creatableFields: _filterFields(fields, state.filterText),
+                fields: _getCreatableFilter(fields),
               ),
             );
           },
-          didReceiveFilterText: (String text) {
-            emit(
-              state.copyWith(
-                filterText: text,
-                creatableFields: _filterFields(state.allFields, text),
-              ),
+          createFilter: (field) {
+            return _createDefaultFilter(field);
+          },
+          updateFilter: (filter) {
+            return _filterBackendSvc.updateFilter(
+              filterId: filter.filterId,
+              fieldId: filter.fieldId,
+              fieldType: filter.fieldType,
+              data: filter.writeToBuffer(),
             );
           },
-          createDefaultFilter: (FieldInfo field) {
-            emit(state.copyWith(didCreateFilter: true));
-            _createDefaultFilter(field);
+          deleteFilter: (filterId) async {
+            return _filterBackendSvc.deleteFilter(filterId: filterId);
           },
         );
       },
     );
   }
 
-  List<FieldInfo> _filterFields(
-    List<FieldInfo> fields,
-    String filterText,
-  ) {
-    final List<FieldInfo> allFields = List.from(fields);
-    final keyword = filterText.toLowerCase();
-    allFields.retainWhere((field) {
-      if (!field.canCreateFilter) {
-        return false;
-      }
+  void _startListening() {
+    _onFilterFn = (filters) {
+      add(FilterEditorEvent.didReceiveFilters(filters));
+    };
 
-      if (filterText.isNotEmpty) {
-        return field.name.toLowerCase().contains(keyword);
-      }
+    _onFieldFn = (fields) {
+      add(FilterEditorEvent.didReceiveFields(fields));
+    };
 
-      return true;
-    });
-
-    return allFields;
+    fieldController.addListener(
+      onFilters: (filters) {
+        _onFilterFn?.call(filters);
+      },
+      onReceiveFields: (fields) {
+        _onFieldFn?.call(fields);
+      },
+    );
   }
 
-  void _startListening() {
-    _onFieldFn = (fields) {
-      fields.retainWhere((field) => field.canCreateFilter);
-      add(GridCreateFilterEvent.didReceiveFields(fields));
-    };
-    fieldController.addListener(onReceiveFields: _onFieldFn);
+  @override
+  Future<void> close() async {
+    if (_onFilterFn != null) {
+      fieldController.removeListener(onFiltersListener: _onFilterFn!);
+      _onFilterFn = null;
+    }
+    if (_onFieldFn != null) {
+      fieldController.removeListener(onFieldsListener: _onFieldFn!);
+      _onFieldFn = null;
+    }
+    return super.close();
   }
 
   Future<FlowyResult<void, FlowyError>> _createDefaultFilter(
@@ -151,51 +165,45 @@ class GridCreateFilterBloc
         throw UnimplementedError();
     }
   }
-
-  @override
-  Future<void> close() async {
-    if (_onFieldFn != null) {
-      fieldController.removeListener(onFieldsListener: _onFieldFn);
-      _onFieldFn = null;
-    }
-    return super.close();
-  }
 }
 
 @freezed
-class GridCreateFilterEvent with _$GridCreateFilterEvent {
-  const factory GridCreateFilterEvent.initial() = _Initial;
-  const factory GridCreateFilterEvent.didReceiveFields(List<FieldInfo> fields) =
+class FilterEditorEvent with _$FilterEditorEvent {
+  const factory FilterEditorEvent.didReceiveFilters(
+    List<DatabaseFilter> filters,
+  ) = _DidReceiveFilters;
+  const factory FilterEditorEvent.didReceiveFields(List<FieldInfo> fields) =
       _DidReceiveFields;
-
-  const factory GridCreateFilterEvent.createDefaultFilter(FieldInfo field) =
-      _CreateDefaultFilter;
-
-  const factory GridCreateFilterEvent.didReceiveFilterText(String text) =
-      _DidReceiveFilterText;
+  const factory FilterEditorEvent.createFilter(FieldInfo field) = _CreateFilter;
+  const factory FilterEditorEvent.updateFilter(DatabaseFilter filter) =
+      _UpdateFilter;
+  const factory FilterEditorEvent.deleteFilter(String filterId) = _DeleteFilter;
 }
 
 @freezed
-class GridCreateFilterState with _$GridCreateFilterState {
-  const factory GridCreateFilterState({
-    required String filterText,
-    required List<FieldInfo> creatableFields,
-    required List<FieldInfo> allFields,
-    required bool didCreateFilter,
-  }) = _GridFilterState;
+class FilterEditorState with _$FilterEditorState {
+  const factory FilterEditorState({
+    required String viewId,
+    required List<DatabaseFilter> filters,
+    required List<FieldInfo> fields,
+  }) = _FilterEditorState;
 
-  factory GridCreateFilterState.initial(List<FieldInfo> fields) {
-    return GridCreateFilterState(
-      filterText: "",
-      creatableFields: getCreatableFilter(fields),
-      allFields: fields,
-      didCreateFilter: false,
-    );
-  }
+  factory FilterEditorState.initial(
+    String viewId,
+    List<DatabaseFilter> filterInfos,
+    List<FieldInfo> fields,
+  ) =>
+      FilterEditorState(
+        viewId: viewId,
+        filters: filterInfos,
+        fields: fields,
+      );
 }
 
-List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
+List<FieldInfo> _getCreatableFilter(List<FieldInfo> fieldInfos) {
   final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateFilter);
+  creatableFields.retainWhere(
+    (field) => field.fieldType.canCreateFilter,
+  );
   return creatableFields;
 }

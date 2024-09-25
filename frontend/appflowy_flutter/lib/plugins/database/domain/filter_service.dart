@@ -299,12 +299,9 @@ class FilterBackendService {
   }
 
   Future<FlowyResult<void, FlowyError>> deleteFilter({
-    required String fieldId,
     required String filterId,
   }) async {
-    final deleteFilterPayload = DeleteFilterPB()
-      ..fieldId = fieldId
-      ..filterId = filterId;
+    final deleteFilterPayload = DeleteFilterPB()..filterId = filterId;
 
     final payload = DatabaseSettingChangesetPB()
       ..viewId = viewId

@@ -56,8 +56,6 @@ PODS:
     - Flutter
   - keyboard_height_plugin (0.0.1):
     - Flutter
-  - open_file_ios (0.0.1):
-    - Flutter
   - open_filex (0.0.2):
     - Flutter
   - package_info_plus (0.4.5):
@@ -104,7 +102,6 @@ DEPENDENCIES:
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - irondash_engine_context (from `.symlinks/plugins/irondash_engine_context/ios`)
   - keyboard_height_plugin (from `.symlinks/plugins/keyboard_height_plugin/ios`)
-  - open_file_ios (from `.symlinks/plugins/open_file_ios/ios`)
   - open_filex (from `.symlinks/plugins/open_filex/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -151,8 +148,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/irondash_engine_context/ios"
   keyboard_height_plugin:
     :path: ".symlinks/plugins/keyboard_height_plugin/ios"
-  open_file_ios:
-    :path: ".symlinks/plugins/open_file_ios/ios"
   open_filex:
     :path: ".symlinks/plugins/open_filex/ios"
   package_info_plus:
@@ -189,7 +184,6 @@ SPEC CHECKSUMS:
   integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
   irondash_engine_context: 3458bf979b90d616ffb8ae03a150bafe2e860cc9
   keyboard_height_plugin: 43fa8bba20fd5c4fdeed5076466b8b9d43cc6b86
-  open_file_ios: 461db5853723763573e140de3193656f91990d9e
   open_filex: 6e26e659846ec990262224a12ef1c528bb4edbe4
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46

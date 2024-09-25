@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -38,7 +39,7 @@ class ConditionButton extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         margin: const EdgeInsets.symmetric(horizontal: 4),
-        radius: const BorderRadius.all(Radius.circular(2)),
+        radius: Corners.s6Border,
         rightIcon: arrow,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onTap: onTap,

@@ -51,7 +51,6 @@ async fn grid_filter_text_is_not_empty_test() {
     .run_scripts(vec![
       DeleteFilter {
         filter_id: filter.id,
-        field_id: filter.data.unwrap().field_id,
         changed: Some(FilterRowChanged {
           showing_num_of_rows: 1,
           hiding_num_of_rows: 0,
@@ -245,7 +244,6 @@ async fn grid_filter_delete_test() {
     .run_scripts(vec![
       DeleteFilter {
         filter_id: filter.id,
-        field_id: filter.data.unwrap().field_id,
         changed: None,
       },
       AssertFilterCount { count: 0 },

@@ -6,7 +6,7 @@ import '../util.dart';
 
 Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
-  final fieldInfo = context.singleSelectFieldContext();
+  final fieldInfo = context.getSelectOptionField();
   return FieldEditorBloc(
     viewId: context.gridView.id,
     fieldController: context.fieldController,

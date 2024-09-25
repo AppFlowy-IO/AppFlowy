@@ -57,7 +57,6 @@ pub enum FilterScript {
   },
   DeleteFilter {
     filter_id: String,
-    field_id: String,
     changed: Option<FilterRowChanged>,
   },
   // CreateSimpleAdvancedFilter,
@@ -269,17 +268,10 @@ impl DatabaseFilterTest {
         let filters = self.editor.get_all_filters(&self.view_id).await.items;
         assert_eq!(count, filters.len());
       },
-      FilterScript::DeleteFilter {
-        filter_id,
-        field_id,
-        changed,
-      } => {
+      FilterScript::DeleteFilter { filter_id, changed } => {
         self.subscribe_view_changed().await;
         self.assert_future_changed(changed).await;
-        let params = FilterChangeset::Delete {
-          filter_id,
-          field_id,
-        };
+        let params = FilterChangeset::Delete { filter_id };
         self
           .editor
           .modify_view_filters(&self.view_id, params)

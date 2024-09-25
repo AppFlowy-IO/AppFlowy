@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -42,12 +43,9 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
             emit(
               state.copyWith(
                 allFields: fields,
-                creatableFields: getCreatableSorts(fields),
+                creatableFields: _getCreatableSorts(fields),
               ),
             );
-          },
-          updateCreateSortFilter: (text) {
-            emit(state.copyWith(filter: text));
           },
           createSort: (
             String fieldId,
@@ -64,7 +62,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
             String? fieldId,
             SortConditionPB? condition,
           ) async {
-            final sortInfo = state.sortInfos
+            final sortInfo = state.sorts
                 .firstWhereOrNull((element) => element.sortId == sortId);
             if (sortInfo == null) {
               return;
@@ -82,7 +80,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
             result.fold((l) => {}, (err) => Log.error(err));
           },
           didReceiveSorts: (List<SortInfo> sortInfos) {
-            emit(state.copyWith(sortInfos: sortInfos));
+            emit(state.copyWith(sorts: sortInfos));
           },
           deleteSort: (SortInfo sortInfo) async {
             final result = await _sortBackendSvc.deleteSort(
@@ -96,12 +94,12 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
               toIndex--;
             }
 
-            final fromId = state.sortInfos[fromIndex].sortId;
-            final toId = state.sortInfos[toIndex].sortId;
+            final fromId = state.sorts[fromIndex].sortId;
+            final toId = state.sorts[toIndex].sortId;
 
-            final newSorts = [...state.sortInfos];
+            final newSorts = [...state.sorts];
             newSorts.insert(toIndex, newSorts.removeAt(fromIndex));
-            emit(state.copyWith(sortInfos: newSorts));
+            emit(state.copyWith(sorts: newSorts));
             final result = await _sortBackendSvc.reorderSort(
               fromSortId: fromId,
               toSortId: toId,
@@ -146,8 +144,6 @@ class SortEditorEvent with _$SortEditorEvent {
       _DidReceiveFields;
   const factory SortEditorEvent.didReceiveSorts(List<SortInfo> sortInfos) =
       _DidReceiveSorts;
-  const factory SortEditorEvent.updateCreateSortFilter(String text) =
-      _UpdateCreateSortFilter;
   const factory SortEditorEvent.createSort({
     required String fieldId,
     SortConditionPB? condition,
@@ -166,27 +162,27 @@ class SortEditorEvent with _$SortEditorEvent {
 @freezed
 class SortEditorState with _$SortEditorState {
   const factory SortEditorState({
-    required List<SortInfo> sortInfos,
-    required List<FieldInfo> creatableFields,
+    required List<SortInfo> sorts,
     required List<FieldInfo> allFields,
-    required String filter,
+    required List<FieldInfo> creatableFields,
   }) = _SortEditorState;
 
   factory SortEditorState.initial(
-    List<SortInfo> sortInfos,
+    List<SortInfo> sorts,
     List<FieldInfo> fields,
   ) {
     return SortEditorState(
-      creatableFields: getCreatableSorts(fields),
+      sorts: sorts,
       allFields: fields,
-      sortInfos: sortInfos,
-      filter: "",
+      creatableFields: _getCreatableSorts(fields),
     );
   }
 }
 
-List<FieldInfo> getCreatableSorts(List<FieldInfo> fieldInfos) {
+List<FieldInfo> _getCreatableSorts(List<FieldInfo> fieldInfos) {
   final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateSort);
+  creatableFields.retainWhere(
+    (field) => field.fieldType.canCreateSort && !field.hasSort,
+  );
   return creatableFields;
 }

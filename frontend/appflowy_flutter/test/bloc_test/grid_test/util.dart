@@ -38,19 +38,19 @@ class GridTestContext {
     return Future(() => editorBloc);
   }
 
-  FieldInfo singleSelectFieldContext() {
+  FieldInfo getSelectOptionField() {
     final fieldInfo = fieldInfos
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
     return fieldInfo;
   }
 
-  FieldInfo textFieldContext() {
+  FieldInfo getTextField() {
     final fieldInfo = fieldInfos
         .firstWhere((element) => element.fieldType == FieldType.RichText);
     return fieldInfo;
   }
 
-  FieldInfo checkboxFieldContext() {
+  FieldInfo getCheckboxField() {
     final fieldInfo = fieldInfos
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     return fieldInfo;

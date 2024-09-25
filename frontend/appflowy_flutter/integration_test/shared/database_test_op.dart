@@ -20,14 +20,14 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/choicechip.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/disclosure_button.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
@@ -958,7 +958,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapCreateFilterByFieldType(FieldType type, String title) async {
     final findFilter = find.byWidgetPredicate(
       (widget) =>
-          widget is GridFilterPropertyCell &&
+          widget is FilterableFieldButton &&
           widget.fieldInfo.fieldType == type &&
           widget.fieldInfo.name == title,
     );
@@ -966,8 +966,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapFilterButtonInGrid(String name) async {
-    final findFilter = find.byType(FilterMenuItem);
-    final button = find.descendant(of: findFilter, matching: find.text(name));
+    final button = find.byWidgetPredicate(
+      (widget) => widget is ChoiceChipButton && widget.fieldInfo.name == name,
+    );
     await tapButton(button);
   }
 
@@ -1098,7 +1099,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapDateFilterButtonInGrid() async {
-    await tapButton(find.byType(DateFilterConditionPBList));
+    await tapButton(find.byType(DateFilterConditionList));
   }
 
   /// The [SelectOptionFilterList] must show up first.
