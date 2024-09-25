@@ -314,10 +314,14 @@ extension CommonOperations on WidgetTester {
     }
     await pumpAndSettle();
 
+    final defaultPageName = layout == ViewLayoutPB.Document
+        ? '' // the document name is empty by default
+        : LocaleKeys.menuAppHeader_defaultNewPageName.tr();
+
     // hover on it and change it's name
     if (name != null) {
       await hoverOnPageName(
-        '',
+        defaultPageName,
         layout: layout,
         onHover: () async {
           await renamePage(name);
@@ -331,7 +335,7 @@ extension CommonOperations on WidgetTester {
     if (openAfterCreated) {
       await openPage(
         // if the name is null, use the default name
-        name ?? '',
+        name ?? defaultPageName,
         layout: layout,
       );
       await pumpAndSettle();
