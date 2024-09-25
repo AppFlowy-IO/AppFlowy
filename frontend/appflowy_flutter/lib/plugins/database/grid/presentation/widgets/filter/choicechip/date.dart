@@ -29,7 +29,7 @@ class DateFilterChoicechip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      constraints: BoxConstraints.loose(const Size(200, 120)),
+      constraints: BoxConstraints.loose(const Size(275, 120)),
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (_) {
         return BlocProvider.value(
@@ -79,8 +79,12 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
       builder: (context, filter, field) {
         final List<Widget> children = [
           _buildFilterPanel(filter, field),
-          if (filter.condition != DateFilterConditionPB.DateIsEmpty &&
-              filter.condition != DateFilterConditionPB.DateIsNotEmpty) ...[
+          if (![
+            DateFilterConditionPB.DateStartIsEmpty,
+            DateFilterConditionPB.DateStartIsNotEmpty,
+            DateFilterConditionPB.DateEndIsEmpty,
+            DateFilterConditionPB.DateStartIsNotEmpty,
+          ].contains(filter.condition)) ...[
             const VSpace(4),
             _buildFilterContentField(filter),
           ],
@@ -103,9 +107,18 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
       child: Row(
         children: [
           Expanded(
-            child: FlowyText(
-              field.name,
-              overflow: TextOverflow.ellipsis,
+            child: DateFilterIsStartList(
+              filter: filter,
+              popoverMutex: popoverMutex,
+              onChangeIsStart: (isStart) {
+                final newFilter = filter.copyWithCondition(
+                  isStart: isStart,
+                  condition: filter.condition.toCondition(),
+                );
+                context
+                    .read<FilterEditorBloc>()
+                    .add(FilterEditorEvent.updateFilter(newFilter));
+              },
             ),
           ),
           const HSpace(4),
@@ -114,7 +127,10 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
               filter: filter,
               popoverMutex: popoverMutex,
               onCondition: (condition) {
-                final newFilter = filter.copyWith(condition: condition);
+                final newFilter = filter.copyWithCondition(
+                  isStart: filter.condition.isStart,
+                  condition: condition,
+                );
                 context
                     .read<FilterEditorBloc>()
                     .add(FilterEditorEvent.updateFilter(newFilter));
@@ -140,7 +156,9 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
   }
 
   Widget _buildFilterContentField(DateTimeFilter filter) {
-    final isRange = filter.condition == DateFilterConditionPB.DateWithIn;
+    final isRange =
+        filter.condition == DateFilterConditionPB.DateStartsBetween ||
+            filter.condition == DateFilterConditionPB.DateEndsBetween;
     String? text;
 
     if (isRange) {
@@ -187,10 +205,11 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                 selectedDay: isRange ? filter.start : filter.timestamp,
                 startDay: isRange ? filter.start : null,
                 endDay: isRange ? filter.end : null,
+                enableReminder: false,
                 onDaySelected: (selectedDay, _) {
                   final newFilter = isRange
                       ? filter.copyWithRange(start: selectedDay, end: null)
-                      : filter.copyWith(timestamp: selectedDay);
+                      : filter.copyWithTimestamp(timestamp: selectedDay);
                   context
                       .read<FilterEditorBloc>()
                       .add(FilterEditorEvent.updateFilter(newFilter));
@@ -207,7 +226,6 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                       .read<FilterEditorBloc>()
                       .add(FilterEditorEvent.updateFilter(newFilter));
                 },
-                onIncludeTimeChanged: (_) {},
               );
             },
           ),
@@ -215,6 +233,66 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
       },
     );
   }
+}
+
+class DateFilterIsStartList extends StatelessWidget {
+  const DateFilterIsStartList({
+    super.key,
+    required this.filter,
+    required this.popoverMutex,
+    required this.onChangeIsStart,
+  });
+
+  final DateTimeFilter filter;
+  final PopoverMutex popoverMutex;
+  final Function(bool isStart) onChangeIsStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopoverActionList<_IsStartWrapper>(
+      asBarrier: true,
+      mutex: popoverMutex,
+      direction: PopoverDirection.bottomWithCenterAligned,
+      actions: [
+        _IsStartWrapper(
+          true,
+          filter.condition.isStart,
+        ),
+        _IsStartWrapper(
+          false,
+          !filter.condition.isStart,
+        ),
+      ],
+      buildChild: (controller) {
+        return ConditionButton(
+          conditionName: filter.condition.isStart
+              ? LocaleKeys.grid_dateFilter_startDate.tr()
+              : LocaleKeys.grid_dateFilter_endDate.tr(),
+          onTap: () => controller.show(),
+        );
+      },
+      onSelected: (action, controller) {
+        onChangeIsStart(action.inner);
+        controller.close();
+      },
+    );
+  }
+}
+
+class _IsStartWrapper extends ActionCell {
+  _IsStartWrapper(this.inner, this.isSelected);
+
+  final bool inner;
+  final bool isSelected;
+
+  @override
+  Widget? rightIcon(Color iconColor) =>
+      isSelected ? const FlowySvg(FlowySvgs.check_s) : null;
+
+  @override
+  String get name => inner
+      ? LocaleKeys.grid_dateFilter_startDate.tr()
+      : LocaleKeys.grid_dateFilter_endDate.tr();
 }
 
 class DateFilterConditionList extends StatelessWidget {
@@ -227,7 +305,7 @@ class DateFilterConditionList extends StatelessWidget {
 
   final DateTimeFilter filter;
   final PopoverMutex popoverMutex;
-  final Function(DateFilterConditionPB) onCondition;
+  final Function(DateTimeFilterCondition) onCondition;
 
   @override
   Widget build(BuildContext context) {
@@ -235,17 +313,17 @@ class DateFilterConditionList extends StatelessWidget {
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: DateFilterConditionPB.values
+      actions: DateTimeFilterCondition.values
           .map(
             (action) => ConditionWrapper(
               action,
-              filter.condition == action,
+              filter.condition.toCondition() == action,
             ),
           )
           .toList(),
       buildChild: (controller) {
         return ConditionButton(
-          conditionName: filter.condition.filterName,
+          conditionName: filter.condition.toCondition().filterName,
           onTap: () => controller.show(),
         );
       },
@@ -260,7 +338,7 @@ class DateFilterConditionList extends StatelessWidget {
 class ConditionWrapper extends ActionCell {
   ConditionWrapper(this.inner, this.isSelected);
 
-  final DateFilterConditionPB inner;
+  final DateTimeFilterCondition inner;
   final bool isSelected;
 
   @override
@@ -272,23 +350,48 @@ class ConditionWrapper extends ActionCell {
 }
 
 extension DateFilterConditionPBExtension on DateFilterConditionPB {
-  String get filterName {
+  bool get isStart {
     return switch (this) {
-      DateFilterConditionPB.DateIs => LocaleKeys.grid_dateFilter_is.tr(),
-      DateFilterConditionPB.DateBefore =>
-        LocaleKeys.grid_dateFilter_before.tr(),
-      DateFilterConditionPB.DateAfter => LocaleKeys.grid_dateFilter_after.tr(),
-      DateFilterConditionPB.DateOnOrBefore =>
-        LocaleKeys.grid_dateFilter_onOrBefore.tr(),
-      DateFilterConditionPB.DateOnOrAfter =>
-        LocaleKeys.grid_dateFilter_onOrAfter.tr(),
-      DateFilterConditionPB.DateWithIn =>
-        LocaleKeys.grid_dateFilter_between.tr(),
-      DateFilterConditionPB.DateIsEmpty =>
-        LocaleKeys.grid_dateFilter_empty.tr(),
-      DateFilterConditionPB.DateIsNotEmpty =>
-        LocaleKeys.grid_dateFilter_notEmpty.tr(),
-      _ => "",
+      DateFilterConditionPB.DateStartsOn ||
+      DateFilterConditionPB.DateStartsBefore ||
+      DateFilterConditionPB.DateStartsAfter ||
+      DateFilterConditionPB.DateStartsOnOrBefore ||
+      DateFilterConditionPB.DateStartsOnOrAfter ||
+      DateFilterConditionPB.DateStartsBetween ||
+      DateFilterConditionPB.DateStartIsEmpty ||
+      DateFilterConditionPB.DateStartIsNotEmpty =>
+        true,
+      _ => false
+    };
+  }
+
+  DateTimeFilterCondition toCondition() {
+    return switch (this) {
+      DateFilterConditionPB.DateStartsOn ||
+      DateFilterConditionPB.DateEndsOn =>
+        DateTimeFilterCondition.on,
+      DateFilterConditionPB.DateStartsBefore ||
+      DateFilterConditionPB.DateEndsBefore =>
+        DateTimeFilterCondition.before,
+      DateFilterConditionPB.DateStartsAfter ||
+      DateFilterConditionPB.DateEndsAfter =>
+        DateTimeFilterCondition.after,
+      DateFilterConditionPB.DateStartsOnOrBefore ||
+      DateFilterConditionPB.DateEndsOnOrBefore =>
+        DateTimeFilterCondition.onOrBefore,
+      DateFilterConditionPB.DateStartsOnOrAfter ||
+      DateFilterConditionPB.DateEndsOnOrAfter =>
+        DateTimeFilterCondition.onOrAfter,
+      DateFilterConditionPB.DateStartsBetween ||
+      DateFilterConditionPB.DateEndsBetween =>
+        DateTimeFilterCondition.between,
+      DateFilterConditionPB.DateStartIsEmpty ||
+      DateFilterConditionPB.DateStartIsEmpty =>
+        DateTimeFilterCondition.isEmpty,
+      DateFilterConditionPB.DateStartIsNotEmpty ||
+      DateFilterConditionPB.DateStartIsNotEmpty =>
+        DateTimeFilterCondition.isNotEmpty,
+      _ => throw ArgumentError(),
     };
   }
 }

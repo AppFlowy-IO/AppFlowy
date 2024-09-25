@@ -211,9 +211,13 @@ impl DatabaseGroupTest {
         let field_type = FieldType::from(field.field_type);
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
-          FieldType::DateTime => {
-            insert_date_cell(cell_data.parse::<i64>().unwrap(), None, Some(true), &field)
-          },
+          FieldType::DateTime => insert_date_cell(
+            cell_data.parse::<i64>().unwrap(),
+            None,
+            None,
+            Some(true),
+            &field,
+          ),
           _ => {
             panic!("Unsupported group field type");
           },

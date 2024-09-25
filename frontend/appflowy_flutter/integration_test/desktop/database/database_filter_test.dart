@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -151,11 +152,11 @@ void main() {
 
       await tester.tapFilterButtonInGrid('date');
       await tester.tapDateFilterButtonInGrid();
-      await tester.tapDateFilterCondition(DateFilterConditionPB.DateBefore);
+      await tester.tapDateFilterCondition(DateTimeFilterCondition.before);
       tester.assertNumberOfRowsInGridPage(7);
 
       await tester.tapDateFilterButtonInGrid();
-      await tester.tapDateFilterCondition(DateFilterConditionPB.DateIsEmpty);
+      await tester.tapDateFilterCondition(DateTimeFilterCondition.isEmpty);
       tester.assertNumberOfRowsInGridPage(3);
 
       await tester.pumpAndSettle();

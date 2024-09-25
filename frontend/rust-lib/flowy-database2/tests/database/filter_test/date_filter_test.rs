@@ -14,7 +14,7 @@ async fn grid_filter_date_is_test() {
       parent_filter_id: None,
       field_type: FieldType::DateTime,
       data: BoxAny::new(DateFilterPB {
-        condition: DateFilterConditionPB::DateIs,
+        condition: DateFilterConditionPB::DateStartsOn,
         start: None,
         end: None,
         timestamp: Some(1647251762),
@@ -39,7 +39,7 @@ async fn grid_filter_date_after_test() {
       parent_filter_id: None,
       field_type: FieldType::DateTime,
       data: BoxAny::new(DateFilterPB {
-        condition: DateFilterConditionPB::DateAfter,
+        condition: DateFilterConditionPB::DateStartsAfter,
         start: None,
         end: None,
         timestamp: Some(1647251762),
@@ -64,7 +64,7 @@ async fn grid_filter_date_on_or_after_test() {
       parent_filter_id: None,
       field_type: FieldType::DateTime,
       data: BoxAny::new(DateFilterPB {
-        condition: DateFilterConditionPB::DateOnOrAfter,
+        condition: DateFilterConditionPB::DateStartsOnOrAfter,
         start: None,
         end: None,
         timestamp: Some(1668359085),
@@ -89,7 +89,7 @@ async fn grid_filter_date_on_or_before_test() {
       parent_filter_id: None,
       field_type: FieldType::DateTime,
       data: BoxAny::new(DateFilterPB {
-        condition: DateFilterConditionPB::DateOnOrBefore,
+        condition: DateFilterConditionPB::DateStartsOnOrBefore,
         start: None,
         end: None,
         timestamp: Some(1668359085),
@@ -114,7 +114,7 @@ async fn grid_filter_date_within_test() {
       parent_filter_id: None,
       field_type: FieldType::DateTime,
       data: BoxAny::new(DateFilterPB {
-        condition: DateFilterConditionPB::DateWithIn,
+        condition: DateFilterConditionPB::DateStartsBetween,
         start: Some(1647251762),
         end: Some(1668704685),
         timestamp: None,

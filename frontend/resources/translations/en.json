@@ -1280,7 +1280,7 @@
       "isNotEmpty": "Is not empty"
     },
     "dateFilter": {
-      "is": "Is",
+      "is": "Is on",
       "before": "Is before",
       "after": "Is after",
       "onOrBefore": "Is on or before",
@@ -1288,9 +1288,12 @@
       "between": "Is between",
       "empty": "Is empty",
       "notEmpty": "Is not empty",
+      "startDate": "Start date",
+      "endDate": "End date",
       "choicechipPrefix": {
         "before": "Before",
         "after": "After",
+        "between": "Between",
         "onOrBefore": "On or before",
         "onOrAfter": "On or after",
         "isEmpty": "Is empty",

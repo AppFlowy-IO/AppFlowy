@@ -47,14 +47,38 @@ impl FromStr for DateFilterContent {
 #[repr(u8)]
 pub enum DateFilterConditionPB {
   #[default]
-  DateIs = 0,
-  DateBefore = 1,
-  DateAfter = 2,
-  DateOnOrBefore = 3,
-  DateOnOrAfter = 4,
-  DateWithIn = 5,
-  DateIsEmpty = 6,
-  DateIsNotEmpty = 7,
+  DateStartsOn = 0,
+  DateStartsBefore = 1,
+  DateStartsAfter = 2,
+  DateStartsOnOrBefore = 3,
+  DateStartsOnOrAfter = 4,
+  DateStartsBetween = 5,
+  DateStartIsEmpty = 6,
+  DateStartIsNotEmpty = 7,
+  DateEndsOn = 8,
+  DateEndsBefore = 9,
+  DateEndsAfter = 10,
+  DateEndsOnOrBefore = 11,
+  DateEndsOnOrAfter = 12,
+  DateEndsBetween = 13,
+  DateEndIsEmpty = 14,
+  DateEndIsNotEmpty = 15,
+}
+
+impl DateFilterConditionPB {
+  pub fn is_filter_on_start_timestamp(&self) -> bool {
+    matches!(
+      self,
+      Self::DateStartsOn
+        | Self::DateStartsBefore
+        | Self::DateStartsAfter
+        | Self::DateStartsOnOrBefore
+        | Self::DateStartsOnOrAfter
+        | Self::DateStartsBetween
+        | Self::DateStartIsEmpty
+        | Self::DateStartIsNotEmpty,
+    )
+  }
 }
 
 impl std::convert::From<DateFilterConditionPB> for u32 {
@@ -68,13 +92,22 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
 
   fn try_from(value: u8) -> Result<Self, Self::Error> {
     match value {
-      0 => Ok(DateFilterConditionPB::DateIs),
-      1 => Ok(DateFilterConditionPB::DateBefore),
-      2 => Ok(DateFilterConditionPB::DateAfter),
-      3 => Ok(DateFilterConditionPB::DateOnOrBefore),
-      4 => Ok(DateFilterConditionPB::DateOnOrAfter),
-      5 => Ok(DateFilterConditionPB::DateWithIn),
-      6 => Ok(DateFilterConditionPB::DateIsEmpty),
+      0 => Ok(Self::DateStartsOn),
+      1 => Ok(Self::DateStartsBefore),
+      2 => Ok(Self::DateStartsAfter),
+      3 => Ok(Self::DateStartsOnOrBefore),
+      4 => Ok(Self::DateStartsOnOrAfter),
+      5 => Ok(Self::DateStartsBetween),
+      6 => Ok(Self::DateStartIsEmpty),
+      7 => Ok(Self::DateStartIsNotEmpty),
+      8 => Ok(Self::DateEndsOn),
+      9 => Ok(Self::DateEndsBefore),
+      10 => Ok(Self::DateEndsAfter),
+      11 => Ok(Self::DateEndsOnOrBefore),
+      12 => Ok(Self::DateEndsOnOrAfter),
+      13 => Ok(Self::DateEndsBetween),
+      14 => Ok(Self::DateEndIsEmpty),
+      15 => Ok(Self::DateEndIsNotEmpty),
       _ => Err(ErrorCode::InvalidParams),
     }
   }
@@ -83,7 +116,7 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
 impl ParseFilterData for DateFilterPB {
   fn parse(condition: u8, content: String) -> Self {
     let condition =
-      DateFilterConditionPB::try_from(condition).unwrap_or(DateFilterConditionPB::DateIs);
+      DateFilterConditionPB::try_from(condition).unwrap_or(DateFilterConditionPB::DateStartsOn);
     let mut date_filter = Self {
       condition,
       ..Default::default()

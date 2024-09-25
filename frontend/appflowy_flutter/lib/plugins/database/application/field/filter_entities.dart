@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choic
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 
 abstract class DatabaseFilter {
@@ -319,6 +321,67 @@ final class SelectOptionFilter extends DatabaseFilter {
   }
 }
 
+enum DateTimeFilterCondition {
+  on,
+  before,
+  after,
+  onOrBefore,
+  onOrAfter,
+  between,
+  isEmpty,
+  isNotEmpty;
+
+  DateFilterConditionPB toPB(bool isStart) {
+    return isStart
+        ? switch (this) {
+            on => DateFilterConditionPB.DateStartsOn,
+            before => DateFilterConditionPB.DateStartsBefore,
+            after => DateFilterConditionPB.DateStartsAfter,
+            onOrBefore => DateFilterConditionPB.DateStartsOnOrBefore,
+            onOrAfter => DateFilterConditionPB.DateStartsOnOrAfter,
+            between => DateFilterConditionPB.DateStartsBetween,
+            isEmpty => DateFilterConditionPB.DateStartIsEmpty,
+            isNotEmpty => DateFilterConditionPB.DateStartIsNotEmpty,
+          }
+        : switch (this) {
+            on => DateFilterConditionPB.DateEndsOn,
+            before => DateFilterConditionPB.DateEndsBefore,
+            after => DateFilterConditionPB.DateEndsAfter,
+            onOrBefore => DateFilterConditionPB.DateEndsOnOrBefore,
+            onOrAfter => DateFilterConditionPB.DateEndsOnOrAfter,
+            between => DateFilterConditionPB.DateEndsBetween,
+            isEmpty => DateFilterConditionPB.DateEndIsEmpty,
+            isNotEmpty => DateFilterConditionPB.DateEndIsNotEmpty,
+          };
+  }
+
+  String get choiceChipPrefix {
+    return switch (this) {
+      on => "",
+      before => LocaleKeys.grid_dateFilter_choicechipPrefix_before.tr(),
+      after => LocaleKeys.grid_dateFilter_choicechipPrefix_after.tr(),
+      onOrBefore => LocaleKeys.grid_dateFilter_choicechipPrefix_onOrBefore.tr(),
+      onOrAfter => LocaleKeys.grid_dateFilter_choicechipPrefix_onOrAfter.tr(),
+      between => LocaleKeys.grid_dateFilter_choicechipPrefix_between.tr(),
+      isEmpty => LocaleKeys.grid_dateFilter_choicechipPrefix_isEmpty.tr(),
+      isNotEmpty => LocaleKeys.grid_dateFilter_choicechipPrefix_isNotEmpty.tr(),
+    };
+  }
+
+  String get filterName {
+    return switch (this) {
+      on => LocaleKeys.grid_dateFilter_is.tr(),
+      before => LocaleKeys.grid_dateFilter_before.tr(),
+      after => LocaleKeys.grid_dateFilter_after.tr(),
+      onOrBefore => LocaleKeys.grid_dateFilter_onOrBefore.tr(),
+      onOrAfter => LocaleKeys.grid_dateFilter_onOrAfter.tr(),
+      between => LocaleKeys.grid_dateFilter_between.tr(),
+      isEmpty => LocaleKeys.grid_dateFilter_empty.tr(),
+      isNotEmpty => LocaleKeys.grid_dateFilter_notEmpty.tr(),
+    };
+  }
+}
+
 final class DateTimeFilter extends DatabaseFilter {
   const DateTimeFilter({
     required super.filterId,
@@ -341,12 +404,19 @@ final class DateTimeFilter extends DatabaseFilter {
   @override
   String getDescription(FieldInfo field) {
     return switch (condition) {
-      DateFilterConditionPB.DateIsEmpty ||
-      DateFilterConditionPB.DateIsNotEmpty =>
-        condition.filterName,
-      DateFilterConditionPB.DateWithIn =>
-        "${condition.filterName} ${start?.defaultFormat ?? ""} - ${end?.defaultFormat ?? ""}",
-      _ => "${condition.filterName} ${timestamp?.defaultFormat ?? ""}"
+      DateFilterConditionPB.DateStartIsEmpty ||
+      DateFilterConditionPB.DateStartIsNotEmpty ||
+      DateFilterConditionPB.DateEndIsEmpty ||
+      DateFilterConditionPB.DateEndIsNotEmpty =>
+        condition.toCondition().choiceChipPrefix,
+      DateFilterConditionPB.DateStartsOn ||
+      DateFilterConditionPB.DateEndsOn =>
+        timestamp?.defaultFormat ?? "",
+      DateFilterConditionPB.DateStartsBetween ||
+      DateFilterConditionPB.DateEndsBetween =>
+        "${condition.toCondition().choiceChipPrefix} ${start?.defaultFormat ?? ""} - ${end?.defaultFormat ?? ""}",
+      _ =>
+        "${condition.toCondition().choiceChipPrefix} ${timestamp?.defaultFormat ?? ""}"
     };
   }
 
@@ -359,22 +429,29 @@ final class DateTimeFilter extends DatabaseFilter {
     }
 
     switch (condition) {
-      case DateFilterConditionPB.DateIs:
-      case DateFilterConditionPB.DateBefore:
-      case DateFilterConditionPB.DateOnOrBefore:
-      case DateFilterConditionPB.DateAfter:
-      case DateFilterConditionPB.DateOnOrAfter:
+      case DateFilterConditionPB.DateStartsOn:
+      case DateFilterConditionPB.DateStartsBefore:
+      case DateFilterConditionPB.DateStartsOnOrBefore:
+      case DateFilterConditionPB.DateStartsAfter:
+      case DateFilterConditionPB.DateStartsOnOrAfter:
+      case DateFilterConditionPB.DateEndsOn:
+      case DateFilterConditionPB.DateEndsBefore:
+      case DateFilterConditionPB.DateEndsOnOrBefore:
+      case DateFilterConditionPB.DateEndsAfter:
+      case DateFilterConditionPB.DateEndsOnOrAfter:
         if (timestamp != null) {
           filterPB.timestamp = dateTimeToInt(timestamp!);
         }
         break;
-      case DateFilterConditionPB.DateWithIn:
+      case DateFilterConditionPB.DateStartsBetween:
+      case DateFilterConditionPB.DateEndsBetween:
         if (start != null) {
           filterPB.start = dateTimeToInt(start!);
         }
         if (end != null) {
           filterPB.end = dateTimeToInt(end!);
         }
+        break;
       default:
         break;
     }
@@ -382,18 +459,32 @@ final class DateTimeFilter extends DatabaseFilter {
     return filterPB.writeToBuffer();
   }
 
-  DateTimeFilter copyWith({
-    DateFilterConditionPB? condition,
-    DateTime? timestamp,
+  DateTimeFilter copyWithCondition({
+    required bool isStart,
+    required DateTimeFilterCondition condition,
   }) {
     return DateTimeFilter(
       filterId: filterId,
       fieldId: fieldId,
       fieldType: fieldType,
+      condition: condition.toPB(isStart),
       start: start,
       end: end,
-      condition: condition ?? this.condition,
-      timestamp: timestamp ?? this.timestamp,
+      timestamp: timestamp,
+    );
+  }
+
+  DateTimeFilter copyWithTimestamp({
+    required DateTime timestamp,
+  }) {
+    return DateTimeFilter(
+      filterId: filterId,
+      fieldId: fieldId,
+      fieldType: fieldType,
+      condition: condition,
+      start: start,
+      end: end,
+      timestamp: timestamp,
     );
   }
 
