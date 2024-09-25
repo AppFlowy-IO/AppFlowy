@@ -161,9 +161,8 @@ void main() {
         );
         expect(find.byType(UploadImageMenu), findsOneWidget);
 
-        await tester.tapButtonWithName(
-          'Unsplash',
-        );
+        await tester.tapButtonWithName('Unsplash');
+        await tester.pumpUntilFound(find.byType(UnsplashImageWidget));
         expect(find.byType(UnsplashImageWidget), findsOneWidget);
       });
     });
