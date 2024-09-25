@@ -73,6 +73,10 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
   @override
   Widget build(BuildContext context) {
+    final fontStyle = Theme.of(context)
+        .textTheme
+        .bodyMedium!
+        .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
     return BlocConsumer<ViewBloc, ViewState>(
       listener: _onListen,
       builder: (context, state) {
@@ -91,18 +95,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
               controller: titleTextController,
               focusNode: titleFocusNode,
               maxLines: null,
+              style: fontStyle,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 38.0,
-                      color: Theme.of(context).hintColor,
-                    ),
+                hintStyle: fontStyle.copyWith(
+                  color: Theme.of(context).hintColor,
+                ),
               ),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(fontSize: 38.0),
             ),
           ),
         );
@@ -225,8 +225,12 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     } else if (key == LogicalKeyboardKey.arrowRight) {
       offset = 0;
     }
-    editorState.selection = Selection.collapsed(
-      Position(path: [0], offset: offset),
+    editorState.updateSelectionWithReason(
+      Selection.collapsed(
+        Position(path: [0], offset: offset),
+      ),
+      // trigger the keyboard service.
+      reason: SelectionUpdateReason.uiEvent,
     );
     return KeyEventResult.handled;
   }

@@ -69,9 +69,16 @@ final CommandShortcutEvent arrowLeftToTitle = CommandShortcutEvent(
   key: 'arrow left to title',
   command: 'arrow left',
   getDescription: () => 'arrow left to title',
-  // share the same handler with backspaceToTitle
-  handler: (editorState) => _backspaceToTitle(
+  handler: (editorState) => _arrowKeyToTitle(
     editorState: editorState,
+    checkSelection: (selection) {
+      if (!selection.isCollapsed ||
+          !selection.start.path.equals([0]) ||
+          selection.start.offset != 0) {
+        return false;
+      }
+      return true;
+    },
   ),
 );
 
@@ -85,13 +92,20 @@ final CommandShortcutEvent arrowUpToTitle = CommandShortcutEvent(
   key: 'arrow up to title',
   command: 'arrow up',
   getDescription: () => 'arrow up to title',
-  handler: (editorState) => _arrowUpToTitle(
+  handler: (editorState) => _arrowKeyToTitle(
     editorState: editorState,
+    checkSelection: (selection) {
+      if (!selection.isCollapsed || !selection.start.path.equals([0])) {
+        return false;
+      }
+      return true;
+    },
   ),
 );
 
-KeyEventResult _arrowUpToTitle({
+KeyEventResult _arrowKeyToTitle({
   required EditorState editorState,
+  required bool Function(Selection selection) checkSelection,
 }) {
   final coverTitleFocusNode = editorState.document.root.context
       ?.read<SharedEditorContext>()
@@ -102,9 +116,7 @@ KeyEventResult _arrowUpToTitle({
 
   final selection = editorState.selection;
   // only active when the arrow up is at the first line
-  if (selection == null ||
-      !selection.isCollapsed ||
-      !selection.start.path.equals([0])) {
+  if (selection == null || !checkSelection(selection)) {
     return KeyEventResult.ignored;
   }
 
