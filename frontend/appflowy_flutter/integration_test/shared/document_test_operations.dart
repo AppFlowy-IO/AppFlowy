@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_title.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
@@ -322,5 +323,28 @@ class EditorOperations {
       },
     );
     await tester.pumpAndSettle(Durations.short1);
+  }
+
+  Finder findDocumentTitle(String title) {
+    return find.descendant(
+      of: find.byType(CoverTitle),
+      matching: find.byWidgetPredicate(
+        (widget) {
+          if (widget is! TextField) {
+            return false;
+          }
+
+          if (widget.controller?.text == title) {
+            return true;
+          }
+
+          if (title.isEmpty) {
+            return widget.controller?.text.isEmpty ?? false;
+          }
+
+          return false;
+        },
+      ),
+    );
   }
 }

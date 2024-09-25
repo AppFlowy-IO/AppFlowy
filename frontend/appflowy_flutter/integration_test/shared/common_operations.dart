@@ -331,9 +331,7 @@ extension CommonOperations on WidgetTester {
     if (openAfterCreated) {
       await openPage(
         // if the name is null, use the default name
-        name == null || name.isEmpty
-            ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
-            : name,
+        name ?? '',
         layout: layout,
       );
       await pumpAndSettle();

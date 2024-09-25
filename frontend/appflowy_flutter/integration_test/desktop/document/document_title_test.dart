@@ -16,14 +16,14 @@ void main() {
       await tester.createNewPageWithNameUnderParent();
 
       const name = 'Hello World';
-      final title = find.text('Untitled');
+      final title = tester.editor.findDocumentTitle('');
       expect(title, findsOneWidget);
 
       // input name
       await tester.enterText(title, name);
       await tester.pumpAndSettle();
 
-      final newTitle = find.text(name);
+      final newTitle = tester.editor.findDocumentTitle(name);
       expect(newTitle, findsOneWidget);
 
       // press enter to create a new line
@@ -34,7 +34,7 @@ void main() {
       await tester.ime.insertText(firstLine);
       await tester.pumpAndSettle();
 
-      final firstLineText = find.text(firstLine);
+      final firstLineText = find.text(firstLine, findRichText: true);
       expect(firstLineText, findsOneWidget);
     });
   });

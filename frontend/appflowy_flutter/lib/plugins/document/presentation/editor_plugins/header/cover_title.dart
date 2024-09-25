@@ -113,7 +113,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   void _onListen(BuildContext context, ViewState state) {
     _requestFocusIfNeeded(widget.view, state);
 
-    if (state.view.name != titleTextController.text) {
+    if (widget.view.name.isEmpty &&
+        state.view.name != titleTextController.text) {
       titleTextController.text = state.view.name;
     }
   }
