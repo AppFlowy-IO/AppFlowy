@@ -2,6 +2,8 @@ import 'package:integration_test/integration_test.dart';
 
 import 'desktop/database/database_calendar_test.dart' as database_calendar_test;
 import 'desktop/database/database_cell_test.dart' as database_cell_test;
+import 'desktop/database/database_date_time_test.dart'
+    as database_date_time_test;
 import 'desktop/database/database_field_settings_test.dart'
     as database_field_settings_test;
 import 'desktop/database/database_field_test.dart' as database_field_test;
@@ -23,6 +25,9 @@ Future<void> runIntegration2OnDesktop() async {
 
   // This test must be run first, otherwise the CI will fail.
   first_test.main();
+
+  // delete this test if it succeeds
+  database_date_time_test.main();
 
   database_cell_test.main();
   database_field_test.main();
