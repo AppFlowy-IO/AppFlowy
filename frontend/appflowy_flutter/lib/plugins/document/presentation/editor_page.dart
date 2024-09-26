@@ -1,5 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -10,6 +13,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_shortcuts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/undo_redo/custom_undo_redo_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
@@ -27,8 +31,6 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -56,6 +58,8 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
+  customUndoCommand,
+  customRedoCommand,
   ...customTextAlignCommands,
 
   // remove standard shortcuts for copy, cut, paste, todo
@@ -65,6 +69,8 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
         copyCommand,
         cutCommand,
         pasteCommand,
+        undoCommand,
+        redoCommand,
         toggleTodoListCommand,
       ].contains(shortcut),
     ),
@@ -441,6 +447,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       dateOrReminderSlashMenuItem,
       photoGallerySlashMenuItem,
       fileSlashMenuItem,
+      subPageSlashMenuItem(documentBloc.documentId),
     ];
   }
 

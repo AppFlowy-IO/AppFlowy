@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
@@ -15,7 +17,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
@@ -125,7 +126,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                     );
                   }
                 }
-              } else {
+              } else if (mounted) {
                 showSnackBarMessage(
                   context,
                   LocaleKeys.settings_files_exportFileFail.tr(),

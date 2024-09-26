@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -21,7 +22,13 @@ final CommandShortcutEvent customCopyCommand = CommandShortcutEvent(
   handler: _copyCommandHandler,
 );
 
-CommandShortcutEventHandler _copyCommandHandler = (editorState) {
+CommandShortcutEventHandler _copyCommandHandler =
+    (editorState) => handleCopyCommand(editorState);
+
+KeyEventResult handleCopyCommand(
+  EditorState editorState, {
+  bool isCut = false,
+}) {
   final selection = editorState.selection?.normalized;
   if (selection == null || selection.isCollapsed) {
     return KeyEventResult.ignored;
@@ -30,7 +37,8 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
   // plain text.
   final text = editorState.getTextInSelection(selection).join('\n');
 
-  final nodes = editorState.getSelectedNodes(selection: selection);
+  final selectedNodes = editorState.getSelectedNodes(selection: selection);
+  final nodes = _handleSubPageNodes(selectedNodes, isCut);
   final document = Document.blank()..insert([0], nodes);
 
   // in app json
@@ -50,4 +58,29 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
   }();
 
   return KeyEventResult.handled;
-};
+}
+
+List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = true]) {
+  final handled = <Node>[];
+  for (final node in nodes) {
+    handled.add(_handleNode(node));
+  }
+
+  return handled;
+}
+
+Node _handleNode(Node node) {
+  final newChildren = node.children.map(_handleNode).toList();
+
+  if (node.type == SubPageBlockKeys.type) {
+    return node.copyWith(
+      attributes: {
+        ...node.attributes,
+        SubPageBlockKeys.wasCopied: true,
+      },
+      children: newChildren,
+    );
+  }
+
+  return node.copyWith(children: newChildren);
+}

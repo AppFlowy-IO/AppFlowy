@@ -1,8 +1,8 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-extension InsertFile on EditorState {
-  Future<void> insertEmptyFileBlock() async {
+extension InsertSubPage on EditorState {
+  Future<void> insertSubPageBlock(String viewId) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
       return;
@@ -11,10 +11,10 @@ extension InsertFile on EditorState {
     if (node == null) {
       return;
     }
-    final file = fileNode(url: '');
+    final file = subPageNode(viewId: viewId);
     final transaction = this.transaction;
 
-    // if the current node is empty paragraph, replace it with the file node
+    // if the current node is empty paragraph, replace it with the sub page node
     if (node.type == ParagraphBlockKeys.type &&
         (node.delta?.isEmpty ?? false)) {
       transaction

@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -11,6 +15,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/docu
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
@@ -23,7 +28,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -59,18 +64,23 @@ class _DocumentPageState extends State<DocumentPage>
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
 
+  StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
+
+  bool wasUndoRedo = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    EditorNotification.addListener(_onEditorNotification);
+    EditorNotification.addListener(onEditorNotification);
   }
 
   @override
   void dispose() {
-    EditorNotification.removeListener(_onEditorNotification);
+    EditorNotification.removeListener(onEditorNotification);
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
+    transactionSubscription?.cancel();
     super.dispose();
   }
 
@@ -104,7 +114,7 @@ class _DocumentPageState extends State<DocumentPage>
           BlocProvider.value(value: documentBloc),
         ],
         child: BlocBuilder<DocumentBloc, DocumentState>(
-          buildWhen: _shouldRebuildDocument,
+          buildWhen: shouldRebuildDocument,
           builder: (context, state) {
             if (state.isLoading) {
               return const Center(child: CircularProgressIndicator.adaptive());
@@ -115,11 +125,7 @@ class _DocumentPageState extends State<DocumentPage>
             final error = state.error;
             if (error != null || editorState == null) {
               Log.error(error);
-              return Center(
-                child: AppFlowyErrorPage(
-                  error: error,
-                ),
-              );
+              return Center(child: AppFlowyErrorPage(error: error));
             }
 
             if (state.forceClose) {
@@ -127,12 +133,14 @@ class _DocumentPageState extends State<DocumentPage>
               return const SizedBox.shrink();
             }
 
+            editorState.transactionStream.listen(onEditorTransaction);
+
             return BlocListener<ActionNavigationBloc, ActionNavigationState>(
               listenWhen: (_, curr) => curr.action != null,
-              listener: _onNotificationAction,
+              listener: onNotificationAction,
               child: Consumer<EditorDropManagerState>(
                 builder: (context, dropState, _) =>
-                    _buildEditorPage(context, state, dropState),
+                    buildEditorPage(context, state, dropState),
               ),
             );
           },
@@ -141,7 +149,7 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
-  Widget _buildEditorPage(
+  Widget buildEditorPage(
     BuildContext context,
     DocumentState state,
     EditorDropManagerState dropState,
@@ -151,18 +159,16 @@ class _DocumentPageState extends State<DocumentPage>
     final Widget child;
     if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
-        builder: (context, styleState) {
-          return AppFlowyEditorPage(
-            editorState: state.editorState!,
-            styleCustomizer: EditorStyleCustomizer(
-              context: context,
-              width: width,
-              padding: EditorStyleCustomizer.documentPadding,
-            ),
-            header: _buildCoverAndIcon(context, state),
-            initialSelection: widget.initialSelection,
-          );
-        },
+        builder: (context, styleState) => AppFlowyEditorPage(
+          editorState: state.editorState!,
+          styleCustomizer: EditorStyleCustomizer(
+            context: context,
+            width: width,
+            padding: EditorStyleCustomizer.documentPadding,
+          ),
+          header: buildCoverAndIcon(context, state),
+          initialSelection: widget.initialSelection,
+        ),
       );
     } else {
       child = DropTarget(
@@ -249,7 +255,7 @@ class _DocumentPageState extends State<DocumentPage>
             width: width,
             padding: EditorStyleCustomizer.documentPadding,
           ),
-          header: _buildCoverAndIcon(context, state),
+          header: buildCoverAndIcon(context, state),
           initialSelection: widget.initialSelection,
         ),
       );
@@ -257,13 +263,13 @@ class _DocumentPageState extends State<DocumentPage>
 
     return Column(
       children: [
-        if (state.isDeleted) _buildBanner(context),
+        if (state.isDeleted) buildBanner(context),
         Expanded(child: child),
       ],
     );
   }
 
-  Widget _buildBanner(BuildContext context) {
+  Widget buildBanner(BuildContext context) {
     return DocumentBanner(
       onRestore: () => context.read<DocumentBloc>().add(
             const DocumentEvent.restorePage(),
@@ -274,7 +280,7 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
-  Widget _buildCoverAndIcon(BuildContext context, DocumentState state) {
+  Widget buildCoverAndIcon(BuildContext context, DocumentState state) {
     final editorState = state.editorState;
     final userProfilePB = state.userProfilePB;
     if (editorState == null || userProfilePB == null) {
@@ -301,22 +307,34 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
-  void _onEditorNotification(EditorNotificationType type) {
+  void onEditorNotification(EditorNotificationType type) {
     final editorState = this.editorState;
     if (editorState == null) {
       return;
     }
     if (type == EditorNotificationType.undo) {
+      wasUndoRedo = true;
+      final beforeUndo = collectMatchingNodes(editorState.document.root);
       undoCommand.execute(editorState);
+      final afterUndo = collectMatchingNodes(editorState.document.root);
+
+      handleSubPageChanges(beforeUndo, afterUndo);
     } else if (type == EditorNotificationType.redo) {
+      wasUndoRedo = true;
+      final beforeRedo = collectMatchingNodes(editorState.document.root);
       redoCommand.execute(editorState);
+      final afterRedo = collectMatchingNodes(editorState.document.root);
+
+      handleSubPageChanges(beforeRedo, afterRedo);
     } else if (type == EditorNotificationType.exitEditing &&
         editorState.selection != null) {
       editorState.selection = null;
     }
+
+    wasUndoRedo = false;
   }
 
-  void _onNotificationAction(
+  void onNotificationAction(
     BuildContext context,
     ActionNavigationState state,
   ) {
@@ -332,7 +350,7 @@ class _DocumentPageState extends State<DocumentPage>
     }
   }
 
-  bool _shouldRebuildDocument(DocumentState previous, DocumentState current) {
+  bool shouldRebuildDocument(DocumentState previous, DocumentState current) {
     // only rebuild the document page when the below fields are changed
     // this is to prevent unnecessary rebuilds
     //
@@ -357,5 +375,116 @@ class _DocumentPageState extends State<DocumentPage>
     }
 
     return false;
+  }
+
+  List<Node> collectMatchingNodes(Node node) {
+    final List<Node> matchingNodes = [];
+    if (node.type == SubPageBlockKeys.type) {
+      matchingNodes.add(node);
+    }
+
+    for (final child in node.children) {
+      matchingNodes.addAll(collectMatchingNodes(child));
+    }
+
+    return matchingNodes;
+  }
+
+  void handleSubPageChanges(List<Node> before, List<Node> after) {
+    final additions = after.where((e) => !before.contains(e)).toList();
+    final removals = before.where((e) => !after.contains(e)).toList();
+
+    // Removals goes to trash
+    for (final node in removals) {
+      if (node.type == SubPageBlockKeys.type) {
+        handleSubPageDeletion(context, node);
+      }
+    }
+
+    // Additions are moved to this view
+    for (final node in additions) {
+      handleSubPageAddition(context, node);
+    }
+  }
+
+  Future<void> handleSubPageAddition(BuildContext context, Node node) async {
+    if (editorState == null || node.type != SubPageBlockKeys.type) {
+      return;
+    }
+
+    // We update the wasCut attribute to true to signify the view was moved.
+    // In this particular case it shares behavior with cut, as it moves the view from Trash
+    // to the current view.
+    final transaction = editorState!.transaction
+      ..deleteNode(node)
+      ..insertNode(
+        node.path.next,
+        node.copyWith(
+          attributes: {
+            ...node.attributes,
+            SubPageBlockKeys.wasCut: true,
+          },
+        ),
+      );
+    await editorState!.apply(transaction, withUpdateSelection: false);
+  }
+
+  Future<void> handleSubPageDeletion(BuildContext context, Node node) async {
+    if (editorState == null || node.type != SubPageBlockKeys.type) {
+      return;
+    }
+
+    final view = node.attributes[SubPageBlockKeys.viewId];
+    if (view == null) {
+      return;
+    }
+
+    // We move the view to Trash
+    final result = await ViewBackendService.deleteView(viewId: view);
+    result.fold(
+      (_) {},
+      (error) {
+        Log.error(error);
+        if (context.mounted) {
+          showSnapBar(context, 'Failed to move page to trash');
+        }
+      },
+    );
+  }
+
+  void onEditorTransaction((TransactionTime, Transaction) event) {
+    if (wasUndoRedo) {
+      return;
+    }
+
+    final List<Node> added = [];
+    final List<Node> removed = [];
+    for (final op in event.$2.operations) {
+      if (op is InsertOperation) {
+        for (final n in op.nodes) {
+          added.addAll(collectMatchingNodes(n));
+        }
+      } else if (op is DeleteOperation) {
+        for (final n in op.nodes) {
+          removed.addAll(collectMatchingNodes(n));
+        }
+      }
+    }
+
+    if (removed.isEmpty && added.isEmpty) {
+      return;
+    }
+
+    // Removals goes to trash
+    for (final node in removed) {
+      if (node.type == SubPageBlockKeys.type) {
+        handleSubPageDeletion(context, node);
+      }
+    }
+
+    // Additions are moved to this view
+    for (final node in added) {
+      handleSubPageAddition(context, node);
+    }
   }
 }

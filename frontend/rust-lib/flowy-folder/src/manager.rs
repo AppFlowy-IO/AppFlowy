@@ -611,6 +611,19 @@ impl FolderManager {
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     if let Some(lock) = self.mutex_folder.load_full() {
       let mut folder = lock.write().await;
+      // Check if the view is already in trash, if not we can move the same
+      // view to trash multiple times (duplicates)
+      let trash_info = folder.get_my_trash_info();
+      if trash_info.into_iter().any(|info| info.id == view_id) {
+        return Err(FlowyError::new(
+          ErrorCode::Internal,
+          format!(
+            "Can't move the view({}) to trash, it is already in trash",
+            view_id
+          ),
+        ));
+      }
+
       if let Some(view) = folder.get_view(view_id) {
         Self::unfavorite_view_and_decendants(view.clone(), &mut folder);
         folder.add_trash_view_ids(vec![view_id.to_string()]);
@@ -791,7 +804,10 @@ impl FolderManager {
   ///
   /// Including the view data (icon, cover, extra) and the child views.
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub(crate) async fn duplicate_view(&self, params: DuplicateViewParams) -> Result<(), FlowyError> {
+  pub(crate) async fn duplicate_view(
+    &self,
+    params: DuplicateViewParams,
+  ) -> Result<ViewPB, FlowyError> {
     let lock = self
       .mutex_folder
       .load_full()
@@ -832,7 +848,7 @@ impl FolderManager {
     include_children: bool,
     suffix: Option<String>,
     sync_after_create: bool,
-  ) -> Result<(), FlowyError> {
+  ) -> Result<ViewPB, FlowyError> {
     if view_id == parent_view_id {
       return Err(FlowyError::new(
         ErrorCode::Internal,
@@ -851,6 +867,7 @@ impl FolderManager {
 
     // only apply the `open_after_duplicated` and the `include_children` to the first view
     let mut is_source_view = true;
+    let mut source_view_id = String::new();
     // use a stack to duplicate the view and its children
     let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
     let mut objects = vec![];
@@ -924,6 +941,10 @@ impl FolderManager {
         .create_view_with_params(duplicate_params, false)
         .await?;
 
+      if is_source_view {
+        source_view_id = duplicated_view.id.clone();
+      }
+
       if sync_after_create {
         if let Some(encoded_collab) = encoded_collab {
           let object_id = duplicated_view.id.clone();
@@ -972,7 +993,8 @@ impl FolderManager {
     let folder = lock.read().await;
     notify_parent_view_did_change(workspace_id, &folder, vec![parent_view_id.to_string()]);
 
-    Ok(())
+    let duplicated_view = self.get_view_pb(&source_view_id).await?;
+    Ok(duplicated_view)
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]

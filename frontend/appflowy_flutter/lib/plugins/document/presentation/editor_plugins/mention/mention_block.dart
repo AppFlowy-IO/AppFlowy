@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 enum MentionType {
