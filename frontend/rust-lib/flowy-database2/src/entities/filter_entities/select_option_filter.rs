@@ -58,3 +58,10 @@ impl ParseFilterData for SelectOptionFilterPB {
     }
   }
 }
+
+impl SelectOptionFilterPB {
+  pub fn remove_extra_option_ids(mut self) -> Self {
+    self.option_ids.truncate(1);
+    self
+  }
+}

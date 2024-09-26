@@ -19,12 +19,14 @@ class SelectOptionFilterList extends StatelessWidget {
     required this.field,
     required this.delegate,
     required this.options,
+    required this.onTap,
   });
 
   final SelectOptionFilter filter;
   final FieldInfo field;
   final SelectOptionFilterDelegate delegate;
   final List<SelectOptionPB> options;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,7 @@ class SelectOptionFilterList extends StatelessWidget {
 
       _updateSelectOptions(context, filter, selectedOptionIds);
     }
+    onTap();
   }
 
   void _updateSelectOptions(

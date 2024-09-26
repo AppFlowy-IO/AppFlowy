@@ -363,7 +363,7 @@ class _FilterItem extends StatelessWidget {
                             .startEditingFilterCondition(
                               filter.filterId,
                               filter,
-                              filter.fieldType.isDate,
+                              filter.fieldType == FieldType.DateTime,
                             ),
                         child: FlowyText(
                           filter.conditionName,
@@ -683,7 +683,11 @@ class _FilterConditionList extends StatelessWidget {
         if (filter is DateTimeFilter?) {
           return _DateTimeFilterConditionList(
             onSelect: (filter) {
-              context.read<MobileFilterEditorCubit>().updateFilter(filter);
+              if (filter.fieldType == FieldType.DateTime) {
+                context.read<MobileFilterEditorCubit>().updateFilter(filter);
+              } else {
+                onSelect(filter);
+              }
             },
           );
         }
@@ -783,6 +787,10 @@ class _DateTimeFilterConditionList extends StatelessWidget {
           orElse: () => const SizedBox.shrink(),
           editCondition: (filterId, newFilter, _) {
             final filter = newFilter as DateTimeFilter;
+            final conditions =
+                DateTimeFilterCondition.availableConditionsForFieldType(
+              filter.fieldType,
+            );
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -813,17 +821,17 @@ class _DateTimeFilterConditionList extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: DateTimeFilterCondition.values.length,
+                    itemCount: conditions.length,
                     itemBuilder: (context, index) {
-                      final condition = DateTimeFilterCondition.values[index];
                       return FlowyOptionTile.checkbox(
-                        text: condition.filterName,
+                        text: conditions[index].filterName,
                         showTopBorder: false,
-                        isSelected: filter.condition.toCondition() == condition,
+                        isSelected:
+                            filter.condition.toCondition() == conditions[index],
                         onTap: () {
                           final newFilter = filter.copyWithCondition(
                             isStart: filter.condition.isStart,
-                            condition: condition,
+                            condition: conditions[index],
                           );
                           onSelect(newFilter);
                         },
@@ -922,6 +930,8 @@ class _FilterContentEditor extends StatelessWidget {
               filter: filter as SelectOptionFilter,
               field: field,
             ),
+          FieldType.CreatedTime ||
+          FieldType.LastEditedTime ||
           FieldType.DateTime =>
             _DateTimeFilterContentEditor(filter: filter as DateTimeFilter),
           _ => const SizedBox.shrink(),
@@ -1002,7 +1012,9 @@ class _SelectOptionFilterContentEditorState
   }
 
   MobileSelectedOptionIndicator _getIndicator() {
-    return widget.filter.condition == SelectOptionFilterConditionPB.OptionIs &&
+    return (widget.filter.condition == SelectOptionFilterConditionPB.OptionIs ||
+                widget.filter.condition ==
+                    SelectOptionFilterConditionPB.OptionIsNot) &&
             widget.field.fieldType == FieldType.SingleSelect
         ? MobileSelectedOptionIndicator.single
         : MobileSelectedOptionIndicator.multi;

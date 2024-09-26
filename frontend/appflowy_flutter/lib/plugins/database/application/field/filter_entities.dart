@@ -73,6 +73,8 @@ abstract class DatabaseFilter {
           condition: data.condition,
           optionIds: data.optionIds,
         );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
       case FieldType.DateTime:
         final data = DateFilterPB.fromBuffer(filterPB.data.data);
         return DateTimeFilter(
@@ -354,8 +356,10 @@ final class SelectOptionFilter extends DatabaseFilter {
     final delegate = makeDelegate(field);
     final options = delegate.getOptions(field);
 
-    final optionNames =
-        options.where((option) => optionIds.contains(option.id)).join(', ');
+    final optionNames = options
+        .where((option) => optionIds.contains(option.id))
+        .map((option) => option.name)
+        .join(', ');
     return "${condition.i18n} $optionNames";
   }
 
@@ -406,7 +410,8 @@ final class SelectOptionFilter extends DatabaseFilter {
   }) {
     final options = optionIds ?? this.optionIds;
     if (fieldType == FieldType.SingleSelect &&
-        condition == SelectOptionFilterConditionPB.OptionIs &&
+        (condition == SelectOptionFilterConditionPB.OptionIs ||
+            condition == SelectOptionFilterConditionPB.OptionIsNot) &&
         options.length > 1) {
       options.removeRange(1, options.length);
     }
@@ -483,6 +488,18 @@ enum DateTimeFilterCondition {
       isEmpty => LocaleKeys.grid_dateFilter_empty.tr(),
       isNotEmpty => LocaleKeys.grid_dateFilter_notEmpty.tr(),
     };
+  }
+
+  static List<DateTimeFilterCondition> availableConditionsForFieldType(
+      FieldType fieldType,) {
+    final result = [...values];
+    if (fieldType == FieldType.CreatedTime ||
+        fieldType == FieldType.LastEditedTime) {
+      result.remove(isEmpty);
+      result.remove(isNotEmpty);
+    }
+
+    return result;
   }
 }
 

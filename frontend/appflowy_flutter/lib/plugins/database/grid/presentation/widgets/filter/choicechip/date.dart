@@ -107,19 +107,24 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
       child: Row(
         children: [
           Expanded(
-            child: DateFilterIsStartList(
-              filter: filter,
-              popoverMutex: popoverMutex,
-              onChangeIsStart: (isStart) {
-                final newFilter = filter.copyWithCondition(
-                  isStart: isStart,
-                  condition: filter.condition.toCondition(),
-                );
-                context
-                    .read<FilterEditorBloc>()
-                    .add(FilterEditorEvent.updateFilter(newFilter));
-              },
-            ),
+            child: field.fieldType == FieldType.DateTime
+                ? DateFilterIsStartList(
+                    filter: filter,
+                    popoverMutex: popoverMutex,
+                    onChangeIsStart: (isStart) {
+                      final newFilter = filter.copyWithCondition(
+                        isStart: isStart,
+                        condition: filter.condition.toCondition(),
+                      );
+                      context
+                          .read<FilterEditorBloc>()
+                          .add(FilterEditorEvent.updateFilter(newFilter));
+                    },
+                  )
+                : FlowyText(
+                    field.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
           ),
           const HSpace(4),
           Expanded(
@@ -307,11 +312,14 @@ class DateFilterConditionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final conditions = DateTimeFilterCondition.availableConditionsForFieldType(
+      filter.fieldType,
+    );
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: DateTimeFilterCondition.values
+      actions: conditions
           .map(
             (action) => ConditionWrapper(
               action,

@@ -92,6 +92,7 @@ class FilterBackendService {
 
   Future<FlowyResult<void, FlowyError>> insertDateFilter({
     required String fieldId,
+    required FieldType fieldType,
     String? filterId,
     required DateFilterConditionPB condition,
     int? start,
@@ -113,13 +114,13 @@ class FilterBackendService {
     return filterId == null
         ? insertFilter(
             fieldId: fieldId,
-            fieldType: FieldType.DateTime,
+            fieldType: fieldType,
             data: filter.writeToBuffer(),
           )
         : updateFilter(
             filterId: filterId,
             fieldId: fieldId,
-            fieldType: FieldType.DateTime,
+            fieldType: fieldType,
             data: filter.writeToBuffer(),
           );
   }

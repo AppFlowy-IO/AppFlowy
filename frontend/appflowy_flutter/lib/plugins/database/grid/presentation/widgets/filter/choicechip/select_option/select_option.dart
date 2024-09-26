@@ -90,6 +90,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
                   field: field,
                   delegate: delegate,
                   options: delegate.getOptions(field),
+                  onTap: () => popoverMutex.close(),
                 ),
               ),
             );

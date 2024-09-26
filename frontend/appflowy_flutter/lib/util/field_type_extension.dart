@@ -93,14 +93,6 @@ extension FieldTypeExtension on FieldType {
         _ => throw UnimplementedError(),
       };
 
-  bool get isDate => switch (this) {
-        FieldType.DateTime ||
-        FieldType.CreatedTime ||
-        FieldType.LastEditedTime =>
-          true,
-        _ => false,
-      };
-
   bool get canBeGroup => switch (this) {
         FieldType.URL ||
         FieldType.Checkbox ||
@@ -119,7 +111,9 @@ extension FieldTypeExtension on FieldType {
         FieldType.SingleSelect ||
         FieldType.Checklist ||
         FieldType.URL ||
-        FieldType.DateTime =>
+        FieldType.DateTime ||
+        FieldType.CreatedTime ||
+        FieldType.LastEditedTime =>
           true,
         _ => false
       };

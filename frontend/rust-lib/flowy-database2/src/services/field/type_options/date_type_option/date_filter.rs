@@ -1,5 +1,6 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
 use crate::services::cell::insert_date_cell;
+use crate::services::field::TimestampCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
 use chrono::{Duration, NaiveDate};
@@ -12,6 +13,24 @@ impl DateFilterPB {
   /// the condition. For example, `start` and `end` timestamps for
   /// `DateFilterConditionPB::DateStartsBetween`.
   pub fn is_visible(&self, cell_data: &DateCellData) -> Option<bool> {
+    let strategy = self.get_strategy()?;
+
+    let timestamp = if self.condition.is_filter_on_start_timestamp() {
+      cell_data.timestamp
+    } else {
+      cell_data.end_timestamp.or_else(|| cell_data.timestamp)
+    };
+
+    Some(strategy.filter(timestamp))
+  }
+
+  pub fn is_timestamp_cell_data_visible(&self, cell_data: &TimestampCellData) -> Option<bool> {
+    let strategy = self.get_strategy()?;
+
+    Some(strategy.filter(cell_data.timestamp))
+  }
+
+  fn get_strategy(&self) -> Option<DateFilterStrategy> {
     let strategy = match self.condition {
       DateFilterConditionPB::DateStartsOn | DateFilterConditionPB::DateEndsOn => {
         DateFilterStrategy::On(self.timestamp?)
@@ -42,13 +61,7 @@ impl DateFilterPB {
       },
     };
 
-    let timestamp = if self.condition.is_filter_on_start_timestamp() {
-      cell_data.timestamp
-    } else {
-      cell_data.end_timestamp.or_else(|| cell_data.timestamp)
-    };
-
-    Some(strategy.filter(timestamp))
+    Some(strategy)
   }
 }
 
