@@ -13,7 +13,7 @@ import React, { useCallback, useMemo, Suspense } from 'react';
 export function FileMediaCell ({ cell, style, placeholder }: CellProps<FileMediaCellType>) {
   const value = cell?.data;
   const className = useMemo(() => {
-    const classList = ['flex items-center gap-1.5', 'cursor-text'];
+    const classList = ['flex items-center gap-1.5 flex-wrap', 'cursor-text'];
 
     return classList.join(' ');
   }, []);
@@ -46,6 +46,23 @@ export function FileMediaCell ({ cell, style, placeholder }: CellProps<FileMedia
   }, []);
 
   const renderChildren = useMemo(() => {
+    const length = value?.length || 0;
+
+    if (length > 6) {
+      return <>
+        {value?.slice(0, 5).map(renderItem)}
+        <div
+          onClick={() => {
+            previewIndexRef.current = 0;
+            setOpenPreview(true);
+          }}
+          className={'flex items-center hover:scale-110 cursor-pointer justify-center w-fit aspect-square rounded-[8px] h-14 bg-gray-100 text-gray-500 text-sm'}
+        >
+          +{length - 5}
+        </div>
+      </>;
+    }
+
     return value?.map(renderItem);
   }, [renderItem, value]);
 

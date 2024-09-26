@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -12,8 +15,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -221,6 +222,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
       languagePickerBuilder: codeBlockLanguagePickerBuilder,
       copyButtonBuilder: codeBlockCopyBuilder,
+      showLineNumbers: false,
     ),
     AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
     SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),

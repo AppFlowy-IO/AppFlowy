@@ -10,9 +10,8 @@ use crate::services::database_view::{
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
-  ChecklistCellChangeset, MediaCellData, RelationTypeOption, SelectOptionCellChangeset,
-  StringCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
-  TypeOptionCellExt,
+  ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset, StringCellData,
+  TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -27,6 +26,7 @@ use collab::core::collab_plugin::CollabPluginType;
 use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
+use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, DatabaseRow, Row, RowCell, RowDetail, RowId, RowUpdate};
 use collab_database::views::{
@@ -569,6 +569,20 @@ impl DatabaseEditor {
       .await
       .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
     let (index, row_order) = database.create_row_in_view(view_id, params).await?;
+
+    let row_meta = database.get_row_meta(row_id).await;
+    if let Some(row_meta) = row_meta {
+      database
+        .update_row_meta(&row_order.id, |meta_update| {
+          meta_update
+            .insert_cover_if_not_none(row_meta.cover)
+            .insert_icon_if_not_none(row_meta.icon_url)
+            .update_is_document_empty_if_not_none(Some(row_meta.is_document_empty))
+            .update_attachment_count_if_not_none(Some(row_meta.attachment_count));
+        })
+        .await;
+    }
+
     drop(database);
 
     trace!(

@@ -4,11 +4,11 @@ import React from 'react';
 import { Calendar as BigCalendar } from 'react-big-calendar';
 import './calendar.scss';
 
-export function Calendar() {
+export function Calendar () {
   const { dayPropGetter, localizer, formats, events, emptyEvents } = useCalendarSetup();
 
   return (
-    <div className={'database-calendar h-fit  pb-4 pt-4 text-sm'}>
+    <div className={'database-calendar z-[1] h-fit  pb-36 pt-4 text-sm'}>
       <BigCalendar
         components={{
           toolbar: (props) => <Toolbar {...props} emptyEvents={emptyEvents} />,

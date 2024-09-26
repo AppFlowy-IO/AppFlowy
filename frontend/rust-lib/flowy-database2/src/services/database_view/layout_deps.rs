@@ -1,15 +1,15 @@
+use crate::entities::FieldType;
+use crate::services::field_settings::default_field_settings_by_layout_map;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 use collab::lock::RwLock;
 use collab_database::database::{gen_field_id, Database};
+use collab_database::fields::date_type_option::DateTypeOption;
+use collab_database::fields::select_type_option::SingleSelectTypeOption;
 use collab_database::fields::Field;
 use collab_database::views::{
   DatabaseLayout, FieldSettingsByFieldIdMap, LayoutSetting, OrderObjectPosition,
 };
 use std::sync::Arc;
-
-use crate::entities::FieldType;
-use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
-use crate::services::field_settings::default_field_settings_by_layout_map;
-use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 /// When creating a database, we need to resolve the dependencies of the views.
 /// Different database views have different dependencies. For example, a board
@@ -151,27 +151,3 @@ impl DatabaseLayoutDepsResolver {
       .with_type_option_data(field_type, default_select_type_option.into())
   }
 }
-
-// pub async fn v_get_layout_settings(&self, layout_ty: &DatabaseLayout) -> LayoutSettingParams {
-//   let mut layout_setting = LayoutSettingParams::default();
-//   match layout_ty {
-//     DatabaseLayout::Grid => {},
-//     DatabaseLayout::Board => {},
-//     DatabaseLayout::Calendar => {
-//       if let Some(value) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
-//         let calendar_setting = CalendarLayoutSetting::from(value);
-//         // Check the field exist or not
-//         if let Some(field) = self.delegate.get_field(&calendar_setting.field_id).await {
-//           let field_type = FieldType::from(field.field_type);
-//
-//           // Check the type of field is Datetime or not
-//           if field_type == FieldType::DateTime {
-//             layout_setting.calendar = Some(calendar_setting);
-//           }
-//         }
-//       }
-//     },
-//   }
-//
-//   layout_setting
-// }

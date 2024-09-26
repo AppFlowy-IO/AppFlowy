@@ -28,12 +28,11 @@ class _SortButtonState extends State<SortButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
-        final textColor = state.sortInfos.isEmpty
+        final textColor = state.sorts.isEmpty
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
 
         return wrapPopover(
-          context,
           FlowyTextButton(
             LocaleKeys.grid_settings_sort.tr(),
             fontColor: textColor,
@@ -44,7 +43,7 @@ class _SortButtonState extends State<SortButton> {
             padding: GridSize.toolbarSettingButtonInsets,
             radius: Corners.s4Border,
             onPressed: () {
-              if (state.sortInfos.isEmpty) {
+              if (state.sorts.isEmpty) {
                 _popoverController.show();
               } else {
                 widget.toggleExtension.toggle();
@@ -56,7 +55,7 @@ class _SortButtonState extends State<SortButton> {
     );
   }
 
-  Widget wrapPopover(BuildContext context, Widget child) {
+  Widget wrapPopover(Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -76,9 +75,6 @@ class _SortButtonState extends State<SortButton> {
           ),
         );
       },
-      onClose: () => context
-          .read<SortEditorBloc>()
-          .add(const SortEditorEvent.updateCreateSortFilter("")),
       child: child,
     );
   }

@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/board/group_ext.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -208,11 +208,14 @@ class _DefaultColumnHeaderContent extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FlowyTooltip(
-            message: groupName,
-            child: FlowyText.medium(
-              groupName,
-              overflow: TextOverflow.ellipsis,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FlowyTooltip(
+              message: groupName,
+              child: FlowyText.medium(
+                groupName,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),

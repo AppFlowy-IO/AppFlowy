@@ -68,7 +68,17 @@ const createServer = async (req: Request) => {
 
   logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
 
-  if (['/after-payment', '/login', '/as-template', '/accept-invitation'].includes(reqUrl.pathname)) {
+  if (reqUrl.pathname === '/') {
+    timer();
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/app',
+      },
+    });
+  }
+
+  if (['/after-payment', '/login', '/as-template', '/app', '/accept-invitation'].some(item => reqUrl.pathname.startsWith(item))) {
     timer();
     const htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = load(htmlData);

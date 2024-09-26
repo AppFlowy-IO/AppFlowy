@@ -5,7 +5,7 @@ import {
 } from '@/application/template.type';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import CategoryForm from '@/components/as-template/category/CategoryForm';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useCallback, useMemo, useState } from 'react';

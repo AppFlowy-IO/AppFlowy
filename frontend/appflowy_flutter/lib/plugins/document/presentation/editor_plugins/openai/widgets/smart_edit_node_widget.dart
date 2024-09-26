@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_bloc.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -98,7 +100,7 @@ class _SmartEditBlockComponentWidgetState
       node: widget.node,
       editorState: editorState,
       action: action,
-    )..add(const SmartEditEvent.initial());
+    )..add(SmartEditEvent.initial(getIt.getAsync<AIRepository>()));
   }
 
   @override

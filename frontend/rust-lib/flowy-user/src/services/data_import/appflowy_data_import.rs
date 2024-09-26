@@ -522,7 +522,9 @@ where
         );
 
         mut_row_with_collab(imported_collab, |row_update| {
-          row_update.set_row_id(RowId::from(new_row_id.clone()), new_database_id.clone());
+          row_update
+            .set_row_id(RowId::from(new_row_id.clone()))
+            .set_database_id(new_database_id.clone());
         });
         write_collab_object(
           imported_collab,

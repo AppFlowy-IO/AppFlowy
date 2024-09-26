@@ -50,7 +50,6 @@ strum = "0.25"
 strum_macros = "0.25"
 validator = { workspace = true, features = ["derive"] }
 tokio-util.workspace = true
-tokio-retry = "0.3"
 moka = { version = "0.12.8", features = ["future"] }
 
 [dev-dependencies]

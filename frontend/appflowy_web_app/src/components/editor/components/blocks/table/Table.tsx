@@ -1,11 +1,11 @@
 import { EditorElementProps, TableCellNode, TableNode } from '@/components/editor/editor.type';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import { getScrollParent } from '@/components/global-comment/utils';
 import React, { forwardRef, memo, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Grid } from '@atlaskit/primitives';
 import './table.scss';
 import isEqual from 'lodash-es/isEqual';
 import { ReactEditor, useSlateStatic } from 'slate-react';
-import { useEditorContext } from '@/components/editor/EditorContext';
 
 const Table = memo(
   forwardRef<HTMLDivElement, EditorElementProps<TableNode>>(({ node, children, className, ...attributes }, ref) => {
@@ -86,10 +86,9 @@ const Table = memo(
         }}
       >
         <div
-          className={'h-full w-full overflow-x-auto overflow-y-hidden'}
-          style={{
-            paddingLeft: offsetLeftRef.current + 'px',
-          }}
+          className={'h-full w-full overflow-x-auto overflow-y-hidden'} style={{
+          paddingLeft: offsetLeftRef.current + 'px',
+        }}
         >
           <Grid
             id={`table-${node.blockId}`}
@@ -105,7 +104,7 @@ const Table = memo(
       </div>
     );
   }),
-  (prevProps, nextProps) => isEqual(prevProps.node, nextProps.node)
+  (prevProps, nextProps) => isEqual(prevProps.node, nextProps.node),
 );
 
 export default Table;

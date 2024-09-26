@@ -3,13 +3,14 @@ use std::convert::TryFrom;
 
 use bytes::Bytes;
 use collab_database::database::timestamp;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
+};
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::cell::CellBuilder;
-use flowy_database2::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
@@ -624,7 +625,8 @@ impl<'a> TestRowBuilder<'a> {
     let single_select_field = self.field_with_type(&FieldType::SingleSelect);
     let type_option = single_select_field
       .get_type_option::<SingleSelectTypeOption>(FieldType::SingleSelect)
-      .unwrap();
+      .unwrap()
+      .0;
     let option = f(type_option.options);
     self
       .cell_build
@@ -640,7 +642,8 @@ impl<'a> TestRowBuilder<'a> {
     let multi_select_field = self.field_with_type(&FieldType::MultiSelect);
     let type_option = multi_select_field
       .get_type_option::<MultiSelectTypeOption>(FieldType::MultiSelect)
-      .unwrap();
+      .unwrap()
+      .0;
     let options = f(type_option.options);
     let ops_ids = options
       .iter()

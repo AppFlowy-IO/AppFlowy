@@ -1,20 +1,26 @@
+use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
+use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
+use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
+use crate::services::field::{
+  StringCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataSerde, TypeOptionTransform,
+};
 use async_trait::async_trait;
 use bytes::Bytes;
 use collab_database::database::Database;
-use collab_database::entity::{SelectOption, SelectOptionColor};
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption,
+  SELECTION_IDS_SEPARATOR,
+};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use std::str::FromStr;
 
-use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
-use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
-use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
-use crate::services::field::{
-  make_selected_options, MultiSelectTypeOption, SelectOptionCellData, SelectOptionIds,
-  SingleSelectTypeOption, StringCellData, TypeOption, TypeOptionCellDataSerde, TypeOptionTransform,
-  SELECTION_IDS_SEPARATOR,
-};
+impl TypeOptionCellData for SelectOptionIds {
+  fn is_cell_empty(&self) -> bool {
+    self.is_empty()
+  }
+}
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
 pub trait SelectTypeOptionSharedAction: Send + Sync {
@@ -206,7 +212,7 @@ impl CellProtobufBlobParser for SelectOptionIdsParser {
   type Object = SelectOptionIds;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => SelectOptionIds::from_str(&s),
+      Ok(s) => SelectOptionIds::from_str(&s).map_err(Into::into),
       Err(_) => Ok(SelectOptionIds::default()),
     }
   }
@@ -255,4 +261,33 @@ impl SelectOptionCellChangeset {
       delete_option_ids: option_ids,
     }
   }
+}
+
+#[derive(Debug)]
+pub struct SelectOptionCellData {
+  pub select_options: Vec<SelectOption>,
+}
+
+impl From<SelectOptionCellData> for SelectOptionCellDataPB {
+  fn from(data: SelectOptionCellData) -> Self {
+    SelectOptionCellDataPB {
+      select_options: data
+        .select_options
+        .into_iter()
+        .map(|option| option.into())
+        .collect(),
+    }
+  }
+}
+
+pub fn make_selected_options(ids: SelectOptionIds, options: &[SelectOption]) -> Vec<SelectOption> {
+  ids
+    .iter()
+    .flat_map(|option_id| {
+      options
+        .iter()
+        .find(|option| &option.id == option_id)
+        .cloned()
+    })
+    .collect()
 }

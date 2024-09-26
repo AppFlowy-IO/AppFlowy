@@ -1,9 +1,9 @@
 import { ImageBlockNode } from '@/components/editor/editor.type';
 import React from 'react';
-import { ReactComponent as ImageIcon } from '$icons/16x/image.svg';
+import { ReactComponent as ImageIcon } from '@/assets/image.svg';
 import { useTranslation } from 'react-i18next';
 
-function ImageEmpty(_: { containerRef: React.RefObject<HTMLDivElement>; onEscape: () => void; node: ImageBlockNode }) {
+function ImageEmpty (_: { containerRef: React.RefObject<HTMLDivElement>; onEscape: () => void; node: ImageBlockNode }) {
   const { t } = useTranslation();
 
   return (

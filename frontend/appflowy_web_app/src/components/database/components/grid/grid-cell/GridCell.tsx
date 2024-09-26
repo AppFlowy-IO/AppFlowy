@@ -1,4 +1,4 @@
-import { FieldId, YjsDatabaseKey } from '@/application/collab.type';
+import { FieldId, YjsDatabaseKey } from '@/application/types';
 import { useCellSelector } from '@/application/database-yjs';
 import { useFieldSelector } from '@/application/database-yjs/selector';
 import { Cell } from '@/components/database/components/cell';

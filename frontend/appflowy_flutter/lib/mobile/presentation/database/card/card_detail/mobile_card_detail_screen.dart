@@ -182,10 +182,11 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
                         _bloc.add(
                           MobileRowDetailEvent.addCover(
                             RowCoverPB(
-                              url: path,
+                              data: path,
                               uploadType: isLocalMode
                                   ? FileUploadTypePB.LocalFile
                                   : FileUploadTypePB.CloudFile,
+                              coverType: CoverTypePB.FileCover,
                             ),
                           ),
                         );
@@ -258,8 +259,9 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     _bloc.add(
       MobileRowDetailEvent.addCover(
         RowCoverPB(
-          url: url,
+          data: url,
           uploadType: FileUploadTypePB.NetworkFile,
+          coverType: CoverTypePB.FileCover,
         ),
       ),
     );
@@ -410,7 +412,7 @@ class MobileRowDetailPageContentState
       child: BlocBuilder<RowDetailBloc, RowDetailState>(
         builder: (context, rowDetailState) => Column(
           children: [
-            if (rowDetailState.rowMeta.cover.url.isNotEmpty) ...[
+            if (rowDetailState.rowMeta.cover.data.isNotEmpty) ...[
               GestureDetector(
                 onTap: () => showMobileBottomSheet(
                   context,
@@ -443,7 +445,7 @@ class MobileRowDetailPageContentState
                       color: Theme.of(context).colorScheme.surface,
                     ),
                     child: AFImage(
-                      url: rowDetailState.rowMeta.cover.url,
+                      url: rowDetailState.rowMeta.cover.data,
                       uploadType: widget.rowMeta.cover.uploadType,
                       userProfile:
                           context.read<MobileRowDetailBloc>().userProfile,

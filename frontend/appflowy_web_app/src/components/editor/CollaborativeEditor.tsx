@@ -1,4 +1,4 @@
-import { CollabOrigin } from '@/application/collab.type';
+import { CollabOrigin } from '@/application/types';
 import { withYjs, YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import EditorEditable from '@/components/editor/Editable';
 import { useEditorContext } from '@/components/editor/EditorContext';

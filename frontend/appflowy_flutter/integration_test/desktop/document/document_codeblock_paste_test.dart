@@ -13,13 +13,15 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('paste in codeblock', () {
+  group('paste in codeblock:', () {
     testWidgets('paste multiple lines in codeblock', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
       // create a new document
-      await tester.createNewPageWithNameUnderParent();
+      await tester.createNewPageWithNameUnderParent(name: 'Test Document');
+      // focus on the editor
+      await tester.tapButton(find.byType(AppFlowyEditor));
 
       // mock the clipboard
       const lines = 3;

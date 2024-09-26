@@ -1,6 +1,7 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/settings/show_settings.dart';
 import 'package:appflowy/shared/window_title_bar.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
@@ -63,8 +64,15 @@ class DesktopSignInScreen extends StatelessWidget {
 
                 const Spacer(),
 
-                // anonymous sign in
-                const SignInAnonymousButtonV2(),
+                // anonymous sign in and settings
+                const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DesktopSignInSettingsButton(),
+                    HSpace(42),
+                    SignInAnonymousButtonV2(),
+                  ],
+                ),
                 const VSpace(16),
               ],
             ),
@@ -80,6 +88,30 @@ class DesktopSignInScreen extends StatelessWidget {
       child: UniversalPlatform.isWindows
           ? const WindowTitleBar()
           : const MoveWindowDetector(),
+    );
+  }
+}
+
+class DesktopSignInSettingsButton extends StatelessWidget {
+  const DesktopSignInSettingsButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: FlowyText(
+        LocaleKeys.signIn_settings.tr(),
+        textAlign: TextAlign.center,
+        fontSize: 12.0,
+        // fontWeight: FontWeight.w500,
+        color: Colors.grey,
+        decoration: TextDecoration.underline,
+      ),
+      onTap: () {
+        showSimpleSettingsDialog(context);
+      },
     );
   }
 }

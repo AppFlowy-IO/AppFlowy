@@ -1,6 +1,5 @@
-import { DatabaseViewLayout, YDatabaseView, YjsDatabaseKey } from '@/application/collab.type';
+import { DatabaseViewLayout, View, YDatabaseView, YjsDatabaseKey } from '@/application/types';
 import { DatabaseContext, useDatabase, useDatabaseView } from '@/application/database-yjs';
-import { ViewMeta } from '@/application/db/tables/view_metas';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { Tooltip } from '@mui/material';
 import {
@@ -43,7 +42,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
     const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
-    const [meta, setMeta] = useState<ViewMeta | null>(null);
+    const [meta, setMeta] = useState<View | null>(null);
     const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
 
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
@@ -112,7 +111,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
               if (!view) return null;
               const layout = Number(view.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
               const Icon = DatabaseIcons[layout];
-              const name = viewId === iidIndex ? viewName : meta?.child_views?.find((v) => v.view_id === viewId)?.name;
+              const name = viewId === iidIndex ? viewName : meta?.children?.find((v) => v.view_id === viewId)?.name;
 
               return (
                 <ViewTab

@@ -192,9 +192,13 @@ async fn handle_did_update_row_orders(
   let row_changes = DashMap::new();
   // 1. handle insert row orders
   for (row_order, index) in insert_row_orders {
-    if let Err(err) = database_editor.init_database_row(&row_order.id).await {
-      error!("Failed to init row: {:?}", err);
-    }
+    let row = match database_editor.init_database_row(&row_order.id).await {
+      Ok(database_row) => database_row.read().await.get_row().map(Arc::new),
+      Err(err) => {
+        error!("Failed to init row: {:?}", err);
+        None
+      },
+    };
 
     for database_view in database_editor.database_views.editors().await {
       trace!(
@@ -205,21 +209,11 @@ async fn handle_did_update_row_orders(
       );
 
       // insert row order in database view cache
-      {
-        let mut view_row_orders = database_view.row_orders.write().await;
-        if view_row_orders.len() >= index as usize {
-          view_row_orders.insert(index as usize, row_order.clone());
-        } else {
-          warn!(
-            "[RowOrder]: insert row at index:{} out of range:{}",
-            index,
-            view_row_orders.len()
-          );
-        }
-      }
+      database_view
+        .insert_row(row.clone(), index, &row_order)
+        .await;
 
       let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
-
       if let Some((index, row_detail)) = database_view.v_get_row(&row_order.id).await {
         database_view
           .v_did_create_row(

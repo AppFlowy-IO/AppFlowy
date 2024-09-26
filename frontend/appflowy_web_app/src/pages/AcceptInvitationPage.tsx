@@ -1,9 +1,10 @@
 import { Invitation } from '@/application/types';
+import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
+import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext, useCurrentUser, useService } from '@/components/app/app.hooks';
-import { stringAvatar } from '@/utils/color';
-import { isFlagEmoji } from '@/utils/emoji';
+import { getAvatar } from '@/components/_shared/view-icon/utils';
+import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
 import { openOrDownload } from '@/utils/open_schema';
 import { openAppFlowySchema } from '@/utils/url';
 import { EmailOutlined } from '@mui/icons-material';
@@ -11,8 +12,6 @@ import { Avatar, Button, Divider } from '@mui/material';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
-import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
 
 function AcceptInvitationPage () {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
@@ -175,25 +174,6 @@ function AcceptInvitationPage () {
       </NormalModal>
     </div>
   );
-}
-
-function getAvatar (item: {
-  icon?: string;
-  name: string;
-}) {
-  if (item.icon) {
-    const isFlag = isFlagEmoji(item.icon);
-
-    return {
-      children: <span className={isFlag ? 'icon' : ''}>{item.icon}</span>,
-      sx: {
-        bgcolor: 'var(--bg-body)',
-        color: 'var(--text-title)',
-      },
-    };
-  }
-
-  return stringAvatar(item.name || '');
 }
 
 export default AcceptInvitationPage;

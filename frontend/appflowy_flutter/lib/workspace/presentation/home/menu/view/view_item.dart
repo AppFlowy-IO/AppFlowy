@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -40,6 +41,12 @@ typedef ViewItemRightIconsBuilder = List<Widget> Function(
   BuildContext context,
   ViewPB view,
 );
+
+enum IgnoreViewType {
+  none,
+  hide,
+  disable,
+}
 
 class ViewItem extends StatelessWidget {
   const ViewItem({
@@ -125,7 +132,7 @@ class ViewItem extends StatelessWidget {
   final bool? disableSelectedStatus;
 
   // ignore the views when rendering the child views
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
@@ -144,10 +151,14 @@ class ViewItem extends StatelessWidget {
           var childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((childView) => !shouldIgnoreView!(childView))
+                .where(
+                  (childView) =>
+                      shouldIgnoreView!(childView) != IgnoreViewType.hide,
+                )
                 .toList();
           }
-          return InnerViewItem(
+
+          final Widget child = InnerViewItem(
             view: state.view,
             parentView: parentView,
             childViews: childViews,
@@ -173,6 +184,23 @@ class ViewItem extends StatelessWidget {
             extendBuilder: extendBuilder,
             shouldIgnoreView: shouldIgnoreView,
           );
+
+          if (shouldIgnoreView?.call(view) == IgnoreViewType.disable) {
+            return Opacity(
+              opacity: 0.5,
+              child: FlowyTooltip(
+                message: LocaleKeys.space_cannotMovePageToDatabase.tr(),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.forbidden,
+                  child: IgnorePointer(
+                    child: child,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return child;
         },
       ),
     );
@@ -239,7 +267,7 @@ class InnerViewItem extends StatefulWidget {
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(ViewPB view)? extendBuilder;
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
   @override
   State<InnerViewItem> createState() => _InnerViewItemState();
@@ -441,7 +469,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
   final List<Widget> Function(ViewPB view)? extendBuilder;
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
   final bool isSelected;
 
   @override
@@ -488,7 +516,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final name = FlowyText.regular(
-      widget.view.name,
+      widget.view.name.isEmpty
+          ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+          : widget.view.name,
       overflow: TextOverflow.ellipsis,
       fontSize: 14.0,
       figmaLineHeight: 18.0,
@@ -612,80 +642,60 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
-    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
-      return const _DotIconWidget();
-    }
-
-    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
-      return HSpace(widget.leftPadding);
-    }
-
-    final child = FlowyHover(
-      child: GestureDetector(
-        child: FlowySvg(
-          widget.isExpanded
-              ? FlowySvgs.view_item_expand_s
-              : FlowySvgs.view_item_unexpand_s,
-          size: const Size.square(16.0),
-        ),
-        onTap: () => context
-            .read<ViewBloc>()
-            .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
-      ),
+    return ViewItemDefaultLeftIcon(
+      view: widget.view,
+      parentView: widget.parentView,
+      isExpanded: widget.isExpanded,
+      leftPadding: widget.leftPadding,
+      isHovered: widget.isHovered,
     );
-
-    if (widget.isHovered != null) {
-      return ValueListenableBuilder<bool>(
-        valueListenable: widget.isHovered!,
-        builder: (_, isHovered, child) {
-          return Opacity(opacity: isHovered ? 1.0 : 0.0, child: child);
-        },
-        child: child,
-      );
-    }
-
-    return child;
   }
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    final viewBloc = context.read<ViewBloc>();
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onSelected: (
-          pluginBuilder,
-          name,
-          initialDataBytes,
-          openAfterCreated,
-          createNewView,
-        ) {
-          if (createNewView) {
-            createViewAndShowRenameDialogIfNeeded(
-              context,
-              _convertLayoutToHintText(pluginBuilder.layoutType!),
-              (viewName, _) {
-                if (viewName.isNotEmpty) {
-                  viewBloc.add(
-                    ViewEvent.createView(
-                      viewName,
-                      pluginBuilder.layoutType!,
-                      openAfterCreated: openAfterCreated,
-                      section: widget.spaceType.toViewSectionPB,
-                    ),
-                  );
-                }
-              },
-            );
+        onSelected: _onSelected,
+      ),
+    );
+  }
+
+  void _onSelected(
+    PluginBuilder pluginBuilder,
+    String? name,
+    List<int>? initialDataBytes,
+    bool openAfterCreated,
+    bool createNewView,
+  ) {
+    final viewBloc = context.read<ViewBloc>();
+
+    if (createNewView) {
+      createViewAndShowRenameDialogIfNeeded(
+        context,
+        _convertLayoutToHintText(pluginBuilder.layoutType!),
+        (viewName, _) {
+          // the name of new document should be empty
+          if (pluginBuilder.layoutType == ViewLayoutPB.Document) {
+            viewName = '';
           }
           viewBloc.add(
-            const ViewEvent.setIsExpanded(true),
+            ViewEvent.createView(
+              viewName,
+              pluginBuilder.layoutType!,
+              openAfterCreated: openAfterCreated,
+              section: widget.spaceType.toViewSectionPB,
+            ),
           );
         },
-      ),
+      );
+    }
+
+    viewBloc.add(
+      const ViewEvent.setIsExpanded(true),
     );
   }
 
@@ -693,92 +703,100 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildViewMoreActionButton(BuildContext context) {
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
-      child: ViewMoreActionButton(
-        view: widget.view,
-        isExpanded: widget.isExpanded,
-        spaceType: widget.spaceType,
-        onEditing: (value) =>
-            context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onAction: (action, data) async {
-          switch (action) {
-            case ViewMoreActionType.favorite:
-            case ViewMoreActionType.unFavorite:
-              context
-                  .read<FavoriteBloc>()
-                  .add(FavoriteEvent.toggle(widget.view));
-              break;
-            case ViewMoreActionType.rename:
-              unawaited(
-                NavigatorTextFieldDialog(
-                  title: LocaleKeys.disclosureAction_rename.tr(),
-                  autoSelectAllText: true,
-                  value: widget.view.name,
-                  maxLength: 256,
-                  onConfirm: (newValue, _) {
-                    context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-                  },
-                ).show(context),
-              );
-              break;
-            case ViewMoreActionType.delete:
-              // get if current page contains published child views
-              final (containPublishedPage, _) =
-                  await ViewBackendService.containPublishedPage(
-                widget.view,
-              );
-              if (containPublishedPage && context.mounted) {
-                await showConfirmDeletionDialog(
-                  context: context,
-                  name: widget.view.name,
-                  description: LocaleKeys.publish_containsPublishedPage.tr(),
-                  onConfirm: () {
-                    context.read<ViewBloc>().add(const ViewEvent.delete());
-                  },
+      child: BlocProvider(
+        create: (context) => SpaceBloc(
+          userProfile: context.read<SpaceBloc>().userProfile,
+          workspaceId: context.read<SpaceBloc>().workspaceId,
+        )..add(const SpaceEvent.initial(openFirstPage: false)),
+        child: ViewMoreActionButton(
+          view: widget.view,
+          isExpanded: widget.isExpanded,
+          spaceType: widget.spaceType,
+          onEditing: (value) =>
+              context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
+          onAction: (action, data) async {
+            switch (action) {
+              case ViewMoreActionType.favorite:
+              case ViewMoreActionType.unFavorite:
+                context
+                    .read<FavoriteBloc>()
+                    .add(FavoriteEvent.toggle(widget.view));
+                break;
+              case ViewMoreActionType.rename:
+                unawaited(
+                  NavigatorTextFieldDialog(
+                    title: LocaleKeys.disclosureAction_rename.tr(),
+                    autoSelectAllText: true,
+                    value: widget.view.name,
+                    maxLength: 256,
+                    onConfirm: (newValue, _) {
+                      context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                    },
+                  ).show(context),
                 );
-              } else if (context.mounted) {
-                context.read<ViewBloc>().add(const ViewEvent.delete());
-              }
-              break;
-            case ViewMoreActionType.duplicate:
-              context.read<ViewBloc>().add(const ViewEvent.duplicate());
-              break;
-            case ViewMoreActionType.openInNewTab:
-              context.read<TabsBloc>().openTab(widget.view);
-              break;
-            case ViewMoreActionType.collapseAllPages:
-              context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
-              break;
-            case ViewMoreActionType.changeIcon:
-              if (data is! EmojiPickerResult) {
-                return;
-              }
-              final result = data;
-              await ViewBackendService.updateViewIcon(
-                viewId: widget.view.id,
-                viewIcon: result.emoji,
-                iconType: result.type.toProto(),
-              );
-              break;
-            case ViewMoreActionType.moveTo:
-              final value = data;
-              if (value is! (ViewPB, ViewPB)) {
-                return;
-              }
-              final space = value.$1;
-              final target = value.$2;
-              moveViewCrossSpace(
-                context,
-                space,
-                widget.view,
-                widget.parentView,
-                widget.spaceType,
-                widget.view,
-                target.id,
-              );
-            default:
-              throw UnsupportedError('$action is not supported');
-          }
-        },
+                break;
+              case ViewMoreActionType.delete:
+                // get if current page contains published child views
+                final (containPublishedPage, _) =
+                    await ViewBackendService.containPublishedPage(
+                  widget.view,
+                );
+                if (containPublishedPage && context.mounted) {
+                  await showConfirmDeletionDialog(
+                    context: context,
+                    name: widget.view.name,
+                    description: LocaleKeys.publish_containsPublishedPage.tr(),
+                    onConfirm: () {
+                      context.read<ViewBloc>().add(const ViewEvent.delete());
+                    },
+                  );
+                } else if (context.mounted) {
+                  context.read<ViewBloc>().add(const ViewEvent.delete());
+                }
+                break;
+              case ViewMoreActionType.duplicate:
+                context.read<ViewBloc>().add(const ViewEvent.duplicate());
+                break;
+              case ViewMoreActionType.openInNewTab:
+                context.read<TabsBloc>().openTab(widget.view);
+                break;
+              case ViewMoreActionType.collapseAllPages:
+                context
+                    .read<ViewBloc>()
+                    .add(const ViewEvent.collapseAllPages());
+                break;
+              case ViewMoreActionType.changeIcon:
+                if (data is! EmojiPickerResult) {
+                  return;
+                }
+                final result = data;
+                await ViewBackendService.updateViewIcon(
+                  viewId: widget.view.id,
+                  viewIcon: result.emoji,
+                  iconType: result.type.toProto(),
+                );
+                break;
+              case ViewMoreActionType.moveTo:
+                final value = data;
+                if (value is! (ViewPB, ViewPB)) {
+                  return;
+                }
+                final space = value.$1;
+                final target = value.$2;
+                moveViewCrossSpace(
+                  context,
+                  space,
+                  widget.view,
+                  widget.parentView,
+                  widget.spaceType,
+                  widget.view,
+                  target.id,
+                );
+              default:
+                throw UnsupportedError('$action is not supported');
+            }
+          },
+        ),
       ),
     );
   }
@@ -876,4 +894,57 @@ void moveViewCrossSpace(
           spaceType == FolderSpaceType.public,
         ),
       );
+}
+
+class ViewItemDefaultLeftIcon extends StatelessWidget {
+  const ViewItemDefaultLeftIcon({
+    super.key,
+    required this.view,
+    required this.parentView,
+    required this.isExpanded,
+    required this.leftPadding,
+    required this.isHovered,
+  });
+
+  final ViewPB view;
+  final ViewPB? parentView;
+  final bool isExpanded;
+  final double leftPadding;
+  final ValueNotifier<bool>? isHovered;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isReferencedDatabaseView(view, parentView)) {
+      return const _DotIconWidget();
+    }
+
+    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+      return HSpace(leftPadding);
+    }
+
+    final child = FlowyHover(
+      child: GestureDetector(
+        child: FlowySvg(
+          isExpanded
+              ? FlowySvgs.view_item_expand_s
+              : FlowySvgs.view_item_unexpand_s,
+          size: const Size.square(16.0),
+        ),
+        onTap: () =>
+            context.read<ViewBloc>().add(ViewEvent.setIsExpanded(!isExpanded)),
+      ),
+    );
+
+    if (isHovered != null) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: isHovered!,
+        builder: (_, isHovered, child) {
+          return Opacity(opacity: isHovered ? 1.0 : 0.0, child: child);
+        },
+        child: child,
+      );
+    }
+
+    return child;
+  }
 }

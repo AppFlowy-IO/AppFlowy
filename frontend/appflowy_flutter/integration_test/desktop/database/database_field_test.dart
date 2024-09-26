@@ -126,7 +126,7 @@ void main() {
       await tester.dismissFieldEditor();
       tester.findFieldWithName('Right');
 
-      // insert new field to the right
+      // insert new field to the left
       await tester.tapGridFieldWithName('Type');
       await tester.tapInsertFieldButton(left: true, name: "Left");
       await tester.dismissFieldEditor();

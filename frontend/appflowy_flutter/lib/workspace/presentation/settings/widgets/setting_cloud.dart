@@ -23,7 +23,10 @@ import 'package:universal_platform/universal_platform.dart';
 import 'setting_appflowy_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
-  const SettingCloud({required this.restartAppFlowy, super.key});
+  const SettingCloud({
+    super.key,
+    required this.restartAppFlowy,
+  });
 
   final VoidCallback restartAppFlowy;
 

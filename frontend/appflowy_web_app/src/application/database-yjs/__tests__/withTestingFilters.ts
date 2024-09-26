@@ -1,4 +1,4 @@
-import { YDatabaseFilter, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseFilter, YjsDatabaseKey } from '@/application/types';
 import * as Y from 'yjs';
 import * as filtersJson from './fixtures/filters.json';
 

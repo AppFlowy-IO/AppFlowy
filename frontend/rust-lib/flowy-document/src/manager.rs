@@ -8,7 +8,6 @@ use collab::entity::EncodedCollab;
 use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
-use collab_document::conversions::convert_document_to_plain_text;
 use collab_document::document::Document;
 use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
@@ -269,7 +268,7 @@ impl DocumentManager {
   pub async fn get_document_text(&self, doc_id: &str) -> FlowyResult<String> {
     let document = self.get_document(doc_id).await?;
     let document = document.read().await;
-    let text = convert_document_to_plain_text(&document)?;
+    let text = document.to_plain_text()?;
     Ok(text)
   }
 

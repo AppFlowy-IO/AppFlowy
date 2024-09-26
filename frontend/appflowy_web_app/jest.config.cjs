@@ -12,6 +12,7 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths),
     '^lodash-es(/(.*)|$)': 'lodash$1',
     '^nanoid(/(.*)|$)': 'nanoid$1',
+    '^dayjs$': '<rootDir>/node_modules/dayjs/dayjs.min.js',
   },
   'transform': {
     '^.+\\.(j|t)sx?$': 'ts-jest',

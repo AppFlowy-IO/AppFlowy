@@ -207,7 +207,7 @@ void main() {
     final image = await rootBundle.load('assets/test/images/sample.png');
     final bytes = image.buffer.asUint8List();
     await tester.pasteContent(image: ('png', bytes), (editorState) {
-      expect(editorState.document.root.children.length, 2);
+      expect(editorState.document.root.children.length, 1);
       final node = editorState.getNodeAtPath([0])!;
       expect(node.type, ImageBlockKeys.type);
       expect(node.attributes[ImageBlockKeys.url], isNotNull);
@@ -218,7 +218,7 @@ void main() {
     final image = await rootBundle.load('assets/test/images/sample.jpeg');
     final bytes = image.buffer.asUint8List();
     await tester.pasteContent(image: ('jpeg', bytes), (editorState) {
-      expect(editorState.document.root.children.length, 2);
+      expect(editorState.document.root.children.length, 1);
       final node = editorState.getNodeAtPath([0])!;
       expect(node.type, ImageBlockKeys.type);
       expect(node.attributes[ImageBlockKeys.url], isNotNull);
@@ -280,7 +280,7 @@ void main() {
         html: html,
         image: ('png', bytes),
         (editorState) {
-          expect(editorState.document.root.children.length, 2);
+          expect(editorState.document.root.children.length, 1);
           final node = editorState.getNodeAtPath([0])!;
           expect(node.type, ImageBlockKeys.type);
         },
@@ -313,6 +313,7 @@ void main() {
     (tester) async {
       const url = 'https://appflowy.io';
       await tester.pasteContent(plainText: url, (editorState) {
+        // the second one is the paragraph node
         expect(editorState.document.root.children.length, 2);
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, LinkPreviewBlockKeys.type);
@@ -335,7 +336,9 @@ extension on WidgetTester {
     await tapAnonymousSignInButton();
 
     // create a new document
-    await createNewPageWithNameUnderParent();
+    await createNewPageWithNameUnderParent(name: 'Test Document');
+    // tap the editor
+    await tapButton(find.byType(AppFlowyEditor));
 
     await beforeTest?.call(editor.getCurrentEditorState());
 

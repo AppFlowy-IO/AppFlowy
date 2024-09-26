@@ -1,7 +1,7 @@
+use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use flowy_derive::ProtoBuf;
 
 use crate::entities::{DateFormatPB, FieldType, TimeFormatPB};
-use crate::services::field::TimestampTypeOption;
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct TimestampCellDataPB {
@@ -33,7 +33,7 @@ impl From<TimestampTypeOption> for TimestampTypeOptionPB {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
       include_time: data.include_time,
-      field_type: data.field_type,
+      field_type: data.field_type.into(),
     }
   }
 }
@@ -44,7 +44,7 @@ impl From<TimestampTypeOptionPB> for TimestampTypeOption {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
       include_time: data.include_time,
-      field_type: data.field_type,
+      field_type: data.field_type.into(),
     }
   }
 }

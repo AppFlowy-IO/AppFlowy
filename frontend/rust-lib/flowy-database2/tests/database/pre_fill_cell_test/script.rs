@@ -1,11 +1,9 @@
-use std::ops::{Deref, DerefMut};
-use std::time::Duration;
-
+use crate::database::database_editor::DatabaseEditorTest;
+use collab_database::fields::select_type_option::{SelectOptionIds, SELECTION_IDS_SEPARATOR};
 use flowy_database2::entities::{CreateRowPayloadPB, FilterDataPB, InsertFilterPB};
 use flowy_database2::services::cell::stringify_cell;
-use flowy_database2::services::field::{SelectOptionIds, SELECTION_IDS_SEPARATOR};
-
-use crate::database::database_editor::DatabaseEditorTest;
+use std::ops::{Deref, DerefMut};
+use std::time::Duration;
 
 pub enum PreFillRowCellTestScript {
   CreateEmptyRow,

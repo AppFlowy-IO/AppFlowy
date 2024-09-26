@@ -245,10 +245,6 @@ pub struct DeleteFilterPB {
   #[pb(index = 1)]
   #[validate(custom = "crate::entities::utils::validate_filter_id")]
   pub filter_id: String,
-
-  #[pb(index = 2)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
-  pub field_id: String,
 }
 
 impl TryFrom<InsertFilterPB> for FilterChangeset {
@@ -297,7 +293,6 @@ impl From<DeleteFilterPB> for FilterChangeset {
   fn from(value: DeleteFilterPB) -> Self {
     Self::Delete {
       filter_id: value.filter_id,
-      field_id: value.field_id,
     }
   }
 }

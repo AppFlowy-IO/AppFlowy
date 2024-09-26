@@ -1,4 +1,4 @@
-import { YDatabaseField } from '@/application/collab.type';
+import { YDatabaseField } from '@/application/types';
 import { getTypeOptions } from '../type_option';
 import { NumberFormat } from './number.type';
 

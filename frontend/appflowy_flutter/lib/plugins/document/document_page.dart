@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/docu
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
@@ -244,6 +245,8 @@ class _DocumentPageState extends State<DocumentPage>
         },
         child: AppFlowyEditorPage(
           editorState: state.editorState!,
+          // if the view's name is empty, focus on the title
+          autoFocus: widget.view.name.isEmpty ? false : null,
           styleCustomizer: EditorStyleCustomizer(
             context: context,
             width: width,
@@ -255,11 +258,14 @@ class _DocumentPageState extends State<DocumentPage>
       );
     }
 
-    return Column(
-      children: [
-        if (state.isDeleted) _buildBanner(context),
-        Expanded(child: child),
-      ],
+    return Provider(
+      create: (_) => SharedEditorContext(),
+      child: Column(
+        children: [
+          if (state.isDeleted) _buildBanner(context),
+          Expanded(child: child),
+        ],
+      ),
     );
   }
 

@@ -99,17 +99,20 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
   List<Widget> _buildCollapsedButtons() {
     return [
       const VSpace(padding),
-      GestureDetector(
-        onTap: () {
-          setState(() {
-            isExpanded = !isExpanded;
-          });
-        },
-        child: FlowyText(
-          LocaleKeys.signIn_continueAnotherWay.tr(),
-          color: Theme.of(context).colorScheme.onSurface,
-          decoration: TextDecoration.underline,
-          fontSize: 14,
+      MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              isExpanded = !isExpanded;
+            });
+          },
+          child: FlowyText(
+            LocaleKeys.signIn_continueAnotherWay.tr(),
+            color: Theme.of(context).colorScheme.onSurface,
+            decoration: TextDecoration.underline,
+            fontSize: 14,
+          ),
         ),
       ),
     ];

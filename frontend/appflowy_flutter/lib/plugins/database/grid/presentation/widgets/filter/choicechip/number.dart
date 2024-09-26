@@ -1,54 +1,46 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/number_filter_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../condition_button.dart';
 import '../disclosure_button.dart';
-import '../filter_info.dart';
 
 import 'choicechip.dart';
 
-class NumberFilterChoiceChip extends StatefulWidget {
+class NumberFilterChoiceChip extends StatelessWidget {
   const NumberFilterChoiceChip({
     super.key,
-    required this.filterInfo,
+    required this.filterId,
   });
 
-  final FilterInfo filterInfo;
+  final String filterId;
 
-  @override
-  State<NumberFilterChoiceChip> createState() => _NumberFilterChoiceChipState();
-}
-
-class _NumberFilterChoiceChipState extends State<NumberFilterChoiceChip> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => NumberFilterEditorBloc(
-        filterInfo: widget.filterInfo,
-      ),
-      child: BlocBuilder<NumberFilterEditorBloc, NumberFilterEditorState>(
-        builder: (context, state) {
-          return AppFlowyPopover(
-            constraints: BoxConstraints.loose(const Size(200, 100)),
-            direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (_) {
-              return BlocProvider.value(
-                value: context.read<NumberFilterEditorBloc>(),
-                child: const NumberFilterEditor(),
-              );
-            },
-            child: ChoiceChipButton(
-              filterInfo: state.filterInfo,
-            ),
+    return AppFlowyPopover(
+      constraints: BoxConstraints.loose(const Size(200, 100)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: NumberFilterEditor(filterId: filterId),
+        );
+      },
+      child: SingleFilterBlocSelector<NumberFilter>(
+        filterId: filterId,
+        builder: (context, filter, field) {
+          return ChoiceChipButton(
+            fieldInfo: field,
+            filterDesc: filter.getContentDescription(field),
           );
         },
       ),
@@ -57,7 +49,12 @@ class _NumberFilterChoiceChipState extends State<NumberFilterChoiceChip> {
 }
 
 class NumberFilterEditor extends StatefulWidget {
-  const NumberFilterEditor({super.key});
+  const NumberFilterEditor({
+    super.key,
+    required this.filterId,
+  });
+
+  final String filterId;
 
   @override
   State<NumberFilterEditor> createState() => _NumberFilterEditorState();
@@ -74,15 +71,15 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NumberFilterEditorBloc, NumberFilterEditorState>(
-      builder: (context, state) {
+    return SingleFilterBlocSelector<NumberFilter>(
+      filterId: widget.filterId,
+      builder: (context, filter, field) {
         final List<Widget> children = [
-          _buildFilterPanel(context, state),
-          if (state.filter.condition != NumberFilterConditionPB.NumberIsEmpty &&
-              state.filter.condition !=
-                  NumberFilterConditionPB.NumberIsNotEmpty) ...[
+          _buildFilterPanel(filter, field),
+          if (filter.condition != NumberFilterConditionPB.NumberIsEmpty &&
+              filter.condition != NumberFilterConditionPB.NumberIsNotEmpty) ...[
             const VSpace(4),
-            _buildFilterNumberField(context, state),
+            _buildFilterNumberField(filter),
           ],
         ];
 
@@ -95,8 +92,8 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-    BuildContext context,
-    NumberFilterEditorState state,
+    NumberFilter filter,
+    FieldInfo field,
   ) {
     return SizedBox(
       height: 20,
@@ -104,19 +101,20 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.name,
+              field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           const HSpace(4),
           Expanded(
-            child: NumberFilterConditionPBList(
-              filterInfo: state.filterInfo,
+            child: NumberFilterConditionList(
+              filter: filter,
               popoverMutex: popoverMutex,
               onCondition: (condition) {
+                final newFilter = filter.copyWith(condition: condition);
                 context
-                    .read<NumberFilterEditorBloc>()
-                    .add(NumberFilterEditorEvent.updateCondition(condition));
+                    .read<FilterEditorBloc>()
+                    .add(FilterEditorEvent.updateFilter(newFilter));
               },
             ),
           ),
@@ -126,9 +124,11 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
             onAction: (action) {
               switch (action) {
                 case FilterDisclosureAction.delete:
-                  context
-                      .read<NumberFilterEditorBloc>()
-                      .add(const NumberFilterEditorEvent.delete());
+                  context.read<FilterEditorBloc>().add(
+                        FilterEditorEvent.deleteFilter(
+                          filter.filterId,
+                        ),
+                      );
                   break;
               }
             },
@@ -139,38 +139,37 @@ class _NumberFilterEditorState extends State<NumberFilterEditor> {
   }
 
   Widget _buildFilterNumberField(
-    BuildContext context,
-    NumberFilterEditorState state,
+    NumberFilter filter,
   ) {
     return FlowyTextField(
-      text: state.filter.content,
+      text: filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),
       debounceDuration: const Duration(milliseconds: 300),
       autoFocus: false,
       onChanged: (text) {
+        final newFilter = filter.copyWith(content: text);
         context
-            .read<NumberFilterEditorBloc>()
-            .add(NumberFilterEditorEvent.updateContent(text));
+            .read<FilterEditorBloc>()
+            .add(FilterEditorEvent.updateFilter(newFilter));
       },
     );
   }
 }
 
-class NumberFilterConditionPBList extends StatelessWidget {
-  const NumberFilterConditionPBList({
+class NumberFilterConditionList extends StatelessWidget {
+  const NumberFilterConditionList({
     super.key,
-    required this.filterInfo,
+    required this.filter,
     required this.popoverMutex,
     required this.onCondition,
   });
 
-  final FilterInfo filterInfo;
+  final NumberFilter filter;
   final PopoverMutex popoverMutex;
-  final Function(NumberFilterConditionPB) onCondition;
+  final void Function(NumberFilterConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
-    final numberFilter = filterInfo.numberFilter()!;
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       mutex: popoverMutex,
@@ -179,13 +178,13 @@ class NumberFilterConditionPBList extends StatelessWidget {
           .map(
             (action) => ConditionWrapper(
               action,
-              numberFilter.condition == action,
+              filter.condition == action,
             ),
           )
           .toList(),
       buildChild: (controller) {
         return ConditionButton(
-          conditionName: numberFilter.condition.filterName,
+          conditionName: filter.condition.filterName,
           onTap: () => controller.show(),
         );
       },
@@ -212,6 +211,22 @@ class ConditionWrapper extends ActionCell {
 }
 
 extension NumberFilterConditionPBExtension on NumberFilterConditionPB {
+  String get shortName {
+    return switch (this) {
+      NumberFilterConditionPB.Equal => "=",
+      NumberFilterConditionPB.NotEqual => "≠",
+      NumberFilterConditionPB.LessThan => "<",
+      NumberFilterConditionPB.LessThanOrEqualTo => "≤",
+      NumberFilterConditionPB.GreaterThan => ">",
+      NumberFilterConditionPB.GreaterThanOrEqualTo => "≥",
+      NumberFilterConditionPB.NumberIsEmpty =>
+        LocaleKeys.grid_numberFilter_isEmpty.tr(),
+      NumberFilterConditionPB.NumberIsNotEmpty =>
+        LocaleKeys.grid_numberFilter_isNotEmpty.tr(),
+      _ => "",
+    };
+  }
+
   String get filterName {
     return switch (this) {
       NumberFilterConditionPB.Equal => LocaleKeys.grid_numberFilter_equal.tr(),

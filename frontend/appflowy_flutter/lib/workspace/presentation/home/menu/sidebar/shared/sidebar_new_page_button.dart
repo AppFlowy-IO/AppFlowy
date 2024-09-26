@@ -60,31 +60,29 @@ class _SidebarNewPageButtonState extends State<SidebarNewPageButton> {
     return createViewAndShowRenameDialogIfNeeded(
       context,
       LocaleKeys.newPageText.tr(),
-      (viewName, _) {
-        if (viewName.isNotEmpty) {
-          // if the workspace is collaborative, create the view in the private section by default.
-          final section =
-              context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
-                  ? ViewSectionPB.Private
-                  : ViewSectionPB.Public;
-          final spaceState = context.read<SpaceBloc>().state;
-          if (spaceState.spaces.isNotEmpty) {
-            context.read<SpaceBloc>().add(
-                  SpaceEvent.createPage(
-                    name: viewName,
-                    index: 0,
-                    layout: ViewLayoutPB.Document,
-                  ),
-                );
-          } else {
-            context.read<SidebarSectionsBloc>().add(
-                  SidebarSectionsEvent.createRootViewInSection(
-                    name: viewName,
-                    viewSection: section,
-                    index: 0,
-                  ),
-                );
-          }
+      (_, __) {
+        // if the workspace is collaborative, create the view in the private section by default.
+        final section =
+            context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
+                ? ViewSectionPB.Private
+                : ViewSectionPB.Public;
+        final spaceState = context.read<SpaceBloc>().state;
+        if (spaceState.spaces.isNotEmpty) {
+          context.read<SpaceBloc>().add(
+                const SpaceEvent.createPage(
+                  name: '',
+                  index: 0,
+                  layout: ViewLayoutPB.Document,
+                ),
+              );
+        } else {
+          context.read<SidebarSectionsBloc>().add(
+                SidebarSectionsEvent.createRootViewInSection(
+                  name: '',
+                  viewSection: section,
+                  index: 0,
+                ),
+              );
         }
       },
     );

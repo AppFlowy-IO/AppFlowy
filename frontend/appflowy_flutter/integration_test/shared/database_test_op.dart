@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,13 +21,14 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/choicechip.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/disclosure_button.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
@@ -70,7 +72,6 @@ import 'package:appflowy/plugins/database/widgets/setting/database_setting_actio
 import 'package:appflowy/plugins/database/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
@@ -579,11 +580,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
       LocaleKeys.document_plugins_cover_addCover.tr(),
     );
     await pumpAndSettle();
-    expect(find.byType(UploadImageMenu), findsOneWidget);
   }
 
   Future<void> openEmojiPicker() async =>
-      tapButton(find.byType(AddEmojiButton));
+      tapButton(find.text(LocaleKeys.document_plugins_cover_addIcon.tr()));
 
   Future<void> tapDateCellInRowDetailPage() async {
     final findDateCell = find.byType(EditableDateCell);
@@ -959,7 +959,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapCreateFilterByFieldType(FieldType type, String title) async {
     final findFilter = find.byWidgetPredicate(
       (widget) =>
-          widget is GridFilterPropertyCell &&
+          widget is FilterableFieldButton &&
           widget.fieldInfo.fieldType == type &&
           widget.fieldInfo.name == title,
     );
@@ -967,8 +967,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapFilterButtonInGrid(String name) async {
-    final findFilter = find.byType(FilterMenuItem);
-    final button = find.descendant(of: findFilter, matching: find.text(name));
+    final button = find.byWidgetPredicate(
+      (widget) => widget is ChoiceChipButton && widget.fieldInfo.name == name,
+    );
     await tapButton(button);
   }
 
@@ -1098,6 +1099,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(ChecklistFilterConditionList));
   }
 
+  Future<void> tapDateFilterButtonInGrid() async {
+    await tapButton(find.byType(DateFilterConditionList));
+  }
+
   /// The [SelectOptionFilterList] must show up first.
   Future<void> tapOptionFilterWithName(String name) async {
     final findCell = find.descendant(
@@ -1126,6 +1131,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final button = find.descendant(
       of: find.byType(HoverButton),
       matching: find.text(LocaleKeys.grid_checklistFilter_isComplete.tr()),
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> tapDateFilterCondition(DateTimeFilterCondition condition) async {
+    final button = find.descendant(
+      of: find.byType(HoverButton),
+      matching: find.text(condition.filterName),
     );
 
     await tapButton(button);

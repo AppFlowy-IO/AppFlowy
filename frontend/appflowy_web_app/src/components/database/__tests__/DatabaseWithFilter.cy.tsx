@@ -85,7 +85,7 @@ describe('<Database /> with filters and sorts', () => {
         // the sixth filter should be 'Checklist', the value should be 'is completed'
         cy.get('@filterConditions').eq(5).as('filterCondition');
         cy.get('@filterCondition').contains('Checklist');
-        cy.get('@filterCondition').contains('is complete');
+        cy.get('@filterCondition').contains('Is complete');
         cy.get('@filterCondition').click();
         cy.clickOutside();
 

@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { FieldType, useCellSelector, useFieldSelector } from '@/application/database-yjs';
 import { FileMediaCellData, TextCell } from '@/application/database-yjs/cell.type';
 import Cell from '@/components/database/components/cell/Cell';

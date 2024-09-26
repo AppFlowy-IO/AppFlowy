@@ -1,9 +1,9 @@
-use std::str::FromStr;
-
+use collab_database::fields::select_type_option::SelectOptionIds;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use std::str::FromStr;
 
-use crate::services::{field::SelectOptionIds, filter::ParseFilterData};
+use crate::services::filter::ParseFilterData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SelectOptionFilterPB {
@@ -56,5 +56,12 @@ impl ParseFilterData for SelectOptionFilterPB {
         .unwrap_or_default()
         .into_inner(),
     }
+  }
+}
+
+impl SelectOptionFilterPB {
+  pub fn remove_extra_option_ids(mut self) -> Self {
+    self.option_ids.truncate(1);
+    self
   }
 }

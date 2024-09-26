@@ -211,21 +211,21 @@ void main() {
       await tester.toggleIncludeTime();
 
       // Select a date
-      final today = DateTime.now();
-      await tester.selectDay(content: today.day);
+      final now = DateTime.now();
+      await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();
 
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y').format(today),
+        content: DateFormat('MMM dd, y').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
 
       // Toggle include time
-      final now = DateTime.now();
+      // When toggling include time, the time value is from the previous existing date time, not the current time
       await tester.toggleIncludeTime();
 
       await tester.dismissCellEditor();

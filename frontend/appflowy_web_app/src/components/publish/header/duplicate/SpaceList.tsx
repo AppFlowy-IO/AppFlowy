@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
 import { SpaceView } from '@/application/types';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckIcon } from '@/assets/selected.svg';
 import { renderColor } from '@/utils/color';
-import SpaceIcon from '@/components/publish/header/SpaceIcon';
+import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { Button, CircularProgress, Tooltip } from '@mui/material';
 import { ReactComponent as LockSvg } from '@/assets/lock.svg';
 

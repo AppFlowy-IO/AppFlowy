@@ -1,12 +1,14 @@
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
-import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
-import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -36,26 +38,7 @@ void main() {
       await tester.assertDocumentExistInRowDetailPage();
     });
 
-    testWidgets('add emoji', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      // Create a new grid
-      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-
-      // Hover first row and then open the row page
-      await tester.openFirstRowDetailPage();
-
-      await tester.hoverRowBanner();
-
-      await tester.openEmojiPicker();
-      await tester.tapEmoji('😀');
-
-      // After select the emoji, the EmojiButton will show up
-      await tester.tapButton(find.byType(EmojiButton));
-    });
-
-    testWidgets('update emoji', (tester) async {
+    testWidgets('add and update emoji', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -68,8 +51,18 @@ void main() {
       await tester.openEmojiPicker();
       await tester.tapEmoji('😀');
 
-      // Update existing selected emoji
-      await tester.tapButton(find.byType(EmojiButton));
+      // expect to find the emoji selected
+      final firstEmojiFinder = find.byWidgetPredicate(
+        (w) => w is FlowyText && w.text == '😀',
+      );
+
+      // There are 2 eomjis - one in the row banner and another in the primary cell
+      expect(firstEmojiFinder, findsNWidgets(2));
+
+      // Update existing selected emoji - tap on it to update
+      await tester.tapButton(find.byType(EmojiIconWidget));
+      await tester.pumpAndSettle();
+
       await tester.tapEmoji('😅');
 
       // The emoji already displayed in the row banner
@@ -96,7 +89,9 @@ void main() {
       await tester.tapEmoji('😀');
 
       // Remove the emoji
-      await tester.tapButton(find.byType(RemoveEmojiButton));
+      await tester.tapButton(find.byType(EmojiIconWidget));
+      await tester.tapButton(find.text(LocaleKeys.button_remove.tr()));
+
       final emojiText = find.byWidgetPredicate(
         (widget) => widget is FlowyText && widget.text == '😀',
       );
