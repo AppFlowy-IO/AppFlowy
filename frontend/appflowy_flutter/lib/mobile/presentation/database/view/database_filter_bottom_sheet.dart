@@ -1008,7 +1008,9 @@ class _SelectOptionFilterContentEditorState
   }
 
   MobileSelectedOptionIndicator _getIndicator() {
-    return widget.filter.condition == SelectOptionFilterConditionPB.OptionIs &&
+    return (widget.filter.condition == SelectOptionFilterConditionPB.OptionIs ||
+                widget.filter.condition ==
+                    SelectOptionFilterConditionPB.OptionIsNot) &&
             widget.field.fieldType == FieldType.SingleSelect
         ? MobileSelectedOptionIndicator.single
         : MobileSelectedOptionIndicator.multi;

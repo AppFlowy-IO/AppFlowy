@@ -356,8 +356,10 @@ final class SelectOptionFilter extends DatabaseFilter {
     final delegate = makeDelegate(field);
     final options = delegate.getOptions(field);
 
-    final optionNames =
-        options.where((option) => optionIds.contains(option.id)).join(', ');
+    final optionNames = options
+        .where((option) => optionIds.contains(option.id))
+        .map((option) => option.name)
+        .join(', ');
     return "${condition.i18n} $optionNames";
   }
 
@@ -408,7 +410,8 @@ final class SelectOptionFilter extends DatabaseFilter {
   }) {
     final options = optionIds ?? this.optionIds;
     if (fieldType == FieldType.SingleSelect &&
-        condition == SelectOptionFilterConditionPB.OptionIs &&
+        (condition == SelectOptionFilterConditionPB.OptionIs ||
+            condition == SelectOptionFilterConditionPB.OptionIsNot) &&
         options.length > 1) {
       options.removeRange(1, options.length);
     }

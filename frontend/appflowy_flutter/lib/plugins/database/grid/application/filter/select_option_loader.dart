@@ -34,12 +34,14 @@ class SingleSelectOptionFilterDelegateImpl
 
     switch (condition) {
       case SelectOptionFilterConditionPB.OptionIs:
+      case SelectOptionFilterConditionPB.OptionIsNot:
         if (selectOptionIds.isNotEmpty) {
           selectOptionIds.clear();
         }
         selectOptionIds.add(optionId);
         break;
-      case SelectOptionFilterConditionPB.OptionIsNot:
+      case SelectOptionFilterConditionPB.OptionContains:
+      case SelectOptionFilterConditionPB.OptionDoesNotContain:
         selectOptionIds.add(optionId);
         break;
       case SelectOptionFilterConditionPB.OptionIsEmpty ||

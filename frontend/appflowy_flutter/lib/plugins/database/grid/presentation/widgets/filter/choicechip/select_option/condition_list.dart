@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/view/database_filter_condition_list.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/condition_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -28,11 +29,12 @@ class SelectOptionFilterConditionList extends StatelessWidget {
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: _conditionsForFieldType(fieldType)
+      actions: SingleSelectOptionFilterCondition()
+          .conditions
           .map(
             (action) => ConditionWrapper(
-              action,
-              filter.condition == action,
+              action.$1,
+              filter.condition == action.$1,
             ),
           )
           .toList(),
@@ -47,29 +49,6 @@ class SelectOptionFilterConditionList extends StatelessWidget {
         controller.close();
       },
     );
-  }
-
-  List<SelectOptionFilterConditionPB> _conditionsForFieldType(
-    FieldType fieldType,
-  ) {
-    // SelectOptionFilterConditionPB.values is not in order
-    return switch (fieldType) {
-      FieldType.SingleSelect => [
-          SelectOptionFilterConditionPB.OptionIs,
-          SelectOptionFilterConditionPB.OptionIsNot,
-          SelectOptionFilterConditionPB.OptionIsEmpty,
-          SelectOptionFilterConditionPB.OptionIsNotEmpty,
-        ],
-      FieldType.MultiSelect => [
-          SelectOptionFilterConditionPB.OptionContains,
-          SelectOptionFilterConditionPB.OptionDoesNotContain,
-          SelectOptionFilterConditionPB.OptionIs,
-          SelectOptionFilterConditionPB.OptionIsNot,
-          SelectOptionFilterConditionPB.OptionIsEmpty,
-          SelectOptionFilterConditionPB.OptionIsNotEmpty,
-        ],
-      _ => [],
-    };
   }
 }
 
