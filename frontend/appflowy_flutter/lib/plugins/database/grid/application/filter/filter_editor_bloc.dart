@@ -121,6 +121,7 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
         return _filterBackendSvc.insertDateFilter(
           filterId: filterId,
           fieldId: fieldId,
+          fieldType: field.fieldType,
           condition: DateFilterConditionPB.DateStartsOn,
           timestamp: timestamp,
         );

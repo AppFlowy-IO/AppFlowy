@@ -27,7 +27,10 @@ class FilterMenuItem extends StatelessWidget {
       FieldType.URL => URLFilterChoicechip(filterId: filterId),
       FieldType.Checkbox => CheckboxFilterChoicechip(filterId: filterId),
       FieldType.Checklist => ChecklistFilterChoicechip(filterId: filterId),
-      FieldType.DateTime => DateFilterChoicechip(filterId: filterId),
+      FieldType.DateTime ||
+      FieldType.LastEditedTime ||
+      FieldType.CreatedTime =>
+        DateFilterChoicechip(filterId: filterId),
       FieldType.SingleSelect ||
       FieldType.MultiSelect =>
         SelectOptionFilterChoicechip(filterId: filterId),

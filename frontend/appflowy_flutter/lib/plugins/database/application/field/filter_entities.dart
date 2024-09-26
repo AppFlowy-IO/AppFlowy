@@ -73,6 +73,8 @@ abstract class DatabaseFilter {
           condition: data.condition,
           optionIds: data.optionIds,
         );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
       case FieldType.DateTime:
         final data = DateFilterPB.fromBuffer(filterPB.data.data);
         return DateTimeFilter(

@@ -74,10 +74,12 @@ impl CellDataChangeset for TimestampTypeOption {
 impl TypeOptionCellDataFilter for TimestampTypeOption {
   fn apply_filter(
     &self,
-    _filter: &<Self as TypeOption>::CellFilter,
-    _cell_data: &<Self as TypeOption>::CellData,
+    filter: &<Self as TypeOption>::CellFilter,
+    cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    true
+    filter
+      .is_timestamp_cell_data_visible(cell_data)
+      .unwrap_or(true)
   }
 }
 

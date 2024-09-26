@@ -131,3 +131,13 @@ impl ParseFilterData for DateFilterPB {
     date_filter
   }
 }
+
+impl DateFilterPB {
+  pub fn remove_end_date_conditions(self) -> Self {
+    if self.condition.is_filter_on_start_timestamp() {
+      self
+    } else {
+      Self::default()
+    }
+  }
+}

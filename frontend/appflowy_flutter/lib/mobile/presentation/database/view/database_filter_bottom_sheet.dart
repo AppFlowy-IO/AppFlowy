@@ -363,7 +363,7 @@ class _FilterItem extends StatelessWidget {
                             .startEditingFilterCondition(
                               filter.filterId,
                               filter,
-                              filter.fieldType.isDate,
+                              filter.fieldType == FieldType.DateTime,
                             ),
                         child: FlowyText(
                           filter.conditionName,
@@ -683,7 +683,11 @@ class _FilterConditionList extends StatelessWidget {
         if (filter is DateTimeFilter?) {
           return _DateTimeFilterConditionList(
             onSelect: (filter) {
-              context.read<MobileFilterEditorCubit>().updateFilter(filter);
+              if (filter.fieldType == FieldType.DateTime) {
+                context.read<MobileFilterEditorCubit>().updateFilter(filter);
+              } else {
+                onSelect(filter);
+              }
             },
           );
         }
@@ -922,6 +926,8 @@ class _FilterContentEditor extends StatelessWidget {
               filter: filter as SelectOptionFilter,
               field: field,
             ),
+          FieldType.CreatedTime ||
+          FieldType.LastEditedTime ||
           FieldType.DateTime =>
             _DateTimeFilterContentEditor(filter: filter as DateTimeFilter),
           _ => const SizedBox.shrink(),
