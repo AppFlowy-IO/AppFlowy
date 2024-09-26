@@ -489,6 +489,18 @@ enum DateTimeFilterCondition {
       isNotEmpty => LocaleKeys.grid_dateFilter_notEmpty.tr(),
     };
   }
+
+  static List<DateTimeFilterCondition> availableConditionsForFieldType(
+      FieldType fieldType,) {
+    final result = [...values];
+    if (fieldType == FieldType.CreatedTime ||
+        fieldType == FieldType.LastEditedTime) {
+      result.remove(isEmpty);
+      result.remove(isNotEmpty);
+    }
+
+    return result;
+  }
 }
 
 final class DateTimeFilter extends DatabaseFilter {

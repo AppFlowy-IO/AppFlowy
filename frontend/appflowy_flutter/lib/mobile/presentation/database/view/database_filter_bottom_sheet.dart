@@ -787,6 +787,10 @@ class _DateTimeFilterConditionList extends StatelessWidget {
           orElse: () => const SizedBox.shrink(),
           editCondition: (filterId, newFilter, _) {
             final filter = newFilter as DateTimeFilter;
+            final conditions =
+                DateTimeFilterCondition.availableConditionsForFieldType(
+              filter.fieldType,
+            );
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -817,17 +821,17 @@ class _DateTimeFilterConditionList extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: DateTimeFilterCondition.values.length,
+                    itemCount: conditions.length,
                     itemBuilder: (context, index) {
-                      final condition = DateTimeFilterCondition.values[index];
                       return FlowyOptionTile.checkbox(
-                        text: condition.filterName,
+                        text: conditions[index].filterName,
                         showTopBorder: false,
-                        isSelected: filter.condition.toCondition() == condition,
+                        isSelected:
+                            filter.condition.toCondition() == conditions[index],
                         onTap: () {
                           final newFilter = filter.copyWithCondition(
                             isStart: filter.condition.isStart,
-                            condition: condition,
+                            condition: conditions[index],
                           );
                           onSelect(newFilter);
                         },

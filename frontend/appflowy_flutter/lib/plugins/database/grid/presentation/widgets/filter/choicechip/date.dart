@@ -312,11 +312,14 @@ class DateFilterConditionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final conditions = DateTimeFilterCondition.availableConditionsForFieldType(
+      filter.fieldType,
+    );
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: DateTimeFilterCondition.values
+      actions: conditions
           .map(
             (action) => ConditionWrapper(
               action,
