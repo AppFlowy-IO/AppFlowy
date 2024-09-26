@@ -74,7 +74,6 @@ class MainFlutterWindow: NSWindow {
     self.titleVisibility = .hidden
     self.styleMask.insert(StyleMask.fullSizeContentView)
     self.isMovableByWindowBackground = true
-    self.isMovable = false
 
     self.layoutTrafficLights()
 
