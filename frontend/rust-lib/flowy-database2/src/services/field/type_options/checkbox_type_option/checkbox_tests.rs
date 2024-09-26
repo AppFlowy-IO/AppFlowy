@@ -9,10 +9,11 @@ mod tests {
   use crate::services::cell::CellDataDecoder;
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
+  use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 
   #[test]
   fn checkout_box_description_test() {
-    let type_option = CheckboxTypeOption::default();
+    let type_option = CheckboxTypeOption;
     let field_type = FieldType::Checkbox;
     let field_rev = FieldBuilder::from_field_type(field_type).build();
 

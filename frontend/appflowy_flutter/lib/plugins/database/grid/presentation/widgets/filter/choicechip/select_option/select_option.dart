@@ -1,77 +1,43 @@
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../disclosure_button.dart';
-import '../../filter_info.dart';
 import '../choicechip.dart';
 
 import 'condition_list.dart';
 import 'option_list.dart';
-import 'select_option_loader.dart';
 
-class SelectOptionFilterChoicechip extends StatefulWidget {
-  const SelectOptionFilterChoicechip({required this.filterInfo, super.key});
+class SelectOptionFilterChoicechip extends StatelessWidget {
+  const SelectOptionFilterChoicechip({
+    super.key,
+    required this.filterId,
+  });
 
-  final FilterInfo filterInfo;
-
-  @override
-  State<SelectOptionFilterChoicechip> createState() =>
-      _SelectOptionFilterChoicechipState();
-}
-
-class _SelectOptionFilterChoicechipState
-    extends State<SelectOptionFilterChoicechip> {
-  late SelectOptionFilterEditorBloc bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
-      bloc = SelectOptionFilterEditorBloc(
-        filterInfo: widget.filterInfo,
-        delegate:
-            SingleSelectOptionFilterDelegateImpl(filterInfo: widget.filterInfo),
-      );
-    } else {
-      bloc = SelectOptionFilterEditorBloc(
-        filterInfo: widget.filterInfo,
-        delegate:
-            MultiSelectOptionFilterDelegateImpl(filterInfo: widget.filterInfo),
-      );
-    }
-    bloc.add(const SelectOptionFilterEditorEvent.initial());
-  }
-
-  @override
-  void dispose() {
-    bloc.close();
-    super.dispose();
-  }
+  final String filterId;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: bloc,
-      child: BlocBuilder<SelectOptionFilterEditorBloc,
-          SelectOptionFilterEditorState>(
-        builder: (blocContext, state) {
-          return AppFlowyPopover(
-            controller: PopoverController(),
-            constraints: BoxConstraints.loose(const Size(240, 160)),
-            direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (BuildContext context) {
-              return SelectOptionFilterEditor(bloc: bloc);
-            },
-            child: ChoiceChipButton(
-              filterInfo: widget.filterInfo,
-              filterDesc: state.filterDesc,
-            ),
+    return AppFlowyPopover(
+      constraints: BoxConstraints.loose(const Size(240, 160)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: SelectOptionFilterEditor(filterId: filterId),
+        );
+      },
+      child: SingleFilterBlocSelector<SelectOptionFilter>(
+        filterId: filterId,
+        builder: (context, filter, field) {
+          return ChoiceChipButton(
+            fieldInfo: field,
+            filterDesc: filter.getContentDescription(field),
           );
         },
       ),
@@ -80,9 +46,12 @@ class _SelectOptionFilterChoicechipState
 }
 
 class SelectOptionFilterEditor extends StatefulWidget {
-  const SelectOptionFilterEditor({required this.bloc, super.key});
+  const SelectOptionFilterEditor({
+    super.key,
+    required this.filterId,
+  });
 
-  final SelectOptionFilterEditorBloc bloc;
+  final String filterId;
 
   @override
   State<SelectOptionFilterEditor> createState() =>
@@ -100,53 +69,48 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: widget.bloc,
-      child: BlocBuilder<SelectOptionFilterEditorBloc,
-          SelectOptionFilterEditorState>(
-        builder: (context, state) {
-          final List<Widget> slivers = [
-            SliverToBoxAdapter(child: _buildFilterPanel(context, state)),
-          ];
+    return SingleFilterBlocSelector<SelectOptionFilter>(
+      filterId: widget.filterId,
+      builder: (context, filter, field) {
+        final List<Widget> slivers = [
+          SliverToBoxAdapter(child: _buildFilterPanel(filter, field)),
+        ];
 
-          if (state.filter.condition !=
-                  SelectOptionFilterConditionPB.OptionIsEmpty &&
-              state.filter.condition !=
-                  SelectOptionFilterConditionPB.OptionIsNotEmpty) {
-            slivers.add(const SliverToBoxAdapter(child: VSpace(4)));
-            slivers.add(
+        if (![
+          SelectOptionFilterConditionPB.OptionIsEmpty,
+          SelectOptionFilterConditionPB.OptionIsNotEmpty,
+        ].contains(filter.condition)) {
+          final delegate = filter.makeDelegate(field);
+          slivers
+            ..add(const SliverToBoxAdapter(child: VSpace(4)))
+            ..add(
               SliverToBoxAdapter(
                 child: SelectOptionFilterList(
-                  filterInfo: state.filterInfo,
-                  selectedOptionIds: state.filter.optionIds,
-                  onSelectedOptions: (optionIds) {
-                    context.read<SelectOptionFilterEditorBloc>().add(
-                          SelectOptionFilterEditorEvent.updateContent(
-                            optionIds,
-                          ),
-                        );
-                  },
+                  filter: filter,
+                  field: field,
+                  delegate: delegate,
+                  options: delegate.getOptions(field),
+                  onTap: () => popoverMutex.close(),
                 ),
               ),
             );
-          }
+        }
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            child: CustomScrollView(
-              shrinkWrap: true,
-              slivers: slivers,
-              physics: StyledScrollPhysics(),
-            ),
-          );
-        },
-      ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          child: CustomScrollView(
+            shrinkWrap: true,
+            slivers: slivers,
+            physics: StyledScrollPhysics(),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildFilterPanel(
-    BuildContext context,
-    SelectOptionFilterEditorState state,
+    SelectOptionFilter filter,
+    FieldInfo field,
   ) {
     return SizedBox(
       height: 20,
@@ -154,18 +118,20 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.field.name,
+              field.field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           const HSpace(4),
           SelectOptionFilterConditionList(
-            filterInfo: state.filterInfo,
+            filter: filter,
+            fieldType: field.fieldType,
             popoverMutex: popoverMutex,
             onCondition: (condition) {
-              context.read<SelectOptionFilterEditorBloc>().add(
-                    SelectOptionFilterEditorEvent.updateCondition(condition),
-                  );
+              final newFilter = filter.copyWith(condition: condition);
+              context
+                  .read<FilterEditorBloc>()
+                  .add(FilterEditorEvent.updateFilter(newFilter));
             },
           ),
           DisclosureButton(
@@ -174,8 +140,8 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
               switch (action) {
                 case FilterDisclosureAction.delete:
                   context
-                      .read<SelectOptionFilterEditorBloc>()
-                      .add(const SelectOptionFilterEditorEvent.delete());
+                      .read<FilterEditorBloc>()
+                      .add(FilterEditorEvent.deleteFilter(filter.filterId));
                   break;
               }
             },

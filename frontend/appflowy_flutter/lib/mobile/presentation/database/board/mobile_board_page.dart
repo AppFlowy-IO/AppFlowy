@@ -7,11 +7,11 @@ import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_h
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';

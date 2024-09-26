@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -12,7 +13,12 @@ import '../../layout/sizes.dart';
 import '../filter/create_filter_list.dart';
 
 class FilterButton extends StatefulWidget {
-  const FilterButton({super.key});
+  const FilterButton({
+    super.key,
+    required this.toggleExtension,
+  });
+
+  final ToggleExtensionNotifier toggleExtension;
 
   @override
   State<FilterButton> createState() => _FilterButtonState();
@@ -23,14 +29,13 @@ class _FilterButtonState extends State<FilterButton> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DatabaseFilterMenuBloc, DatabaseFilterMenuState>(
+    return BlocBuilder<FilterEditorBloc, FilterEditorState>(
       builder: (context, state) {
         final textColor = state.filters.isEmpty
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
 
         return _wrapPopover(
-          context,
           FlowyTextButton(
             LocaleKeys.grid_settings_filter.tr(),
             fontColor: textColor,
@@ -41,11 +46,11 @@ class _FilterButtonState extends State<FilterButton> {
             padding: GridSize.toolbarSettingButtonInsets,
             radius: Corners.s4Border,
             onPressed: () {
-              final bloc = context.read<DatabaseFilterMenuBloc>();
+              final bloc = context.read<FilterEditorBloc>();
               if (bloc.state.filters.isEmpty) {
                 _popoverController.show();
               } else {
-                bloc.add(const DatabaseFilterMenuEvent.toggleMenu());
+                widget.toggleExtension.toggle();
               }
             },
           ),
@@ -54,7 +59,7 @@ class _FilterButtonState extends State<FilterButton> {
     );
   }
 
-  Widget _wrapPopover(BuildContext buildContext, Widget child) {
+  Widget _wrapPopover(Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -62,17 +67,17 @@ class _FilterButtonState extends State<FilterButton> {
       offset: const Offset(0, 8),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
-      popupBuilder: (BuildContext context) {
-        final bloc = buildContext.read<DatabaseFilterMenuBloc>();
-        return GridCreateFilterList(
-          viewId: bloc.viewId,
-          fieldController: bloc.fieldController,
-          onClosed: () => _popoverController.close(),
-          onCreateFilter: () {
-            if (!bloc.state.isVisible) {
-              bloc.add(const DatabaseFilterMenuEvent.toggleMenu());
-            }
-          },
+      popupBuilder: (_) {
+        return BlocProvider.value(
+          value: context.read<FilterEditorBloc>(),
+          child: CreateDatabaseViewFilterList(
+            onTap: () {
+              if (!widget.toggleExtension.isToggled) {
+                widget.toggleExtension.toggle();
+              }
+              _popoverController.close();
+            },
+          ),
         );
       },
     );

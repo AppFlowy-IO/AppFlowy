@@ -6,6 +6,7 @@ use anyhow::bail;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
+use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 use flowy_error::{FlowyError, FlowyResult};
@@ -17,7 +18,6 @@ use crate::entities::{
   InsertedRowPB, MediaFilterPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB,
   TextFilterPB, TimeFilterPB,
 };
-use crate::services::field::SelectOptionIds;
 
 pub trait ParseFilterData {
   fn parse(condition: u8, content: String) -> Self;
@@ -275,12 +275,17 @@ impl FilterInner {
         BoxAny::new(TextFilterPB::parse(condition as u8, content))
       },
       FieldType::Number => BoxAny::new(NumberFilterPB::parse(condition as u8, content)),
-      FieldType::DateTime | FieldType::CreatedTime | FieldType::LastEditedTime => {
-        BoxAny::new(DateFilterPB::parse(condition as u8, content))
+      FieldType::DateTime => BoxAny::new(DateFilterPB::parse(condition as u8, content)),
+      FieldType::CreatedTime | FieldType::LastEditedTime => {
+        let filter = DateFilterPB::parse(condition as u8, content).remove_end_date_conditions();
+        BoxAny::new(filter)
       },
-      FieldType::SingleSelect | FieldType::MultiSelect => {
-        BoxAny::new(SelectOptionFilterPB::parse(condition as u8, content))
+      FieldType::SingleSelect => {
+        let filter =
+          SelectOptionFilterPB::parse(condition as u8, content).remove_extra_option_ids();
+        BoxAny::new(filter)
       },
+      FieldType::MultiSelect => BoxAny::new(SelectOptionFilterPB::parse(condition as u8, content)),
       FieldType::Checklist => BoxAny::new(ChecklistFilterPB::parse(condition as u8, content)),
       FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::parse(condition as u8, content)),
       FieldType::Relation => BoxAny::new(RelationFilterPB::parse(condition as u8, content)),
@@ -490,7 +495,6 @@ pub enum FilterChangeset {
   },
   Delete {
     filter_id: String,
-    field_id: String,
   },
   DeleteAllWithFieldId {
     field_id: String,

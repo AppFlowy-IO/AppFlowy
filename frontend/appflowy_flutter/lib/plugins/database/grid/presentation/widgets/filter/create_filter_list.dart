@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/simple_text_filter_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,59 +12,46 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/field/field_controller.dart';
-import '../../../application/filter/filter_create_bloc.dart';
-
-class GridCreateFilterList extends StatefulWidget {
-  const GridCreateFilterList({
+class CreateDatabaseViewFilterList extends StatelessWidget {
+  const CreateDatabaseViewFilterList({
     super.key,
-    required this.viewId,
-    required this.fieldController,
-    required this.onClosed,
-    this.onCreateFilter,
+    this.onTap,
   });
 
-  final String viewId;
-  final FieldController fieldController;
-  final VoidCallback onClosed;
-  final VoidCallback? onCreateFilter;
-
-  @override
-  State<StatefulWidget> createState() => _GridCreateFilterListState();
-}
-
-class _GridCreateFilterListState extends State<GridCreateFilterList> {
-  late final GridCreateFilterBloc editBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    editBloc = GridCreateFilterBloc(
-      viewId: widget.viewId,
-      fieldController: widget.fieldController,
-    )..add(const GridCreateFilterEvent.initial());
-  }
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: editBloc,
-      child: BlocListener<GridCreateFilterBloc, GridCreateFilterState>(
+    final filterBloc = context.read<FilterEditorBloc>();
+    return BlocProvider(
+      create: (_) => SimpleTextFilterBloc<FieldInfo>(
+        values: List.from(filterBloc.state.fields),
+        comparator: (val) => val.name,
+      ),
+      child: BlocListener<FilterEditorBloc, FilterEditorState>(
+        listenWhen: (previous, current) => previous.fields != current.fields,
         listener: (context, state) {
-          if (state.didCreateFilter) {
-            widget.onClosed();
-          }
+          context
+              .read<SimpleTextFilterBloc<FieldInfo>>()
+              .add(SimpleTextFilterEvent.receiveNewValues(state.fields));
         },
-        child: BlocBuilder<GridCreateFilterBloc, GridCreateFilterState>(
+        child: BlocBuilder<SimpleTextFilterBloc<FieldInfo>,
+            SimpleTextFilterState<FieldInfo>>(
           builder: (context, state) {
-            final cells = state.creatableFields.map((fieldInfo) {
+            final cells = state.values.map((fieldInfo) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
-                child: GridFilterPropertyCell(
+                child: FilterableFieldButton(
                   fieldInfo: fieldInfo,
-                  onTap: (fieldInfo) => createFilter(fieldInfo),
+                  onTap: (fieldInfo) {
+                    context
+                        .read<FilterEditorBloc>()
+                        .add(FilterEditorEvent.createFilter(fieldInfo));
+                    onTap?.call();
+                  },
                 ),
               );
             }).toList();
@@ -94,17 +81,6 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    editBloc.close();
-    super.dispose();
-  }
-
-  void createFilter(FieldInfo field) {
-    editBloc.add(GridCreateFilterEvent.createDefaultFilter(field));
-    widget.onCreateFilter?.call();
-  }
 }
 
 class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
@@ -126,8 +102,8 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
         hintText: LocaleKeys.grid_settings_filterBy.tr(),
         onChanged: (text) {
           context
-              .read<GridCreateFilterBloc>()
-              .add(GridCreateFilterEvent.didReceiveFilterText(text));
+              .read<SimpleTextFilterBloc<FieldInfo>>()
+              .add(SimpleTextFilterEvent.updateFilter(text));
         },
       ),
     );
@@ -145,8 +121,8 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class GridFilterPropertyCell extends StatelessWidget {
-  const GridFilterPropertyCell({
+class FilterableFieldButton extends StatelessWidget {
+  const FilterableFieldButton({
     super.key,
     required this.fieldInfo,
     required this.onTap,

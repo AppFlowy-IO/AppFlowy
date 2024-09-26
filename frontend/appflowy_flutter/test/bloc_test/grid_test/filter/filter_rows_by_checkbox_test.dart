@@ -20,7 +20,7 @@ void main() {
     await gridResponseFuture();
 
     // create a new filter
-    final checkboxField = context.checkboxFieldContext();
+    final checkboxField = context.getCheckboxField();
     await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
       condition: CheckboxFilterConditionPB.IsChecked,
@@ -41,7 +41,7 @@ void main() {
     await gridResponseFuture();
 
     // create a new filter
-    final checkboxField = context.checkboxFieldContext();
+    final checkboxField = context.getCheckboxField();
     await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
       condition: CheckboxFilterConditionPB.IsUnChecked,

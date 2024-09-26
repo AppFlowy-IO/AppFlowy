@@ -1,8 +1,9 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellIdPB, CellIdParams};
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
-use collab_database::entity::{SelectOption, SelectOptionColor};
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SelectOptionColor, SelectTypeOption, SingleSelectTypeOption,
+};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
@@ -211,8 +212,8 @@ pub struct SingleSelectTypeOptionPB {
   pub disable_color: bool,
 }
 
-impl From<SingleSelectTypeOption> for SingleSelectTypeOptionPB {
-  fn from(data: SingleSelectTypeOption) -> Self {
+impl From<SelectTypeOption> for SingleSelectTypeOptionPB {
+  fn from(data: SelectTypeOption) -> Self {
     Self {
       options: data
         .options
@@ -226,14 +227,14 @@ impl From<SingleSelectTypeOption> for SingleSelectTypeOptionPB {
 
 impl From<SingleSelectTypeOptionPB> for SingleSelectTypeOption {
   fn from(data: SingleSelectTypeOptionPB) -> Self {
-    Self {
+    SingleSelectTypeOption(SelectTypeOption {
       options: data
         .options
         .into_iter()
         .map(|option| option.into())
         .collect(),
       disable_color: data.disable_color,
-    }
+    })
   }
 }
 
@@ -246,8 +247,8 @@ pub struct MultiSelectTypeOptionPB {
   pub disable_color: bool,
 }
 
-impl From<MultiSelectTypeOption> for MultiSelectTypeOptionPB {
-  fn from(data: MultiSelectTypeOption) -> Self {
+impl From<SelectTypeOption> for MultiSelectTypeOptionPB {
+  fn from(data: SelectTypeOption) -> Self {
     Self {
       options: data
         .options
@@ -261,14 +262,14 @@ impl From<MultiSelectTypeOption> for MultiSelectTypeOptionPB {
 
 impl From<MultiSelectTypeOptionPB> for MultiSelectTypeOption {
   fn from(data: MultiSelectTypeOptionPB) -> Self {
-    Self {
+    MultiSelectTypeOption(SelectTypeOption {
       options: data
         .options
         .into_iter()
         .map(|option| option.into())
         .collect(),
       disable_color: data.disable_color,
-    }
+    })
   }
 }
 

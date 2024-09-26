@@ -1,38 +1,73 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
 use crate::services::cell::insert_date_cell;
-use crate::services::field::DateCellData;
+use crate::services::field::TimestampCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
-use chrono::{Duration, NaiveDate, NaiveDateTime};
+use chrono::{Duration, NaiveDate};
+use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 
 impl DateFilterPB {
   /// Returns `None` if the DateFilterPB doesn't have the necessary data for
   /// the condition. For example, `start` and `end` timestamps for
-  /// `DateFilterConditionPB::DateWithin`.
+  /// `DateFilterConditionPB::DateStartsBetween`.
   pub fn is_visible(&self, cell_data: &DateCellData) -> Option<bool> {
-    let strategy = match self.condition {
-      DateFilterConditionPB::DateIs => DateFilterStrategy::On(self.timestamp?),
-      DateFilterConditionPB::DateBefore => DateFilterStrategy::Before(self.timestamp?),
-      DateFilterConditionPB::DateAfter => DateFilterStrategy::After(self.timestamp?),
-      DateFilterConditionPB::DateOnOrBefore => DateFilterStrategy::OnOrBefore(self.timestamp?),
-      DateFilterConditionPB::DateOnOrAfter => DateFilterStrategy::OnOrAfter(self.timestamp?),
-      DateFilterConditionPB::DateWithIn => DateFilterStrategy::DateWithin {
-        start: self.start?,
-        end: self.end?,
-      },
-      DateFilterConditionPB::DateIsEmpty => DateFilterStrategy::Empty,
-      DateFilterConditionPB::DateIsNotEmpty => DateFilterStrategy::NotEmpty,
+    let strategy = self.get_strategy()?;
+
+    let timestamp = if self.condition.is_filter_on_start_timestamp() {
+      cell_data.timestamp
+    } else {
+      cell_data.end_timestamp.or_else(|| cell_data.timestamp)
     };
 
-    Some(strategy.filter(cell_data))
+    Some(strategy.filter(timestamp))
+  }
+
+  pub fn is_timestamp_cell_data_visible(&self, cell_data: &TimestampCellData) -> Option<bool> {
+    let strategy = self.get_strategy()?;
+
+    Some(strategy.filter(cell_data.timestamp))
+  }
+
+  fn get_strategy(&self) -> Option<DateFilterStrategy> {
+    let strategy = match self.condition {
+      DateFilterConditionPB::DateStartsOn | DateFilterConditionPB::DateEndsOn => {
+        DateFilterStrategy::On(self.timestamp?)
+      },
+      DateFilterConditionPB::DateStartsBefore | DateFilterConditionPB::DateEndsBefore => {
+        DateFilterStrategy::Before(self.timestamp?)
+      },
+      DateFilterConditionPB::DateStartsAfter | DateFilterConditionPB::DateEndsAfter => {
+        DateFilterStrategy::After(self.timestamp?)
+      },
+      DateFilterConditionPB::DateStartsOnOrBefore | DateFilterConditionPB::DateEndsOnOrBefore => {
+        DateFilterStrategy::OnOrBefore(self.timestamp?)
+      },
+      DateFilterConditionPB::DateStartsOnOrAfter | DateFilterConditionPB::DateEndsOnOrAfter => {
+        DateFilterStrategy::OnOrAfter(self.timestamp?)
+      },
+      DateFilterConditionPB::DateStartsBetween | DateFilterConditionPB::DateEndsBetween => {
+        DateFilterStrategy::DateBetween {
+          start: self.start?,
+          end: self.end?,
+        }
+      },
+      DateFilterConditionPB::DateStartIsEmpty | DateFilterConditionPB::DateEndIsEmpty => {
+        DateFilterStrategy::Empty
+      },
+      DateFilterConditionPB::DateStartIsNotEmpty | DateFilterConditionPB::DateEndIsNotEmpty => {
+        DateFilterStrategy::NotEmpty
+      },
+    };
+
+    Some(strategy)
   }
 }
 
 #[inline]
 fn naive_date_from_timestamp(timestamp: i64) -> Option<NaiveDate> {
-  NaiveDateTime::from_timestamp_opt(timestamp, 0).map(|date_time: NaiveDateTime| date_time.date())
+  chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc().date())
 }
 
 enum DateFilterStrategy {
@@ -41,134 +76,173 @@ enum DateFilterStrategy {
   After(i64),
   OnOrBefore(i64),
   OnOrAfter(i64),
-  DateWithin { start: i64, end: i64 },
+  DateBetween { start: i64, end: i64 },
   Empty,
   NotEmpty,
 }
 
 impl DateFilterStrategy {
-  fn filter(self, cell_data: &DateCellData) -> bool {
+  fn filter(self, cell_data: Option<i64>) -> bool {
     match self {
-      DateFilterStrategy::On(expected_timestamp) => cell_data.timestamp.is_some_and(|timestamp| {
+      DateFilterStrategy::On(expected_timestamp) => cell_data.is_some_and(|timestamp| {
         let cell_date = naive_date_from_timestamp(timestamp);
         let expected_date = naive_date_from_timestamp(expected_timestamp);
         cell_date == expected_date
       }),
-      DateFilterStrategy::Before(expected_timestamp) => {
-        cell_data.timestamp.is_some_and(|timestamp| {
-          let cell_date = naive_date_from_timestamp(timestamp);
-          let expected_date = naive_date_from_timestamp(expected_timestamp);
-          cell_date < expected_date
-        })
+      DateFilterStrategy::Before(expected_timestamp) => cell_data.is_some_and(|timestamp| {
+        let cell_date = naive_date_from_timestamp(timestamp);
+        let expected_date = naive_date_from_timestamp(expected_timestamp);
+        cell_date < expected_date
+      }),
+      DateFilterStrategy::After(expected_timestamp) => cell_data.is_some_and(|timestamp| {
+        let cell_date = naive_date_from_timestamp(timestamp);
+        let expected_date = naive_date_from_timestamp(expected_timestamp);
+        cell_date > expected_date
+      }),
+      DateFilterStrategy::OnOrBefore(expected_timestamp) => cell_data.is_some_and(|timestamp| {
+        let cell_date = naive_date_from_timestamp(timestamp);
+        let expected_date = naive_date_from_timestamp(expected_timestamp);
+        cell_date <= expected_date
+      }),
+      DateFilterStrategy::OnOrAfter(expected_timestamp) => cell_data.is_some_and(|timestamp| {
+        let cell_date = naive_date_from_timestamp(timestamp);
+        let expected_date = naive_date_from_timestamp(expected_timestamp);
+        cell_date >= expected_date
+      }),
+      DateFilterStrategy::DateBetween { start, end } => cell_data.is_some_and(|timestamp| {
+        let cell_date = naive_date_from_timestamp(timestamp);
+        let expected_start_date = naive_date_from_timestamp(start);
+        let expected_end_date = naive_date_from_timestamp(end);
+        cell_date >= expected_start_date && cell_date <= expected_end_date
+      }),
+      DateFilterStrategy::Empty => match cell_data {
+        None => true,
+        Some(timestamp) if naive_date_from_timestamp(timestamp).is_none() => true,
+        _ => false,
       },
-      DateFilterStrategy::After(expected_timestamp) => {
-        cell_data.timestamp.is_some_and(|timestamp| {
-          let cell_date = naive_date_from_timestamp(timestamp);
-          let expected_date = naive_date_from_timestamp(expected_timestamp);
-          cell_date > expected_date
-        })
+      DateFilterStrategy::NotEmpty => {
+        matches!(cell_data, Some(timestamp) if naive_date_from_timestamp(timestamp).is_some() )
       },
-      DateFilterStrategy::OnOrBefore(expected_timestamp) => {
-        cell_data.timestamp.is_some_and(|timestamp| {
-          let cell_date = naive_date_from_timestamp(timestamp);
-          let expected_date = naive_date_from_timestamp(expected_timestamp);
-          cell_date <= expected_date
-        })
-      },
-      DateFilterStrategy::OnOrAfter(expected_timestamp) => {
-        cell_data.timestamp.is_some_and(|timestamp| {
-          let cell_date = naive_date_from_timestamp(timestamp);
-          let expected_date = naive_date_from_timestamp(expected_timestamp);
-          cell_date >= expected_date
-        })
-      },
-      DateFilterStrategy::DateWithin { start, end } => {
-        cell_data.timestamp.is_some_and(|timestamp| {
-          let cell_date = naive_date_from_timestamp(timestamp);
-          let expected_start_date = naive_date_from_timestamp(start);
-          let expected_end_date = naive_date_from_timestamp(end);
-          cell_date >= expected_start_date && cell_date <= expected_end_date
-        })
-      },
-      DateFilterStrategy::Empty => {
-        cell_data.timestamp.is_none() && cell_data.end_timestamp.is_none()
-      },
-      DateFilterStrategy::NotEmpty => cell_data.timestamp.is_some(),
     }
   }
 }
 
 impl PreFillCellsWithFilter for DateFilterPB {
   fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
-    let timestamp = match self.condition {
-      DateFilterConditionPB::DateIs
-      | DateFilterConditionPB::DateOnOrBefore
-      | DateFilterConditionPB::DateOnOrAfter => self.timestamp,
-      DateFilterConditionPB::DateBefore => self
+    let start_timestamp = match self.condition {
+      DateFilterConditionPB::DateStartsOn
+      | DateFilterConditionPB::DateStartsOnOrBefore
+      | DateFilterConditionPB::DateStartsOnOrAfter
+      | DateFilterConditionPB::DateEndsOn
+      | DateFilterConditionPB::DateEndsOnOrBefore
+      | DateFilterConditionPB::DateEndsOnOrAfter => self.timestamp,
+      DateFilterConditionPB::DateStartsBefore | DateFilterConditionPB::DateEndsBefore => self
         .timestamp
-        .and_then(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0))
+        .and_then(|timestamp| {
+          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+        })
         .map(|date_time| {
           let answer = date_time - Duration::days(1);
-          answer.timestamp()
+          answer.and_utc().timestamp()
         }),
-      DateFilterConditionPB::DateAfter => self
+      DateFilterConditionPB::DateStartsAfter | DateFilterConditionPB::DateEndsAfter => self
         .timestamp
-        .and_then(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0))
+        .and_then(|timestamp| {
+          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+        })
         .map(|date_time| {
           let answer = date_time + Duration::days(1);
-          answer.timestamp()
+          answer.and_utc().timestamp()
         }),
-      DateFilterConditionPB::DateWithIn => self.start,
+      DateFilterConditionPB::DateStartsBetween | DateFilterConditionPB::DateEndsBetween => {
+        self.start
+      },
       _ => None,
     };
 
-    let open_after_create = matches!(self.condition, DateFilterConditionPB::DateIsNotEmpty);
+    let end_timestamp = if self.condition.is_filter_on_start_timestamp() {
+      start_timestamp
+    } else {
+      None
+    };
 
-    (
-      timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, field)),
-      open_after_create,
-    )
+    let cell = start_timestamp
+      .map(|timestamp| insert_date_cell(timestamp, None, end_timestamp, None, field));
+
+    let open_after_create = matches!(self.condition, DateFilterConditionPB::DateStartIsNotEmpty);
+
+    (cell, open_after_create)
   }
 }
 
 #[cfg(test)]
 mod tests {
   use crate::entities::{DateFilterConditionPB, DateFilterPB};
-  use crate::services::field::DateCellData;
+  use collab_database::fields::date_type_option::DateCellData;
 
-  fn to_cell_data(timestamp: i32) -> DateCellData {
-    DateCellData::new(timestamp as i64, false, false, "".to_string())
+  fn to_cell_data(timestamp: Option<i64>, end_timestamp: Option<i64>) -> DateCellData {
+    DateCellData {
+      timestamp,
+      end_timestamp,
+      ..Default::default()
+    }
   }
 
   #[test]
   fn date_filter_is_test() {
     let filter = DateFilterPB {
-      condition: DateFilterConditionPB::DateIs,
+      condition: DateFilterConditionPB::DateStartsOn,
       timestamp: Some(1668387885),
       end: None,
       start: None,
     };
 
-    for (val, visible) in [(1668387885, true), (1647251762, false)] {
-      assert_eq!(filter.is_visible(&to_cell_data(val)).unwrap(), visible);
+    for (start, end, is_visible) in [
+      (Some(1668387885), None, true),
+      (Some(1647251762), None, false),
+      (None, None, false),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible
+      );
+    }
+
+    let filter = DateFilterPB {
+      condition: DateFilterConditionPB::DateStartsOn,
+      timestamp: None,
+      end: None,
+      start: None,
+    };
+
+    for (start, end, is_visible) in [
+      (Some(1668387885), None, true),
+      (Some(1647251762), None, true),
+      (None, None, true),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible
+      );
     }
   }
 
   #[test]
   fn date_filter_before_test() {
     let filter = DateFilterPB {
-      condition: DateFilterConditionPB::DateBefore,
+      condition: DateFilterConditionPB::DateStartsBefore,
       timestamp: Some(1668387885),
       start: None,
       end: None,
     };
 
-    for (val, visible, msg) in [(1668387884, false, "1"), (1647251762, true, "2")] {
+    for (start, end, is_visible) in [
+      (Some(1668387884), None, false),
+      (Some(1647251762), None, true),
+    ] {
       assert_eq!(
-        filter.is_visible(&to_cell_data(val)).unwrap(),
-        visible,
-        "{}",
-        msg
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible,
       );
     }
   }
@@ -176,66 +250,145 @@ mod tests {
   #[test]
   fn date_filter_before_or_on_test() {
     let filter = DateFilterPB {
-      condition: DateFilterConditionPB::DateOnOrBefore,
+      condition: DateFilterConditionPB::DateStartsOnOrBefore,
       timestamp: Some(1668387885),
       start: None,
       end: None,
     };
 
-    for (val, visible) in [(1668387884, true), (1668387885, true)] {
-      assert_eq!(filter.is_visible(&to_cell_data(val)).unwrap(), visible);
+    for (start, end, is_visible) in [
+      (Some(1668387884), None, true),
+      (Some(1668387885), None, true),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible
+      );
     }
   }
   #[test]
   fn date_filter_after_test() {
     let filter = DateFilterPB {
-      condition: DateFilterConditionPB::DateAfter,
+      condition: DateFilterConditionPB::DateStartsAfter,
       timestamp: Some(1668387885),
       start: None,
       end: None,
     };
 
-    for (val, visible) in [(1668387888, false), (1668531885, true), (0, false)] {
-      assert_eq!(filter.is_visible(&to_cell_data(val)).unwrap(), visible);
+    for (start, end, is_visible) in [
+      (Some(1668387888), None, false),
+      (Some(1668531885), None, true),
+      (Some(0), None, false),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible
+      );
     }
   }
 
   #[test]
   fn date_filter_within_test() {
     let filter = DateFilterPB {
-      condition: DateFilterConditionPB::DateWithIn,
+      condition: DateFilterConditionPB::DateStartsBetween,
       start: Some(1668272685), // 11/13
       end: Some(1668618285),   // 11/17
       timestamp: None,
     };
 
-    for (val, visible, _msg) in [
-      (1668272685, true, "11/13"),
-      (1668359085, true, "11/14"),
-      (1668704685, false, "11/18"),
+    for (start, end, is_visible, msg) in [
+      (Some(1668272685), None, true, "11/13"),
+      (Some(1668359085), None, true, "11/14"),
+      (Some(1668704685), None, false, "11/18"),
+      (None, None, false, "empty"),
     ] {
-      assert_eq!(filter.is_visible(&to_cell_data(val)).unwrap(), visible);
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible,
+        "{msg}"
+      );
+    }
+
+    let filter = DateFilterPB {
+      condition: DateFilterConditionPB::DateStartsBetween,
+      start: None,
+      end: Some(1668618285), // 11/17
+      timestamp: None,
+    };
+
+    for (start, end, is_visible, msg) in [
+      (Some(1668272685), None, true, "11/13"),
+      (Some(1668359085), None, true, "11/14"),
+      (Some(1668704685), None, true, "11/18"),
+      (None, None, true, "empty"),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible,
+        "{msg}"
+      );
     }
   }
 
   #[test]
   fn date_filter_is_empty_test() {
     let filter = DateFilterPB {
-      condition: DateFilterConditionPB::DateIsEmpty,
+      condition: DateFilterConditionPB::DateStartIsEmpty,
       start: None,
       end: None,
       timestamp: None,
     };
 
-    for (val, visible) in [(None, true), (Some(123), false)] {
+    for (start, end, is_visible) in [(None, None, true), (Some(123), None, false)] {
       assert_eq!(
-        filter
-          .is_visible(&DateCellData {
-            timestamp: val,
-            ..Default::default()
-          })
-          .unwrap(),
-        visible
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible
+      );
+    }
+  }
+
+  #[test]
+  fn date_filter_end_test() {
+    let filter = DateFilterPB {
+      condition: DateFilterConditionPB::DateEndsOnOrBefore,
+      timestamp: Some(1668359085), // 11/14
+      end: None,
+      start: None,
+    };
+
+    for (start, end, is_visible, msg) in [
+      (Some(1668272685), None, true, "11/13"),
+      (Some(1668359085), None, true, "11/14"),
+      (Some(1668704685), None, false, "11/18"),
+      (None, None, false, "empty"),
+      (Some(1668272685), Some(1668272685), true, "11/13"),
+      (Some(1668272685), Some(1668359085), true, "11/14"),
+      (Some(1668272685), Some(1668704685), false, "11/18"),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible,
+        "{msg}"
+      );
+    }
+
+    let filter = DateFilterPB {
+      condition: DateFilterConditionPB::DateEndsOnOrBefore,
+      timestamp: None,
+      start: None,
+      end: None,
+    };
+
+    for (start, end, is_visible, msg) in [
+      (Some(1668272685), Some(1668272685), true, "11/13"),
+      (Some(1668272685), Some(1668359085), true, "11/14"),
+      (Some(1668272685), Some(1668704685), true, "11/18"),
+      (None, None, true, "empty"),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible,
+        "{msg}"
       );
     }
   }

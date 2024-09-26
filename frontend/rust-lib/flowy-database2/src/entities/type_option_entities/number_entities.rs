@@ -1,4 +1,4 @@
-use crate::services::field::{NumberFormat, NumberTypeOption};
+use collab_database::fields::number_type_option::{NumberFormat, NumberTypeOption};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 // Number

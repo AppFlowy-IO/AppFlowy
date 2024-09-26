@@ -41,7 +41,7 @@ class DatabaseGroupList extends StatelessWidget {
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
         builder: (context, state) {
           final field = state.fieldInfos.firstWhereOrNull(
-            (field) => field.canBeGroup && field.isGroupField,
+            (field) => field.fieldType.canBeGroup && field.isGroupField,
           );
           final showHideUngroupedToggle =
               field?.fieldType != FieldType.Checkbox;
@@ -93,7 +93,9 @@ class DatabaseGroupList extends StatelessWidget {
                 ),
               ),
             ),
-            ...state.fieldInfos.where((fieldInfo) => fieldInfo.canBeGroup).map(
+            ...state.fieldInfos
+                .where((fieldInfo) => fieldInfo.fieldType.canBeGroup)
+                .map(
                   (fieldInfo) => _GridGroupCell(
                     fieldInfo: fieldInfo,
                     name: fieldInfo.name,
@@ -103,7 +105,7 @@ class DatabaseGroupList extends StatelessWidget {
                     key: ValueKey(fieldInfo.id),
                   ),
                 ),
-            if (field?.groupConditions.isNotEmpty ?? false) ...[
+            if (field?.fieldType.groupConditions.isNotEmpty ?? false) ...[
               const TypeOptionSeparator(spacing: 0),
               SizedBox(
                 height: GridSize.popoverItemHeight,
@@ -117,7 +119,7 @@ class DatabaseGroupList extends StatelessWidget {
                   ),
                 ),
               ),
-              ...field!.groupConditions.map(
+              ...field!.fieldType.groupConditions.map(
                 (condition) => _GridGroupCell(
                   fieldInfo: field,
                   name: condition.name,

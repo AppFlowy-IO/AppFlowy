@@ -1,15 +1,14 @@
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::{SelectOption, SingleSelectTypeOption};
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
-use std::time::Duration;
-
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
 use flowy_database2::services::field::{
-  edit_single_select_type_option, SelectTypeOptionSharedAction, SingleSelectTypeOption,
+  edit_single_select_type_option, SelectTypeOptionSharedAction,
 };
+use std::time::Duration;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -212,9 +211,13 @@ impl DatabaseGroupTest {
         let field_type = FieldType::from(field.field_type);
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
-          FieldType::DateTime => {
-            insert_date_cell(cell_data.parse::<i64>().unwrap(), None, Some(true), &field)
-          },
+          FieldType::DateTime => insert_date_cell(
+            cell_data.parse::<i64>().unwrap(),
+            None,
+            None,
+            Some(true),
+            &field,
+          ),
           _ => {
             panic!("Unsupported group field type");
           },

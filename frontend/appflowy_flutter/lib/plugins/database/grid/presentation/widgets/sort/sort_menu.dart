@@ -31,7 +31,7 @@ class SortMenu extends StatelessWidget {
       ),
       child: BlocBuilder<SortEditorBloc, SortEditorState>(
         builder: (context, state) {
-          if (state.sortInfos.isEmpty) {
+          if (state.sorts.isEmpty) {
             return const SizedBox.shrink();
           }
 
@@ -47,7 +47,7 @@ class SortMenu extends StatelessWidget {
                 child: const SortEditor(),
               );
             },
-            child: SortChoiceChip(sortInfos: state.sortInfos),
+            child: SortChoiceChip(sortInfos: state.sorts),
           );
         },
       ),

@@ -53,6 +53,9 @@ final localizedCodeBlockCommands =
     codeBlockCommands(localizations: codeBlockLocalization);
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
+  backspaceToTitle,
+  arrowUpToTitle,
+  arrowLeftToTitle,
   toggleToggleListCommand,
   ...localizedCodeBlockCommands,
   customCopyCommand,
@@ -216,6 +219,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final ViewInfoBloc viewInfoBloc = context.read<ViewInfoBloc>();
 
+  final editorKeyboardInterceptor = EditorKeyboardInterceptor();
+
   Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
@@ -281,6 +286,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       if (widget.initialSelection != null) {
         widget.editorState.updateSelectionWithReason(widget.initialSelection);
       }
+
+      widget.editorState.service.keyboardService?.registerInterceptor(
+        editorKeyboardInterceptor,
+      );
     });
   }
 
@@ -305,6 +314,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    widget.editorState.service.keyboardService?.unregisterInterceptor(
+      editorKeyboardInterceptor,
+    );
     focusManager?.loseFocusNotifier.removeListener(_loseFocus);
 
     if (widget.useViewInfoBloc && !viewInfoBloc.isClosed) {

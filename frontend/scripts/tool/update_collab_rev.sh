@@ -28,7 +28,7 @@ for dir in "${directories[@]}"; do
 
     # Update all the specified crates at once
     echo "Updating crates: $crates_to_update"
-    cargo update $crates_to_update
+    cargo update $crates_to_update 2> /dev/null
 
     popd > /dev/null
 done

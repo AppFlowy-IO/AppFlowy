@@ -314,10 +314,14 @@ extension CommonOperations on WidgetTester {
     }
     await pumpAndSettle();
 
+    final defaultPageName = layout == ViewLayoutPB.Document
+        ? '' // the document name is empty by default
+        : LocaleKeys.menuAppHeader_defaultNewPageName.tr();
+
     // hover on it and change it's name
     if (name != null) {
       await hoverOnPageName(
-        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        defaultPageName,
         layout: layout,
         onHover: () async {
           await renamePage(name);
@@ -331,7 +335,7 @@ extension CommonOperations on WidgetTester {
     if (openAfterCreated) {
       await openPage(
         // if the name is null, use the default name
-        name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        name ?? defaultPageName,
         layout: layout,
       );
       await pumpAndSettle();
@@ -368,7 +372,7 @@ extension CommonOperations on WidgetTester {
 
       // hover on new created page and change it's name
       await hoverOnPageName(
-        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        '',
         layout: layout,
         onHover: () async {
           await renamePage(pageName);
@@ -629,7 +633,11 @@ extension CommonOperations on WidgetTester {
     expect(createWorkspaceDialog, findsOneWidget);
 
     // input the workspace name
-    await enterText(find.byType(TextField), name);
+    final workspaceNameInput = find.descendant(
+      of: createWorkspaceDialog,
+      matching: find.byType(TextField),
+    );
+    await enterText(workspaceNameInput, name);
 
     await tapButtonWithName(LocaleKeys.button_ok.tr(), pumpAndSettle: false);
     await pump(const Duration(seconds: 5));

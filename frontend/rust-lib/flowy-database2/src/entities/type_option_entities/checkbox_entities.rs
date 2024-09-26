@@ -1,4 +1,4 @@
-use crate::services::field::CheckboxTypeOption;
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use flowy_derive::ProtoBuf;
 
 #[derive(Default, Debug, Clone, ProtoBuf)]
@@ -28,6 +28,6 @@ impl From<CheckboxTypeOption> for CheckboxTypeOptionPB {
 
 impl From<CheckboxTypeOptionPB> for CheckboxTypeOption {
   fn from(_type_option: CheckboxTypeOptionPB) -> Self {
-    Self()
+    CheckboxTypeOption
   }
 }

@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -139,7 +140,7 @@ class _Overview extends StatelessWidget {
         return Column(
           children: [
             Expanded(
-              child: state.sortInfos.isEmpty
+              child: state.sorts.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -167,10 +168,10 @@ class _Overview extends StatelessWidget {
                       onReorder: (oldIndex, newIndex) => context
                           .read<SortEditorBloc>()
                           .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
-                      itemCount: state.sortInfos.length,
+                      itemCount: state.sorts.length,
                       itemBuilder: (context, index) => _SortItem(
                         key: ValueKey("sort_item_$index"),
-                        sort: state.sortInfos[index],
+                        sort: state.sorts[index],
                       ),
                     ),
             ),
@@ -349,7 +350,7 @@ class _SortItem extends StatelessWidget {
           ),
           Positioned(
             right: 8,
-            top: 9,
+            top: 6,
             child: InkWell(
               onTap: () => context
                   .read<SortEditorBloc>()
@@ -386,7 +387,7 @@ class _SortDetail extends StatelessWidget {
     return isCreatingNewSort
         ? const _SortDetailContent()
         : BlocSelector<SortEditorBloc, SortEditorState, SortInfo>(
-            selector: (state) => state.sortInfos.firstWhere(
+            selector: (state) => state.sorts.firstWhere(
               (sortInfo) =>
                   sortInfo.sortId ==
                   context.read<MobileSortEditorCubit>().state.editingSortId,
@@ -489,7 +490,7 @@ class _SortDetailContent extends StatelessWidget {
           child: BlocBuilder<SortEditorBloc, SortEditorState>(
             builder: (context, state) {
               final fields = state.allFields
-                  .where((field) => field.canCreateSort || field.hasSort)
+                  .where((field) => field.fieldType.canCreateSort)
                   .toList();
               return ListView.builder(
                 itemCount: fields.length,
@@ -503,15 +504,20 @@ class _SortDetailContent extends StatelessWidget {
                           fieldInfo.id
                       : sortInfo!.fieldId == fieldInfo.id;
 
-                  final enabled = fieldInfo.canCreateSort ||
-                      isCreatingNewSort && !fieldInfo.hasSort ||
+                  final canSort =
+                      fieldInfo.fieldType.canCreateSort && !fieldInfo.hasSort;
+                  final beingEdited =
                       !isCreatingNewSort && sortInfo!.fieldId == fieldInfo.id;
+                  final enabled = canSort || beingEdited;
 
                   return FlowyOptionTile.checkbox(
                     text: fieldInfo.field.name,
                     isSelected: isSelected,
                     textColor: enabled ? null : Theme.of(context).disabledColor,
                     showTopBorder: false,
+                    leftIcon: FlowySvg(
+                      fieldInfo.fieldType.svgData,
+                    ),
                     onTap: () {
                       if (isSelected) {
                         return;

@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use collab_database::fields::media_type_option::MediaCellData;
+use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
@@ -170,13 +172,15 @@ pub fn insert_checkbox_cell(is_checked: bool, field: &Field) -> Cell {
 
 pub fn insert_date_cell(
   timestamp: i64,
-  time: Option<String>,
+  start_time: Option<String>,
+  end_timestamp: Option<i64>,
   include_time: Option<bool>,
   field: &Field,
 ) -> Cell {
   let cell_data = DateCellChangeset {
     date: Some(timestamp),
-    time,
+    time: start_time,
+    end_date: end_timestamp,
     include_time,
     ..Default::default()
   };
@@ -231,7 +235,7 @@ impl<'a> CellBuilder<'a> {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
               cells.insert(
                 field_id,
-                insert_date_cell(timestamp, None, Some(false), field),
+                insert_date_cell(timestamp, None, None, Some(false), field),
               );
             }
           },
@@ -260,7 +264,7 @@ impl<'a> CellBuilder<'a> {
             cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
           FieldType::Media => {
-            cells.insert(field_id, (&MediaCellData::from(cell_str)).into());
+            cells.insert(field_id, MediaCellData::from(cell_str).into());
           },
         }
       }
@@ -329,7 +333,7 @@ impl<'a> CellBuilder<'a> {
       Some(field) => {
         self.cells.insert(
           field_id.to_owned(),
-          insert_date_cell(timestamp, time, include_time, field),
+          insert_date_cell(timestamp, time, None, include_time, field),
         );
       },
     }

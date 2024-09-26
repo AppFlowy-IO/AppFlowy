@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
@@ -8,7 +7,6 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -17,7 +15,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('sidebar test', () {
+  group('sidebar:', () {
     testWidgets('create a new page', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -26,9 +24,7 @@ void main() {
       await tester.tapNewPageButton();
 
       // expect to see a new document
-      tester.expectToSeePageName(
-        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-      );
+      tester.expectToSeePageName('');
       // and with one paragraph block
       expect(find.byType(ParagraphBlockComponentWidget), findsOneWidget);
     });

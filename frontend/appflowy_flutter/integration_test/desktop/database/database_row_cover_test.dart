@@ -1,19 +1,18 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
