@@ -30,6 +30,7 @@ export 'image/mobile_image_toolbar_item.dart';
 export 'image/multi_image_block_component/multi_image_menu.dart';
 export 'inline_math_equation/inline_math_equation.dart';
 export 'inline_math_equation/inline_math_equation_toolbar_item.dart';
+export 'keyboard_interceptor/keyboard_interceptor.dart';
 export 'link_preview/custom_link_preview.dart';
 export 'link_preview/link_preview_cache.dart';
 export 'link_preview/link_preview_menu.dart';
