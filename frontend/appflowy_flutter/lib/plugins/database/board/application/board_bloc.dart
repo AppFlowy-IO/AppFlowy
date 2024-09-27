@@ -273,6 +273,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               );
             }
           },
+          openRowDetail: (rowMeta) {
+            final copyState = state;
+            emit(BoardState.openRowDetail(rowMeta: rowMeta));
+            emit(copyState);
+          },
         );
       },
     );
@@ -477,8 +482,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didReceiveGroups(groupList));
       },
     );
+    final onDatabaseChanged = DatabaseCallbacks(
+      onRowsCreated: (rows) {
+        for (final row in rows) {
+          if (!isClosed && row.isHiddenInView) {
+            add(BoardEvent.openRowDetail(row.rowMeta));
+          }
+        }
+      },
+    );
 
     databaseController.addListener(
+      onDatabaseChanged: onDatabaseChanged,
       onLayoutSettingsChanged: onLayoutSettingsChanged,
       onGroupChanged: onGroupChanged,
     );
@@ -581,6 +596,7 @@ class BoardEvent with _$BoardEvent {
     GroupedRowId groupedRowId,
     bool toPrevious,
   ) = _MoveGroupToAdjacentGroup;
+  const factory BoardEvent.openRowDetail(RowMetaPB rowMeta) = _OpenRowDetail;
 }
 
 @freezed
@@ -606,6 +622,10 @@ class BoardState with _$BoardState {
   const factory BoardState.setFocus({
     required List<GroupedRowId> groupedRowIds,
   }) = _BoardSetFocusState;
+
+  const factory BoardState.openRowDetail({
+    required RowMetaPB rowMeta,
+  }) = _BoardOpenRowDetailState;
 
   factory BoardState.initial(String viewId) => BoardState.ready(
         viewId: viewId,

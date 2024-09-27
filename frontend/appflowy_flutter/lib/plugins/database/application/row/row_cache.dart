@@ -93,12 +93,9 @@ class RowCache {
   }
 
   void setRowMeta(RowMetaPB rowMeta) {
-    var rowInfo = _rowList.get(rowMeta.id);
+    final rowInfo = _rowList.get(rowMeta.id);
     if (rowInfo != null) {
       rowInfo.updateRowMeta(rowMeta);
-    } else {
-      rowInfo = buildGridRow(rowMeta);
-      _rowList.add(rowInfo);
     }
 
     _changedNotifier?.receive(const ChangedReason.didFetchRow());
@@ -163,11 +160,14 @@ class RowCache {
 
   void _insertRows(List<InsertedRowPB> insertRows) {
     for (final insertedRow in insertRows) {
-      final insertedIndex =
-          _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
-      if (insertedIndex != null) {
-        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
+      InsertedIndex? index;
+      if (insertedRow.hasIndex()) {
+        index = _rowList.insert(
+          insertedRow.index,
+          buildGridRow(insertedRow.rowMeta),
+        );
       }
+      _changedNotifier?.receive(ChangedReason.insert(index));
     }
   }
 
@@ -365,7 +365,7 @@ typedef UpdatedIndexMap = LinkedHashMap<RowId, UpdatedIndex>;
 
 @freezed
 class ChangedReason with _$ChangedReason {
-  const factory ChangedReason.insert(InsertedIndex item) = _Insert;
+  const factory ChangedReason.insert(InsertedIndex? item) = _Insert;
   const factory ChangedReason.delete(DeletedIndex item) = _Delete;
   const factory ChangedReason.update(UpdatedIndexMap indexs) = _Update;
   const factory ChangedReason.fieldDidChange() = _FieldDidChange;
