@@ -128,7 +128,7 @@ impl DateFilterStrategy {
 }
 
 impl PreFillCellsWithFilter for DateFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let start_timestamp = match self.condition {
       DateFilterConditionPB::DateStartsOn
       | DateFilterConditionPB::DateStartsOnOrBefore
@@ -160,18 +160,10 @@ impl PreFillCellsWithFilter for DateFilterPB {
       _ => None,
     };
 
-    let end_timestamp = if self.condition.is_filter_on_start_timestamp() {
-      start_timestamp
-    } else {
-      None
-    };
+    let cell =
+      start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, None, field));
 
-    let cell = start_timestamp
-      .map(|timestamp| insert_date_cell(timestamp, None, end_timestamp, None, field));
-
-    let open_after_create = matches!(self.condition, DateFilterConditionPB::DateStartIsNotEmpty);
-
-    (cell, open_after_create)
+    cell
   }
 }
 
