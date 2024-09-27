@@ -226,15 +226,14 @@ void main() {
   });
 
   testWidgets('paste image(gif) from memory', (tester) async {
-    // It's not supported yet.
-    // final image = await rootBundle.load('assets/test/images/sample.gif');
-    // final bytes = image.buffer.asUint8List();
-    // await tester.pasteContent(image: ('gif', bytes), (editorState) {
-    //   expect(editorState.document.root.children.length, 2);
-    //   final node = editorState.getNodeAtPath([0])!;
-    //   expect(node.type, ImageBlockKeys.type);
-    //   expect(node.attributes[ImageBlockKeys.url], isNotNull);
-    // });
+    final image = await rootBundle.load('assets/test/images/sample.gif');
+    final bytes = image.buffer.asUint8List();
+    await tester.pasteContent(image: ('gif', bytes), (editorState) {
+      expect(editorState.document.root.children.length, 1);
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ImageBlockKeys.type);
+      expect(node.attributes[ImageBlockKeys.url], isNotNull);
+    });
   });
 
   testWidgets(
@@ -321,6 +320,31 @@ void main() {
       });
     },
   );
+
+  testWidgets('paste the url without protocol', (tester) async {
+    // paste the image that from local file
+    const plainText = '1.jpg';
+    final image = await rootBundle.load('assets/test/images/sample.jpeg');
+    final bytes = image.buffer.asUint8List();
+    await tester.pasteContent(plainText: plainText, image: ('jpeg', bytes),
+        (editorState) {
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ImageBlockKeys.type);
+      expect(node.attributes[ImageBlockKeys.url], isNotEmpty);
+    });
+  });
+
+  testWidgets('paste the image url', (tester) async {
+    const plainText = 'https://appflowy.io/1.jpg';
+    final image = await rootBundle.load('assets/test/images/sample.jpeg');
+    final bytes = image.buffer.asUint8List();
+    await tester.pasteContent(plainText: plainText, image: ('jpeg', bytes),
+        (editorState) {
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ImageBlockKeys.type);
+      expect(node.attributes[ImageBlockKeys.url], isNotEmpty);
+    });
+  });
 }
 
 extension on WidgetTester {

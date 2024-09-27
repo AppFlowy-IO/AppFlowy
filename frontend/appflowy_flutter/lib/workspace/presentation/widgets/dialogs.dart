@@ -331,6 +331,14 @@ void showToastNotification(
     context: context,
     type: type,
     style: ToastificationStyle.flat,
+    closeButtonShowType: CloseButtonShowType.onHover,
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(milliseconds: 3000),
+    showProgressBar: false,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    borderSide: BorderSide(
+      color: Colors.grey.withOpacity(0.4),
+    ),
     title: FlowyText(
       message,
       maxLines: 3,
@@ -343,13 +351,6 @@ void showToastNotification(
             maxLines: 3,
           )
         : null,
-    alignment: Alignment.bottomCenter,
-    autoCloseDuration: const Duration(milliseconds: 3000),
-    showProgressBar: false,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    borderSide: BorderSide(
-      color: Colors.grey.withOpacity(0.4),
-    ),
   );
 }
 
