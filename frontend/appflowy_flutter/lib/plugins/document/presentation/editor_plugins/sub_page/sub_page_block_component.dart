@@ -158,7 +158,11 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                 },
               ),
             );
-          await editorState.apply(transaction, withUpdateSelection: false);
+          await editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
         },
         (error) {
           Log.error(error);
@@ -204,7 +208,11 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
               },
             );
 
-          await editorState.apply(transaction, withUpdateSelection: false);
+          await editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
         },
         (error) {
           Log.error(error);

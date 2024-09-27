@@ -432,7 +432,11 @@ class _DocumentPageState extends State<DocumentPage>
           },
         ),
       );
-    await editorState!.apply(transaction, withUpdateSelection: false);
+    await editorState!.apply(
+      transaction,
+      withUpdateSelection: false,
+      options: const ApplyOptions(recordUndo: false),
+    );
   }
 
   Future<void> handleSubPageDeletion(BuildContext context, Node node) async {
