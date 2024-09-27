@@ -716,6 +716,7 @@ export interface Workspace {
     name: string;
   };
   databaseStorageId: string;
+  createdAt: string;
 }
 
 export interface UserWorkspaceInfo {
@@ -822,3 +823,45 @@ export enum UIVariant {
   Recent = 'recent',
   Favorite = 'favorite',
 }
+
+export interface AFWebUser {
+  uuid: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+export enum RequestAccessInfoStatus {
+  Pending = 0,
+  Accepted = 1,
+  Rejected = 2,
+}
+
+export interface GetRequestAccessInfoResponse {
+  request_id: string;
+  workspace: Workspace;
+  requester: AFWebUser & {
+    email: string;
+  };
+  view: View;
+  status: RequestAccessInfoStatus;
+}
+
+export enum SubscriptionPlan {
+  Free = 'free',
+  Pro = 'pro',
+  Team = 'team',
+}
+
+export enum SubscriptionInterval {
+  Month = 'month',
+  Year = 'year',
+}
+
+export interface Subscription {
+  currency: string;
+  plan: SubscriptionPlan;
+  price_cents: number;
+  recurring_interval: SubscriptionInterval;
+}
+
+export type Subscriptions = Subscription[];

@@ -383,7 +383,10 @@
     "previous": "Previous",
     "submit": "Submit",
     "download": "Download",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "viewing": "Viewing",
+    "editing": "Editing",
+    "gotIt": "Got it"
   },
   "label": {
     "welcome": "Welcome!",
@@ -2612,6 +2615,44 @@
     "requestAccess": "Request access",
     "backToHome": "Back to home",
     "tip": "You're currently logged in as <link/>.",
-    "mightBe": "You might need to <login/> with a different account."
+    "mightBe": "You might need to <login/> with a different account.",
+    "successful": "Request sent successfully",
+    "successfulMessage": "You will be notified once the owner approves your request.",
+    "requestError": "Failed to request access",
+    "repeatRequestError": "You've already requested access to this page"
+  },
+  "approveAccess": {
+    "title": "Approve Workspace Join Request",
+    "requestSummary": "<user/> requests to join <workspace/> and access <page/>",
+    "upgrade": "upgrade",
+    "downloadApp": "Download AppFlowy",
+    "approveButton": "Approve",
+    "approveSuccess": "Approved successfully",
+    "approveError": "Failed to approve, ensure the workspace plan limit is not exceeded",
+    "getRequestInfoError": "Failed to get request info",
+    "memberCount": {
+      "zero": "No members",
+      "one": "1 member",
+      "many": "{count} members",
+      "other": "{count} members"
+    },
+    "alreadyProTitle": "You've reached the workspace plan limit",
+    "alreadyProMessage": "Ask them to contact <email/> to unlock more members",
+    "repeatApproveError": "You've already approved this request",
+    "ensurePlanLimit": "Ensure the workspace plan limit is not exceeded. If the limit is exceeded, consider <upgrade/> the workspace plan or <download/>."
+  },
+  "upgradePlanModal": {
+    "title": "Unlock Premium Features",
+    "message": "You're trying to use a premium feature. Upgrade your plan to access all our powerful tools and capabilities!",
+    "upgradeSteps": "How to upgrade your plan on AppFlowy:",
+    "step1": "1. Go to Settings",
+    "step2": "2. Click on 'Plan'",
+    "step3": "3. Select 'Change Plan'",
+    "appNote": "Note: ",
+    "actionButton": "Upgrade Now",
+    "downloadLink": "Download App",
+    "laterButton": "Maybe Later",
+    "refreshNote": "After successful upgrade, click <refresh/> to activate your new features.",
+    "refresh": "here"
   }
 }

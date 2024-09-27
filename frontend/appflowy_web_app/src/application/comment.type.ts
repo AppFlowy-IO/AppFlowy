@@ -1,12 +1,8 @@
-export interface CommentUser {
-  uuid: string;
-  name: string;
-  avatarUrl: string | null;
-}
+import { AFWebUser } from '@/application/types';
 
 export interface GlobalComment {
   commentId: string;
-  user: CommentUser | null;
+  user: AFWebUser | null;
   content: string;
   createdAt: string;
   lastUpdatedAt: string;
@@ -17,6 +13,6 @@ export interface GlobalComment {
 
 export interface Reaction {
   reactionType: string;
-  reactUsers: CommentUser[];
+  reactUsers: AFWebUser[];
   commentId: string;
 }

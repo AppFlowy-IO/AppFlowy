@@ -2,10 +2,10 @@ import { useAppView } from '@/components/app/app.hooks';
 import PublishPanel from '@/components/app/share/PublishPanel';
 import TemplatePanel from '@/components/app/share/TemplatePanel';
 import { useCurrentUser } from '@/components/main/app.hooks';
+import { PublishedWithChanges } from '@mui/icons-material';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ViewTabs, ViewTab, TabPanel } from 'src/components/_shared/tabs/ViewTabs';
-import { ReactComponent as Check } from '@/assets/check_circle.svg';
 import { ReactComponent as Templates } from '@/assets/template.svg';
 
 enum TabKey {
@@ -23,7 +23,7 @@ function ShareTabs () {
     return [{
       value: TabKey.PUBLISH,
       label: t('shareAction.publish'),
-      icon: view?.is_published ? <Check className={'w-4 h-4 text-function-success mb-0'} /> : undefined,
+      icon: view?.is_published ? <PublishedWithChanges className={'w-4 h-4 text-function-success mb-0'} /> : undefined,
       Panel: PublishPanel,
     }, currentUser?.email?.endsWith('appflowy.io') && view?.is_published && {
       value: TabKey.TEMPLATE,

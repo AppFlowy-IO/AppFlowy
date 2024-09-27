@@ -44,7 +44,7 @@ function SideBar ({
           width={drawerWidth}
           outline={outline}
         />
-        {rendered && <Suspense><SideBarBottom /></Suspense>}
+        {(rendered || !viewId) && <Suspense><SideBarBottom /></Suspense>}
 
       </div>
     </OutlineDrawer>
