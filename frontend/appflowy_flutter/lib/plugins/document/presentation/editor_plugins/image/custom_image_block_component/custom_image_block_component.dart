@@ -10,8 +10,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
@@ -206,6 +206,14 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
     }
 
+    child = Padding(
+      padding: padding,
+      child: RepaintBoundary(
+        key: imageKey,
+        child: child,
+      ),
+    );
+
     if (UniversalPlatform.isDesktopOrWeb) {
       child = BlockSelectionContainer(
         node: node,
@@ -213,10 +221,8 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         listenable: editorState.selectionNotifier,
         blockColor: editorState.editorStyle.selectionColor,
         supportTypes: const [BlockSelectionType.block],
-        child: Padding(key: imageKey, padding: padding, child: child),
+        child: child,
       );
-    } else {
-      child = Padding(key: imageKey, padding: padding, child: child);
     }
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -352,24 +358,21 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     }
 
     return [
-      // disable the copy link button if the image is hosted on appflowy cloud
-      // because the url needs the verification token to be accessible
-      if (!url.isAppFlowyCloudUrl)
-        FlowyOptionTile.text(
-          showTopBorder: false,
-          text: LocaleKeys.editor_copyLink.tr(),
-          leftIcon: const FlowySvg(
-            FlowySvgs.m_field_copy_s,
-          ),
-          onTap: () async {
-            context.pop();
-            showSnackBarMessage(
-              context,
-              LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-            );
-            await getIt<ClipboardService>().setPlainText(url);
-          },
+      FlowyOptionTile.text(
+        showTopBorder: false,
+        text: LocaleKeys.editor_copy.tr(),
+        leftIcon: const FlowySvg(
+          FlowySvgs.m_field_copy_s,
         ),
+        onTap: () async {
+          context.pop();
+          showToastNotification(
+            context,
+            message: LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+          );
+          await getIt<ClipboardService>().setPlainText(url);
+        },
+      ),
       FlowyOptionTile.text(
         showTopBorder: false,
         text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
