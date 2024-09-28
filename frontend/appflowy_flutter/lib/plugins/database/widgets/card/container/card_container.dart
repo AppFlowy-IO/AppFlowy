@@ -28,19 +28,8 @@ class RowCardContainer extends StatelessWidget {
       create: (_) => _CardContainerNotifier(),
       child: Consumer<_CardContainerNotifier>(
         builder: (context, notifier, _) {
-          Widget container = child;
-          bool shouldBuildAccessory = true;
-          if (buildAccessoryWhen != null) {
-            shouldBuildAccessory = buildAccessoryWhen!.call();
-          }
-
-          if (shouldBuildAccessory && accessories.isNotEmpty) {
-            container = _CardEnterRegion(
-              accessories: accessories,
-              onTapAccessory: openAccessory,
-              child: container,
-            );
-          }
+          final shouldBuildAccessory =
+              buildAccessoryWhen?.call() ?? true;
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -53,7 +42,12 @@ class RowCardContainer extends StatelessWidget {
             },
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 42),
-              child: container,
+              child: _CardEnterRegion(
+                shouldBuildAccessory: shouldBuildAccessory,
+                accessories: accessories,
+                onTapAccessory: openAccessory,
+                child: child,
+              ),
             ),
           );
         },
@@ -64,11 +58,13 @@ class RowCardContainer extends StatelessWidget {
 
 class _CardEnterRegion extends StatelessWidget {
   const _CardEnterRegion({
+    required this.shouldBuildAccessory,
     required this.child,
     required this.accessories,
     required this.onTapAccessory,
   });
 
+  final bool shouldBuildAccessory;
   final Widget child;
   final List<CardAccessory> accessories;
   final void Function(AccessoryType) onTapAccessory;
@@ -78,9 +74,9 @@ class _CardEnterRegion extends StatelessWidget {
     return Selector<_CardContainerNotifier, bool>(
       selector: (context, notifier) => notifier.onEnter,
       builder: (context, onEnter, _) {
-        final List<Widget> children = [child];
-        if (onEnter) {
-          children.add(
+        final List<Widget> children = [
+          child,
+          if (onEnter && shouldBuildAccessory)
             Positioned(
               top: 10.0,
               right: 10.0,
@@ -89,8 +85,7 @@ class _CardEnterRegion extends StatelessWidget {
                 onTapAccessory: onTapAccessory,
               ),
             ),
-          );
-        }
+        ];
 
         return MouseRegion(
           cursor: SystemMouseCursors.click,
