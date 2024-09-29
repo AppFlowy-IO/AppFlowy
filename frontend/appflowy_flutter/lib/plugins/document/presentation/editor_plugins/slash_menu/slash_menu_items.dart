@@ -9,15 +9,13 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_selection_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
 // text menu item
@@ -549,38 +547,27 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
 );
 
 // Sub-page menu item
-SelectionMenuItem subPageSlashMenuItem(String viewId) => SelectionMenuItem(
-      getName: () => 'New child page',
-      nameBuilder: _slashMenuItemNameBuilder,
-      icon: (_, isSelected, style) => SelectableSvgWidget(
-        data: FlowySvgs.insert_document_s,
-        isSelected: isSelected,
-        style: style,
-      ),
-      keywords: [
-        'create page',
-        'page',
-        'child page',
-        'sub page',
-        'insert page',
-        'new page',
-      ],
-      handler: (editorState, menuService, context) async {
-        final viewOrResult = await ViewBackendService.createView(
-          layoutType: ViewLayoutPB.Document,
-          parentViewId: viewId,
-          name: 'Untitled',
-        );
-
-        await viewOrResult.fold(
-          (view) async => editorState.insertSubPageBlock(view.id),
-          (error) {
-            Log.error(error);
-            showSnapBar(context, 'Failed to create sub page');
-          },
-        );
-      },
-    );
+SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
+  getName: () => 'New child page',
+  nameBuilder: _slashMenuItemNameBuilder,
+  iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.insert_document_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: [
+    'create page',
+    'page',
+    'child page',
+    'sub page',
+    'insert page',
+    'new page',
+  ],
+  updateSelection: (editorState, path, __, ___) =>
+      Selection.collapsed(Position(path: path)),
+  replace: (_, node) => node.delta?.isEmpty ?? false,
+  nodeBuilder: (_, __) => subPageNode(),
+);
 
 Widget _slashMenuItemNameBuilder(
   String name,

@@ -16,7 +16,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
@@ -29,7 +28,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -67,7 +65,8 @@ class _DocumentPageState extends State<DocumentPage>
 
   StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
 
-  bool wasUndoRedo = false;
+  bool wasUndo = false;
+  bool wasRedo = false;
 
   @override
   void initState() {
@@ -318,26 +317,30 @@ class _DocumentPageState extends State<DocumentPage>
     if (editorState == null) {
       return;
     }
-    if (type == EditorNotificationType.undo) {
-      wasUndoRedo = true;
-      final beforeUndo = collectMatchingNodes(editorState.document.root);
+
+    final transactionHandlers = SharedEditorContext.transactionHandlers;
+    if (transactionHandlers.isNotEmpty &&
+        [EditorNotificationType.undo, EditorNotificationType.redo]
+            .contains(type)) {
+      // Undo and Redo cause Editor Notifications due to modifying the document.
+      // We need to avoid handling these notifications as they are handled separately.
+      wasUndo = type == EditorNotificationType.undo;
+      wasRedo = type == EditorNotificationType.redo;
+
+      type == EditorNotificationType.undo
+          ? undoCommand.execute(editorState)
+          : redoCommand.execute(editorState);
+    } else if (type == EditorNotificationType.undo) {
       undoCommand.execute(editorState);
-      final afterUndo = collectMatchingNodes(editorState.document.root);
-
-      handleSubPageChanges(beforeUndo, afterUndo);
     } else if (type == EditorNotificationType.redo) {
-      wasUndoRedo = true;
-      final beforeRedo = collectMatchingNodes(editorState.document.root);
       redoCommand.execute(editorState);
-      final afterRedo = collectMatchingNodes(editorState.document.root);
-
-      handleSubPageChanges(beforeRedo, afterRedo);
     } else if (type == EditorNotificationType.exitEditing &&
         editorState.selection != null) {
       editorState.selection = null;
     }
 
-    wasUndoRedo = false;
+    wasUndo = false;
+    wasRedo = false;
   }
 
   void onNotificationAction(
@@ -383,118 +386,81 @@ class _DocumentPageState extends State<DocumentPage>
     return false;
   }
 
-  List<Node> collectMatchingNodes(Node node) {
+  List<Node> collectMatchingNodes(Node node, String type) {
     final List<Node> matchingNodes = [];
-    if (node.type == SubPageBlockKeys.type) {
+    if (node.type == type) {
       matchingNodes.add(node);
     }
 
     for (final child in node.children) {
-      matchingNodes.addAll(collectMatchingNodes(child));
+      matchingNodes.addAll(collectMatchingNodes(child, type));
     }
 
     return matchingNodes;
   }
 
-  void handleSubPageChanges(List<Node> before, List<Node> after) {
-    final additions = after.where((e) => !before.contains(e)).toList();
-    final removals = before.where((e) => !after.contains(e)).toList();
-
-    // Removals goes to trash
-    for (final node in removals) {
-      if (node.type == SubPageBlockKeys.type) {
-        handleSubPageDeletion(context, node);
-      }
-    }
-
-    // Additions are moved to this view
-    for (final node in additions) {
-      handleSubPageAddition(context, node);
-    }
-  }
-
-  Future<void> handleSubPageAddition(BuildContext context, Node node) async {
-    if (editorState == null || node.type != SubPageBlockKeys.type) {
-      return;
-    }
-
-    // We update the wasCut attribute to true to signify the view was moved.
-    // In this particular case it shares behavior with cut, as it moves the view from Trash
-    // to the current view.
-    final transaction = editorState!.transaction
-      ..deleteNode(node)
-      ..insertNode(
-        node.path.next,
-        node.copyWith(
-          attributes: {
-            ...node.attributes,
-            SubPageBlockKeys.wasCut: true,
-          },
-        ),
-      );
-    await editorState!.apply(
-      transaction,
-      withUpdateSelection: false,
-      options: const ApplyOptions(recordUndo: false),
-    );
-  }
-
-  Future<void> handleSubPageDeletion(BuildContext context, Node node) async {
-    if (editorState == null || node.type != SubPageBlockKeys.type) {
-      return;
-    }
-
-    final view = node.attributes[SubPageBlockKeys.viewId];
-    if (view == null) {
-      return;
-    }
-
-    // We move the view to Trash
-    final result = await ViewBackendService.deleteView(viewId: view);
-    result.fold(
-      (_) {},
-      (error) {
-        Log.error(error);
-        if (context.mounted) {
-          showSnapBar(context, 'Failed to move page to trash');
-        }
-      },
-    );
-  }
-
   void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (wasUndoRedo) {
+    if (editorState == null) {
       return;
     }
 
-    final List<Node> added = [];
-    final List<Node> removed = [];
+    final Map<String, List<Node>> addedNodes = {
+      for (final handler in SharedEditorContext.transactionHandlers)
+        handler.blockType: [],
+    };
+    final Map<String, List<Node>> removedNodes = {
+      for (final handler in SharedEditorContext.transactionHandlers)
+        handler.blockType: [],
+    };
+
+    final transactionHandlerTypes = SharedEditorContext.transactionHandlers
+        .map((h) => h.blockType)
+        .toList();
+
+    // Collect all matching nodes in a performant way for each handler type.
     for (final op in event.$2.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
-          added.addAll(collectMatchingNodes(n));
+          for (final handlerType in transactionHandlerTypes) {
+            if (n.type == handlerType) {
+              addedNodes[handlerType]!
+                  .addAll(collectMatchingNodes(n, handlerType));
+            }
+          }
         }
       } else if (op is DeleteOperation) {
         for (final n in op.nodes) {
-          removed.addAll(collectMatchingNodes(n));
+          for (final handlerType in transactionHandlerTypes) {
+            if (n.type == handlerType) {
+              removedNodes[handlerType]!
+                  .addAll(collectMatchingNodes(n, handlerType));
+            }
+          }
         }
       }
     }
 
-    if (removed.isEmpty && added.isEmpty) {
+    if (removedNodes.isEmpty && addedNodes.isEmpty) {
       return;
     }
 
-    // Removals goes to trash
-    for (final node in removed) {
-      if (node.type == SubPageBlockKeys.type) {
-        handleSubPageDeletion(context, node);
-      }
-    }
+    for (final handler in SharedEditorContext.transactionHandlers) {
+      final added = addedNodes[handler.blockType] ?? [];
+      final removed = removedNodes[handler.blockType] ?? [];
 
-    // Additions are moved to this view
-    for (final node in added) {
-      handleSubPageAddition(context, node);
+      if (added.isEmpty && removed.isEmpty) {
+        continue;
+      }
+
+      handler.onTransaction(
+        context,
+        editorState!,
+        added,
+        removed,
+        isUndo: wasUndo,
+        isRedo: wasRedo,
+        parentViewId: widget.view.id,
+      );
     }
   }
 }

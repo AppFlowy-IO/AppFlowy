@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
@@ -18,7 +17,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:provider/provider.dart';
 
-Node subPageNode({required String viewId}) {
+Node subPageNode({String? viewId}) {
   return Node(
     type: SubPageBlockKeys.type,
     attributes: {SubPageBlockKeys.viewId: viewId},
@@ -88,10 +87,12 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   final subPageKey = GlobalKey();
 
   late final ViewListener viewListener;
-  late Future<ViewPB?> viewFuture;
+  Future<ViewPB?>? viewFuture;
 
   bool isHovering = false;
   bool isHandlingPaste = false;
+
+  bool isInTrash = false;
 
   EditorState get editorState => context.read<EditorState>();
 
@@ -144,25 +145,23 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
           setState(() => isHandlingPaste = false);
 
           // update this node
-          final path = node.path;
           final transaction = editorState.transaction;
-          transaction
-            ..deleteNode(node)
-            ..insertNode(
-              path.next,
-              node.copyWith(
-                attributes: {
-                  SubPageBlockKeys.viewId: view.id,
-                  SubPageBlockKeys.wasCopied: false,
-                  SubPageBlockKeys.wasCut: false,
-                },
-              ),
-            );
+          transaction.updateNode(
+            node,
+            {
+              SubPageBlockKeys.viewId: view.id,
+              SubPageBlockKeys.wasCopied: false,
+              SubPageBlockKeys.wasCut: false,
+            },
+          );
           await editorState.apply(
             transaction,
             withUpdateSelection: false,
             options: const ApplyOptions(recordUndo: false),
           );
+
+          isInTrash = false;
+          viewFuture = Future.value(view);
         },
         (error) {
           Log.error(error);
@@ -195,7 +194,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
       );
 
       await result.fold(
-        (view) async {
+        (_) async {
           setState(() => isHandlingPaste = false);
           // Set wasCut and wasCopied to false
           final transaction = editorState.transaction
@@ -213,6 +212,9 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
             withUpdateSelection: false,
             options: const ApplyOptions(recordUndo: false),
           );
+
+          isInTrash = false;
+          viewFuture = Future.value(view);
         },
         (error) {
           Log.error(error);
@@ -234,9 +236,23 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
       initialData: pageMemorizer[node.attributes[SubPageBlockKeys.viewId]],
       future: viewFuture,
       builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox.shrink();
+        }
+
         final view = snapshot.data;
         if (view == null) {
-          return const Text('Cannot find page');
+          // Delete this node if the view is not found
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final transaction = editorState.transaction..deleteNode(node);
+            editorState.apply(
+              transaction,
+              withUpdateSelection: false,
+              options: const ApplyOptions(recordUndo: false),
+            );
+          });
+
+          return const SizedBox.shrink();
         }
 
         Widget child = Padding(
@@ -288,24 +304,42 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                       child: Row(
                         children: [
                           const HSpace(10),
-                          const FlowySvg(FlowySvgs.document_s),
+                          view.icon.value.isNotEmpty
+                              ? FlowyText.emoji(
+                                  view.icon.value,
+                                  fontSize: textStyle.fontSize,
+                                  lineHeight: textStyle.height,
+                                )
+                              : Opacity(
+                                  opacity: 0.6,
+                                  child: view.defaultIcon(),
+                                ),
                           const HSpace(10),
-                          if (isHandlingPaste) ...[
+                          FlowyText(
+                            view.name,
+                            fontSize: textStyle.fontSize,
+                            fontWeight: textStyle.fontWeight,
+                            lineHeight: textStyle.height,
+                          ),
+                          if (isInTrash) ...[
+                            const HSpace(4),
                             FlowyText(
-                              'Handling document paste',
+                              ' – (in Trash)',
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
                               lineHeight: textStyle.height,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ] else if (isHandlingPaste) ...[
+                            FlowyText(
+                              ' – Handling document paste',
+                              fontSize: textStyle.fontSize,
+                              fontWeight: textStyle.fontWeight,
+                              lineHeight: textStyle.height,
+                              color: Theme.of(context).hintColor,
                             ),
                             const HSpace(10),
                             const CircularProgressIndicator(),
-                          ] else ...[
-                            FlowyText(
-                              view.name,
-                              fontSize: textStyle.fontSize,
-                              fontWeight: textStyle.fontWeight,
-                              lineHeight: textStyle.height,
-                            ),
                           ],
                         ],
                       ),
@@ -343,6 +377,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
         (r) => null,
       );
       if (trash != null) {
+        isInTrash = true;
         return ViewPB()
           ..id = trash.id
           ..name = trash.name;

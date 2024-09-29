@@ -459,7 +459,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       dateOrReminderSlashMenuItem,
       photoGallerySlashMenuItem,
       fileSlashMenuItem,
-      subPageSlashMenuItem(documentBloc.documentId),
+      subPageSlashMenuItem,
     ];
   }
 

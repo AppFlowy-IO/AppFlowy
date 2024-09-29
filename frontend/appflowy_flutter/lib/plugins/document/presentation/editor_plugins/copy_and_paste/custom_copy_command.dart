@@ -60,23 +60,24 @@ KeyEventResult handleCopyCommand(
   return KeyEventResult.handled;
 }
 
-List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = true]) {
+List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = false]) {
   final handled = <Node>[];
   for (final node in nodes) {
-    handled.add(_handleNode(node));
+    handled.add(_handleNode(node, isCut));
   }
 
   return handled;
 }
 
-Node _handleNode(Node node) {
+Node _handleNode(Node node, [bool isCut = false]) {
   final newChildren = node.children.map(_handleNode).toList();
 
   if (node.type == SubPageBlockKeys.type) {
     return node.copyWith(
       attributes: {
         ...node.attributes,
-        SubPageBlockKeys.wasCopied: true,
+        SubPageBlockKeys.wasCopied: !isCut,
+        SubPageBlockKeys.wasCut: isCut,
       },
       children: newChildren,
     );
