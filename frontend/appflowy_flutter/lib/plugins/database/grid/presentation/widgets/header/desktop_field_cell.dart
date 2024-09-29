@@ -99,6 +99,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
               child: FieldCellButton(
                 field: widget.fieldInfo.field,
                 onTap: widget.onTap,
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               ),
             ),
           );
@@ -228,7 +229,7 @@ class FieldCellButton extends StatelessWidget {
             )
           : null,
       radius: radius,
-      text: FlowyText.medium(
+      text: FlowyText(
         field.name,
         lineHeight: 1.0,
         maxLines: maxLines,

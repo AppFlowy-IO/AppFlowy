@@ -89,7 +89,7 @@ class SelectOptionTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final optionName = option?.name ?? name!;
     final optionColor = option?.color.toColor(context) ?? color!;
-    final text = FlowyText.medium(
+    final text = FlowyText(
       optionName,
       fontSize: fontSize,
       overflow: TextOverflow.ellipsis,

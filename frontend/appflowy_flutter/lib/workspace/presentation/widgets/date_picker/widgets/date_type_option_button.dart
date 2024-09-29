@@ -39,7 +39,7 @@ class DateTypeOptionButton extends StatelessWidget {
         child: SizedBox(
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(title),
+            text: FlowyText(title),
             rightIcon: const FlowySvg(FlowySvgs.more_s),
           ),
         ),

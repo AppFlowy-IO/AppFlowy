@@ -419,7 +419,7 @@ class _RowListItem extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: FlowyText.medium(
+                  child: FlowyText(
                     row.name.trim().isEmpty
                         ? LocaleKeys.grid_title_placeholder.tr()
                         : row.name,
@@ -536,7 +536,7 @@ class _RelationCellEditorDatabasePicker extends StatelessWidget {
                                 databaseMeta.databaseId,
                               ),
                             ),
-                        text: FlowyText.medium(
+                        text: FlowyText(
                           databaseMeta.databaseName,
                           overflow: TextOverflow.ellipsis,
                         ),

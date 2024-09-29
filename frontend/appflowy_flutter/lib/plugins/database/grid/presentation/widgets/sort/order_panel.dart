@@ -47,7 +47,7 @@ class OrderPannelItem extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(condition.title),
+        text: FlowyText(condition.title),
         onTap: () => onCondition(condition),
       ),
     );

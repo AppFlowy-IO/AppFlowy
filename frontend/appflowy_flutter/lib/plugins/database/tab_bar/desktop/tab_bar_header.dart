@@ -212,6 +212,7 @@ class TabBarItemButton extends StatelessWidget {
             radius: Corners.s6Border,
             hoverColor: AFThemeExtension.of(context).greyHover,
             onTap: onTap,
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             onSecondaryTap: () {
               controller.show();
             },
@@ -223,11 +224,10 @@ class TabBarItemButton extends StatelessWidget {
             text: FlowyText(
               view.name,
               lineHeight: 1.0,
-              fontSize: FontSizes.s11,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               color: color,
-              fontWeight: isSelected ? null : FontWeight.w400,
+              fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
             ),
           ),
         );

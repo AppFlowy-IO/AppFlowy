@@ -164,7 +164,7 @@ class LanguageCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           languageTypeToLanguage(languageType),
           lineHeight: 1.0,
         ),

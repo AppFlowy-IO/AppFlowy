@@ -508,7 +508,7 @@ class _CreateOptionCell extends StatelessWidget {
           },
           child: Row(
             children: [
-              FlowyText.medium(
+              FlowyText(
                 LocaleKeys.grid_selectOption_create.tr(),
                 color: Theme.of(context).hintColor,
               ),

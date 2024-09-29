@@ -80,7 +80,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          text: FlowyText.medium(
+          text: FlowyText(
             title(),
             lineHeight: 1.0,
             color: AFThemeExtension.of(context).textColor,

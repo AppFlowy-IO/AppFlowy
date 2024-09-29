@@ -162,7 +162,7 @@ class _EditFieldButton extends StatelessWidget {
       padding: padding,
       child: FlowyButton(
         leftIcon: const FlowySvg(FlowySvgs.edit_s),
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           LocaleKeys.grid_field_editProperty.tr(),
         ),
@@ -198,7 +198,7 @@ class FieldActionCell extends StatelessWidget {
     return FlowyButton(
       resetHoverOnRebuild: false,
       disable: !enable,
-      text: FlowyText.medium(
+      text: FlowyText(
         action.title(fieldInfo),
         lineHeight: 1.0,
         color: enable ? null : Theme.of(context).disabledColor,
@@ -623,7 +623,7 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
                     _popoverController.show();
                   }
                 },
-                text: FlowyText.medium(
+                text: FlowyText(
                   state.field.fieldType.i18n,
                   lineHeight: 1.0,
                   color: isPrimary ? Theme.of(context).disabledColor : null,

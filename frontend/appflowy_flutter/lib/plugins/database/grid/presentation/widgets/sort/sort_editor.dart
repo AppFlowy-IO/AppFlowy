@@ -220,7 +220,7 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).greyHover,
           disable: widget.disable,
-          text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
+          text: FlowyText(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
           leftIcon: const FlowySvg(FlowySvgs.add_s),
         ),
@@ -241,7 +241,7 @@ class DeleteAllSortsButton extends StatelessWidget {
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(LocaleKeys.grid_sort_deleteAllSorts.tr()),
+            text: FlowyText(LocaleKeys.grid_sort_deleteAllSorts.tr()),
             onTap: () {
               context
                   .read<SortEditorBloc>()
