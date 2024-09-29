@@ -95,11 +95,11 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: SizedBox(
-              height: 40,
+              height: GridSize.headerHeight,
               child: FieldCellButton(
                 field: widget.fieldInfo.field,
                 onTap: widget.onTap,
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                margin: const EdgeInsetsDirectional.fromSTEB(12, 9, 10, 9),
               ),
             ),
           );
@@ -211,7 +211,7 @@ class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
   final int? maxLines;
   final BorderRadius? radius;
-  final EdgeInsets? margin;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +226,7 @@ class FieldCellButton extends StatelessWidget {
           ? FlowySvg(
               field.fieldType.rightIcon!,
               blendMode: null,
+              size: const Size.square(18),
             )
           : null,
       radius: radius,

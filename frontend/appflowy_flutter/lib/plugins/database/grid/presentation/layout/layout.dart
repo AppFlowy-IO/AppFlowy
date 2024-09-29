@@ -18,6 +18,6 @@ class GridLayout {
     return fieldsWidth +
         GridSize.horizontalHeaderPadding +
         40 +
-        GridSize.trailHeaderPadding;
+        GridSize.newPropertyButtonWidth;
   }
 }

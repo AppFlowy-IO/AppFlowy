@@ -57,7 +57,7 @@ class CellContainer extends StatelessWidget {
               }
             },
             child: Container(
-              constraints: BoxConstraints(maxWidth: width, minHeight: 46),
+              constraints: BoxConstraints(maxWidth: width, minHeight: 36),
               decoration: _makeBoxDecoration(context, isFocus),
               child: container,
             ),
