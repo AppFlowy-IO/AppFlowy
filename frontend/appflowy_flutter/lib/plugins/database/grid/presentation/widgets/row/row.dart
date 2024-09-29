@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 
@@ -296,6 +297,9 @@ class RowContent extends StatelessWidget {
   }
 
   Widget _finalCellDecoration(BuildContext context) {
+    final color = Theme.of(context).isLightMode
+        ? const Color(0xFFEDEDEE)
+        : Theme.of(context).dividerColor;
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
       child: Container(
@@ -303,7 +307,7 @@ class RowContent extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 36),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: Theme.of(context).dividerColor),
+            bottom: BorderSide(color: color),
           ),
         ),
       ),

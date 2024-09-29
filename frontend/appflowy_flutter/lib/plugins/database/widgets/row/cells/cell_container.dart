@@ -1,3 +1,4 @@
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -76,7 +77,11 @@ class CellContainer extends StatelessWidget {
       return BoxDecoration(border: Border.fromBorderSide(borderSide));
     }
 
-    final borderSide = BorderSide(color: Theme.of(context).dividerColor);
+    final borderSide = BorderSide(
+      color: Theme.of(context).isLightMode
+          ? const Color(0xFFEDEDEE)
+          : Theme.of(context).dividerColor,
+    );
     return BoxDecoration(
       border: Border(right: borderSide, bottom: borderSide),
     );
