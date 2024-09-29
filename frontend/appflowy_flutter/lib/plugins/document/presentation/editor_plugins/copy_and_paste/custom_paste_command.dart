@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_in_app_json.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_plain_text.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -40,6 +41,12 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     final plainText = data.plainText;
     final image = data.image;
 
+    // dump the length of the data here, don't log the data itself for privacy concerns
+    Log.info('paste command: inAppJson: ${inAppJson?.length}');
+    Log.info('paste command: html: ${html?.length}');
+    Log.info('paste command: plainText: ${plainText?.length}');
+    Log.info('paste command: image: ${image?.$2?.length}');
+
     // paste as link preview
     if (await _pasteAsLinkPreview(editorState, plainText)) {
       Log.info('Pasted as link preview');
@@ -54,7 +61,6 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
     // try to paste the content in order, if any of them is failed, then try the next one
     if (inAppJson != null && inAppJson.isNotEmpty) {
-      await editorState.deleteSelectionIfNeeded();
       if (await editorState.pasteInAppJson(inAppJson)) {
         Log.info('Pasted in app json');
         return;
@@ -95,7 +101,10 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     if (plainText != null && plainText.isNotEmpty) {
       Log.info('Pasted plain text');
       await editorState.pastePlainText(plainText);
+      return;
     }
+
+    Log.info('unable to parse the clipboard content');
   }();
 
   return KeyEventResult.handled;
@@ -105,7 +114,11 @@ Future<bool> _pasteAsLinkPreview(
   EditorState editorState,
   String? text,
 ) async {
-  if (text == null || !isURL(text)) {
+  // 1. the url should contains a protocol
+  // 2. the url should not be an image url
+  if (text == null ||
+      !isURL(text, {'require_protocol': true}) ||
+      text.isImageUrl()) {
     return false;
   }
 
