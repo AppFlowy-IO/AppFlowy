@@ -86,7 +86,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
 
   final subPageKey = GlobalKey();
 
-  late final ViewListener viewListener;
+  ViewListener? viewListener;
   Future<ViewPB?>? viewFuture;
 
   bool isHovering = false;
@@ -100,8 +100,8 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   void initState() {
     super.initState();
     final viewId = node.attributes[SubPageBlockKeys.viewId];
-    _handleCopyCutPaste(viewId);
     if (viewId != null) {
+      _handleCopyCutPaste(viewId);
       viewFuture = fetchView(viewId);
       viewListener = ViewListener(viewId: viewId)
         ..start(
@@ -114,11 +114,25 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
     }
   }
 
-  Future<void> _handleCopyCutPaste(String? viewId) async {
-    if (viewId == null) {
-      return;
+  @override
+  void didUpdateWidget(SubPageBlockComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final viewId = node.attributes[SubPageBlockKeys.viewId];
+    if (viewId != null) {
+      viewFuture = fetchView(viewId);
+      viewListener?.stop();
+      viewListener = ViewListener(viewId: viewId)
+        ..start(
+          onViewUpdated: (view) {
+            pageMemorizer[view.id] = view;
+            viewFuture = fetchView(viewId);
+            editorState.reload();
+          },
+        );
     }
+  }
 
+  Future<void> _handleCopyCutPaste(String viewId) async {
     final wasCopied = node.attributes[SubPageBlockKeys.wasCopied];
     if (wasCopied == true) {
       setState(() => isHandlingPaste = true);
@@ -226,7 +240,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
 
   @override
   void dispose() {
-    viewListener.stop();
+    viewListener?.stop();
     super.dispose();
   }
 

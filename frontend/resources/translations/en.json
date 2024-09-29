@@ -1561,6 +1561,16 @@
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
         "file": "File"
+      },
+      "subPage": {
+        "name": "Embed sub-page",
+        "keyword1": "sub page",
+        "keyword2": "page",
+        "keyword3": "child page",
+        "keyword4": "insert page",
+        "keyword5": "embed page",
+        "keyword6": "new page",
+        "keyword7": "create page"
       }
     },
     "selectionMenu": {

@@ -548,7 +548,7 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
 
 // Sub-page menu item
 SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
-  getName: () => 'New child page',
+  getName: () => LocaleKeys.document_slashMenu_subPage_name.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.insert_document_s,
@@ -556,14 +556,15 @@ SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
     style: style,
   ),
   keywords: [
-    'create page',
-    'page',
-    'child page',
-    'sub page',
-    'insert page',
-    'new page',
+    LocaleKeys.document_slashMenu_subPage_keyword1.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword2.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword3.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword4.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword5.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword6.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword7.tr(),
   ],
-  updateSelection: (editorState, path, __, ___) =>
+  updateSelection: (_, path, __, ___) =>
       Selection.collapsed(Position(path: path)),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nodeBuilder: (_, __) => subPageNode(),

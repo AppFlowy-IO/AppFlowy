@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_transaction_handler/block_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 
 class SubPageBlockTransactionHandler extends BlockTransactionHandler {
@@ -135,7 +137,7 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
       final viewOrResult = await ViewBackendService.createView(
         layoutType: ViewLayoutPB.Document,
         parentViewId: parentViewId,
-        name: 'Untitled',
+        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       );
 
       await viewOrResult.fold(
@@ -147,6 +149,8 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
             withUpdateSelection: false,
             options: const ApplyOptions(recordUndo: false),
           );
+
+          editorState.reload();
         },
         (error) {
           Log.error(error);

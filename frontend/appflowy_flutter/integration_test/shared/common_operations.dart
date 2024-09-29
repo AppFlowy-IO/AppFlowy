@@ -1,5 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -33,10 +38,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'emoji.dart';
@@ -253,7 +254,10 @@ extension CommonOperations on WidgetTester {
   }) async {
     final page = findPageName(pageName, layout: layout);
     await hoverOnWidget(page);
-    final expandButton = find.byType(ViewItemDefaultLeftIcon);
+    final expandButton = find.descendant(
+      of: page,
+      matching: find.byType(ViewItemDefaultLeftIcon),
+    );
     await tapButton(expandButton.first);
   }
 
