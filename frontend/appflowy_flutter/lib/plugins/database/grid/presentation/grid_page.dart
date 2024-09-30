@@ -322,7 +322,12 @@ class _GridRowsState extends State<_GridRows> {
             builder: (BuildContext context, BoxConstraints layoutConstraits) {
               return _WrapScrollView(
                 scrollController: widget.scrollController,
-                contentWidth: GridLayout.headerWidth(state.fields),
+                contentWidth: GridLayout.headerWidth(
+                  context
+                      .read<DatabasePluginWidgetBuilderSize>()
+                      .horizontalPadding,
+                  state.fields,
+                ),
                 child: BlocConsumer<GridBloc, GridState>(
                   listenWhen: (previous, current) =>
                       previous.rowCount != current.rowCount,

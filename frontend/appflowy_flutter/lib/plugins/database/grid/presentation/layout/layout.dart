@@ -3,7 +3,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entitie
 import 'sizes.dart';
 
 class GridLayout {
-  static double headerWidth(List<FieldInfo> fields) {
+  static double headerWidth(double padding, List<FieldInfo> fields) {
     if (fields.isEmpty) return 0;
 
     final fieldsWidth = fields
@@ -15,9 +15,6 @@ class GridLayout {
         .map((fieldInfo) => fieldInfo.width!.toDouble())
         .reduce((value, element) => value + element);
 
-    return fieldsWidth +
-        GridSize.horizontalHeaderPadding +
-        40 +
-        GridSize.newPropertyButtonWidth;
+    return fieldsWidth + padding + GridSize.newPropertyButtonWidth;
   }
 }
