@@ -27,7 +27,7 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
           viewListener = ViewListener(viewId: view.id)
             ..start(
               onViewUpdated: (value) {
-                add(ShareEvent.updateViewName(value.name));
+                add(ShareEvent.updateViewName(value.name, value.id));
               },
               onViewMoveToTrash: (p0) {
                 add(const ShareEvent.setPublishStatus(false));
@@ -114,8 +114,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             ),
           );
         },
-        updateViewName: (viewName) async {
-          emit(state.copyWith(viewName: viewName));
+        updateViewName: (viewName, viewId) async {
+          emit(state.copyWith(viewName: viewName, viewId: viewId));
         },
         setPublishStatus: (isPublished) {
           emit(
@@ -132,6 +132,11 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
             (p) => false,
           );
+          String workspaceId = state.workspaceId;
+          if (workspaceId.isEmpty) {
+            workspaceId = await UserBackendService.getCurrentWorkspace()
+                .fold((s) => s.id, (f) => '');
+          }
           publishInfo.fold((s) {
             emit(
               state.copyWith(
@@ -140,6 +145,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                     '${ShareConstants.publishBaseUrl}/${s.namespace}/${s.publishName}',
                 viewName: view.name,
                 enablePublish: enablePublish,
+                workspaceId: workspaceId,
+                viewId: view.id,
               ),
             );
           }, (f) {
@@ -149,6 +156,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                 url: '',
                 viewName: view.name,
                 enablePublish: enablePublish,
+                workspaceId: workspaceId,
+                viewId: view.id,
               ),
             );
           });
@@ -263,7 +272,8 @@ class ShareEvent with _$ShareEvent {
     List<String> selectedViewIds,
   ) = _Publish;
   const factory ShareEvent.unPublish() = _UnPublish;
-  const factory ShareEvent.updateViewName(String name) = _UpdateViewName;
+  const factory ShareEvent.updateViewName(String name, String viewId) =
+      _UpdateViewName;
   const factory ShareEvent.updatePublishStatus() = _UpdatePublishStatus;
   const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
@@ -280,6 +290,8 @@ class ShareState with _$ShareState {
     FlowyResult<ShareType, FlowyError>? exportResult,
     FlowyResult<void, FlowyError>? publishResult,
     FlowyResult<void, FlowyError>? unpublishResult,
+    required String viewId,
+    required String workspaceId,
   }) = _ShareState;
 
   factory ShareState.initial() => const ShareState(
@@ -288,5 +300,7 @@ class ShareState with _$ShareState {
         enablePublish: true,
         url: '',
         viewName: '',
+        viewId: '',
+        workspaceId: '',
       );
 }
