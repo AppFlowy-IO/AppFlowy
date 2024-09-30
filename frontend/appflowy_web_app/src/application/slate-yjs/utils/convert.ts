@@ -1,17 +1,17 @@
+import { sortTableCells } from '@/application/slate-yjs/utils/table';
+import { BlockJson } from '@/application/slate-yjs/utils/types';
 import {
+  BlockData,
+  BlockType,
   InlineBlockType,
   YBlocks,
   YChildrenMap,
-  YSharedRoot,
   YDoc,
   YjsEditorKey,
   YMeta,
+  YSharedRoot,
   YTextMap,
-  BlockData,
-  BlockType,
 } from '@/application/types';
-import { sortTableCells } from '@/application/slate-yjs/utils/table';
-import { BlockJson } from '@/application/slate-yjs/utils/types';
 import { TableCellNode } from '@/components/editor/editor.type';
 import { Element, Text } from 'slate';
 
@@ -222,3 +222,5 @@ export function transformToInlineElement (op: YDelta): Element[] {
 
   return [];
 }
+
+

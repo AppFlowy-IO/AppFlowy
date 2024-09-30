@@ -265,4 +265,24 @@ describe('test deltaInsertToSlateNode', () => {
       },
     ]);
   });
+
+  it('should ensure undo/redo works', () => {
+
+    const doc = new Y.Doc();
+    const sharedRoot = doc.getMap('data_section');
+    const document = new Y.Map();
+    sharedRoot.set('document', document);
+    const ytext = new Y.Text();
+    document.set('1', ytext);
+    const undoManager = new Y.UndoManager(sharedRoot, { trackedOrigins: new Set(['local', 'undo', null]) });
+
+    doc.transact(() => {
+      ytext.insert(0, 'Hello');
+    }, 'local');
+    undoManager.undo();
+    expect(ytext.toString()).toBe('');
+    undoManager.redo();
+    expect(ytext.toString()).toBe('Hello');
+
+  });
 });

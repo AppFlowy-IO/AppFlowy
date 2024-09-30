@@ -10,6 +10,7 @@ type LocalChange = {
 };
 
 export interface YjsEditor extends Editor {
+  isYjsEditor: (value: unknown) => value is YjsEditor;
   connect: () => void;
   disconnect: () => void;
   sharedRoot: YSharedRoot;
@@ -24,6 +25,17 @@ const localChanges = new WeakMap<YjsEditor, LocalChange[]>();
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const YjsEditor = {
+  isYjsEditor (value: unknown): value is YjsEditor {
+    return (
+      Editor.isEditor(value) &&
+      'connect' in value &&
+      'disconnect' in value &&
+      'sharedRoot' in value &&
+      'applyRemoteEvents' in value &&
+      'flushLocalChanges' in value &&
+      'storeLocalChange' in value
+    );
+  },
   connected (editor: YjsEditor): boolean {
     return connectSet.has(editor);
   },
@@ -74,14 +86,14 @@ export function withYjs<T extends Editor> (
       return;
     }
 
-    console.log('===', content.children);
     if (readSummary) {
       e.children = content.children.slice(0, 10);
     } else {
       e.children = content.children;
     }
 
-    Editor.normalize(editor, { force: true });
+    console.log('===', e.children);
+    Editor.normalize(e, { force: true });
   };
 
   const applyIntercept = (op: Operation) => {
@@ -96,7 +108,7 @@ export function withYjs<T extends Editor> (
     apply(op);
   };
 
-  e.applyRemoteEvents = (_events: Array<YEvent>, _: Transaction) => {
+  e.applyRemoteEvents = (_events: Array<YEvent>, _transaction: Transaction) => {
     // Flush local changes to ensure all local changes are applied before processing remote events
     YjsEditor.flushLocalChanges(e);
     // Replace the apply function to avoid storing remote changes as local changes
@@ -110,9 +122,10 @@ export function withYjs<T extends Editor> (
   };
 
   const handleYEvents = (events: Array<YEvent>, transaction: Transaction) => {
-    if (transaction.origin === CollabOrigin.Remote) {
+    if (transaction.origin !== CollabOrigin.Local) {
       YjsEditor.applyRemoteEvents(e, events, transaction);
     }
+
   };
 
   e.connect = () => {

@@ -21,23 +21,150 @@ describe('<Paragraph />', () => {
 
   it('edit paragraph text', () => {
     const documentTest = new DocumentTest();
+    const data: FromBlockJSON[] = [{
+      type: 'paragraph',
+      data: {},
+      text: [{ insert: 'Hello, world!' }],
+      children: [],
+    }];
 
-    cy.fixture<FromBlockJSON[]>('editor/blocks/paragraph').then((data) => {
-      documentTest.fromJSON(data);
-      mountEditor({ readOnly: false, doc: documentTest.doc });
-    }).as('documentTest');
+    documentTest.fromJSON(data);
+    mountEditor({ readOnly: false, doc: documentTest.doc });
+
     cy.get('[role="textbox"]').should('exist');
     cy.get('[role="textbox"]').type('{selectall}').type('{rightarrow}')
-      .type('New text at the end');
+      .type(' New text at the end');
     cy.get('[role="textbox"]')
       .type('{movetoend}')
       .type('{leftarrow}'.repeat(10))
       .type('{backspace}'.repeat(5)).type('add').type('{backspace}'.repeat(2));
     cy.matchImageSnapshot('paragraph/editing-text');
 
-    cy.then(() => {
-      console.log('====', documentTest.doc.getMap('data').toJSON());
+    cy.wrap(null).then(() => {
+      const finalJSON = documentTest.toJSON();
+
+      const expectedJSON = [{
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Hello, world! New aat the end' }],
+        children: [],
+      }];
+
+      expect(finalJSON).to.deep.equal(expectedJSON);
     });
+  });
+
+  it('edit paragraphs with undo and redo', () => {
+    const documentTest = new DocumentTest();
+    const initialData: FromBlockJSON[] = [{
+      type: 'paragraph',
+      data: {},
+      text: [{ insert: 'Hello, world!' }],
+      children: [],
+    }, {
+      type: 'paragraph',
+      data: {},
+      text: [{ insert: 'Hello, world! New at the end' }],
+      children: [],
+    }];
+
+    documentTest.fromJSON(initialData);
+    mountEditor({ readOnly: false, doc: documentTest.doc });
+
+    cy.get('[role="textbox"]').should('exist');
+
+    // Initial edit: Add text to the end of the second paragraph
+    cy.get('[role="textbox"]').children().eq(1).type('{movetoend} More text');
+
+    // Check the result of the initial edit
+    cy.wrap(null).then(() => {
+      const editedJSON = documentTest.toJSON();
+      const expectedEditedJSON = [
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Hello, world!' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Hello, world! New at the end More text' }],
+          children: [],
+        },
+      ];
+
+      expect(editedJSON).to.deep.equal(expectedEditedJSON);
+    });
+
+    // Perform undo operation
+    if (Cypress.platform === 'darwin') {
+      cy.get('body').type('{cmd}z');
+    } else {
+      cy.get('body').type('{ctrl}z');
+    }
+
+    // Check the result after undo
+    cy.wrap(null).then(() => {
+      const undoneJSON = documentTest.toJSON();
+
+      expect(undoneJSON).to.deep.equal(initialData);
+    });
+
+    // Perform redo operation
+    if (Cypress.platform === 'darwin') {
+      cy.get('body').type('{cmd}{shift}z');
+    } else {
+      cy.get('body').type('{ctrl}y');
+    }
+
+    // Check the result after redo
+    cy.wrap(null).then(() => {
+      const redoneJSON = documentTest.toJSON();
+      const expectedRedoneJSON = [
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Hello, world!' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Hello, world! New at the end More text' }],
+          children: [],
+        },
+      ];
+
+      expect(redoneJSON).to.deep.equal(expectedRedoneJSON);
+    });
+
+    // Perform additional edits: Modify the first paragraph
+    cy.get('[role="textbox"]').children().eq(0).type('{selectall}').type('{rightarrow}').type(' Additional content');
+
+    // Check the final result
+    cy.wrap(null).then(() => {
+      const finalJSON = documentTest.toJSON();
+      const expectedFinalJSON = [
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Hello, world! Additional content' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Hello, world! New at the end More text' }],
+          children: [],
+        },
+      ];
+
+      expect(finalJSON).to.deep.equal(expectedFinalJSON);
+    });
+
+    // Optional: Add visual regression test
+    cy.matchImageSnapshot('paragraph/editing-text-with-undo-redo');
   });
 });
 
