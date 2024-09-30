@@ -205,8 +205,8 @@ class CreateFieldButton extends StatelessWidget {
         );
       },
       leftIcon: const FlowySvg(
-        FlowySvgs.add_s,
-        size: Size.square(18),
+        FlowySvgs.add_less_padding_s,
+        size: Size.square(16),
       ),
     );
   }
