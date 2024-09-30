@@ -73,45 +73,43 @@ class _ShareTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shareUrl = _buildShareUrl(context);
-
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 36,
-            child: FlowyTextField(
-              text: shareUrl, // todo: add workspace id + view id
-              readOnly: true,
-              borderRadius: BorderRadius.circular(10),
+    return BlocBuilder<ShareBloc, ShareState>(
+      builder: (context, state) {
+        final shareUrl = _buildShareUrl(state);
+        return Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 36,
+                child: FlowyTextField(
+                  text: shareUrl, // todo: add workspace id + view id
+                  readOnly: true,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
-          ),
-        ),
-        const HSpace(8.0),
-        PrimaryRoundedButton(
-          margin: const EdgeInsets.symmetric(
-            vertical: 9.0,
-            horizontal: 14.0,
-          ),
-          text: LocaleKeys.button_copyLink.tr(),
-          figmaLineHeight: 18.0,
-          leftIcon: FlowySvg(
-            FlowySvgs.share_tab_copy_s,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
-          onTap: () => _copy(context, shareUrl),
-        ),
-      ],
+            const HSpace(8.0),
+            PrimaryRoundedButton(
+              margin: const EdgeInsets.symmetric(
+                vertical: 9.0,
+                horizontal: 14.0,
+              ),
+              text: LocaleKeys.button_copyLink.tr(),
+              figmaLineHeight: 18.0,
+              leftIcon: FlowySvg(
+                FlowySvgs.share_tab_copy_s,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              onTap: () => _copy(context, shareUrl),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  String _buildShareUrl(
-    BuildContext context,
-  ) {
-    final workspaceId = context.read<ShareBloc>().state.workspaceId;
-    final viewId = context.read<ShareBloc>().state.viewId;
-
-    return '${ShareConstants.shareBaseUrl}/$workspaceId/$viewId';
+  String _buildShareUrl(ShareState state) {
+    return '${ShareConstants.shareBaseUrl}/${state.workspaceId}/${state.viewId}';
   }
 
   void _copy(BuildContext context, String url) {
