@@ -9,6 +9,12 @@ pub struct BoardLayoutSettingPB {
 
   #[pb(index = 2)]
   pub collapse_hidden_groups: bool,
+
+  #[pb(index = 3)]
+  pub fetch_url_meta_data: bool,
+
+  #[pb(index = 4, one_of)]
+  pub url_field_to_fill_id: Option<String>,
 }
 
 impl From<BoardLayoutSetting> for BoardLayoutSettingPB {
@@ -16,6 +22,8 @@ impl From<BoardLayoutSetting> for BoardLayoutSettingPB {
     Self {
       hide_ungrouped_column: setting.hide_ungrouped_column,
       collapse_hidden_groups: setting.collapse_hidden_groups,
+      fetch_url_meta_data: setting.fetch_url_meta_data,
+      url_field_to_fill_id: setting.url_field_to_fill_id,
     }
   }
 }
@@ -25,6 +33,8 @@ impl From<BoardLayoutSettingPB> for BoardLayoutSetting {
     Self {
       hide_ungrouped_column: setting.hide_ungrouped_column,
       collapse_hidden_groups: setting.collapse_hidden_groups,
+      fetch_url_meta_data: setting.fetch_url_meta_data,
+      url_field_to_fill_id: setting.url_field_to_fill_id,
     }
   }
 }

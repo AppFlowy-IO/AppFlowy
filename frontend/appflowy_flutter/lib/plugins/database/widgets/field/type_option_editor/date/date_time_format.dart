@@ -248,18 +248,43 @@ class IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ToggleButton(
+      title: LocaleKeys.grid_field_includeTime.tr(),
+      icon: FlowySvg(
+        FlowySvgs.clock_alarm_s,
+        color: Theme.of(context).iconTheme.color,
+      ),
+      onChanged: onChanged,
+      value: value,
+    );
+  }
+}
+
+class ToggleButton extends StatelessWidget {
+  const ToggleButton({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onChanged,
+    required this.value,
+  });
+
+  final String title;
+  final FlowySvg icon;
+  final Function(bool value) onChanged;
+  final bool value;
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: Padding(
         padding: GridSize.typeOptionContentInsets,
         child: Row(
           children: [
-            FlowySvg(
-              FlowySvgs.clock_alarm_s,
-              color: Theme.of(context).iconTheme.color,
-            ),
+            icon,
             const HSpace(6),
-            FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
+            FlowyText.medium(title),
             const Spacer(),
             Toggle(
               value: value,

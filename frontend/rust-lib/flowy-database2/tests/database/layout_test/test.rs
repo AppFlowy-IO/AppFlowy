@@ -11,7 +11,7 @@ async fn board_layout_setting_test() {
   let default_board_setting = BoardLayoutSetting::new();
   let new_board_setting = BoardLayoutSetting {
     hide_ungrouped_column: true,
-    ..default_board_setting
+    ..default_board_setting.clone()
   };
   let scripts = vec![
     AssertBoardLayoutSetting {

@@ -27,6 +27,8 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
+import 'package:metadata_fetch_plus/metadata_fetch_plus.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../../widgets/card/card.dart';
@@ -412,6 +414,7 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
   final TextEditingController _textController = TextEditingController();
   late final FocusNode _focusNode;
   bool _isCreating = false;
+  bool _isFetchingURL = false;
 
   @override
   void initState() {
@@ -426,7 +429,7 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
         return KeyEventResult.ignored;
       },
     )..addListener(() {
-        if (!_focusNode.hasFocus) {
+        if (!_focusNode.hasFocus && !_isFetchingURL) {
           setState(() => _isCreating = false);
         }
       });
@@ -483,21 +486,56 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
         hintTextConstraints: const BoxConstraints(maxHeight: 36),
         controller: _textController,
         focusNode: _focusNode,
+        readOnly: _isFetchingURL,
+        suffixIcon: _isFetchingURL
+            ? Transform.scale(
+                scale: 0.5,
+                child: const CircularProgressIndicator(),
+              )
+            : null,
         onSubmitted: (name) {
-          context.read<BoardBloc>().add(
-                BoardEvent.createRow(
-                  widget.columnData.id,
-                  OrderObjectPositionTypePB.End,
-                  name,
-                  null,
-                ),
-              );
-          widget.scrollManager.scrollToBottom(widget.columnData.id);
-          _textController.clear();
-          _focusNode.requestFocus();
+          final boardBloc = context.read<BoardBloc>();
+          final fetchURL = boardBloc.databaseController.databaseLayoutSetting
+                  ?.board.fetchUrlMetaData ??
+              false;
+
+          String? url;
+          if (fetchURL && isURL(name)) {
+            setState(() => _isFetchingURL = true);
+            MetadataFetch.extract(name)
+                .then((data) {
+                  if (data != null && data.title != null) {
+                    url = name;
+                    name = data.title!;
+                  }
+                })
+                .whenComplete(() {
+                  setState(() => _isFetchingURL = false);
+                  _createRowExec(boardBloc, name, url);
+                })
+                .timeout(const Duration(seconds: 3))
+                .catchError((e) {});
+          } else {
+            _createRowExec(boardBloc, name, url);
+          }
         },
       ),
     );
+  }
+
+  void _createRowExec(BoardBloc bloc, String name, [String? url]) {
+    bloc.add(
+      BoardEvent.createRow(
+        widget.columnData.id,
+        OrderObjectPositionTypePB.End,
+        name,
+        null,
+        url: url,
+      ),
+    );
+    widget.scrollManager.scrollToBottom(widget.columnData.id);
+    _textController.clear();
+    _focusNode.requestFocus();
   }
 
   Widget _startCreatingCardsButton() {
