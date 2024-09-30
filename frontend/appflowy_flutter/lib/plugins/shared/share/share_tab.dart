@@ -18,24 +18,16 @@ class ShareTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const VSpace(18),
-        const _ShareTabHeader(),
-        const VSpace(2),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2.0),
-          child: FlowyText.regular(
-            'For easy collaboration with anyone',
-            fontSize: 13.0,
-            figmaLineHeight: 18.0,
-            color: Theme.of(context).hintColor,
-          ),
-        ),
-        const VSpace(14),
-        const _ShareTabContent(),
+        VSpace(18),
+        _ShareTabHeader(),
+        VSpace(2),
+        _ShareTabDescription(),
+        VSpace(14),
+        _ShareTabContent(),
       ],
     );
   }
@@ -46,15 +38,32 @@ class _ShareTabHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        FlowySvg(FlowySvgs.share_tab_icon_s),
-        HSpace(6),
+        const FlowySvg(FlowySvgs.share_tab_icon_s),
+        const HSpace(6),
         FlowyText.medium(
-          'Invite to collaborate',
+          LocaleKeys.shareAction_shareTabTitle.tr(),
           figmaLineHeight: 18.0,
         ),
       ],
+    );
+  }
+}
+
+class _ShareTabDescription extends StatelessWidget {
+  const _ShareTabDescription();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+      child: FlowyText.regular(
+        LocaleKeys.shareAction_shareTabDescription.tr(),
+        fontSize: 13.0,
+        figmaLineHeight: 18.0,
+        color: Theme.of(context).hintColor,
+      ),
     );
   }
 }

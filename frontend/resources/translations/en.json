@@ -119,7 +119,9 @@
     "exportAsTab": "Export as",
     "publishTab": "Publish",
     "shareTab": "Share",
-    "publishOnAppFlowy": "Publish on AppFlowy"
+    "publishOnAppFlowy": "Publish on AppFlowy",
+    "shareTabTitle": "Invite to collaborate",
+    "shareTabDescription": "For easy collaboration with anyone"
   },
   "moreAction": {
     "small": "small",
