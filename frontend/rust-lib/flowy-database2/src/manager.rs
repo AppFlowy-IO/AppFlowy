@@ -443,7 +443,7 @@ impl DatabaseManager {
         let mut csv_template = CSVTemplate::try_from_reader(content.as_bytes(), true, None)?;
         csv_template.reset_view_id(view_id.clone());
 
-        let database_template = csv_template.try_into_database_template().await?;
+        let database_template = csv_template.try_into_database_template(None).await?;
         database_template.into_params()
       },
       CSVFormat::META => tokio::task::spawn_blocking(move || {

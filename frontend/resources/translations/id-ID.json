@@ -294,8 +294,7 @@
       "inputTextFieldHint": "Rahasia anda",
       "historicalUserList": "History masuk user",
       "historicalUserListTooltip": "Daftar ini menampilkan akun anonim Anda. Anda dapat mengeklik salah satu akun untuk melihat detailnya. Akun anonim dibuat dengan mengeklik tombol 'Memulai'",
-      "openHistoricalUser": "Klik untuk membuka akun anonim",
-      "supabaseSetting": "Pengaturan Supabase"
+      "openHistoricalUser": "Klik untuk membuka akun anonim"
     },
     "notifications": {
       "enableNotifications": {

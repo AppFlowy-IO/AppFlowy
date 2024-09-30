@@ -1,6 +1,6 @@
 use collab_database::database::gen_option_id;
 use collab_database::fields::select_type_option::{SelectOption, SelectTypeOption};
-use flowy_database2::entities::{FieldChangesetParams, FieldType};
+use flowy_database2::entities::{FieldChangesetPB, FieldType};
 use flowy_database2::services::field::{CHECK, UNCHECK};
 
 use crate::database::field_test::script::DatabaseFieldTest;
@@ -87,7 +87,7 @@ async fn grid_update_field_with_empty_change() {
   test.run_scripts(scripts).await;
 
   let field = test.get_fields().await.pop().unwrap().clone();
-  let changeset = FieldChangesetParams {
+  let changeset = FieldChangesetPB {
     field_id: field.id.clone(),
     view_id: test.view_id(),
     ..Default::default()

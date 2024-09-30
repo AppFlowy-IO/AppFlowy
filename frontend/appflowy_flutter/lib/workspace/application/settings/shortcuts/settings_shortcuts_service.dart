@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';

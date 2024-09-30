@@ -29,14 +29,14 @@ class _SortButtonState extends State<SortButton> {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
         final textColor = state.sorts.isEmpty
-            ? AFThemeExtension.of(context).textColor
+            ? Theme.of(context).hintColor
             : Theme.of(context).colorScheme.primary;
 
         return wrapPopover(
           FlowyTextButton(
             LocaleKeys.grid_settings_sort.tr(),
             fontColor: textColor,
-            fontSize: FontSizes.s11,
+            fontSize: FontSizes.s12,
             fontWeight: FontWeight.w400,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,

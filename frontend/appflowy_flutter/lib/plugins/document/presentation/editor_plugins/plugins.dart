@@ -55,6 +55,8 @@ export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
 export 'parsers/markdown_parsers.dart';
 export 'quote/quote_block_shortcuts.dart';
+export 'shortcuts/character_shortcuts.dart';
+export 'shortcuts/command_shortcuts.dart';
 export 'slash_menu/slash_menu_items.dart';
 export 'table/table_menu.dart';
 export 'table/table_option_action.dart';

@@ -15,23 +15,27 @@ class GridAddRowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).brightness == Brightness.light
+        ? const Color(0xFF171717).withOpacity(0.4)
+        : const Color(0xFFFFFFFF).withOpacity(0.4);
     return FlowyButton(
       radius: BorderRadius.zero,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
+          bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
         ),
       ),
       text: FlowyText(
         lineHeight: 1.0,
         LocaleKeys.grid_row_newRow.tr(),
-        color: Theme.of(context).hintColor,
+        color: color,
       ),
+      margin: const EdgeInsets.symmetric(horizontal: 12),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: FlowySvg(
-        FlowySvgs.add_s,
-        color: Theme.of(context).hintColor,
+        FlowySvgs.add_less_padding_s,
+        color: color,
       ),
     );
   }

@@ -5,12 +5,11 @@ class GridSize {
   static double scale = 1;
 
   static double get scrollBarSize => 8 * scale;
-  static double get headerHeight => 40 * scale;
+  static double get headerHeight => 36 * scale;
   static double get buttonHeight => 38 * scale;
-  static double get footerHeight => 40 * scale;
+  static double get footerHeight => 36 * scale;
   static double get horizontalHeaderPadding =>
       UniversalPlatform.isDesktop ? 40 * scale : 16 * scale;
-  static double get trailHeaderPadding => 140 * scale;
   static double get cellHPadding => 10 * scale;
   static double get cellVPadding => 10 * scale;
   static double get popoverItemHeight => 26 * scale;
@@ -31,7 +30,7 @@ class GridSize {
   static EdgeInsets get typeOptionContentInsets => const EdgeInsets.all(4);
 
   static EdgeInsets get toolbarSettingButtonInsets =>
-      const EdgeInsets.symmetric(horizontal: 8, vertical: 2);
+      const EdgeInsets.symmetric(horizontal: 6, vertical: 2);
 
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         GridSize.horizontalHeaderPadding,

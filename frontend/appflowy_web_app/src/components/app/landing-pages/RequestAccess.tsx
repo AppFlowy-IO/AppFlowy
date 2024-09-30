@@ -1,11 +1,15 @@
 import { NormalModal } from '@/components/_shared/modal';
-import { AFConfigContext, useCurrentUser } from '@/components/main/app.hooks';
+import { notify } from '@/components/_shared/notify';
+import { useAppViewId, useCurrentWorkspaceId } from '@/components/app/app.hooks';
+import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
+import { TaskAltRounded } from '@mui/icons-material';
 import { Button, Divider, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
 import { useNavigate } from 'react-router-dom';
-import { ReactComponent as WarningIcon } from '@/assets/warning.svg';
+
+const REPEAT_REQUEST_CODE = 1043;
 
 function RequestAccess () {
   const { t } = useTranslation();
@@ -15,6 +19,24 @@ function RequestAccess () {
   const [clicked, setClicked] = React.useState(false);
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = React.useState(false);
+  const service = useService();
+  const currentWorkspaceId = useCurrentWorkspaceId();
+  const viewId = useAppViewId();
+  const handleSendRequest = async () => {
+    setModalOpen(false);
+    try {
+      if (!service || !currentWorkspaceId || !viewId) return;
+      await service.sendRequestAccess(currentWorkspaceId, viewId);
+      setModalOpen(true);
+      // eslint-disable-next-line
+    } catch (e: any) {
+      if (e.code === REPEAT_REQUEST_CODE) {
+        notify.error(t('requestAccess.repeatRequestError'));
+      } else {
+        notify.error(t('requestAccess.requestError'));
+      }
+    }
+  };
 
   return (
     <div className={'m-0 flex h-screen w-screen items-center justify-center bg-bg-body p-0'}>
@@ -35,8 +57,8 @@ function RequestAccess () {
         <div className={'flex items-center mt-4 w-full gap-4 justify-between'}>
           <Button
             onClick={() => {
-              setModalOpen(true);
               setClicked(true);
+              void handleSendRequest();
             }}
             disabled={clicked}
             className={'flex-1 py-2 px-4 rounded-[8px] text-[20px] font-medium max-md:text-base max-sm:text-[14px] max-md:py-2'}
@@ -81,11 +103,12 @@ function RequestAccess () {
         setModalOpen(false);
       }} title={
         <div className={'text-left font-semibold gap-1.5 flex items-center'}>
-          <WarningIcon className={'w-4 h-4'} />
-          Coming soon</div>
+          <TaskAltRounded className={'text-function-success'} />
+          {t('requestAccess.successful')}
+        </div>
       } open={modalOpen} onClose={() => setModalOpen(false)}
       >
-        This feature is coming soon. Please contact the owner of this workspace to request access.
+        {t('requestAccess.successfulMessage')}
       </NormalModal>
     </div>
   );

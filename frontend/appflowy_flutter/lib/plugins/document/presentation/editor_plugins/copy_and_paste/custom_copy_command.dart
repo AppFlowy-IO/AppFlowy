@@ -30,22 +30,45 @@ KeyEventResult handleCopyCommand(
   bool isCut = false,
 }) {
   final selection = editorState.selection?.normalized;
-  if (selection == null || selection.isCollapsed) {
+  if (selection == null) {
     return KeyEventResult.ignored;
   }
 
-  // plain text.
-  final text = editorState.getTextInSelection(selection).join('\n');
+  String? text;
+  String? html;
+  String? inAppJson;
 
-  final selectedNodes = editorState.getSelectedNodes(selection: selection);
-  final nodes = _handleSubPageNodes(selectedNodes, isCut);
-  final document = Document.blank()..insert([0], nodes);
+  if (selection.isCollapsed) {
+    // if the selection is collapsed, we will copy the text of the current line.
+    final node = editorState.getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return KeyEventResult.ignored;
+    }
 
-  // in app json
-  final inAppJson = jsonEncode(document.toJson());
+    // plain text.
+    text = node.delta?.toPlainText();
 
-  // html
-  final html = documentToHTML(document);
+    // in app json
+    final document = Document.blank()
+      ..insert([0], [_handleNode(node.copyWith())]);
+    inAppJson = jsonEncode(document.toJson());
+
+    // html
+    html = documentToHTML(document);
+  } else {
+    // plain text.
+    text = editorState.getTextInSelection(selection).join('\n');
+
+    final selectedNodes = editorState.getSelectedNodes(selection: selection);
+    final nodes = _handleSubPageNodes(selectedNodes, isCut);
+    final document = Document.blank()..insert([0], nodes);
+
+    // in app json
+    inAppJson = jsonEncode(document.toJson());
+
+    // html
+    html = documentToHTML(document);
+  }
 
   () async {
     await getIt<ClipboardService>().setData(

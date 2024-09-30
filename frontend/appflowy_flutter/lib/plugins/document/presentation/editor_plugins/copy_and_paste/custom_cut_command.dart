@@ -19,7 +19,30 @@ final CommandShortcutEvent customCutCommand = CommandShortcutEvent(
 );
 
 CommandShortcutEventHandler _cutCommandHandler = (editorState) {
-  handleCopyCommand(editorState, isCut: true);
-  editorState.deleteSelectionIfNeeded();
+  final selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
+  customCopyCommand.execute(editorState);
+
+  if (!selection.isCollapsed) {
+    editorState.deleteSelectionIfNeeded();
+  } else {
+    final node = editorState.getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return KeyEventResult.handled;
+    }
+    final transaction = editorState.transaction;
+    transaction.deleteNode(node);
+    final nextNode = node.next;
+    if (nextNode != null && nextNode.delta != null) {
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: node.path, offset: nextNode.delta?.length ?? 0),
+      );
+    }
+    editorState.apply(transaction);
+  }
+
   return KeyEventResult.handled;
 };

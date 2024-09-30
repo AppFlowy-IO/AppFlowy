@@ -606,10 +606,6 @@
       "cloudServerType": "Servidor em nuvem",
       "cloudServerTypeTip": "Observe que ele pode desconectar sua conta atual após mudar o servidor em nuvem",
       "cloudLocal": "Local",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "URL da Supabase",
-      "cloudSupabaseAnonKey": "Chave anônima Supabase",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "A chave anon não pode estar vazia se o URL da supabase não estiver vazio",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "clickToCopy": "Clique para copiar",
       "selfHostStart": "Se você não possui um servidor, consulte o",
@@ -634,8 +630,7 @@
       "importAppFlowyDataDescription": "Copie dados de uma pasta de dados externa do @:appName e importe-os para a pasta de dados atual do @:appName",
       "importSuccess": "Importou com sucesso a pasta de dados do @:appName",
       "importFailed": "Falha ao importar a pasta de dados do @:appName",
-      "importGuide": "Para mais detalhes, consulte o documento referenciado",
-      "supabaseSetting": "Configuração de Supabase"
+      "importGuide": "Para mais detalhes, consulte o documento referenciado"
     },
     "notifications": {
       "enableNotifications": {

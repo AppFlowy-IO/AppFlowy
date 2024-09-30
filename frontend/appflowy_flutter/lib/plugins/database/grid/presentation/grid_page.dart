@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -321,7 +322,12 @@ class _GridRowsState extends State<_GridRows> {
             builder: (BuildContext context, BoxConstraints layoutConstraits) {
               return _WrapScrollView(
                 scrollController: widget.scrollController,
-                contentWidth: GridLayout.headerWidth(state.fields),
+                contentWidth: GridLayout.headerWidth(
+                  context
+                      .read<DatabasePluginWidgetBuilderSize>()
+                      .horizontalPadding,
+                  state.fields,
+                ),
                 child: BlocConsumer<GridBloc, GridState>(
                   listenWhen: (previous, current) =>
                       previous.rowCount != current.rowCount,
@@ -562,7 +568,9 @@ class _PositionedCalculationsRowState
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,
           border: Border(
-            top: BorderSide(color: Theme.of(context).dividerColor),
+            top: BorderSide(
+              color: AFThemeExtension.of(context).borderColor,
+            ),
           ),
         ),
         child: SizedBox(

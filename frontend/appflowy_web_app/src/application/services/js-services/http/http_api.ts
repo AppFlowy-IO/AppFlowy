@@ -7,7 +7,14 @@ import {
   ViewId,
   ViewLayout,
   Workspace,
-  Invitation, Types,
+  Invitation,
+  Types,
+  AFWebUser,
+  GetRequestAccessInfoResponse,
+  Subscriptions,
+  SubscriptionPlan,
+  SubscriptionInterval,
+  RequestAccessInfoStatus,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -202,6 +209,21 @@ interface AFWorkspace {
   database_storage_id: string,
 }
 
+function afWorkspace2Workspace (workspace: AFWorkspace): Workspace {
+  return {
+    id: workspace.workspace_id,
+    owner: {
+      uid: workspace.owner_uid,
+      name: workspace.owner_name,
+    },
+    name: workspace.workspace_name,
+    icon: workspace.icon,
+    memberCount: workspace.member_count,
+    databaseStorageId: workspace.database_storage_id,
+    createdAt: workspace.created_at,
+  };
+}
+
 export async function openWorkspace (workspaceId: string) {
   const url = `/api/workspace/${workspaceId}/open`;
   const response = await axiosInstance?.put<{
@@ -242,29 +264,8 @@ export async function getUserWorkspaceInfo (): Promise<{
 
     return {
       user_id: user_profile.uuid,
-      selected_workspace: {
-        id: visiting_workspace.workspace_id,
-        name: visiting_workspace.workspace_name,
-        icon: visiting_workspace.icon,
-        memberCount: visiting_workspace.member_count,
-        databaseStorageId: visiting_workspace.database_storage_id,
-        owner: {
-          uid: visiting_workspace.owner_uid,
-          name: visiting_workspace.owner_name,
-        },
-      },
-      workspaces: workspaces.map(workspace => ({
-        id: workspace.workspace_id,
-        name: workspace.workspace_name,
-        icon: workspace.icon,
-        memberCount: workspace.member_count,
-        createdAt: workspace.created_at,
-        databaseStorageId: workspace.database_storage_id,
-        owner: {
-          uid: workspace.owner_uid,
-          name: workspace.owner_name,
-        },
-      })),
+      selected_workspace: afWorkspace2Workspace(visiting_workspace),
+      workspaces: workspaces.map(afWorkspace2Workspace),
     };
   }
 
@@ -680,28 +681,14 @@ export async function getWorkspaces (): Promise<Workspace[]> {
   const url = `/api/workspace?${query.toString()}`;
   const response = await axiosInstance?.get<{
     code: number;
-    data?: {
-      workspace_id: string;
-      workspace_name: string;
-      member_count: number;
-      icon: string;
-      database_storage_id?: string;
-    }[];
+    data?: AFWorkspace[];
     message: string;
   }>(url);
 
   const data = response?.data;
 
   if (data?.code === 0 && data.data) {
-    return data.data.map((workspace) => {
-      return {
-        id: workspace.workspace_id,
-        name: workspace.workspace_name,
-        memberCount: workspace.member_count,
-        icon: workspace.icon,
-        databaseStorageId: workspace.database_storage_id || '',
-      };
-    });
+    return data.data.map(afWorkspace2Workspace);
   }
 
   return Promise.reject(data);
@@ -1048,4 +1035,123 @@ export async function acceptInvitation (invitationId: string) {
   }
 
   return Promise.reject(response?.data.message);
+}
+
+export async function getRequestAccessInfo (requestId: string): Promise<GetRequestAccessInfoResponse> {
+  const url = `/api/access-request/${requestId}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: {
+      request_id: string;
+      workspace: AFWorkspace;
+      requester: AFWebUser & {
+        email: string;
+      };
+      view: View;
+      status: RequestAccessInfoStatus;
+    };
+    message: string;
+  }>(url);
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    const workspace = data.data.workspace;
+
+    return {
+      ...data.data,
+      workspace: afWorkspace2Workspace(workspace),
+    };
+  }
+
+  return Promise.reject(data);
+}
+
+export async function approveRequestAccess (requestId: string) {
+  const url = `/api/access-request/${requestId}/approve`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    is_approved: true,
+  });
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function sendRequestAccess (workspaceId: string, viewId: string) {
+  const url = `/api/access-request`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    workspace_id: workspaceId,
+    view_id: viewId,
+  });
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function getSubscriptionLink (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) {
+  const url = `/billing/api/v1/subscription-link`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: string;
+    message: string;
+  }>(url, {
+    params: {
+      workspace_subscription_plan: plan,
+      recurring_interval: interval,
+      workspace_id: workspaceId,
+      success_url: window.location.href,
+    },
+  });
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function getSubscriptions () {
+  const url = `/billing/api/v1/subscriptions`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: Subscriptions;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return response?.data.data;
+  }
+
+  return Promise.reject(response?.data);
+
+}
+
+export async function getActiveSubscription (workspaceId: string) {
+  const url = `/billing/api/v1/active-subscription/${workspaceId}`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: SubscriptionPlan[];
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return response?.data.data;
+  }
+
+  return Promise.reject(response?.data);
 }

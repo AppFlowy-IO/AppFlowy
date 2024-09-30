@@ -32,14 +32,14 @@ class _FilterButtonState extends State<FilterButton> {
     return BlocBuilder<FilterEditorBloc, FilterEditorState>(
       builder: (context, state) {
         final textColor = state.filters.isEmpty
-            ? AFThemeExtension.of(context).textColor
+            ? Theme.of(context).hintColor
             : Theme.of(context).colorScheme.primary;
 
         return _wrapPopover(
           FlowyTextButton(
             LocaleKeys.grid_settings_filter.tr(),
             fontColor: textColor,
-            fontSize: FontSizes.s11,
+            fontSize: FontSizes.s12,
             fontWeight: FontWeight.w400,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,

@@ -1,20 +1,19 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
-import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DatabasePropertyList extends StatefulWidget {
@@ -149,7 +148,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             widget.fieldInfo.name,
             color: AFThemeExtension.of(context).textColor,
@@ -174,10 +173,8 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
                 ),
               ),
               const HSpace(6.0),
-              FlowySvg(
-                widget.fieldInfo.fieldType.svgData,
-                color: Theme.of(context).iconTheme.color,
-                size: const Size.square(16),
+              FieldIcon(
+                fieldInfo: widget.fieldInfo,
               ),
             ],
           ),

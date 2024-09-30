@@ -1,6 +1,6 @@
 use collab_database::fields::{Field, TypeOptionData};
 
-use flowy_database2::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
+use flowy_database2::entities::{CreateFieldParams, FieldChangesetPB, FieldType};
 use flowy_database2::services::cell::stringify_cell;
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -10,7 +10,7 @@ pub enum FieldScript {
     params: CreateFieldParams,
   },
   UpdateField {
-    changeset: FieldChangesetParams,
+    changeset: FieldChangesetPB,
   },
   DeleteField {
     field: Field,

@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -25,8 +28,6 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -169,29 +170,6 @@ class SettingsManageDataView extends StatelessWidget {
                   ),
                 ],
               ),
-              // Uncomment if we need to enable encryption
-              //   if (userProfile.authenticator == AuthenticatorPB.Supabase) ...[
-              //     const SettingsCategorySpacer(),
-              //     BlocProvider(
-              //       create: (_) => EncryptSecretBloc(user: userProfile),
-              //       child: SettingsCategory(
-              //         title: LocaleKeys.settings_manageDataPage_encryption_title
-              //             .tr(),
-              //         tooltip: LocaleKeys
-              //             .settings_manageDataPage_encryption_tooltip
-              //             .tr(),
-              //         description: userProfile.encryptionType ==
-              //                 EncryptionTypePB.NoEncryption
-              //             ? LocaleKeys
-              //                 .settings_manageDataPage_encryption_descriptionNoEncryption
-              //                 .tr()
-              //             : LocaleKeys
-              //                 .settings_manageDataPage_encryption_descriptionEncrypted
-              //                 .tr(),
-              //         children: [_EncryptDataSetting(userProfile: userProfile)],
-              //       ),
-              //     ),
-              //   ],
             ],
           );
         },

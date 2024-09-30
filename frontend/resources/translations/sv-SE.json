@@ -247,11 +247,6 @@
       "cloudServerType": "Molnserver",
       "cloudServerTypeTip": "Observera att det kan logga ut ditt nuvarande konto efter att ha bytt molnserver",
       "cloudLocal": "Lokal",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "Webbadressen för supabase kan inte vara tom",
-      "cloudSupabaseAnonKey": "Supabase anonym nyckel",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anon-nyckeln kan inte vara tom",
       "appFlowyCloudUrlCanNotBeEmpty": "Molnets webbadress får inte vara tom",
       "clickToCopy": "Klicka för att kopiera",
       "selfHostStart": "Om du inte har en server, vänligen se",
@@ -278,8 +273,7 @@
       "importAppFlowyDataDescription": "Kopiera data från en extern @:appName-datamapp och importera den till den aktuella @:appName-datamappen",
       "importSuccess": "@:appName-datamappen har importerats",
       "importFailed": "Det gick inte att importera @:appName-datamappen",
-      "importGuide": "För ytterligare information, snälla se det refererade dokumentet",
-      "supabaseSetting": "Supabase-inställning"
+      "importGuide": "För ytterligare information, snälla se det refererade dokumentet"
     },
     "appearance": {
       "fontFamily": {

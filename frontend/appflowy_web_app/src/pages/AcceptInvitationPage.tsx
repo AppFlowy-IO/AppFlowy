@@ -74,7 +74,12 @@ function AcceptInvitationPage () {
     <div
       className={'text-text-title px-6 max-md:gap-4 flex flex-col gap-12 h-screen appflowy-scroller w-screen overflow-x-hidden overflow-y-auto items-center bg-bg-base'}
     >
-      <div className={'flex w-full max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}>
+      <div
+        onClick={() => {
+          navigate('/app');
+        }}
+        className={'flex w-full cursor-pointer max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}
+      >
         <AppflowyLogo className={'w-32 h-12 max-md:w-52'} />
       </div>
       <div className={'flex w-full max-w-[560px] flex-col items-center gap-6 text-center'}>
