@@ -116,9 +116,9 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
 
   @override
   void didUpdateWidget(SubPageBlockComponent oldWidget) {
-    super.didUpdateWidget(oldWidget);
     final viewId = node.attributes[SubPageBlockKeys.viewId];
-    if (viewId != null) {
+    final oldViewId = oldWidget.node.attributes[SubPageBlockKeys.viewId];
+    if (viewId != oldViewId) {
       viewFuture = fetchView(viewId);
       viewListener?.stop();
       viewListener = ViewListener(viewId: viewId)
@@ -130,6 +130,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
           },
         );
     }
+    super.didUpdateWidget(oldWidget);
   }
 
   Future<void> _handleCopyCutPaste(String viewId) async {

@@ -1,6 +1,9 @@
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -20,6 +23,7 @@ import '../../shared/util.dart';
 // - [x] Renaming a child view (Expect the view name to be updated in the document)
 // - [ ] Deleting a view (in trash) linked to a SubPageBlock deletes the SubPageBlock (Expect the SubPageBlock to be deleted)
 // - [ ] Deleting a view (to trash) linked to a SubPageBlock shows a hint that the view is in trash (Expect a hint to be shown)
+// - [ ] Dragging a SubPageBlock node to a new position in the document (Expect everything to be normal)
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -74,7 +78,31 @@ void main() {
 
     testWidgets('Delete a SubPageBlock with backspace when selected',
         (WidgetTester tester) async {
-      // Test code goes here.
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
+
+      await tester.insertSubPageFromSlashMenu();
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      await tester
+          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.renamePage('Child page');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Child page'), findsNWidgets(2));
+
+      await tester.editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0),
+      );
+      await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Child page'), findsNothing);
     });
 
     testWidgets('Copy+paste a SubPageBlock in same Document',
