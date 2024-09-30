@@ -25,11 +25,14 @@ class ShareTab extends StatelessWidget {
         const VSpace(18),
         const _ShareTabHeader(),
         const VSpace(2),
-        FlowyText.regular(
-          'For easy collaboration with anyone',
-          fontSize: 13.0,
-          figmaLineHeight: 18.0,
-          color: Theme.of(context).hintColor,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2.0),
+          child: FlowyText.regular(
+            'For easy collaboration with anyone',
+            fontSize: 13.0,
+            figmaLineHeight: 18.0,
+            color: Theme.of(context).hintColor,
+          ),
         ),
         const VSpace(14),
         const _ShareTabContent(),
@@ -81,10 +84,10 @@ class _ShareTabContent extends StatelessWidget {
             vertical: 9.0,
             horizontal: 14.0,
           ),
-          text: LocaleKeys.shareAction_buttonText.tr(),
+          text: LocaleKeys.button_copyLink.tr(),
           figmaLineHeight: 18.0,
           leftIcon: FlowySvg(
-            FlowySvgs.m_toolbar_link_m,
+            FlowySvgs.share_tab_copy_s,
             color: Theme.of(context).colorScheme.onPrimary,
           ),
           onTap: () => _copy(context, shareUrl),
