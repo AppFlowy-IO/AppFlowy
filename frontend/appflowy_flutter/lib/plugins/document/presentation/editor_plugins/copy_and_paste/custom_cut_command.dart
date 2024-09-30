@@ -24,7 +24,7 @@ CommandShortcutEventHandler _cutCommandHandler = (editorState) {
     return KeyEventResult.ignored;
   }
 
-  customCopyCommand.execute(editorState);
+  handleCopyCommand(editorState, isCut: true);
 
   if (!selection.isCollapsed) {
     editorState.deleteSelectionIfNeeded();
