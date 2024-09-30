@@ -103,7 +103,7 @@ class TabBarAddButtonActionCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        text: FlowyText.medium(
+        text: FlowyText(
           '${LocaleKeys.grid_createView.tr()} ${action.layoutName}',
           color: AFThemeExtension.of(context).textColor,
         ),

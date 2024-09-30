@@ -453,7 +453,7 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
         builder: (_) {
           return Column(
             children: [
-              FlowyText.medium(
+              FlowyText(
                 LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
               ),
               UnscheduleEventsList(
@@ -482,7 +482,7 @@ class UnscheduleEventsList extends StatelessWidget {
       if (!UniversalPlatform.isMobile)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: FlowyText.medium(
+          child: FlowyText(
             LocaleKeys.calendar_settings_clickToAdd.tr(),
             fontSize: 10,
             color: Theme.of(context).hintColor,
@@ -565,7 +565,7 @@ class DesktopUnscheduledEventTile extends StatelessWidget {
       height: 26,
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        text: FlowyText.medium(
+        text: FlowyText(
           event.title.isEmpty
               ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
               : event.title,

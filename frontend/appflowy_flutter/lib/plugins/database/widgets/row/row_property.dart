@@ -344,7 +344,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
                 EdgeInsets.symmetric(vertical: 14, horizontal: 6),
               ),
             ),
-        label: FlowyText.medium(
+        label: FlowyText(
           text,
           fontSize: 15,
           color: Theme.of(context).hintColor,
