@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -347,7 +348,7 @@ void main() {
   });
 }
 
-extension on WidgetTester {
+extension EditorPasteContent on WidgetTester {
   Future<void> pasteContent(
     void Function(EditorState editorState) test, {
     Future<void> Function(EditorState editorState)? beforeTest,
