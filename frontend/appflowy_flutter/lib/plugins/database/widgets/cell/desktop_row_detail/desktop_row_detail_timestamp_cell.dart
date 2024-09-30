@@ -16,7 +16,7 @@ class DesktopRowDetailTimestampCellSkin extends IEditableTimestampCellSkin {
     return Container(
       alignment: AlignmentDirectional.centerStart,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6.0),
-      child: FlowyText.medium(
+      child: FlowyText(
         state.dateStr,
         maxLines: null,
       ),

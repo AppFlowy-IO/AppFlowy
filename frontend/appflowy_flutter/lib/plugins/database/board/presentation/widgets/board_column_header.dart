@@ -118,7 +118,7 @@ class GroupOptionsButton extends StatelessWidget {
                 height: GridSize.popoverItemHeight,
                 child: FlowyButton(
                   leftIcon: FlowySvg(action.icon),
-                  text: FlowyText.medium(
+                  text: FlowyText(
                     action.text,
                     lineHeight: 1.0,
                     overflow: TextOverflow.ellipsis,

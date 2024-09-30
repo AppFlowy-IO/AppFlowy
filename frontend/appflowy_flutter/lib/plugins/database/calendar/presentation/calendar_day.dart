@@ -326,7 +326,7 @@ class _DayBadge extends StatelessWidget {
             width: isToday ? size : null,
             height: isToday ? size : null,
             child: Center(
-              child: FlowyText.medium(
+              child: FlowyText(
                 dayString,
                 fontSize: UniversalPlatform.isMobile ? 12 : 11,
                 color: dayTextColor,

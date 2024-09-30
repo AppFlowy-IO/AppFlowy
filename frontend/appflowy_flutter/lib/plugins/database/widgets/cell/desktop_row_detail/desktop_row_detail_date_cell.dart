@@ -36,7 +36,7 @@ class DesktopRowDetailDateCellSkin extends IEditableDateCellSkin {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              child: FlowyText.medium(
+              child: FlowyText(
                 text,
                 color: color,
                 overflow: TextOverflow.ellipsis,

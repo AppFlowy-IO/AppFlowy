@@ -54,7 +54,7 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
         children: rows.map(
           (row) {
             final isEmpty = row.name.isEmpty;
-            return FlowyText.medium(
+            return FlowyText(
               isEmpty ? LocaleKeys.grid_row_titlePlaceholder.tr() : row.name,
               color: isEmpty ? Theme.of(context).hintColor : null,
               decoration: TextDecoration.underline,
@@ -81,7 +81,7 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
           children: rows.map(
             (row) {
               final isEmpty = row.name.isEmpty;
-              return FlowyText.medium(
+              return FlowyText(
                 isEmpty ? LocaleKeys.grid_row_titlePlaceholder.tr() : row.name,
                 color: isEmpty ? Theme.of(context).hintColor : null,
                 decoration: TextDecoration.underline,

@@ -81,7 +81,7 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                               horizontal: 8,
                               vertical: 6,
                             ),
-                            child: FlowyText.medium(
+                            child: FlowyText(
                               LocaleKeys.grid_row_textPlaceholder.tr(),
                               color: Theme.of(context).hintColor,
                               overflow: TextOverflow.ellipsis,
@@ -542,7 +542,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Center(
-                            child: FlowyText.medium(
+                            child: FlowyText(
                               file.name,
                               overflow: TextOverflow.ellipsis,
                               fontSize: 12,

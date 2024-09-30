@@ -20,7 +20,7 @@ class RemoveCalculationButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           LocaleKeys.grid_calculationTypeLabel_none.tr(),
           overflow: TextOverflow.ellipsis,
         ),
