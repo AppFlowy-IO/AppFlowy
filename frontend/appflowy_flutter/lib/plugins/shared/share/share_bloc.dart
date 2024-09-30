@@ -13,9 +13,9 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'share_bloc.freezed.dart';
+import 'constants.dart';
 
-const _url = 'https://appflowy.com';
+part 'share_bloc.freezed.dart';
 
 class ShareBloc extends Bloc<ShareEvent, ShareState> {
   ShareBloc({
@@ -70,7 +70,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                 isPublished: true,
                 publishResult: FlowySuccess(null),
                 unpublishResult: null,
-                url: '$_url/${result.namespace}/$publishName',
+                url:
+                    '${ShareConstants.publishBaseUrl}/${result.namespace}/$publishName',
               ),
             );
 
@@ -135,7 +136,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             emit(
               state.copyWith(
                 isPublished: true,
-                url: '$_url/${s.namespace}/${s.publishName}',
+                url:
+                    '${ShareConstants.publishBaseUrl}/${s.namespace}/${s.publishName}',
                 viewName: view.name,
                 enablePublish: enablePublish,
               ),
