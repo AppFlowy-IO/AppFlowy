@@ -16,7 +16,7 @@ abstract class BlockTransactionHandler {
 
   void onCopy();
 
-  void onTransaction(
+  Future<void> onTransaction(
     BuildContext context,
     EditorState editorState,
     List<Node> added,

@@ -68,7 +68,7 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
   }
 
   @override
-  void onTransaction(
+  Future<void> onTransaction(
     BuildContext context,
     EditorState editorState,
     List<Node> added,
@@ -76,15 +76,17 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
     bool isUndo = false,
     bool isRedo = false,
     String? parentViewId,
-  }) {
+  }) async {
     debugPrint('SubPageBlockTransactionHandler.onTransaction');
 
     for (final node in removed) {
-      _subPageDeleted(context, editorState, node);
+      if (!context.mounted) return;
+      await _subPageDeleted(context, editorState, node);
     }
 
     for (final node in added) {
-      _subPageAdded(context, editorState, node, parentViewId);
+      if (!context.mounted) return;
+      await _subPageAdded(context, editorState, node, parentViewId);
     }
   }
 
@@ -149,7 +151,6 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
             withUpdateSelection: false,
             options: const ApplyOptions(recordUndo: false),
           );
-
           editorState.reload();
         },
         (error) {
@@ -167,13 +168,19 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
       // In this particular case it shares behavior with cut, as it moves the view from Trash
       // to the current view (if applicable).
       final transaction = editorState.transaction
-        ..deleteNode(node)
-        ..insertNode(node.path.next, node.copyWith(attributes: newAttributes));
+        ..updateNode(node, newAttributes);
+
+      // Due to the StreamController (_observer) in [EditorState] not being reentrant and processing
+      // transactions in order, we need to delay the apply to ensure the transaction that triggered
+      // this event is processed first.
+      await Future.delayed(const Duration(milliseconds: 100));
+
       await editorState.apply(
         transaction,
         withUpdateSelection: false,
         options: const ApplyOptions(recordUndo: false),
       );
+      editorState.reload();
     }
   }
 }

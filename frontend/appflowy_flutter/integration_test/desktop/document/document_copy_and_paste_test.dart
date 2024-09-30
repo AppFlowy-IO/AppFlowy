@@ -348,7 +348,7 @@ void main() {
   });
 }
 
-extension EditorPasteContent on WidgetTester {
+extension on WidgetTester {
   Future<void> pasteContent(
     void Function(EditorState editorState) test, {
     Future<void> Function(EditorState editorState)? beforeTest,

@@ -276,9 +276,8 @@ class _DocumentPageState extends State<DocumentPage>
 
   Widget buildBanner(BuildContext context) {
     return DocumentBanner(
-      onRestore: () => context.read<DocumentBloc>().add(
-            const DocumentEvent.restorePage(),
-          ),
+      onRestore: () =>
+          context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
       onDelete: () => context
           .read<DocumentBloc>()
           .add(const DocumentEvent.deletePermanently()),
@@ -400,7 +399,7 @@ class _DocumentPageState extends State<DocumentPage>
   }
 
   void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (editorState == null) {
+    if (editorState == null || event.$1 == TransactionTime.before) {
       return;
     }
 

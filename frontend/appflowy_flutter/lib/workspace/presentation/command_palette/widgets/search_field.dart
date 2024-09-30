@@ -128,7 +128,6 @@ class _SearchFieldState extends State<SearchField> {
                     ),
                   ),
                   const HSpace(8),
-                  // TODO(Mathias): Remove beta when support database search
                   FlowyTooltip(
                     message: LocaleKeys.commandPalette_betaTooltip.tr(),
                     child: Container(
