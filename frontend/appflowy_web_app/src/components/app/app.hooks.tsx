@@ -9,12 +9,13 @@ import {
   View,
   ViewLayout,
 } from '@/application/types';
-import { filterOutViewsByLayout, findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
-import RequestAccess from '@/components/app/RequestAccess';
-import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
+import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
+import RequestAccess from '@/components/app/landing-pages/RequestAccess';
+import { AFConfigContext, useService } from '@/components/main/app.hooks';
 import { uniqBy } from 'lodash-es';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { validate as uuidValidate } from 'uuid';
 
 export interface AppContextType {
   toView: (viewId: string) => Promise<void>;
@@ -42,12 +43,15 @@ export const AppContext = createContext<AppContextType | null>(null);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
-  const currentUser = useCurrentUser();
   const params = useParams();
-  const pathname = window.location.pathname;
-  const viewId = params.viewId as string;
-  const currentWorkspaceId = useMemo(() => params.workspaceId || currentUser?.latestWorkspaceId, [params.workspaceId, currentUser]);
+  const viewId = useMemo(() => {
+    const id = params.viewId;
+
+    if (id && !uuidValidate(id)) return;
+    return id;
+  }, [params.viewId]);
   const [userWorkspaceInfo, setUserWorkspaceInfo] = useState<UserWorkspaceInfo | undefined>(undefined);
+  const currentWorkspaceId = useMemo(() => params.workspaceId || userWorkspaceInfo?.selectedWorkspace.id, [params.workspaceId, userWorkspaceInfo?.selectedWorkspace.id]);
   const [workspaceDatabases, setWorkspaceDatabases] = useState<DatabaseRelations | undefined>(undefined);
   const [outline, setOutline] = useState<View[]>();
   const [favoriteViews, setFavoriteViews] = useState<View[]>();
@@ -71,13 +75,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       logout();
     }
   }, [isAuthenticated, logout]);
-
-  // If the user is logged in but the workspace is not found, log out the user
-  useEffect(() => {
-    if (currentUser && !currentWorkspaceId) {
-      logout();
-    }
-  }, [currentWorkspaceId, currentUser, logout]);
 
   useEffect(() => {
     const rowKeys = createdRowKeys.current;
@@ -125,7 +122,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const toView = useCallback(async (viewId: string, keepSearch?: boolean) => {
-    localStorage.setItem('last_view_id', viewId);
     let url = `/app/${currentWorkspaceId}/${viewId}`;
 
     if (keepSearch) {
@@ -134,32 +130,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     navigate(url);
   }, [currentWorkspaceId, navigate]);
-
-  useEffect(() => {
-    if (!currentWorkspaceId) return;
-    if (pathname === '/app/trash') return;
-
-    const lastViewId = viewId || localStorage.getItem('last_view_id');
-    const views = filterOutViewsByLayout(outline || [], ViewLayout.AIChat);
-
-    if (!views || views.length === 0) return;
-    if (lastViewId) {
-      const view = findView(views, lastViewId);
-
-      if (view) {
-        void toView(lastViewId, true);
-        return;
-      }
-    }
-
-    const firstView = findViewByLayout(views, [ViewLayout.Document, ViewLayout.Grid, ViewLayout.Board, ViewLayout.Calendar]);
-
-    if (firstView) {
-      void toView(firstView.view_id);
-    } else {
-      localStorage.removeItem('last_view_id');
-    }
-  }, [viewId, currentWorkspaceId, outline, pathname, toView]);
 
   const loadViewMeta = useCallback(async (viewId: string, callback?: (meta: View) => void) => {
     const view = findView(outline || [], viewId);
@@ -230,7 +200,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const loadUserWorkspaceInfo = useCallback(async () => {
-    if (!service || !currentWorkspaceId) return;
+    if (!service) return;
     try {
       const res = await service.getUserWorkspaceInfo();
 
@@ -239,7 +209,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (e) {
       console.error(e);
     }
-  }, [currentWorkspaceId, service]);
+  }, [service]);
   const loadDatabaseViewRelations = useCallback(async (workspaceId: string, databaseStorageId: string) => {
     if (!service) return;
     try {
@@ -262,14 +232,42 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setOutline(res);
+      try {
+
+        await service.openWorkspace(workspaceId);
+        const path = window.location.pathname.split('/')[2];
+
+        if (path && !uuidValidate(path)) {
+          return;
+        }
+
+        const lastViewId = localStorage.getItem('last_view_id');
+
+        if (lastViewId && findView(res, lastViewId)) {
+          navigate(`/app/${workspaceId}/${lastViewId}`);
+
+        } else {
+          const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
+
+          if (firstView) {
+            navigate(`/app/${workspaceId}/${firstView.view_id}`);
+          }
+        }
+
+      } catch (e) {
+        // do nothing
+      }
+
       // eslint-disable-next-line
     } catch (e: any) {
       console.error('App outline not found');
       if (USER_NO_ACCESS_CODE.includes(e.code)) {
         setRequestAccessOpened(true);
+        return;
       }
     }
-  }, [service]);
+
+  }, [navigate, service]);
 
   const loadFavoriteViews = useCallback(async () => {
     if (!service || !currentWorkspaceId) return;

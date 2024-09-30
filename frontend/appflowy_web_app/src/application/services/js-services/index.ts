@@ -27,7 +27,13 @@ import {
   TemplateCreatorFormValues,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import { DatabaseRelations, DuplicatePublishView, Types, YjsEditorKey } from '@/application/types';
+import {
+  DatabaseRelations,
+  DuplicatePublishView,
+  SubscriptionInterval, SubscriptionPlan,
+  Types,
+  YjsEditorKey,
+} from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
@@ -428,4 +434,27 @@ export class AFClientService implements AFService {
     return APIService.acceptInvitation(invitationId);
   }
 
+  approveRequestAccess (requestId: string): Promise<void> {
+    return APIService.approveRequestAccess(requestId);
+  }
+
+  getRequestAccessInfo (requestId: string) {
+    return APIService.getRequestAccessInfo(requestId);
+  }
+
+  sendRequestAccess (workspaceId: string, viewId: string): Promise<void> {
+    return APIService.sendRequestAccess(workspaceId, viewId);
+  }
+
+  getSubscriptionLink (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) {
+    return APIService.getSubscriptionLink(workspaceId, plan, interval);
+  }
+
+  getSubscriptions () {
+    return APIService.getSubscriptions();
+  }
+
+  getActiveSubscription (workspaceId: string) {
+    return APIService.getActiveSubscription(workspaceId);
+  }
 }

@@ -128,6 +128,11 @@ function AppPage () {
     ) : skeleton;
   }, [onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
 
+  useEffect(() => {
+    if (!View || !viewId || !doc) return;
+    localStorage.setItem('last_view_id', viewId);
+  }, [View, viewId, doc]);
+
   if (!viewId) return null;
   return (
     <div className={'relative w-full h-full'}>
