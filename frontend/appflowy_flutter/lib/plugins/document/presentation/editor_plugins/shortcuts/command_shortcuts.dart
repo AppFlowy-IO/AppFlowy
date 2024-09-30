@@ -21,9 +21,6 @@ List<CommandShortcutEvent> commandShortcutEvents = [
 
   ...localizedCodeBlockCommands,
 
-  // Place deleteLineCommand before customCutCommand due to shared key binding
-  deleteLineCommand,
-
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
