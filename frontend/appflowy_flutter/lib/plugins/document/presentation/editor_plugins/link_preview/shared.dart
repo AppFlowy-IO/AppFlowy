@@ -6,7 +6,18 @@ void convertUrlPreviewNodeToLink(EditorState editorState, Node node) {
   final url = node.attributes[ImageBlockKeys.url];
   final transaction = editorState.transaction;
   transaction
-    ..insertNode(node.path, paragraphNode(text: url))
+    ..insertNode(
+      node.path,
+      paragraphNode(
+        delta: Delta()
+          ..insert(
+            url,
+            attributes: {
+              AppFlowyRichTextKeys.href: url,
+            },
+          ),
+      ),
+    )
     ..deleteNode(node);
   transaction.afterSelection = Selection.collapsed(
     Position(
