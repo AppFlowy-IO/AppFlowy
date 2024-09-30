@@ -8,8 +8,8 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/setting/property_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
-import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -168,9 +168,9 @@ class DatabaseFieldListTile extends StatelessWidget {
     if (fieldInfo.field.isPrimary) {
       return FlowyOptionTile.text(
         text: fieldInfo.name,
-        leftIcon: FlowySvg(
-          fieldInfo.fieldType.svgData,
-          size: const Size.square(20),
+        leftIcon: FieldIcon(
+          fieldInfo: fieldInfo,
+          dimension: 20,
         ),
         showTopBorder: showTopBorder,
       );
@@ -178,9 +178,9 @@ class DatabaseFieldListTile extends StatelessWidget {
       return FlowyOptionTile.toggle(
         isSelected: fieldInfo.visibility?.isVisibleState() ?? false,
         text: fieldInfo.name,
-        leftIcon: FlowySvg(
-          fieldInfo.fieldType.svgData,
-          size: const Size.square(20),
+        leftIcon: FieldIcon(
+          fieldInfo: fieldInfo,
+          dimension: 20,
         ),
         showTopBorder: showTopBorder,
         onTap: () => showEditFieldScreen(context, viewId, fieldInfo),

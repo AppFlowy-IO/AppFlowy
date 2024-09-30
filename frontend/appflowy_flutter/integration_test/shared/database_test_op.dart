@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -679,6 +681,53 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapSwitchFieldTypeButton();
     await selectFieldType(type);
     await dismissFieldEditor();
+  }
+
+  Future<void> changeFieldIcon(String icon) async {
+    await tapButton(find.byType(FieldEditIconButton));
+    if (icon.isEmpty) {
+      final button = find.descendant(
+        of: find.byType(FlowyIconEmojiPicker),
+        matching: find.text(
+          LocaleKeys.button_remove.tr(),
+        ),
+      );
+      await tapButton(button);
+    } else {
+      final svgContent = kIconGroups?.findSvgContent(icon);
+      await tapButton(
+        find.byWidgetPredicate(
+          (widget) => widget is FlowySvg && widget.svgString == svgContent,
+        ),
+      );
+    }
+  }
+
+  void assertFieldSvg(String name, FieldType fieldType) {
+    final svgFinder = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svg == fieldType.svgData,
+    );
+    final fieldButton = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    expect(
+      find.descendant(of: fieldButton, matching: svgFinder),
+      findsOneWidget,
+    );
+  }
+
+  void assertFieldCustomSvg(String name, String svg) {
+    final svgContent = kIconGroups?.findSvgContent(svg);
+    final svgFinder = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svgString == svgContent,
+    );
+    final fieldButton = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    expect(
+      find.descendant(of: fieldButton, matching: svgFinder),
+      findsOneWidget,
+    );
   }
 
   Future<void> changeCalculateAtIndex(int index, CalculationType type) async {

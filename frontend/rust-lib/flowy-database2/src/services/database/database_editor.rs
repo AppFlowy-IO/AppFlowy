@@ -384,10 +384,12 @@ impl DatabaseEditor {
     database.get_fields_in_view(view_id, Some(field_ids))
   }
 
-  pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
+  pub async fn update_field(&self, params: FieldChangesetPB) -> FlowyResult<()> {
     let mut database = self.database.write().await;
     database.update_field(&params.field_id, |update| {
-      update.set_name_if_not_none(params.name);
+      update
+        .set_name_if_not_none(params.name)
+        .set_icon_if_not_none(params.icon);
     });
     notify_did_update_database_field(&database, &params.field_id)?;
     Ok(())

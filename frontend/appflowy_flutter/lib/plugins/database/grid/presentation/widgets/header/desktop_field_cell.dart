@@ -1,3 +1,5 @@
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -217,9 +219,8 @@ class FieldCellButton extends StatelessWidget {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
-      leftIcon: FlowySvg(
-        field.fieldType.svgData,
-        color: Theme.of(context).iconTheme.color,
+      leftIcon: FieldIcon(
+        fieldInfo: FieldInfo.initial(field),
       ),
       rightIcon: field.fieldType.rightIcon != null
           ? FlowySvg(
@@ -238,5 +239,41 @@ class FieldCellButton extends StatelessWidget {
       ),
       margin: margin ?? GridSize.cellContentInsets,
     );
+  }
+}
+
+class FieldIcon extends StatelessWidget {
+  const FieldIcon({
+    super.key,
+    required this.fieldInfo,
+    this.dimension = 16.0,
+  });
+
+  final FieldInfo fieldInfo;
+  final double dimension;
+
+  @override
+  Widget build(BuildContext context) {
+    final svgContent = kIconGroups?.findSvgContent(
+      fieldInfo.icon,
+    );
+    final color =
+        Theme.of(context).isLightMode ? const Color(0xFF171717) : Colors.white;
+    return svgContent == null
+        ? FlowySvg(
+            fieldInfo.fieldType.svgData,
+            color: color.withOpacity(0.6),
+            size: Size.square(dimension),
+          )
+        : SizedBox.square(
+            dimension: dimension,
+            child: Center(
+              child: FlowySvg.string(
+                svgContent,
+                color: color.withOpacity(0.45),
+                size: Size.square(dimension - 2),
+              ),
+            ),
+          );
   }
 }

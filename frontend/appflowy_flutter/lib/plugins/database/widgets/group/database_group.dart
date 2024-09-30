@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -7,6 +5,7 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -16,6 +15,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
@@ -99,7 +99,6 @@ class DatabaseGroupList extends StatelessWidget {
                   (fieldInfo) => _GridGroupCell(
                     fieldInfo: fieldInfo,
                     name: fieldInfo.name,
-                    icon: fieldInfo.fieldType.svgData,
                     checked: fieldInfo.isGroupField,
                     onSelected: onDismissed,
                     key: ValueKey(fieldInfo.id),
@@ -166,7 +165,6 @@ class _GridGroupCell extends StatelessWidget {
     required this.checked,
     required this.name,
     this.condition = 0,
-    this.icon,
   });
 
   final FieldInfo fieldInfo;
@@ -174,7 +172,6 @@ class _GridGroupCell extends StatelessWidget {
   final bool checked;
   final int condition;
   final String name;
-  final FlowySvgData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -197,12 +194,7 @@ class _GridGroupCell extends StatelessWidget {
             color: AFThemeExtension.of(context).textColor,
             lineHeight: 1.0,
           ),
-          leftIcon: icon != null
-              ? FlowySvg(
-                  icon!,
-                  color: Theme.of(context).iconTheme.color,
-                )
-              : null,
+          leftIcon: FieldIcon(fieldInfo: fieldInfo),
           rightIcon: rightIcon,
           onTap: () {
             List<int> settingContent = [];

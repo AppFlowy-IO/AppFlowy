@@ -1,10 +1,9 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/simple_text_filter_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -46,7 +45,7 @@ class CreateDatabaseViewFilterList extends StatelessWidget {
                 height: GridSize.popoverItemHeight,
                 child: FilterableFieldButton(
                   fieldInfo: fieldInfo,
-                  onTap: (fieldInfo) {
+                  onTap: () {
                     context
                         .read<FilterEditorBloc>()
                         .add(FilterEditorEvent.createFilter(fieldInfo));
@@ -129,7 +128,7 @@ class FilterableFieldButton extends StatelessWidget {
   });
 
   final FieldInfo fieldInfo;
-  final Function(FieldInfo) onTap;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -140,10 +139,9 @@ class FilterableFieldButton extends StatelessWidget {
         fieldInfo.field.name,
         color: AFThemeExtension.of(context).textColor,
       ),
-      onTap: () => onTap(fieldInfo),
-      leftIcon: FlowySvg(
-        fieldInfo.fieldType.svgData,
-        color: Theme.of(context).iconTheme.color,
+      onTap: onTap,
+      leftIcon: FieldIcon(
+        fieldInfo: fieldInfo,
       ),
     );
   }

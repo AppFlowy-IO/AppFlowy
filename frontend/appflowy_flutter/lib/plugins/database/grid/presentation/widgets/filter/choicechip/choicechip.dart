@@ -4,7 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -49,9 +49,8 @@ class ChoiceChipButton extends StatelessWidget {
         ),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         radius: const BorderRadius.all(Radius.circular(14)),
-        leftIcon: FlowySvg(
-          fieldInfo.fieldType.svgData,
-          color: Theme.of(context).iconTheme.color,
+        leftIcon: FieldIcon(
+          fieldInfo: fieldInfo,
         ),
         rightIcon: const _ChoicechipDownArrow(),
         hoverColor: AFThemeExtension.of(context).lightGreyHover,

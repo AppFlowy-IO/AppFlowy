@@ -266,7 +266,7 @@ pub(crate) async fn update_field_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: FieldChangesetParams = data.into_inner().try_into()?;
+  let params = data.try_into_inner()?;
   let database_editor = manager
     .get_database_editor_with_view_id(&params.view_id)
     .await?;

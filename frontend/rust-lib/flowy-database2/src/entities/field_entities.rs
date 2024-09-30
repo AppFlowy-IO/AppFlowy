@@ -10,6 +10,7 @@ use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
@@ -27,12 +28,15 @@ pub struct FieldPB {
   pub name: String,
 
   #[pb(index = 3)]
+  pub icon: String,
+
+  #[pb(index = 4)]
   pub field_type: FieldType,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub is_primary: bool,
 
-  #[pb(index = 7)]
+  #[pb(index = 6)]
   pub type_option_data: Vec<u8>,
 }
 
@@ -45,6 +49,7 @@ impl FieldPB {
     Self {
       id: field.id,
       name: field.name,
+      icon: field.icon,
       field_type,
       is_primary: field.is_primary,
       type_option_data: type_option_to_pb(type_option, &field_type).to_vec(),
@@ -152,12 +157,15 @@ pub struct CreateFieldPayloadPB {
   #[pb(index = 3, one_of)]
   pub field_name: Option<String>,
 
+  #[pb(index = 4, one_of)]
+  pub field_icon: Option<String>,
+
   /// If the type_option_data is not empty, it will be used to create the field.
   /// Otherwise, the default value will be used.
-  #[pb(index = 4, one_of)]
+  #[pb(index = 5, one_of)]
   pub type_option_data: Option<Vec<u8>>,
 
-  #[pb(index = 5)]
+  #[pb(index = 6)]
   pub field_position: OrderObjectPositionPB,
 }
 
@@ -369,53 +377,29 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
 /// Pass in None if you don't want to modify a property
 /// Pass in Some(Value) if you want to modify a property
 ///
-#[derive(Debug, Clone, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf, Validate)]
 pub struct FieldChangesetPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub field_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom = "required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 3, one_of)]
   pub name: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub desc: Option<String>,
+  pub icon: Option<String>,
 
   #[pb(index = 5, one_of)]
-  pub frozen: Option<bool>,
-}
-
-impl TryInto<FieldChangesetParams> for FieldChangesetPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
-    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-
-    Ok(FieldChangesetParams {
-      field_id: field_id.0,
-      view_id: view_id.0,
-      name: self.name,
-      desc: self.desc,
-      frozen: self.frozen,
-    })
-  }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct FieldChangesetParams {
-  pub field_id: String,
-
-  pub view_id: String,
-
-  pub name: Option<String>,
-
   pub desc: Option<String>,
 
+  #[pb(index = 6, one_of)]
   pub frozen: Option<bool>,
 }
+
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization
 /// of the FieldTypeOption class.

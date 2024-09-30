@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/sort_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -523,12 +524,12 @@ class _SortDetailContent extends StatelessWidget {
 
                   return FlowyOptionTile.checkbox(
                     text: fieldInfo.field.name,
+                    leftIcon: FieldIcon(
+                      fieldInfo: fieldInfo,
+                    ),
                     isSelected: isSelected,
                     textColor: enabled ? null : Theme.of(context).disabledColor,
                     showTopBorder: false,
-                    leftIcon: FlowySvg(
-                      fieldInfo.fieldType.svgData,
-                    ),
                     onTap: () {
                       if (isSelected) {
                         return;
