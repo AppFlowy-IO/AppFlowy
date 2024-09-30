@@ -118,7 +118,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   void didUpdateWidget(SubPageBlockComponent oldWidget) {
     final viewId = node.attributes[SubPageBlockKeys.viewId];
     final oldViewId = oldWidget.node.attributes[SubPageBlockKeys.viewId];
-    if (viewId != oldViewId) {
+    if (viewId != oldViewId || viewFuture == null) {
       viewFuture = fetchView(viewId);
       viewListener?.stop();
       viewListener = ViewListener(viewId: viewId)
