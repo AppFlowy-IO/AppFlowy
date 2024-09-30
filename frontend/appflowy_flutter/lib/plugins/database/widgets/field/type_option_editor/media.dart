@@ -32,7 +32,7 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
       alignment: Alignment.centerLeft,
       child: FlowyButton(
         resetHoverOnRebuild: false,
-        text: FlowyText.medium(
+        text: FlowyText(
           LocaleKeys.grid_media_hideFileNames.tr(),
           lineHeight: 1.0,
         ),

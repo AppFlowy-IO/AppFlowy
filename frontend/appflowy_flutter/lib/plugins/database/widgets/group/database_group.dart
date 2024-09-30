@@ -65,7 +65,7 @@ class DatabaseGroupList extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        child: FlowyText.medium(
+                        child: FlowyText(
                           LocaleKeys.board_showUngrouped.tr(),
                         ),
                       ),
@@ -86,7 +86,7 @@ class DatabaseGroupList extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                child: FlowyText.medium(
+                child: FlowyText(
                   LocaleKeys.board_groupBy.tr(),
                   textAlign: TextAlign.left,
                   color: Theme.of(context).hintColor,
@@ -112,7 +112,7 @@ class DatabaseGroupList extends StatelessWidget {
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  child: FlowyText.medium(
+                  child: FlowyText(
                     LocaleKeys.board_groupCondition.tr(),
                     textAlign: TextAlign.left,
                     color: Theme.of(context).hintColor,
@@ -192,7 +192,7 @@ class _GridGroupCell extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6.0),
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          text: FlowyText.medium(
+          text: FlowyText(
             name,
             color: AFThemeExtension.of(context).textColor,
             lineHeight: 1.0,

@@ -54,7 +54,7 @@ class RowActionMenu extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           action.text,
           overflow: TextOverflow.ellipsis,
           lineHeight: 1.0,

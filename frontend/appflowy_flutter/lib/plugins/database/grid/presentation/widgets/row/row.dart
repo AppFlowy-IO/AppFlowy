@@ -25,7 +25,7 @@ import '../../layout/sizes.dart';
 
 import 'action.dart';
 
-class GridRow extends StatefulWidget {
+class GridRow extends StatelessWidget {
   const GridRow({
     super.key,
     required this.fieldController,
@@ -46,31 +46,26 @@ class GridRow extends StatefulWidget {
   final int index;
 
   @override
-  State<GridRow> createState() => _GridRowState();
-}
-
-class _GridRowState extends State<GridRow> {
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => RowBloc(
-        fieldController: widget.fieldController,
-        rowId: widget.rowId,
-        rowController: widget.rowController,
-        viewId: widget.viewId,
+        fieldController: fieldController,
+        rowId: rowId,
+        rowController: rowController,
+        viewId: viewId,
       ),
       child: _RowEnterRegion(
         child: Row(
           children: [
             _RowLeading(
-              viewId: widget.viewId,
-              index: widget.index,
+              viewId: viewId,
+              index: index,
             ),
             Expanded(
               child: RowContent(
-                fieldController: widget.fieldController,
-                cellBuilder: widget.cellBuilder,
-                onExpand: () => widget.openDetailPage(context),
+                fieldController: fieldController,
+                cellBuilder: cellBuilder,
+                onExpand: () => openDetailPage(context),
               ),
             ),
           ],
@@ -304,11 +299,11 @@ class RowContent extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
       child: Container(
-        width: GridSize.trailHeaderPadding,
-        constraints: const BoxConstraints(minHeight: 46),
+        width: GridSize.newPropertyButtonWidth,
+        constraints: const BoxConstraints(minHeight: 36),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: Theme.of(context).dividerColor),
+            bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
           ),
         ),
       ),

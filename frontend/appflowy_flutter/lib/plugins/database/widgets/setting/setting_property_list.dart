@@ -149,7 +149,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             widget.fieldInfo.name,
             color: AFThemeExtension.of(context).textColor,

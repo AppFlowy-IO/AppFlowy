@@ -56,7 +56,7 @@ class DesktopGridDateCellSkin extends IEditableDateCellSkin {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(
+            child: FlowyText(
               state.dateStr,
               overflow: wrap ? null : TextOverflow.ellipsis,
               maxLines: wrap ? null : 1,

@@ -23,7 +23,7 @@ class DateFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           LocaleKeys.grid_field_dateFormat.tr(),
           lineHeight: 1.0,
         ),
@@ -50,7 +50,7 @@ class TimeFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           LocaleKeys.grid_field_timeFormat.tr(),
           lineHeight: 1.0,
         ),
@@ -122,7 +122,7 @@ class DateFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           dateFormat.title(),
           lineHeight: 1.0,
         ),
@@ -212,7 +212,7 @@ class TimeFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           timeFormat.title(),
           lineHeight: 1.0,
         ),
@@ -259,7 +259,7 @@ class IncludeTimeButton extends StatelessWidget {
               color: Theme.of(context).iconTheme.color,
             ),
             const HSpace(6),
-            FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
+            FlowyText(LocaleKeys.grid_field_includeTime.tr()),
             const Spacer(),
             Toggle(
               value: value,

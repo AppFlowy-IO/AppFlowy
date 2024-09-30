@@ -180,7 +180,7 @@ class _AddOptionButton extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             LocaleKeys.grid_field_addSelectOption.tr(),
           ),

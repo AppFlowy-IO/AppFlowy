@@ -304,7 +304,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return SizedBox(
       height: 30,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           text,
           lineHeight: 1.0,
           color: Theme.of(context).hintColor,
@@ -380,7 +380,7 @@ class CreateRowFieldButton extends StatelessWidget {
       height: 30,
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           LocaleKeys.grid_field_newProperty.tr(),
           color: Theme.of(context).hintColor,

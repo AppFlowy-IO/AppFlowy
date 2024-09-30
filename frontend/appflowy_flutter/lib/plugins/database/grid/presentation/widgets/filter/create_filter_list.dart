@@ -135,7 +135,7 @@ class FilterableFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      text: FlowyText.medium(
+      text: FlowyText(
         lineHeight: 1.0,
         fieldInfo.field.name,
         color: AFThemeExtension.of(context).textColor,

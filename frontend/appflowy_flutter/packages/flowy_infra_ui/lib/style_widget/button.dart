@@ -143,7 +143,7 @@ class FlowyButton extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
-  final EdgeInsets? margin;
+  final EdgeInsetsGeometry? margin;
   final Widget? leftIcon;
   final Widget? rightIcon;
   final Color? hoverColor;

@@ -95,10 +95,11 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: SizedBox(
-              height: 40,
+              height: GridSize.headerHeight,
               child: FieldCellButton(
                 field: widget.fieldInfo.field,
                 onTap: widget.onTap,
+                margin: const EdgeInsetsDirectional.fromSTEB(12, 9, 10, 9),
               ),
             ),
           );
@@ -140,9 +141,8 @@ class _GridHeaderCellContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide = BorderSide(
-      color: Theme.of(context).dividerColor,
-    );
+    final borderSide =
+        BorderSide(color: AFThemeExtension.of(context).borderColor);
     final decoration = BoxDecoration(
       border: Border(
         right: borderSide,
@@ -210,7 +210,7 @@ class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
   final int? maxLines;
   final BorderRadius? radius;
-  final EdgeInsets? margin;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -225,10 +225,11 @@ class FieldCellButton extends StatelessWidget {
           ? FlowySvg(
               field.fieldType.rightIcon!,
               blendMode: null,
+              size: const Size.square(18),
             )
           : null,
       radius: radius,
-      text: FlowyText.medium(
+      text: FlowyText(
         field.name,
         lineHeight: 1.0,
         maxLines: maxLines,

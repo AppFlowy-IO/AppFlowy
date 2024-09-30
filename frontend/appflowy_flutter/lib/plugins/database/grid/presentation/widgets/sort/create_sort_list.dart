@@ -133,7 +133,7 @@ class GridSortPropertyCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        text: FlowyText.medium(
+        text: FlowyText(
           fieldInfo.name,
           lineHeight: 1.0,
           color: AFThemeExtension.of(context).textColor,

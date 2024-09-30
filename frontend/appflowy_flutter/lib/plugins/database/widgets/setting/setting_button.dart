@@ -32,8 +32,8 @@ class _SettingButtonState extends State<SettingButton> {
       triggerActions: PopoverTriggerFlags.none,
       child: FlowyTextButton(
         LocaleKeys.settings_title.tr(),
-        fontColor: AFThemeExtension.of(context).textColor,
-        fontSize: FontSizes.s11,
+        fontColor: Theme.of(context).hintColor,
+        fontSize: FontSizes.s12,
         fontWeight: FontWeight.w400,
         fillColor: Colors.transparent,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
