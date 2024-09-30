@@ -1007,12 +1007,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// Must call [tapSortMenuInSettingBar] first.
-  Future<void> tapSortButtonByName(String name) async {
-    final findSortItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is DatabaseSortItem && widget.sortInfo.fieldInfo.name == name,
+  Future<void> tapEditSortConditionButtonByFieldName(String name) async {
+    final sortItem = find.descendant(
+      of: find.ancestor(
+        of: find.text(name),
+        matching: find.byType(DatabaseSortItem),
+      ),
+      matching: find.byType(SortConditionButton),
     );
-    await tapButton(findSortItem);
+    await tapButton(sortItem);
   }
 
   /// Must call [tapSortMenuInSettingBar] first.
@@ -1020,18 +1023,26 @@ extension AppFlowyDatabaseTest on WidgetTester {
     (FieldType, String) from,
     (FieldType, String) to,
   ) async {
-    final fromSortItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is DatabaseSortItem &&
-          widget.sortInfo.fieldInfo.fieldType == from.$1 &&
-          widget.sortInfo.fieldInfo.name == from.$2,
+    final fromSortItem = find.ancestor(
+      of: find.text(from.$2),
+      matching: find.byType(DatabaseSortItem),
     );
-    final toSortItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is DatabaseSortItem &&
-          widget.sortInfo.fieldInfo.fieldType == to.$1 &&
-          widget.sortInfo.fieldInfo.name == to.$2,
+    final toSortItem = find.ancestor(
+      of: find.text(to.$2),
+      matching: find.byType(DatabaseSortItem),
     );
+    // final fromSortItem = find.byWidgetPredicate(
+    //   (widget) =>
+    //       widget is DatabaseSortItem &&
+    //       widget.sort.fieldInfo.fieldType == from.$1 &&
+    //       widget.sort.fieldInfo.name == from.$2,
+    // );
+    // final toSortItem = find.byWidgetPredicate(
+    //   (widget) =>
+    //       widget is DatabaseSortItem &&
+    //       widget.sort.fieldInfo.fieldType == to.$1 &&
+    //       widget.sort.fieldInfo.name == to.$2,
+    // );
     final dragElement = find.descendant(
       of: fromSortItem,
       matching: find.byType(ReorderableDragStartListener),
@@ -1040,16 +1051,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
-  /// Must call [tapSortButtonByName] first.
+  /// Must call [tapEditSortConditionButtonByFieldName] first.
   Future<void> tapSortByDescending() async {
     await tapButton(
-      find.descendant(
-        of: find.byType(OrderPannelItem),
-        matching: find.byWidgetPredicate(
-          (widget) =>
-              widget is FlowyText &&
-              widget.text == LocaleKeys.grid_sort_descending.tr(),
-        ),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is OrderPanelItem &&
+            widget.condition == SortConditionPB.Descending,
       ),
     );
     await sendKeyEvent(LogicalKeyboardKey.escape);

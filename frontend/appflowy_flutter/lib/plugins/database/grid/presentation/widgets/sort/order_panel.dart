@@ -13,7 +13,7 @@ class OrderPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = SortConditionPB.values.map((condition) {
-      return OrderPannelItem(
+      return OrderPanelItem(
         condition: condition,
         onCondition: onCondition,
       );
@@ -32,8 +32,8 @@ class OrderPanel extends StatelessWidget {
   }
 }
 
-class OrderPannelItem extends StatelessWidget {
-  const OrderPannelItem({
+class OrderPanelItem extends StatelessWidget {
+  const OrderPanelItem({
     super.key,
     required this.condition,
     required this.onCondition,
