@@ -342,7 +342,6 @@
       "historicalUserList": "Historia logowania użytkownika",
       "historicalUserListTooltip": "Na tej liście wyświetlane są Twoje anonimowe konta. Możesz kliknąć konto, aby wyświetlić jego szczegóły. Konta anonimowe tworzy się poprzez kliknięcie przycisku „Rozpocznij”.",
       "openHistoricalUser": "Kliknij, aby otworzyć anonimowe konto",
-      "supabaseSetting": "Ustawienie Supabase",
       "cloudSetting": "Ustawienia Chmury"
     },
     "notifications": {

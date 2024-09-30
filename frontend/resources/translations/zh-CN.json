@@ -578,11 +578,6 @@
       "cloudServerType": "云服务器",
       "cloudServerTypeTip": "请注意，切换云服务器后可能会登出您当前的账户",
       "cloudLocal": "本地",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "supabase url 不能为空",
-      "cloudSupabaseAnonKey": "Supabase Anon key",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase url 不为空，则 Anon key 不能为空",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud 自托管",
       "appFlowyCloudUrlCanNotBeEmpty": "云地址不能为空",
@@ -612,7 +607,6 @@
       "importSuccess": "成功导入@:appName数据文件夹",
       "importFailed": "导入 @:appName 数据文件夹失败",
       "importGuide": "有关详细信息，请参阅参考文档",
-      "supabaseSetting": "Supabase 设置",
       "cloudSetting": "云设置"
     },
     "notifications": {

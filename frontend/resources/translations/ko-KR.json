@@ -206,8 +206,7 @@
       "language": "언어",
       "user": "사용자",
       "files": "파일",
-      "open": "설정 열기",
-      "supabaseSetting": "수파베이스 설정"
+      "open": "설정 열기"
     },
     "appearance": {
       "fontFamily": {

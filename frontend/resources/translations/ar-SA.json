@@ -362,10 +362,6 @@
       "cloudServerType": "خادم سحابي",
       "cloudServerTypeTip": "يرجى ملاحظة أنه قد يقوم بتسجيل الخروج من حسابك الحالي بعد تبديل الخادم السحابي",
       "cloudLocal": "محلي",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "رابط Supabase",
-      "cloudSupabaseAnonKey": "مفتاح Supabase الخفي",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "لا يمكن أن يكون المفتاح المجهول فارغًا إذا لم يكن عنوان URL الخاص بـ Supabase فارغًا",
       "cloudAppFlowy": "سحابة @:appName",
       "clickToCopy": "انقر للنسخ",
       "selfHostStart": "إذا لم يكن لديك خادم، يرجى الرجوع إلى",
@@ -386,7 +382,6 @@
       "historicalUserListTooltip": "تعرض هذه القائمة حساباتك المجهولة. يمكنك النقر على الحساب لعرض تفاصيله. يتم إنشاء الحسابات المجهولة بالنقر فوق الزر \"البدء\".",
       "openHistoricalUser": "انقر لفتح الحساب الخفي",
       "customPathPrompt": "قد يؤدي تخزين مجلد بيانات @:appName في مجلد متزامن على السحابة مثل Google Drive إلى مخاطر. إذا تم الوصول إلى قاعدة البيانات الموجودة في هذا المجلد أو تعديلها من مواقع متعددة في نفس الوقت، فقد يؤدي ذلك إلى حدوث تعارضات في المزامنة وتلف محتمل للبيانات",
-      "supabaseSetting": "إعداد Supabase",
       "cloudSetting": "إعداد السحابة"
     },
     "notifications": {
