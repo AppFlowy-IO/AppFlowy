@@ -10,8 +10,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('document shortcuts:', () {
-    testWidgets('ctrl/cmd+x to delete a line when the selection is collapsed',
-        (tester) async {
+    testWidgets('custom cut command', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -24,17 +23,23 @@ void main() {
       // mock the data
       final editorState = tester.editor.getCurrentEditorState();
       final transaction = editorState.transaction;
+      const text1 = '1. First line';
+      const text2 = '2. Second line';
       transaction.insertNodes([
         0,
       ], [
-        paragraphNode(text: '1. First line'),
-        paragraphNode(text: '2. Second line'),
+        paragraphNode(text: text1),
+        paragraphNode(text: text2),
       ]);
       await editorState.apply(transaction);
       await tester.pumpAndSettle();
 
       // focus on the end of the first line
-      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.updateSelection(
+        Selection.collapsed(
+          Position(path: [0], offset: text1.length),
+        ),
+      );
       // press the keybinding
       await tester.simulateKeyEvent(
         LogicalKeyboardKey.keyX,
@@ -43,17 +48,26 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // check the clipboard
+      final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
+      expect(
+        clipboard?.text,
+        equals(text1),
+      );
+
       final node = tester.editor.getNodeAtPath([0]);
       expect(
         node.delta?.toPlainText(),
-        equals('2. Second line'),
+        equals(text2),
       );
 
       // select the whole line
-      editorState.selection = Selection.single(
-        path: [0],
-        startOffset: 0,
-        endOffset: node.delta?.length ?? 0,
+      await tester.editor.updateSelection(
+        Selection.single(
+          path: [0],
+          startOffset: 0,
+          endOffset: text2.length,
+        ),
       );
 
       // press the keybinding
@@ -67,7 +81,7 @@ void main() {
       // nothing should happen
       expect(
         node.delta?.toPlainText(),
-        equals('2. Second line'),
+        equals(text2),
       );
     });
   });
