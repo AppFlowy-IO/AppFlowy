@@ -15,7 +15,7 @@ import 'document_copy_and_paste_test.dart';
 // Test cases for the Document SubPageBlock that needs to be covered:
 // - [x] Insert a new SubPageBlock from Slash menu items (Expect it will create a child view under current view)
 // - [x] Delete a SubPageBlock from Block Action Menu (Expect the view is moved to trash / deleted)
-// - [ ] Delete a SubPageBlock with backspace when selected (Expect the view is moved to trash / deleted)
+// - [x] Delete a SubPageBlock with backspace when selected (Expect the view is moved to trash / deleted)
 // - [x] Copy+paste a SubPageBlock in same Document (Expect a new view is created under current view with same content and name)
 // - [ ] Copy+paste a SubPageBlock in different Document (Expect a new view is created under current view with same content and name)
 // - [ ] Cut+paste a SubPageBlock in same Document (Expect the view to be deleted on Cut, and brought back on Paste)
@@ -105,6 +105,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Child page'), findsNothing);
+      expect(find.byType(SubPageBlockComponent), findsNothing);
     });
 
     testWidgets('Copy+paste a SubPageBlock in same Document',
