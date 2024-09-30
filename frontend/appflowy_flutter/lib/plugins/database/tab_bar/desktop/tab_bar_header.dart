@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -37,9 +36,7 @@ class TabBarHeader extends StatelessWidget {
             left: 0,
             right: 0,
             child: Divider(
-              color: Theme.of(context).isLightMode
-                  ? const Color(0xFFEDEDEE)
-                  : Theme.of(context).dividerColor,
+              color: AFThemeExtension.of(context).borderColor,
               height: 1,
               thickness: 1,
             ),

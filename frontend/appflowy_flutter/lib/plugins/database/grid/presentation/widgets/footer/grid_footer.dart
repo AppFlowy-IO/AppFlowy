@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -19,14 +18,11 @@ class GridAddRowButton extends StatelessWidget {
     final color = Theme.of(context).brightness == Brightness.light
         ? const Color(0xFF171717).withOpacity(0.4)
         : const Color(0xFFFFFFFF).withOpacity(0.4);
-    final borderColor = Theme.of(context).isLightMode
-        ? const Color(0xFFEDEDEE)
-        : Theme.of(context).dividerColor;
     return FlowyButton(
       radius: BorderRadius.zero,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: borderColor),
+          bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
         ),
       ),
       text: FlowyText(

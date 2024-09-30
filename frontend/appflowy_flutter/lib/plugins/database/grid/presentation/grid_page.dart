@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy/util/theme_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -569,9 +569,7 @@ class _PositionedCalculationsRowState
           color: Theme.of(context).canvasColor,
           border: Border(
             top: BorderSide(
-              color: Theme.of(context).isLightMode
-                  ? const Color(0xFFEDEDEE)
-                  : Theme.of(context).dividerColor,
+              color: AFThemeExtension.of(context).borderColor,
             ),
           ),
         ),

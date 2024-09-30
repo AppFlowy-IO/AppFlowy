@@ -1,4 +1,3 @@
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -142,11 +141,8 @@ class _GridHeaderCellContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide = BorderSide(
-      color: Theme.of(context).isLightMode
-          ? const Color(0xFFEDEDEE)
-          : Theme.of(context).dividerColor,
-    );
+    final borderSide =
+        BorderSide(color: AFThemeExtension.of(context).borderColor);
     final decoration = BoxDecoration(
       border: Border(
         right: borderSide,
