@@ -30,7 +30,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final standardActions = [
     OptionAction.delete,
     OptionAction.duplicate,
-    OptionAction.copyLinkToBlock,
+    // filter out the copy link to block option if in local mode
+    if (!context.read<DocumentBloc>().isLocalMode) OptionAction.copyLinkToBlock,
   ];
 
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;

@@ -70,7 +70,7 @@ enum OptionAction {
       case OptionAction.depth:
         return LocaleKeys.document_plugins_optionAction_depth.tr();
       case OptionAction.copyLinkToBlock:
-        return 'Copy link to block';
+        return LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr();
       case OptionAction.divider:
         throw UnsupportedError('Divider does not have description');
     }

@@ -1650,7 +1650,8 @@
         "center": "Center",
         "right": "Right",
         "defaultColor": "Default",
-        "depth": "Depth"
+        "depth": "Depth",
+        "copyLinkToBlock": "Copy link to block"
       },
       "image": {
         "addAnImage": "Add images",
