@@ -102,7 +102,9 @@ void main() {
         Selection.single(path: [0], startOffset: 0),
       );
       await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
-      await tester.pumpAndSettle();
+
+      // Give enough time for the SubPageBlock to be deleted and the view moved to trash
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Child page'), findsNothing);
       expect(find.byType(SubPageBlockComponent), findsNothing);
