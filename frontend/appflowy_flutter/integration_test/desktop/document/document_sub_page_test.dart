@@ -101,10 +101,10 @@ void main() {
       await tester.editor.updateSelection(
         Selection.single(path: [0], startOffset: 0),
       );
-      await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pumpAndSettle();
 
-      // Give enough time for the SubPageBlock to be deleted and the view moved to trash
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
       expect(find.text('Child page'), findsNothing);
       expect(find.byType(SubPageBlockComponent), findsNothing);
@@ -232,12 +232,124 @@ void main() {
 
     testWidgets('Cut+paste a SubPageBlock in same Document',
         (WidgetTester tester) async {
-      // Test code goes here.
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
+
+      await tester.insertSubPageFromSlashMenu();
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      await tester
+          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.renamePage('Child page');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Child page'), findsNWidgets(2));
+
+      await tester.editor.hoverAndClickOptionAddButton([0], false);
+      await tester.editor.tapLineOfEditorAt(1);
+
+      // This is a workaround to allow CTRL+A and CTRL+X to work to cut
+      // the SubPageBlock as well.
+      await tester.ime.insertText('ABC');
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyA,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyX,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(SubPageBlockComponent), findsNothing);
+      expect(find.text('Child page'), findsNothing);
+
+      await tester.editor.tapLineOfEditorAt(0);
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+      expect(find.text('Child page'), findsNWidgets(2));
     });
 
     testWidgets('Cut+paste a SubPageBlock in different Document',
         (WidgetTester tester) async {
-      // Test code goes here.
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
+
+      await tester.insertSubPageFromSlashMenu();
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      await tester
+          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.renamePage('Child page');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Child page'), findsNWidgets(2));
+
+      await tester.editor.hoverAndClickOptionAddButton([0], false);
+      await tester.editor.tapLineOfEditorAt(1);
+
+      // This is a workaround to allow CTRL+A and CTRL+X to work to cut
+      // the SubPageBlock as well.
+      await tester.ime.insertText('ABC');
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyA,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyX,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SubPageBlockComponent), findsNothing);
+      expect(find.text('Child page'), findsNothing);
+
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock-2');
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock-2',
+        layout: ViewLayoutPB.Document,
+      );
+
+      expect(find.byType(SubPageBlockComponent), findsNWidgets(1));
+      expect(find.text('Child page'), findsNWidgets(2));
+      expect(find.text('Child page (copy)'), findsNothing);
     });
 
     testWidgets('Undo delete of a SubPageBlock', (WidgetTester tester) async {
