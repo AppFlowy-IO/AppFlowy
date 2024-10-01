@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -385,6 +386,56 @@ void main() {
           'attributes': {'href': url},
         }
       ]);
+    },
+  );
+
+  testWidgets(
+    'ctrl/cmd+z to undo the auto convert url to link preview block',
+    (tester) async {
+      const text = 'Hello World';
+      final editorState = tester.editor.getCurrentEditorState();
+      final transaction = editorState.transaction;
+      // [image_block]
+      // [paragraph_block]
+      transaction.insertNodes([
+        0,
+      ], [
+        customImageNode(url: ''),
+        paragraphNode(text: text),
+      ]);
+      await editorState.apply(transaction);
+
+      await tester.editor.tapLineOfEditorAt(0);
+      // select all
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyA,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      // put the cursor to the end of the paragraph block
+      await editorState.updateSelectionWithReason(
+        Selection.collapsed(Position(path: [1], offset: text.length)),
+        reason: SelectionUpdateReason.uiEvent,
+      );
+
+      // paste the content
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      // expect the image and the paragraph block are inserted below the cursor
+      expect(editorState.document.root.children.length, 4);
+      expect(editorState.getNodeAtPath([0])!.type, CustomImageBlockKeys.type);
+      expect(editorState.getNodeAtPath([1])!.type, ParagraphBlockKeys.type);
+      expect(editorState.getNodeAtPath([2])!.type, CustomImageBlockKeys.type);
+      expect(editorState.getNodeAtPath([3])!.type, ParagraphBlockKeys.type);
     },
   );
 
