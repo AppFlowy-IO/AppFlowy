@@ -44,7 +44,10 @@ class EditorOperations {
   Future<void> tapLineOfEditorAt(int index) async {
     final textBlocks = find.byType(AppFlowyRichText);
     index = index.clamp(0, textBlocks.evaluate().length - 1);
-    await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
+    final center = tester.getCenter(textBlocks.at(index));
+    final right = tester.getTopRight(textBlocks.at(index));
+    final centerRight = Offset(right.dx, center.dy);
+    await tester.tapAt(centerRight);
     await tester.pumpAndSettle();
   }
 

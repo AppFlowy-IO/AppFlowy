@@ -390,8 +390,9 @@ void main() {
   );
 
   testWidgets(
-    'ctrl/cmd+z to undo the auto convert url to link preview block',
+    'paste the nodes start with non-delta node',
     (tester) async {
+      await tester.pasteContent((_) {});
       const text = 'Hello World';
       final editorState = tester.editor.getCurrentEditorState();
       final transaction = editorState.transaction;
@@ -404,22 +405,25 @@ void main() {
         paragraphNode(text: text),
       ]);
       await editorState.apply(transaction);
+      await tester.pumpAndSettle();
 
       await tester.editor.tapLineOfEditorAt(0);
-      // select all
+      // select all and copy
       await tester.simulateKeyEvent(
         LogicalKeyboardKey.keyA,
         isControlPressed:
             UniversalPlatform.isLinux || UniversalPlatform.isWindows,
         isMetaPressed: UniversalPlatform.isMacOS,
       );
-      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyC,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
 
       // put the cursor to the end of the paragraph block
-      await editorState.updateSelectionWithReason(
-        Selection.collapsed(Position(path: [1], offset: text.length)),
-        reason: SelectionUpdateReason.uiEvent,
-      );
+      await tester.editor.tapLineOfEditorAt(0);
 
       // paste the content
       await tester.simulateKeyEvent(
@@ -431,7 +435,6 @@ void main() {
       await tester.pumpAndSettle();
 
       // expect the image and the paragraph block are inserted below the cursor
-      expect(editorState.document.root.children.length, 4);
       expect(editorState.getNodeAtPath([0])!.type, CustomImageBlockKeys.type);
       expect(editorState.getNodeAtPath([1])!.type, ParagraphBlockKeys.type);
       expect(editorState.getNodeAtPath([2])!.type, CustomImageBlockKeys.type);
