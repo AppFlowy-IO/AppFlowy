@@ -75,7 +75,10 @@ class _ShareTabContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ShareBloc, ShareState>(
       builder: (context, state) {
-        final shareUrl = _buildShareUrl(state);
+        final shareUrl = ShareConstants.buildShareUrl(
+          workspaceId: state.workspaceId,
+          viewId: state.viewId,
+        );
         return Row(
           children: [
             Expanded(
@@ -106,10 +109,6 @@ class _ShareTabContent extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _buildShareUrl(ShareState state) {
-    return '${ShareConstants.shareBaseUrl}/${state.workspaceId}/${state.viewId}';
   }
 
   void _copy(BuildContext context, String url) {

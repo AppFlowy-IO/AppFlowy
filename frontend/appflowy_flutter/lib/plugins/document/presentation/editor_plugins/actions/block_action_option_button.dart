@@ -248,8 +248,11 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
       return;
     }
 
-    final link =
-        '${ShareConstants.shareBaseUrl}/$workspaceId/$viewId?blockId=${node.id}';
+    final link = ShareConstants.buildShareUrl(
+      workspaceId: workspaceId,
+      viewId: viewId,
+      blockId: node.id,
+    );
     await getIt<ClipboardService>().setData(
       ClipboardServiceData(plainText: link),
     );

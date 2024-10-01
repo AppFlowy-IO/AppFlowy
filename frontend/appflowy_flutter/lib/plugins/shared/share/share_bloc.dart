@@ -70,8 +70,10 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                 isPublished: true,
                 publishResult: FlowySuccess(null),
                 unpublishResult: null,
-                url:
-                    '${ShareConstants.publishBaseUrl}/${result.namespace}/$publishName',
+                url: ShareConstants.buildPublishUrl(
+                  nameSpace: result.namespace,
+                  publishName: publishName,
+                ),
               ),
             );
 
@@ -141,8 +143,10 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             emit(
               state.copyWith(
                 isPublished: true,
-                url:
-                    '${ShareConstants.publishBaseUrl}/${s.namespace}/${s.publishName}',
+                url: ShareConstants.buildPublishUrl(
+                  nameSpace: s.namespace,
+                  publishName: s.publishName,
+                ),
                 viewName: view.name,
                 enablePublish: enablePublish,
                 workspaceId: workspaceId,
