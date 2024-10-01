@@ -50,7 +50,7 @@ KeyEventResult handleCopyCommand(
 
     // in app json
     final document = Document.blank()
-      ..insert([0], [_handleNode(node.copyWith())]);
+      ..insert([0], [_handleNode(node.copyWith(), isCut)]);
     inAppJson = jsonEncode(document.toJson());
 
     // html
