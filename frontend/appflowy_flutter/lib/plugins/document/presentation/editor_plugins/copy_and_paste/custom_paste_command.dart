@@ -117,12 +117,14 @@ Future<bool> _pasteAsLinkPreview(
   // 1. the url should contains a protocol
   // 2. the url should not be an image url
   if (text == null ||
-      !isURL(text, {'require_protocol': true}) ||
-      text.isImageUrl()) {
+      text.isImageUrl() ||
+      !isURL(text, {'require_protocol': true})) {
     return false;
   }
 
   final selection = editorState.selection;
+  // Apply the update only when the selection is collapsed
+  //  and at the start of the current line
   if (selection == null ||
       !selection.isCollapsed ||
       selection.startIndex != 0) {
@@ -130,18 +132,43 @@ Future<bool> _pasteAsLinkPreview(
   }
 
   final node = editorState.getNodeAtPath(selection.start.path);
+  // Apply the update only when the current node is a paragraph
+  //  and the paragraph is empty
   if (node == null ||
       node.type != ParagraphBlockKeys.type ||
       node.delta?.toPlainText().isNotEmpty == true) {
     return false;
   }
 
-  final transaction = editorState.transaction;
-  transaction.insertNode(
-    selection.start.path,
-    linkPreviewNode(url: text),
+  // 1. insert the text with link format
+  // 2. convert it the link preview node
+  final textTransaction = editorState.transaction;
+  textTransaction.insertText(
+    node,
+    0,
+    text,
+    attributes: {AppFlowyRichTextKeys.href: text},
   );
-  await editorState.apply(transaction);
+  await editorState.apply(
+    textTransaction,
+    skipHistoryDebounce: true,
+  );
+
+  final linkPreviewTransaction = editorState.transaction;
+  linkPreviewTransaction
+    ..insertNode(
+      selection.start.path,
+      linkPreviewNode(url: text),
+    )
+    ..deleteNode(
+      node,
+    );
+  final nextNode = node.next;
+  if (nextNode != null) {
+    linkPreviewTransaction.afterSelection =
+        Selection.collapsed(Position(path: nextNode.path));
+  }
+  await editorState.apply(linkPreviewTransaction);
 
   return true;
 }
