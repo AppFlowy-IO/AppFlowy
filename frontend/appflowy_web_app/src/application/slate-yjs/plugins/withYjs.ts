@@ -159,8 +159,9 @@ export function withYjs<T extends Editor> (
     localChanges.delete(e);
     // parse changes and apply to ydoc
     doc.transact(() => {
+      console.log('flushLocalChanges', changes);
       changes.forEach((change) => {
-        applyToYjs(doc, editor, change.op);
+        applyToYjs(doc, editor, change.op, change.slateContent);
       });
     }, localOrigin);
   };

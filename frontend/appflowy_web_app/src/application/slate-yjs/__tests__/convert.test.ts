@@ -231,41 +231,6 @@ describe('test deltaInsertToSlateNode', () => {
     expect(node).toEqual({ text: 'Hello' });
   });
 
-  it('should generate formula inline node', () => {
-    const node = deltaInsertToSlateNode({
-      insert: '$$',
-      attributes: { formula: 'world' },
-    });
-
-    expect(node).toEqual([
-      {
-        type: 'formula',
-        data: 'world',
-        children: [{ text: '$' }],
-      },
-      {
-        type: 'formula',
-        data: 'world',
-        children: [{ text: '$' }],
-      },
-    ]);
-  });
-
-  it('should generate mention inline node', () => {
-    const node = deltaInsertToSlateNode({
-      insert: '@',
-      attributes: { mention: 'world' },
-    });
-
-    expect(node).toEqual([
-      {
-        type: 'mention',
-        data: 'world',
-        children: [{ text: '@' }],
-      },
-    ]);
-  });
-
   it('should ensure undo/redo works', () => {
 
     const doc = new Y.Doc();

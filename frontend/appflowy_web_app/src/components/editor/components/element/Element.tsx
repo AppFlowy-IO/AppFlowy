@@ -1,4 +1,4 @@
-import { BlockData, BlockType, InlineBlockType, YjsEditorKey } from '@/application/types';
+import { BlockData, BlockType, YjsEditorKey } from '@/application/types';
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
@@ -23,8 +23,6 @@ import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
 import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
-import { Formula } from '@/components/editor/components/leaf/formula';
-import { Mention } from '@/components/editor/components/leaf/mention';
 import { FileBlock } from '@/components/editor/components/blocks/file';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
@@ -112,17 +110,6 @@ export const Element = ({
     }
   }, [node.type]) as FC<EditorElementProps>;
 
-  const InlineComponent = useMemo(() => {
-    switch (node.type) {
-      case InlineBlockType.Formula:
-        return Formula;
-      case InlineBlockType.Mention:
-        return Mention;
-      default:
-        return null;
-    }
-  }, [node.type]) as FC<EditorElementProps>;
-
   const className = useMemo(() => {
     const data = (node.data as BlockData) || {};
     const align = data.align;
@@ -138,14 +125,6 @@ export const Element = ({
       color: data.font_color ? renderColor(data.font_color) : undefined,
     };
   }, [node.data]);
-
-  if (InlineComponent) {
-    return (
-      <InlineComponent {...attributes} node={node}>
-        {children}
-      </InlineComponent>
-    );
-  }
 
   if (node.type === YjsEditorKey.text) {
     return (

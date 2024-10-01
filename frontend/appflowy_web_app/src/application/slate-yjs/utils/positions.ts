@@ -63,7 +63,7 @@ export function slatePointToRelativePosition (
   };
 }
 
-function calculateOffsetRelativeToParent (slateNode: Element, point: BasePoint): number {
+export function calculateOffsetRelativeToParent (slateNode: Element, point: BasePoint): number {
   const { path, offset } = point;
 
   if (path.length <= 1) {

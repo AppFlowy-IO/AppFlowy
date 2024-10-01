@@ -24,34 +24,64 @@ describe('<Paragraph />', () => {
     const data: FromBlockJSON[] = [{
       type: 'paragraph',
       data: {},
-      text: [{ insert: 'Hello, world!' }],
+      text: [
+        { insert: 'Hello, ' },
+        {
+          insert: 'world!', 'attributes': {
+            'italic': true,
+            'underline': true,
+            'strikethrough': true,
+            'font_color': '#ff0000',
+            'bg_color': '#00ff00',
+          },
+        },
+        { insert: ' This is a ' },
+        {
+          insert: 'bold', 'attributes': {
+            'bold': true,
+          },
+        },
+        { insert: ' text.' },
+      ],
       children: [],
     }];
 
     documentTest.fromJSON(data);
+
     mountEditor({ readOnly: false, doc: documentTest.doc });
 
     cy.get('[role="textbox"]').should('exist');
-    cy.get('[role="textbox"]').type('{selectall}').type('{rightarrow}')
-      .type(' New text at the end');
-    cy.get('[role="textbox"]')
-      .type('{movetoend}')
-      .type('{leftarrow}'.repeat(10))
-      .type('{backspace}'.repeat(5)).type('add').type('{backspace}'.repeat(2));
-    cy.matchImageSnapshot('paragraph/editing-text');
+
+    cy.get('[role="textbox"]').type('{movetostart}').type('{rightarrow}'.repeat(10))
+      .type(' New text at the `world` middle ');
+    cy.get('[role="textbox"]').type('{movetoend}').type('{leftarrow}'.repeat(6)).type('{backspace}'.repeat(4));
 
     cy.wrap(null).then(() => {
       const finalJSON = documentTest.toJSON();
-
-      const expectedJSON = [{
+      const expectJSON = [{
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'Hello, world! New aat the end' }],
+        text: [
+          { insert: 'Hello, ' },
+          {
+            insert: 'wor New text at the `world` middle ld!',
+            attributes: {
+              italic: true,
+              underline: true,
+              strikethrough: true,
+              font_color: '#ff0000',
+              bg_color: '#00ff00',
+            },
+          },
+          { insert: ' This is a  text.' },
+        ],
         children: [],
       }];
 
-      expect(finalJSON).to.deep.equal(expectedJSON);
+      expect(finalJSON).to.deep.equal(expectJSON);
     });
+    // Optional: Add visual regression test
+    cy.matchImageSnapshot('paragraph/editing-text');
   });
 
   it('edit paragraphs with undo and redo', () => {
@@ -166,6 +196,50 @@ describe('<Paragraph />', () => {
     // Optional: Add visual regression test
     cy.matchImageSnapshot('paragraph/editing-text-with-undo-redo');
   });
+
+  it('inline formatting', () => {
+    const documentTest = new DocumentTest();
+    const data: FromBlockJSON[] = [{
+      type: 'paragraph',
+      data: {},
+      text: [
+        { insert: 'Hello, ' },
+        {
+          insert: 'world!', 'attributes': {
+            'italic': true,
+            'underline': true,
+            'strikethrough': true,
+            'font_color': '#ff0000',
+            'bg_color': '#00ff00',
+          },
+        },
+        { insert: ' This is a ' },
+        {
+          insert: 'bold', 'attributes': {
+            'bold': true,
+          },
+        },
+        { insert: ' text.' },
+      ],
+      children: [],
+    }, {
+      type: 'paragraph',
+      data: {},
+      text: [
+        { insert: 'This is a date: ' },
+        { insert: '@', attributes: { mention: { type: 'date', 'date': Date.now().valueOf() } } },
+        { insert: 'This is a formula: ' },
+        { insert: '$', attributes: { formula: 'E=mc^2' } },
+        { insert: ' .' },
+      ],
+      children: [],
+    }];
+
+    documentTest.fromJSON(data);
+    mountEditor({ readOnly: false, doc: documentTest.doc });
+
+  });
+
 });
 
 export {};

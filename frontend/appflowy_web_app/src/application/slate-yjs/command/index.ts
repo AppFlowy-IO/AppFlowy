@@ -29,6 +29,23 @@ export const CustomEditor = {
     }
 
     if (Text.isText(node)) {
+      if (node.formula) {
+        return node.formula;
+      }
+
+      if (node.mention) {
+        if (node.mention.type === MentionType.Date) {
+          const date = node.mention.date || '';
+          const isUnix = date?.length === 10;
+
+          return renderDate(date, 'MMM DD, YYYY', isUnix);
+        } else {
+          const name = document.querySelector('[data-mention-id="' + node.mention.page_id + '"]')?.textContent || '';
+
+          return name;
+        }
+      }
+
       return node.text || '';
     }
 

@@ -1,12 +1,12 @@
 import { NormalModal } from '@/components/_shared/modal';
 import MoreActions from '@/components/_shared/more-actions/MoreActions';
 import { openOrDownload } from '@/utils/open_schema';
-import { EditOutlined } from '@mui/icons-material';
 import { Button, Divider, Tooltip } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ShareButton from 'src/components/app/share/ShareButton';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
+import { ReactComponent as EditOutlined } from '@/assets/edit.svg';
 
 function RightMenu () {
   const { t } = useTranslation();
