@@ -16,7 +16,12 @@ extension PasteFromInAppJson on EditorState {
         await pasteSingleLineNode(nodes.first);
       } else {
         Log.info('pasteInAppJson: multi line nodes');
-        await pasteMultiLineNodes(nodes.toList());
+        final startWithNonDeltaBlock = nodes.first.delta == null;
+        if (startWithNonDeltaBlock) {
+          await _pasteNodesAfterCurrentLine(nodes);
+        } else {
+          await pasteMultiLineNodes(nodes.toList());
+        }
       }
       return true;
     } catch (e) {
@@ -25,5 +30,24 @@ extension PasteFromInAppJson on EditorState {
       );
     }
     return false;
+  }
+
+  // if the pasted nodes start with the non-delta block(s),
+  //  insert them after the current line
+  Future<void> _pasteNodesAfterCurrentLine(List<Node> nodes) async {
+    final selection = await deleteSelectionIfNeeded();
+    if (selection == null) {
+      return;
+    }
+
+    final node = getNodeAtPath(selection.start.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+
+    final transaction = this.transaction;
+    transaction.insertNodes(node.path.next, nodes);
+    await apply(transaction);
   }
 }
