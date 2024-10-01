@@ -11,6 +11,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../shared/util.dart';
 
@@ -346,6 +347,39 @@ void main() {
       final textNode = editorState.getNodeAtPath([0])!;
       expect(textNode.type, ParagraphBlockKeys.type);
       expect(textNode.delta!.toJson(), [
+        {
+          'insert': url,
+          'attributes': {'href': url},
+        }
+      ]);
+    },
+  );
+
+  testWidgets(
+    'ctrl/cmd+z to undo the auto convert url to link preview block',
+    (tester) async {
+      const url = 'https://appflowy.io';
+      await tester.pasteContent(plainText: url, (editorState) async {
+        // the second one is the paragraph node
+        expect(editorState.document.root.children.length, 2);
+        final node = editorState.getNodeAtPath([0])!;
+        expect(node.type, LinkPreviewBlockKeys.type);
+        expect(node.attributes[LinkPreviewBlockKeys.url], url);
+      });
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ParagraphBlockKeys.type);
+      expect(node.delta!.toJson(), [
         {
           'insert': url,
           'attributes': {'href': url},

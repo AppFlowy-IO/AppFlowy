@@ -155,19 +155,21 @@ Future<bool> _pasteAsLinkPreview(
   );
 
   final linkPreviewTransaction = editorState.transaction;
-  linkPreviewTransaction
-    ..insertNode(
-      selection.start.path,
-      linkPreviewNode(url: text),
-    )
-    ..deleteNode(
-      node,
-    );
-  final nextNode = node.next;
-  if (nextNode != null) {
-    linkPreviewTransaction.afterSelection =
-        Selection.collapsed(Position(path: nextNode.path));
-  }
+  final insertedNodes = [
+    linkPreviewNode(url: text),
+    // if the next node is null, insert a empty paragraph node
+    if (node.next == null) paragraphNode(),
+  ];
+  linkPreviewTransaction.insertNodes(
+    selection.start.path,
+    insertedNodes,
+  );
+  linkPreviewTransaction.deleteNode(node);
+  linkPreviewTransaction.afterSelection = Selection.collapsed(
+    Position(
+      path: node.path.next,
+    ),
+  );
   await editorState.apply(linkPreviewTransaction);
 
   return true;
