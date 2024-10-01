@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/application/document_appearance_cubit.
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -50,6 +51,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleFocusNode = FocusNode();
   late final editorContext = context.read<SharedEditorContext>();
   late final editorState = context.read<EditorState>();
+  bool isTitleFocused = false;
 
   @override
   void initState() {
@@ -59,7 +61,18 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleTextController.addListener(_onViewNameChanged);
     titleFocusNode.onKeyEvent = _onKeyEvent;
     titleFocusNode.addListener(() {
+      isTitleFocused = titleFocusNode.hasFocus;
+
       if (titleFocusNode.hasFocus && editorState.selection != null) {
+        Log.info('cover title got focus, clear the editor selection');
+        editorState.selection = null;
+      }
+    });
+
+    editorState.selectionNotifier.addListener(() {
+      // if title is focused and the selection is not null, clear the selection
+      if (editorState.selection != null && isTitleFocused) {
+        Log.info('title is focused, clear the editor selection');
         editorState.selection = null;
       }
     });
@@ -217,19 +230,23 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
     titleFocusNode.unfocus();
 
-    int offset = 0;
-    if (key == LogicalKeyboardKey.arrowDown) {
-      offset = node.delta?.length ?? 0;
-    } else if (key == LogicalKeyboardKey.arrowRight) {
-      offset = 0;
-    }
-    editorState.updateSelectionWithReason(
-      Selection.collapsed(
-        Position(path: [0], offset: offset),
-      ),
-      // trigger the keyboard service.
-      reason: SelectionUpdateReason.uiEvent,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // delay the update selection to wait for the title to unfocus
+      int offset = 0;
+      if (key == LogicalKeyboardKey.arrowDown) {
+        offset = node.delta?.length ?? 0;
+      } else if (key == LogicalKeyboardKey.arrowRight) {
+        offset = 0;
+      }
+      editorState.updateSelectionWithReason(
+        Selection.collapsed(
+          Position(path: [0], offset: offset),
+        ),
+        // trigger the keyboard service.
+        reason: SelectionUpdateReason.uiEvent,
+      );
+    });
+
     return KeyEventResult.handled;
   }
 }

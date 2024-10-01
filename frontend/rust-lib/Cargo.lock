@@ -277,17 +277,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-recursion"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b43422f69d8ff38f95f1b2bb76517c91589a924d1559a0e935d7c8ce0274c11"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.47",
-]
-
-[[package]]
 name = "async-stream"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -848,7 +837,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -873,7 +862,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -912,7 +901,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -933,7 +922,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "bytes",
@@ -953,7 +942,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -974,10 +963,10 @@ dependencies = [
 [[package]]
 name = "collab-importer"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
- "async-recursion",
+ "async-trait",
  "base64 0.22.1",
  "chrono",
  "collab",
@@ -986,6 +975,7 @@ dependencies = [
  "collab-entity",
  "collab-folder",
  "fancy-regex 0.13.0",
+ "futures",
  "fxhash",
  "hex",
  "markdown",
@@ -1027,7 +1017,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1107,7 +1097,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=44efb8214aaf1bb7326401b891af0626886509ce#44efb8214aaf1bb7326401b891af0626886509ce"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=b3581aad2dcea8c02c807858e05b62358e38c24e#b3581aad2dcea8c02c807858e05b62358e38c24e"
 dependencies = [
  "anyhow",
  "collab",

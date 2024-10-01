@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database/application/field/filter_entities.dart
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/mobile_select_option_editor.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/field_type_extension.dart';
@@ -620,10 +621,10 @@ class _FilterableFieldList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return FlowyOptionTile.checkbox(
                     text: blocState.fields[index].name,
-                    showTopBorder: false,
-                    leftIcon: FlowySvg(
-                      blocState.fields[index].fieldType.svgData,
+                    leftIcon: FieldIcon(
+                      fieldInfo: blocState.fields[index],
                     ),
+                    showTopBorder: false,
                     isSelected: _isSelected(context, blocState, index),
                     onTap: () => onSelectField(blocState.fields[index]),
                   );

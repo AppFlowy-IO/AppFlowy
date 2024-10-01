@@ -850,11 +850,6 @@
       "cloudServerType": "Тип облачного сервера",
       "cloudServerTypeTip": "Обратите внимание, что после смены облачного сервера может произойти выход из текущего аккаунта.",
       "cloudLocal": "Локально",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "URL Supabase",
-      "cloudSupabaseUrlCanNotBeEmpty": "URL-адрес Supabase не может быть пустым.",
-      "cloudSupabaseAnonKey": "Анонимный ключ Supabase",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Анонимный ключ не может быть пустым, если URL Supabase не пуст",
       "cloudAppFlowy": "@:appName Cloud Бета",
       "cloudAppFlowySelfHost": "@:appName Cloud на своём сервере",
       "appFlowyCloudUrlCanNotBeEmpty": "URL облака не может быть пустым.",
@@ -883,8 +878,7 @@
       "importAppFlowyDataDescription": "Скопируйте данные из внешней папки данных @:appName и импортируйте их в текущую папку данных @:appName.",
       "importSuccess": "Папка данных @:appName успешно импортирована",
       "importFailed": "Не удалось импортировать папку данных @:appName",
-      "importGuide": "Для получения более подробной информации, пожалуйста, проверьте указанный документ.",
-      "supabaseSetting": "Настройка Supabase"
+      "importGuide": "Для получения более подробной информации, пожалуйста, проверьте указанный документ."
     },
     "notifications": {
       "enableNotifications": {

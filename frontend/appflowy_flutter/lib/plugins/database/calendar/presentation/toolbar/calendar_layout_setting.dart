@@ -173,7 +173,7 @@ class LayoutDateField extends StatelessWidget {
                   return SizedBox(
                     height: GridSize.popoverItemHeight,
                     child: FlowyButton(
-                      text: FlowyText.medium(
+                      text: FlowyText(
                         fieldInfo.name,
                         lineHeight: 1.0,
                       ),
@@ -208,7 +208,7 @@ class LayoutDateField extends StatelessWidget {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             LocaleKeys.calendar_settings_layoutDateField.tr(),
           ),
@@ -310,7 +310,7 @@ class FirstDayOfWeek extends StatelessWidget {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             LocaleKeys.calendar_settings_firstDayOfWeek.tr(),
           ),
@@ -331,7 +331,7 @@ Widget _toggleItem({
       padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
       child: Row(
         children: [
-          FlowyText.medium(text),
+          FlowyText(text),
           const Spacer(),
           Toggle(
             value: value,
@@ -372,7 +372,7 @@ class StartFromButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           title,
           lineHeight: 1.0,
         ),

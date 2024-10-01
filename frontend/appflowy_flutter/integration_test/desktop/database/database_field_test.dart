@@ -24,12 +24,37 @@ void main() {
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Name');
-      await tester.tapEditFieldButton();
 
       await tester.renameField('hello world');
       await tester.dismissFieldEditor();
 
       await tester.tapGridFieldWithName('hello world');
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('edit field icon', (tester) async {
+      const icon = 'artificial_intelligence/ai-upscale-spark';
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      tester.assertFieldSvg('Name', FieldType.RichText);
+
+      // choose specific icon
+      await tester.tapGridFieldWithName('Name');
+      await tester.changeFieldIcon(icon);
+      await tester.dismissFieldEditor();
+
+      tester.assertFieldCustomSvg('Name', icon);
+
+      // remove icon
+      await tester.tapGridFieldWithName('Name');
+      await tester.changeFieldIcon('');
+      await tester.dismissFieldEditor();
+
+      tester.assertFieldSvg('Name', FieldType.RichText);
+
       await tester.pumpAndSettle();
     });
 

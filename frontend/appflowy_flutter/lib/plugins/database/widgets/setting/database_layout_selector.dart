@@ -79,7 +79,7 @@ class DatabaseViewLayoutCell extends StatelessWidget {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             databaseLayout.layoutName,
             color: AFThemeExtension.of(context).textColor,

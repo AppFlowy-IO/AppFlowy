@@ -436,11 +436,6 @@
       "cloudServerType": "雲端伺服器種類",
       "cloudServerTypeTip": "請注意，切換雲端伺服器後可能會登出您目前的帳號",
       "cloudLocal": "本地",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase 網址",
-      "cloudSupabaseUrlCanNotBeEmpty": "Supabase 網址不能為空",
-      "cloudSupabaseAnonKey": "Supabase 匿名金鑰",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase 網址不為空，則匿名金鑰不得為空",
       "cloudAppFlowy": "@:appName 雲端測試版 (Beta)",
       "cloudAppFlowySelfHost": "自架 @:appName 雲端伺服器",
       "appFlowyCloudUrlCanNotBeEmpty": "雲端網址不能為空",
@@ -469,8 +464,7 @@
       "importAppFlowyDataDescription": "從外部 @:appName 資料夾複製資料並匯入到目前的 @:appName 資料夾",
       "importSuccess": "成功匯入 @:appName 資料夾",
       "importFailed": "匯入 @:appName 資料夾失敗",
-      "importGuide": "欲瞭解更多詳細資訊，請查閱參考文件",
-      "supabaseSetting": "supabase 設定"
+      "importGuide": "欲瞭解更多詳細資訊，請查閱參考文件"
     },
     "notifications": {
       "enableNotifications": {

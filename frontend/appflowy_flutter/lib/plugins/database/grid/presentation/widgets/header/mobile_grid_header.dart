@@ -178,7 +178,7 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 }
 
-class CreateFieldButton extends StatefulWidget {
+class CreateFieldButton extends StatelessWidget {
   const CreateFieldButton({
     super.key,
     required this.viewId,
@@ -188,11 +188,6 @@ class CreateFieldButton extends StatefulWidget {
   final String viewId;
   final void Function(String fieldId) onFieldCreated;
 
-  @override
-  State<CreateFieldButton> createState() => _CreateFieldButtonState();
-}
-
-class _CreateFieldButtonState extends State<CreateFieldButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -211,7 +206,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
           color: Theme.of(context).hintColor,
         ),
         hoverColor: AFThemeExtension.of(context).greyHover,
-        onTap: () => mobileCreateFieldWorkflow(context, widget.viewId),
+        onTap: () => mobileCreateFieldWorkflow(context, viewId),
         leftIconSize: const Size.square(18),
         leftIcon: FlowySvg(
           FlowySvgs.add_s,

@@ -22,7 +22,7 @@ class ClearDateButton extends StatelessWidget {
       child: SizedBox(
         height: DatePickerSize.itemHeight,
         child: FlowyButton(
-          text: FlowyText.medium(LocaleKeys.datePicker_clearDate.tr()),
+          text: FlowyText(LocaleKeys.datePicker_clearDate.tr()),
           onTap: () {
             onClearDate();
             PopoverContainer.of(context).close();

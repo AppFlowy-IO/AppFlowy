@@ -24,7 +24,7 @@ class TabBarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 30,
+      height: 35,
       padding: EdgeInsets.symmetric(
         horizontal:
             context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
@@ -36,7 +36,7 @@ class TabBarHeader extends StatelessWidget {
             left: 0,
             right: 0,
             child: Divider(
-              color: Theme.of(context).dividerColor,
+              color: AFThemeExtension.of(context).borderColor,
               height: 1,
               thickness: 1,
             ),
@@ -44,16 +44,16 @@ class TabBarHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Flexible(child: DatabaseTabBar()),
+              const Expanded(
+                child: DatabaseTabBar(),
+              ),
               BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
                 builder: (context, state) {
                   return SizedBox(
                     width: 200,
-                    child: Column(
-                      children: [
-                        const VSpace(3),
-                        pageSettingBarFromState(context, state),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: pageSettingBarFromState(context, state),
                     ),
                   );
                 },
@@ -99,40 +99,36 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
   Widget build(BuildContext context) {
     return BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
       builder: (context, state) {
-        final children = state.tabBars.indexed.map((indexed) {
-          final isSelected = state.selectedIndex == indexed.$1;
-          final tabBar = indexed.$2;
-          return DatabaseTabBarItem(
-            key: ValueKey(tabBar.viewId),
-            view: tabBar.view,
-            isSelected: isSelected,
-            onTap: (selectedView) {
-              context.read<DatabaseTabBarBloc>().add(
-                    DatabaseTabBarEvent.selectView(selectedView.id),
-                  );
-            },
-          );
-        }).toList();
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              child: ListView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                children: children,
-              ),
-            ),
-            AddDatabaseViewButton(
-              onTap: (layoutType) async {
-                context.read<DatabaseTabBarBloc>().add(
-                      DatabaseTabBarEvent.createView(layoutType, null),
-                    );
-              },
-            ),
-          ],
+        return ListView.separated(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          itemCount: state.tabBars.length + 1,
+          itemBuilder: (context, index) => index == state.tabBars.length
+              ? AddDatabaseViewButton(
+                  onTap: (layoutType) {
+                    context
+                        .read<DatabaseTabBarBloc>()
+                        .add(DatabaseTabBarEvent.createView(layoutType, null));
+                  },
+                )
+              : DatabaseTabBarItem(
+                  key: ValueKey(state.tabBars[index].viewId),
+                  view: state.tabBars[index].view,
+                  isSelected: state.selectedIndex == index,
+                  onTap: (selectedView) {
+                    context.read<DatabaseTabBarBloc>().add(
+                          DatabaseTabBarEvent.selectView(selectedView.id),
+                        );
+                  },
+                ),
+          separatorBuilder: (context, index) => VerticalDivider(
+            width: 1.0,
+            thickness: 1.0,
+            indent: 8,
+            endIndent: 13,
+            color: Theme.of(context).dividerColor,
+          ),
         );
       },
     );
@@ -157,12 +153,15 @@ class DatabaseTabBarItem extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 160),
       child: Stack(
         children: [
-          SizedBox(
-            height: 26,
-            child: TabBarItemButton(
-              view: view,
-              isSelected: isSelected,
-              onTap: () => onTap(view),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: SizedBox(
+              height: 26,
+              child: TabBarItemButton(
+                view: view,
+                isSelected: isSelected,
+                onTap: () => onTap(view),
+              ),
             ),
           ),
           if (isSelected)
@@ -212,6 +211,7 @@ class TabBarItemButton extends StatelessWidget {
             radius: Corners.s6Border,
             hoverColor: AFThemeExtension.of(context).greyHover,
             onTap: onTap,
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             onSecondaryTap: () {
               controller.show();
             },
@@ -223,11 +223,10 @@ class TabBarItemButton extends StatelessWidget {
             text: FlowyText(
               view.name,
               lineHeight: 1.0,
-              fontSize: FontSizes.s11,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               color: color,
-              fontWeight: isSelected ? null : FontWeight.w400,
+              fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
             ),
           ),
         );

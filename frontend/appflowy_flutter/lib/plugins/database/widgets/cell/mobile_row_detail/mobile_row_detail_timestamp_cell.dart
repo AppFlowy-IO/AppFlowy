@@ -27,7 +27,7 @@ class MobileRowDetailTimestampCellSkin extends IEditableTimestampCellSkin {
         borderRadius: const BorderRadius.all(Radius.circular(14)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-      child: FlowyText.medium(
+      child: FlowyText(
         state.dateStr.isEmpty
             ? LocaleKeys.grid_row_textPlaceholder.tr()
             : state.dateStr,

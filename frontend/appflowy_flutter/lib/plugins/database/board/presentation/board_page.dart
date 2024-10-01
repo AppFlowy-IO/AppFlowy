@@ -521,7 +521,7 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
               FlowySvgs.add_s,
               color: Theme.of(context).hintColor,
             ),
-            text: FlowyText.medium(
+            text: FlowyText(
               LocaleKeys.board_column_createNewCard.tr(),
               color: Theme.of(context).hintColor,
             ),

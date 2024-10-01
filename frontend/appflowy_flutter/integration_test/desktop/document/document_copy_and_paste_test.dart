@@ -1,12 +1,17 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../shared/util.dart';
 
@@ -311,13 +316,75 @@ void main() {
     'auto convert url to link preview block',
     (tester) async {
       const url = 'https://appflowy.io';
-      await tester.pasteContent(plainText: url, (editorState) {
+      await tester.pasteContent(plainText: url, (editorState) async {
         // the second one is the paragraph node
         expect(editorState.document.root.children.length, 2);
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, LinkPreviewBlockKeys.type);
         expect(node.attributes[LinkPreviewBlockKeys.url], url);
       });
+
+      // hover on the link preview block
+      // click the more button
+      // and select convert to link
+      await tester.hoverOnWidget(
+        find.byType(CustomLinkPreviewWidget),
+        onHover: () async {
+          final convertToLinkButton = find.byWidgetPredicate((widget) {
+            return widget is MenuBlockButton &&
+                widget.tooltip ==
+                    LocaleKeys.document_plugins_urlPreview_convertToLink.tr();
+          });
+          expect(convertToLinkButton, findsOneWidget);
+          await tester.tap(convertToLinkButton);
+          await tester.pumpAndSettle();
+        },
+      );
+
+      await tester.pumpAndSettle();
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final textNode = editorState.getNodeAtPath([0])!;
+      expect(textNode.type, ParagraphBlockKeys.type);
+      expect(textNode.delta!.toJson(), [
+        {
+          'insert': url,
+          'attributes': {'href': url},
+        }
+      ]);
+    },
+  );
+
+  testWidgets(
+    'ctrl/cmd+z to undo the auto convert url to link preview block',
+    (tester) async {
+      const url = 'https://appflowy.io';
+      await tester.pasteContent(plainText: url, (editorState) async {
+        // the second one is the paragraph node
+        expect(editorState.document.root.children.length, 2);
+        final node = editorState.getNodeAtPath([0])!;
+        expect(node.type, LinkPreviewBlockKeys.type);
+        expect(node.attributes[LinkPreviewBlockKeys.url], url);
+      });
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ParagraphBlockKeys.type);
+      expect(node.delta!.toJson(), [
+        {
+          'insert': url,
+          'attributes': {'href': url},
+        }
+      ]);
     },
   );
 

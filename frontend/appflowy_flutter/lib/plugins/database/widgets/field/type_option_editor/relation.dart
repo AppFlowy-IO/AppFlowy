@@ -134,7 +134,7 @@ class _DatabaseList extends StatelessWidget {
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
               onTap: () => onSelectDatabase(meta.databaseId),
-              text: FlowyText.medium(
+              text: FlowyText(
                 lineHeight: 1.0,
                 meta.databaseName,
                 overflow: TextOverflow.ellipsis,

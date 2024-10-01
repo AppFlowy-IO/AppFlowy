@@ -85,7 +85,6 @@ class SortBackendService {
   }
 
   Future<FlowyResult<void, FlowyError>> deleteSort({
-    required String fieldId,
     required String sortId,
   }) {
     final deleteSortPayload = DeleteSortPayloadPB.create()

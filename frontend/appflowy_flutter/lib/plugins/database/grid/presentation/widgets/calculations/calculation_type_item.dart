@@ -22,7 +22,7 @@ class CalculationTypeItem extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           type.label,
           overflow: TextOverflow.ellipsis,
           lineHeight: 1.0,
