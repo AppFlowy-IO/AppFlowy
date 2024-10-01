@@ -18,6 +18,7 @@ enum OptionAction {
   turnInto,
   moveUp,
   moveDown,
+  copyLinkToBlock,
 
   /// callout background color
   color,
@@ -28,7 +29,7 @@ enum OptionAction {
   FlowySvgData get svg {
     switch (this) {
       case OptionAction.delete:
-        return FlowySvgs.delete_s;
+        return FlowySvgs.trash_s;
       case OptionAction.duplicate:
         return FlowySvgs.copy_s;
       case OptionAction.turnInto:
@@ -45,6 +46,8 @@ enum OptionAction {
         return FlowySvgs.m_aa_bulleted_list_s;
       case OptionAction.depth:
         return FlowySvgs.tag_s;
+      case OptionAction.copyLinkToBlock:
+        return FlowySvgs.share_tab_copy_s;
     }
   }
 
@@ -66,6 +69,8 @@ enum OptionAction {
         return LocaleKeys.document_plugins_optionAction_align.tr();
       case OptionAction.depth:
         return LocaleKeys.document_plugins_optionAction_depth.tr();
+      case OptionAction.copyLinkToBlock:
+        return 'Copy link to block';
       case OptionAction.divider:
         throw UnsupportedError('Divider does not have description');
     }
@@ -142,9 +147,12 @@ enum OptionDepthType {
 class DividerOptionAction extends CustomActionCell {
   @override
   Widget buildWithContext(BuildContext context, PopoverController controller) {
-    return const Divider(
-      height: 1.0,
-      thickness: 1.0,
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.0),
+      child: Divider(
+        height: 1.0,
+        thickness: 1.0,
+      ),
     );
   }
 }

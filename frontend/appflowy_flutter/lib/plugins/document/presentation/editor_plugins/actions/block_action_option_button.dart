@@ -1,11 +1,20 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 import 'drag_to_reorder/draggable_option_button.dart';
 
@@ -110,6 +119,9 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
       case OptionAction.moveDown:
         transaction.moveNode(node.path.next.next, node);
         break;
+      case OptionAction.copyLinkToBlock:
+        _copyLinkToBlock(context, node);
+        break;
       case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
@@ -213,5 +225,40 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
         TableBlockKeys.rowsLen: rowsLen,
       },
     );
+  }
+
+  Future<void> _copyLinkToBlock(BuildContext context, Node node) async {
+    final viewId = context.read<DocumentBloc>().documentId;
+
+    final workspace = await FolderEventReadCurrentWorkspace().send();
+    final workspaceId = workspace.fold(
+      (l) => l.id,
+      (r) => '',
+    );
+
+    if (workspaceId.isEmpty || viewId.isEmpty) {
+      Log.error('Failed to get workspace id: $workspaceId or view id: $viewId');
+      if (context.mounted) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.shareAction_copyLinkToBlockFailed.tr(),
+          type: ToastificationType.error,
+        );
+      }
+      return;
+    }
+
+    final link =
+        '${ShareConstants.shareBaseUrl}/$workspaceId/$viewId?blockId=${node.id}';
+    await getIt<ClipboardService>().setData(
+      ClipboardServiceData(plainText: link),
+    );
+
+    if (context.mounted) {
+      showToastNotification(
+        context,
+        message: LocaleKeys.shareAction_copyLinkToBlockSuccess.tr(),
+      );
+    }
   }
 }

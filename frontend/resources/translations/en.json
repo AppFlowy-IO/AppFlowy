@@ -121,7 +121,9 @@
     "shareTab": "Share",
     "publishOnAppFlowy": "Publish on AppFlowy",
     "shareTabTitle": "Invite to collaborate",
-    "shareTabDescription": "For easy collaboration with anyone"
+    "shareTabDescription": "For easy collaboration with anyone",
+    "copyLinkToBlockSuccess": "Copied block link to clipboard",
+    "copyLinkToBlockFailed": "Failed to copy block link to clipboard"
   },
   "moreAction": {
     "small": "small",
