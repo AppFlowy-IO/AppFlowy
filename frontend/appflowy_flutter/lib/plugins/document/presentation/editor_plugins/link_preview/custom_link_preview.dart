@@ -123,7 +123,10 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       node: node,
       editorState: context.read<EditorState>(),
       extendActionWidgets: _buildExtendActionWidgets(context),
-      child: child,
+      child: GestureDetector(
+        onTap: () => afLaunchUrlString(url),
+        child: child,
+      ),
     );
   }
 
@@ -134,8 +137,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
         showTopBorder: false,
         text: LocaleKeys.document_plugins_urlPreview_convertToLink.tr(),
         leftIcon: const FlowySvg(
-          FlowySvgs.m_aa_link_s,
-          size: Size.square(20),
+          FlowySvgs.m_toolbar_link_m,
+          size: Size.square(18),
         ),
         onTap: () {
           context.pop();
