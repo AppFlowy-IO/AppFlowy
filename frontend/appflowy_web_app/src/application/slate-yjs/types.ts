@@ -1,3 +1,4 @@
+import { NodeEntry, Element } from 'slate';
 import type Y from 'yjs';
 
 export type HistoryStackItem = {
@@ -7,5 +8,6 @@ export type HistoryStackItem = {
 export type RelativeRange = {
   anchor: Y.RelativePosition;
   focus: Y.RelativePosition;
-  textId: string;
+  anchorEntry: NodeEntry<Element>;
+  focusEntry: NodeEntry<Element>;
 };

@@ -10,10 +10,10 @@ export function slateRangeToRelativeRange (
   range: BaseRange,
 ): RelativeRange {
 
-  const { point: anchor, textId } = slatePointToRelativePosition(sharedRoot, editor, range.anchor);
-  const { point: focus } = slatePointToRelativePosition(sharedRoot, editor, range.focus);
+  const { point: anchor, entry: anchorEntry } = slatePointToRelativePosition(sharedRoot, editor, range.anchor);
+  const { point: focus, entry: focusEntry } = slatePointToRelativePosition(sharedRoot, editor, range.focus);
 
-  return { anchor, focus, textId };
+  return { anchor, focus, anchorEntry, focusEntry };
 }
 
 export function relativeRangeToSlateRange (
@@ -21,8 +21,8 @@ export function relativeRangeToSlateRange (
   editor: Editor,
   range: RelativeRange,
 ): BaseRange | null {
-  const anchor = relativePositionToSlatePoint(sharedRoot, editor, range.anchor, range.textId);
-  const focus = relativePositionToSlatePoint(sharedRoot, editor, range.focus, range.textId);
+  const anchor = relativePositionToSlatePoint(sharedRoot, range.anchor, range.anchorEntry);
+  const focus = relativePositionToSlatePoint(sharedRoot, range.focus, range.focusEntry);
 
   if (!anchor || !focus) {
     return null;
@@ -37,7 +37,7 @@ export function slatePointToRelativePosition (
   point: BasePoint,
 ): {
   point: Y.RelativePosition;
-  textId: string;
+  entry: NodeEntry<Element>;
 } {
   const [entry] = editor.nodes({
     at: point,
@@ -59,7 +59,7 @@ export function slatePointToRelativePosition (
 
   return {
     point: relPos,
-    textId,
+    entry: entry as NodeEntry<Element>,
   };
 }
 
@@ -85,9 +85,8 @@ export function calculateOffsetRelativeToParent (slateNode: Element, point: Base
 
 export function relativePositionToSlatePoint (
   sharedRoot: YSharedRoot,
-  editor: Editor,
   position: Y.RelativePosition,
-  textId: string,
+  entry: NodeEntry<Element>,
 ): BasePoint | null {
   if (!sharedRoot.doc) {
     throw new Error('sharedRoot isn\'t attach to a yDoc');
@@ -102,10 +101,6 @@ export function relativePositionToSlatePoint (
     return null;
   }
 
-  const [entry] = editor.nodes({
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId === textId,
-  });
-
   const [node, path] = entry as NodeEntry<Element>;
 
   if (!node) {
@@ -115,7 +110,6 @@ export function relativePositionToSlatePoint (
   const absIndex = absPos.index;
 
   return calculatePointFromParentOffset(node, path, absIndex);
-
 }
 
 function calculatePointFromParentOffset (slateNode: Element, path: number[], parentOffset: number): BasePoint {
@@ -124,6 +118,11 @@ function calculatePointFromParentOffset (slateNode: Element, path: number[], par
 
   for (childIndex = 0; childIndex < slateNode.children.length; childIndex++) {
     const childNode = slateNode.children[childIndex];
+
+    if (!childNode) {
+      break;
+    }
+
     const childLength = Node.string(childNode).length;
 
     if (remainingOffset <= childLength) {

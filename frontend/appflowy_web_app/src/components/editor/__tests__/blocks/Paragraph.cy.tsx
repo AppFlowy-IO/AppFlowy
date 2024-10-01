@@ -197,7 +197,7 @@ describe('<Paragraph />', () => {
     cy.matchImageSnapshot('paragraph/editing-text-with-undo-redo');
   });
 
-  it('inline formatting', () => {
+  it('render inline formatting', () => {
     const documentTest = new DocumentTest();
     const data: FromBlockJSON[] = [{
       type: 'paragraph',
@@ -237,6 +237,9 @@ describe('<Paragraph />', () => {
 
     documentTest.fromJSON(data);
     mountEditor({ readOnly: false, doc: documentTest.doc });
+
+    // Optional: Add visual regression test
+    cy.matchImageSnapshot('paragraph/inline-formatting');
 
   });
 

@@ -3,6 +3,8 @@ import { yDocToSlateContent, deltaInsertToSlateNode, yDataToSlateContent } from 
 import { expect } from '@jest/globals';
 import * as Y from 'yjs';
 
+jest.mock('nanoid');
+
 describe('convert yjs data to slate content', () => {
   it('should return undefined if root block is not exist', () => {
     const doc = new Y.Doc();

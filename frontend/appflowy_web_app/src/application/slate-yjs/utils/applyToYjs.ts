@@ -34,7 +34,7 @@ function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, 
 
 function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, slateContent: Descendant[]) {
   const { path, offset, text } = op;
-  const node = (slateContent[0] as Element)?.children[0] as Element;
+  const node = (slateContent[0] as Element)?.children?.[0] as Element;
   const textId = node.textId;
 
   if (!textId) return;

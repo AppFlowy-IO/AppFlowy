@@ -109,6 +109,7 @@ export function withYjs<T extends Editor> (
   };
 
   e.applyRemoteEvents = (_events: Array<YEvent>, _transaction: Transaction) => {
+    console.time('applyRemoteEvents');
     // Flush local changes to ensure all local changes are applied before processing remote events
     YjsEditor.flushLocalChanges(e);
     // Replace the apply function to avoid storing remote changes as local changes
@@ -119,6 +120,7 @@ export function withYjs<T extends Editor> (
 
     // Restore the apply function to store local changes after applying remote changes
     e.apply = applyIntercept;
+    console.timeEnd('applyRemoteEvents');
   };
 
   const handleYEvents = (events: Array<YEvent>, transaction: Transaction) => {

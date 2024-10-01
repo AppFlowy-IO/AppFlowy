@@ -10,7 +10,6 @@ const LAST_SELECTION: WeakMap<Editor, RelativeRange | null> = new WeakMap();
 
 export type YHistoryEditor = YjsEditor & {
   undoManager: Y.UndoManager;
-  withoutSavingOrigin: unknown;
   undo: () => void;
   redo: () => void;
 };
@@ -65,11 +64,14 @@ export function withYHistory<T extends YjsEditor> (
     type: 'redo' | 'undo';
   }) => {
     console.log('handleStackItemAdded', type);
+
     stackItem.meta.set(
       'selection',
       e.selection && slateRangeToRelativeRange(e.sharedRoot, e, e.selection),
     );
+
     stackItem.meta.set('selectionBefore', LAST_SELECTION.get(e));
+
   };
 
   const handleStackItemPopped = ({
@@ -81,14 +83,6 @@ export function withYHistory<T extends YjsEditor> (
   }) => {
 
     console.log('handleStackItemPopped', type);
-    const inverseStack =
-      type === 'undo' ? e.undoManager.redoStack : e.undoManager.undoStack;
-    const inverseItem = inverseStack[inverseStack.length - 1];
-
-    if (inverseItem) {
-      inverseItem.meta.set('selection', stackItem.meta.get('selectionBefore'));
-      inverseItem.meta.set('selectionBefore', stackItem.meta.get('selection'));
-    }
 
     const relativeSelection = stackItem.meta.get(
       'selectionBefore',
@@ -105,6 +99,9 @@ export function withYHistory<T extends YjsEditor> (
     );
 
     if (!selection) {
+      const startPoint = Editor.start(e, [0]);
+
+      Transforms.select(e, startPoint);
       return;
     }
 
