@@ -15,7 +15,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid field editor:', () {
+  group('grid edit field test:', () {
     testWidgets('rename existing field', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -270,7 +270,6 @@ void main() {
         matching: find.byType(TextField),
       );
       await tester.enterText(inputField, text);
-      await tester.pumpAndSettle();
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
@@ -382,5 +381,124 @@ void main() {
     //     content: DateFormat('dd/MM/y hh:mm a').format(modified),
     //   );
     // });
+
+    testWidgets('select option transform', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Grid,
+      );
+
+      // invoke the field editor of existing Single-Select field Type
+      await tester.tapGridFieldWithName('Type');
+      await tester.tapEditFieldButton();
+
+      // add some select options
+      await tester.tapAddSelectOptionButton();
+      for (final optionName in ['A', 'B', 'C']) {
+        final inputField = find.descendant(
+          of: find.byType(CreateOptionTextField),
+          matching: find.byType(TextField),
+        );
+        await tester.enterText(inputField, optionName);
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+      }
+      await tester.dismissFieldEditor();
+
+      // select A in first row's cell under the Type field
+      await tester.tapCellInGrid(
+        rowIndex: 0,
+        fieldType: FieldType.SingleSelect,
+      );
+      await tester.selectOption(name: 'A');
+      await tester.dismissCellEditor();
+      tester.findSelectOptionWithNameInGrid(name: 'A', rowIndex: 0);
+
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.RichText);
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        content: "A",
+        cellIndex: 1,
+      );
+
+      // add some random text in the second row
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: "random",
+        cellIndex: 1,
+      );
+      tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        content: "random",
+        cellIndex: 1,
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Type',
+        FieldType.SingleSelect,
+      );
+      tester.findSelectOptionWithNameInGrid(name: 'A', rowIndex: 0);
+      tester.assertNumberOfSelectedOptionsInGrid(
+        rowIndex: 1,
+        matcher: findsNothing,
+      );
+
+      // create a new field for testing
+      await tester.createField(FieldType.RichText, name: 'Test');
+
+      // edit the first 2 rows
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        input: "E,F",
+        cellIndex: 1,
+      );
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: "G",
+        cellIndex: 1,
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Test',
+        FieldType.MultiSelect,
+      );
+      tester.assertMultiSelectOption(contents: ['E', 'F'], rowIndex: 0);
+      tester.assertMultiSelectOption(contents: ['G'], rowIndex: 1);
+
+      await tester.tapCellInGrid(
+        rowIndex: 2,
+        fieldType: FieldType.MultiSelect,
+      );
+      await tester.selectOption(name: 'G');
+      await tester.createOption(name: 'H');
+      await tester.dismissCellEditor();
+      tester.findSelectOptionWithNameInGrid(name: 'A', rowIndex: 0);
+      tester.assertMultiSelectOption(contents: ['G', 'H'], rowIndex: 2);
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Test',
+        FieldType.RichText,
+      );
+      tester.assertCellContent(
+        rowIndex: 2,
+        fieldType: FieldType.RichText,
+        content: "G,H",
+        cellIndex: 1,
+      );
+      await tester.changeFieldTypeOfFieldWithName(
+        'Test',
+        FieldType.MultiSelect,
+      );
+
+      tester.assertMultiSelectOption(contents: ['E', 'F'], rowIndex: 0);
+      tester.assertMultiSelectOption(contents: ['G'], rowIndex: 1);
+      tester.assertMultiSelectOption(contents: ['G', 'H'], rowIndex: 2);
+    });
   });
 }
