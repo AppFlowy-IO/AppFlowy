@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
@@ -8,6 +6,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 InlineActionsMenuService? _actionsMenuService;
 Future<void> showLinkToPageMenu(
@@ -15,6 +14,8 @@ Future<void> showLinkToPageMenu(
   SelectionMenuService menuService,
   ViewLayoutPB pageType,
 ) async {
+  keepEditorFocusNotifier.increase();
+
   menuService.dismiss();
   _actionsMenuService?.dismiss();
 
@@ -27,7 +28,7 @@ Future<void> showLinkToPageMenu(
     context: rootContext,
     handlers: [
       InlinePageReferenceService(
-        currentViewId: "",
+        currentViewId: '',
         viewLayout: pageType,
         customTitle: titleFromPageType(pageType),
         insertPage: pageType != ViewLayoutPB.Document,
