@@ -379,7 +379,8 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
   }
 
   void _pushToInviteMembersPage(BuildContext context) {
-    // todo: implement later
+    // empty implementation
+    // we don't support invite members in workspace menu
   }
 
   void _showRenameWorkspaceBottomSheet(BuildContext context) {
