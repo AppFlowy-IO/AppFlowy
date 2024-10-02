@@ -100,6 +100,39 @@ class _WorkspaceMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FlowyOptionTile.text(
+      height: 60,
+      showTopBorder: showTopBorder,
+      showBottomBorder: false,
+      leftIcon: _WorkspaceMenuItemIcon(workspace: workspace),
+      trailing: _WorkspaceMenuItemTrailing(
+        workspace: workspace,
+        currentWorkspace: currentWorkspace,
+      ),
+      onTap: () => onWorkspaceSelected(workspace),
+      content: Expanded(
+        child: _WorkspaceMenuItemContent(
+          userProfile: userProfile,
+          workspace: workspace,
+        ),
+      ),
+    );
+  }
+}
+
+// - Workspace name
+// - Workspace member count
+class _WorkspaceMenuItemContent extends StatelessWidget {
+  const _WorkspaceMenuItemContent({
+    required this.userProfile,
+    required this.workspace,
+  });
+
+  final UserProfilePB userProfile;
+  final UserWorkspacePB workspace;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => WorkspaceMemberBloc(
         userProfile: userProfile,
@@ -107,69 +140,31 @@ class _WorkspaceMenuItem extends StatelessWidget {
       )..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
-          final members = state.members;
-          return FlowyOptionTile.text(
-            height: 60,
-            showTopBorder: showTopBorder,
-            showBottomBorder: false,
-            leftIcon: _WorkspaceMenuItemIcon(workspace: workspace),
-            trailing: _buildTrailing(context),
-            onTap: () => onWorkspaceSelected(workspace),
-            content: Expanded(
-              child: _WorkspaceMenuItemContent(
-                workspaceName: workspace.name,
-                workspaceMemberCount: state.isLoading
-                    ? ''
-                    : LocaleKeys.settings_appearance_members_membersCount
-                        .plural(
-                        members.length,
-                      ),
-              ),
+          return Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FlowyText(
+                  workspace.name,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                FlowyText(
+                  state.isLoading
+                      ? ''
+                      : LocaleKeys.settings_appearance_members_membersCount
+                          .plural(
+                          state.members.length,
+                        ),
+                  fontSize: 10.0,
+                  color: Theme.of(context).hintColor,
+                ),
+              ],
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget? _buildTrailing(BuildContext context) {
-    return workspace.workspaceId == currentWorkspace.workspaceId
-        ? const FlowySvg(
-            FlowySvgs.m_blue_check_s,
-            blendMode: null,
-          )
-        : null;
-  }
-}
-
-class _WorkspaceMenuItemContent extends StatelessWidget {
-  const _WorkspaceMenuItemContent({
-    required this.workspaceName,
-    required this.workspaceMemberCount,
-  });
-
-  final String workspaceName;
-  final String workspaceMemberCount;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FlowyText(
-            workspaceName,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          FlowyText(
-            workspaceMemberCount,
-            fontSize: 10.0,
-            color: Theme.of(context).hintColor,
-          ),
-        ],
       ),
     );
   }
@@ -199,6 +194,30 @@ class _WorkspaceMenuItemIcon extends StatelessWidget {
               ),
             ),
       ),
+    );
+  }
+}
+
+class _WorkspaceMenuItemTrailing extends StatelessWidget {
+  const _WorkspaceMenuItemTrailing({
+    required this.workspace,
+    required this.currentWorkspace,
+  });
+
+  final UserWorkspacePB workspace;
+  final UserWorkspacePB currentWorkspace;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // show the check icon if the workspace is the current workspace
+        if (workspace.workspaceId == currentWorkspace.workspaceId)
+          const FlowySvg(
+            FlowySvgs.m_blue_check_s,
+            blendMode: null,
+          ),
+      ],
     );
   }
 }
