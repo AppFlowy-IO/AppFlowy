@@ -1,5 +1,5 @@
+import { BlockJson } from '@/application/slate-yjs/types';
 import { sortTableCells } from '@/application/slate-yjs/utils/table';
-import { BlockJson } from '@/application/slate-yjs/utils/types';
 import {
   BlockData,
   BlockType,

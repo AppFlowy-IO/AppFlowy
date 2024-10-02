@@ -1,4 +1,4 @@
-import { NodeEntry, Element } from 'slate';
+import { Element, NodeEntry } from 'slate';
 import type Y from 'yjs';
 
 export type HistoryStackItem = {
@@ -11,3 +11,12 @@ export type RelativeRange = {
   anchorEntry: NodeEntry<Element>;
   focusEntry: NodeEntry<Element>;
 };
+
+export interface BlockJson {
+  id: string;
+  ty: string;
+  data?: string;
+  children?: string;
+  external_id?: string;
+}
+

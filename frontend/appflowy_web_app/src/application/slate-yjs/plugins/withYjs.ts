@@ -17,6 +17,7 @@ export interface YjsEditor extends Editor {
   applyRemoteEvents: (events: Array<YEvent>, transaction: Transaction) => void;
   flushLocalChanges: () => void;
   storeLocalChange: (op: Operation) => void;
+  interceptLocalChange: boolean;
 }
 
 const connectSet = new WeakSet<YjsEditor>();
@@ -77,6 +78,8 @@ export function withYjs<T extends Editor> (
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
+  e.interceptLocalChange = false;
+
   e.sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   const initializeDocumentContent = () => {
@@ -92,19 +95,15 @@ export function withYjs<T extends Editor> (
       e.children = content.children;
     }
 
-    console.log('===', e.children);
+    console.log('===initializeDocumentContent', e.children);
     Editor.normalize(e, { force: true });
   };
 
   const applyIntercept = (op: Operation) => {
-    if (YjsEditor.connected(e)) {
+    if (YjsEditor.connected(e) && !e.interceptLocalChange) {
       YjsEditor.storeLocalChange(e, op);
     }
 
-    apply(op);
-  };
-
-  const applyRemoteIntercept = (op: Operation) => {
     apply(op);
   };
 
@@ -113,13 +112,13 @@ export function withYjs<T extends Editor> (
     // Flush local changes to ensure all local changes are applied before processing remote events
     YjsEditor.flushLocalChanges(e);
     // Replace the apply function to avoid storing remote changes as local changes
-    e.apply = applyRemoteIntercept;
+    e.interceptLocalChange = true;
 
     // Initialize or update the document content to ensure it is in the correct state before applying remote events
     initializeDocumentContent();
 
     // Restore the apply function to store local changes after applying remote changes
-    e.apply = applyIntercept;
+    e.interceptLocalChange = false;
     console.timeEnd('applyRemoteEvents');
   };
 
@@ -161,7 +160,6 @@ export function withYjs<T extends Editor> (
     localChanges.delete(e);
     // parse changes and apply to ydoc
     doc.transact(() => {
-      console.log('flushLocalChanges', changes);
       changes.forEach((change) => {
         applyToYjs(doc, editor, change.op, change.slateContent);
       });

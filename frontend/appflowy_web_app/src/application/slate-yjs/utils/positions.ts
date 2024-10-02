@@ -1,4 +1,4 @@
-import { getText } from '@/application/slate-yjs/utils/common';
+import { getText } from '@/application/slate-yjs/utils/yjsOperations';
 import { YSharedRoot } from '@/application/types';
 import { BasePoint, BaseRange, Node, Element, Editor, NodeEntry, Text } from 'slate';
 import { RelativeRange } from '../types';

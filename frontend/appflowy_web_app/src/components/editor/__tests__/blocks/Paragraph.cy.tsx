@@ -4,6 +4,7 @@ import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
 describe('<Paragraph />', () => {
   beforeEach(() => {
     cy.viewport(1280, 720);
+    Object.defineProperty(window.navigator, 'language', { value: 'en-US' });
   });
 
   it('render paragraph', () => {

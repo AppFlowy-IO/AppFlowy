@@ -1,6 +1,7 @@
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { getText } from '@/application/slate-yjs/utils/yjsOperations';
 import { calculateOffsetRelativeToParent } from '@/application/slate-yjs/utils/positions';
-import { YjsEditorKey, YMeta, YSharedRoot, YTextMap } from '@/application/types';
+import { YjsEditorKey, YSharedRoot } from '@/application/types';
 import { Operation, Element, Editor, InsertTextOperation, RemoveTextOperation, Descendant } from 'slate';
 import * as Y from 'yjs';
 
@@ -22,9 +23,9 @@ export function applyToYjs (ydoc: Y.Doc, editor: Editor, op: Operation, slateCon
 function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, _slateContent: Descendant[]) {
   const { path, offset, text } = op;
   const node = findSlateNode(editor, path);
-  const textMap = getTextMap(ydoc);
   const textId = node.textId as string;
-  const yText = textMap.get(textId);
+  const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+  const yText = getText(textId, sharedRoot);
   const point = { path, offset };
 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
@@ -39,23 +40,13 @@ function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, 
 
   if (!textId) return;
 
-  const textMap = getTextMap(ydoc);
-  const yText = textMap.get(textId);
+  const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+  const yText = getText(textId, sharedRoot);
   const point = { path, offset };
 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
 
   yText.delete(relativeOffset, text.length);
-}
-
-function getTextMap (doc: Y.Doc) {
-  const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
-
-  const document = sharedRoot.get(YjsEditorKey.document);
-
-  const meta = document.get(YjsEditorKey.meta) as YMeta;
-
-  return meta.get(YjsEditorKey.text_map) as YTextMap;
 }
 
 function findSlateNode (editor: Editor, path: number[]): Element {

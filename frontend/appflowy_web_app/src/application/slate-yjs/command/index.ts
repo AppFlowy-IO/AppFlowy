@@ -1,19 +1,14 @@
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import {
-  createBlock,
+  dataStringTOJson, executeOperations,
   getBlock,
-  getChildrenArray,
-  getText,
-  updateBlockParent,
-} from '@/application/slate-yjs/utils/common';
-import { slatePointToRelativePosition } from '@/application/slate-yjs/utils/positions';
-import { InlineBlockType, Mention, MentionType, YjsEditorKey } from '@/application/types';
+  handleCollapsedBreak, handleRangeBreak,
+} from '@/application/slate-yjs/utils/yjsOperations';
+import { BlockData, InlineBlockType, Mention, MentionType, YjsEditorKey } from '@/application/types';
 import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
-import Delta, { Op } from 'quill-delta';
 import { BaseRange, Editor, Element, Node, NodeEntry, Range, Text, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
-import * as Y from 'yjs';
 
 export const CustomEditor = {
   findTextNode (editor: ReactEditor, path: number[]): NodeEntry<Element> {
@@ -63,6 +58,39 @@ export const CustomEditor = {
     return node.children.map((n) => CustomEditor.getBlockTextContent(n)).join('');
   },
 
+  setBlockData<T = BlockData> (editor: YjsEditor, blockId: string, updateData: T, select?: boolean) {
+    const readonly = editor.isElementReadOnly(editor);
+
+    if (readonly) {
+      return;
+    }
+
+    const block = getBlock(blockId, editor.sharedRoot);
+    const oldData = dataStringTOJson(block.get(YjsEditorKey.block_data));
+    const newData = {
+      ...oldData,
+      ...updateData,
+    };
+    const operations = [() => {
+      block.set(YjsEditorKey.block_data, JSON.stringify(newData));
+    }];
+    const entry = Editor.above(editor, {
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
+    });
+
+    executeOperations(editor.sharedRoot, operations, 'setBlockData');
+
+    if (!select) return;
+
+    if (!entry) {
+      Transforms.select(editor, Editor.start(editor, [0]));
+      return;
+    }
+
+    const nodePath = entry[1];
+
+    Transforms.select(editor, Editor.start(editor, nodePath));
+  },
   // Insert break line at the specified path
   insertBreak (editor: YjsEditor, at?: BaseRange) {
     const sharedRoot = editor.sharedRoot;
@@ -77,82 +105,12 @@ export const CustomEditor = {
       throw new Error('Selection not found');
     }
 
-    const startPoint = Editor.start(editor, newAt);
     const isCollapsed = Range.isCollapsed(newAt);
-    const startRelativeRange = slatePointToRelativePosition(sharedRoot, editor, startPoint);
-    const startTextId = startRelativeRange.entry[0].textId as string;
-    const startPos = Y.createAbsolutePositionFromRelativePosition(
-      startRelativeRange.point,
-      sharedRoot.doc,
-    );
-
-    if (!startPos) {
-      return;
-    }
 
     if (isCollapsed) {
-      const yText = getText(startTextId, sharedRoot);
-      const relativeOffset = Math.min(startPos.index, yText.toJSON().length);
-
-      const operations: (() => void)[] = [];
-
-      operations.push(() => {
-        yText.delete(relativeOffset, yText.length - relativeOffset);
-      });
-
-      const ops = yText.toDelta() as Op[];
-      const delta = new Delta(ops);
-      const nextLineDelta = delta.slice(relativeOffset);
-      const blockSlateEntry = Editor.above(editor, {
-        at: startPoint.path,
-        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
-      });
-
-      if (!blockSlateEntry) {
-        throw new Error('Block not found');
-      }
-
-      const [blockNode] = blockSlateEntry as NodeEntry<Element>;
-      const blockId = blockNode.blockId as string;
-      const block = getBlock(blockId, sharedRoot);
-
-      if (!block) {
-        throw new Error('Block not found');
-      }
-
-      const parentId = block.get(YjsEditorKey.block_parent);
-      const parent = getBlock(parentId, sharedRoot);
-
-      if (!parent) {
-        throw new Error('Parent block not found');
-      }
-
-      const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
-      const targetIndex = parentChildren.toArray().findIndex((id) => id === blockId);
-
-      operations.push(() => {
-        const newBlock = createBlock(sharedRoot, {
-          ty: block.get(YjsEditorKey.block_type),
-          data: {},
-        });
-
-        const blockText = getText(newBlock.get(YjsEditorKey.block_external_id), sharedRoot);
-
-        blockText.applyDelta(nextLineDelta.ops);
-
-        const index = targetIndex !== -1 ? targetIndex + 1 : parentChildren.length;
-
-        updateBlockParent(sharedRoot, newBlock, parent, index);
-
-      });
-
-      console.time('insertBreak');
-      sharedRoot.doc.transact(() => {
-        operations.forEach((op) => op());
-      });
-      Transforms.move(editor, { distance: 1, unit: 'line' });
-      console.timeEnd('insertBreak');
-
+      handleCollapsedBreak(editor, sharedRoot, newAt);
+    } else {
+      handleRangeBreak(editor, sharedRoot, newAt);
     }
 
   },

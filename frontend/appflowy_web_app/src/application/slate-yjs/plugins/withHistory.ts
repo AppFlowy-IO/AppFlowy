@@ -1,4 +1,4 @@
-import { getDocument } from '@/application/slate-yjs/utils/common';
+import { getDocument } from '@/application/slate-yjs/utils/yjsOperations';
 import { relativeRangeToSlateRange, slateRangeToRelativeRange } from '@/application/slate-yjs/utils/positions';
 import { CollabOrigin } from '@/application/types';
 import { Editor, Transforms } from 'slate';

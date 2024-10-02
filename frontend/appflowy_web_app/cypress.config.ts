@@ -9,6 +9,7 @@ export default defineConfig({
       exclude: ['cypress/**/*.*', '**/__tests__/**/*.*', '**/*.test.*'],
     },
   },
+  watchForFileChanges: false,
   component: {
     devServer: {
       framework: 'react',
