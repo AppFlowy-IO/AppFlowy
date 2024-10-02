@@ -76,8 +76,8 @@ class _EditWorkspaceNameBottomSheetState
             autofocus: true,
             controller: _textFieldController,
             keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              hintText: 'My Workspace',
+            decoration: InputDecoration(
+              hintText: LocaleKeys.workspace_defaultName.tr(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {

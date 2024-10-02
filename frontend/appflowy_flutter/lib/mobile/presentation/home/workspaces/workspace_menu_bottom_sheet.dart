@@ -114,7 +114,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
       builder: (bottomSheetContext) {
         return EditWorkspaceNameBottomSheet(
           type: EditWorkspaceNameType.create,
-          workspaceName: 'My Workspace',
+          workspaceName: LocaleKeys.workspace_defaultName.tr(),
           onSubmitted: (name) {
             // create a new workspace
             Log.info('create a new workspace: $name');
