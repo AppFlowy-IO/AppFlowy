@@ -63,7 +63,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
                 width: 0.5,
               ),
             ),
-            child: FlowyText.semibold(
+            child: FlowyText.medium(
               widget.workspace.name.isEmpty
                   ? ''
                   : widget.workspace.name.substring(0, 1),
