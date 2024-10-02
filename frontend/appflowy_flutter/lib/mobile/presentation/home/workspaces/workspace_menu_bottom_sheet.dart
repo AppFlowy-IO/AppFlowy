@@ -109,60 +109,95 @@ class _WorkspaceMenuItem extends StatelessWidget {
         builder: (context, state) {
           final members = state.members;
           return FlowyOptionTile.text(
-            content: Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FlowyText(
-                      workspace.name,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    FlowyText(
-                      state.isLoading
-                          ? ''
-                          : LocaleKeys.settings_appearance_members_membersCount
-                              .plural(
-                              members.length,
-                            ),
-                      fontSize: 10.0,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
             height: 60,
             showTopBorder: showTopBorder,
             showBottomBorder: false,
-            leftIcon: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: WorkspaceIcon(
-                enableEdit: false,
-                iconSize: 26,
-                fontSize: 16.0,
-                figmaLineHeight: 16.0,
-                workspace: workspace,
-                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                      UserWorkspaceEvent.updateWorkspaceIcon(
-                        workspace.workspaceId,
-                        result.emoji,
+            leftIcon: _WorkspaceMenuItemIcon(workspace: workspace),
+            trailing: _buildTrailing(context),
+            onTap: () => onWorkspaceSelected(workspace),
+            content: Expanded(
+              child: _WorkspaceMenuItemContent(
+                workspaceName: workspace.name,
+                workspaceMemberCount: state.isLoading
+                    ? ''
+                    : LocaleKeys.settings_appearance_members_membersCount
+                        .plural(
+                        members.length,
                       ),
-                    ),
               ),
             ),
-            trailing: workspace.workspaceId == currentWorkspace.workspaceId
-                ? const FlowySvg(
-                    FlowySvgs.m_blue_check_s,
-                    blendMode: null,
-                  )
-                : null,
-            onTap: () => onWorkspaceSelected(workspace),
           );
         },
+      ),
+    );
+  }
+
+  Widget? _buildTrailing(BuildContext context) {
+    return workspace.workspaceId == currentWorkspace.workspaceId
+        ? const FlowySvg(
+            FlowySvgs.m_blue_check_s,
+            blendMode: null,
+          )
+        : null;
+  }
+}
+
+class _WorkspaceMenuItemContent extends StatelessWidget {
+  const _WorkspaceMenuItemContent({
+    required this.workspaceName,
+    required this.workspaceMemberCount,
+  });
+
+  final String workspaceName;
+  final String workspaceMemberCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FlowyText(
+            workspaceName,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          FlowyText(
+            workspaceMemberCount,
+            fontSize: 10.0,
+            color: Theme.of(context).hintColor,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WorkspaceMenuItemIcon extends StatelessWidget {
+  const _WorkspaceMenuItemIcon({
+    required this.workspace,
+  });
+
+  final UserWorkspacePB workspace;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: WorkspaceIcon(
+        enableEdit: false,
+        iconSize: 26,
+        fontSize: 16.0,
+        figmaLineHeight: 16.0,
+        workspace: workspace,
+        onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.updateWorkspaceIcon(
+                workspace.workspaceId,
+                result.emoji,
+              ),
+            ),
       ),
     );
   }
