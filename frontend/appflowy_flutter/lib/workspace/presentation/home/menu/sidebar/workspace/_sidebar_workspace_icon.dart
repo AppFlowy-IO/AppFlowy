@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -202,7 +204,8 @@ class _WorkspaceIconV2State extends State<WorkspaceIconV2> {
           Uri(
             path: MobileEmojiPickerScreen.routeName,
             queryParameters: {
-              MobileEmojiPickerScreen.pageTitle: 'Workspace Icon',
+              MobileEmojiPickerScreen.pageTitle:
+                  LocaleKeys.settings_workspacePage_workspaceIcon_title.tr(),
             },
           ).toString(),
         );
