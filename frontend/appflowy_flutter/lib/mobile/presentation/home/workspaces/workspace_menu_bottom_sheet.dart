@@ -244,6 +244,7 @@ class _WorkspaceMenuItemContent extends StatelessWidget {
             workspace.name,
             fontSize: 14,
             fontWeight: FontWeight.w500,
+            overflow: TextOverflow.ellipsis,
           ),
           FlowyText(
             context.read<WorkspaceMemberBloc>().state.isLoading
@@ -304,6 +305,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
     const iconSize = Size.square(20);
     return Row(
       children: [
+        const HSpace(12.0),
         // show the check icon if the workspace is the current workspace
         if (workspace.workspaceId == currentWorkspace.workspaceId)
           const FlowySvg(
@@ -321,6 +323,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
             blendMode: null,
           ),
         ),
+        const HSpace(8.0),
       ],
     );
   }
@@ -331,7 +334,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
             ? [
                 // only the owner can update workspace properties
                 WorkspaceMenuMoreOption.rename,
-                WorkspaceMenuMoreOption.invite,
+
                 WorkspaceMenuMoreOption.delete,
               ]
             : [

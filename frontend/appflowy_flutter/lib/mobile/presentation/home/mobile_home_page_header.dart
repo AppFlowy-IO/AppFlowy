@@ -141,10 +141,12 @@ class _MobileWorkspace extends StatelessWidget {
               currentWorkspace.icon.isNotEmpty
                   ? const HSpace(2)
                   : const HSpace(8),
-              FlowyText.semibold(
-                currentWorkspace.name,
-                fontSize: 20.0,
-                overflow: TextOverflow.ellipsis,
+              Flexible(
+                child: FlowyText.semibold(
+                  currentWorkspace.name,
+                  fontSize: 20.0,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
