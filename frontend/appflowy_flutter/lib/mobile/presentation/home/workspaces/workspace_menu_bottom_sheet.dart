@@ -366,6 +366,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
         _deleteWorkspace(context, bottomSheetContext);
         break;
       case WorkspaceMenuMoreOption.leave:
+        _leaveWorkspace(context, bottomSheetContext);
         break;
     }
   }
@@ -407,6 +408,16 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
   void _deleteWorkspace(BuildContext context, BuildContext bottomSheetContext) {
     context.read<UserWorkspaceBloc>().add(
           UserWorkspaceEvent.deleteWorkspace(
+            workspace.workspaceId,
+          ),
+        );
+
+    bottomSheetContext.popToHome();
+  }
+
+  void _leaveWorkspace(BuildContext context, BuildContext bottomSheetContext) {
+    context.read<UserWorkspaceBloc>().add(
+          UserWorkspaceEvent.leaveWorkspace(
             workspace.workspaceId,
           ),
         );
