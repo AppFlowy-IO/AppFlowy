@@ -500,5 +500,70 @@ void main() {
       tester.assertMultiSelectOption(contents: ['G'], rowIndex: 1);
       tester.assertMultiSelectOption(contents: ['G', 'H'], rowIndex: 2);
     });
+
+    testWidgets('date time transform', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      await tester.scrollToRight(find.byType(GridPage));
+
+      // create a date field
+      await tester.createField(FieldType.DateTime);
+
+      // edit the first date cell
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
+      await tester.toggleIncludeTime();
+      final now = DateTime.now();
+      await tester.selectDay(content: now.day);
+
+      await tester.dismissCellEditor();
+
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.DateTime,
+        content: DateFormat('MMM dd, y HH:mm').format(now),
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Date',
+        FieldType.RichText,
+      );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        content: DateFormat('MMM dd, y HH:mm').format(now),
+        cellIndex: 1,
+      );
+
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: "Oct 5, 2024",
+        cellIndex: 1,
+      );
+      tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        content: "Oct 5, 2024",
+        cellIndex: 1,
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Date',
+        FieldType.DateTime,
+      );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.DateTime,
+        content: DateFormat('MMM dd, y').format(now),
+        // content: DateFormat('MMM dd, y HH:mm').format(now),
+      );
+      tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: FieldType.DateTime,
+        content: "Oct 05, 2024",
+      );
+    });
   });
 }
