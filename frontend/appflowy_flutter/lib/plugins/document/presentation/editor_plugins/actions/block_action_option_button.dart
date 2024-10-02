@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -260,16 +262,14 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
     );
 
     return result.fold(
-      (view) {
-        if (context.mounted) {
-          showSnapBar(context, 'Duplicated page');
-        }
-        return view.id;
-      },
+      (view) => view.id,
       (error) {
         Log.error(error);
         if (context.mounted) {
-          showSnapBar(context, 'Failed to duplicate page');
+          showSnapBar(
+            context,
+            LocaleKeys.document_plugins_subPage_errors_failedDuplicatePage.tr(),
+          );
         }
         return null;
       },

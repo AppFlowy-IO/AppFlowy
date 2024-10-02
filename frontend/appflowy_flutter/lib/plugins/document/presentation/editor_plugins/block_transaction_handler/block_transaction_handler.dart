@@ -12,10 +12,6 @@ abstract class BlockTransactionHandler {
   ///
   final String blockType;
 
-  void onCut();
-
-  void onCopy();
-
   Future<void> onTransaction(
     BuildContext context,
     EditorState editorState,
@@ -40,6 +36,4 @@ abstract class BlockTransactionHandler {
     List<Node> before,
     List<Node> after,
   );
-
-  bool canHandleTransaction(Node node) => node.type == blockType;
 }

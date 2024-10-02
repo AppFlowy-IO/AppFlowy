@@ -25,10 +25,10 @@ import '../../shared/util.dart';
 // - [x] Redo adding a SubPageBlock (Expect the view to be restored)
 // - [x] Redo delete of a SubPageBlock (Expect the view to be moved to trash again)
 // - [x] Renaming a child view (Expect the view name to be updated in the document)
-// - [ ] Deleting a view (to trash) linked to a SubPageBlock shows a hint that the view is in trash (Expect a hint to be shown)
-// - [ ] Deleting a view (in trash) linked to a SubPageBlock deletes the SubPageBlock (Expect the SubPageBlock to be deleted)
+// - [x] Deleting a view (to trash) linked to a SubPageBlock shows a hint that the view is in trash (Expect a hint to be shown)
+// - [x] Deleting a view (in trash) linked to a SubPageBlock deletes the SubPageBlock (Expect the SubPageBlock to be deleted)
+// - [x] Duplicating a SubPageBlock node from Action Menu (Expect a new view is created under current view with same content and name + (copy))
 // - [ ] Dragging a SubPageBlock node to a new position in the document (Expect everything to be normal)
-// - [ ] Duplicating a SubPageBlock node from Action Menu (Expect a new view is created under current view with same content and name + (copy))
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -226,8 +226,8 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      expect(find.byType(SubPageBlockComponent), findsNWidgets(1));
-      expect(find.text('Child page'), findsNWidgets(1));
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+      expect(find.text('Child page'), findsOneWidget);
       expect(find.text('Child page (copy)'), findsNWidgets(2));
     });
 
@@ -325,7 +325,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      expect(find.byType(SubPageBlockComponent), findsNWidgets(1));
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
       expect(find.text('Child page'), findsNWidgets(2));
       expect(find.text('Child page (copy)'), findsNothing);
     });
@@ -506,12 +506,53 @@ void main() {
       expect(find.text('Child page'), findsNothing);
     });
 
-    testWidgets('Deleting a view (to trash)', (tester) async {
-      // Test code goes here.
-    });
+    testWidgets('Delete a view first to trash, then from trash',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
 
-    testWidgets('Deleting a view (in trash)', (tester) async {
-      // Test code goes here.
+      await tester.insertSubPageFromSlashMenu();
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      await tester
+          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.renamePage('Child page');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Child page'), findsNWidgets(2));
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+
+      final hintText = LocaleKeys.document_plugins_subPage_inTrashHint.tr();
+      expect(find.text(hintText), findsNothing);
+
+      await tester.hoverOnPageName('Child page');
+      await tester.tapDeletePageButton();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(find.text(hintText), findsOne);
+
+      // Go to trash
+      await tester.tapTrashButton();
+      await tester.pumpAndSettle();
+
+      // Tap on delete all button
+      await tester.tap(find.text(LocaleKeys.trash_deleteAll.tr()));
+      await tester.pumpAndSettle();
+
+      // Tap ok to delete app pages in trash
+      await tester.tap(find.text(LocaleKeys.button_ok.tr()));
+      await tester.pumpAndSettle();
+
+      await tester.openPage('SubPageBlock');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Child page'), findsNothing);
+      expect(find.byType(SubPageBlockComponent), findsNothing);
     });
 
     testWidgets('Duplicate SubPageBlock from Block Menu', (tester) async {

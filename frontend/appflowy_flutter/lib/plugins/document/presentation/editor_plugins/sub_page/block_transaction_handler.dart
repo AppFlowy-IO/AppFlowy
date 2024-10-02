@@ -18,23 +18,12 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
   final List<String> _beingCreated = [];
 
   @override
-  void onCopy() {
-    debugPrint('SubPageBlockTransactionHandler.onCopy');
-  }
-
-  @override
-  void onCut() {
-    debugPrint('SubPageBlockTransactionHandler.onCut');
-  }
-
-  @override
   void onRedo(
     BuildContext context,
     EditorState editorState,
     List<Node> before,
     List<Node> after,
   ) {
-    debugPrint('SubPageBlockTransactionHandler.onRedo');
     _handleUndoRedo(context, editorState, before, after);
   }
 
@@ -45,7 +34,6 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
     List<Node> before,
     List<Node> after,
   ) {
-    debugPrint('SubPageBlockTransactionHandler.onUndo');
     _handleUndoRedo(context, editorState, before, after);
   }
 
@@ -110,8 +98,6 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
       return;
     }
 
-    debugPrint('SubPageBlockTransactionHandler._subPageDeleted');
-
     final view = node.attributes[SubPageBlockKeys.viewId];
     if (view == null) {
       return;
@@ -124,7 +110,10 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
       (error) {
         Log.error(error);
         if (context.mounted) {
-          showSnapBar(context, 'Failed to move page to trash');
+          showSnapBar(
+            context,
+            LocaleKeys.document_plugins_subPage_errors_failedDeletePage.tr(),
+          );
         }
       },
     );
@@ -140,8 +129,6 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
     if (node.type != blockType || _beingCreated.contains(node.id)) {
       return;
     }
-
-    debugPrint('SubPageBlockTransactionHandler._subPageAdded');
 
     final viewId = node.attributes[SubPageBlockKeys.viewId];
     if (viewId == null && parentViewId != null) {
@@ -165,9 +152,20 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
           );
           editorState.reload();
         },
-        (error) {
+        (error) async {
           Log.error(error);
-          showSnapBar(context, 'Failed to create sub page');
+          showSnapBar(
+            context,
+            LocaleKeys.document_plugins_subPage_errors_failedCreatePage.tr(),
+          );
+
+          // Remove the node because it failed
+          final transaction = editorState.transaction..deleteNode(node);
+          await editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
         },
       );
 
@@ -188,7 +186,10 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
           (_) {},
           (error) {
             Log.error(error);
-            showSnapBar(context, 'Failed to move sub page');
+            showSnapBar(
+              context,
+              LocaleKeys.document_plugins_subPage_errors_failedMovePage.tr(),
+            );
           },
         );
       } else {
@@ -226,7 +227,12 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
               (error) {
                 Log.error(error);
                 if (context.mounted) {
-                  showSnapBar(context, 'Failed to duplicate sub page');
+                  showSnapBar(
+                    context,
+                    LocaleKeys
+                        .document_plugins_subPage_errors_failedDuplicatePage
+                        .tr(),
+                  );
                 }
               },
             );
@@ -244,7 +250,9 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
             if (context.mounted) {
               showSnapBar(
                 context,
-                'Failed to duplicate sub page - could not find original view',
+                LocaleKeys
+                    .document_plugins_subPage_errors_failedDuplicateFindView
+                    .tr(),
               );
             }
           },

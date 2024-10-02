@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -8,11 +8,10 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +100,6 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
     super.initState();
     final viewId = node.attributes[SubPageBlockKeys.viewId];
     if (viewId != null) {
-      _handleCopyCutPaste(viewId);
       viewFuture = fetchView(viewId);
       viewListener = ViewListener(viewId: viewId)
         ..start(
@@ -132,59 +130,6 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
         );
     }
     super.didUpdateWidget(oldWidget);
-  }
-
-  Future<void> _handleCopyCutPaste(String viewId) async {
-    final wasCopied = node.attributes[SubPageBlockKeys.wasCopied];
-    if (wasCopied == true) {
-      setState(() => isHandlingPaste = true);
-
-      // Duplicate the view to the child of the current page
-      final view = pageMemorizer[viewId] ?? await fetchView(viewId);
-      if (view == null || !context.mounted) {
-        return;
-      }
-
-      // ignore: use_build_context_synchronously
-      final currentViewId = context.read<DocumentBloc>().documentId;
-
-      final result = await ViewBackendService.duplicate(
-        view: view,
-        openAfterDuplicate: false,
-        includeChildren: true,
-        parentViewId: currentViewId,
-        syncAfterDuplicate: true,
-      );
-
-      await result.fold(
-        (view) async {
-          setState(() => isHandlingPaste = false);
-
-          // update this node
-          final transaction = editorState.transaction;
-          transaction.updateNode(
-            node,
-            {
-              SubPageBlockKeys.viewId: view.id,
-              SubPageBlockKeys.wasCopied: false,
-              SubPageBlockKeys.wasCut: false,
-            },
-          );
-          await editorState.apply(
-            transaction,
-            withUpdateSelection: false,
-            options: const ApplyOptions(recordUndo: false),
-          );
-
-          isInTrash = false;
-          viewFuture = Future.value(view);
-        },
-        (error) {
-          Log.error(error);
-          showSnapBar(context, 'Failed to duplicate page');
-        },
-      );
-    }
   }
 
   @override
@@ -287,7 +232,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                           if (isInTrash) ...[
                             const HSpace(4),
                             FlowyText(
-                              ' – (in Trash)',
+                              LocaleKeys.document_plugins_subPage_inTrashHint.tr(),
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
                               lineHeight: textStyle.height,
@@ -295,7 +240,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                             ),
                           ] else if (isHandlingPaste) ...[
                             FlowyText(
-                              ' – Handling document paste',
+                              LocaleKeys.document_plugins_subPage_handlingPasteHint.tr(),
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
                               lineHeight: textStyle.height,

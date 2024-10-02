@@ -16,6 +16,7 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
@@ -236,6 +237,10 @@ extension CommonOperations on WidgetTester {
     await tapRenamePageButton();
     await enterText(find.byType(TextFormField), name);
     await tapOKButton();
+  }
+
+  Future<void> tapTrashButton() async {
+    await tap(find.byType(SidebarTrashButton));
   }
 
   Future<void> tapOKButton() async {
