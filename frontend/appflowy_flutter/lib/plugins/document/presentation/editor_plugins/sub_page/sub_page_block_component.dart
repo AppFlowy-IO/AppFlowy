@@ -117,8 +117,9 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   @override
   void didUpdateWidget(SubPageBlockComponent oldWidget) {
     final viewId = node.attributes[SubPageBlockKeys.viewId];
-    final oldViewId = oldWidget.node.attributes[SubPageBlockKeys.viewId];
-    if (viewId != oldViewId || viewFuture == null) {
+    final oldViewId = viewListener?.viewId ??
+        oldWidget.node.attributes[SubPageBlockKeys.viewId];
+    if (viewId != null && (viewId != oldViewId || viewListener == null)) {
       viewFuture = fetchView(viewId);
       viewListener?.stop();
       viewListener = ViewListener(viewId: viewId)
@@ -181,59 +182,6 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
         (error) {
           Log.error(error);
           showSnapBar(context, 'Failed to duplicate page');
-        },
-      );
-    }
-
-    final wasCut = node.attributes[SubPageBlockKeys.wasCut];
-    if (wasCut == true) {
-      setState(() => isHandlingPaste = true);
-
-      // Move the view to the child of the current page
-      final view = pageMemorizer[viewId] ?? await fetchView(viewId);
-      if (view == null || !context.mounted) {
-        return;
-      }
-
-      // We attempt to restore from Trash
-      // In cases of eg. undo/redo, this might be the case
-      await TrashService.putback(viewId);
-
-      // ignore: use_build_context_synchronously
-      final currentViewId = context.read<DocumentBloc>().documentId;
-
-      final result = await ViewBackendService.moveViewV2(
-        viewId: viewId,
-        newParentId: currentViewId,
-        prevViewId: null,
-      );
-
-      await result.fold(
-        (_) async {
-          setState(() => isHandlingPaste = false);
-          // Set wasCut and wasCopied to false
-          final transaction = editorState.transaction
-            ..updateNode(
-              node,
-              {
-                ...node.attributes,
-                SubPageBlockKeys.wasCut: false,
-                SubPageBlockKeys.wasCopied: false,
-              },
-            );
-
-          await editorState.apply(
-            transaction,
-            withUpdateSelection: false,
-            options: const ApplyOptions(recordUndo: false),
-          );
-
-          isInTrash = false;
-          viewFuture = Future.value(view);
-        },
-        (error) {
-          Log.error(error);
-          showSnapBar(context, 'Failed to move page');
         },
       );
     }

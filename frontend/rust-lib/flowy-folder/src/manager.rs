@@ -856,6 +856,8 @@ impl FolderManager {
       ));
     }
 
+    tracing::warn!("[DEBUG] Duplicating view {}", view_id);
+
     // filter the view ids that in the trash or private section
     let filtered_view_ids = match self.mutex_folder.load_full() {
       None => Vec::default(),
@@ -867,7 +869,7 @@ impl FolderManager {
 
     // only apply the `open_after_duplicated` and the `include_children` to the first view
     let mut is_source_view = true;
-    let mut source_view_id = String::new();
+    let mut new_view_id = String::default();
     // use a stack to duplicate the view and its children
     let mut stack = vec![(view_id.to_string(), parent_view_id.to_string())];
     let mut objects = vec![];
@@ -942,7 +944,8 @@ impl FolderManager {
         .await?;
 
       if is_source_view {
-        source_view_id = duplicated_view.id.clone();
+        new_view_id = duplicated_view.id.clone();
+        tracing::warn!("[DEBUG] Setting new view id to {}", new_view_id);
       }
 
       if sync_after_create {
@@ -993,7 +996,10 @@ impl FolderManager {
     let folder = lock.read().await;
     notify_parent_view_did_change(workspace_id, &folder, vec![parent_view_id.to_string()]);
 
-    let duplicated_view = self.get_view_pb(&source_view_id).await?;
+    let duplicated_view = self.get_view_pb(&new_view_id).await?;
+
+    tracing::warn!("[DEBUG] Duplicated view: {:?}", duplicated_view);
+
     Ok(duplicated_view)
   }
 

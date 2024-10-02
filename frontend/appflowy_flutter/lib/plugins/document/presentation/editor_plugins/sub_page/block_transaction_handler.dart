@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_transaction_handler/block_transaction_handler.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
+import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
@@ -73,11 +75,14 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
     EditorState editorState,
     List<Node> added,
     List<Node> removed, {
-    bool isUndo = false,
-    bool isRedo = false,
+    bool isUndoRedo = false,
+    bool isPaste = false,
+    bool isDraggingNode = false,
     String? parentViewId,
   }) async {
-    debugPrint('SubPageBlockTransactionHandler.onTransaction');
+    if (isDraggingNode) {
+      return;
+    }
 
     for (final node in removed) {
       if (!context.mounted) return;
@@ -86,7 +91,13 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
 
     for (final node in added) {
       if (!context.mounted) return;
-      await _subPageAdded(context, editorState, node, parentViewId);
+      await _subPageAdded(
+        context,
+        editorState,
+        node,
+        isPaste: isPaste,
+        parentViewId: parentViewId,
+      );
     }
   }
 
@@ -122,9 +133,10 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
   Future<void> _subPageAdded(
     BuildContext context,
     EditorState editorState,
-    Node node, [
+    Node node, {
+    bool isPaste = false,
     String? parentViewId,
-  ]) async {
+  }) async {
     if (node.type != blockType || _beingCreated.contains(node.id)) {
       return;
     }
@@ -160,27 +172,106 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
       );
 
       _beingCreated.remove(node.id);
+    } else if (isPaste) {
+      final wasCut = node.attributes[SubPageBlockKeys.wasCut];
+      if (wasCut == true && parentViewId != null) {
+        // Just in case, we try to put back from trash before moving
+        await TrashService.putback(viewId);
+
+        final viewOrResult = await ViewBackendService.moveViewV2(
+          viewId: viewId,
+          newParentId: parentViewId,
+          prevViewId: null,
+        );
+
+        viewOrResult.fold(
+          (_) {},
+          (error) {
+            Log.error(error);
+            showSnapBar(context, 'Failed to move sub page');
+          },
+        );
+      } else {
+        final viewId = node.attributes[SubPageBlockKeys.viewId];
+        if (viewId == null) {
+          return;
+        }
+
+        final viewOrResult = await ViewBackendService.getView(viewId);
+        return viewOrResult.fold(
+          (view) async {
+            final duplicatedViewOrResult = await ViewBackendService.duplicate(
+              view: view,
+              openAfterDuplicate: false,
+              includeChildren: true,
+              syncAfterDuplicate: true,
+              parentViewId: parentViewId,
+            );
+
+            return duplicatedViewOrResult.fold(
+              (view) async {
+                final transaction = editorState.transaction
+                  ..updateNode(node, {
+                    SubPageBlockKeys.viewId: view.id,
+                    SubPageBlockKeys.wasCut: false,
+                    SubPageBlockKeys.wasCopied: false,
+                  });
+                await editorState.apply(
+                  transaction,
+                  withUpdateSelection: false,
+                  options: const ApplyOptions(recordUndo: false),
+                );
+                editorState.reload();
+              },
+              (error) {
+                Log.error(error);
+                if (context.mounted) {
+                  showSnapBar(context, 'Failed to duplicate sub page');
+                }
+              },
+            );
+          },
+          (error) async {
+            Log.error(error);
+
+            final transaction = editorState.transaction..deleteNode(node);
+            await editorState.apply(
+              transaction,
+              withUpdateSelection: false,
+              options: const ApplyOptions(recordUndo: false),
+            );
+            editorState.reload();
+            if (context.mounted) {
+              showSnapBar(
+                context,
+                'Failed to duplicate sub page - could not find original view',
+              );
+            }
+          },
+        );
+      }
     } else {
-      final newAttributes = node.attributes;
-      newAttributes[SubPageBlockKeys.wasCut] = true;
+      // Try to restore from trash, and move to parent view
+      await TrashService.putback(viewId);
 
-      // We update the wasCut attribute to true to signify the view was moved.
-      // In this particular case it shares behavior with cut, as it moves the view from Trash
-      // to the current view (if applicable).
-      final transaction = editorState.transaction
-        ..updateNode(node, newAttributes);
+      // Check if View needs to be moved
+      if (parentViewId != null) {
+        final view = pageMemorizer[viewId] ??
+            (await ViewBackendService.getView(viewId)).toNullable();
+        if (view == null) {
+          return Log.error('View not found: $viewId');
+        }
 
-      // Due to the StreamController (_observer) in [EditorState] not being reentrant and processing
-      // transactions in order, we need to delay the apply to ensure the transaction that triggered
-      // this event is processed first.
-      await Future.delayed(const Duration(milliseconds: 100));
+        if (view.parentViewId == parentViewId) {
+          return;
+        }
 
-      await editorState.apply(
-        transaction,
-        withUpdateSelection: false,
-        options: const ApplyOptions(recordUndo: false),
-      );
-      editorState.reload();
+        await ViewBackendService.moveViewV2(
+          viewId: viewId,
+          newParentId: parentViewId,
+          prevViewId: null,
+        );
+      }
     }
   }
 }

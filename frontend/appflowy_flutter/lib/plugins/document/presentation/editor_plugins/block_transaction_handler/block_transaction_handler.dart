@@ -21,8 +21,9 @@ abstract class BlockTransactionHandler {
     EditorState editorState,
     List<Node> added,
     List<Node> removed, {
-    bool isUndo = false,
-    bool isRedo = false,
+    bool isUndoRedo = false,
+    bool isPaste = false,
+    bool isDraggingNode = false,
     String? parentViewId,
   });
 

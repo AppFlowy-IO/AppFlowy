@@ -65,8 +65,9 @@ class _DocumentPageState extends State<DocumentPage>
 
   StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
 
-  bool wasUndo = false;
-  bool wasRedo = false;
+  bool isUndoRedo = false;
+  bool isPaste = false;
+  bool isDraggingNode = false;
 
   @override
   void initState() {
@@ -317,19 +318,18 @@ class _DocumentPageState extends State<DocumentPage>
       return;
     }
 
-    final transactionHandlers = SharedEditorContext.transactionHandlers;
-    if (transactionHandlers.isNotEmpty &&
-        [EditorNotificationType.undo, EditorNotificationType.redo]
-            .contains(type)) {
-      // Undo and Redo cause Editor Notifications due to modifying the document.
-      // We need to avoid handling these notifications as they are handled separately.
-      wasUndo = type == EditorNotificationType.undo;
-      wasRedo = type == EditorNotificationType.redo;
+    if ([EditorNotificationType.undo, EditorNotificationType.redo]
+        .contains(type)) {
+      isUndoRedo = true;
+    } else if (type == EditorNotificationType.paste) {
+      isPaste = true;
+    } else if (type == EditorNotificationType.dragStart) {
+      isDraggingNode = true;
+    } else if (type == EditorNotificationType.dragEnd) {
+      isDraggingNode = false;
+    }
 
-      type == EditorNotificationType.undo
-          ? undoCommand.execute(editorState)
-          : redoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.undo) {
+    if (type == EditorNotificationType.undo) {
       undoCommand.execute(editorState);
     } else if (type == EditorNotificationType.redo) {
       redoCommand.execute(editorState);
@@ -337,9 +337,6 @@ class _DocumentPageState extends State<DocumentPage>
         editorState.selection != null) {
       editorState.selection = null;
     }
-
-    wasUndo = false;
-    wasRedo = false;
   }
 
   void onNotificationAction(
@@ -456,10 +453,14 @@ class _DocumentPageState extends State<DocumentPage>
         editorState!,
         added,
         removed,
-        isUndo: wasUndo,
-        isRedo: wasRedo,
+        isUndoRedo: isUndoRedo,
+        isPaste: isPaste,
+        isDraggingNode: isDraggingNode,
         parentViewId: widget.view.id,
       );
+
+      isUndoRedo = false;
+      isPaste = false;
     }
   }
 }

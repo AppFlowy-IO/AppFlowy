@@ -93,6 +93,10 @@ List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = false]) {
 }
 
 Node _handleNode(Node node, [bool isCut = false]) {
+  if (!isCut) {
+    return node.copyWith();
+  }
+
   final newChildren = node.children.map(_handleNode).toList();
 
   if (node.type == SubPageBlockKeys.type) {
