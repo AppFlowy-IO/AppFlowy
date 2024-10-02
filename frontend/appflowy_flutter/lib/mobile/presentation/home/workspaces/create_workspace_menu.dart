@@ -5,7 +5,25 @@ import 'package:flutter/material.dart';
 
 enum EditWorkspaceNameType {
   create,
-  edit,
+  edit;
+
+  String get title {
+    switch (this) {
+      case EditWorkspaceNameType.create:
+        return LocaleKeys.workspace_create.tr();
+      case EditWorkspaceNameType.edit:
+        return LocaleKeys.workspace_renameWorkspace.tr();
+    }
+  }
+
+  String get actionTitle {
+    switch (this) {
+      case EditWorkspaceNameType.create:
+        return LocaleKeys.workspace_create.tr();
+      case EditWorkspaceNameType.edit:
+        return LocaleKeys.button_confirm.tr();
+    }
+  }
 }
 
 class EditWorkspaceNameBottomSheet extends StatefulWidget {
@@ -74,7 +92,7 @@ class _EditWorkspaceNameBottomSheetState
         SizedBox(
           width: double.infinity,
           child: PrimaryRoundedButton(
-            text: 'Create',
+            text: widget.type.actionTitle,
             fontSize: 16,
             margin: const EdgeInsets.symmetric(
               vertical: 16,

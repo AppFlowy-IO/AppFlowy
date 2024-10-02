@@ -339,10 +339,56 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
       showDivider: false,
       useRootNavigator: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (context) {
+      builder: (_) {
         return WorkspaceMenuMoreOptions(
           actions: actions,
-          onAction: (action) {},
+          onAction: (action) => _onActions(context, action),
+        );
+      },
+    );
+  }
+
+  void _onActions(BuildContext context, WorkspaceMenuMoreOption action) {
+    Log.info('execute action in workspace menu bottom sheet: $action');
+
+    switch (action) {
+      case WorkspaceMenuMoreOption.rename:
+        _showRenameWorkspaceBottomSheet(context);
+        break;
+      case WorkspaceMenuMoreOption.invite:
+        break;
+      case WorkspaceMenuMoreOption.delete:
+        break;
+      case WorkspaceMenuMoreOption.leave:
+        break;
+    }
+  }
+
+  void _showRenameWorkspaceBottomSheet(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: LocaleKeys.workspace_renameWorkspace.tr(),
+      showCloseButton: true,
+      showDragHandle: true,
+      showDivider: false,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      builder: (bottomSheetContext) {
+        return EditWorkspaceNameBottomSheet(
+          type: EditWorkspaceNameType.edit,
+          workspaceName: workspace.name,
+          onSubmitted: (name) {
+            // rename the workspace
+            Log.info('rename the workspace: $name');
+            bottomSheetContext.popToHome();
+
+            context.read<UserWorkspaceBloc>().add(
+                  UserWorkspaceEvent.renameWorkspace(
+                    workspace.workspaceId,
+                    name,
+                  ),
+                );
+          },
         );
       },
     );
