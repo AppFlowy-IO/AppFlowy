@@ -151,6 +151,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     expect(cell, findsOneWidget);
     await enterText(cell, input);
+    await testTextInput.receiveAction(TextInputAction.done);
     await pumpAndSettle();
   }
 
