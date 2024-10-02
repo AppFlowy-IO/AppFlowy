@@ -339,16 +339,20 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
       showDivider: false,
       useRootNavigator: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (_) {
+      builder: (bottomSheetContext) {
         return WorkspaceMenuMoreOptions(
           actions: actions,
-          onAction: (action) => _onActions(context, action),
+          onAction: (action) => _onActions(context, bottomSheetContext, action),
         );
       },
     );
   }
 
-  void _onActions(BuildContext context, WorkspaceMenuMoreOption action) {
+  void _onActions(
+    BuildContext context,
+    BuildContext bottomSheetContext,
+    WorkspaceMenuMoreOption action,
+  ) {
     Log.info('execute action in workspace menu bottom sheet: $action');
 
     switch (action) {
@@ -356,12 +360,18 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
         _showRenameWorkspaceBottomSheet(context);
         break;
       case WorkspaceMenuMoreOption.invite:
+        _pushToInviteMembersPage(context);
         break;
       case WorkspaceMenuMoreOption.delete:
+        _deleteWorkspace(context, bottomSheetContext);
         break;
       case WorkspaceMenuMoreOption.leave:
         break;
     }
+  }
+
+  void _pushToInviteMembersPage(BuildContext context) {
+    // todo: implement later
   }
 
   void _showRenameWorkspaceBottomSheet(BuildContext context) {
@@ -392,5 +402,15 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _deleteWorkspace(BuildContext context, BuildContext bottomSheetContext) {
+    context.read<UserWorkspaceBloc>().add(
+          UserWorkspaceEvent.deleteWorkspace(
+            workspace.workspaceId,
+          ),
+        );
+
+    bottomSheetContext.popToHome();
   }
 }

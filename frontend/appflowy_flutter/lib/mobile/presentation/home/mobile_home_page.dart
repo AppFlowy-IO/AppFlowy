@@ -291,6 +291,17 @@ class _HomePageState extends State<_HomePage> {
           },
         );
         break;
+      case UserWorkspaceActionType.delete:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys.workspace_deleteSuccess.tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}';
+          },
+        );
 
       default:
         message = null;
