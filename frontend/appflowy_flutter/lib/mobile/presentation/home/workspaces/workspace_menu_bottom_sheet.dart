@@ -35,10 +35,13 @@ class MobileWorkspaceMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // user profile
     final List<Widget> children = [
       _WorkspaceUserItem(userProfile: userProfile),
       _buildDivider(),
     ];
+
+    // workspace list
     for (var i = 0; i < workspaces.length; i++) {
       final workspace = workspaces[i];
       children.add(
@@ -52,11 +55,15 @@ class MobileWorkspaceMenu extends StatelessWidget {
         ),
       );
     }
+
+    // create workspace button
     children.addAll([
       _buildDivider(),
       const _CreateWorkspaceButton(),
     ]);
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: children,
     );
   }
@@ -335,9 +342,7 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
       builder: (context) {
         return WorkspaceMenuMoreOptions(
           actions: actions,
-          onAction: (action) {
-            print(action);
-          },
+          onAction: (action) {},
         );
       },
     );
