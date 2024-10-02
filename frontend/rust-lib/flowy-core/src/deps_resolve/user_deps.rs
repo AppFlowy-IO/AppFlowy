@@ -1,9 +1,9 @@
 use crate::integrate::server::ServerProvider;
+use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_error::FlowyResult;
 use flowy_folder::manager::FolderManager;
-use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::user_manager::UserManager;

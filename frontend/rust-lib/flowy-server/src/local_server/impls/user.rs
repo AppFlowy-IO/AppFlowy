@@ -212,7 +212,7 @@ fn make_user_workspace() -> UserWorkspace {
     id: uuid::Uuid::new_v4().to_string(),
     name: "My Workspace".to_string(),
     created_at: Default::default(),
-    database_indexer_id: uuid::Uuid::new_v4().to_string(),
+    workspace_database_id: uuid::Uuid::new_v4().to_string(),
     icon: "".to_string(),
   }
 }

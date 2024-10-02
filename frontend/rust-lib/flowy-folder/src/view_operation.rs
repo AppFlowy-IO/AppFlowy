@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
+use collab_folder::hierarchy_builder::NestedViewBuilder;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use std::collections::HashMap;
@@ -10,7 +11,6 @@ use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
 
-use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use lib_infra::util::timestamp;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
