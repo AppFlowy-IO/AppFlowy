@@ -510,7 +510,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
-        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it.",
+        "success": "You have left the workspace successfully.",
+        "fail": "Failed to leave the workspace."
       },
       "manageWorkspace": {
         "title": "Manage workspace",

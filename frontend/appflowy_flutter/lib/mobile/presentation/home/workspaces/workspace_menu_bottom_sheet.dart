@@ -334,7 +334,6 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
             ? [
                 // only the owner can update workspace properties
                 WorkspaceMenuMoreOption.rename,
-
                 WorkspaceMenuMoreOption.delete,
               ]
             : [
@@ -416,10 +415,52 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
   void _deleteWorkspace(BuildContext context, BuildContext bottomSheetContext) {
     Navigator.of(bottomSheetContext).pop();
 
+    _showConfirmDialog(
+      context,
+      '${LocaleKeys.space_delete.tr()}: ${workspace.name}',
+      LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
+      LocaleKeys.button_delete.tr(),
+      (_) async {
+        context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.deleteWorkspace(
+                workspace.workspaceId,
+              ),
+            );
+        context.popToHome();
+      },
+    );
+  }
+
+  void _leaveWorkspace(BuildContext context, BuildContext bottomSheetContext) {
+    Navigator.of(bottomSheetContext).pop();
+
+    _showConfirmDialog(
+      context,
+      '${LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_title.tr()}: ${workspace.name}',
+      LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_content.tr(),
+      LocaleKeys.button_confirm.tr(),
+      (_) async {
+        context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.leaveWorkspace(
+                workspace.workspaceId,
+              ),
+            );
+        context.popToHome();
+      },
+    );
+  }
+
+  void _showConfirmDialog(
+    BuildContext context,
+    String title,
+    String content,
+    String rightButtonText,
+    void Function(BuildContext context)? onRightButtonPressed,
+  ) {
     showFlowyCupertinoConfirmDialog(
-      title: '${LocaleKeys.space_delete.tr()}: ${workspace.name}',
+      title: title,
       content: FlowyText(
-        LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
+        content,
         fontSize: 14,
         color: Theme.of(context).hintColor,
         maxLines: 10,
@@ -432,30 +473,13 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
         color: const Color(0xFF007AFF),
       ),
       rightButton: FlowyText(
-        LocaleKeys.button_delete.tr(),
+        rightButtonText,
         fontSize: 17.0,
         figmaLineHeight: 24.0,
         fontWeight: FontWeight.w400,
         color: const Color(0xFFFE0220),
       ),
-      onRightButtonPressed: (_) async {
-        context.read<UserWorkspaceBloc>().add(
-              UserWorkspaceEvent.deleteWorkspace(
-                workspace.workspaceId,
-              ),
-            );
-        context.popToHome();
-      },
+      onRightButtonPressed: onRightButtonPressed,
     );
-  }
-
-  void _leaveWorkspace(BuildContext context, BuildContext bottomSheetContext) {
-    context.read<UserWorkspaceBloc>().add(
-          UserWorkspaceEvent.leaveWorkspace(
-            workspace.workspaceId,
-          ),
-        );
-
-    bottomSheetContext.popToHome();
   }
 }
