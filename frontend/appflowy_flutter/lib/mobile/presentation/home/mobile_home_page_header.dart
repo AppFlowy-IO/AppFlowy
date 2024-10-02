@@ -125,7 +125,7 @@ class _MobileWorkspace extends StatelessWidget {
                 workspace: currentWorkspace,
                 iconSize: 36,
                 fontSize: 18.0,
-                enableEdit: false,
+                enableEdit: true,
                 alignment: Alignment.centerLeft,
                 figmaLineHeight: 26.0,
                 emojiSize: 24.0,

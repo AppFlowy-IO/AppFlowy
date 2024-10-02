@@ -1,11 +1,14 @@
 import 'dart:math';
 
+import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class WorkspaceIcon extends StatefulWidget {
   const WorkspaceIcon({
@@ -165,7 +168,15 @@ class _WorkspaceIconV2State extends State<WorkspaceIconV2> {
     );
 
     if (widget.enableEdit) {
-      child = AppFlowyPopover(
+      child = _buildEditableIcon(child);
+    }
+
+    return child;
+  }
+
+  Widget _buildEditableIcon(Widget child) {
+    if (UniversalPlatform.isDesktopOrWeb) {
+      AppFlowyPopover(
         offset: const Offset(0, 8),
         controller: controller,
         direction: PopoverDirection.bottomWithLeftAligned,
@@ -184,6 +195,22 @@ class _WorkspaceIconV2State extends State<WorkspaceIconV2> {
         ),
       );
     }
-    return child;
+
+    return GestureDetector(
+      onTap: () async {
+        final result = await context.push<EmojiPickerResult>(
+          Uri(
+            path: MobileEmojiPickerScreen.routeName,
+            queryParameters: {
+              MobileEmojiPickerScreen.pageTitle: 'Workspace Icon',
+            },
+          ).toString(),
+        );
+        if (result != null) {
+          widget.onSelected(result);
+        }
+      },
+      child: child,
+    );
   }
 }
