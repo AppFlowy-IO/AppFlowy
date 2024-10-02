@@ -411,13 +411,39 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
   }
 
   void _deleteWorkspace(BuildContext context, BuildContext bottomSheetContext) {
-    context.read<UserWorkspaceBloc>().add(
-          UserWorkspaceEvent.deleteWorkspace(
-            workspace.workspaceId,
-          ),
-        );
+    Navigator.of(bottomSheetContext).pop();
 
-    bottomSheetContext.popToHome();
+    showFlowyCupertinoConfirmDialog(
+      title: '${LocaleKeys.space_delete.tr()}: ${workspace.name}',
+      content: FlowyText(
+        LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
+        fontSize: 14,
+        color: Theme.of(context).hintColor,
+        maxLines: 10,
+      ),
+      leftButton: FlowyText(
+        LocaleKeys.button_cancel.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFF007AFF),
+      ),
+      rightButton: FlowyText(
+        LocaleKeys.button_delete.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFFFE0220),
+      ),
+      onRightButtonPressed: (_) async {
+        context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.deleteWorkspace(
+                workspace.workspaceId,
+              ),
+            );
+        context.popToHome();
+      },
+    );
   }
 
   void _leaveWorkspace(BuildContext context, BuildContext bottomSheetContext) {
