@@ -121,22 +121,22 @@ class _MobileWorkspace extends StatelessWidget {
           },
           child: Row(
             children: [
-              SizedBox.square(
-                dimension: currentWorkspace.icon.isNotEmpty ? 34.0 : 26.0,
-                child: WorkspaceIcon(
-                  workspace: currentWorkspace,
-                  iconSize: 26,
-                  fontSize: 16.0,
-                  enableEdit: false,
-                  alignment: Alignment.centerLeft,
-                  figmaLineHeight: 16.0,
-                  onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                        UserWorkspaceEvent.updateWorkspaceIcon(
-                          currentWorkspace.workspaceId,
-                          result.emoji,
-                        ),
+              WorkspaceIconV2(
+                workspace: currentWorkspace,
+                iconSize: 36,
+                fontSize: 18.0,
+                enableEdit: false,
+                alignment: Alignment.centerLeft,
+                figmaLineHeight: 26.0,
+                emojiSize: 24.0,
+                borderRadius: 12.0,
+                showBorder: false,
+                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.updateWorkspaceIcon(
+                        currentWorkspace.workspaceId,
+                        result.emoji,
                       ),
-                ),
+                    ),
               ),
               currentWorkspace.icon.isNotEmpty
                   ? const HSpace(2)

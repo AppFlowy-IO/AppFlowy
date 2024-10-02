@@ -63,7 +63,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
                 width: 0.5,
               ),
             ),
-            child: FlowyText.medium(
+            child: FlowyText.semibold(
               widget.workspace.name.isEmpty
                   ? ''
                   : widget.workspace.name.substring(0, 1),
@@ -71,6 +71,98 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
               color: Colors.black,
             ),
           );
+
+    if (widget.enableEdit) {
+      child = AppFlowyPopover(
+        offset: const Offset(0, 8),
+        controller: controller,
+        direction: PopoverDirection.bottomWithLeftAligned,
+        constraints: BoxConstraints.loose(const Size(364, 356)),
+        clickHandler: PopoverClickHandler.gestureDetector,
+        margin: const EdgeInsets.all(0),
+        popupBuilder: (_) => FlowyIconEmojiPicker(
+          onSelectedEmoji: (result) {
+            widget.onSelected(result);
+            controller.close();
+          },
+        ),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: child,
+        ),
+      );
+    }
+    return child;
+  }
+}
+
+// The v2 supports the built-in color set
+class WorkspaceIconV2 extends StatefulWidget {
+  const WorkspaceIconV2({
+    super.key,
+    required this.workspace,
+    required this.enableEdit,
+    required this.iconSize,
+    required this.fontSize,
+    required this.onSelected,
+    this.borderRadius = 4,
+    this.emojiSize,
+    this.alignment,
+    required this.figmaLineHeight,
+    this.showBorder = true,
+  });
+
+  final UserWorkspacePB workspace;
+  final double iconSize;
+  final bool enableEdit;
+  final double fontSize;
+  final double? emojiSize;
+  final void Function(EmojiPickerResult) onSelected;
+  final double borderRadius;
+  final Alignment? alignment;
+  final double figmaLineHeight;
+  final bool showBorder;
+
+  @override
+  State<WorkspaceIconV2> createState() => _WorkspaceIconV2State();
+}
+
+class _WorkspaceIconV2State extends State<WorkspaceIconV2> {
+  final controller = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = ColorGenerator(widget.workspace.name).randomColor();
+    Widget child = widget.workspace.icon.isNotEmpty
+        ? FlowyText.emoji(
+            widget.workspace.icon,
+            fontSize: widget.emojiSize,
+            figmaLineHeight: widget.figmaLineHeight,
+            optimizeEmojiAlign: true,
+          )
+        : FlowyText.semibold(
+            widget.workspace.name.isEmpty
+                ? ''
+                : widget.workspace.name.substring(0, 1),
+            fontSize: widget.fontSize,
+            color: color.$1,
+          );
+
+    child = Container(
+      alignment: Alignment.center,
+      width: widget.iconSize,
+      height: widget.iconSize,
+      decoration: BoxDecoration(
+        color: widget.workspace.icon.isNotEmpty ? null : color.$2,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        border: widget.showBorder
+            ? Border.all(
+                color: const Color(0x1A717171),
+              )
+            : null,
+      ),
+      child: child,
+    );
 
     if (widget.enableEdit) {
       child = AppFlowyPopover(

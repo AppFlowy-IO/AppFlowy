@@ -81,18 +81,21 @@ class _CreateWorkspaceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyOptionTile.text(
-      height: 60,
-      showTopBorder: false,
-      showBottomBorder: false,
-      leftIcon: _buildLeftIcon(context),
-      onTap: () => _showCreateWorkspaceBottomSheet(context),
-      content: Expanded(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10.0),
-          child: FlowyText.medium(
-            LocaleKeys.workspace_create.tr(),
-            fontSize: 14,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: FlowyOptionTile.text(
+        height: 60,
+        showTopBorder: false,
+        showBottomBorder: false,
+        leftIcon: _buildLeftIcon(context),
+        onTap: () => _showCreateWorkspaceBottomSheet(context),
+        content: Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: FlowyText.medium(
+              LocaleKeys.workspace_create.tr(),
+              fontSize: 14,
+            ),
           ),
         ),
       ),
@@ -134,7 +137,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
       height: 36.0,
       padding: const EdgeInsets.all(7.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: const Color(0x01717171).withOpacity(0.12),
           width: 0.8,
@@ -268,11 +271,13 @@ class _WorkspaceMenuItemIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: WorkspaceIcon(
+      child: WorkspaceIconV2(
         enableEdit: false,
-        iconSize: 26,
-        fontSize: 16.0,
-        figmaLineHeight: 16.0,
+        iconSize: 36,
+        emojiSize: 24.0,
+        fontSize: 18.0,
+        figmaLineHeight: 26.0,
+        borderRadius: 12.0,
         workspace: workspace,
         onSelected: (result) => context.read<UserWorkspaceBloc>().add(
               UserWorkspaceEvent.updateWorkspaceIcon(
