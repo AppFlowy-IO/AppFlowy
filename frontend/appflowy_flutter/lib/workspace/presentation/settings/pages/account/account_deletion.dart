@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -100,12 +101,7 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                     textEditingController.text.trim(),
                     isCheckedNotifier.value,
                     onSuccess: () {
-                      Navigator.of(context).popUntil((route) {
-                        if (route.settings.name == '/') {
-                          return true;
-                        }
-                        return false;
-                      });
+                      context.popToHome();
                     },
                   ),
                 );
