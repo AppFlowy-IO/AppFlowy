@@ -29,6 +29,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../shared/constants.dart';
 import '../../../shared/dir.dart';
 import '../../../shared/mock/mock_file_picker.dart';
 import '../../../shared/util.dart';
@@ -43,6 +44,24 @@ void main() {
       );
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
+
+      // click the create a new workspace button
+      await tester.tapButton(find.text(Constants.defaultWorkspaceName));
+      await tester.tapButton(find.text(LocaleKeys.workspace_create.tr()));
+
+      // input the new workspace name
+      final inputField = find.byType(TextFormField);
+      const newWorkspaceName = 'AppFlowy';
+      await tester.enterText(inputField, newWorkspaceName);
+      await tester.pumpAndSettle();
+
+      // wait for the workspace to be created
+      await tester.pumpUntilFound(
+        find.text(LocaleKeys.workspace_createSuccess.tr()),
+      );
+
+      // expect to see the new workspace
+      expect(find.text(newWorkspaceName), findsOneWidget);
     });
   });
 }
