@@ -307,33 +307,46 @@ impl DatabaseViewEditor {
         let rows = vec![Arc::new(row.clone())];
         let mut rows = self.v_filter_rows(rows).await;
 
-        if let Some(row) = rows.pop() {
-          let result = controller.did_update_group_row(old_row, &row, &field);
+        let mut group_changes = GroupChangesPB {
+          view_id: self.view_id.clone(),
+          ..Default::default()
+        };
 
-          if let Ok(result) = result {
-            let mut group_changes = GroupChangesPB {
-              view_id: self.view_id.clone(),
-              ..Default::default()
-            };
-            if let Some(inserted_group) = result.inserted_group {
-              tracing::trace!("Create group after editing the row: {:?}", inserted_group);
-              group_changes.inserted_groups.push(inserted_group);
-            }
-            if let Some(delete_group) = result.deleted_group {
-              tracing::trace!("Delete group after editing the row: {:?}", delete_group);
-              group_changes.deleted_groups.push(delete_group.group_id);
-            }
+        let (inserted_group, deleted_group, row_changesets) = if let Some(row) = rows.pop() {
+          if let Ok(result) = controller.did_update_group_row(old_row, &row, &field) {
+            (
+              result.inserted_group,
+              result.deleted_group,
+              result.row_changesets,
+            )
+          } else {
+            (None, None, vec![])
+          }
+        } else {
+          if let Ok(result) = controller.did_delete_row(&row) {
+            (None, result.deleted_group, result.row_changesets)
+          } else {
+            (None, None, vec![])
+          }
+        };
 
-            if !group_changes.is_empty() {
-              notify_did_update_num_of_groups(&self.view_id, group_changes).await;
-            }
+        if let Some(inserted_group) = inserted_group {
+          tracing::trace!("Create group after editing the row: {:?}", inserted_group);
+          group_changes.inserted_groups.push(inserted_group);
+        }
+        if let Some(delete_group) = deleted_group {
+          tracing::trace!("Delete group after editing the row: {:?}", delete_group);
+          group_changes.deleted_groups.push(delete_group.group_id);
+        }
 
-            for changeset in result.row_changesets {
-              if !changeset.is_empty() {
-                tracing::trace!("Group change after editing the row: {:?}", changeset);
-                notify_did_update_group_rows(changeset).await;
-              }
-            }
+        if !group_changes.is_empty() {
+          notify_did_update_num_of_groups(&self.view_id, group_changes).await;
+        }
+
+        for changeset in row_changesets {
+          if !changeset.is_empty() {
+            tracing::trace!("Group change after editing the row: {:?}", changeset);
+            notify_did_update_group_rows(changeset).await;
           }
         }
       }

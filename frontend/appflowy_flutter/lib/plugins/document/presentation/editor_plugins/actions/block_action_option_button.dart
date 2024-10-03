@@ -1,10 +1,18 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:provider/provider.dart';
 
 import 'drag_to_reorder/draggable_option_button.dart';
@@ -92,7 +100,10 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
     );
   }
 
-  void _onSelectAction(BuildContext context, OptionAction action) {
+  Future<void> _onSelectAction(
+    BuildContext context,
+    OptionAction action,
+  ) async {
     final node = widget.blockComponentContext.node;
     final transaction = widget.editorState.transaction;
     switch (action) {
@@ -100,7 +111,7 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
         transaction.deleteNode(node);
         break;
       case OptionAction.duplicate:
-        _duplicateBlock(context, transaction, node);
+        await _duplicateBlock(context, transaction, node);
         break;
       case OptionAction.turnInto:
         break;
@@ -116,14 +127,15 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
       case OptionAction.depth:
         throw UnimplementedError();
     }
-    widget.editorState.apply(transaction);
+
+    await widget.editorState.apply(transaction);
   }
 
-  void _duplicateBlock(
+  Future<void> _duplicateBlock(
     BuildContext context,
     Transaction transaction,
     Node node,
-  ) {
+  ) async {
     // 1. verify the node integrity
     final type = node.type;
     final builder = widget.editorState.renderer.blockComponentBuilder(type);
@@ -140,13 +152,20 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
 
     // 2. duplicate the node
     //  the _copyBlock will fix the table block
-    final newNode = _copyBlock(context, node);
+    Node newNode = _copyBlock(context, node);
 
-    // 3. insert the node to the next of the current node
-    transaction.insertNode(
-      node.path.next,
-      newNode,
-    );
+    // 3. if the node is sub page, duplicate the view
+    if (node.type == SubPageBlockKeys.type) {
+      final viewId = await _handleDuplicateSubPage(context, node);
+      if (viewId == null) {
+        return;
+      }
+
+      newNode = newNode.copyWith(attributes: {SubPageBlockKeys.viewId: viewId});
+    }
+
+    // 4. insert the node to the next of the current node
+    transaction.insertNode(node.path.next, newNode);
   }
 
   Node _copyBlock(BuildContext context, Node node) {
@@ -211,6 +230,48 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
         ...node.attributes,
         TableBlockKeys.colsLen: colsLen,
         TableBlockKeys.rowsLen: rowsLen,
+      },
+    );
+  }
+
+  /// Handles duplicating a SubPage.
+  ///
+  /// If the duplication fails for any reason, this method will return false, and inserting
+  /// the duplicate node should be aborted.
+  ///
+  Future<String?> _handleDuplicateSubPage(
+    BuildContext context,
+    Node node,
+  ) async {
+    final viewId = node.attributes[SubPageBlockKeys.viewId];
+    if (viewId == null) {
+      return null;
+    }
+
+    final view = (await ViewBackendService.getView(viewId)).toNullable();
+    if (view == null) {
+      return null;
+    }
+
+    final result = await ViewBackendService.duplicate(
+      view: view,
+      openAfterDuplicate: false,
+      includeChildren: true,
+      parentViewId: view.parentViewId,
+      syncAfterDuplicate: true,
+    );
+
+    return result.fold(
+      (view) => view.id,
+      (error) {
+        Log.error(error);
+        if (context.mounted) {
+          showSnapBar(
+            context,
+            LocaleKeys.document_plugins_subPage_errors_failedDuplicatePage.tr(),
+          );
+        }
+        return null;
       },
     );
   }

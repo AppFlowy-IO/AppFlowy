@@ -121,7 +121,7 @@ class _MobileWorkspace extends StatelessWidget {
           },
           child: Row(
             children: [
-              WorkspaceIconV2(
+              WorkspaceIcon(
                 workspace: currentWorkspace,
                 iconSize: 36,
                 fontSize: 18.0,

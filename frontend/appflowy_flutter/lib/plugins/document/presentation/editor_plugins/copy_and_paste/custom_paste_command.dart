@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_html.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
@@ -9,7 +12,6 @@ import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -34,6 +36,8 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
   // because the event handler is not async, so we need to use wrap the async function here
   () async {
+    EditorNotification.paste().post();
+
     // dispatch the paste event
     final data = await getIt<ClipboardService>().getData();
     final inAppJson = data.inAppJson;
