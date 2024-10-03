@@ -515,7 +515,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap ok to delete app pages in trash
-      await tester.tap(find.text(LocaleKeys.button_ok.tr()));
+      await tester.tap(find.text(LocaleKeys.button_delete.tr()));
       await tester.pumpAndSettle();
 
       await tester.openPage('SubPageBlock');
