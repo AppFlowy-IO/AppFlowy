@@ -242,7 +242,15 @@ void main() {
 
       // expect the title is null
 
-      expect(tester.widget<TextField>(title).controller?.text, '');
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(_testDocumentName),
+            )
+            .controller
+            ?.text,
+        '',
+      );
 
       // redo
       await tester.simulateKeyEvent(
@@ -254,8 +262,35 @@ void main() {
       await tester.pumpAndSettle(Durations.short1);
 
       expect(
-        tester.widget<TextField>(title).controller?.text,
+        tester
+            .widget<TextField>(tester.editor.findDocumentTitle(''))
+            .controller
+            ?.text,
         _testDocumentName,
+      );
+    });
+
+    testWidgets('escape key should exit the editing mode', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(_testDocumentName),
+            )
+            .focusNode
+            ?.hasFocus,
+        isFalse,
       );
     });
   });

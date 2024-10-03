@@ -328,7 +328,7 @@ class EditorOperations {
     await tester.pumpAndSettle(Durations.short1);
   }
 
-  Finder findDocumentTitle(String title) {
+  Finder findDocumentTitle(String? title) {
     return find.descendant(
       of: find.byType(CoverTitle),
       matching: find.byWidgetPredicate(
@@ -338,6 +338,10 @@ class EditorOperations {
           }
 
           if (widget.controller?.text == title) {
+            return true;
+          }
+
+          if (title == null) {
             return true;
           }
 
