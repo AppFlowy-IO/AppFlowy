@@ -208,10 +208,12 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
     final renderBox = editorState.renderBox;
 
-    if (renderBox == null || !renderBox.hasSize) {}
+    if (renderBox == null || !renderBox.hasSize) {
+      return 0.0;
+    }
 
     var renderBoxWidth = 0.0;
-    if (renderBox != null && renderBox.hasSize) {
+    if (renderBox.hasSize) {
       renderBoxWidth = renderBox.size.width;
     } else if (retryCount <= 3) {
       retryCount++;
@@ -228,11 +230,11 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
         : appearanceCubit.state.width;
 
     // left padding + editor width + right padding = the width of the editor
-    final leftOffset = (constraints.maxWidth - editorWidth) / 2.0 +
+    final leftOffset = max(0, (constraints.maxWidth - editorWidth) / 2.0) +
         EditorStyleCustomizer.documentPadding.right;
 
     // ensure the offset is not negative
-    return max(0, leftOffset);
+    return max(0, leftOffset.floorToDouble());
   }
 
   double _calculateOverallHeight() {
