@@ -6,11 +6,11 @@ use collab_database::rows::RowCell;
 use crate::entities::CalculationType;
 use crate::services::field::TypeOptionCellExt;
 
-pub struct CalculationsService {}
+pub struct CalculationsService;
 
 impl CalculationsService {
   pub fn new() -> Self {
-    Self {}
+    Self
   }
 
   pub fn calculate(

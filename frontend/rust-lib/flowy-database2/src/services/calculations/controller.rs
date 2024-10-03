@@ -5,10 +5,10 @@ use std::sync::Arc;
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
+use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;
-
-use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use tracing::instrument;
 
 use crate::entities::{
   CalculationChangesetNotificationPB, CalculationPB, CalculationType, FieldType,
@@ -278,6 +278,7 @@ impl CalculationsController {
     }
   }
 
+  #[instrument(level = "trace", skip_all)]
   async fn get_updated_calculation(&self, calculation: Arc<Calculation>) -> Option<Calculation> {
     let field_cells = self
       .delegate

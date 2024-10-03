@@ -862,14 +862,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  functions_client:
-    dependency: transitive
-    description:
-      name: functions_client
-      sha256: e63f49cd3b41727f47b3bde284a11a4ac62839e0604f64077d4257487510e484
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.2"
   get_it:
     dependency: "direct main"
     description:
@@ -902,14 +894,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.1"
-  gotrue:
-    dependency: transitive
-    description:
-      name: gotrue
-      sha256: "8703db795511f69194fe77125a0c838bbb6befc2f95717b6e40331784a8bdecb"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.8.4"
   graphs:
     dependency: transitive
     description:
@@ -1139,14 +1123,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.8.0"
-  jwt_decode:
-    dependency: transitive
-    description:
-      name: jwt_decode
-      sha256: d2e9f68c052b2225130977429d30f187aa1981d789c76ad104a32243cfdebfbb
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.1"
   keyboard_height_plugin:
     dependency: "direct main"
     description:
@@ -1559,10 +1535,10 @@ packages:
     dependency: transitive
     description:
       name: platform
-      sha256: "9b71283fc13df574056616011fb138fd3b793ea47cc509c189a6c3fa5f8a1a65"
+      sha256: "12220bb4b65720483f8fa9450b4332347737cf8213dd2840d8b2c823e47243ec"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.5"
+    version: "3.1.4"
   plugin_platform_interface:
     dependency: "direct dev"
     description:
@@ -1579,14 +1555,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
-  postgrest:
-    dependency: transitive
-    description:
-      name: postgrest
-      sha256: c4197238601c7c3103b03a4bb77f2050b17d0064bf8b968309421abdebbb7f0e
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.4"
   process:
     dependency: transitive
     description:
@@ -1635,14 +1603,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  realtime_client:
-    dependency: transitive
-    description:
-      name: realtime_client
-      sha256: d897a65ee3b1b5ddc1cf606f0b83792262d38fd5679c2df7e38da29c977513da
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.1"
   recase:
     dependency: transitive
     description:
@@ -1667,14 +1627,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
-  retry:
-    dependency: transitive
-    description:
-      name: retry
-      sha256: "822e118d5b3aafed083109c72d5f484c6dc66707885e07c0fbcb8b986bba7efc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.2"
   run_with_network_images:
     dependency: "direct dev"
     description:
@@ -1961,14 +1913,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
-  storage_client:
-    dependency: transitive
-    description:
-      name: storage_client
-      sha256: "28c147c805304dbc2b762becd1fc26ee0cb621ace3732b9ae61ef979aab8b367"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   stream_channel:
     dependency: transitive
     description:
@@ -1989,10 +1933,10 @@ packages:
     dependency: transitive
     description:
       name: string_scanner
-      sha256: "688af5ed3402a4bde5b3a6c15fd768dbf2621a614950b17f04626c431ab3c4c3"
+      sha256: "556692adab6cfa87322a115640c11f13cb77b3f076ddcc5d6ae3c20242bedcde"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.2.0"
   string_validator:
     dependency: "direct main"
     description:
@@ -2009,23 +1953,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.1"
-  supabase:
-    dependency: transitive
-    description:
-      name: supabase
-      sha256: "4ed1cf3298f39865c05b2d8557f92eb131a9b9af70e32e218672a0afce01a6bc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
-  supabase_flutter:
-    dependency: "direct main"
-    description:
-      path: "packages/supabase_flutter"
-      ref: "9b05eea"
-      resolved-ref: "9b05eeac559a1f2da6289e1d70b3fa89e262fa3c"
-      url: "https://github.com/supabase/supabase-flutter"
-    source: git
-    version: "2.3.1"
   super_clipboard:
     dependency: "direct main"
     description:
@@ -2311,10 +2238,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "5c5f338a667b4c644744b661f309fb8080bb94b18a7e91ef1dbd343bed00ed6d"
+      sha256: "3923c89304b715fb1eb6423f017651664a03bf5f4b29983627c4da791f74a4ec"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.5"
+    version: "14.2.1"
   watcher:
     dependency: transitive
     description:
@@ -2403,14 +2330,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
-  yet_another_json_isolate:
-    dependency: transitive
-    description:
-      name: yet_another_json_isolate
-      sha256: "47ed3900e6b0e4dfe378811a4402e85b7fc126a7daa94f840fef65ea9c8e46f4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2"
 sdks:
   dart: ">=3.4.0 <4.0.0"
   flutter: ">=3.22.0"

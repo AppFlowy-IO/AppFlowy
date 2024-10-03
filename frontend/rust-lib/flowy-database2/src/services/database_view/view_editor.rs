@@ -36,7 +36,7 @@ use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
@@ -373,6 +373,27 @@ impl DatabaseViewEditor {
     let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
     let mut rows = self.v_filter_rows(rows).await;
     self.v_sort_rows(&mut rows).await;
+    rows
+  }
+
+  pub async fn v_get_cells_for_field(&self, field_id: &str) -> Vec<Arc<RowCell>> {
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    let rows = self.v_filter_rows(rows).await;
+    let rows = rows
+      .into_iter()
+      .filter_map(|row| {
+        row.cells.get(field_id).map(|cell| {
+          let cell = RowCell::new(row.id.clone(), Some(cell.clone()));
+          Arc::new(cell)
+        })
+      })
+      .collect::<Vec<_>>();
+    trace!(
+      "[Database]: get cells for field: {}, total rows:{}",
+      field_id,
+      rows.len()
+    );
     rows
   }
 
