@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
@@ -124,6 +125,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
 
   AFFocusManager? focusManager;
 
+  AppLifecycleState? lifecycleState = WidgetsBinding.instance.lifecycleState;
+  List<Selection?> previousSelections = [];
+
   @override
   void initState() {
     super.initState();
@@ -185,21 +189,27 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     });
   }
 
-  Selection? previousSelection;
-
   void onSelectionChanged() {
-    if (widget.editorState.isDisposed || widget.editorState.selection == null) {
+    if (widget.editorState.isDisposed) {
       return;
     }
 
-    previousSelection = widget.editorState.selection;
+    previousSelections.add(widget.editorState.selection);
+
+    if (previousSelections.length > 2) {
+      previousSelections.removeAt(0);
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed && !widget.editorState.isDisposed) {
-      widget.editorState.selection = previousSelection;
+    lifecycleState = state;
+
+    if (previousSelections.length == 2 &&
+        state == AppLifecycleState.resumed &&
+        widget.editorState.selection == null) {
+      widget.editorState.selection = previousSelections.first;
     }
   }
 
@@ -218,7 +228,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   @override
   void reassemble() {
     super.reassemble();
-
     slashMenuItems = _customSlashMenuItems();
   }
 
