@@ -10,13 +10,14 @@ import 'package:integration_test/integration_test.dart';
 
 import '../../shared/database_test_op.dart';
 import '../../shared/util.dart';
+
 import 'grid_test_extensions.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid create row test:', () {
-    testWidgets('from the bottom', (tester) async {
+  group('grid row test:', () {
+    testWidgets('create from the bottom', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -33,7 +34,7 @@ void main() {
       tester.assertNumberOfRowsInGridPage(4);
     });
 
-    testWidgets('from a row\'s menu', (tester) async {
+    testWidgets('create from a row\'s menu', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -51,7 +52,7 @@ void main() {
       tester.assertNumberOfRowsInGridPage(4);
     });
 
-    testWidgets('with sort configured', (tester) async {
+    testWidgets('create with sort configured', (tester) async {
       await tester.openTestDatabase(v069GridFileName);
 
       // get grid data
@@ -104,7 +105,7 @@ void main() {
       tester.assertNumberOfRowsInGridPage(14);
     });
 
-    testWidgets('with filter configured', (tester) async {
+    testWidgets('create with filter configured', (tester) async {
       await tester.openTestDatabase(v069GridFileName);
 
       // get grid data
@@ -182,7 +183,6 @@ void main() {
       expect(actual, orderedEquals(original));
     });
 
-    // TODO(RS): move to somewhere else
     testWidgets('delete row of the grid', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
