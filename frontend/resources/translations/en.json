@@ -207,6 +207,7 @@
       "caption": "This action cannot be undone."
     },
     "restorePage": {
+      "title": "Restore: {}",
       "caption": "Are you sure you want to restore this page?"
     },
     "mobile": {

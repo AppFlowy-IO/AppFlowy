@@ -159,8 +159,10 @@ class _TrashPageState extends State<TrashPage> {
               object: object,
               onRestore: () => showCancelAndConfirmDialog(
                 context: context,
-                title: object.name,
+                title:
+                    LocaleKeys.trash_restorePage_title.tr(args: [object.name]),
                 description: LocaleKeys.trash_restorePage_caption.tr(),
+                confirmLabel: LocaleKeys.trash_restore.tr(),
                 onConfirm: () => context
                     .read<TrashBloc>()
                     .add(TrashEvent.putback(object.id)),
