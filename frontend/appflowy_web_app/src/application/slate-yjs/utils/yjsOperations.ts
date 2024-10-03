@@ -375,7 +375,6 @@ export function deleteRangeInBlock (
   start: number,
   end: number,
 ) {
-  console.log('deleteRangeInBlock', start, end);
   const textId = getTextIdFromSlateNode(block);
 
   if (!textId) {

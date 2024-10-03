@@ -58,13 +58,10 @@ export function withYHistory<T extends YjsEditor> (
 
   const handleStackItemAdded = ({
     stackItem,
-    type,
   }: {
     stackItem: HistoryStackItem;
     type: 'redo' | 'undo';
   }) => {
-    console.log('handleStackItemAdded', type);
-
     stackItem.meta.set(
       'selection',
       e.selection && slateRangeToRelativeRange(e.sharedRoot, e, e.selection),
@@ -76,13 +73,10 @@ export function withYHistory<T extends YjsEditor> (
 
   const handleStackItemPopped = ({
     stackItem,
-    type,
   }: {
     stackItem: HistoryStackItem;
     type: 'redo' | 'undo';
   }) => {
-
-    console.log('handleStackItemPopped', type);
 
     const relativeSelection = stackItem.meta.get(
       'selectionBefore',
@@ -105,7 +99,6 @@ export function withYHistory<T extends YjsEditor> (
       return;
     }
 
-    console.log('selection', selection);
     Transforms.select(e, selection);
   };
 
