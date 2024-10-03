@@ -48,6 +48,7 @@ Future<T?> showMobileBottomSheet<T>(
   double? elevation,
   bool showDoneButton = false,
   bool enableDraggableScrollable = false,
+  bool enableScrollable = false,
   // this field is only used if showDragHandle is true
   Widget Function(BuildContext, ScrollController)? scrollableWidgetBuilder,
   // only used when enableDraggableScrollable is true
@@ -150,6 +151,18 @@ Future<T?> showMobileBottomSheet<T>(
               ],
             );
           },
+        );
+      } else if (enableScrollable) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...children,
+            Flexible(
+              child: SingleChildScrollView(
+                child: child,
+              ),
+            ),
+          ],
         );
       }
 
