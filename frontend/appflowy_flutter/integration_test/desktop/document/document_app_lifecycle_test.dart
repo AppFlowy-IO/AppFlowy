@@ -19,10 +19,12 @@ void main() {
         final selection = Selection.single(path: [4], startOffset: 0);
         await tester.editor.updateSelection(selection);
 
-        binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+        binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
         expect(tester.editor.getCurrentEditorState().selection, null);
 
         binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+        await tester.pumpAndSettle();
+
         expect(tester.editor.getCurrentEditorState().selection, selection);
       },
     );
