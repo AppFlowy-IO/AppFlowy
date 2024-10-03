@@ -1,5 +1,5 @@
+use collab_folder::hierarchy_builder::ParentChildViews;
 use flowy_error::FlowyResult;
-use flowy_folder_pub::folder_builder::ParentChildViews;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 

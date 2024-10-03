@@ -9,6 +9,7 @@ use anyhow::anyhow;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
+use collab::preclude::updates::encoder::Encode;
 use collab::preclude::{Collab, Doc, ReadTxn, StateVector, Transact, Update};
 use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
@@ -17,19 +18,18 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
+use collab_folder::hierarchy_builder::{ParentChildViews, ViewBuilder};
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-
-use collab::preclude::updates::encoder::Encode;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::gen_view_id;
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
-use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 use flowy_user_pub::session::Session;
+use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
@@ -159,7 +159,7 @@ pub(crate) fn generate_import_data(
     // 3. the user awareness
     // So we remove these object ids from the list
     let user_workspace_id = &imported_session.user_workspace.id;
-    let database_indexer_id = &imported_session.user_workspace.database_indexer_id;
+    let database_indexer_id = &imported_session.user_workspace.workspace_database_id;
     let user_awareness_id =
       user_awareness_object_id(&imported_session.user_uuid, user_workspace_id).to_string();
     all_imported_object_ids.retain(|id| {
@@ -169,7 +169,7 @@ pub(crate) fn generate_import_data(
     match imported_folder.source {
       ImportedSource::ExternalFolder => {
         // 2. mapping the database indexer ids
-        mapping_database_indexer_ids(
+        mapping_workspace_database_ids(
           &mut old_to_new_id_map,
           &imported_session,
           &imported_collab_read_txn,
@@ -321,7 +321,7 @@ where
   )
   .with_view_id(import_container_view_id)
   .with_layout(ViewLayout::Document)
-  .with_name(name)
+  .with_name(&name)
   .with_child_views(child_views)
   .build()];
 
@@ -329,7 +329,7 @@ where
   Ok(import_container_views)
 }
 
-fn mapping_database_indexer_ids<'a, W>(
+fn mapping_workspace_database_ids<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   imported_session: &Session,
   imported_collab_read_txn: &W,
@@ -340,21 +340,24 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let mut imported_database_indexer = Collab::new(
+  let mut workspace_database_collab = Collab::new(
     imported_session.user_id,
-    &imported_session.user_workspace.database_indexer_id,
+    &imported_session.user_workspace.workspace_database_id,
     "import_device",
     vec![],
     false,
   );
   imported_collab_read_txn.load_doc_with_txn(
     imported_session.user_id,
-    &imported_session.user_workspace.database_indexer_id,
-    &mut imported_database_indexer.transact_mut(),
+    &imported_session.user_workspace.workspace_database_id,
+    &mut workspace_database_collab.transact_mut(),
   )?;
 
-  let array = WorkspaceDatabaseBody::open(&mut imported_database_indexer);
-  for database_meta_list in array.get_all_database_meta(&imported_database_indexer.transact()) {
+  let workspace_database_body = init_workspace_database_body(
+    &imported_session.user_workspace.workspace_database_id,
+    workspace_database_collab,
+  );
+  for database_meta_list in workspace_database_body.get_all_database_meta() {
     database_view_ids_by_database_id.insert(
       old_to_new_id_map.exchange_new_id(&database_meta_list.database_id),
       database_meta_list
@@ -373,6 +376,20 @@ where
   Ok(())
 }
 
+fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDatabaseBody {
+  match WorkspaceDatabaseBody::open(collab) {
+    Ok(body) => body,
+    Err(err) => {
+      error!(
+        "🔴init workspace database body failed: {:?}, create a new one",
+        err
+      );
+      let collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
+      WorkspaceDatabaseBody::create(collab)
+    },
+  }
+}
+
 fn migrate_database_with_views_object<'a, 'b, W, R>(
   old_to_new_id_map: &mut OldToNewIdMap,
   old_user_session: &Session,
@@ -387,26 +404,28 @@ where
   PersistenceError: From<W::Error>,
   PersistenceError: From<R::Error>,
 {
-  let mut database_with_views_collab = Collab::new(
+  let mut workspace_database_collab = Collab::new(
     old_user_session.user_id,
-    &old_user_session.user_workspace.database_indexer_id,
+    &old_user_session.user_workspace.workspace_database_id,
     "migrate_device",
     vec![],
     false,
   );
   old_collab_r_txn.load_doc_with_txn(
     old_user_session.user_id,
-    &old_user_session.user_workspace.database_indexer_id,
-    &mut database_with_views_collab.transact_mut(),
+    &old_user_session.user_workspace.workspace_database_id,
+    &mut workspace_database_collab.transact_mut(),
   )?;
 
   let new_uid = new_user_session.user_id;
-  let new_object_id = &new_user_session.user_workspace.database_indexer_id;
+  let new_object_id = &new_user_session.user_workspace.workspace_database_id;
+  let mut workspace_database_body = init_workspace_database_body(
+    &old_user_session.user_workspace.workspace_database_id,
+    workspace_database_collab,
+  );
 
-  let array = WorkspaceDatabaseBody::open(&mut database_with_views_collab);
-  let mut txn = database_with_views_collab.transact_mut();
-  for database_meta in array.get_all_database_meta(&txn) {
-    array.update_database(&mut txn, &database_meta.database_id, |update| {
+  for database_meta in workspace_database_body.get_all_database_meta() {
+    workspace_database_body.update_database(&database_meta.database_id, |update| {
       let new_linked_views = update
         .linked_views
         .iter()
@@ -417,10 +436,15 @@ where
     })
   }
 
-  if let Err(err) = new_collab_w_txn.create_new_doc(new_uid, new_object_id, &txn) {
-    error!("🔴migrate database storage failed: {:?}", err);
+  {
+    let collab: &Collab = workspace_database_body.borrow();
+    let txn = collab.transact();
+    if let Err(err) = new_collab_w_txn.create_new_doc(new_uid, new_object_id, &txn) {
+      error!("🔴migrate database storage failed: {:?}", err);
+    }
+    drop(txn);
   }
-  drop(txn);
+
   Ok(())
 }
 
