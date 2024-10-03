@@ -70,7 +70,7 @@ impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
     self.0.remove_calculation(view_id, calculation_id).await
   }
 
-  async fn get_all_calculations(&self, view_id: &str) -> Arc<Vec<Arc<Calculation>>> {
-    self.0.get_all_calculations(view_id).await.into()
+  async fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>> {
+    self.0.get_all_calculations(view_id).await
   }
 }

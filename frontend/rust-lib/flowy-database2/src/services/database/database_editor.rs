@@ -1669,7 +1669,14 @@ impl DatabaseEditor {
         loaded_rows.len(),
         blocking_read
       );
-      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
+      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor.clone()).await;
+
+      // Update calculation values
+      let calculate_rows = loaded_rows.clone();
+      tokio::spawn(async move {
+        let _ = view_editor.v_calculate_rows(calculate_rows).await;
+      });
+
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);
       }

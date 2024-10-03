@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Row, RowCell};
+use collab_database::rows::{Cell, Row, RowCell};
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use serde::{Deserialize, Serialize};
@@ -24,7 +24,7 @@ pub trait CalculationsDelegate: Send + Sync + 'static {
   async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>>;
   async fn get_field(&self, field_id: &str) -> Option<Field>;
   async fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Arc<Calculation>>;
-  async fn get_all_calculations(&self, view_id: &str) -> Arc<Vec<Arc<Calculation>>>;
+  async fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>>;
   async fn update_calculation(&self, view_id: &str, calculation: Calculation);
   async fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 }
@@ -79,7 +79,7 @@ impl CalculationsController {
   }
 
   #[tracing::instrument(name = "schedule_calculation_task", level = "trace", skip(self))]
-  async fn gen_task(&self, task_type: CalculationEvent, qos: QualityOfService) {
+  pub(crate) async fn gen_task(&self, task_type: CalculationEvent, qos: QualityOfService) {
     let task_id = self.task_scheduler.read().await.next_task_id();
     let task = Task::new(
       &self.handler_id,
@@ -108,6 +108,7 @@ impl CalculationsController {
           .handle_field_type_changed(field_id, new_field_type)
           .await
       },
+      CalculationEvent::InitialRows(rows) => {},
     }
 
     Ok(())
@@ -117,7 +118,7 @@ impl CalculationsController {
     self
       .gen_task(
         CalculationEvent::FieldDeleted(field_id),
-        QualityOfService::UserInteractive,
+        QualityOfService::Background,
       )
       .await
   }
@@ -151,7 +152,7 @@ impl CalculationsController {
     self
       .gen_task(
         CalculationEvent::FieldTypeChanged(field_id, new_field_type),
-        QualityOfService::UserInteractive,
+        QualityOfService::Background,
       )
       .await
   }
@@ -188,7 +189,7 @@ impl CalculationsController {
     self
       .gen_task(
         CalculationEvent::CellUpdated(field_id),
-        QualityOfService::UserInteractive,
+        QualityOfService::Background,
       )
       .await
   }
@@ -225,7 +226,7 @@ impl CalculationsController {
     self
       .gen_task(
         CalculationEvent::RowChanged(row),
-        QualityOfService::UserInteractive,
+        QualityOfService::Background,
       )
       .await
   }
@@ -238,8 +239,8 @@ impl CalculationsController {
     // as a contribution to the value.
     if cells.len() == 0 {
       let calculations = self.delegate.get_all_calculations(&self.view_id).await;
-      for calculation in calculations.iter() {
-        let update = self.get_updated_calculation(calculation.clone()).await;
+      for calculation in calculations.into_iter() {
+        let update = self.get_updated_calculation(calculation).await;
         if let Some(update) = update {
           updates.push(CalculationPB::from(&update));
           self
@@ -277,6 +278,52 @@ impl CalculationsController {
         ));
     }
   }
+  // async fn handle_cells_changed(&self, field_ids: Vec<String>, row_cells: Vec<Vec<Cell>>) {
+  //   let mut updates = vec![];
+  //   // Check for empty cells in all rows. If a row is empty, handle calculations.
+  //   for field_id in field_ids {
+  //     for cells in row_cells.iter() {
+  //       // if cells.is_empty() {
+  //       //   let calculations = self.delegate.get_all_calculations(&self.view_id).await;
+  //       //   for calculation in calculations.into_iter() {
+  //       //     let update = self.get_updated_calculation(calculation).await;
+  //       //     if let Some(update) = update {
+  //       //       updates.push(CalculationPB::from(&update));
+  //       //       self
+  //       //         .delegate
+  //       //         .update_calculation(&self.view_id, update)
+  //       //         .await;
+  //       //     }
+  //       //   }
+  //       // }
+  //
+  //       // Iterate over each cell in the row
+  //       for cell in cells.iter() {
+  //         let calculation = self.delegate.get_calculation(&self.view_id, &field_id).await;
+  //         if let Some(calculation) = calculation {
+  //           let update = self.get_updated_calculation(calculation.clone()).await;
+  //           if let Some(update) = update {
+  //             updates.push(CalculationPB::from(&update));
+  //             self
+  //               .delegate
+  //               .update_calculation(&self.view_id, update)
+  //               .await;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  //
+  //   if !updates.is_empty() {
+  //     let notification = CalculationChangesetNotificationPB::from_update(&self.view_id, updates);
+  //
+  //     let _ = self
+  //       .notifier
+  //       .send(DatabaseViewChanged::CalculationValueNotification(
+  //         notification,
+  //       ));
+  //   }
+  // }
 
   #[instrument(level = "trace", skip_all)]
   async fn get_updated_calculation(&self, calculation: Arc<Calculation>) -> Option<Calculation> {
@@ -285,7 +332,6 @@ impl CalculationsController {
       .get_cells_for_field(&self.view_id, &calculation.field_id)
       .await;
     let field = self.delegate.get_field(&calculation.field_id).await?;
-
     let value =
       self
         .calculations_service
@@ -353,7 +399,8 @@ impl CalculationsController {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-enum CalculationEvent {
+pub(crate) enum CalculationEvent {
+  InitialRows(Vec<Arc<Row>>),
   RowChanged(Row),
   CellUpdated(String),
   FieldTypeChanged(String, FieldType),
