@@ -191,6 +191,7 @@
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
+    "restore": "Restore",
     "deleteAll": "Delete All",
     "pageHeader": {
       "fileName": "File name",
@@ -198,12 +199,16 @@
       "created": "Created"
     },
     "confirmDeleteAll": {
-      "title": "Are you sure to delete all pages in Trash?",
-      "caption": "This action cannot be undone."
+      "title": "All pages in trash",
+      "caption": "Are you sure you want to delete everything in Trash? This action cannot be undone."
     },
     "confirmRestoreAll": {
-      "title": "Are you sure to restore all pages in Trash?",
+      "title": "Restore all pages in trash",
       "caption": "This action cannot be undone."
+    },
+    "restorePage": {
+      "title": "Restore: {}",
+      "caption": "Are you sure you want to restore this page?"
     },
     "mobile": {
       "actions": "Trash Actions",
@@ -217,7 +222,7 @@
   "deletePagePrompt": {
     "text": "This page is in Trash",
     "restore": "Restore page",
-    "deletePermanent": "Delete permanently"
+    "deletePermanent": "Delete this page permanently? This action cannot be undone"
   },
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
