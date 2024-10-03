@@ -299,7 +299,7 @@ void main() {
       await tester.dismissCellEditor();
 
       // Make sure the option is created and displayed in the cell
-      await tester.findSelectOptionWithNameInGrid(
+      tester.findSelectOptionWithNameInGrid(
         rowIndex: 0,
         name: 'tag 1',
       );
@@ -311,12 +311,12 @@ void main() {
       await tester.createOption(name: 'tag 2');
       await tester.dismissCellEditor();
 
-      await tester.findSelectOptionWithNameInGrid(
+      tester.findSelectOptionWithNameInGrid(
         rowIndex: 0,
         name: 'tag 2',
       );
 
-      await tester.assertNumberOfSelectedOptionsInGrid(
+      tester.assertNumberOfSelectedOptionsInGrid(
         rowIndex: 0,
         matcher: findsOneWidget,
       );
@@ -328,12 +328,12 @@ void main() {
       await tester.selectOption(name: 'tag 1');
       await tester.dismissCellEditor();
 
-      await tester.findSelectOptionWithNameInGrid(
+      tester.findSelectOptionWithNameInGrid(
         rowIndex: 0,
         name: 'tag 1',
       );
 
-      await tester.assertNumberOfSelectedOptionsInGrid(
+      tester.assertNumberOfSelectedOptionsInGrid(
         rowIndex: 0,
         matcher: findsOneWidget,
       );
@@ -345,7 +345,7 @@ void main() {
       await tester.selectOption(name: 'tag 1');
       await tester.dismissCellEditor();
 
-      await tester.assertNumberOfSelectedOptionsInGrid(
+      tester.assertNumberOfSelectedOptionsInGrid(
         rowIndex: 0,
         matcher: findsNothing,
       );
@@ -378,7 +378,7 @@ void main() {
       await tester.dismissCellEditor();
 
       // Make sure the option is created and displayed in the cell
-      await tester.findSelectOptionWithNameInGrid(
+      tester.findSelectOptionWithNameInGrid(
         rowIndex: 0,
         name: tags.first,
       );
@@ -393,13 +393,13 @@ void main() {
       await tester.dismissCellEditor();
 
       for (final tag in tags) {
-        await tester.findSelectOptionWithNameInGrid(
+        tester.findSelectOptionWithNameInGrid(
           rowIndex: 0,
           name: tag,
         );
       }
 
-      await tester.assertNumberOfSelectedOptionsInGrid(
+      tester.assertNumberOfSelectedOptionsInGrid(
         rowIndex: 0,
         matcher: findsNWidgets(4),
       );
@@ -413,7 +413,7 @@ void main() {
       }
       await tester.dismissCellEditor();
 
-      await tester.assertNumberOfSelectedOptionsInGrid(
+      tester.assertNumberOfSelectedOptionsInGrid(
         rowIndex: 0,
         matcher: findsNothing,
       );
@@ -426,16 +426,16 @@ void main() {
       await tester.selectOption(name: tags[3]);
       await tester.dismissCellEditor();
 
-      await tester.findSelectOptionWithNameInGrid(
+      tester.findSelectOptionWithNameInGrid(
         rowIndex: 0,
         name: tags[1],
       );
-      await tester.findSelectOptionWithNameInGrid(
+      tester.findSelectOptionWithNameInGrid(
         rowIndex: 0,
         name: tags[3],
       );
 
-      await tester.assertNumberOfSelectedOptionsInGrid(
+      tester.assertNumberOfSelectedOptionsInGrid(
         rowIndex: 0,
         matcher: findsNWidgets(2),
       );

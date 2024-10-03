@@ -58,19 +58,24 @@ runs:
 
     - name: Install prerequisites
       working-directory: frontend
-      run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-          sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
-        elif [ "$RUNNER_OS" == "Windows" ]; then
-          vcpkg integrate install
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          echo 'do nothing'
-        fi
-        cargo make appflowy-flutter-deps-tools
       shell: bash
+      run: |
+        case $RUNNER_OS in
+          Linux)
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+            ;;
+          Windows)
+            vcpkg integrate install
+            vcpkg update
+            ;;
+          macOS)
+            # No additional prerequisites needed for macOS
+            ;;
+        esac
+        cargo make appflowy-flutter-deps-tools
 
     - name: Build AppFlowy
       working-directory: frontend

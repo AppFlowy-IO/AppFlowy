@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -24,7 +28,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -60,18 +63,25 @@ class _DocumentPageState extends State<DocumentPage>
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
 
+  StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
+
+  bool isUndoRedo = false;
+  bool isPaste = false;
+  bool isDraggingNode = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    EditorNotification.addListener(_onEditorNotification);
+    EditorNotification.addListener(onEditorNotification);
   }
 
   @override
   void dispose() {
-    EditorNotification.removeListener(_onEditorNotification);
+    EditorNotification.removeListener(onEditorNotification);
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
+    transactionSubscription?.cancel();
     super.dispose();
   }
 
@@ -105,7 +115,7 @@ class _DocumentPageState extends State<DocumentPage>
           BlocProvider.value(value: documentBloc),
         ],
         child: BlocBuilder<DocumentBloc, DocumentState>(
-          buildWhen: _shouldRebuildDocument,
+          buildWhen: shouldRebuildDocument,
           builder: (context, state) {
             if (state.isLoading) {
               return const Center(child: CircularProgressIndicator.adaptive());
@@ -116,11 +126,7 @@ class _DocumentPageState extends State<DocumentPage>
             final error = state.error;
             if (error != null || editorState == null) {
               Log.error(error);
-              return Center(
-                child: AppFlowyErrorPage(
-                  error: error,
-                ),
-              );
+              return Center(child: AppFlowyErrorPage(error: error));
             }
 
             if (state.forceClose) {
@@ -128,12 +134,14 @@ class _DocumentPageState extends State<DocumentPage>
               return const SizedBox.shrink();
             }
 
+            editorState.transactionStream.listen(onEditorTransaction);
+
             return BlocListener<ActionNavigationBloc, ActionNavigationState>(
               listenWhen: (_, curr) => curr.action != null,
-              listener: _onNotificationAction,
+              listener: onNotificationAction,
               child: Consumer<EditorDropManagerState>(
                 builder: (context, dropState, _) =>
-                    _buildEditorPage(context, state, dropState),
+                    buildEditorPage(context, state, dropState),
               ),
             );
           },
@@ -142,7 +150,7 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
-  Widget _buildEditorPage(
+  Widget buildEditorPage(
     BuildContext context,
     DocumentState state,
     EditorDropManagerState dropState,
@@ -152,18 +160,16 @@ class _DocumentPageState extends State<DocumentPage>
     final Widget child;
     if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
-        builder: (context, styleState) {
-          return AppFlowyEditorPage(
-            editorState: state.editorState!,
-            styleCustomizer: EditorStyleCustomizer(
-              context: context,
-              width: width,
-              padding: EditorStyleCustomizer.documentPadding,
-            ),
-            header: _buildCoverAndIcon(context, state),
-            initialSelection: widget.initialSelection,
-          );
-        },
+        builder: (context, styleState) => AppFlowyEditorPage(
+          editorState: state.editorState!,
+          styleCustomizer: EditorStyleCustomizer(
+            context: context,
+            width: width,
+            padding: EditorStyleCustomizer.documentPadding,
+          ),
+          header: buildCoverAndIcon(context, state),
+          initialSelection: widget.initialSelection,
+        ),
       );
     } else {
       child = DropTarget(
@@ -252,7 +258,7 @@ class _DocumentPageState extends State<DocumentPage>
             width: width,
             padding: EditorStyleCustomizer.documentPadding,
           ),
-          header: _buildCoverAndIcon(context, state),
+          header: buildCoverAndIcon(context, state),
           initialSelection: widget.initialSelection,
         ),
       );
@@ -262,25 +268,24 @@ class _DocumentPageState extends State<DocumentPage>
       create: (_) => SharedEditorContext(),
       child: Column(
         children: [
-          if (state.isDeleted) _buildBanner(context),
+          if (state.isDeleted) buildBanner(context),
           Expanded(child: child),
         ],
       ),
     );
   }
 
-  Widget _buildBanner(BuildContext context) {
+  Widget buildBanner(BuildContext context) {
     return DocumentBanner(
-      onRestore: () => context.read<DocumentBloc>().add(
-            const DocumentEvent.restorePage(),
-          ),
+      onRestore: () =>
+          context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
       onDelete: () => context
           .read<DocumentBloc>()
           .add(const DocumentEvent.deletePermanently()),
     );
   }
 
-  Widget _buildCoverAndIcon(BuildContext context, DocumentState state) {
+  Widget buildCoverAndIcon(BuildContext context, DocumentState state) {
     final editorState = state.editorState;
     final userProfilePB = state.userProfilePB;
     if (editorState == null || userProfilePB == null) {
@@ -307,11 +312,23 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
-  void _onEditorNotification(EditorNotificationType type) {
+  void onEditorNotification(EditorNotificationType type) {
     final editorState = this.editorState;
     if (editorState == null) {
       return;
     }
+
+    if ([EditorNotificationType.undo, EditorNotificationType.redo]
+        .contains(type)) {
+      isUndoRedo = true;
+    } else if (type == EditorNotificationType.paste) {
+      isPaste = true;
+    } else if (type == EditorNotificationType.dragStart) {
+      isDraggingNode = true;
+    } else if (type == EditorNotificationType.dragEnd) {
+      isDraggingNode = false;
+    }
+
     if (type == EditorNotificationType.undo) {
       undoCommand.execute(editorState);
     } else if (type == EditorNotificationType.redo) {
@@ -322,7 +339,7 @@ class _DocumentPageState extends State<DocumentPage>
     }
   }
 
-  void _onNotificationAction(
+  void onNotificationAction(
     BuildContext context,
     ActionNavigationState state,
   ) {
@@ -338,7 +355,7 @@ class _DocumentPageState extends State<DocumentPage>
     }
   }
 
-  bool _shouldRebuildDocument(DocumentState previous, DocumentState current) {
+  bool shouldRebuildDocument(DocumentState previous, DocumentState current) {
     // only rebuild the document page when the below fields are changed
     // this is to prevent unnecessary rebuilds
     //
@@ -363,5 +380,87 @@ class _DocumentPageState extends State<DocumentPage>
     }
 
     return false;
+  }
+
+  List<Node> collectMatchingNodes(Node node, String type) {
+    final List<Node> matchingNodes = [];
+    if (node.type == type) {
+      matchingNodes.add(node);
+    }
+
+    for (final child in node.children) {
+      matchingNodes.addAll(collectMatchingNodes(child, type));
+    }
+
+    return matchingNodes;
+  }
+
+  void onEditorTransaction((TransactionTime, Transaction) event) {
+    if (editorState == null || event.$1 == TransactionTime.before) {
+      return;
+    }
+
+    final Map<String, List<Node>> addedNodes = {
+      for (final handler in SharedEditorContext.transactionHandlers)
+        handler.blockType: [],
+    };
+    final Map<String, List<Node>> removedNodes = {
+      for (final handler in SharedEditorContext.transactionHandlers)
+        handler.blockType: [],
+    };
+
+    final transactionHandlerTypes = SharedEditorContext.transactionHandlers
+        .map((h) => h.blockType)
+        .toList();
+
+    // Collect all matching nodes in a performant way for each handler type.
+    for (final op in event.$2.operations) {
+      if (op is InsertOperation) {
+        for (final n in op.nodes) {
+          for (final handlerType in transactionHandlerTypes) {
+            if (n.type == handlerType) {
+              addedNodes[handlerType]!
+                  .addAll(collectMatchingNodes(n, handlerType));
+            }
+          }
+        }
+      } else if (op is DeleteOperation) {
+        for (final n in op.nodes) {
+          for (final handlerType in transactionHandlerTypes) {
+            if (n.type == handlerType) {
+              removedNodes[handlerType]!
+                  .addAll(collectMatchingNodes(n, handlerType));
+            }
+          }
+        }
+      }
+    }
+
+    if (removedNodes.isEmpty && addedNodes.isEmpty) {
+      return;
+    }
+
+    for (final handler in SharedEditorContext.transactionHandlers) {
+      final added = addedNodes[handler.blockType] ?? [];
+      final removed = removedNodes[handler.blockType] ?? [];
+
+      if (added.isEmpty && removed.isEmpty) {
+        continue;
+      }
+
+      handler.onTransaction(
+        context,
+        editorState!,
+        added,
+        removed,
+        isUndoRedo: isUndoRedo,
+        isPaste: isPaste,
+        isDraggingNode: isDraggingNode,
+        parentViewId: widget.view.id,
+      );
+
+      isUndoRedo = false;
+      isPaste = false;
+    }
   }
 }

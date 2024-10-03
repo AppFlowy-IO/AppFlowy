@@ -334,7 +334,6 @@ pub(crate) async fn switch_to_field_handler(
   let database_editor = manager
     .get_database_editor_with_view_id(&params.view_id)
     .await?;
-  let old_field = database_editor.get_field(&params.field_id).await;
   database_editor
     .switch_to_field_type(
       &params.view_id,
@@ -344,22 +343,6 @@ pub(crate) async fn switch_to_field_handler(
     )
     .await?;
 
-  if let Some(new_type_option) = database_editor
-    .get_field(&params.field_id)
-    .await
-    .map(|field| field.get_any_type_option(field.field_type))
-  {
-    match (old_field, new_type_option) {
-      (Some(old_field), Some(new_type_option)) => {
-        database_editor
-          .update_field_type_option(&params.field_id, new_type_option, old_field)
-          .await?;
-      },
-      _ => {
-        tracing::warn!("Old field and the new type option should not be empty");
-      },
-    }
-  }
   Ok(())
 }
 

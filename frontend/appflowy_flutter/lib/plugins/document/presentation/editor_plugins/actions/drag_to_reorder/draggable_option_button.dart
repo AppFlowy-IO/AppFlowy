@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/visual_drag_area.dart';
@@ -13,7 +16,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
@@ -81,6 +83,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
   }
 
   void _onDragStart() {
+    EditorNotification.dragStart().post();
     isDraggingAppFlowyEditorBlock.value = true;
     widget.editorState.selectionService.removeDropTarget();
   }
@@ -123,7 +126,9 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       node: widget.blockComponentContext.node,
       acceptedPath: data?.cursorNode?.path,
       dragOffset: globalPosition!,
-    );
+    ).then((_) {
+      EditorNotification.dragEnd().post();
+    });
   }
 }
 

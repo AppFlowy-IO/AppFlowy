@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
@@ -7,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -14,7 +17,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/material.dart';
 
 // text menu item
 final textSlashMenuItem = SelectionMenuItem(
@@ -541,7 +543,38 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload', 'attachment'],
-  handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
+  handler: (editorState, _, __) async {
+    final fileGlobalKey = GlobalKey<FileBlockComponentState>();
+    await editorState.insertEmptyFileBlock(fileGlobalKey);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fileGlobalKey.currentState?.controller.show();
+    });
+  },
+);
+
+// Sub-page menu item
+SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
+  getName: () => LocaleKeys.document_slashMenu_subPage_name.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.insert_document_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: [
+    LocaleKeys.document_slashMenu_subPage_keyword1.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword2.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword3.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword4.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword5.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword6.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword7.tr(),
+  ],
+  updateSelection: (_, path, __, ___) =>
+      Selection.collapsed(Position(path: path)),
+  replace: (_, node) => node.delta?.isEmpty ?? false,
+  nodeBuilder: (_, __) => subPageNode(),
 );
 
 Widget _slashMenuItemNameBuilder(

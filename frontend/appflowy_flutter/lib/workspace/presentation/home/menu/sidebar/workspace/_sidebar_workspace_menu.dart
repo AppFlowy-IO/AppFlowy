@@ -153,31 +153,22 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
   }
 
   Widget _buildLeftIcon(BuildContext context) {
-    return Container(
-      width: 32.0,
-      height: 32.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: const Color(0x01717171).withOpacity(0.12),
-          width: 0.8,
-        ),
-      ),
-      child: FlowyTooltip(
-        message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
-        child: WorkspaceIcon(
-          workspace: widget.workspace,
-          iconSize: 22,
-          fontSize: 16,
-          figmaLineHeight: 32.0,
-          enableEdit: true,
-          onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                UserWorkspaceEvent.updateWorkspaceIcon(
-                  widget.workspace.workspaceId,
-                  result.emoji,
-                ),
+    return FlowyTooltip(
+      message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
+      child: WorkspaceIcon(
+        workspace: widget.workspace,
+        iconSize: 36,
+        emojiSize: 24.0,
+        fontSize: 18.0,
+        figmaLineHeight: 26.0,
+        borderRadius: 12.0,
+        enableEdit: true,
+        onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.updateWorkspaceIcon(
+                widget.workspace.workspaceId,
+                result.emoji,
               ),
-        ),
+            ),
       ),
     );
   }
@@ -321,8 +312,10 @@ class _CreateWorkspaceButton extends StatelessWidget {
         text: Row(
           children: [
             _buildLeftIcon(context),
-            const HSpace(10.0),
-            FlowyText.regular(LocaleKeys.workspace_create.tr()),
+            const HSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys.workspace_create.tr(),
+            ),
           ],
         ),
       ),
@@ -331,11 +324,11 @@ class _CreateWorkspaceButton extends StatelessWidget {
 
   Widget _buildLeftIcon(BuildContext context) {
     return Container(
-      width: 32.0,
-      height: 32.0,
+      width: 36.0,
+      height: 36.0,
       padding: const EdgeInsets.all(7.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: const Color(0x01717171).withOpacity(0.12),
           width: 0.8,

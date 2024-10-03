@@ -11,7 +11,7 @@ import { notify } from '@/components/_shared/notify';
 import { getAvatar } from '@/components/_shared/view-icon/utils';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
 import { downloadPage } from '@/utils/url';
-import { ArrowCircleRightOutlined } from '@mui/icons-material';
+import { ReactComponent as ArrowCircleRightOutlined } from '@/assets/arrow_circle_right.svg';
 
 import { Avatar, Button, Divider, Paper, Typography } from '@mui/material';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
@@ -53,6 +53,7 @@ function ApproveRequestPage () {
       setCurrentPlans(plans);
     } catch (e) {
       setErrorModalOpen(true);
+      setClicked(true);
     }
   }, [t, requestId, service]);
 

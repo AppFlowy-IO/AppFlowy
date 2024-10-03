@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 
 /// Copy.
 ///
@@ -20,7 +22,13 @@ final CommandShortcutEvent customCopyCommand = CommandShortcutEvent(
   handler: _copyCommandHandler,
 );
 
-CommandShortcutEventHandler _copyCommandHandler = (editorState) {
+CommandShortcutEventHandler _copyCommandHandler =
+    (editorState) => handleCopyCommand(editorState);
+
+KeyEventResult handleCopyCommand(
+  EditorState editorState, {
+  bool isCut = false,
+}) {
   final selection = editorState.selection?.normalized;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -41,7 +49,8 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
     text = node.delta?.toPlainText();
 
     // in app json
-    final document = Document.blank()..insert([0], [node.copyWith()]);
+    final document = Document.blank()
+      ..insert([0], [_handleNode(node.copyWith(), isCut)]);
     inAppJson = jsonEncode(document.toJson());
 
     // html
@@ -50,7 +59,8 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
     // plain text.
     text = editorState.getTextInSelection(selection).join('\n');
 
-    final nodes = editorState.getSelectedNodes(selection: selection);
+    final selectedNodes = editorState.getSelectedNodes(selection: selection);
+    final nodes = _handleSubPageNodes(selectedNodes, isCut);
     final document = Document.blank()..insert([0], nodes);
 
     // in app json
@@ -71,4 +81,34 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
   }();
 
   return KeyEventResult.handled;
-};
+}
+
+List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = false]) {
+  final handled = <Node>[];
+  for (final node in nodes) {
+    handled.add(_handleNode(node, isCut));
+  }
+
+  return handled;
+}
+
+Node _handleNode(Node node, [bool isCut = false]) {
+  if (!isCut) {
+    return node.copyWith();
+  }
+
+  final newChildren = node.children.map(_handleNode).toList();
+
+  if (node.type == SubPageBlockKeys.type) {
+    return node.copyWith(
+      attributes: {
+        ...node.attributes,
+        SubPageBlockKeys.wasCopied: !isCut,
+        SubPageBlockKeys.wasCut: isCut,
+      },
+      children: newChildren,
+    );
+  }
+
+  return node.copyWith(children: newChildren);
+}
