@@ -188,7 +188,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   Selection? previousSelection;
 
   void onSelectionChanged() {
-    if (widget.editorState.selection == null) {
+    if (widget.editorState.isDisposed || widget.editorState.selection == null) {
       return;
     }
 
