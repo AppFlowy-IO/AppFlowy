@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CocoaWindowChannel {
   CocoaWindowChannel._();
@@ -57,6 +58,10 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
         winY = details.globalPosition.dy;
       },
       onPanUpdate: (DragUpdateDetails details) async {
+        if (UniversalPlatform.isMacOS) {
+          // ignore the drag event on macOS, using native window drag instead
+          return;
+        }
         final windowPos = await CocoaWindowChannel.instance.getWindowPosition();
         final double dx = windowPos[0];
         final double dy = windowPos[1];
