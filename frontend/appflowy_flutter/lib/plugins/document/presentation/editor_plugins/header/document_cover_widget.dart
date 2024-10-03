@@ -247,6 +247,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   }
 
   void _saveIconOrCover({(CoverType, String?)? cover, String? icon}) async {
+    final transaction = widget.editorState.transaction;
     final coverType = widget.node.attributes[DocumentHeaderBlockKeys.coverType];
     final coverDetails =
         widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
@@ -265,6 +266,10 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
       widget.onIconChanged(icon);
     }
+
+    // compatible with version <= 0.5.5.
+    transaction.updateNode(widget.node, attributes);
+    await widget.editorState.apply(transaction);
 
     // compatible with version > 0.5.5.
     EditorMigration.migrateCoverIfNeeded(
