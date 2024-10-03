@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -262,6 +263,9 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     FileBlockKeys.type: FileBlockComponentBuilder(configuration: configuration),
+    SubPageBlockKeys.type: SubPageBlockComponentBuilder(
+      configuration: configuration,
+    ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
     ),

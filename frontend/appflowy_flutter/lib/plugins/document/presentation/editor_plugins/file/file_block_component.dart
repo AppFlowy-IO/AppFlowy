@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -18,7 +20,6 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +65,11 @@ class FileBlockKeys {
   /// The value is a String, in form of user id.
   ///
   static const String uploadedBy = 'uploaded_by';
+
+  /// The GlobalKey of the FileBlockComponentState.
+  ///
+  /// **Note: This value is used in extraInfos of the Node, not in the attributes.**
+  static const String globalKey = 'global_key';
 }
 
 enum FileUrlType {
@@ -118,8 +124,11 @@ class FileBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
+    final extraInfos = node.extraInfos;
+    final key = extraInfos?[FileBlockKeys.globalKey] as GlobalKey?;
+
     return FileBlockComponent(
-      key: node.key,
+      key: key ?? node.key,
       node: node,
       showActions: showActions(node),
       configuration: configuration,

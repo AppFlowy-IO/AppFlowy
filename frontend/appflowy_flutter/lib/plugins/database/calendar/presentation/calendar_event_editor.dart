@@ -12,8 +12,6 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -28,6 +26,7 @@ class CalendarEventEditor extends StatelessWidget {
     required RowMetaPB rowMeta,
     required this.layoutSettings,
     required this.databaseController,
+    required this.onExpand,
   })  : rowController = RowController(
           rowMeta: rowMeta,
           viewId: databaseController.viewId,
@@ -40,6 +39,7 @@ class CalendarEventEditor extends StatelessWidget {
   final DatabaseController databaseController;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
+  final VoidCallback onExpand;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +55,7 @@ class CalendarEventEditor extends StatelessWidget {
           EventEditorControls(
             rowController: rowController,
             databaseController: databaseController,
+            onExpand: onExpand,
           ),
           Flexible(
             child: EventPropertyList(
@@ -74,10 +75,12 @@ class EventEditorControls extends StatelessWidget {
     super.key,
     required this.rowController,
     required this.databaseController,
+    required this.onExpand,
   });
 
   final RowController rowController;
   final DatabaseController databaseController;
+  final VoidCallback onExpand;
 
   @override
   Widget build(BuildContext context) {
@@ -122,17 +125,7 @@ class EventEditorControls extends StatelessWidget {
             iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
             onPressed: () {
               PopoverContainer.of(context).close();
-              FlowyOverlay.show(
-                context: context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<ViewBloc>(),
-                  child: RowDetailPage(
-                    databaseController: databaseController,
-                    rowController: rowController,
-                    userProfile: context.read<CalendarBloc>().userProfile,
-                  ),
-                ),
-              );
+              onExpand.call();
             },
           ),
         ],

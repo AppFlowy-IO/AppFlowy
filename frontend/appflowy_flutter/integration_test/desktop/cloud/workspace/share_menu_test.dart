@@ -19,10 +19,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 
-import '../../shared/constants.dart';
-import '../../shared/mock/mock_file_picker.dart';
-import '../../shared/util.dart';
-import '../../shared/workspace.dart';
+import '../../../shared/constants.dart';
+import '../../../shared/mock/mock_file_picker.dart';
+import '../../../shared/util.dart';
+import '../../../shared/workspace.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

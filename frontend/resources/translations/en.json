@@ -72,9 +72,11 @@
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
+    "defaultName": "My Workspace",
     "create": "Create workspace",
     "reset": "Reset workspace",
     "renameWorkspace": "Rename workspace",
+    "workspaceNameCannotBeEmpty": "Workspace name cannot be empty",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",
@@ -193,6 +195,7 @@
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
+    "restore": "Restore",
     "deleteAll": "Delete All",
     "pageHeader": {
       "fileName": "File name",
@@ -200,12 +203,16 @@
       "created": "Created"
     },
     "confirmDeleteAll": {
-      "title": "Are you sure to delete all pages in Trash?",
-      "caption": "This action cannot be undone."
+      "title": "All pages in trash",
+      "caption": "Are you sure you want to delete everything in Trash? This action cannot be undone."
     },
     "confirmRestoreAll": {
-      "title": "Are you sure to restore all pages in Trash?",
+      "title": "Restore all pages in trash",
       "caption": "This action cannot be undone."
+    },
+    "restorePage": {
+      "title": "Restore: {}",
+      "caption": "Are you sure you want to restore this page?"
     },
     "mobile": {
       "actions": "Trash Actions",
@@ -219,7 +226,7 @@
   "deletePagePrompt": {
     "text": "This page is in Trash",
     "restore": "Restore page",
-    "deletePermanent": "Delete permanently"
+    "deletePermanent": "Delete this page permanently? This action cannot be undone"
   },
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
@@ -513,7 +520,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
-        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it.",
+        "success": "You have left the workspace successfully.",
+        "fail": "Failed to leave the workspace."
       },
       "manageWorkspace": {
         "title": "Manage workspace",
@@ -1563,6 +1572,16 @@
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
         "file": "File"
+      },
+      "subPage": {
+        "name": "Embed sub-page",
+        "keyword1": "sub page",
+        "keyword2": "page",
+        "keyword3": "child page",
+        "keyword4": "insert page",
+        "keyword5": "embed page",
+        "keyword6": "new page",
+        "keyword7": "create page"
       }
     },
     "selectionMenu": {
@@ -1742,6 +1761,17 @@
         "uploadedAt": "Uploaded on {}",
         "linkedAt": "Link added on {}",
         "failedToOpenMsg": "Failed to open, file not found"
+      },
+      "subPage": {
+        "inTrashHint": " - (in trash)",
+        "handlingPasteHint": " - (handling paste)",
+        "errors": {
+          "failedDeletePage": "Failed to delete page",
+          "failedCreatePage": "Failed to create page",
+          "failedMovePage": "Failed to move page to this document",
+          "failedDuplicatePage": "Failed to duplicate page",
+          "failedDuplicateFindView": "Failed to duplicate page - original view not found"
+        }
       },
       "cannotMoveToItsChildren": "Cannot move to its children"
     },

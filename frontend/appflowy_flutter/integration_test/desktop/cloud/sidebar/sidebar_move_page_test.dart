@@ -24,12 +24,12 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:universal_platform/universal_platform.dart';
 
-import '../../shared/constants.dart';
-import '../../shared/database_test_op.dart';
-import '../../shared/dir.dart';
-import '../../shared/emoji.dart';
-import '../../shared/mock/mock_file_picker.dart';
-import '../../shared/util.dart';
+import '../../../shared/constants.dart';
+import '../../../shared/database_test_op.dart';
+import '../../../shared/dir.dart';
+import '../../../shared/emoji.dart';
+import '../../../shared/mock/mock_file_picker.dart';
+import '../../../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
