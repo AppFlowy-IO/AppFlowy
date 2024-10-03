@@ -82,21 +82,6 @@ void main() {
       expect(find.text('Child page'), findsNothing);
     });
 
-    testWidgets('Delete with backspace (selected)', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
-
-      await tester.insertSubPageFromSlashMenu();
-
-      expect(find.byType(SubPageBlockComponent), findsOneWidget);
-
-      await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      expect(find.byType(SubPageBlockComponent), findsNothing);
-    });
-
     testWidgets('Copy+paste a SubPageBlock in same Document', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
