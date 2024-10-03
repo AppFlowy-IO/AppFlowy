@@ -37,7 +37,7 @@ function ToggleIcon ({ block, className }: { block: ToggleListNode; className: s
       onMouseDown={(e) => {
         e.preventDefault();
       }}
-      className={`${className} ${readOnly ? '' : 'cursor-pointer'} pr-1 text-xl hover:text-fill-default`}
+      className={`${className} ${readOnly ? '' : 'cursor-pointer hover:text-fill-default'} pr-1 text-xl`}
     >
       {collapsed ? <ExpandSvg className={'-rotate-90 transform'} /> : <ExpandSvg />}
     </span>

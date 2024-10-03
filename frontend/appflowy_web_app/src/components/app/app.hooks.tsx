@@ -235,11 +235,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
 
         await service.openWorkspace(workspaceId);
-        const path = window.location.pathname.split('/')[2];
+        const wId = window.location.pathname.split('/')[2];
+        const pageId = window.location.pathname.split('/')[3];
 
-        if (path && !uuidValidate(path)) {
+        // skip /app/trash and /app/*other-pages
+        if (wId && !uuidValidate(wId)) {
           return;
         }
+
+        // skip /app/:workspaceId/:pageId
+        if (pageId && uuidValidate(pageId) && wId && uuidValidate(wId) && wId === workspaceId) return;
 
         const lastViewId = localStorage.getItem('last_view_id');
 
