@@ -68,13 +68,11 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         editorState.selection = null;
       }
 
-      debugPrint('isTitleFocused: $isTitleFocused');
-
       if (isTitleFocused) {
-        debugPrint('isTitleFocused: disable keyboard service');
+        Log.info('cover title got focus, disable keyboard service');
         editorState.service.keyboardService?.disable();
       } else {
-        debugPrint('isTitleFocused: enable keyboard service');
+        Log.info('cover title lost focus, enable keyboard service');
         editorState.service.keyboardService?.enable();
       }
     });

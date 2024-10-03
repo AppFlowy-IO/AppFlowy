@@ -220,5 +220,43 @@ void main() {
       final newTitle = tester.editor.findDocumentTitle(_testDocumentName);
       expect(newTitle, findsOneWidget);
     });
+
+    testWidgets('execute undo and redo in title', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+
+      await tester.enterText(title, _testDocumentName);
+      await tester.pumpAndSettle();
+
+      // undo
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      // expect the title is null
+
+      expect(tester.widget<TextField>(title).controller?.text, '');
+
+      // redo
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isShiftPressed: true,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle(Durations.short1);
+
+      expect(
+        tester.widget<TextField>(title).controller?.text,
+        _testDocumentName,
+      );
+    });
   });
 }
