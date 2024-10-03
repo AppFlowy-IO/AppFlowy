@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -8,7 +10,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -36,10 +37,6 @@ void main() {
         LocaleKeys.document_slashMenu_name_file.tr(),
       );
       expect(find.byType(FileBlockComponent), findsOneWidget);
-
-      await tester.tap(find.byType(FileBlockComponent));
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-
       expect(find.byType(FileUploadMenu), findsOneWidget);
 
       final image = await rootBundle.load('assets/test/images/sample.jpeg');
@@ -116,9 +113,6 @@ void main() {
         LocaleKeys.document_slashMenu_name_file.tr(),
       );
       expect(find.byType(FileBlockComponent), findsOneWidget);
-
-      await tester.tap(find.byType(FileBlockComponent));
-      await tester.pumpAndSettle(const Duration(seconds: 1));
       expect(find.byType(FileUploadMenu), findsOneWidget);
 
       // Navigate to integrate link tab

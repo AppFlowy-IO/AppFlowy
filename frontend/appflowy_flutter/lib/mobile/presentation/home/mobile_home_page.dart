@@ -291,7 +291,44 @@ class _HomePageState extends State<_HomePage> {
           },
         );
         break;
-
+      case UserWorkspaceActionType.delete:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys.workspace_deleteSuccess.tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}';
+          },
+        );
+        break;
+      case UserWorkspaceActionType.leave:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys
+                .settings_workspacePage_leaveWorkspacePrompt_success
+                .tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_fail.tr()}: ${e.msg}';
+          },
+        );
+        break;
+      case UserWorkspaceActionType.rename:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys.workspace_renameSuccess.tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}';
+          },
+        );
+        break;
       default:
         message = null;
         toastType = ToastificationType.error;

@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -10,7 +10,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('database field settings', () {
+  group('grid field settings test:', () {
     testWidgets('field visibility', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -50,6 +50,15 @@ void main() {
       await tester.tapHidePropertyButtonInFieldEditor();
       await tester.dismissRowDetailPage();
       tester.noFieldWithName('New field 1');
+
+      // the field should still be sort and filter-able
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(
+        FieldType.RichText,
+        "New field 1",
+      );
+      await tester.tapDatabaseSortButton();
+      await tester.tapCreateSortByFieldType(FieldType.RichText, "New field 1");
     });
   });
 }

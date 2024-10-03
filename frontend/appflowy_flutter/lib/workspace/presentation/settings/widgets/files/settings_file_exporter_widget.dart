@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';
@@ -133,9 +134,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                 );
               }
               if (mounted) {
-                Navigator.of(context).popUntil(
-                  (router) => router.settings.name == '/',
-                );
+                context.popToHome();
               }
             });
           },

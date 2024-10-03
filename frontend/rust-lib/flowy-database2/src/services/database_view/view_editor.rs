@@ -876,6 +876,16 @@ impl DatabaseViewEditor {
       .calculations_controller
       .did_receive_field_type_changed(field_id.to_owned(), new_field_type)
       .await;
+    if self.filter_controller.has_filters().await {
+      let changeset = FilterChangeset::DeleteAllWithFieldId {
+        field_id: field_id.to_string(),
+      };
+      let notification = self.filter_controller.apply_changeset(changeset).await;
+      notify_did_update_filter(notification).await;
+    }
+    if self.is_grouping_field(field_id).await {
+      let _ = self.v_group_by_field(field_id).await;
+    }
   }
 
   /// Notifies the view's field type-option data is changed
@@ -893,22 +903,13 @@ impl DatabaseViewEditor {
         .did_update_field_type_option(&field)
         .await;
 
-      if old_field.field_type != field.field_type {
-        let changeset = FilterChangeset::DeleteAllWithFieldId {
-          field_id: field.id.clone(),
-        };
-        let notification = self.filter_controller.apply_changeset(changeset).await;
-        notify_did_update_filter(notification).await;
-      }
-
       // If the id of the grouping field is equal to the updated field's id
       // and something critical changed, then we need to update the group setting
       if self.is_grouping_field(field_id).await
-        && (old_field.field_type != field.field_type
-          || matches!(
-            FieldType::from(field.field_type),
-            FieldType::SingleSelect | FieldType::MultiSelect
-          ))
+        && matches!(
+          FieldType::from(field.field_type),
+          FieldType::SingleSelect | FieldType::MultiSelect
+        )
       {
         self.v_group_by_field(field_id).await?;
       }

@@ -72,9 +72,11 @@
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
+    "defaultName": "My Workspace",
     "create": "Create workspace",
     "reset": "Reset workspace",
     "renameWorkspace": "Rename workspace",
+    "workspaceNameCannotBeEmpty": "Workspace name cannot be empty",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",
@@ -509,7 +511,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
-        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it.",
+        "success": "You have left the workspace successfully.",
+        "fail": "Failed to leave the workspace."
       },
       "manageWorkspace": {
         "title": "Manage workspace",

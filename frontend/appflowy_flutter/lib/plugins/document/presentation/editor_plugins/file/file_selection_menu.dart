@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 extension InsertFile on EditorState {
-  Future<void> insertEmptyFileBlock() async {
+  Future<void> insertEmptyFileBlock(GlobalKey key) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
       return;
@@ -11,7 +13,7 @@ extension InsertFile on EditorState {
     if (node == null) {
       return;
     }
-    final file = fileNode(url: '');
+    final file = fileNode(url: '')..extraInfos = {'global_key': key};
     final transaction = this.transaction;
 
     // if the current node is empty paragraph, replace it with the file node
@@ -26,6 +28,7 @@ extension InsertFile on EditorState {
 
     transaction.afterSelection =
         Selection.collapsed(Position(path: node.path.next));
+    transaction.selectionExtraInfo = {};
 
     return apply(transaction);
   }

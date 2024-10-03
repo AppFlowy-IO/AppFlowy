@@ -115,7 +115,7 @@ void main() {
         [],
       ];
       for (final (index, contents) in multiSelectCells.indexed) {
-        await tester.assertMultiSelectOption(
+        tester.assertMultiSelectOption(
           rowIndex: index,
           contents: contents,
         );

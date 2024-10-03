@@ -346,20 +346,18 @@ class _WorkspaceIconSetting extends StatelessWidget {
       );
     }
 
-    return Container(
+    return SizedBox(
       height: 64,
       width: 64,
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(1),
         child: WorkspaceIcon(
           workspace: workspace!,
-          iconSize: workspace!.icon.isNotEmpty == true ? 46 : 20,
-          fontSize: 16.0,
-          figmaLineHeight: 46,
+          iconSize: 36,
+          emojiSize: 24.0,
+          fontSize: 24.0,
+          figmaLineHeight: 26.0,
+          borderRadius: 18.0,
           enableEdit: true,
           onSelected: (r) => context
               .read<WorkspaceSettingsBloc>()

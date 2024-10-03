@@ -10,6 +10,7 @@ import 'desktop/grid/grid_filter_and_sort_test.dart'
 import 'desktop/grid/grid_reopen_test.dart' as grid_reopen_test_runner;
 import 'desktop/grid/grid_reorder_row_test.dart'
     as grid_reorder_row_test_runner;
+import 'desktop/grid/grid_edit_row_test.dart' as grid_edit_row_test_runner;
 import 'desktop/settings/settings_runner.dart' as settings_test_runner;
 import 'desktop/grid/grid_row_test.dart' as grid_create_row_test_runner;
 import 'desktop/sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
@@ -46,6 +47,7 @@ Future<void> runIntegration3OnDesktop() async {
   grid_create_row_test_runner.main();
   grid_reorder_row_test_runner.main();
   grid_filter_and_sort_test_runner.main();
+  grid_edit_row_test_runner.main();
   zoom_in_out_test.main();
   document_title_test.main();
   document_sub_page_test.main();

@@ -543,7 +543,14 @@ SelectionMenuItem fileSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload', 'attachment'],
-  handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
+  handler: (editorState, _, __) async {
+    final fileGlobalKey = GlobalKey<FileBlockComponentState>();
+    await editorState.insertEmptyFileBlock(fileGlobalKey);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fileGlobalKey.currentState?.controller.show();
+    });
+  },
 );
 
 // Sub-page menu item
