@@ -73,9 +73,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-latest]
+        os: [windows-2019]
         include:
-          - os: windows-latest
+          - os: windows-2019
             flutter_profile: development-windows-x86
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
