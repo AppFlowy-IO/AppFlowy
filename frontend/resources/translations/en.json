@@ -121,7 +121,11 @@
     "exportAsTab": "Export as",
     "publishTab": "Publish",
     "shareTab": "Share",
-    "publishOnAppFlowy": "Publish on AppFlowy"
+    "publishOnAppFlowy": "Publish on AppFlowy",
+    "shareTabTitle": "Invite to collaborate",
+    "shareTabDescription": "For easy collaboration with anyone",
+    "copyLinkToBlockSuccess": "Copied block link to clipboard",
+    "copyLinkToBlockFailed": "Failed to copy block link to clipboard"
   },
   "moreAction": {
     "small": "small",
@@ -1665,7 +1669,8 @@
         "center": "Center",
         "right": "Right",
         "defaultColor": "Default",
-        "depth": "Depth"
+        "depth": "Depth",
+        "copyLinkToBlock": "Copy link to block"
       },
       "image": {
         "addAnImage": "Add images",

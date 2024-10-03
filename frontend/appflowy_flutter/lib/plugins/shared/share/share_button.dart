@@ -46,7 +46,11 @@ class ShareButton extends StatelessWidget {
         child: BlocBuilder<ShareBloc, ShareState>(
           builder: (context, state) {
             final tabs = [
-              if (state.enablePublish) ShareMenuTab.publish,
+              if (state.enablePublish) ...[
+                // share the same permission with publish
+                ShareMenuTab.share,
+                ShareMenuTab.publish,
+              ],
               ShareMenuTab.exportAs,
             ];
 
