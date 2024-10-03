@@ -206,6 +206,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     super.didChangeAppLifecycleState(state);
     lifecycleState = state;
 
+    if (widget.editorState.isDisposed) {
+      return;
+    }
+
     if (previousSelections.length == 2 &&
         state == AppLifecycleState.resumed &&
         widget.editorState.selection == null) {
