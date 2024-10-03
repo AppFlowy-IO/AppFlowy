@@ -441,4 +441,15 @@ class PageStyleCover {
   bool get isCustomImage => type == PageStyleCoverImageType.customImage;
   bool get isUnsplashImage => type == PageStyleCoverImageType.unsplashImage;
   bool get isLocalImage => type == PageStyleCoverImageType.localImage;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! PageStyleCover) {
+      return false;
+    }
+    return type == other.type && value == other.value;
+  }
+
+  @override
+  int get hashCode => Object.hash(type, value);
 }

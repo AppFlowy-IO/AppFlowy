@@ -67,6 +67,16 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         Log.info('cover title got focus, clear the editor selection');
         editorState.selection = null;
       }
+
+      debugPrint('isTitleFocused: $isTitleFocused');
+
+      if (isTitleFocused) {
+        debugPrint('isTitleFocused: disable keyboard service');
+        editorState.service.keyboardService?.disable();
+      } else {
+        debugPrint('isTitleFocused: enable keyboard service');
+        editorState.service.keyboardService?.enable();
+      }
     });
 
     editorState.selectionNotifier.addListener(() {
@@ -98,6 +108,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         .bodyMedium!
         .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
     return BlocConsumer<ViewBloc, ViewState>(
+      listenWhen: (previous, current) =>
+          previous.view.name != current.view.name,
       listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;

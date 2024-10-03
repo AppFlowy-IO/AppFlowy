@@ -119,11 +119,13 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           if (titleTextController.text != view.name) {
             titleTextController.text = view.name;
           }
-          setState(() {
-            viewIcon = view.icon.value;
-            cover = view.cover;
-            view = view;
-          });
+          if (view.icon.value != viewIcon || view.cover != cover) {
+            setState(() {
+              viewIcon = view.icon.value;
+              cover = view.cover;
+              view = view;
+            });
+          }
         },
       );
   }
@@ -208,12 +210,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
     final renderBox = editorState.renderBox;
 
-    if (renderBox == null || !renderBox.hasSize) {
-      return 0.0;
-    }
-
     var renderBoxWidth = 0.0;
-    if (renderBox.hasSize) {
+    if (renderBox != null && renderBox.hasSize) {
       renderBoxWidth = renderBox.size.width;
     } else if (retryCount <= 3) {
       retryCount++;
@@ -249,7 +247,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   }
 
   void _saveIconOrCover({(CoverType, String?)? cover, String? icon}) async {
-    final transaction = widget.editorState.transaction;
     final coverType = widget.node.attributes[DocumentHeaderBlockKeys.coverType];
     final coverDetails =
         widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
@@ -268,10 +265,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
       widget.onIconChanged(icon);
     }
-
-    // compatible with version <= 0.5.5.
-    transaction.updateNode(widget.node, attributes);
-    await widget.editorState.apply(transaction);
 
     // compatible with version > 0.5.5.
     EditorMigration.migrateCoverIfNeeded(
