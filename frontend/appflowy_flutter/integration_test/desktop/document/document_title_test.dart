@@ -228,8 +228,9 @@ void main() {
       await tester.createNewPageWithNameUnderParent();
 
       final title = tester.editor.findDocumentTitle('');
-
       await tester.enterText(title, _testDocumentName);
+      // press a random key to make the undo stack not empty
+      await tester.simulateKeyEvent(LogicalKeyboardKey.keyA);
       await tester.pumpAndSettle();
 
       // undo
@@ -238,14 +239,14 @@ void main() {
         isControlPressed: !UniversalPlatform.isMacOS,
         isMetaPressed: UniversalPlatform.isMacOS,
       );
-      await tester.pumpAndSettle();
+      // wait for the undo to be applied
+      await tester.pumpAndSettle(Durations.long1);
 
-      // expect the title is null
-
+      // expect the title is empty
       expect(
         tester
             .widget<TextField>(
-              tester.editor.findDocumentTitle(_testDocumentName),
+              tester.editor.findDocumentTitle(''),
             )
             .controller
             ?.text,
@@ -263,7 +264,9 @@ void main() {
 
       expect(
         tester
-            .widget<TextField>(tester.editor.findDocumentTitle(''))
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(_testDocumentName),
+            )
             .controller
             ?.text,
         _testDocumentName,

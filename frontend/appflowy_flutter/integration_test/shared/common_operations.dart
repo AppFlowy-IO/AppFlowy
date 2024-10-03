@@ -446,15 +446,14 @@ extension CommonOperations on WidgetTester {
       key,
       physicalKey: physicalKey,
     );
-    if (isControlPressed) {
-      await simulateKeyUpEvent(LogicalKeyboardKey.control);
-    }
-
     if (isAltPressed) {
       await simulateKeyUpEvent(LogicalKeyboardKey.alt);
     }
     if (isMetaPressed) {
       await simulateKeyUpEvent(LogicalKeyboardKey.meta);
+    }
+    if (isControlPressed) {
+      await simulateKeyUpEvent(LogicalKeyboardKey.control);
     }
     if (isShiftPressed) {
       await simulateKeyUpEvent(LogicalKeyboardKey.shift);
