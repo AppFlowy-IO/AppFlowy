@@ -647,40 +647,6 @@ describe('Enter key behavior', () => {
       cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-same-level-blocks');
     });
 
-    it('should handle range selection across different nesting levels', () => {
-      initializeEditor(nestedInitialData);
-      const selector = '[role="textbox"]';
-
-      cy.get(selector).as('editor');
-      cy.selectMultipleText(['ter paragraph', 'Nested paragraph']);
-      cy.wait(500);
-      cy.get('@editor').focus();
-      cy.get('@editor').type('{enter}');
-      assertJSON([
-        {
-          type: 'paragraph',
-          data: {},
-          text: [{ insert: 'Ou' }],
-          children: [],
-        },
-        {
-          type: 'paragraph',
-          data: {},
-          text: [{ insert: ' 1' }],
-          children: [],
-        },
-        {
-          type: 'paragraph',
-          data: {},
-          text: [{ insert: 'Final outer paragraph' }],
-          children: [],
-        },
-      ]);
-
-      // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels');
-    });
-
     it('should handle range selection with different anchor and focus order', () => {
       initializeEditor(nestedInitialData);
       const selector = '[role="textbox"]';
@@ -733,6 +699,304 @@ describe('Enter key behavior', () => {
       // Optional: Add visual regression test
       cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-anchor-focus');
     });
+
+    it('should split nested paragraph when selection spans from outer to nested paragraph', () => {
+      initializeEditor(nestedInitialData);
+      const selector = '[role="textbox"]';
+
+      cy.get(selector).as('editor');
+      cy.selectMultipleText(['ter paragraph', 'Nested paragraph']);
+      cy.wait(500);
+      cy.get('@editor').focus();
+      cy.get('@editor').type('{enter}');
+      assertJSON([
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Ou' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: ' 1' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Final outer paragraph' }],
+          children: [],
+        },
+      ]);
+
+      // Optional: Add visual regression test
+      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-1');
+
+    });
+
+    it('should split toggle list and maintain nested structure when selection spans multiple nesting levels', () => {
+      initializeEditor([{
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Outer paragraph' }],
+        children: [],
+      }, {
+        type: 'toggle_list',
+        data: {},
+        text: [{ insert: 'Toggle list' }],
+        children: [
+          {
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'Nested paragraph' }],
+            children: [],
+          },
+          {
+            type: 'toggle_list',
+            data: {},
+            text: [{ insert: 'Nested toggle list' }],
+            children: [
+              {
+                type: 'paragraph',
+                data: {},
+                text: [{ insert: 'Deeply nested paragraph' }],
+                children: [],
+              },
+            ],
+          },
+          {
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'Nested paragraph 2.' }],
+            children: [],
+          },
+        ],
+      }, {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Final outer paragraph' }],
+        children: [],
+      }]);
+      const selector = '[role="textbox"]';
+
+      cy.get(selector).as('editor');
+      cy.selectMultipleText(['ed paragraph', 'Nested to']);
+      cy.wait(500);
+      cy.get('@editor').focus();
+      cy.get('@editor').type('{enter}');
+      assertJSON([
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Outer paragraph' }],
+          children: [],
+        },
+        {
+          type: 'toggle_list',
+          data: {},
+          text: [{ insert: 'Toggle list' }],
+          children: [
+            {
+              type: 'paragraph',
+              data: {},
+              text: [{ insert: 'Nest' }],
+              children: [],
+            },
+            {
+              type: 'paragraph',
+              data: {},
+              text: [{ insert: 'ggle list' }],
+              children: [
+                {
+                  type: 'paragraph',
+                  data: {},
+                  text: [{ insert: 'Deeply nested paragraph' }],
+                  children: [],
+                },
+              ],
+            },
+            {
+              type: 'paragraph',
+              data: {},
+              text: [{ insert: 'Nested paragraph 2.' }],
+              children: [],
+            },
+          ],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Final outer paragraph' }],
+          children: [],
+        },
+      ]);
+      // Optional: Add visual regression test
+      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-2');
+    });
+
+    it('should split paragraphs and maintain child structure when selection spans across parent paragraphs', () => {
+      const initialData: FromBlockJSON[] = [
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Outer paragraph' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'First parent' }],
+          children: [{
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'First parent - Child paragraph 1' }],
+            children: [],
+          }, {
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'First parent - Child paragraph 2' }],
+            children: [],
+          }],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Second parent' }],
+          children: [{
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'Second parent - Child paragraph 1' }],
+            children: [],
+          }, {
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'Second parent - Child paragraph 2' }],
+            children: [],
+          }],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Final outer paragraph' }],
+          children: [],
+        },
+      ];
+
+      initializeEditor(initialData);
+
+      const selector = '[role="textbox"]';
+
+      cy.get(selector).as('editor');
+
+      cy.selectMultipleText(['st parent', 'Second ']);
+
+      cy.wait(500);
+      cy.get('@editor').focus();
+
+      cy.get('@editor').type('{enter}');
+
+      assertJSON([
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Outer paragraph' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Fir' }],
+          children: [],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'parent' }],
+          children: [{
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'Second parent - Child paragraph 1' }],
+            children: [],
+          }, {
+            type: 'paragraph',
+            data: {},
+            text: [{ insert: 'Second parent - Child paragraph 2' }],
+            children: [],
+          }],
+        },
+        {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Final outer paragraph' }],
+          children: [],
+        },
+      ]);
+
+      // Optional: Add visual regression test
+      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-3');
+    });
+
+    it('should split heading and paragraph while preserving nested structure when selection spans different block types', () => {
+      const initialData: FromBlockJSON[] = [{
+        type: 'heading',
+        data: { level: 1 },
+        text: [{ insert: 'Heading 1' }],
+        children: [],
+      }, {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'First paragraph' }],
+        children: [{
+          type: 'heading',
+          data: { level: 2 },
+          text: [{ insert: 'Heading 2' }],
+          children: [],
+        }, {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Child paragraph' }],
+          children: [],
+        }],
+      }];
+
+      initializeEditor(initialData);
+
+      const selector = '[role="textbox"]';
+
+      cy.get(selector).as('editor');
+      cy.selectMultipleText(['ing 1', 'First ']);
+
+      cy.wait(500);
+      cy.get('@editor').focus();
+      cy.get('@editor').type('{enter}');
+      assertJSON([
+        {
+          type: 'heading',
+          data: { level: 1 },
+          text: [{ insert: 'Head' }],
+          children: [],
+        }, {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'paragraph' }],
+          children: [],
+        }, {
+          type: 'heading',
+          data: { level: 2 },
+          text: [{ insert: 'Heading 2' }],
+          children: [],
+        }, {
+          type: 'paragraph',
+          data: {},
+          text: [{ insert: 'Child paragraph' }],
+          children: [],
+        },
+      ]);
+      // Optional: Add visual regression test
+      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-4');
+    });
+
   });
 });
 

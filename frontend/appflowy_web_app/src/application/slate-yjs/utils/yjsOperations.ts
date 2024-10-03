@@ -37,10 +37,16 @@ function assertDocExists (sharedRoot: YSharedRoot): YDoc {
   return doc;
 }
 
-export function getChildrenArray (childrenId: string, sharedRoot: YSharedRoot) {
+export function getChildrenMap (sharedRoot: YSharedRoot) {
   const document = sharedRoot.get(YjsEditorKey.document);
   const meta = document.get(YjsEditorKey.meta) as YMeta;
   const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
+
+  return childrenMap;
+}
+
+export function getChildrenArray (childrenId: string, sharedRoot: YSharedRoot) {
+  const childrenMap = getChildrenMap(sharedRoot);
 
   return childrenMap.get(childrenId);
 }
@@ -130,8 +136,6 @@ export function removeRange (editor: YjsEditor, sharedRoot: YSharedRoot, range: 
     if (!isSameBlock) {
       deleteSlateRangeInBlock(sharedRoot, editor, endBlock[0], endRange);
       mergeBlocks(sharedRoot, endBlock[0], startBlock[0]);
-      deleteBlock(sharedRoot, endBlock[0].blockId as string);
-      console.log('middleBlocks', middleBlocks);
       middleBlocks.forEach((block) => {
         deleteBlock(sharedRoot, block[0].blockId as string);
       });
@@ -140,6 +144,24 @@ export function removeRange (editor: YjsEditor, sharedRoot: YSharedRoot, range: 
   Transforms.collapse(editor, { edge: 'start' });
   executeOperations(sharedRoot, operations, 'removeRange');
 
+}
+
+export function liftChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
+  const sourceChildrenArray = getChildrenArray(sourceBlock.get(YjsEditorKey.block_children), sharedRoot);
+  const targetParent = getBlock(targetBlock.get(YjsEditorKey.block_parent), sharedRoot);
+  const targetChildrenArray = getChildrenArray(targetParent.get(YjsEditorKey.block_children), sharedRoot);
+
+  if (!sourceChildrenArray || !targetChildrenArray) return;
+  const index = targetChildrenArray.toArray().findIndex((id) => id === targetBlock.get(YjsEditorKey.block_id));
+  const targetIndex = index !== -1 ? index + 1 : targetChildrenArray.length;
+
+  if (sourceChildrenArray.length > 0) {
+    deepCopyChildren(sharedRoot, sourceChildrenArray, targetChildrenArray, targetParent.get(YjsEditorKey.block_id), targetIndex);
+    sourceChildrenArray.toArray().forEach((id) => {
+      deleteBlock(sharedRoot, id);
+    });
+    sourceChildrenArray.delete(0, sourceChildrenArray.length);
+  }
 }
 
 export function handleRangeBreak (editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {
@@ -278,8 +300,6 @@ export function getNextSiblingBlockPath (editor: Editor, blockId: string) {
   const index = blockPath[blockPath.length - 1];
   const nextPath = [...blockParentPath, index + 1];
 
-  console.log('getNextSiblingBlockPath', nextPath);
-
   if (!nextPath || !Node.has(editor, nextPath)) {
     return;
   }
@@ -315,13 +335,12 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
   if (!isSameBlock) {
     for (const entry of Editor.nodes(editor, {
       at: range,
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.blockId !== startBlock[0].blockId && n.blockId !== endBlock[0].blockId,
     })) {
       const [, path] = entry as NodeEntry<Element>;
+      const isAncestorOfStart = Path.isAncestor(path, startBlock[1]);
 
-      if (
-        Path.compare(path, startBlock[1]) !== 0
-      ) {
+      if (!isAncestorOfStart) {
         middleBlocks.push(entry as NodeEntry<Element>);
       }
     }
@@ -392,6 +411,30 @@ export function mergeBlocks (
 
   targetYText.delete(0, targetYText.length);
   targetYText.applyDelta(concat.ops);
+
+  const sourceBlockId = sourceBlock.blockId as string;
+  const targetBlockId = targetBlock.blockId as string;
+
+  mergeBlockChildren(sharedRoot, getBlock(sourceBlockId, sharedRoot), getBlock(targetBlockId, sharedRoot));
+  deleteBlock(sharedRoot, sourceBlock.blockId as string);
+
+}
+
+function mergeBlockChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
+  const targetType = targetBlock.get(YjsEditorKey.block_type);
+
+  if ([
+    BlockType.ToggleListBlock,
+    BlockType.TodoListBlock,
+    BlockType.Paragraph,
+    BlockType.QuoteBlock,
+    BlockType.BulletedListBlock,
+    BlockType.NumberedListBlock,
+  ].includes(targetType)) {
+    transferChildren(sharedRoot, sourceBlock, targetBlock);
+  } else {
+    liftChildren(sharedRoot, sourceBlock, targetBlock);
+  }
 }
 
 export function deleteBlock (sharedRoot: YSharedRoot, blockId: string) {
@@ -540,9 +583,23 @@ export function splitBlock (sharedRoot: YSharedRoot, block: YBlock, offset: numb
   updateBlockParent(sharedRoot, newBlock, parent, index);
 }
 
+function ensureBlockHasChildren (sharedRoot: YSharedRoot, block: YBlock) {
+  const childrenArray = getChildrenArray(block.get(YjsEditorKey.block_children), sharedRoot);
+
+  if (!childrenArray) {
+    const newArray = new Y.Array<string>();
+    const childrenMap = getChildrenMap(sharedRoot);
+
+    childrenMap.set(block.get(YjsEditorKey.block_children), newArray);
+  }
+
+  return getChildrenArray(block.get(YjsEditorKey.block_children), sharedRoot);
+}
+
 export function transferChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
   const sourceChildrenArray = getChildrenArray(sourceBlock.get(YjsEditorKey.block_children), sharedRoot);
-  const targetChildrenArray = getChildrenArray(targetBlock.get(YjsEditorKey.block_children), sharedRoot);
+
+  const targetChildrenArray = ensureBlockHasChildren(sharedRoot, targetBlock);
 
   if (!sourceChildrenArray || !targetChildrenArray) return;
   if (sourceChildrenArray.length > 0) {
@@ -573,10 +630,11 @@ export function dataStringTOJson (data: string): object {
   }
 }
 
-function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>, targetArray: Y.Array<string>, targetBlockId: string) {
+function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>, targetArray: Y.Array<string>, targetBlockId: string, index?: number) {
 
-  console.log('deepCopyChildren', sourceArray, targetArray);
-  sourceArray.forEach((childId) => {
+  const sourceArraySorted = index === undefined ? sourceArray.toArray() : sourceArray.toArray().reverse();
+
+  sourceArraySorted.forEach((childId) => {
     const sourceChild = getBlock(childId, sharedRoot);
 
     if (sourceChild) {
@@ -601,7 +659,9 @@ function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>
         }
       }
 
-      updateBlockParent(sharedRoot, newChild, getBlock(targetBlockId, sharedRoot), targetArray.length);
+      const targetIndex = index !== undefined ? index : targetArray.length;
+
+      updateBlockParent(sharedRoot, newChild, getBlock(targetBlockId, sharedRoot), targetIndex);
     }
   });
 }

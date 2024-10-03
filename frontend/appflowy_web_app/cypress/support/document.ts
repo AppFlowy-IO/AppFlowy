@@ -94,7 +94,7 @@ export class DocumentTest {
     for (const child of children) {
       const blockId = nanoid(8);
       const block = new Y.Map();
-      
+
       block.set(YjsEditorKey.block_id, blockId);
       block.set(YjsEditorKey.block_type, child.type);
       block.set(YjsEditorKey.block_children, blockId);
@@ -113,9 +113,11 @@ export class DocumentTest {
 
       blockText.applyDelta(child.text);
 
-      console.log(blockText.toJSON());
-
       this.textMap.set(blockId, blockText);
+      
+      const blockChildren = new Y.Array<BlockId>();
+
+      this.childrenMap.set(blockId, blockChildren);
 
       this.fromJSONChildren(child.children, blockId);
     }
