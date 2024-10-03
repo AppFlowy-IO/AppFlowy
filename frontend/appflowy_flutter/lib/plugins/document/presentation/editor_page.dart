@@ -198,7 +198,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed && !widget.editorState.isDisposed) {
       widget.editorState.selection = previousSelection;
     }
   }
