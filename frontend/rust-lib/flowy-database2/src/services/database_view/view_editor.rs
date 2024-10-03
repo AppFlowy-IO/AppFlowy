@@ -379,17 +379,17 @@ impl DatabaseViewEditor {
     rows
   }
 
-  pub async fn v_get_cells_for_field(&self, field_id: &str) -> Vec<Arc<RowCell>> {
+  pub async fn v_get_cells_for_field(&self, field_id: &str) -> Vec<RowCell> {
     let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
     let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
     let rows = self.v_filter_rows(rows).await;
     let rows = rows
       .into_iter()
       .filter_map(|row| {
-        row.cells.get(field_id).map(|cell| {
-          let cell = RowCell::new(row.id.clone(), Some(cell.clone()));
-          Arc::new(cell)
-        })
+        row
+          .cells
+          .get(field_id)
+          .map(|cell| RowCell::new(row.id.clone(), Some(cell.clone())))
       })
       .collect::<Vec<_>>();
     trace!(

@@ -1673,13 +1673,13 @@ impl DatabaseEditor {
 
       // Update calculation values
       let calculate_rows = loaded_rows.clone();
-      tokio::spawn(async move {
-        let _ = view_editor.v_calculate_rows(calculate_rows).await;
-      });
 
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);
       }
+      tokio::spawn(async move {
+        let _ = view_editor.v_calculate_rows(calculate_rows).await;
+      });
     });
   }
 
@@ -1982,7 +1982,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self.database.write().await.remove_row(row_id).await
   }
 
-  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>> {
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
     let editor = self.editor_by_view_id.read().await.get(view_id).cloned();
     match editor {
       None => vec![],

@@ -31,19 +31,6 @@ impl From<Calculation> for CalculationMap {
   }
 }
 
-impl std::convert::From<&CalculationPB> for Calculation {
-  fn from(calculation: &CalculationPB) -> Self {
-    let calculation_type = calculation.calculation_type.into();
-
-    Self {
-      id: calculation.id.clone(),
-      field_id: calculation.field_id.clone(),
-      calculation_type,
-      value: calculation.value.clone(),
-    }
-  }
-}
-
 impl TryFrom<CalculationMap> for Calculation {
   type Error = anyhow::Error;
 

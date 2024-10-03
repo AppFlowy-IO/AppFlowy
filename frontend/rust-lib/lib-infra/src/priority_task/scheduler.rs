@@ -9,6 +9,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use tokio::sync::{watch, RwLock};
 use tokio::time::interval;
+use tracing::trace;
 
 pub struct TaskDispatcher {
   queue: TaskQueue,
@@ -105,6 +106,11 @@ impl TaskDispatcher {
       return;
     }
 
+    trace!(
+      "Add task: handler:{}, task:{:?}",
+      task.handler_id,
+      task.content
+    );
     self.queue.push(&task);
     self.store.insert_task(task);
     self.notify();

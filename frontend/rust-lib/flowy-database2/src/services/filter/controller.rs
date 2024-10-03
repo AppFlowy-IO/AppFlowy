@@ -116,11 +116,12 @@ impl FilterController {
   }
 
   pub async fn close(&self) {
-    if let Ok(mut task_scheduler) = self.task_scheduler.try_write() {
-      task_scheduler.unregister_handler(&self.handler_id).await;
-    } else {
-      tracing::error!("Try to get the lock of task_scheduler failed");
-    }
+    self
+      .task_scheduler
+      .write()
+      .await
+      .unregister_handler(&self.handler_id)
+      .await;
   }
 
   #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]

@@ -62,7 +62,7 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   async fn remove_row(&self, row_id: &RowId) -> Option<Row>;
 
-  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>>;
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell>;
 
   async fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Arc<RowCell>;
 

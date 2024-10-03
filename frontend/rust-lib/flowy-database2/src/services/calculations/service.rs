@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::RowCell;
+use collab_database::rows::{Cell, RowCell};
 
 use crate::entities::CalculationType;
 use crate::services::field::TypeOptionCellExt;
@@ -13,36 +13,26 @@ impl CalculationsService {
     Self
   }
 
-  pub fn calculate(
-    &self,
-    field: &Field,
-    calculation_type: i64,
-    row_cells: Vec<Arc<RowCell>>,
-  ) -> String {
+  pub fn calculate(&self, field: &Field, calculation_type: i64, cells: Vec<Arc<Cell>>) -> String {
     let ty: CalculationType = calculation_type.into();
 
     match ty {
-      CalculationType::Average => self.calculate_average(field, row_cells),
-      CalculationType::Max => self.calculate_max(field, row_cells),
-      CalculationType::Median => self.calculate_median(field, row_cells),
-      CalculationType::Min => self.calculate_min(field, row_cells),
-      CalculationType::Sum => self.calculate_sum(field, row_cells),
-      CalculationType::Count => self.calculate_count(row_cells),
-      CalculationType::CountEmpty => self.calculate_count_empty(field, row_cells),
-      CalculationType::CountNonEmpty => self.calculate_count_non_empty(field, row_cells),
+      CalculationType::Average => self.calculate_average(field, cells),
+      CalculationType::Max => self.calculate_max(field, cells),
+      CalculationType::Median => self.calculate_median(field, cells),
+      CalculationType::Min => self.calculate_min(field, cells),
+      CalculationType::Sum => self.calculate_sum(field, cells),
+      CalculationType::Count => self.calculate_count(cells),
+      CalculationType::CountEmpty => self.calculate_count_empty(field, cells),
+      CalculationType::CountNonEmpty => self.calculate_count_non_empty(field, cells),
     }
   }
 
-  fn calculate_average(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+  fn calculate_average(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
     if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
-      let (sum, len): (f64, usize) = row_cells
+      let (sum, len): (f64, usize) = cells
         .par_iter()
-        .filter_map(|row_cell| {
-          row_cell
-            .cell
-            .as_ref()
-            .and_then(|cell| handler.handle_numeric_cell(cell))
-        })
+        .filter_map(|cell| handler.handle_numeric_cell(cell))
         .map(|value| (value, 1))
         .reduce(
           || (0.0, 0),
@@ -59,8 +49,8 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_median(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
-    let mut values = self.reduce_values_f64(field, row_cells);
+  fn calculate_median(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
+    let mut values = self.reduce_values_f64(field, cells);
     values.par_sort_by(|a, b| a.partial_cmp(b).unwrap());
 
     if !values.is_empty() {
@@ -70,8 +60,8 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_min(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(field, row_cells);
+  fn calculate_min(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
+    let values = self.reduce_values_f64(field, cells);
     if let Some(min) = values.par_iter().min_by(|a, b| a.total_cmp(b)) {
       format!("{:.5}", min)
     } else {
@@ -79,8 +69,8 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_max(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(field, row_cells);
+  fn calculate_max(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
+    let values = self.reduce_values_f64(field, cells);
     if let Some(max) = values.par_iter().max_by(|a, b| a.total_cmp(b)) {
       format!("{:.5}", max)
     } else {
@@ -88,8 +78,8 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_sum(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(field, row_cells);
+  fn calculate_sum(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
+    let values = self.reduce_values_f64(field, cells);
     if !values.is_empty() {
       format!("{:.5}", values.par_iter().sum::<f64>())
     } else {
@@ -97,20 +87,15 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_count(&self, row_cells: Vec<Arc<RowCell>>) -> String {
-    format!("{}", row_cells.len())
+  fn calculate_count(&self, cells: Vec<Arc<Cell>>) -> String {
+    format!("{}", cells.len())
   }
 
-  fn calculate_count_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+  fn calculate_count_empty(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
     if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
-      let empty_count = row_cells
+      let empty_count = cells
         .par_iter()
-        .filter(|row_cell| {
-          row_cell
-            .cell
-            .as_ref()
-            .map_or(true, |cell| handler.handle_is_cell_empty(cell, field))
-        })
+        .filter(|cell| handler.handle_is_cell_empty(cell, field))
         .count();
       empty_count.to_string()
     } else {
@@ -118,16 +103,11 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_count_non_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+  fn calculate_count_non_empty(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
     if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
-      let non_empty_count = row_cells
+      let non_empty_count = cells
         .par_iter()
-        .filter(|row_cell| {
-          row_cell
-            .cell
-            .as_ref()
-            .map_or(false, |cell| !handler.handle_is_cell_empty(cell, field))
-        })
+        .filter(|cell| !handler.handle_is_cell_empty(cell, field))
         .count();
       non_empty_count.to_string()
     } else {
@@ -135,16 +115,11 @@ impl CalculationsService {
     }
   }
 
-  fn reduce_values_f64(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> Vec<f64> {
+  fn reduce_values_f64(&self, field: &Field, row_cells: Vec<Arc<Cell>>) -> Vec<f64> {
     if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
       row_cells
         .par_iter()
-        .filter_map(|row_cell| {
-          row_cell
-            .cell
-            .as_ref()
-            .and_then(|cell| handler.handle_numeric_cell(cell))
-        })
+        .filter_map(|cell| handler.handle_numeric_cell(cell))
         .collect::<Vec<_>>()
     } else {
       vec![]
