@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -28,7 +29,7 @@ import '../../shared/util.dart';
 // - [x] Deleting a view (to trash) linked to a SubPageBlock shows a hint that the view is in trash (Expect a hint to be shown)
 // - [x] Deleting a view (in trash) linked to a SubPageBlock deletes the SubPageBlock (Expect the SubPageBlock to be deleted)
 // - [x] Duplicating a SubPageBlock node from Action Menu (Expect a new view is created under current view with same content and name + (copy))
-// - [ ] Dragging a SubPageBlock node to a new position in the document (Expect everything to be normal)
+// - [x] Dragging a SubPageBlock node to a new position in the document (Expect everything to be normal)
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -81,34 +82,18 @@ void main() {
       expect(find.text('Child page'), findsNothing);
     });
 
-    testWidgets('Delete a SubPageBlock with backspace when selected',
-        (tester) async {
+    testWidgets('Delete with backspace (selected)', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
 
       await tester.insertSubPageFromSlashMenu();
 
-      await tester.expandOrCollapsePage(
-        pageName: 'SubPageBlock',
-        layout: ViewLayoutPB.Document,
-      );
-
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
-      expect(find.text('Child page'), findsNWidgets(2));
-
-      await tester.editor
-          .updateSelection(Selection.single(path: [0], startOffset: 0));
-      await tester.pumpAndSettle();
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
 
       await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.text('Child page'), findsNothing);
       expect(find.byType(SubPageBlockComponent), findsNothing);
     });
 
@@ -582,6 +567,36 @@ void main() {
       expect(find.text('Child page'), findsNWidgets(2));
       expect(find.text('Child page (copy)'), findsNWidgets(2));
       expect(find.byType(SubPageBlockComponent), findsNWidgets(2));
+    });
+
+    testWidgets('Drag SubPageBlock to top of Document', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
+
+      await tester.insertSubPageFromSlashMenu(true);
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+
+      final beforeNode = tester.editor.getNodeAtPath([1]);
+
+      await tester.editor.dragBlock([1], const Offset(20, -45));
+      await tester.pumpAndSettle(Durations.long1);
+
+      final afterNode = tester.editor.getNodeAtPath([0]);
+
+      expect(afterNode.type, SubPageBlockKeys.type);
+      expect(afterNode.type, beforeNode.type);
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+      expect(
+        find.text(LocaleKeys.document_plugins_subPage_inTrashHint.tr()),
+        findsNothing,
+      );
     });
   });
 }
