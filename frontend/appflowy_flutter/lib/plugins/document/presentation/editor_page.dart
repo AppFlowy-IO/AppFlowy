@@ -58,7 +58,8 @@ class AppFlowyEditorPage extends StatefulWidget {
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
-class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
+class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
+    with WidgetsBindingObserver {
   late final ScrollController effectiveScrollController;
 
   late final InlineActionsService inlineActionsService = InlineActionsService(
@@ -126,6 +127,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     if (widget.useViewInfoBloc) {
       viewInfoBloc.add(
@@ -163,6 +165,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     // customize the dynamic theme color
     _customizeBlockComponentBackgroundColorDecorator();
 
+    widget.editorState.selectionNotifier.addListener(onSelectionChanged);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -179,6 +183,24 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         editorKeyboardInterceptor,
       );
     });
+  }
+
+  Selection? previousSelection;
+
+  void onSelectionChanged() {
+    if (widget.editorState.isDisposed || widget.editorState.selection == null) {
+      return;
+    }
+
+    previousSelection = widget.editorState.selection;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && !widget.editorState.isDisposed) {
+      widget.editorState.selection = previousSelection;
+    }
   }
 
   @override
@@ -202,6 +224,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    widget.editorState.selectionNotifier.removeListener(onSelectionChanged);
     widget.editorState.service.keyboardService?.unregisterInterceptor(
       editorKeyboardInterceptor,
     );
