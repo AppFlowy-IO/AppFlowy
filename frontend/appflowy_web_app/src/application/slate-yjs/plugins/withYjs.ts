@@ -1,6 +1,7 @@
 import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/types';
 import { applyToYjs } from '@/application/slate-yjs/utils/applyToYjs';
-import { Editor, Operation, Descendant } from 'slate';
+import { Editor, Operation, Descendant, Transforms } from 'slate';
+import { ReactEditor } from 'slate-react';
 import Y, { YEvent, Transaction } from 'yjs';
 import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
 
@@ -72,9 +73,10 @@ export function withYjs<T extends Editor> (
   opts?: {
     localOrigin: CollabOrigin;
     readSummary?: boolean;
+    onContentChange?: (content: Descendant[]) => void;
   },
 ): T & YjsEditor {
-  const { localOrigin = CollabOrigin.Local, readSummary } = opts ?? {};
+  const { localOrigin = CollabOrigin.Local, readSummary, onContentChange } = opts ?? {};
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
@@ -89,12 +91,25 @@ export function withYjs<T extends Editor> (
       return;
     }
 
+    const selection = e.selection;
+
     if (readSummary) {
       e.children = content.children.slice(0, 10);
     } else {
       e.children = content.children;
     }
 
+    if (selection && !ReactEditor.hasRange(editor, selection)) {
+      try {
+        Transforms.select(e, Editor.start(editor, [0]));
+
+      } catch (e) {
+        console.error(e);
+        editor.deselect();
+      }
+    }
+
+    onContentChange?.(content.children);
     console.log('===initializeDocumentContent', e.children);
     Editor.normalize(e, { force: true });
   };

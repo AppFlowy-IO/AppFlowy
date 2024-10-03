@@ -1,10 +1,14 @@
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import {
-  dataStringTOJson, executeOperations,
-  getBlock,
-  handleCollapsedBreak, handleRangeBreak,
+  dataStringTOJson,
+  executeOperations,
+  getBlock, getBlockEntry, getSelectionOrThrow, getSharedRoot,
+  handleCollapsedBreak, handleDeleteEntireDocument, handleMergeBlockBackward, handleNonParagraphBlockBackspace,
+  handleRangeBreak, handleShouldLiftBlockBackspace,
+  handleMergeBlockForward,
+  removeRange,
 } from '@/application/slate-yjs/utils/yjsOperations';
-import { BlockData, InlineBlockType, Mention, MentionType, YjsEditorKey } from '@/application/types';
+import { BlockData, BlockType, InlineBlockType, Mention, MentionType, YjsEditorKey } from '@/application/types';
 import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
 import { BaseRange, Editor, Element, Node, NodeEntry, Range, Text, Transforms } from 'slate';
@@ -93,17 +97,8 @@ export const CustomEditor = {
   },
   // Insert break line at the specified path
   insertBreak (editor: YjsEditor, at?: BaseRange) {
-    const sharedRoot = editor.sharedRoot;
-
-    if (!sharedRoot || !sharedRoot.doc) {
-      throw new Error('Shared root not found');
-    }
-
-    const newAt = at || editor.selection;
-
-    if (!newAt) {
-      throw new Error('Selection not found');
-    }
+    const sharedRoot = getSharedRoot(editor);
+    const newAt = getSelectionOrThrow(editor, at);
 
     const isCollapsed = Range.isCollapsed(newAt);
 
@@ -113,5 +108,64 @@ export const CustomEditor = {
       handleRangeBreak(editor, sharedRoot, newAt);
     }
 
+  },
+
+  deleteBlockBackward (editor: YjsEditor, at?: BaseRange) {
+    const sharedRoot = getSharedRoot(editor);
+    const newAt = getSelectionOrThrow(editor, at);
+
+    const isCollapsed = Range.isCollapsed(newAt);
+
+    if (isCollapsed) {
+      const point = newAt.anchor;
+
+      const blockEntry = getBlockEntry(editor, point);
+
+      const [node, path] = blockEntry as NodeEntry<Element>;
+      const block = getBlock(node.blockId as string, sharedRoot);
+      const blockType = block.get(YjsEditorKey.block_type) as BlockType;
+
+      if (blockType !== BlockType.Paragraph) {
+        handleNonParagraphBlockBackspace(sharedRoot, block);
+        return;
+      }
+
+      if (path.length > 1 && handleShouldLiftBlockBackspace(editor, sharedRoot, block, point)) {
+        return;
+      }
+
+      handleMergeBlockBackward(editor, node, point);
+    } else {
+      Transforms.collapse(editor, { edge: 'start' });
+      removeRange(editor, sharedRoot, newAt);
+    }
+  },
+
+  deleteBlockForward (editor: YjsEditor, at?: BaseRange) {
+    const sharedRoot = getSharedRoot(editor);
+    const newAt = getSelectionOrThrow(editor, at);
+
+    const isCollapsed = Range.isCollapsed(newAt);
+
+    if (isCollapsed) {
+      const point = newAt.anchor;
+
+      const blockEntry = getBlockEntry(editor, point);
+
+      const [node] = blockEntry as NodeEntry<Element>;
+
+      handleMergeBlockForward(editor, node, point);
+    } else {
+      Transforms.collapse(editor, { edge: 'start' });
+      removeRange(editor, sharedRoot, newAt);
+    }
+  },
+
+  deleteEntireDocument (editor: YjsEditor) {
+    handleDeleteEntireDocument(editor);
+  },
+
+  removeRange (editor: YjsEditor, at: BaseRange) {
+    removeRange(editor, getSharedRoot(editor), at);
   },
 };
