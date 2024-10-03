@@ -193,9 +193,16 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       return _moveCursorToNextLine(event.logicalKey);
     } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
       return _moveCursorToNextLine(event.logicalKey);
+    } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      return _exitEditing();
     }
 
     return KeyEventResult.ignored;
+  }
+
+  KeyEventResult _exitEditing() {
+    titleFocusNode.unfocus();
+    return KeyEventResult.handled;
   }
 
   Future<void> _createNewLine() async {
