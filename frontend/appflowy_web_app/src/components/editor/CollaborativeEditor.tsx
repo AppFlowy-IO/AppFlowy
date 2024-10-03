@@ -4,7 +4,7 @@ import { withYjs, YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import EditorEditable from '@/components/editor/Editable';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { withPlugins } from '@/components/editor/plugins';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createEditor, Descendant } from 'slate';
 import { Slate, withReact } from 'slate-react';
 import * as Y from 'yjs';
@@ -15,6 +15,10 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
   const readSummary = context.readSummary;
   const localOrigin = CollabOrigin.Local;
+  const [, setClock] = useState(0);
+  const onContentChange = useCallback(() => {
+    setClock((prev) => prev + 1);
+  }, []);
   const editor = useMemo(
     () =>
       doc &&
@@ -24,11 +28,12 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
             withYjs(createEditor(), doc, {
               localOrigin,
               readSummary,
+              onContentChange,
             }),
           ),
         ),
       ) as YjsEditor),
-    [readSummary, doc, localOrigin],
+    [onContentChange, readSummary, doc, localOrigin],
   );
   const [, setIsConnected] = useState(false);
 
@@ -45,7 +50,7 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
 
   return (
     <Slate editor={editor} initialValue={defaultInitialValue}>
-      <EditorEditable editor={editor} />
+      <EditorEditable />
     </Slate>
   );
 }

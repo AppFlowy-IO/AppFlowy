@@ -39,6 +39,10 @@ export function slatePointToRelativePosition (
   point: Y.RelativePosition;
   entry: NodeEntry<Element>;
 } {
+  if (!Editor.hasPath(editor, point.path)) {
+    throw new Error('Point is not in the editor');
+  }
+
   const [entry] = editor.nodes({
     at: point,
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,

@@ -2,6 +2,7 @@ import { getDocument } from '@/application/slate-yjs/utils/yjsOperations';
 import { relativeRangeToSlateRange, slateRangeToRelativeRange } from '@/application/slate-yjs/utils/positions';
 import { CollabOrigin } from '@/application/types';
 import { Editor, Transforms } from 'slate';
+import { ReactEditor } from 'slate-react';
 import * as Y from 'yjs';
 import { YjsEditor } from './withYjs';
 import { HistoryStackItem, RelativeRange } from '../types';
@@ -44,16 +45,25 @@ export function withYHistory<T extends YjsEditor> (
 
   e.undoManager = new Y.UndoManager(getDocument(e.sharedRoot), {
     trackedOrigins: new Set([CollabOrigin.Local, null]),
+    captureTimeout: 200,
   });
 
   const { onChange } = e;
 
   e.onChange = () => {
     onChange();
-    LAST_SELECTION.set(
-      e,
-      e.selection && slateRangeToRelativeRange(e.sharedRoot, e, e.selection),
-    );
+    const selection = e.selection;
+
+    try {
+      const storeSelection = selection && slateRangeToRelativeRange(e.sharedRoot, e, selection);
+
+      LAST_SELECTION.set(
+        e,
+        storeSelection,
+      );
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleStackItemAdded = ({
@@ -62,12 +72,16 @@ export function withYHistory<T extends YjsEditor> (
     stackItem: HistoryStackItem;
     type: 'redo' | 'undo';
   }) => {
-    stackItem.meta.set(
-      'selection',
-      e.selection && slateRangeToRelativeRange(e.sharedRoot, e, e.selection),
-    );
+    try {
+      stackItem.meta.set(
+        'selection',
+        e.selection && slateRangeToRelativeRange(e.sharedRoot, e, e.selection),
+      );
 
-    stackItem.meta.set('selectionBefore', LAST_SELECTION.get(e));
+      stackItem.meta.set('selectionBefore', LAST_SELECTION.get(e));
+    } catch (e) {
+      // console.error(e);
+    }
 
   };
 
@@ -77,7 +91,6 @@ export function withYHistory<T extends YjsEditor> (
     stackItem: HistoryStackItem;
     type: 'redo' | 'undo';
   }) => {
-
     const relativeSelection = stackItem.meta.get(
       'selectionBefore',
     ) as RelativeRange | null;
@@ -92,7 +105,7 @@ export function withYHistory<T extends YjsEditor> (
       relativeSelection,
     );
 
-    if (!selection) {
+    if (!selection || !ReactEditor.hasRange(editor, selection)) {
       const startPoint = Editor.start(e, [0]);
 
       Transforms.select(e, startPoint);
