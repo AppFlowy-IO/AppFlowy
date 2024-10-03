@@ -60,6 +60,57 @@ void main() {
       );
     });
 
+    testWidgets('insert multiple referenced boards', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      // create a new grid
+      final id = uuid();
+      final name = '${ViewLayoutPB.Board.name}_$id';
+      await tester.createNewPageWithNameUnderParent(
+        name: name,
+        layout: ViewLayoutPB.Board,
+        openAfterCreated: false,
+      );
+      // create a new document
+      await tester.createNewPageWithNameUnderParent(
+        name: 'insert_a_reference_${ViewLayoutPB.Board.name}',
+      );
+      // tap the first line of the document
+      await tester.editor.tapLineOfEditorAt(0);
+      // insert a referenced view
+      await tester.editor.showSlashMenu();
+      await tester.editor.tapSlashMenuItemWithName(
+        ViewLayoutPB.Board.slashMenuLinkedName,
+      );
+      final referencedDatabase1 = find.descendant(
+        of: find.byType(InlineActionsHandler),
+        matching: find.findTextInFlowyText(name),
+      );
+      expect(referencedDatabase1, findsOneWidget);
+      await tester.tapButton(referencedDatabase1);
+
+      await tester.editor.tapLineOfEditorAt(1);
+      await tester.editor.showSlashMenu();
+      await tester.editor.tapSlashMenuItemWithName(
+        ViewLayoutPB.Board.slashMenuLinkedName,
+      );
+      final referencedDatabase2 = find.descendant(
+        of: find.byType(InlineActionsHandler),
+        matching: find.findTextInFlowyText(name),
+      );
+      expect(referencedDatabase2, findsOneWidget);
+      await tester.tapButton(referencedDatabase2);
+
+      expect(
+        find.descendant(
+          of: find.byType(AppFlowyEditor),
+          matching: find.byType(DesktopBoardPage),
+        ),
+        findsNWidgets(2),
+      );
+    });
+
     testWidgets('insert a referenced calendar', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();

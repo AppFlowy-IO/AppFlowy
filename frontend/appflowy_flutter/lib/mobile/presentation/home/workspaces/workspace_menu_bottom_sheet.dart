@@ -272,7 +272,7 @@ class _WorkspaceMenuItemIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: WorkspaceIconV2(
+      child: WorkspaceIcon(
         enableEdit: false,
         iconSize: 36,
         emojiSize: 24.0,
