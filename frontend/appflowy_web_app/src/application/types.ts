@@ -640,12 +640,11 @@ export enum Types {
 }
 
 export enum CollabOrigin {
-  // from local changes and never sync to remote. used for read-only mode
+  // from local changes
   Local = 'local',
   // from remote changes and never sync to remote.
   Remote = 'remote',
-  // from local changes and sync to remote. used for collaborative mode
-  LocalSync = 'local_sync',
+  
 }
 
 export const layoutMap = {

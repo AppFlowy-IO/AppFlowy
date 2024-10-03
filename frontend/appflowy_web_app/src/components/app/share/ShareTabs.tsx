@@ -2,11 +2,11 @@ import { useAppView } from '@/components/app/app.hooks';
 import PublishPanel from '@/components/app/share/PublishPanel';
 import TemplatePanel from '@/components/app/share/TemplatePanel';
 import { useCurrentUser } from '@/components/main/app.hooks';
-import { PublishedWithChanges } from '@mui/icons-material';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ViewTabs, ViewTab, TabPanel } from 'src/components/_shared/tabs/ViewTabs';
 import { ReactComponent as Templates } from '@/assets/template.svg';
+import { ReactComponent as PublishedWithChanges } from '@/assets/published_with_changes.svg';
 
 enum TabKey {
   PUBLISH = 'publish',
