@@ -175,6 +175,10 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   }
 
   KeyEventResult _onKeyEvent(FocusNode focusNode, KeyEvent event) {
+    if (event is KeyUpEvent) {
+      return KeyEventResult.ignored;
+    }
+
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       // if enter is pressed, jump the first line of editor.
       _createNewLine();
