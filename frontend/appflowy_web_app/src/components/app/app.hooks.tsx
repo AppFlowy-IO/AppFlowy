@@ -13,7 +13,7 @@ import { findAncestors, findView, findViewByLayout } from '@/components/_shared/
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
 import { uniqBy } from 'lodash-es';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { validate as uuidValidate } from 'uuid';
 
@@ -31,10 +31,14 @@ export interface AppContextType {
   appendBreadcrumb?: AppendBreadcrumb;
   loadFavoriteViews?: () => Promise<void>;
   loadRecentViews?: () => Promise<void>;
+  loadTrash?: (workspaceId: string) => Promise<void>;
   favoriteViews?: View[];
   recentViews?: View[];
+  trashList?: View[];
   rendered?: boolean;
   onRendered?: () => void;
+  notFound?: boolean;
+  viewHasBeenDeleted?: boolean;
 }
 
 const USER_NO_ACCESS_CODE = [1024, 1012];
@@ -56,6 +60,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [outline, setOutline] = useState<View[]>();
   const [favoriteViews, setFavoriteViews] = useState<View[]>();
   const [recentViews, setRecentViews] = useState<View[]>();
+  const [trashList, setTrashList] = React.useState<View[]>();
+  const viewHasBeenDeleted = useMemo(() => {
+    if (!viewId) return false;
+    return trashList?.some((v) => v.view_id === viewId);
+  }, [trashList, viewId]);
+  const viewNotFound = useMemo(() => {
+    if (!viewId) return false;
+    return !findView(outline || [], viewId);
+  }, [outline, viewId]);
+
   const createdRowKeys = useRef<string[]>([]);
   const [requestAccessOpened, setRequestAccessOpened] = useState(false);
   const [rendered, setRendered] = useState(false);
@@ -244,7 +258,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         // skip /app/:workspaceId/:pageId
-        if (pageId && uuidValidate(pageId) && wId && uuidValidate(wId) && wId === workspaceId) return;
+        if (pageId && uuidValidate(pageId) && wId && uuidValidate(wId) && wId === workspaceId) {
+          return;
+        }
 
         const lastViewId = localStorage.getItem('last_view_id');
 
@@ -304,11 +320,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentWorkspaceId, service]);
 
+  const loadTrash = useCallback(async (currentWorkspaceId: string) => {
+
+    if (!service) return;
+    try {
+      const res = await service?.getAppTrash(currentWorkspaceId);
+
+      if (!res) {
+        throw new Error('App trash not found');
+      }
+
+      setTrashList(res);
+    } catch (e) {
+      return Promise.reject('App trash not found');
+    }
+  }, [service]);
+
   useEffect(() => {
     if (!currentWorkspaceId) return;
     void loadOutline(currentWorkspaceId);
-
-  }, [loadOutline, currentWorkspaceId]);
+    void (async () => {
+      try {
+        await loadTrash(currentWorkspaceId);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [loadOutline, currentWorkspaceId, loadTrash]);
 
   useEffect(() => {
     void loadUserWorkspaceInfo().then(res => {
@@ -340,19 +378,36 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       loadView,
       loadFavoriteViews,
       loadRecentViews,
+      loadTrash,
       favoriteViews,
       recentViews,
+      trashList,
       appendBreadcrumb,
       breadcrumbs,
       userWorkspaceInfo,
       onChangeWorkspace,
       rendered,
       onRendered,
+      notFound: viewNotFound,
+      viewHasBeenDeleted,
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
   </AppContext.Provider>;
 };
+
+export function useViewErrorStatus () {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    throw new Error('useBreadcrumb must be used within an AppProvider');
+  }
+
+  return {
+    notFound: context.notFound,
+    deleted: context.viewHasBeenDeleted,
+  };
+}
 
 export function useBreadcrumb () {
   const context = useContext(AppContext);
@@ -457,5 +512,18 @@ export function useAppRecent () {
   return {
     loadRecentViews: context.loadRecentViews,
     recentViews: context.recentViews,
+  };
+}
+
+export function useAppTrash () {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    throw new Error('useAppTrash must be used within an AppProvider');
+  }
+
+  return {
+    loadTrash: context.loadTrash,
+    trashList: context.trashList,
   };
 }
