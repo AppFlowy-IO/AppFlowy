@@ -97,6 +97,9 @@ function RequestAccess () {
         </div>
       </div>
       <NormalModal
+        cancelButtonProps={{
+          className: 'hidden',
+        }}
         onCancel={() => {
           setModalOpen(false);
         }} onOk={() => {
@@ -106,7 +109,8 @@ function RequestAccess () {
           <TaskAltRounded className={'text-function-success'} />
           {t('requestAccess.successful')}
         </div>
-      } open={modalOpen} onClose={() => setModalOpen(false)}
+      } open={modalOpen}
+        onClose={() => setModalOpen(false)}
       >
         {t('requestAccess.successfulMessage')}
       </NormalModal>
