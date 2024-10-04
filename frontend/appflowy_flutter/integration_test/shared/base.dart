@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class FlowyTestContext {
   FlowyTestContext({required this.applicationDataDirectory});
@@ -105,7 +106,8 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> waitUntilSignInPageShow() async {
-    if (isAuthEnabled) {
+    // mobile platform doesn't support non-auth mode
+    if (isAuthEnabled || UniversalPlatform.isMobile) {
       final finder = find.byType(SignInAnonymousButtonV2);
       await pumpUntilFound(finder, timeout: const Duration(seconds: 30));
       expect(finder, findsOneWidget);
