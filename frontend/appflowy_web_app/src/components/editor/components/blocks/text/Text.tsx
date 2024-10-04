@@ -17,12 +17,23 @@ export const Text = forwardRef<HTMLSpanElement, EditorElementProps<TextNode>>(
       return classList.join(' ');
     }, [classNameProp, hasStartIcon]);
 
+    const placeholder = useMemo(() => {
+      if (!isEmpty) return null;
+      return <Placeholder node={node} />;
+    }, [isEmpty, node]);
+
+    const content = useMemo(() => {
+      return <>
+        {placeholder}
+        <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
+      </>;
+    }, [placeholder, isEmpty, children]);
+
     return (
       <span {...attributes} ref={ref} className={className}>
         {renderIcon()}
-        {isEmpty && <Placeholder node={node} />}
-        <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
+        {content}
       </span>
     );
-  }
+  },
 );

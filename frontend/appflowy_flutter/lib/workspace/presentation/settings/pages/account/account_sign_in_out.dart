@@ -5,6 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_link_sign_in_buttons.dart';
+import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -89,13 +90,7 @@ class _SignInDialogContent extends StatelessWidget {
                   const VSpace(10),
                   SettingThirdPartyLogin(
                     didLogin: () {
-                      // dismiss the setting dialog
-                      Navigator.of(context).popUntil((route) {
-                        if (route.settings.name == '/') {
-                          return true;
-                        }
-                        return false;
-                      });
+                      context.popToHome();
                     },
                   ),
                 ],

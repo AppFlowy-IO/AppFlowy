@@ -134,5 +134,30 @@ void main() {
       expect(filterBloc.state.fields.length, equals(3));
       expect(filterBloc.state.fields.first.name, equals("New Name"));
     });
+
+    test('update field type', () async {
+      final context = await gridTest.createTestGrid();
+      final filterBloc = FilterEditorBloc(
+        viewId: context.gridView.id,
+        fieldController: context.fieldController,
+      );
+      await gridResponseFuture();
+
+      final checkboxField = context.getCheckboxField();
+      filterBloc.add(FilterEditorEvent.createFilter(checkboxField));
+      await gridResponseFuture();
+      expect(filterBloc.state.filters.length, equals(1));
+
+      // edit field
+      await FieldBackendService(
+        viewId: context.gridView.id,
+        fieldId: checkboxField.id,
+      ).updateType(fieldType: FieldType.DateTime);
+      await gridResponseFuture();
+      expect(filterBloc.state.filters.length, equals(0));
+
+      expect(filterBloc.state.fields.length, equals(3));
+      expect(filterBloc.state.fields[2].fieldType, FieldType.DateTime);
+    });
   });
 }

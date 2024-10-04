@@ -73,7 +73,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
           name: "My Workspace".to_string(),
           created_at: Utc::now(),
           // For historical reasons, the database_storage_id is constructed by the user_id.
-          database_indexer_id: STANDARD.encode(format!("{}:user:database", user_id)),
+          workspace_database_id: STANDARD.encode(format!("{}:user:database", user_id)),
           icon: "".to_owned(),
         })
       }

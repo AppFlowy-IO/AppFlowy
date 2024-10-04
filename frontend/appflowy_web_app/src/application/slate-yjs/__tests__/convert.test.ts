@@ -3,6 +3,8 @@ import { yDocToSlateContent, deltaInsertToSlateNode, yDataToSlateContent } from 
 import { expect } from '@jest/globals';
 import * as Y from 'yjs';
 
+jest.mock('nanoid');
+
 describe('convert yjs data to slate content', () => {
   it('should return undefined if root block is not exist', () => {
     const doc = new Y.Doc();
@@ -231,38 +233,23 @@ describe('test deltaInsertToSlateNode', () => {
     expect(node).toEqual({ text: 'Hello' });
   });
 
-  it('should generate formula inline node', () => {
-    const node = deltaInsertToSlateNode({
-      insert: '$$',
-      attributes: { formula: 'world' },
-    });
+  it('should ensure undo/redo works', () => {
 
-    expect(node).toEqual([
-      {
-        type: 'formula',
-        data: 'world',
-        children: [{ text: '$' }],
-      },
-      {
-        type: 'formula',
-        data: 'world',
-        children: [{ text: '$' }],
-      },
-    ]);
-  });
+    const doc = new Y.Doc();
+    const sharedRoot = doc.getMap('data_section');
+    const document = new Y.Map();
+    sharedRoot.set('document', document);
+    const ytext = new Y.Text();
+    document.set('1', ytext);
+    const undoManager = new Y.UndoManager(sharedRoot, { trackedOrigins: new Set(['local', 'undo', null]) });
 
-  it('should generate mention inline node', () => {
-    const node = deltaInsertToSlateNode({
-      insert: '@',
-      attributes: { mention: 'world' },
-    });
+    doc.transact(() => {
+      ytext.insert(0, 'Hello');
+    }, 'local');
+    undoManager.undo();
+    expect(ytext.toString()).toBe('');
+    undoManager.redo();
+    expect(ytext.toString()).toBe('Hello');
 
-    expect(node).toEqual([
-      {
-        type: 'mention',
-        data: 'world',
-        children: [{ text: '@' }],
-      },
-    ]);
   });
 });

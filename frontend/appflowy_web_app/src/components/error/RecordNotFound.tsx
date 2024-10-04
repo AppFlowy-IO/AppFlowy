@@ -4,15 +4,18 @@ import { ReactComponent as WarningIcon } from '@/assets/warning.svg';
 
 function RecordNotFound ({
   noContent,
+  isViewNotFound,
 }: {
   noContent?: boolean;
+  isViewNotFound?: boolean;
 }) {
   return (
     <div className={'flex h-full w-full flex-col items-center justify-center'}>
       {!noContent && <>
         <div className={'text-2xl font-bold text-text-title opacity-70 flex items-center gap-4'}>
           <WarningIcon className={'w-12 h-12'} />
-          RecordNotFound
+          {isViewNotFound ? 'Page Not Found' :
+            'Record Not Found'}
         </div>
         <div className={'text-lg text-center text-text-title opacity-50 mt-4 whitespace-pre'}>
           {`We're sorry for inconvenience\n`}

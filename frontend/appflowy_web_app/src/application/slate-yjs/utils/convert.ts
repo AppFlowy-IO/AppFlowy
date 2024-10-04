@@ -1,17 +1,16 @@
+import { BlockJson } from '@/application/slate-yjs/types';
+import { sortTableCells } from '@/application/slate-yjs/utils/table';
 import {
-  InlineBlockType,
+  BlockData,
+  BlockType,
   YBlocks,
   YChildrenMap,
-  YSharedRoot,
   YDoc,
   YjsEditorKey,
   YMeta,
+  YSharedRoot,
   YTextMap,
-  BlockData,
-  BlockType,
 } from '@/application/types';
-import { sortTableCells } from '@/application/slate-yjs/utils/table';
-import { BlockJson } from '@/application/slate-yjs/utils/types';
 import { TableCellNode } from '@/components/editor/editor.type';
 import { Element, Text } from 'slate';
 
@@ -84,6 +83,12 @@ export function yDataToSlateContent ({
     try {
       const slateDelta = delta.flatMap(deltaInsertToSlateNode);
 
+      if (slateDelta.length === 0) {
+        slateDelta.push({
+          text: '',
+        });
+      }
+
       const textNode: Element = {
         textId,
         type: YjsEditorKey.text,
@@ -153,14 +158,6 @@ export interface YDelta {
 }
 
 export function deltaInsertToSlateNode ({ attributes, insert }: YDelta): Element | Text | Element[] {
-  const matchInlines = transformToInlineElement({
-    insert,
-    attributes,
-  });
-
-  if (matchInlines.length > 0) {
-    return matchInlines;
-  }
 
   if (attributes) {
     dealWithEmptyAttribute(attributes);
@@ -178,47 +175,4 @@ function dealWithEmptyAttribute (attributes: Record<string, string | number | un
       delete attributes[key];
     }
   }
-}
-
-export function transformToInlineElement (op: YDelta): Element[] {
-  const attributes = op.attributes;
-
-  if (!attributes) return [];
-  const { formula, mention, ...attrs } = attributes;
-
-  if (formula) {
-    const texts = op.insert.split('');
-
-    return texts.map((text) => {
-      return {
-        type: InlineBlockType.Formula,
-        data: formula,
-        children: [
-          {
-            text,
-            ...attrs,
-          },
-        ],
-      };
-    });
-  }
-
-  if (mention) {
-    const texts = op.insert.split('');
-
-    return texts.map((text) => {
-      return {
-        type: InlineBlockType.Mention,
-        data: mention,
-        children: [
-          {
-            text,
-            ...attrs,
-          },
-        ],
-      };
-    });
-  }
-
-  return [];
 }

@@ -136,7 +136,7 @@ class ViewBackendService {
     return FolderEventDeleteView(request).send();
   }
 
-  static Future<FlowyResult<void, FlowyError>> duplicate({
+  static Future<FlowyResult<ViewPB, FlowyError>> duplicate({
     required ViewPB view,
     required bool openAfterDuplicate,
     // should include children views

@@ -219,7 +219,8 @@ class _AddBlockMenu extends StatelessWidget {
         onTap: (_, __) async {
           AppGlobals.rootNavKey.currentContext?.pop(true);
           Future.delayed(const Duration(milliseconds: 400), () async {
-            await editorState.insertEmptyFileBlock();
+            final fileGlobalKey = GlobalKey<FileBlockComponentState>();
+            await editorState.insertEmptyFileBlock(fileGlobalKey);
           });
         },
       ),

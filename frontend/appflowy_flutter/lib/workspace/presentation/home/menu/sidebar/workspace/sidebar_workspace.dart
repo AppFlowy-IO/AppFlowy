@@ -264,7 +264,12 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => popoverController.show(),
+        onTap: () {
+          context.read<UserWorkspaceBloc>().add(
+                const UserWorkspaceEvent.fetchWorkspaces(),
+              );
+          popoverController.show();
+        },
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           height: 30,
@@ -273,12 +278,13 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
               const HSpace(4.0),
               WorkspaceIcon(
                 workspace: currentWorkspace,
-                iconSize: 24,
+                iconSize: 26,
                 fontSize: 16,
-                emojiSize: 18,
+                emojiSize: 20,
                 enableEdit: false,
                 borderRadius: 8.0,
-                figmaLineHeight: 21.0,
+                figmaLineHeight: 18.0,
+                showBorder: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         currentWorkspace.workspaceId,
@@ -286,7 +292,7 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
                       ),
                     ),
               ),
-              const HSpace(8),
+              const HSpace(6),
               Flexible(
                 child: FlowyText.medium(
                   currentWorkspace.name,

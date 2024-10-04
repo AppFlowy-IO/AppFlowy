@@ -1,14 +1,16 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -385,6 +387,59 @@ void main() {
           'attributes': {'href': url},
         }
       ]);
+    },
+  );
+
+  testWidgets(
+    'paste the nodes start with non-delta node',
+    (tester) async {
+      await tester.pasteContent((_) {});
+      const text = 'Hello World';
+      final editorState = tester.editor.getCurrentEditorState();
+      final transaction = editorState.transaction;
+      // [image_block]
+      // [paragraph_block]
+      transaction.insertNodes([
+        0,
+      ], [
+        customImageNode(url: ''),
+        paragraphNode(text: text),
+      ]);
+      await editorState.apply(transaction);
+      await tester.pumpAndSettle();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      // select all and copy
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyA,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyC,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+
+      // put the cursor to the end of the paragraph block
+      await tester.editor.tapLineOfEditorAt(0);
+
+      // paste the content
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      // expect the image and the paragraph block are inserted below the cursor
+      expect(editorState.getNodeAtPath([0])!.type, CustomImageBlockKeys.type);
+      expect(editorState.getNodeAtPath([1])!.type, ParagraphBlockKeys.type);
+      expect(editorState.getNodeAtPath([2])!.type, CustomImageBlockKeys.type);
+      expect(editorState.getNodeAtPath([3])!.type, ParagraphBlockKeys.type);
     },
   );
 
