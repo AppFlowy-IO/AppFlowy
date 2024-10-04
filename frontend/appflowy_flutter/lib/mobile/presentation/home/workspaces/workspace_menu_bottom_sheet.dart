@@ -320,7 +320,6 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
           child: const FlowySvg(
             FlowySvgs.workspace_three_dots_s,
             size: iconSize,
-            blendMode: null,
           ),
         ),
         const HSpace(8.0),

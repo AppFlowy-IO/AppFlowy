@@ -60,15 +60,25 @@ class WorkspacesMenu extends StatelessWidget {
           child: Divider(height: 1.0),
         ),
         // workspace list
-        for (final workspace in workspaces) ...[
-          WorkspaceMenuItem(
-            key: ValueKey(workspace.workspaceId),
-            workspace: workspace,
-            userProfile: userProfile,
-            isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final workspace in workspaces) ...[
+                  WorkspaceMenuItem(
+                    key: ValueKey(workspace.workspaceId),
+                    workspace: workspace,
+                    userProfile: userProfile,
+                    isSelected:
+                        workspace.workspaceId == currentWorkspace.workspaceId,
+                  ),
+                  const VSpace(6.0),
+                ],
+              ],
+            ),
           ),
-          const VSpace(6.0),
-        ],
+        ),
         // add new workspace
         const _CreateWorkspaceButton(),
         const VSpace(6.0),
