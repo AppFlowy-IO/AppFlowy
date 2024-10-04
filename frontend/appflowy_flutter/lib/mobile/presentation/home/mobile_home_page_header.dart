@@ -166,6 +166,7 @@ class _MobileWorkspace extends StatelessWidget {
       showCloseButton: true,
       useRootNavigator: true,
       enableScrollable: true,
+      bottomSheetPadding: context.bottomSheetPadding(),
       title: LocaleKeys.workspace_menuTitle.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (sheetContext) {

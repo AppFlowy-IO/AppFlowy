@@ -55,6 +55,7 @@ Future<T?> showMobileBottomSheet<T>(
   double minChildSize = 0.5,
   double maxChildSize = 0.8,
   double initialChildSize = 0.51,
+  double bottomSheetPadding = 0,
 }) async {
   assert(
     showHeader ||
@@ -162,6 +163,7 @@ Future<T?> showMobileBottomSheet<T>(
                 child: child,
               ),
             ),
+            VSpace(bottomSheetPadding),
           ],
         );
       }

@@ -60,7 +60,6 @@ class MobileWorkspaceMenu extends StatelessWidget {
     children.addAll([
       _buildDivider(),
       const _CreateWorkspaceButton(),
-      VSpace(context.bottomSheetPadding()),
     ]);
 
     return Column(
