@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/dr
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -69,36 +68,37 @@ void main() {
       expect(afterMoveBlock.delta, beforeMoveBlock.delta);
     });
 
-    testWidgets('copy block link', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloudSelfHost,
-      );
-      await tester.tapGoogleLoginInButton();
-      await tester.expectToSeeHomePageWithGetStartedPage();
+    // Copy link to block feature is disable temporarily, enable this test when the feature is ready.
+    // testWidgets('copy block link', (tester) async {
+    //   await tester.initializeAppFlowy(
+    //     cloudType: AuthenticatorType.appflowyCloudSelfHost,
+    //   );
+    //   await tester.tapGoogleLoginInButton();
+    //   await tester.expectToSeeHomePageWithGetStartedPage();
 
-      // open getting started page
-      await tester.openPage(Constants.gettingStartedPageName);
+    //   // open getting started page
+    //   await tester.openPage(Constants.gettingStartedPageName);
 
-      // hover and click on the option menu button beside the block component.
-      await tester.editor.hoverAndClickOptionMenuButton([0]);
+    //   // hover and click on the option menu button beside the block component.
+    //   await tester.editor.hoverAndClickOptionMenuButton([0]);
 
-      // click the copy link to block option
-      await tester.tap(
-        find.findTextInFlowyText(
-          LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr(),
-        ),
-      );
-      await tester.pumpAndSettle(Durations.short1);
+    //   // click the copy link to block option
+    //   await tester.tap(
+    //     find.findTextInFlowyText(
+    //       LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr(),
+    //     ),
+    //   );
+    //   await tester.pumpAndSettle(Durations.short1);
 
-      // check the clipboard
-      final content = await Clipboard.getData(Clipboard.kTextPlain);
-      expect(
-        content?.text,
-        matches(
-          r'^https:\/\/appflowy\.com\/app\/[a-f0-9-]{36}\/[a-f0-9-]{36}\?blockId=[A-Za-z0-9_-]+$',
-        ),
-      );
-    });
+    //   // check the clipboard
+    //   final content = await Clipboard.getData(Clipboard.kTextPlain);
+    //   expect(
+    //     content?.text,
+    //     matches(
+    //       r'^https:\/\/appflowy\.com\/app\/[a-f0-9-]{36}\/[a-f0-9-]{36}\?blockId=[A-Za-z0-9_-]+$',
+    //     ),
+    //   );
+    // });
 
     testWidgets('hover on the block and delete it', (tester) async {
       await tester.initializeAppFlowy(

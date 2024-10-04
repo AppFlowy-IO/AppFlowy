@@ -31,9 +31,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final standardActions = [
     OptionAction.delete,
     OptionAction.duplicate,
+    // Copy link to block feature is disable temporarily, enable this test when the feature is ready.
     // filter out the copy link to block option if in local mode
-    if (context.read<DocumentBloc?>()?.isLocalMode != true)
-      OptionAction.copyLinkToBlock,
+    // if (context.read<DocumentBloc?>()?.isLocalMode != true)
+    //   OptionAction.copyLinkToBlock,
   ];
 
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
