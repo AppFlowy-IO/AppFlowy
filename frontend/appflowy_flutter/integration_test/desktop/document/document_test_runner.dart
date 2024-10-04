@@ -23,6 +23,8 @@ import 'document_with_multi_image_block_test.dart'
 import 'document_with_outline_block_test.dart' as document_with_outline_block;
 import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
+import 'document_with_date_reminder_test.dart'
+    as document_with_date_reminder_test;
 
 void startTesting() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -47,4 +49,5 @@ void startTesting() {
   document_more_actions_test.main();
   document_with_file_test.main();
   document_shortcuts_test.main();
+  document_with_date_reminder_test.main();
 }
