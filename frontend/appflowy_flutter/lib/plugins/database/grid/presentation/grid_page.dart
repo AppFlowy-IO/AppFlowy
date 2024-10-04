@@ -358,9 +358,9 @@ class _GridRowsState extends State<_GridRows> {
     // 2. GridCalculationsRow
     // 3. Footer Padding
     final itemCount = state.rowInfos.length + 3;
-    return Stack(
+    return Column(
       children: [
-        Positioned.fill(
+        Expanded(
           child: ReorderableListView.builder(
             ///  This is a workaround related to
             ///  https://github.com/flutter/flutter/issues/25652
@@ -422,9 +422,8 @@ class _GridRowsState extends State<_GridRows> {
 
               if (index == state.rowInfos.length + 1) {
                 if (showFloatingCalculations) {
-                  return const SizedBox(
+                  return const SizedBox.shrink(
                     key: Key('calculations_bottom_padding'),
-                    height: 36,
                   );
                 } else {
                   return GridCalculationsRow(
@@ -555,32 +554,26 @@ class _PositionedCalculationsRowState
     extends State<_PositionedCalculationsRow> {
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        margin: EdgeInsets.only(
-          left:
-              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
-        ),
-        padding: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
-          border: Border(
-            top: BorderSide(
-              color: AFThemeExtension.of(context).borderColor,
-            ),
+    return Container(
+      margin: EdgeInsets.only(
+        left: context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+      ),
+      padding: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        border: Border(
+          top: BorderSide(
+            color: AFThemeExtension.of(context).borderColor,
           ),
         ),
-        child: SizedBox(
-          height: 36,
-          width: double.infinity,
-          child: GridCalculationsRow(
-            key: const Key('floating_grid_calculations'),
-            viewId: widget.viewId,
-            includeDefaultInsets: false,
-          ),
+      ),
+      child: SizedBox(
+        height: 36,
+        width: double.infinity,
+        child: GridCalculationsRow(
+          key: const Key('floating_grid_calculations'),
+          viewId: widget.viewId,
+          includeDefaultInsets: false,
         ),
       ),
     );
