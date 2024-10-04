@@ -28,19 +28,25 @@ export const moveToLineStart = (lineIndex: number) => {
   }
 };
 
-export const moveAndEnter = (lineIndex: number, moveCount: number) => {
+export const moveCursor = (lineIndex: number, charIndex: number) => {
   moveToLineStart(lineIndex);
   // Move the cursor with right arrow key and batch the movement
   const batchSize = 5;
-  const batches = Math.ceil(moveCount / batchSize);
+  const batches = Math.ceil(charIndex / batchSize);
 
   for (let i = 0; i < batches; i++) {
-    const remainingMoves = Math.min(batchSize, moveCount - i * batchSize);
+    const remainingMoves = Math.min(batchSize, charIndex - i * batchSize);
 
     cy.get('@targetBlock')
       .type('{rightarrow}'.repeat(remainingMoves))
       .wait(50);
   }
+};
+
+export const moveAndEnter = (lineIndex: number, moveCount: number) => {
+  moveToLineStart(lineIndex);
+  // Move the cursor with right arrow key and batch the movement
+  moveCursor(lineIndex, moveCount);
 
   cy.get('@targetBlock').type('{enter}');
 };
