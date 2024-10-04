@@ -925,6 +925,14 @@ class _SelectOptionFilterContentEditor extends StatefulWidget {
 class _SelectOptionFilterContentEditorState
     extends State<_SelectOptionFilterContentEditor> {
   final TextEditingController textController = TextEditingController();
+  String filterText = "";
+  final List<SelectOptionPB> options = [];
+
+  @override
+  void initState() {
+    super.initState();
+    options.addAll(widget.delegate.getOptions(widget.field));
+  }
 
   @override
   void dispose() {
@@ -934,7 +942,6 @@ class _SelectOptionFilterContentEditorState
 
   @override
   Widget build(BuildContext context) {
-    final options = widget.delegate.getOptions(widget.field);
     return Column(
       children: [
         const Divider(
@@ -945,8 +952,15 @@ class _SelectOptionFilterContentEditorState
           padding: const EdgeInsets.all(16.0),
           child: FlowyMobileSearchTextField(
             controller: textController,
-            onChanged: (asdf) {},
-            onSubmitted: (asdf) {},
+            onChanged: (text) {
+              if (textController.value.composing.isCollapsed) {
+                setState(() {
+                  filterText = text;
+                  filterOptions();
+                });
+              }
+            },
+            onSubmitted: (_) {},
             hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
           ),
         ),
@@ -975,6 +989,20 @@ class _SelectOptionFilterContentEditorState
         ),
       ],
     );
+  }
+
+  void filterOptions() {
+    options
+      ..clear()
+      ..addAll(widget.delegate.getOptions(widget.field));
+
+    if (filterText.isNotEmpty) {
+      options.retainWhere((option) {
+        final name = option.name.toLowerCase();
+        final lFilter = filterText.toLowerCase();
+        return name.contains(lFilter);
+      });
+    }
   }
 
   MobileSelectedOptionIndicator _getIndicator() {
