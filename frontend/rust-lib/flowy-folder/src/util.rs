@@ -1,7 +1,7 @@
 use crate::entities::UserFolderPB;
+use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_folder::Folder;
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_folder_pub::folder_builder::ParentChildViews;
 use tracing::{event, instrument};
 
 pub(crate) fn folder_not_init_error() -> FlowyError {

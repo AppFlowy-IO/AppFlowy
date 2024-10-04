@@ -1,15 +1,22 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'create_workspace_menu.dart';
+import 'workspace_more_options.dart';
 
 // Only works on mobile.
 class MobileWorkspaceMenu extends StatelessWidget {
@@ -28,13 +35,13 @@ class MobileWorkspaceMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // user profile
     final List<Widget> children = [
       _WorkspaceUserItem(userProfile: userProfile),
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Divider(height: 0.5),
-      ),
+      _buildDivider(),
     ];
+
+    // workspace list
     for (var i = 0; i < workspaces.length; i++) {
       final workspace = workspaces[i];
       children.add(
@@ -48,8 +55,95 @@ class MobileWorkspaceMenu extends StatelessWidget {
         ),
       );
     }
+
+    // create workspace button
+    children.addAll([
+      _buildDivider(),
+      const _CreateWorkspaceButton(),
+    ]);
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: children,
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Divider(height: 0.5),
+    );
+  }
+}
+
+class _CreateWorkspaceButton extends StatelessWidget {
+  const _CreateWorkspaceButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: FlowyOptionTile.text(
+        height: 60,
+        showTopBorder: false,
+        showBottomBorder: false,
+        leftIcon: _buildLeftIcon(context),
+        onTap: () => _showCreateWorkspaceBottomSheet(context),
+        content: Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: FlowyText.medium(
+              LocaleKeys.workspace_create.tr(),
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCreateWorkspaceBottomSheet(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: LocaleKeys.workspace_create.tr(),
+      showCloseButton: true,
+      showDragHandle: true,
+      showDivider: false,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      builder: (bottomSheetContext) {
+        return EditWorkspaceNameBottomSheet(
+          type: EditWorkspaceNameType.create,
+          workspaceName: LocaleKeys.workspace_defaultName.tr(),
+          onSubmitted: (name) {
+            // create a new workspace
+            Log.info('create a new workspace: $name');
+            bottomSheetContext.popToHome();
+
+            context.read<UserWorkspaceBloc>().add(
+                  UserWorkspaceEvent.createWorkspace(
+                    name,
+                  ),
+                );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildLeftIcon(BuildContext context) {
+    return Container(
+      width: 36.0,
+      height: 36.0,
+      padding: const EdgeInsets.all(7.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0x01717171).withOpacity(0.12),
+          width: 0.8,
+        ),
+      ),
+      child: const FlowySvg(FlowySvgs.add_workspace_s),
     );
   }
 }
@@ -107,63 +201,285 @@ class _WorkspaceMenuItem extends StatelessWidget {
       )..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
-          final members = state.members;
           return FlowyOptionTile.text(
-            content: Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FlowyText(
-                      workspace.name,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    FlowyText(
-                      state.isLoading
-                          ? ''
-                          : LocaleKeys.settings_appearance_members_membersCount
-                              .plural(
-                              members.length,
-                            ),
-                      fontSize: 10.0,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
             height: 60,
             showTopBorder: showTopBorder,
             showBottomBorder: false,
-            leftIcon: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: WorkspaceIcon(
-                enableEdit: false,
-                iconSize: 26,
-                fontSize: 16.0,
-                figmaLineHeight: 16.0,
+            leftIcon: _WorkspaceMenuItemIcon(workspace: workspace),
+            trailing: _WorkspaceMenuItemTrailing(
+              workspace: workspace,
+              currentWorkspace: currentWorkspace,
+            ),
+            onTap: () => onWorkspaceSelected(workspace),
+            content: Expanded(
+              child: _WorkspaceMenuItemContent(
                 workspace: workspace,
-                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                      UserWorkspaceEvent.updateWorkspaceIcon(
-                        workspace.workspaceId,
-                        result.emoji,
-                      ),
-                    ),
               ),
             ),
-            trailing: workspace.workspaceId == currentWorkspace.workspaceId
-                ? const FlowySvg(
-                    FlowySvgs.m_blue_check_s,
-                    blendMode: null,
-                  )
-                : null,
-            onTap: () => onWorkspaceSelected(workspace),
           );
         },
       ),
+    );
+  }
+}
+
+// - Workspace name
+// - Workspace member count
+class _WorkspaceMenuItemContent extends StatelessWidget {
+  const _WorkspaceMenuItemContent({
+    required this.workspace,
+  });
+
+  final UserWorkspacePB workspace;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FlowyText(
+            workspace.name,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            overflow: TextOverflow.ellipsis,
+          ),
+          FlowyText(
+            context.read<WorkspaceMemberBloc>().state.isLoading
+                ? ''
+                : LocaleKeys.settings_appearance_members_membersCount.plural(
+                    context.read<WorkspaceMemberBloc>().state.members.length,
+                  ),
+            fontSize: 10.0,
+            color: Theme.of(context).hintColor,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WorkspaceMenuItemIcon extends StatelessWidget {
+  const _WorkspaceMenuItemIcon({
+    required this.workspace,
+  });
+
+  final UserWorkspacePB workspace;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: WorkspaceIcon(
+        enableEdit: false,
+        iconSize: 36,
+        emojiSize: 24.0,
+        fontSize: 18.0,
+        figmaLineHeight: 26.0,
+        borderRadius: 12.0,
+        workspace: workspace,
+        onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.updateWorkspaceIcon(
+                workspace.workspaceId,
+                result.emoji,
+              ),
+            ),
+      ),
+    );
+  }
+}
+
+class _WorkspaceMenuItemTrailing extends StatelessWidget {
+  const _WorkspaceMenuItemTrailing({
+    required this.workspace,
+    required this.currentWorkspace,
+  });
+
+  final UserWorkspacePB workspace;
+  final UserWorkspacePB currentWorkspace;
+
+  @override
+  Widget build(BuildContext context) {
+    const iconSize = Size.square(20);
+    return Row(
+      children: [
+        const HSpace(12.0),
+        // show the check icon if the workspace is the current workspace
+        if (workspace.workspaceId == currentWorkspace.workspaceId)
+          const FlowySvg(
+            FlowySvgs.m_blue_check_s,
+            size: iconSize,
+            blendMode: null,
+          ),
+        const HSpace(15.0),
+        // more options button
+        AnimatedGestureDetector(
+          onTapUp: () => _showMoreOptions(context),
+          child: const FlowySvg(
+            FlowySvgs.workspace_three_dots_s,
+            size: iconSize,
+          ),
+        ),
+        const HSpace(8.0),
+      ],
+    );
+  }
+
+  void _showMoreOptions(BuildContext context) {
+    final actions =
+        context.read<WorkspaceMemberBloc>().state.myRole == AFRolePB.Owner
+            ? [
+                // only the owner can update workspace properties
+                WorkspaceMenuMoreOption.rename,
+                WorkspaceMenuMoreOption.delete,
+              ]
+            : [
+                WorkspaceMenuMoreOption.leave,
+              ];
+
+    showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      useRootNavigator: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      builder: (bottomSheetContext) {
+        return WorkspaceMenuMoreOptions(
+          actions: actions,
+          onAction: (action) => _onActions(context, bottomSheetContext, action),
+        );
+      },
+    );
+  }
+
+  void _onActions(
+    BuildContext context,
+    BuildContext bottomSheetContext,
+    WorkspaceMenuMoreOption action,
+  ) {
+    Log.info('execute action in workspace menu bottom sheet: $action');
+
+    switch (action) {
+      case WorkspaceMenuMoreOption.rename:
+        _showRenameWorkspaceBottomSheet(context);
+        break;
+      case WorkspaceMenuMoreOption.invite:
+        _pushToInviteMembersPage(context);
+        break;
+      case WorkspaceMenuMoreOption.delete:
+        _deleteWorkspace(context, bottomSheetContext);
+        break;
+      case WorkspaceMenuMoreOption.leave:
+        _leaveWorkspace(context, bottomSheetContext);
+        break;
+    }
+  }
+
+  void _pushToInviteMembersPage(BuildContext context) {
+    // empty implementation
+    // we don't support invite members in workspace menu
+  }
+
+  void _showRenameWorkspaceBottomSheet(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: LocaleKeys.workspace_renameWorkspace.tr(),
+      showCloseButton: true,
+      showDragHandle: true,
+      showDivider: false,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      builder: (bottomSheetContext) {
+        return EditWorkspaceNameBottomSheet(
+          type: EditWorkspaceNameType.edit,
+          workspaceName: workspace.name,
+          onSubmitted: (name) {
+            // rename the workspace
+            Log.info('rename the workspace: $name');
+            bottomSheetContext.popToHome();
+
+            context.read<UserWorkspaceBloc>().add(
+                  UserWorkspaceEvent.renameWorkspace(
+                    workspace.workspaceId,
+                    name,
+                  ),
+                );
+          },
+        );
+      },
+    );
+  }
+
+  void _deleteWorkspace(BuildContext context, BuildContext bottomSheetContext) {
+    Navigator.of(bottomSheetContext).pop();
+
+    _showConfirmDialog(
+      context,
+      '${LocaleKeys.space_delete.tr()}: ${workspace.name}',
+      LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
+      LocaleKeys.button_delete.tr(),
+      (_) async {
+        context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.deleteWorkspace(
+                workspace.workspaceId,
+              ),
+            );
+        context.popToHome();
+      },
+    );
+  }
+
+  void _leaveWorkspace(BuildContext context, BuildContext bottomSheetContext) {
+    Navigator.of(bottomSheetContext).pop();
+
+    _showConfirmDialog(
+      context,
+      '${LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_title.tr()}: ${workspace.name}',
+      LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_content.tr(),
+      LocaleKeys.button_confirm.tr(),
+      (_) async {
+        context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.leaveWorkspace(
+                workspace.workspaceId,
+              ),
+            );
+        context.popToHome();
+      },
+    );
+  }
+
+  void _showConfirmDialog(
+    BuildContext context,
+    String title,
+    String content,
+    String rightButtonText,
+    void Function(BuildContext context)? onRightButtonPressed,
+  ) {
+    showFlowyCupertinoConfirmDialog(
+      title: title,
+      content: FlowyText(
+        content,
+        fontSize: 14,
+        color: Theme.of(context).hintColor,
+        maxLines: 10,
+      ),
+      leftButton: FlowyText(
+        LocaleKeys.button_cancel.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFF007AFF),
+      ),
+      rightButton: FlowyText(
+        rightButtonText,
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFFFE0220),
+      ),
+      onRightButtonPressed: onRightButtonPressed,
     );
   }
 }

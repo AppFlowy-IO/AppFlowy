@@ -1,7 +1,6 @@
+import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:appflowy_popover/src/layout.dart';
 
 import 'mask.dart';
 import 'mutex.dart';

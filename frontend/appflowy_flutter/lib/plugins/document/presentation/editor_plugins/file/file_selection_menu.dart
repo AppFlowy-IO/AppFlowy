@@ -1,23 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
-
-final fileMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_file_name.tr(),
-  icon: (_, isSelected, style) => SelectionMenuIconWidget(
-    icon: Icons.file_present_outlined,
-    isSelected: isSelected,
-    style: style,
-  ),
-  keywords: ['file upload', 'pdf', 'zip', 'archive', 'upload'],
-  handler: (editorState, _, __) async => editorState.insertEmptyFileBlock(),
-);
 
 extension InsertFile on EditorState {
-  Future<void> insertEmptyFileBlock() async {
+  Future<void> insertEmptyFileBlock(GlobalKey key) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
       return;
@@ -26,7 +13,7 @@ extension InsertFile on EditorState {
     if (node == null) {
       return;
     }
-    final file = fileNode(url: '');
+    final file = fileNode(url: '')..extraInfos = {'global_key': key};
     final transaction = this.transaction;
 
     // if the current node is empty paragraph, replace it with the file node
@@ -41,6 +28,7 @@ extension InsertFile on EditorState {
 
     transaction.afterSelection =
         Selection.collapsed(Position(path: node.path.next));
+    transaction.selectionExtraInfo = {};
 
     return apply(transaction);
   }

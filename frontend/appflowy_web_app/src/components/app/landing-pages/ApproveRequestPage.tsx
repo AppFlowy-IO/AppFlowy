@@ -7,11 +7,12 @@ import {
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
 import { ReactComponent as WarningIcon } from '@/assets/warning.svg';
 import { NormalModal } from '@/components/_shared/modal';
+import ChangeAccount from '@/components/_shared/modal/ChangeAccount';
 import { notify } from '@/components/_shared/notify';
 import { getAvatar } from '@/components/_shared/view-icon/utils';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
 import { downloadPage } from '@/utils/url';
-import { ArrowCircleRightOutlined } from '@mui/icons-material';
+import { ReactComponent as ArrowCircleRightOutlined } from '@/assets/arrow_circle_right.svg';
 
 import { Avatar, Button, Divider, Paper, Typography } from '@mui/material';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
@@ -23,6 +24,8 @@ const REPEAT_REQUEST_CODE = 1043;
 
 function ApproveRequestPage () {
   const [searchParams] = useSearchParams();
+  const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
+
   const [requestInfo, setRequestInfo] = React.useState<GetRequestAccessInfoResponse | null>(null);
   const [currentPlans, setCurrentPlans] = React.useState<SubscriptionPlan[]>([]);
   const isPro = useMemo(() => currentPlans.includes(SubscriptionPlan.Pro), [currentPlans]);
@@ -33,9 +36,13 @@ function ApproveRequestPage () {
   const [upgradeModalOpen, setUpgradeModalOpen] = React.useState(false);
   const [errorModalOpen, setErrorModalOpen] = React.useState(false);
   const [alreadyProModalOpen, setAlreadyProModalOpen] = React.useState(false);
-  const openLoginModal = useContext(AFConfigContext)?.openLoginModal;
   const [clicked, setClicked] = React.useState(false);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login?redirectTo=' + encodeURIComponent(window.location.href));
+    }
+  }, [isAuthenticated, navigate]);
   const loadRequestInfo = useCallback(async () => {
     if (!service || !requestId) return;
     try {
@@ -53,6 +60,7 @@ function ApproveRequestPage () {
       setCurrentPlans(plans);
     } catch (e) {
       setErrorModalOpen(true);
+      setClicked(true);
     }
   }, [t, requestId, service]);
 
@@ -247,36 +255,7 @@ function ApproveRequestPage () {
         </p>
 
       </NormalModal>
-      <NormalModal
-        keepMounted={false}
-        onOk={() => setErrorModalOpen(false)}
-        title={
-          <div className={'text-left font-semibold'}>{t('approveAccess.getRequestInfoError')}</div>
-        } open={errorModalOpen} onClose={() => setErrorModalOpen(false)}
-      >
-        <div className={'flex flex-col'}>
-           <span>
-             <Trans
-               i18nKey="requestAccess.tip"
-               components={{
-                 link: <span
-                   className={'underline text-fill-default'}
-                 >{requestInfo?.requester.name}</span>,
-               }}
-             />
-           </span>
-          <span>
-            <Trans
-              i18nKey="requestAccess.mightBe"
-              components={{
-                login: <span
-                  onClick={() => openLoginModal?.()} className={'underline text-fill-default cursor-pointer'}
-                >{t('signIn.logIn')}</span>,
-              }}
-            />
-           </span>
-        </div>
-      </NormalModal>
+      <ChangeAccount setModalOpened={setErrorModalOpen} modalOpened={errorModalOpen} />
       <NormalModal
         onOk={() => setAlreadyProModalOpen(false)}
         keepMounted={false}

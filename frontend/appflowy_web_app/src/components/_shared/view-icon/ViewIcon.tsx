@@ -13,7 +13,7 @@ export function ViewIcon ({ layout, size }: { layout: ViewLayout; size: number |
     }
 
     if (size === 'medium') {
-      return 'h-5 w-5';
+      return 'h-4.5 w-4.5';
     }
 
     if (size === 'large') {

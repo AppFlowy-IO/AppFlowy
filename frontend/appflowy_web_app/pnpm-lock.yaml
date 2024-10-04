@@ -397,6 +397,9 @@ devDependencies:
   jest-environment-jsdom:
     specifier: ^29.6.2
     version: 29.6.2
+  jest-node-exports-resolver:
+    specifier: ^1.1.6
+    version: 1.1.6
   nyc:
     specifier: ^15.1.0
     version: 15.1.0
@@ -7986,6 +7989,10 @@ packages:
       '@jest/types': 29.6.3
       '@types/node': 20.11.30
       jest-util: 29.7.0
+
+  /jest-node-exports-resolver@1.1.6:
+    resolution: {integrity: sha512-NU412Qcb6WSRetCyEGMCC7IWHzO12LhSKaF1s9cyfM+EOYs4YN2gcNUT8hgu22X0oPFYNwLSPevgstBgLbD9ig==}
+    dev: true
 
   /jest-pnp-resolver@1.2.3(jest-resolve@29.7.0):
     resolution: {integrity: sha512-+3NpwQEnRoIBtx4fyhblQDPgJI0H1IEIkX7ShLUjPGA7TtUTvI1oiKi3SR4oBR0hQhQR80l4WAe5RrXBwWMA8w==}

@@ -1,4 +1,4 @@
-use crate::folder_builder::ParentChildViews;
+use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_folder::{ViewIcon, ViewLayout};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

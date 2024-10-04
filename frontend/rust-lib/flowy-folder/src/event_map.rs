@@ -91,7 +91,7 @@ pub enum FolderEvent {
   DeleteView = 13,
 
   /// Duplicate the view
-  #[event(input = "DuplicateViewPayloadPB")]
+  #[event(input = "DuplicateViewPayloadPB", output = "ViewPB")]
   DuplicateView = 14,
 
   /// Close and release the resources that are used by this view.

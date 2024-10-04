@@ -91,6 +91,7 @@ Future<T?> showFlowyMobileConfirmDialog<T>(
 Future<T?> showFlowyCupertinoConfirmDialog<T>({
   BuildContext? context,
   required String title,
+  Widget? content,
   required Widget leftButton,
   required Widget rightButton,
   void Function(BuildContext context)? onLeftButtonPressed,
@@ -106,6 +107,7 @@ Future<T?> showFlowyCupertinoConfirmDialog<T>({
         maxLines: 10,
         figmaLineHeight: 22.0,
       ),
+      content: content,
       actions: [
         CupertinoDialogAction(
           onPressed: () {

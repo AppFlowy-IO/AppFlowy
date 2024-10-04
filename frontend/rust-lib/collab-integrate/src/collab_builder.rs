@@ -259,7 +259,7 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
     let expected_collab_type = CollabType::WorkspaceDatabase;
     assert_eq!(object.collab_type, expected_collab_type);
-    let workspace = WorkspaceDatabase::open(&object.object_id, collab, collab_service);
+    let workspace = WorkspaceDatabase::open(&object.object_id, collab, collab_service)?;
     let workspace = Arc::new(RwLock::new(workspace));
     self.finalize(object, builder_config, workspace)
   }
