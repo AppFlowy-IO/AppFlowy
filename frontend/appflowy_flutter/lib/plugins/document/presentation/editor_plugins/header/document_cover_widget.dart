@@ -168,35 +168,45 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                     onChangeCover: (type, details) =>
                         _saveIconOrCover(cover: (type, details)),
                   ),
-                // don't render the icon if the offset is 0
-                if (hasIcon && offset != 0)
-                  Positioned(
-                    left: offset,
-                    // if hasCover, there shouldn't be icons present so the icon can
-                    // be closer to the bottom.
-                    bottom: hasCover
-                        ? kToolbarHeight - kIconHeight / 2
-                        : kToolbarHeight,
-                    child: DocumentIcon(
-                      editorState: widget.editorState,
-                      node: widget.node,
-                      icon: viewIcon,
-                      onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
-                    ),
-                  ),
+                _buildCoverIcon(
+                  context,
+                  constraints,
+                  offset,
+                ),
               ],
             ),
-            if (offset != 0)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: CoverTitle(
-                  view: widget.view,
-                  offset: offset,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: CoverTitle(
+                view: widget.view,
               ),
+            ),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildCoverIcon(
+    BuildContext context,
+    BoxConstraints constraints,
+    double offset,
+  ) {
+    if (!hasIcon || offset == 0) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      // if hasCover, there shouldn't be icons present so the icon can
+      // be closer to the bottom.
+      left: offset,
+      bottom: hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
+      child: DocumentIcon(
+        editorState: widget.editorState,
+        node: widget.node,
+        icon: viewIcon,
+        onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+      ),
     );
   }
 
