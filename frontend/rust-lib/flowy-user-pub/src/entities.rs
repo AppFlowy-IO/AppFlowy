@@ -167,6 +167,9 @@ pub struct UserProfile {
   pub icon_url: String,
   pub openai_key: String,
   pub stability_ai_key: String,
+  #[deprecated(
+    note = "The workspace_id is deprecated, please use the [Session::UserWorkspace] instead"
+  )]
   pub workspace_id: String,
   pub authenticator: Authenticator,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.

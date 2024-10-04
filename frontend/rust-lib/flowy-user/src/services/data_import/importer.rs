@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use tracing::instrument;
 
 /// This function loads collab objects by their object_ids.
-#[instrument(level = "debug", skip_all)]
 pub fn load_collab_by_object_ids<'a, R>(
   uid: i64,
   collab_read_txn: &R,
@@ -28,7 +27,6 @@ where
 }
 
 /// This function loads single collab object by its object_id.
-#[instrument(level = "debug", skip_all)]
 pub fn load_collab_by_object_id<'a, R>(
   uid: i64,
   collab_read_txn: &R,

@@ -18,28 +18,33 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
-use collab_folder::hierarchy_builder::{ParentChildViews, ViewBuilder};
+use collab_folder::hierarchy_builder::{
+  NestedViews, ParentChildViews, SpacePermission, ViewBuilder,
+};
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::gen_view_id;
-use flowy_folder_pub::entities::{AppFlowyData, ImportData};
+use flowy_folder_pub::entities::{ImportedAppFlowyData, ImportedCollabData, ImportedFolderData};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 use flowy_user_pub::session::Session;
+use serde_json::json;
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::sync::{Arc, Weak};
-use tracing::{debug, error, event, info, instrument, warn};
+use tracing::{debug, error, event, info, instrument, trace, warn};
 
 pub(crate) struct ImportedFolder {
   pub imported_session: Session,
   pub imported_collab_db: Arc<CollabKVDB>,
   pub container_name: Option<String>,
+  pub parent_view_id: Option<String>,
   pub source: ImportedSource,
 }
 
@@ -56,7 +61,14 @@ impl ImportedFolder {
   }
 }
 
-pub(crate) fn prepare_import(path: &str) -> anyhow::Result<ImportedFolder> {
+pub(crate) fn prepare_import(
+  path: &str,
+  parent_view_id: Option<String>,
+) -> anyhow::Result<ImportedFolder> {
+  info!(
+    "[AppflowyData]:importing data from path: {}, parent_view_id:{:?}",
+    path, parent_view_id
+  );
   if !Path::new(path).exists() {
     return Err(anyhow!("The path: {} is not exist", path));
   }
@@ -71,12 +83,17 @@ pub(crate) fn prepare_import(path: &str) -> anyhow::Result<ImportedFolder> {
     ))?;
 
   let collab_db_path = user_paths.collab_db_path(imported_session.user_id);
+  info!("[AppflowyData]: collab db path: {:?}", collab_db_path);
+
   let sqlite_db_path = user_paths.sqlite_db_path(imported_session.user_id);
+  info!("[AppflowyData]: sqlite db path: {:?}", sqlite_db_path);
+
   let imported_sqlite_db = flowy_sqlite::init(sqlite_db_path)
-    .map_err(|err| anyhow!("open import collab db failed: {:?}", err))?;
+    .map_err(|err| anyhow!("[AppflowyData]: open import collab db failed: {:?}", err))?;
+
   let imported_collab_db = Arc::new(
     CollabKVDB::open(collab_db_path)
-      .map_err(|err| anyhow!("open import collab db failed: {:?}", err))?,
+      .map_err(|err| anyhow!("[AppflowyData]: open import collab db failed: {:?}", err))?,
   );
   let imported_user = select_user_profile(
     imported_session.user_id,
@@ -95,6 +112,7 @@ pub(crate) fn prepare_import(path: &str) -> anyhow::Result<ImportedFolder> {
     imported_session,
     imported_collab_db,
     container_name: None,
+    parent_view_id,
     source: ImportedSource::ExternalFolder,
   })
 }
@@ -117,12 +135,18 @@ fn migrate_user_awareness(
 ///   - log (log files with unique identifiers)
 ///   - 2761499 (other relevant files or directories, identified by unique numbers)
 
+#[instrument(level = "debug", skip_all, err)]
 pub(crate) fn generate_import_data(
   current_session: &Session,
   workspace_id: &str,
-  collab_db: &Arc<CollabKVDB>,
+  user_collab_db: &Arc<CollabKVDB>,
   imported_folder: ImportedFolder,
-) -> anyhow::Result<ImportData> {
+) -> anyhow::Result<ImportedAppFlowyData> {
+  info!(
+    "[AppflowyData]:importing workspace: {}:{}",
+    imported_folder.imported_session.user_workspace.name,
+    imported_folder.imported_session.user_workspace.id,
+  );
   let imported_session = imported_folder.imported_session.clone();
   let imported_collab_db = imported_folder.imported_collab_db.clone();
   let imported_container_view_name = imported_folder.container_name.clone();
@@ -142,49 +166,51 @@ pub(crate) fn generate_import_data(
     ImportedSource::AnonUser => workspace_id.to_string(),
   };
 
-  let views = collab_db.with_write_txn(|collab_write_txn| {
-    let imported_collab_read_txn = imported_collab_db.read_txn();
+  let views = user_collab_db.with_write_txn(|current_collab_db_write_txn| {
+    let imported_collab_db_read_txn = imported_collab_db.read_txn();
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
     let mut old_to_new_id_map = OldToNewIdMap::new();
 
     // 1. Get all the imported collab object ids
-    let mut all_imported_object_ids = imported_collab_read_txn
+    let mut all_imported_object_ids = imported_collab_db_read_txn
       .get_all_docs()
       .map(|iter| iter.collect::<Vec<String>>())
       .unwrap_or_default();
 
     // when doing import, we don't want to import these objects:
     // 1. user workspace
-    // 2. database view tracker
-    // 3. the user awareness
+    // 2. workspace database views
+    // 3. user awareness
     // So we remove these object ids from the list
     let user_workspace_id = &imported_session.user_workspace.id;
-    let database_indexer_id = &imported_session.user_workspace.workspace_database_id;
+    let workspace_database_id = &imported_session.user_workspace.workspace_database_id;
     let user_awareness_id =
       user_awareness_object_id(&imported_session.user_uuid, user_workspace_id).to_string();
     all_imported_object_ids.retain(|id| {
-      id != user_workspace_id && id != database_indexer_id && id != &user_awareness_id
+      id != user_workspace_id && id != workspace_database_id && id != &user_awareness_id
     });
 
     match imported_folder.source {
       ImportedSource::ExternalFolder => {
-        // 2. mapping the database indexer ids
-        mapping_workspace_database_ids(
+        // 2. mapping the workspace database ids
+        if let Err(err) = mapping_workspace_database_ids(
           &mut old_to_new_id_map,
           &imported_session,
-          &imported_collab_read_txn,
+          &imported_collab_db_read_txn,
           &mut database_view_ids_by_database_id,
           &mut database_object_ids,
-        )?;
+        ) {
+          error!("[AppflowyData]:import workspace database fail: {}", err);
+        }
       },
       ImportedSource::AnonUser => {
         // 2. migrate the database with views object
         migrate_database_with_views_object(
           &mut old_to_new_id_map,
           &imported_session,
-          &imported_collab_read_txn,
+          &imported_collab_db_read_txn,
           current_session,
-          collab_write_txn,
+          current_collab_db_write_txn,
         )?;
       },
     }
@@ -201,7 +227,7 @@ pub(crate) fn generate_import_data(
     // 3. load imported collab objects data.
     let mut imported_collab_by_oid = load_collab_by_object_ids(
       imported_session.user_id,
-      &imported_collab_read_txn,
+      &imported_collab_db_read_txn,
       &all_imported_object_ids,
     );
 
@@ -209,7 +235,7 @@ pub(crate) fn generate_import_data(
     migrate_databases(
       &mut old_to_new_id_map,
       current_session,
-      collab_write_txn,
+      current_collab_db_write_txn,
       &mut all_imported_object_ids,
       &mut imported_collab_by_oid,
       &mut row_object_ids,
@@ -220,12 +246,11 @@ pub(crate) fn generate_import_data(
       if let Some(imported_collab) = imported_collab_by_oid.get(object_id) {
         let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
         document_object_ids.insert(new_object_id.clone());
-        debug!("import from: {}, to: {}", object_id, new_object_id,);
         write_collab_object(
           imported_collab,
           current_session.user_id,
           &new_object_id,
-          collab_write_txn,
+          current_collab_db_write_txn,
         );
       }
     }
@@ -237,10 +262,10 @@ pub(crate) fn generate_import_data(
       &import_container_view_id,
       &mut old_to_new_id_map,
       &imported_session,
-      &imported_collab_read_txn,
+      &imported_collab_db_read_txn,
     )?;
 
-    match imported_folder.source {
+    let views = match imported_folder.source {
       ImportedSource::ExternalFolder => match imported_container_view_name {
         None => {
           child_views.extend(orphan_views);
@@ -248,11 +273,11 @@ pub(crate) fn generate_import_data(
         },
         Some(container_name) => {
           // create a new view with given name and then attach views to it
-          attach_to_new_view(
+          create_new_container_view(
             current_session,
             &mut document_object_ids,
             &import_container_view_id,
-            collab_write_txn,
+            current_collab_db_write_txn,
             child_views,
             orphan_views,
             container_name,
@@ -263,24 +288,26 @@ pub(crate) fn generate_import_data(
         child_views.extend(orphan_views);
         Ok(child_views)
       },
-    }
+    }?;
+    Ok(NestedViews { views })
   })?;
 
-  Ok(ImportData::AppFlowyDataFolder {
-    items: vec![
-      AppFlowyData::Folder {
-        views,
-        database_view_ids_by_database_id,
-      },
-      AppFlowyData::CollabObject {
-        row_object_ids: row_object_ids.into_iter().collect(),
-        database_object_ids: database_object_ids.into_iter().collect(),
-        document_object_ids: document_object_ids.into_iter().collect(),
-      },
-    ],
+  Ok(ImportedAppFlowyData {
+    parent_view_id: imported_folder.parent_view_id,
+    folder_data: ImportedFolderData {
+      views,
+      database_view_ids_by_database_id,
+    },
+    collab_data: ImportedCollabData {
+      row_object_ids: row_object_ids.into_iter().collect(),
+      database_object_ids: database_object_ids.into_iter().collect(),
+      document_object_ids: document_object_ids.into_iter().collect(),
+    },
   })
 }
-fn attach_to_new_view<'a, W>(
+
+#[instrument(level = "debug", skip_all, err)]
+fn create_new_container_view<'a, W>(
   current_session: &Session,
   document_object_ids: &mut HashSet<String>,
   import_container_view_id: &str,
@@ -315,6 +342,7 @@ where
   )?;
 
   document_object_ids.insert(import_container_view_id.to_string());
+
   let mut import_container_views = vec![ViewBuilder::new(
     current_session.user_id,
     current_session.user_workspace.id.clone(),
@@ -329,10 +357,11 @@ where
   Ok(import_container_views)
 }
 
+#[instrument(level = "debug", skip_all, err)]
 fn mapping_workspace_database_ids<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   imported_session: &Session,
-  imported_collab_read_txn: &W,
+  imported_collab_db_read_txn: &W,
   database_view_ids_by_database_id: &mut HashMap<String, Vec<String>>,
   database_object_ids: &mut HashSet<String>,
 ) -> Result<(), PersistenceError>
@@ -347,7 +376,7 @@ where
     vec![],
     false,
   );
-  imported_collab_read_txn.load_doc_with_txn(
+  imported_collab_db_read_txn.load_doc_with_txn(
     imported_session.user_id,
     &imported_session.user_workspace.workspace_database_id,
     &mut workspace_database_collab.transact_mut(),
@@ -381,7 +410,7 @@ fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDat
     Ok(body) => body,
     Err(err) => {
       error!(
-        "🔴init workspace database body failed: {:?}, create a new one",
+        "[AppflowyData]:init workspace database body failed: {:?}, create a new one",
         err
       );
       let collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
@@ -390,10 +419,11 @@ fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDat
   }
 }
 
+#[instrument(level = "debug", skip_all, err)]
 fn migrate_database_with_views_object<'a, 'b, W, R>(
   old_to_new_id_map: &mut OldToNewIdMap,
   old_user_session: &Session,
-  old_collab_r_txn: &R,
+  old_collab_db_read_txn: &R,
   new_user_session: &Session,
   new_collab_w_txn: &W,
 ) -> Result<(), PersistenceError>
@@ -411,7 +441,7 @@ where
     vec![],
     false,
   );
-  old_collab_r_txn.load_doc_with_txn(
+  old_collab_db_read_txn.load_doc_with_txn(
     old_user_session.user_id,
     &old_user_session.user_workspace.workspace_database_id,
     &mut workspace_database_collab.transact_mut(),
@@ -448,6 +478,7 @@ where
   Ok(())
 }
 
+#[instrument(level = "debug", skip_all, err)]
 fn migrate_databases<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   session: &Session,
@@ -512,7 +543,7 @@ where
 
       let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
       debug!(
-        "migrate database from: {}, to: {}",
+        "[AppflowyData]: migrate database from: {}, to: {}",
         object_id, new_object_id,
       );
       write_collab_object(
@@ -540,11 +571,6 @@ where
       if let Some(imported_collab) = imported_collab_by_oid.get_mut(&imported_row_id) {
         let new_database_id = old_to_new_id_map.exchange_new_id(&database_id);
         let new_row_id = old_to_new_id_map.exchange_new_id(&imported_row_id);
-        info!(
-          "import database row from: {}, to: {}",
-          imported_row_id, new_row_id,
-        );
-
         mut_row_with_collab(imported_collab, |row_update| {
           row_update
             .set_row_id(RowId::from(new_row_id.clone()))
@@ -572,7 +598,7 @@ where
   }
 
   debug!(
-    "import row document ids: {:?}",
+    "[AppflowyData]:import row document ids: {:?}",
     row_document_object_ids.iter().collect::<Vec<&String>>()
   );
 
@@ -602,15 +628,13 @@ where
       let txn = doc.transact();
       let state_vector = txn.state_vector();
       let doc_state = txn.encode_state_as_update_v1(&StateVector::default());
-      info!(
-        "import collab:{} with len: {}",
-        new_object_id,
-        doc_state.len()
-      );
       if let Err(err) =
         w_txn.flush_doc(new_uid, &new_object_id, state_vector.encode_v1(), doc_state)
       {
-        error!("import collab:{} failed: {:?}", new_object_id, err);
+        error!(
+          "[AppflowyData]:import collab:{} failed: {:?}",
+          new_object_id, err
+        );
       }
     }
   } else {
@@ -639,11 +663,12 @@ where
   Ok(())
 }
 
+#[instrument(level = "debug", skip_all, err)]
 fn mapping_folder_views<'a, W>(
   root_view_id: &str,
   old_to_new_id_map: &mut OldToNewIdMap,
   imported_session: &Session,
-  imported_collab_read_txn: &W,
+  imported_collab_db_read_txn: &W,
 ) -> Result<(Vec<ParentChildViews>, Vec<ParentChildViews>), PersistenceError>
 where
   W: CollabKVAction<'a>,
@@ -656,19 +681,31 @@ where
     vec![],
     false,
   );
-  imported_collab_read_txn.load_doc_with_txn(
-    imported_session.user_id,
-    &imported_session.user_workspace.id,
-    &mut imported_folder_collab.transact_mut(),
-  )?;
+
+  imported_collab_db_read_txn
+    .load_doc_with_txn(
+      imported_session.user_id,
+      &imported_session.user_workspace.id,
+      &mut imported_folder_collab.transact_mut(),
+    )
+    .map_err(|err| {
+      PersistenceError::Internal(anyhow!(
+        "[AppflowyData]: Can't load the user:{} folder:{}. {}",
+        imported_session.user_id,
+        imported_session.user_workspace.id,
+        err
+      ))
+    })?;
   let other_user_id = UserId::from(imported_session.user_id);
-  let imported_folder = Folder::open(other_user_id, imported_folder_collab, None)
-    .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
+  let imported_folder =
+    Folder::open(other_user_id, imported_folder_collab, None).map_err(|err| {
+      PersistenceError::Internal(anyhow!("[AppflowyData]:Can't open folder:{}", err))
+    })?;
 
   let imported_folder_data = imported_folder
     .get_folder_data(&imported_session.user_workspace.id)
     .ok_or(PersistenceError::Internal(anyhow!(
-      "Can't read the folder data"
+      "[AppflowyData]: Can't read the folder data"
     )))?;
 
   // replace the old parent view id of the workspace
@@ -727,9 +764,15 @@ where
       },
     )
     .collect::<Vec<ParentChildViews>>();
+  let nested_view = NestedViews {
+    views: parent_views,
+  };
 
   // 6. after the parent views are created, the all_views_map only contains the orphan views
-  debug!("create orphan views: {:?}", all_views_map.keys());
+  info!(
+    "[AppflowyData]: create orphan views: {:?}",
+    all_views_map.keys()
+  );
   let mut orphan_views = vec![];
   for orphan_view in all_views_map.into_values() {
     orphan_views.push(ParentChildViews {
@@ -738,7 +781,13 @@ where
     });
   }
 
-  Ok((parent_views, orphan_views))
+  info!(
+    "[AppflowyData]: parent views: {}, orphan views: {:?}",
+    nested_view,
+    orphan_views.len()
+  );
+
+  Ok((nested_view.into_inner(), orphan_views))
 }
 
 fn parent_view_from_view(
@@ -798,7 +847,7 @@ pub async fn upload_collab_objects_data(
   user_collab_db: Weak<CollabKVDB>,
   workspace_id: &str,
   user_authenticator: &Authenticator,
-  appflowy_data: AppFlowyData,
+  collab_data: ImportedCollabData,
   user_cloud_service: Arc<dyn UserCloudService>,
 ) -> Result<(), FlowyError> {
   // Only support uploading the collab data when the current server is AppFlowy Cloud server
@@ -806,72 +855,81 @@ pub async fn upload_collab_objects_data(
     return Ok(());
   }
 
-  match appflowy_data {
-    AppFlowyData::Folder { .. } => {},
-    AppFlowyData::CollabObject {
-      row_object_ids,
-      document_object_ids,
-      database_object_ids,
-    } => {
-      let object_by_collab_type = tokio::task::spawn_blocking(move || {
-       let user_collab_db = user_collab_db.upgrade().ok_or_else(|| {
-          FlowyError::internal().with_context("The collab db has been dropped, indicating that the user has switched to a new account")
-        })?;
-
-        let collab_read = user_collab_db.read_txn();
-        let mut object_by_collab_type = HashMap::new();
-
-        event!(tracing::Level::DEBUG, "upload database collab data");
-        object_by_collab_type.insert(
-          CollabType::Database,
-          load_and_process_collab_data(uid, &collab_read, &database_object_ids),
-        );
-
-        event!(tracing::Level::DEBUG, "upload document collab data");
-        object_by_collab_type.insert(
-          CollabType::Document,
-          load_and_process_collab_data(uid, &collab_read, &document_object_ids),
-        );
-
-        event!(tracing::Level::DEBUG, "upload database row collab data");
-        object_by_collab_type.insert(
-          CollabType::DatabaseRow,
-          load_and_process_collab_data(uid, &collab_read, &row_object_ids),
-        );
-        Ok::<_, FlowyError>(object_by_collab_type)
-      })
-      .await??;
-
-      let mut size_counter = 0;
-      let mut objects: Vec<UserCollabParams> = vec![];
-      for (collab_type, encoded_collab_by_oid) in object_by_collab_type {
-        for (oid, encoded_collab) in encoded_collab_by_oid {
-          let obj_size = encoded_collab.len();
-          // Add the current object to the batch.
-          objects.push(UserCollabParams {
-            object_id: oid,
-            encoded_collab,
-            collab_type: collab_type.clone(),
-          });
-          size_counter += obj_size;
-        }
-      }
-
-      // Spawn a new task to upload the collab objects data in the background. If the
-      // upload fails, we will retry the upload later.
-      // af_spawn(async move {
-      if !objects.is_empty() {
-        batch_create(
-          uid,
-          workspace_id,
-          &user_cloud_service,
-          &size_counter,
-          objects,
+  let ImportedCollabData {
+    row_object_ids,
+    document_object_ids,
+    database_object_ids,
+  } = collab_data;
+  {
+    let object_by_collab_type = tokio::task::spawn_blocking(move || {
+      let user_collab_db = user_collab_db.upgrade().ok_or_else(|| {
+        FlowyError::internal().with_context(
+          "The collab db has been dropped, indicating that the user has switched to a new account",
         )
-        .await;
+      })?;
+
+      let collab_read = user_collab_db.read_txn();
+      let mut object_by_collab_type = HashMap::new();
+
+      event!(
+        tracing::Level::DEBUG,
+        "[AppflowyData]:upload database collab data"
+      );
+      object_by_collab_type.insert(
+        CollabType::Database,
+        load_and_process_collab_data(uid, &collab_read, &database_object_ids),
+      );
+
+      event!(
+        tracing::Level::DEBUG,
+        "[AppflowyData]:upload document collab data"
+      );
+      object_by_collab_type.insert(
+        CollabType::Document,
+        load_and_process_collab_data(uid, &collab_read, &document_object_ids),
+      );
+
+      event!(
+        tracing::Level::DEBUG,
+        "[AppflowyData]:upload database row collab data"
+      );
+      object_by_collab_type.insert(
+        CollabType::DatabaseRow,
+        load_and_process_collab_data(uid, &collab_read, &row_object_ids),
+      );
+      Ok::<_, FlowyError>(object_by_collab_type)
+    })
+    .await??;
+
+    let mut size_counter = 0;
+    let mut objects: Vec<UserCollabParams> = vec![];
+    for (collab_type, encoded_collab_by_oid) in object_by_collab_type {
+      for (oid, encoded_collab) in encoded_collab_by_oid {
+        let obj_size = encoded_collab.len();
+        // Add the current object to the batch.
+        objects.push(UserCollabParams {
+          object_id: oid,
+          encoded_collab,
+          collab_type: collab_type.clone(),
+        });
+        size_counter += obj_size;
       }
-      // });
-    },
+    }
+
+    // Spawn a new task to upload the collab objects data in the background. If the
+    // upload fails, we will retry the upload later.
+    // af_spawn(async move {
+    if !objects.is_empty() {
+      batch_create(
+        uid,
+        workspace_id,
+        &user_cloud_service,
+        &size_counter,
+        objects,
+      )
+      .await;
+    }
+    // });
   }
 
   Ok(())
@@ -884,25 +942,20 @@ async fn batch_create(
   size_counter: &usize,
   objects: Vec<UserCollabParams>,
 ) {
-  let ids = objects
-    .iter()
-    .map(|o| o.object_id.clone())
-    .collect::<Vec<_>>()
-    .join(", ");
   match user_cloud_service
     .batch_create_collab_object(workspace_id, objects)
     .await
   {
     Ok(_) => {
       info!(
-        "Batch creating collab objects success, origin payload size: {}",
+        "[AppflowyData]:Batch creating collab objects success, origin payload size: {}",
         size_counter
       );
     },
     Err(err) => {
       error!(
-      "Batch creating collab objects fail:{}, origin payload size: {}, workspace_id:{}, uid: {}, error: {:?}",
-       ids, size_counter, workspace_id, uid,err
+      "[AppflowyData]:Batch creating collab objects fail, origin payload size: {}, workspace_id:{}, uid: {}, error: {:?}",
+        size_counter, workspace_id, uid,err
       );
     },
   }

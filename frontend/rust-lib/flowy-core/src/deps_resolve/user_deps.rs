@@ -1,5 +1,5 @@
 use crate::integrate::server::ServerProvider;
-use collab_folder::hierarchy_builder::ParentChildViews;
+use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_error::FlowyResult;
@@ -45,12 +45,19 @@ pub struct UserWorkspaceServiceImpl {
 
 #[async_trait]
 impl UserWorkspaceService for UserWorkspaceServiceImpl {
-  async fn did_import_views(&self, views: Vec<ParentChildViews>) -> FlowyResult<()> {
-    self.folder_manager.insert_parent_child_views(views).await?;
+  async fn import_views(
+    &self,
+    views: NestedViews,
+    parent_view_id: Option<String>,
+  ) -> FlowyResult<()> {
+    self
+      .folder_manager
+      .insert_parent_child_views(views.into_inner(), parent_view_id)
+      .await?;
     Ok(())
   }
 
-  async fn did_import_database_views(
+  async fn import_database_views(
     &self,
     ids_by_database_id: HashMap<String, Vec<String>>,
   ) -> FlowyResult<()> {

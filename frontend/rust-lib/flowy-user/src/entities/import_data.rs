@@ -9,4 +9,7 @@ pub struct ImportAppFlowyDataPB {
 
   #[pb(index = 2, one_of)]
   pub import_container_name: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub parent_view_id: Option<String>,
 }

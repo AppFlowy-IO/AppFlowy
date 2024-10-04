@@ -15,6 +15,9 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 pub struct UserTable {
   pub(crate) id: String,
   pub(crate) name: String,
+  #[deprecated(
+    note = "The workspace_id is deprecated, please use the [Session::UserWorkspace] instead"
+  )]
   pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
