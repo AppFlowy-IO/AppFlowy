@@ -37,11 +37,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Check storage space
-        run:
-          df -h
-
-          # the following step is required to avoid running out of space
+      # the following step is required to avoid running out of space
       - name: Maximize build space
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -54,16 +50,13 @@ jobs:
           sudo rm -rf ${GITHUB_WORKSPACE}/.git
           sudo rm -rf $ANDROID_HOME/ndk
 
-      - name: Check storage space
-        run: df -h
-
       - name: Checkout source code
         uses: actions/checkout@v4
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 21
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -82,7 +75,7 @@ jobs:
 
       - uses: gradle/gradle-build-action@v3
         with:
-          gradle-version: 7.4.2
+          gradle-version: 8.10
 
       - uses: davidB/rust-cargo-make@v1
         with:
