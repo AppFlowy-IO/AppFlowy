@@ -5,7 +5,7 @@ import 'collaborative_workspace_test.dart' as collaborative_workspace_test;
 import 'share_menu_test.dart' as share_menu_test;
 import 'workspace_settings_test.dart' as workspace_settings_test;
 
-void startTesting() {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   workspace_settings_test.main();
