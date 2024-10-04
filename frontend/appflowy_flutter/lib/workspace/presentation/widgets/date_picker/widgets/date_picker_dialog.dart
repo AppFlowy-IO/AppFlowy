@@ -17,20 +17,13 @@ class DatePickerOptions {
     DateTime? focusedDay,
     this.popoverMutex,
     this.selectedDay,
-    this.firstDay,
-    this.lastDay,
-    this.timeStr,
-    this.endTimeStr,
     this.includeTime = false,
     this.isRange = false,
-    this.enableRanges = true,
     this.dateFormat = UserDateFormatPB.Friendly,
     this.timeFormat = UserTimeFormatPB.TwentyFourHour,
     this.selectedReminderOption,
     this.onDaySelected,
     required this.onIncludeTimeChanged,
-    this.onStartTimeChanged,
-    this.onEndTimeChanged,
     this.onRangeSelected,
     this.onIsRangeChanged,
     this.onReminderSelected,
@@ -39,23 +32,16 @@ class DatePickerOptions {
   final DateTime focusedDay;
   final PopoverMutex? popoverMutex;
   final DateTime? selectedDay;
-  final DateTime? firstDay;
-  final DateTime? lastDay;
-  final String? timeStr;
-  final String? endTimeStr;
   final bool includeTime;
   final bool isRange;
-  final bool enableRanges;
   final UserDateFormatPB dateFormat;
   final UserTimeFormatPB timeFormat;
   final ReminderOption? selectedReminderOption;
 
   final DaySelectedCallback? onDaySelected;
-  final IncludeTimeChangedCallback onIncludeTimeChanged;
-  final TimeChangedCallback? onStartTimeChanged;
-  final TimeChangedCallback? onEndTimeChanged;
   final RangeSelectedCallback? onRangeSelected;
-  final Function(bool)? onIsRangeChanged;
+  final IncludeTimeChangedCallback onIncludeTimeChanged;
+  final void Function(bool)? onIsRangeChanged;
   final OnReminderSelected? onReminderSelected;
 }
 
@@ -146,7 +132,7 @@ class DatePickerMenu extends DatePickerService {
   }
 }
 
-class _AnimatedDatePicker extends StatefulWidget {
+class _AnimatedDatePicker extends StatelessWidget {
   const _AnimatedDatePicker({
     required this.offset,
     required this.showBelow,
@@ -158,25 +144,15 @@ class _AnimatedDatePicker extends StatefulWidget {
   final DatePickerOptions options;
 
   @override
-  State<_AnimatedDatePicker> createState() => _AnimatedDatePickerState();
-}
-
-class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
-  late bool _includeTime = widget.options.includeTime;
-
-  @override
   Widget build(BuildContext context) {
-    double dy = widget.offset.dy;
-    if (!widget.showBelow && _includeTime) {
-      dy -= _includeTimeHeight;
-    }
+    double dy = offset.dy - _includeTimeHeight;
 
-    dy += (widget.showBelow ? _ySpacing : -_ySpacing);
+    dy += (showBelow ? _ySpacing : -_ySpacing);
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 200),
       top: dy,
-      left: widget.offset.dx,
+      left: offset.dx,
       child: Container(
         decoration: FlowyDecoration.decoration(
           Theme.of(context).cardColor,
@@ -184,29 +160,20 @@ class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
         ),
         constraints: BoxConstraints.loose(const Size(_datePickerWidth, 465)),
         child: AppFlowyDatePicker(
-          includeTime: _includeTime,
+          includeTime: options.includeTime,
           onIncludeTimeChanged: (includeTime) {
-            widget.options.onIncludeTimeChanged.call(includeTime);
-            setState(() => _includeTime = includeTime);
+            options.onIncludeTimeChanged.call(includeTime);
           },
-          enableRanges: widget.options.enableRanges,
-          isRange: widget.options.isRange,
-          onIsRangeChanged: widget.options.onIsRangeChanged,
-          dateFormat: widget.options.dateFormat.simplified,
-          timeFormat: widget.options.timeFormat.simplified,
-          selectedDay: widget.options.selectedDay,
-          focusedDay: widget.options.focusedDay,
-          firstDay: widget.options.firstDay,
-          lastDay: widget.options.lastDay,
-          timeStr: widget.options.timeStr,
-          endTimeStr: widget.options.endTimeStr,
-          popoverMutex: widget.options.popoverMutex,
-          selectedReminderOption:
-              widget.options.selectedReminderOption ?? ReminderOption.none,
-          onStartTimeSubmitted: widget.options.onStartTimeChanged,
-          onDaySelected: widget.options.onDaySelected,
-          onRangeSelected: widget.options.onRangeSelected,
-          onReminderSelected: widget.options.onReminderSelected,
+          isRange: options.isRange,
+          onIsRangeChanged: options.onIsRangeChanged,
+          dateFormat: options.dateFormat.simplified,
+          timeFormat: options.timeFormat.simplified,
+          dateTime: options.selectedDay,
+          popoverMutex: options.popoverMutex,
+          reminderOption: options.selectedReminderOption ?? ReminderOption.none,
+          onDaySelected: options.onDaySelected,
+          onRangeSelected: options.onRangeSelected,
+          onReminderSelected: options.onReminderSelected,
         ),
       ),
     );

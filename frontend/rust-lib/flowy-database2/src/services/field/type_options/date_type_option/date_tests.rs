@@ -23,7 +23,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1647251762),
+              timestamp: Some(1647251762),
               time: None,
               include_time: None,
               ..Default::default()
@@ -37,7 +37,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1647251762),
+              timestamp: Some(1647251762),
               time: None,
               include_time: None,
               ..Default::default()
@@ -51,7 +51,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1647251762),
+              timestamp: Some(1647251762),
               time: None,
               include_time: None,
               ..Default::default()
@@ -65,7 +65,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1647251762),
+              timestamp: Some(1647251762),
               time: None,
               include_time: None,
               ..Default::default()
@@ -79,7 +79,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1647251762),
+              timestamp: Some(1647251762),
               time: None,
               include_time: None,
               ..Default::default()
@@ -93,7 +93,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1647251762),
+              timestamp: Some(1647251762),
               time: None,
               include_time: None,
               ..Default::default()
@@ -119,7 +119,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1653609600),
+              timestamp: Some(1653609600),
               time: None,
               include_time: Some(true),
               ..Default::default()
@@ -131,7 +131,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1653609600),
+              timestamp: Some(1653609600),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
               ..Default::default()
@@ -143,7 +143,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1653609600),
+              timestamp: Some(1653609600),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
               ..Default::default()
@@ -157,7 +157,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1653609600),
+              timestamp: Some(1653609600),
               time: None,
               include_time: Some(true),
               ..Default::default()
@@ -169,7 +169,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1653609600),
+              timestamp: Some(1653609600),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
               ..Default::default()
@@ -181,7 +181,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some(1653609600),
+              timestamp: Some(1653609600),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
               ..Default::default()
@@ -205,7 +205,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("1:".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -226,7 +226,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -245,7 +245,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -266,7 +266,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -290,7 +290,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -341,7 +341,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some(1700006400),
+        timestamp: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -351,7 +351,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1701302400),
+        timestamp: Some(1701302400),
         time: None,
         include_time: None,
         ..Default::default()
@@ -369,7 +369,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some(1700006400),
+        timestamp: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -379,7 +379,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: None,
+        timestamp: None,
         time: Some("14:00".to_owned()),
         include_time: None,
         ..Default::default()
@@ -397,7 +397,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some(1700006400),
+        timestamp: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -407,7 +407,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: None,
+        timestamp: None,
         time: None,
         include_time: Some(true),
         clear_flag: Some(true),
@@ -427,8 +427,8 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
-        end_date: Some(1653782400),
+        timestamp: Some(1653609600),
+        end_timestamp: Some(1653782400),
         include_time: Some(false),
         is_range: Some(true),
         ..Default::default()
@@ -441,9 +441,9 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("20:00".to_owned()),
-        end_date: Some(1653782400),
+        end_timestamp: Some(1653782400),
         end_time: Some("08:00".to_owned()),
         include_time: Some(true),
         is_range: Some(true),
@@ -457,9 +457,9 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("20:00".to_owned()),
-        end_date: Some(1653782400),
+        end_timestamp: Some(1653782400),
         include_time: Some(true),
         is_range: Some(true),
         ..Default::default()
@@ -477,7 +477,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -503,7 +503,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some(1653609600),
+        timestamp: Some(1653609600),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         ..Default::default()
@@ -513,9 +513,9 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: None,
+        timestamp: None,
         time: None,
-        end_date: Some(1700006400),
+        end_timestamp: Some(1700006400),
         end_time: Some("16:00".to_owned()),
         include_time: Some(true),
         is_range: Some(true),
@@ -536,8 +536,8 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: None,
-        end_date: Some(1653782400),
+        timestamp: None,
+        end_timestamp: Some(1653782400),
         include_time: Some(false),
         is_range: Some(true),
         ..Default::default()

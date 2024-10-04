@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
@@ -18,10 +19,13 @@ class MobileRowDetailDateCellSkin extends IEditableDateCellSkin {
     DateCellState state,
     PopoverController popoverController,
   ) {
-    final text = state.dateStr.isEmpty
-        ? LocaleKeys.grid_row_textPlaceholder.tr()
-        : state.dateStr;
-    final color = state.dateStr.isEmpty ? Theme.of(context).hintColor : null;
+    final dateStr = getDateCellStrFromCellData(
+      state.fieldInfo,
+      state.cellData,
+    );
+    final text =
+        dateStr.isEmpty ? LocaleKeys.grid_row_textPlaceholder.tr() : dateStr;
+    final color = dateStr.isEmpty ? Theme.of(context).hintColor : null;
 
     return InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(14)),
@@ -46,11 +50,19 @@ class MobileRowDetailDateCellSkin extends IEditableDateCellSkin {
           borderRadius: const BorderRadius.all(Radius.circular(14)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        child: FlowyText.regular(
-          text,
-          fontSize: 16,
-          color: color,
-          maxLines: null,
+        child: Row(
+          children: [
+            if (state.cellData.reminderId.isNotEmpty) ...[
+              const FlowySvg(FlowySvgs.clock_alarm_s),
+              const HSpace(6),
+            ],
+            FlowyText.regular(
+              text,
+              fontSize: 16,
+              color: color,
+              maxLines: null,
+            ),
+          ],
         ),
       ),
     );
