@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'desktop_runner_1.dart';
 import 'desktop_runner_2.dart';
@@ -13,11 +13,11 @@ import 'mobile_runner.dart';
 /// Once removed, the integration_test.yaml must be updated to exclude this as
 /// as the test target.
 Future<void> main() async {
-  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+  if (UniversalPlatform.isDesktop) {
     await runIntegration1OnDesktop();
     await runIntegration2OnDesktop();
     await runIntegration3OnDesktop();
-  } else if (Platform.isIOS || Platform.isAndroid) {
+  } else if (UniversalPlatform.isMobile) {
     await runIntegrationOnMobile();
   } else {
     throw Exception('Unsupported platform');

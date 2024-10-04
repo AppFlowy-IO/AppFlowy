@@ -4,20 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'The branch to release'
+        description: "The branch to release"
         required: true
-        default: 'main'
+        default: "main"
       version:
-        description: 'The version to release'
+        description: "The version to release"
         required: true
-        default: '0.0.0'
+        default: "0.0.0"
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.77.2"
+  RUST_TOOLCHAIN: "1.80.1"
 
 jobs:
-
   publish-tauri:
     permissions:
       contents: write

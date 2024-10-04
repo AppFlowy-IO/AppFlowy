@@ -11,8 +11,8 @@ on:
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.77.2"
-  CARGO_MAKE_VERSION: "0.36.6"
+  RUST_TOOLCHAIN: "1.80.1"
+  CARGO_MAKE_VERSION: "0.37.18"
   CI: true
 
 concurrency:
