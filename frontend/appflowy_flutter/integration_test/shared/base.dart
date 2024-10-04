@@ -10,6 +10,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
@@ -35,9 +36,14 @@ extension AppFlowyTestBase on WidgetTester {
     AuthenticatorType? cloudType,
     String? email,
   }) async {
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    if (UniversalPlatform.isDesktop) {
       // Set the window size
       await binding.setSurfaceSize(windowSize);
+    }
+
+    if (UniversalPlatform.isMobile) {
+      // Disable the log in test for mobile
+      Log.shared.disableLogInTest = true;
     }
 
     mockHotKeyManagerHandlers();

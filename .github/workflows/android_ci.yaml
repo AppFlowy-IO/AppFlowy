@@ -56,7 +56,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 11.0.19
 
       - name: Install Rust toolchain
         id: rust_toolchain

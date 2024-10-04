@@ -12,7 +12,12 @@ class Log {
   // ignore: unused_field
   late Logger _logger;
 
-  bool _enabled = false;
+  // this flag is used to control the flutter log
+  bool _enableFlutterLog = false;
+
+  // this flag is used to control the test log
+  // only used in the integration test
+  bool disableLogInTest = false;
 
   Log() {
     _logger = Logger(
@@ -28,13 +33,17 @@ class Log {
   }
 
   static void enableFlutterLog() {
-    shared._enabled = true;
+    shared._enableFlutterLog = true;
   }
 
   // Generic internal logging function to reduce code duplication
   static void _log(Level level, int rustLevel, dynamic msg,
       [dynamic error, StackTrace? stackTrace]) {
-    if (shared._enabled) {
+    if (shared.disableLogInTest) {
+      return;
+    }
+
+    if (shared._enableFlutterLog) {
       switch (level) {
         case Level.info:
           shared._logger.i(msg, stackTrace: stackTrace);
