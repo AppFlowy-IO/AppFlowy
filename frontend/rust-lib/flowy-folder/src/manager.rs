@@ -24,6 +24,7 @@ use arc_swap::ArcSwapOption;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
+use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
   Workspace,
@@ -38,7 +39,6 @@ use flowy_folder_pub::entities::{
   PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishInfoResponse,
   PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
-use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
 use futures::future;

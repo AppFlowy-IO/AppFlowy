@@ -1,7 +1,6 @@
 import { Invitation } from '@/application/types';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
-import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
-import { NormalModal } from '@/components/_shared/modal';
+import ChangeAccount from '@/components/_shared/modal/ChangeAccount';
 import { notify } from '@/components/_shared/notify';
 import { getAvatar } from '@/components/_shared/view-icon/utils';
 import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
@@ -17,7 +16,6 @@ function AcceptInvitationPage () {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
-  const openLoginModal = useContext(AFConfigContext)?.openLoginModal;
   const [searchParams] = useSearchParams();
   const invitationId = searchParams.get('invited_id');
   const service = useService();
@@ -156,27 +154,7 @@ function AcceptInvitationPage () {
           {t('invitation.joinWorkspace')}
         </Button>
       </div>
-      <NormalModal
-        onCancel={() => {
-          setModalOpened(false);
-          navigate('/');
-        }}
-        closable={false}
-        cancelText={t('invitation.errorModal.close')}
-        onOk={openLoginModal}
-        okText={t('invitation.errorModal.changeAccount')}
-        title={<div className={'text-left font-bold flex gap-2 items-center'}>
-          <ErrorIcon className={'w-5 h-5 text-function-error'} />
-          {t('invitation.errorModal.title')}
-        </div>}
-        open={modalOpened}
-      >
-        <div className={'text-text-title flex flex-col text-sm gap-1 whitespace-pre-wrap break-words'}>
-          {t('invitation.errorModal.description', {
-            email: currentUser?.email,
-          })}
-        </div>
-      </NormalModal>
+      <ChangeAccount setModalOpened={setModalOpened} modalOpened={modalOpened} />
     </div>
   );
 }

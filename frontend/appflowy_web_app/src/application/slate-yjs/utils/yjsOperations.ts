@@ -13,7 +13,7 @@ import {
 
 import { nanoid } from 'nanoid';
 import Delta, { Op } from 'quill-delta';
-import { BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Transforms } from 'slate';
+import { BaseRange, Editor, Element, Node, NodeEntry, Path, Point, Range, Transforms } from 'slate';
 import * as Y from 'yjs';
 import { YjsEditor } from '../plugins/withYjs';
 import { slatePointToRelativePosition } from './positions';
@@ -129,13 +129,14 @@ export function handleCollapsedBreak (editor: YjsEditor, sharedRoot: YSharedRoot
 export function removeRange (editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {
   const { startBlock, endBlock, middleBlocks, startRange, endRange } = getAffectedBlocks(editor, range);
   const operations: (() => void)[] = [];
-  const isSameBlock = Path.compare(startBlock[1], endBlock[1]) === 0;
+  const isSameBlock = startBlock[0].blockId === endBlock[0].blockId;
 
   operations.push(() => {
     deleteSlateRangeInBlock(sharedRoot, editor, startBlock[0], startRange);
     if (!isSameBlock) {
       deleteSlateRangeInBlock(sharedRoot, editor, endBlock[0], endRange);
       mergeBlocks(sharedRoot, endBlock[0], startBlock[0]);
+
       middleBlocks.forEach((block) => {
         deleteBlock(sharedRoot, block[0].blockId as string);
       });
@@ -174,14 +175,9 @@ export function handleRangeBreak (editor: YjsEditor, sharedRoot: YSharedRoot, ra
   handleCollapsedBreak(editor, sharedRoot, selection);
 }
 
-export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourceBlock: YBlock, type: BlockType, data: T) {
-  const newBlock = createBlock(sharedRoot, {
-    ty: type,
-    data,
-  });
-
+export function copyBlockText (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
   const sourceTextId = sourceBlock.get(YjsEditorKey.block_external_id);
-  const targetTextId = newBlock.get(YjsEditorKey.block_external_id);
+  const targetTextId = targetBlock.get(YjsEditorKey.block_external_id);
 
   if (!sourceTextId || !targetTextId) {
     throw new Error('Text id not found');
@@ -191,6 +187,15 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
   const targetText = getText(targetTextId, sharedRoot);
 
   targetText.applyDelta(sourceText.toDelta());
+}
+
+export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourceBlock: YBlock, type: BlockType, data: T) {
+  const newBlock = createBlock(sharedRoot, {
+    ty: type,
+    data,
+  });
+
+  copyBlockText(sharedRoot, sourceBlock, newBlock);
 
   transferChildren(sharedRoot, sourceBlock, newBlock);
 
@@ -330,7 +335,7 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
 
   const middleBlocks: NodeEntry<Element>[] = [];
 
-  const isSameBlock = Path.compare(startBlock[1], endBlock[1]) === 0;
+  const isSameBlock = startBlock[0].blockId === endBlock[0].blockId;
 
   if (!isSameBlock) {
     for (const entry of Editor.nodes(editor, {
@@ -349,6 +354,7 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
     endRange = Editor.range(editor, Editor.start(editor, endBlock[1]), end);
   }
 
+  console.log('startBlock', startBlock, endBlock, middleBlocks, startRange, endRange);
   return { startBlock, endBlock, middleBlocks, startRange, endRange };
 }
 
@@ -357,9 +363,12 @@ function getTextIdFromSlateNode (node: Element) {
 }
 
 export function deleteSlateRangeInBlock (sharedRoot: YSharedRoot, editor: Editor, block: Element, range: BaseRange) {
-  const relativeOffset = slatePointToRelativePosition(sharedRoot, editor, range.anchor);
+  const [start, end] = Editor.edges(editor, range);
+
+  console.log('deleteSlateRangeInBlock', start, end);
+  const relativeOffset = slatePointToRelativePosition(sharedRoot, editor, start);
   const startPos = Y.createAbsolutePositionFromRelativePosition(relativeOffset.point, assertDocExists(sharedRoot));
-  const endRelativeOffset = slatePointToRelativePosition(sharedRoot, editor, range.focus);
+  const endRelativeOffset = slatePointToRelativePosition(sharedRoot, editor, end);
   const endPos = Y.createAbsolutePositionFromRelativePosition(endRelativeOffset.point, assertDocExists(sharedRoot));
 
   if (!startPos || !endPos) {
@@ -383,7 +392,10 @@ export function deleteRangeInBlock (
 
   const yText = getText(textId, sharedRoot);
 
+  console.log('deleteRangeInBlock', start, end - start);
   yText.delete(start, end - start);
+
+  console.log('deleteRangeInBlock', yText.toJSON());
 }
 
 export function mergeBlocks (
@@ -416,7 +428,6 @@ export function mergeBlocks (
 
   mergeBlockChildren(sharedRoot, getBlock(sourceBlockId, sharedRoot), getBlock(targetBlockId, sharedRoot));
   deleteBlock(sharedRoot, sourceBlock.blockId as string);
-
 }
 
 function mergeBlockChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
@@ -430,7 +441,7 @@ function mergeBlockChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targe
     BlockType.BulletedListBlock,
     BlockType.NumberedListBlock,
   ].includes(targetType)) {
-    transferChildren(sharedRoot, sourceBlock, targetBlock);
+    transferChildren(sharedRoot, sourceBlock, targetBlock, 0);
   } else {
     liftChildren(sharedRoot, sourceBlock, targetBlock);
   }
@@ -595,14 +606,14 @@ function ensureBlockHasChildren (sharedRoot: YSharedRoot, block: YBlock) {
   return getChildrenArray(block.get(YjsEditorKey.block_children), sharedRoot);
 }
 
-export function transferChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
+export function transferChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock, index?: number) {
   const sourceChildrenArray = getChildrenArray(sourceBlock.get(YjsEditorKey.block_children), sharedRoot);
 
   const targetChildrenArray = ensureBlockHasChildren(sharedRoot, targetBlock);
 
   if (!sourceChildrenArray || !targetChildrenArray) return;
   if (sourceChildrenArray.length > 0) {
-    deepCopyChildren(sharedRoot, sourceChildrenArray, targetChildrenArray, targetBlock.get(YjsEditorKey.block_id));
+    deepCopyChildren(sharedRoot, sourceChildrenArray, targetChildrenArray, targetBlock.get(YjsEditorKey.block_id), index);
     sourceChildrenArray.toArray().forEach((id) => {
       deleteBlock(sharedRoot, id);
     });
@@ -633,6 +644,7 @@ function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>
 
   const sourceArraySorted = index === undefined ? sourceArray.toArray() : sourceArray.toArray().reverse();
 
+  console.log('deepCopyChildren', index);
   sourceArraySorted.forEach((childId) => {
     const sourceChild = getBlock(childId, sharedRoot);
 
@@ -663,4 +675,314 @@ function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>
       updateBlockParent(sharedRoot, newChild, getBlock(targetBlockId, sharedRoot), targetIndex);
     }
   });
+}
+
+export function isAtBlockStart (editor: Editor, point: Point) {
+  const entry = Editor.above(editor, {
+    at: point,
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
+  });
+
+  if (!entry) return false;
+
+  const [, path] = entry;
+  const start = Editor.start(editor, path);
+
+  return Point.equals(point, start);
+}
+
+export function isAtBlockEnd (editor: Editor, point: Point) {
+  const entry = Editor.above(editor, {
+    at: point,
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
+  });
+
+  if (!entry) return false;
+
+  const [, path] = entry;
+  const end = Editor.end(editor, path);
+
+  return Point.equals(point, end);
+}
+
+export function getSharedRoot (editor: YjsEditor) {
+  if (!editor.sharedRoot || !editor.sharedRoot.doc) {
+    throw new Error('Shared root not found');
+  }
+
+  return editor.sharedRoot;
+}
+
+export function getSelectionOrThrow (editor: YjsEditor, at?: BaseRange) {
+  const newAt = at || editor.selection;
+
+  if (!newAt) {
+    throw new Error('Selection not found');
+  }
+
+  return newAt;
+}
+
+export function getBlockEntry (editor: YjsEditor, point: Point) {
+  const blockEntry = editor.above({
+    at: point,
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+  });
+
+  if (!blockEntry) {
+    throw new Error('Block not found');
+  }
+
+  return blockEntry as NodeEntry<Element>;
+}
+
+export function handleNonParagraphBlockBackspace (sharedRoot: YSharedRoot, block: YBlock) {
+  const operations: (() => void)[] = [];
+
+  operations.push(() => {
+    turnToBlock(sharedRoot, block, BlockType.Paragraph, {});
+  });
+  executeOperations(sharedRoot, operations, 'turnToBlock');
+}
+
+export function handleShouldLiftBlockBackspace (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
+  const operations: (() => void)[] = [];
+  const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
+  const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
+  const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
+
+  const hasNextSibling = index < parentChildren.length - 1;
+  const hasChildren = getChildrenArray(block.get(YjsEditorKey.block_children), sharedRoot).length > 0;
+
+  if (!hasChildren && !hasNextSibling) {
+    operations.push(() => {
+      liftEditorNode(editor, sharedRoot, block, point);
+    });
+    executeOperations(sharedRoot, operations, 'deleteBlockBackward');
+    return true;
+  }
+
+  return false;
+}
+
+export function handleMergeBlockBackward (editor: YjsEditor, node: Element, point: Point) {
+  const operations: (() => void)[] = [];
+  const sharedRoot = getSharedRoot(editor);
+
+  try {
+    const prevPoint = Editor.before(editor, point);
+
+    if (!prevPoint) {
+      throw new Error('prevPoint not found');
+    }
+
+    const target = editor.above({
+      at: prevPoint,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+    });
+
+    if (!target) {
+      throw new Error('target not found');
+    }
+
+    const [targetNode] = target as NodeEntry<Element>;
+
+    operations.push(() => {
+      Transforms.move(editor, { distance: 1, reverse: true });
+      mergeBlocks(sharedRoot, node, targetNode);
+    });
+  } catch (e) {
+    // at the beginning of the document
+    console.info('at the beginning of the document');
+  }
+
+  executeOperations(sharedRoot, operations, 'deleteBlockBackward');
+}
+
+export function handleMergeBlockForward (editor: YjsEditor, node: Element, point: Point) {
+  const operations: (() => void)[] = [];
+  const sharedRoot = getSharedRoot(editor);
+
+  try {
+    const nextPoint = Editor.after(editor, point);
+
+    if (!nextPoint) {
+      throw new Error('nextPoint not found');
+    }
+
+    const source = editor.above({
+      at: nextPoint,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+    });
+
+    if (!source) {
+      throw new Error('source not found');
+    }
+
+    const [sourceNode] = source as NodeEntry<Element>;
+
+    operations.push(() => {
+      mergeBlocks(sharedRoot, sourceNode, node);
+    });
+  } catch (e) {
+    // at the end of the document
+    console.info('at the end of the document');
+  }
+
+  executeOperations(sharedRoot, operations, 'deleteBlockForward');
+}
+
+export function liftEditorNode (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
+  // Find the path of the current block
+  const [, path] = getBlockEntry(editor, point);
+  const parentPath = path.slice(0, -1);
+  const level = path.length;
+
+  if (level < 2) {
+    return;
+  }
+
+  // This is to prevent errors caused by invalid paths when the original node is deleted during the lift process
+  Transforms.select(editor, Editor.start(editor, parentPath));
+
+  liftBlock(sharedRoot, block);
+
+  // Calculate the position where the new block should be after the lift operation
+  const nextPath = Path.next(parentPath);
+
+  // After the lift operation is complete, move the cursor to the start of the newly lifted block
+  Transforms.select(editor, Editor.start(editor, nextPath));
+}
+
+export function liftBlock (sharedRoot: YSharedRoot, block: YBlock) {
+  const parentId = block.get(YjsEditorKey.block_parent);
+  const parent = getBlock(parentId, sharedRoot);
+
+  if (!parent) {
+    console.warn('Cannot lift block: parent not found');
+    return;
+  }
+
+  const grandParentId = parent.get(YjsEditorKey.block_parent);
+  const grandParent = getBlock(grandParentId, sharedRoot);
+
+  if (!grandParent) {
+    console.warn('Cannot lift block: grandparent not found');
+    return;
+  }
+
+  const grandParentChildrenArray = getChildrenArray(grandParent.get(YjsEditorKey.block_children), sharedRoot);
+
+  if (!grandParentChildrenArray) {
+    console.warn('Cannot lift block: grandparent children array not found');
+    return;
+  }
+
+  const parentIndex = grandParentChildrenArray.toArray().findIndex((id) => id === parentId);
+
+  if (parentIndex === -1) {
+    console.warn('Cannot lift block: parent not found in grandparent\'s children');
+    return;
+  }
+
+  moveNode(sharedRoot, block, grandParent, parentIndex + 1);
+}
+
+export function moveNode (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetParent: YBlock, targetIndex: number) {
+  const copiedBlockId = deepCopyBlock(sharedRoot, sourceBlock);
+
+  if (!copiedBlockId) {
+    console.warn('Failed to copy block');
+    return;
+  }
+
+  const copiedBlock = getBlock(copiedBlockId, sharedRoot);
+
+  if (!copiedBlock) {
+    console.warn('Copied block not found');
+    return;
+  }
+
+  updateBlockParent(sharedRoot, copiedBlock, targetParent, targetIndex);
+
+  deleteBlock(sharedRoot, sourceBlock.get(YjsEditorKey.block_id));
+}
+
+export function deepCopyBlock (sharedRoot: YSharedRoot, sourceBlock: YBlock): string | null {
+  try {
+    const newBlock = createBlock(sharedRoot, {
+      ty: sourceBlock.get(YjsEditorKey.block_type),
+      data: dataStringTOJson(sourceBlock.get(YjsEditorKey.block_data)),
+    });
+
+    copyBlockText(sharedRoot, sourceBlock, newBlock);
+
+    const sourceChildrenArray = getChildrenArray(sourceBlock.get(YjsEditorKey.block_children), sharedRoot);
+    const targetChildrenArray = getChildrenArray(newBlock.get(YjsEditorKey.block_children), sharedRoot);
+
+    if (sourceChildrenArray && targetChildrenArray) {
+      deepCopyChildren(sharedRoot, sourceChildrenArray, targetChildrenArray, newBlock.get(YjsEditorKey.block_id));
+    }
+
+    return newBlock.get(YjsEditorKey.block_id);
+  } catch (error) {
+    console.error('Error in deepCopyBlock:', error);
+    return null;
+  }
+}
+
+export function isEntireDocumentSelected (editor: YjsEditor) {
+  const selection = getSelectionOrThrow(editor);
+  const [start, end] = Editor.edges(editor, selection);
+  const startEdge = Editor.start(editor, []);
+  const endEdge = Editor.end(editor, []);
+
+  return Point.equals(start, startEdge) && Point.equals(end, endEdge);
+}
+
+export function getBlocks (sharedRoot: YSharedRoot) {
+  const document = getDocument(sharedRoot);
+
+  return document.get(YjsEditorKey.blocks) as YBlocks;
+}
+
+export function getPageId (sharedRoot: YSharedRoot) {
+  const document = getDocument(sharedRoot);
+  const pageId = document.get(YjsEditorKey.page_id) as string;
+
+  return pageId;
+}
+
+export function appendEmptyParagraph (sharedRoot: YSharedRoot): string {
+  const pageId = getPageId(sharedRoot);
+  const page = getBlock(pageId, sharedRoot);
+  const newBlock = createBlock(sharedRoot, {
+    ty: BlockType.Paragraph,
+    data: {},
+  });
+
+  updateBlockParent(sharedRoot, newBlock, page, 0);
+
+  return newBlock.get(YjsEditorKey.block_id);
+}
+
+export function handleDeleteEntireDocument (editor: YjsEditor) {
+  const sharedRoot = getSharedRoot(editor);
+  const operations = [() => {
+    editor.deselect();
+
+    const blocks = getBlocks(sharedRoot);
+    const pageId = getPageId(sharedRoot);
+    const blockId = appendEmptyParagraph(sharedRoot);
+
+    blocks.forEach((_, k) => {
+      if (k !== pageId && k !== blockId) {
+        deleteBlock(sharedRoot, k);
+      }
+    });
+
+  }];
+
+  executeOperations(sharedRoot, operations, 'deleteEntireDocument');
+  Transforms.select(editor, Editor.start(editor, [0]));
 }

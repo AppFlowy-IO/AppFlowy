@@ -1,6 +1,7 @@
 use bytes::Bytes;
 
 use collab_entity::{CollabType, EncodedCollab};
+use collab_folder::hierarchy_builder::NestedViewBuilder;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
@@ -20,7 +21,6 @@ use flowy_folder::view_operation::{
   FolderOperationHandlers, ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
-use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;

@@ -83,6 +83,12 @@ export function yDataToSlateContent ({
     try {
       const slateDelta = delta.flatMap(deltaInsertToSlateNode);
 
+      if (slateDelta.length === 0) {
+        slateDelta.push({
+          text: '',
+        });
+      }
+
       const textNode: Element = {
         textId,
         type: YjsEditorKey.text,

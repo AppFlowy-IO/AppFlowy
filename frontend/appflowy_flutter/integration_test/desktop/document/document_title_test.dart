@@ -302,5 +302,33 @@ void main() {
         isFalse,
       );
     });
+
+    testWidgets('press arrow down key in title, check if the cursor flashes',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      const inputText = 'Hello World';
+      await tester.ime.insertText(inputText);
+
+      await tester.tapButton(
+        tester.editor.findDocumentTitle(_testDocumentName),
+      );
+      await tester.simulateKeyEvent(LogicalKeyboardKey.arrowDown);
+      final editorState = tester.editor.getCurrentEditorState();
+      expect(
+        editorState.selection,
+        Selection.collapsed(
+          Position(path: [0], offset: inputText.length),
+        ),
+      );
+    });
   });
 }
