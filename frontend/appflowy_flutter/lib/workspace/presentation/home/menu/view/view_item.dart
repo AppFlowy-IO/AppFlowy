@@ -862,6 +862,13 @@ void moveViewCrossSpace(
     return;
   }
 
+  final fromSection = spaceType == FolderSpaceType.public
+      ? ViewSectionPB.Private
+      : ViewSectionPB.Public;
+  final toSection = spaceType == FolderSpaceType.public
+      ? ViewSectionPB.Public
+      : ViewSectionPB.Private;
+
   final currentSpace = context.read<SpaceBloc>().state.currentSpace;
   if (currentSpace != null &&
       toSpace != null &&
@@ -877,8 +884,14 @@ void moveViewCrossSpace(
           from,
           toId,
           null,
-          null,
-          null,
+          fromSection,
+          toSection,
+        ),
+      );
+  context.read<ViewBloc>().add(
+        ViewEvent.updateViewVisibility(
+          from,
+          spaceType == FolderSpaceType.public,
         ),
       );
 }

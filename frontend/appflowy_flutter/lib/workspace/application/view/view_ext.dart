@@ -140,18 +140,6 @@ extension ViewExtension on ViewPB {
     }
   }
 
-  bool get shouldFilterPrivate {
-    if (!isSpace) {
-      return true;
-    }
-
-    if (spacePermission == SpacePermission.private) {
-      return true;
-    }
-
-    return false;
-  }
-
   FlowySvg? buildSpaceIconSvg(BuildContext context, {Size? size}) {
     try {
       if (extra.isEmpty) {

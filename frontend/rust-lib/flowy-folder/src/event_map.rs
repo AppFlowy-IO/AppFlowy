@@ -79,7 +79,7 @@ pub enum FolderEvent {
   CreateView = 10,
 
   /// Return the view info
-  #[event(input = "GetViewPB", output = "ViewPB")]
+  #[event(input = "ViewIdPB", output = "ViewPB")]
   GetView = 11,
 
   /// Update the view's properties including the name,description, etc.

@@ -111,13 +111,8 @@ class ViewBackendService {
   /// Returns a list of views that are the children of the given [viewId].
   static Future<FlowyResult<List<ViewPB>, FlowyError>> getChildViews({
     required String viewId,
-    bool shouldFilterTrash = true,
-    bool shouldFilterPrivate = true,
   }) {
-    final payload = GetViewPB.create()
-      ..viewId = viewId
-      ..shouldFilterTrash = shouldFilterTrash
-      ..shouldFilterPrivate = shouldFilterPrivate;
+    final payload = ViewIdPB.create()..value = viewId;
 
     return FolderEventGetView(payload).send().then((result) {
       return result.fold(
@@ -258,14 +253,9 @@ class ViewBackendService {
   }
 
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
-    String viewId, {
-    bool shouldFilterTrash = true,
-    bool shouldFilterPrivate = true,
-  }) async {
-    final payload = GetViewPB.create()
-      ..viewId = viewId
-      ..shouldFilterTrash = shouldFilterTrash
-      ..shouldFilterPrivate = shouldFilterPrivate;
+    String viewId,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewId;
     return FolderEventGetView(payload).send();
   }
 
@@ -279,13 +269,8 @@ class ViewBackendService {
   Future<FlowyResult<ViewPB, FlowyError>> getChildView({
     required String parentViewId,
     required String childViewId,
-    bool shouldFilterTrash = true,
-    bool shouldFilterPrivate = true,
   }) async {
-    final payload = GetViewPB.create()
-      ..viewId = parentViewId
-      ..shouldFilterTrash = shouldFilterTrash
-      ..shouldFilterPrivate = shouldFilterPrivate;
+    final payload = ViewIdPB.create()..value = parentViewId;
     return FolderEventGetView(payload).send().then((result) {
       return result.fold(
         (app) => FlowyResult.success(

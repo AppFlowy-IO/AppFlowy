@@ -7,9 +7,10 @@ import 'package:appflowy/plugins/database/widgets/row/relation_row_detail.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -252,7 +253,9 @@ class _CellEditorTitle extends StatelessWidget {
   }
 
   void _openRelatedDatbase(BuildContext context) {
-    ViewBackendService.getView(databaseMeta.inlineViewId).then((result) {
+    FolderEventGetView(ViewIdPB(value: databaseMeta.inlineViewId))
+        .send()
+        .then((result) {
       result.fold(
         (view) {
           PopoverContainer.of(context).closeAll();

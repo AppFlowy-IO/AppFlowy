@@ -479,12 +479,7 @@ impl FolderManager {
   /// Therefore, to access a nested child view within one of the initial child views, you must invoke this method
   /// again using the ID of the child view you wish to access.
   #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn get_view_pb(
-    &self,
-    view_id: &str,
-    should_filter_trash: bool,
-    should_filter_private: bool,
-  ) -> FlowyResult<ViewPB> {
+  pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
 
     let lock = self
@@ -509,20 +504,10 @@ impl FolderManager {
         Err(FlowyError::record_not_found())
       },
       Some(view) => {
-        // enable to customize the view ids that should be filtered
-        let mut child_view_ids_should_be_filtered: Vec<String> = vec![];
-        let trash_ids = Self::get_all_trash_ids(&folder);
-        let other_private_view_ids = Self::get_other_private_view_ids(&folder);
-        if should_filter_trash {
-          child_view_ids_should_be_filtered.extend(trash_ids);
-        }
-        if should_filter_private {
-          child_view_ids_should_be_filtered.extend(other_private_view_ids);
-        }
         let child_views = folder
           .get_views_belong_to(&view.id)
           .into_iter()
-          .filter(|view| !child_view_ids_should_be_filtered.contains(&view.id))
+          .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
           .collect::<Vec<_>>();
         let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)
@@ -712,7 +697,7 @@ impl FolderManager {
     let prev_view_id = params.prev_view_id;
     let from_section = params.from_section;
     let to_section = params.to_section;
-    let view = self.get_view_pb(&view_id, true, true).await?;
+    let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
     if let Some(lock) = self.mutex_folder.load_full() {
       let mut folder = lock.write().await;
@@ -749,7 +734,7 @@ impl FolderManager {
           .collect::<Vec<_>>()
       } else {
         self
-          .get_view_pb(&parent_view_id, true, true)
+          .get_view_pb(&parent_view_id)
           .await?
           .child_views
           .into_iter()
@@ -1011,7 +996,7 @@ impl FolderManager {
     let folder = lock.read().await;
     notify_parent_view_did_change(workspace_id, &folder, vec![parent_view_id.to_string()]);
 
-    let duplicated_view = self.get_view_pb(&new_view_id, true, true).await?;
+    let duplicated_view = self.get_view_pb(&new_view_id).await?;
 
     tracing::warn!("[DEBUG] Duplicated view: {:?}", duplicated_view);
 
@@ -1057,7 +1042,7 @@ impl FolderManager {
       drop(folder);
       view
     };
-    self.get_view_pb(&view_id, true, true).await.ok()
+    self.get_view_pb(&view_id).await.ok()
   }
 
   /// Toggles the favorite status of a view identified by `view_id`If the view is not a favorite, it will be added to the favorites list; otherwise, it will be removed from the list.
@@ -1219,7 +1204,7 @@ impl FolderManager {
     let mut payloads = Vec::new();
 
     while let Some(current_view_id) = stack.pop() {
-      let view = match self.get_view_pb(&current_view_id, true, true).await {
+      let view = match self.get_view_pb(&current_view_id).await {
         Ok(view) => view,
         Err(_) => continue,
       };
@@ -1255,7 +1240,7 @@ impl FolderManager {
   }
 
   async fn build_publish_views(&self, view_id: &str) -> Option<PublishViewInfo> {
-    let view_pb = self.get_view_pb(view_id, true, true).await.ok()?;
+    let view_pb = self.get_view_pb(view_id).await.ok()?;
 
     let mut child_views_futures = vec![];
 
@@ -1296,7 +1281,7 @@ impl FolderManager {
     let encoded_collab_wrapper: EncodedCollabWrapper = handler
       .get_encoded_collab_v1_from_disk(self.user.clone(), view_id)
       .await?;
-    let view = self.get_view_pb(view_id, true, true).await?;
+    let view = self.get_view_pb(view_id).await?;
 
     let publish_name = publish_name.unwrap_or_else(|| generate_publish_name(&view.id, &view.name));
 
@@ -1360,7 +1345,7 @@ impl FolderManager {
 
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.
   async fn send_toggle_favorite_notification(&self, view_id: &str) {
-    if let Ok(view) = self.get_view_pb(view_id, true, true).await {
+    if let Ok(view) = self.get_view_pb(view_id).await {
       let notification_type = if view.is_favorite {
         FolderNotification::DidFavoriteView
       } else {
@@ -1599,7 +1584,7 @@ impl FolderManager {
       }
     }
 
-    if let Ok(view_pb) = self.get_view_pb(view_id, true, true).await {
+    if let Ok(view_pb) = self.get_view_pb(view_id).await {
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
