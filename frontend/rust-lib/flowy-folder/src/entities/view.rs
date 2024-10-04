@@ -393,6 +393,37 @@ impl std::convert::From<&str> for ViewIdPB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct GetViewPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub should_filter_trash: bool,
+
+  #[pb(index = 3)]
+  pub should_filter_private: bool,
+}
+
+pub struct GetViewParams {
+  pub view_id: String,
+  pub should_filter_trash: bool,
+  pub should_filter_private: bool,
+}
+
+impl TryInto<GetViewParams> for GetViewPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<GetViewParams, Self::Error> {
+    let view_id = ViewIdentify::parse(self.view_id)?.0;
+    Ok(GetViewParams {
+      view_id,
+      should_filter_trash: self.should_filter_trash,
+      should_filter_private: self.should_filter_private,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct DeletedViewPB {
   #[pb(index = 1)]
   pub view_id: String,

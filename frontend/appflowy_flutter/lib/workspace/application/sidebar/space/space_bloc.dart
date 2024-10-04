@@ -215,6 +215,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final isExpanded = await _getSpaceExpandStatus(space);
             final views = await ViewBackendService.getChildViews(
               viewId: space.id,
+              shouldFilterPrivate: space.shouldFilterPrivate,
             );
             final currentSpace = views.fold(
               (views) {

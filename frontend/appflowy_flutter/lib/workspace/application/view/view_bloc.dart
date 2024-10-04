@@ -6,6 +6,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -94,7 +95,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             await _setViewIsExpanded(view, e.isExpanded);
           },
           viewDidUpdate: (e) async {
-            final result = await ViewBackendService.getView(view.id);
+            final result = await ViewBackendService.getView(
+              view.id,
+              shouldFilterPrivate: view.shouldFilterPrivate,
+            );
             final view_ = result.fold((l) => l, (r) => null);
             e.result.fold(
               (view) async {
@@ -275,8 +279,9 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
       return;
     }
 
-    final viewsOrFailed =
-        await ViewBackendService.getChildViews(viewId: state.view.id);
+    final viewsOrFailed = await ViewBackendService.getChildViews(
+      viewId: state.view.id,
+    );
 
     viewsOrFailed.fold(
       (childViews) {
@@ -306,8 +311,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   Future<void> _loadChildViews(
     Emitter<ViewState> emit,
   ) async {
-    final viewsOrFailed =
-        await ViewBackendService.getChildViews(viewId: state.view.id);
+    final viewsOrFailed = await ViewBackendService.getChildViews(
+      viewId: state.view.id,
+      shouldFilterPrivate: state.view.shouldFilterPrivate,
+    );
 
     viewsOrFailed.fold(
       (childViews) {
@@ -359,14 +366,19 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   Future<ViewPB?> _updateChildViews(
     ChildViewUpdatePB update,
   ) async {
+    final parentView = await ViewBackendService.getView(
+      update.parentViewId,
+    ).fold((l) => l, (r) => null);
+
+    if (parentView == null) {
+      return null;
+    }
+
     if (update.createChildViews.isNotEmpty) {
       // refresh the child views if the update isn't empty
       // because there's no info to get the inserted index.
       assert(update.parentViewId == this.view.id);
-      final view = await ViewBackendService.getView(
-        update.parentViewId,
-      );
-      return view.fold((l) => l, (r) => null);
+      return parentView;
     }
 
     final view = state.view;
@@ -381,7 +393,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     }
 
     if (update.updateChildViews.isNotEmpty) {
-      final view = await ViewBackendService.getView(update.parentViewId);
+      final view = await ViewBackendService.getView(
+        update.parentViewId,
+        shouldFilterPrivate: parentView.shouldFilterPrivate,
+      );
       final childViews = view.fold((l) => l.childViews, (r) => []);
       bool isSameOrder = true;
       if (childViews.length == update.updateChildViews.length) {

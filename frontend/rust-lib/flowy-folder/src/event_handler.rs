@@ -128,12 +128,18 @@ pub(crate) async fn create_orphan_view_handler(
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn get_view_handler(
-  data: AFPluginData<ViewIdPB>,
+  data: AFPluginData<GetViewPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let view_id: ViewIdPB = data.into_inner();
-  let view_pb = folder.get_view_pb(&view_id.value).await?;
+  let params: GetViewParams = data.into_inner().try_into()?;
+  let view_pb = folder
+    .get_view_pb(
+      &params.view_id,
+      params.should_filter_trash,
+      params.should_filter_private,
+    )
+    .await?;
   data_result_ok(view_pb)
 }
 
@@ -284,7 +290,7 @@ pub(crate) async fn read_favorites_handler(
   let favorite_items = folder.get_all_favorites().await;
   let mut views = vec![];
   for item in favorite_items {
-    if let Ok(view) = folder.get_view_pb(&item.id).await {
+    if let Ok(view) = folder.get_view_pb(&item.id, true, true).await {
       views.push(SectionViewPB {
         item: view,
         timestamp: item.timestamp,
