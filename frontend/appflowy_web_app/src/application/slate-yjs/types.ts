@@ -20,3 +20,15 @@ export interface BlockJson {
   external_id?: string;
 }
 
+export enum EditorMarkFormat {
+  Bold = 'bold',
+  Italic = 'italic',
+  Underline = 'underline',
+  StrikeThrough = 'strikethrough',
+  Code = 'code',
+  Href = 'href',
+  FontColor = 'font_color',
+  BgColor = 'bg_color',
+  Align = 'align',
+}
+

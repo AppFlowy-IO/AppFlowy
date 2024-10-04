@@ -1,4 +1,5 @@
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
+import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import {
   dataStringTOJson,
   executeOperations,
@@ -15,7 +16,15 @@ import {
   handleMergeBlockForwardWithTxn,
   removeRangeWithTxn, handleIndentBlockWithTxn, handleLiftBlockOnTabWithTxn,
 } from '@/application/slate-yjs/utils/yjsOperations';
-import { BlockData, BlockType, InlineBlockType, Mention, MentionType, YjsEditorKey } from '@/application/types';
+import {
+  BlockData,
+  BlockType,
+  InlineBlockType,
+  Mention,
+  MentionType, TodoListBlockData,
+  ToggleListBlockData,
+  YjsEditorKey,
+} from '@/application/types';
 import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
 import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Range, Text, Transforms } from 'slate';
@@ -192,5 +201,42 @@ export const CustomEditor = {
     const block = getBlock(node.blockId as string, sharedRoot);
 
     handleLiftBlockOnTabWithTxn(editor, sharedRoot, block, point);
+  },
+
+  toggleToggleList (editor: YjsEditor, blockId: string) {
+    const sharedRoot = getSharedRoot(editor);
+    const data = dataStringTOJson(getBlock(blockId, sharedRoot).get(YjsEditorKey.block_data)) as ToggleListBlockData;
+    const { selection } = editor;
+
+    if (!selection) return;
+
+    if (Range.isExpanded(selection)) {
+      Transforms.collapse(editor, { edge: 'start' });
+    }
+
+    const point = Editor.start(editor, selection);
+
+    const [node] = getBlockEntry(editor, point);
+
+    CustomEditor.setBlockData(editor, blockId, {
+      collapsed: !data.collapsed,
+    }, node.blockId !== blockId);
+  },
+
+  toggleTodoList (editor: YjsEditor, blockId: string) {
+    const sharedRoot = getSharedRoot(editor);
+    const data = dataStringTOJson(getBlock(blockId, sharedRoot).get(YjsEditorKey.block_data)) as TodoListBlockData;
+
+    CustomEditor.setBlockData(editor, blockId, {
+      checked: !data.checked,
+    }, false);
+  },
+
+  toggleMark (editor: ReactEditor, {
+    key, value,
+  }: {
+    key: EditorMarkFormat, value: boolean | string
+  }) {
+    editor.addMark(key, value);
   },
 };

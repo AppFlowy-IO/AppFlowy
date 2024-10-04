@@ -68,6 +68,7 @@ const assertJSON = (expectedJSON: FromBlockJSON[]) => {
     expect(finalJSON).to.deep.equal(expectedJSON);
   });
 };
+
 describe('Tab key behavior', () => {
 
   beforeEach(() => {
