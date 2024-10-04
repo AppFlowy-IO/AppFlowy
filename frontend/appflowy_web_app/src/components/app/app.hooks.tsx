@@ -66,8 +66,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return trashList?.some((v) => v.view_id === viewId);
   }, [trashList, viewId]);
   const viewNotFound = useMemo(() => {
-    if (!viewId) return false;
-    return !findView(outline || [], viewId);
+    if (!viewId || !outline) return false;
+    return !findView(outline, viewId);
   }, [outline, viewId]);
 
   const createdRowKeys = useRef<string[]>([]);
