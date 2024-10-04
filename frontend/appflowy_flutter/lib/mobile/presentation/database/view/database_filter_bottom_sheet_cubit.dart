@@ -12,9 +12,9 @@ class MobileFilterEditorCubit extends Cubit<MobileFilterEditorState> {
 
   final PageController pageController;
 
-  void returnToOverview() {
+  void returnToOverview({bool scrollToBottom = false}) {
     _animateToPage(0);
-    emit(MobileFilterEditorState.overview());
+    emit(MobileFilterEditorState.overview(scrollToBottom: scrollToBottom));
   }
 
   void startCreatingFilter() {
@@ -81,7 +81,9 @@ class MobileFilterEditorCubit extends Cubit<MobileFilterEditorState> {
 
 @freezed
 class MobileFilterEditorState with _$MobileFilterEditorState {
-  factory MobileFilterEditorState.overview() = _OverviewState;
+  factory MobileFilterEditorState.overview({
+    @Default(false) bool scrollToBottom,
+  }) = _OverviewState;
 
   factory MobileFilterEditorState.create() = _CreateState;
 

@@ -35,11 +35,13 @@ class MobileFilterEditor extends StatefulWidget {
 }
 
 class _MobileFilterEditorState extends State<MobileFilterEditor> {
-  final PageController _pageController = PageController();
+  final pageController = PageController();
+  final scrollController = ScrollController();
 
   @override
   void dispose() {
-    _pageController.dispose();
+    pageController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -47,7 +49,7 @@ class _MobileFilterEditorState extends State<MobileFilterEditor> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => MobileFilterEditorCubit(
-        pageController: _pageController,
+        pageController: pageController,
       ),
       child: Column(
         children: [
@@ -55,12 +57,12 @@ class _MobileFilterEditorState extends State<MobileFilterEditor> {
           SizedBox(
             height: 400,
             child: PageView.builder(
-              controller: _pageController,
+              controller: pageController,
               itemCount: 2,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return switch (index) {
-                  0 => const _ActiveFilters(),
+                  0 => _ActiveFilters(scrollController: scrollController),
                   1 => const _FilterDetail(),
                   _ => const SizedBox.shrink(),
                 };
@@ -124,7 +126,7 @@ class _Header extends StatelessWidget {
 
   bool _isBackButtonShown(MobileFilterEditorState state) {
     return state.maybeWhen(
-      overview: () => false,
+      overview: (_) => false,
       orElse: () => true,
     );
   }
@@ -164,7 +166,11 @@ class _Header extends StatelessWidget {
 }
 
 class _ActiveFilters extends StatelessWidget {
-  const _ActiveFilters();
+  const _ActiveFilters({
+    required this.scrollController,
+  });
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +216,21 @@ class _ActiveFilters extends StatelessWidget {
   }
 
   Widget _filterList(BuildContext context, FilterEditorState state) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MobileFilterEditorCubit>().state.maybeWhen(
+            overview: (scrollToBottom) {
+              if (scrollToBottom && scrollController.hasClients) {
+                scrollController
+                    .jumpTo(scrollController.position.maxScrollExtent);
+                context.read<MobileFilterEditorCubit>().returnToOverview();
+              }
+            },
+            orElse: () {},
+          );
+    });
+
     return ListView.separated(
+      controller: scrollController,
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
       ),
@@ -529,7 +549,9 @@ class _FilterDetail extends StatelessWidget {
                 context
                     .read<FilterEditorBloc>()
                     .add(FilterEditorEvent.createFilter(field));
-                context.read<MobileFilterEditorCubit>().returnToOverview();
+                context.read<MobileFilterEditorCubit>().returnToOverview(
+                      scrollToBottom: true,
+                    );
               },
             );
           },
