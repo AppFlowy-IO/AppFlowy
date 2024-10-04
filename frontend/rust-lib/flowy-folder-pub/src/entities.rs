@@ -1,4 +1,4 @@
-use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews};
+use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_folder::{ViewIcon, ViewLayout};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -10,7 +10,8 @@ pub struct ImportedAppFlowyData {
 }
 
 pub struct ImportedFolderData {
-  pub views: NestedViews,
+  pub views: Vec<ParentChildViews>,
+  pub orphan_views: Vec<ParentChildViews>,
   /// Used to update the [DatabaseViewTrackerList] when importing the database.
   pub database_view_ids_by_database_id: HashMap<String, Vec<String>>,
 }

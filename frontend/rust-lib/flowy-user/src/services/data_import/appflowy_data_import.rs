@@ -8,6 +8,7 @@ use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
+
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::updates::encoder::Encode;
 use collab::preclude::{Collab, Doc, ReadTxn, StateVector, Transact, Update};
@@ -18,9 +19,7 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
-use collab_folder::hierarchy_builder::{
-  NestedViews, ParentChildViews, SpacePermission, ViewBuilder,
-};
+use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews, ViewBuilder};
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -31,15 +30,15 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 use flowy_user_pub::session::Session;
-use serde_json::json;
+use rayon::prelude::*;
+
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
-use std::fmt::Display;
+
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::sync::{Arc, Weak};
-use tracing::{debug, error, event, info, instrument, trace, warn};
-
+use tracing::{error, event, info, instrument, trace, warn};
 pub(crate) struct ImportedFolder {
   pub imported_session: Session,
   pub imported_collab_db: Arc<CollabKVDB>,
@@ -166,7 +165,7 @@ pub(crate) fn generate_import_data(
     ImportedSource::AnonUser => workspace_id.to_string(),
   };
 
-  let views = user_collab_db.with_write_txn(|current_collab_db_write_txn| {
+  let (views, orphan_views) = user_collab_db.with_write_txn(|current_collab_db_write_txn| {
     let imported_collab_db_read_txn = imported_collab_db.read_txn();
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
     let mut old_to_new_id_map = OldToNewIdMap::new();
@@ -242,60 +241,72 @@ pub(crate) fn generate_import_data(
     )?;
 
     // the object ids now only contains the document collab object ids
-    for object_id in &all_imported_object_ids {
-      if let Some(imported_collab) = imported_collab_by_oid.get(object_id) {
-        let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
-        document_object_ids.insert(new_object_id.clone());
-        write_collab_object(
-          imported_collab,
-          current_session.user_id,
-          &new_object_id,
-          current_collab_db_write_txn,
-        );
-      }
+    all_imported_object_ids.iter().for_each(|object_id| {
+      old_to_new_id_map.exchange_new_id(object_id);
+    });
+
+    trace!(
+      "[AppflowyData]:imported object ids: {:?}",
+      all_imported_object_ids.len()
+    );
+    let gen_collabs = all_imported_object_ids
+      .par_iter()
+      .filter_map(|object_id| {
+        let imported_collab = imported_collab_by_oid.get(object_id)?;
+        let new_object_id = old_to_new_id_map.get_new_id(object_id)?;
+        gen_sv_and_doc_state(current_session.user_id, new_object_id, imported_collab)
+      })
+      .collect::<Vec<_>>();
+    trace!(
+      "[AppflowyData]:imported object ids2: {:?}",
+      gen_collabs.len()
+    );
+
+    for gen_collab in gen_collabs {
+      document_object_ids.insert(gen_collab.object_id.clone());
+      write_gen_collab(gen_collab, current_collab_db_write_txn);
     }
 
     // Update the parent view IDs of all top-level views to match the new container view ID, making
     // them child views of the container. This ensures that the hierarchy within the imported
     // structure is correctly maintained.
-    let (mut child_views, orphan_views) = mapping_folder_views(
+    let (child_views, orphan_views) = mapping_folder_views(
       &import_container_view_id,
       &mut old_to_new_id_map,
       &imported_session,
       &imported_collab_db_read_txn,
     )?;
 
-    let views = match imported_folder.source {
+    let (views, orphan_views) = match imported_folder.source {
       ImportedSource::ExternalFolder => match imported_container_view_name {
-        None => {
-          child_views.extend(orphan_views);
-          Ok(child_views)
-        },
+        None => Ok::<(Vec<ParentChildViews>, Vec<ParentChildViews>), anyhow::Error>((
+          child_views,
+          orphan_views,
+        )),
         Some(container_name) => {
           // create a new view with given name and then attach views to it
-          create_new_container_view(
+          let child_views = create_new_container_view(
             current_session,
             &mut document_object_ids,
             &import_container_view_id,
             current_collab_db_write_txn,
             child_views,
-            orphan_views,
             container_name,
-          )
+          )?;
+          Ok((child_views, orphan_views))
         },
       },
-      ImportedSource::AnonUser => {
-        child_views.extend(orphan_views);
-        Ok(child_views)
-      },
+      ImportedSource::AnonUser => Ok((child_views, orphan_views)),
     }?;
-    Ok(NestedViews { views })
+
+    Ok((views, orphan_views))
   })?;
 
   Ok(ImportedAppFlowyData {
     parent_view_id: imported_folder.parent_view_id,
     folder_data: ImportedFolderData {
       views,
+      orphan_views,
       database_view_ids_by_database_id,
     },
     collab_data: ImportedCollabData {
@@ -313,7 +324,6 @@ fn create_new_container_view<'a, W>(
   import_container_view_id: &str,
   collab_write_txn: &'a W,
   child_views: Vec<ParentChildViews>,
-  orphan_views: Vec<ParentChildViews>,
   container_name: String,
 ) -> Result<Vec<ParentChildViews>, PersistenceError>
 where
@@ -334,16 +344,24 @@ where
     .map_err(|err| PersistenceError::InvalidData(err.to_string()))?
     .doc_state
     .to_vec();
-  import_collab_object_with_doc_state(
-    import_container_doc_state,
+
+  let collab = Collab::new_with_source(
+    CollabOrigin::Empty,
+    import_container_view_id,
+    DataSource::DocStateV1(import_container_doc_state),
+    vec![],
+    false,
+  )?;
+  write_collab_object(
+    &collab,
     current_session.user_id,
     import_container_view_id,
     collab_write_txn,
-  )?;
+  );
 
   document_object_ids.insert(import_container_view_id.to_string());
 
-  let mut import_container_views = vec![ViewBuilder::new(
+  let import_container_views = vec![ViewBuilder::new(
     current_session.user_id,
     current_session.user_workspace.id.clone(),
   )
@@ -353,7 +371,6 @@ where
   .with_child_views(child_views)
   .build()];
 
-  import_container_views.extend(orphan_views);
   Ok(import_container_views)
 }
 
@@ -521,9 +538,7 @@ where
           // The row document might not exist in the database row. But by querying the old_row_document_id,
           // we can know the document of the row is exist or not.
           let new_row_document_id = database_row_document_id_from_row_id(&new_row_id);
-
           old_to_new_id_map.insert(old_row_document_id.clone(), new_row_document_id);
-
           row_order.id = RowId::from(new_row_id);
 
           imported_database_row_object_ids
@@ -542,10 +557,10 @@ where
       });
 
       let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
-      debug!(
-        "[AppflowyData]: migrate database from: {}, to: {}",
-        object_id, new_object_id,
-      );
+      // debug!(
+      //   "[AppflowyData]: migrate database from: {}, to: {}",
+      //   object_id, new_object_id,
+      // );
       write_collab_object(
         database_collab,
         session.user_id,
@@ -567,26 +582,20 @@ where
   });
 
   for (database_id, imported_row_ids) in imported_database_row_object_ids {
-    for imported_row_id in imported_row_ids {
-      if let Some(imported_collab) = imported_collab_by_oid.get_mut(&imported_row_id) {
+    imported_row_ids.iter().for_each(|imported_row_id| {
+      if let Some(imported_collab) = imported_collab_by_oid.get_mut(imported_row_id) {
         let new_database_id = old_to_new_id_map.exchange_new_id(&database_id);
-        let new_row_id = old_to_new_id_map.exchange_new_id(&imported_row_id);
+        let new_row_id = old_to_new_id_map.exchange_new_id(imported_row_id);
         mut_row_with_collab(imported_collab, |row_update| {
           row_update
             .set_row_id(RowId::from(new_row_id.clone()))
             .set_database_id(new_database_id.clone());
         });
-        write_collab_object(
-          imported_collab,
-          session.user_id,
-          &new_row_id,
-          collab_write_txn,
-        );
       }
 
       // imported_collab_by_oid contains all the collab object ids, including the row document collab object ids.
       // So, if the id exist in the imported_collab_by_oid, it means the row document collab object is exist.
-      let imported_row_document_id = database_row_document_id_from_row_id(&imported_row_id);
+      let imported_row_document_id = database_row_document_id_from_row_id(imported_row_id);
       if imported_collab_by_oid
         .get(&imported_row_document_id)
         .is_some()
@@ -594,13 +603,29 @@ where
         let new_row_document_id = old_to_new_id_map.exchange_new_id(&imported_row_document_id);
         row_document_object_ids.insert(new_row_document_id);
       }
+    });
+
+    let gen_collabs = imported_row_ids
+      .par_iter()
+      .filter_map(|imported_row_id| {
+        let imported_collab = imported_collab_by_oid.get(imported_row_id)?;
+        match old_to_new_id_map.get_new_id(imported_row_id) {
+          None => {
+            error!(
+              "[AppflowyData]: Can't find the new id for the imported row:{}",
+              imported_row_id
+            );
+            None
+          },
+          Some(new_row_id) => gen_sv_and_doc_state(session.user_id, new_row_id, imported_collab),
+        }
+      })
+      .collect::<Vec<_>>();
+
+    for gen_collab in gen_collabs {
+      write_gen_collab(gen_collab, collab_write_txn);
     }
   }
-
-  debug!(
-    "[AppflowyData]:import row document ids: {:?}",
-    row_document_object_ids.iter().collect::<Vec<&String>>()
-  );
 
   Ok(())
 }
@@ -623,6 +648,7 @@ where
           );
           return;
         }
+        drop(txn);
       }
 
       let txn = doc.transact();
@@ -642,25 +668,52 @@ where
   }
 }
 
-fn import_collab_object_with_doc_state<'a, W>(
+struct GenCollab {
+  uid: i64,
+  sv: Vec<u8>,
   doc_state: Vec<u8>,
-  new_uid: i64,
-  new_object_id: &str,
-  w_txn: &'a W,
-) -> Result<(), anyhow::Error>
+  object_id: String,
+}
+
+fn write_gen_collab<'a, W>(collab: GenCollab, w_txn: &'a W)
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Collab::new_with_source(
-    CollabOrigin::Empty,
-    new_object_id,
-    DataSource::DocStateV1(doc_state),
-    vec![],
-    false,
-  )?;
-  write_collab_object(&collab, new_uid, new_object_id, w_txn);
-  Ok(())
+  if let Err(err) = w_txn.flush_doc(collab.uid, &collab.object_id, collab.sv, collab.doc_state) {
+    error!(
+      "[AppflowyData]:import collab:{} failed: {:?}",
+      collab.object_id, err
+    );
+  }
+}
+
+fn gen_sv_and_doc_state(uid: i64, object_id: &str, collab: &Collab) -> Option<GenCollab> {
+  let encoded_collab = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+    .ok()?;
+  let update = Update::decode_v1(&encoded_collab.doc_state).ok()?;
+  let doc = Doc::new();
+  let mut txn = doc.transact_mut();
+  if let Err(e) = txn.apply_update(update) {
+    error!(
+      "Collab {} failed to apply update: {}",
+      collab.object_id(),
+      e
+    );
+    return None;
+  }
+  drop(txn);
+
+  let txn = doc.transact();
+  let state_vector = txn.state_vector();
+  let doc_state = txn.encode_state_as_update_v1(&StateVector::default());
+  Some(GenCollab {
+    uid,
+    sv: state_vector.encode_v1(),
+    doc_state,
+    object_id: object_id.to_string(),
+  })
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -824,6 +877,10 @@ impl OldToNewIdMap {
       .entry(old_id.to_string())
       .or_insert(gen_view_id().to_string());
     (*view_id).clone()
+  }
+
+  fn get_new_id(&self, old_id: &str) -> Option<&String> {
+    self.0.get(old_id)
   }
 }
 

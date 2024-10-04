@@ -175,6 +175,7 @@ impl EventIntegrationTest {
     let payload = ImportAppFlowyDataPB {
       path,
       import_container_name: name,
+      parent_view_id: None,
     };
     match EventBuilder::new(self.clone())
       .event(UserEvent::ImportAppFlowyDataFolder)

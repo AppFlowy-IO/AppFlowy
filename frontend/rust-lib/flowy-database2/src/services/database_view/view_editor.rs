@@ -322,12 +322,10 @@ impl DatabaseViewEditor {
           } else {
             (None, None, vec![])
           }
+        } else if let Ok(result) = controller.did_delete_row(&row) {
+          (None, result.deleted_group, result.row_changesets)
         } else {
-          if let Ok(result) = controller.did_delete_row(&row) {
-            (None, result.deleted_group, result.row_changesets)
-          } else {
-            (None, None, vec![])
-          }
+          (None, None, vec![])
         };
 
         if let Some(inserted_group) = inserted_group {

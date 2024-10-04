@@ -47,12 +47,13 @@ pub struct UserWorkspaceServiceImpl {
 impl UserWorkspaceService for UserWorkspaceServiceImpl {
   async fn import_views(
     &self,
-    views: NestedViews,
+    views: Vec<ParentChildViews>,
+    orphan_views: Vec<ParentChildViews>,
     parent_view_id: Option<String>,
   ) -> FlowyResult<()> {
     self
       .folder_manager
-      .insert_parent_child_views(views.into_inner(), parent_view_id)
+      .insert_parent_child_views(views, orphan_views, parent_view_id)
       .await?;
     Ok(())
   }

@@ -351,6 +351,7 @@ impl FolderManager {
   pub async fn insert_parent_child_views(
     &self,
     mut views: Vec<ParentChildViews>,
+    orphan_views: Vec<ParentChildViews>,
     parent_view_id: Option<String>,
   ) -> Result<(), FlowyError> {
     let lock = self
@@ -397,6 +398,7 @@ impl FolderManager {
 
     // Insert the views into the folder.
     folder.insert_nested_views(views);
+    folder.insert_nested_views(orphan_views);
     Ok(())
   }
 

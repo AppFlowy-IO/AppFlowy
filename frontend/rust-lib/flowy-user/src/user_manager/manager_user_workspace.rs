@@ -80,12 +80,13 @@ impl UserManager {
 
   async fn upload_folder_data(
     &self,
-    current_session: &Session,
+    _current_session: &Session,
     parent_view_id: Option<String>,
     folder_data: ImportedFolderData,
   ) -> Result<(), FlowyError> {
     let ImportedFolderData {
       views,
+      orphan_views,
       database_view_ids_by_database_id,
     } = folder_data;
     self
@@ -94,7 +95,7 @@ impl UserManager {
       .await?;
     self
       .user_workspace_service
-      .import_views(views, parent_view_id)
+      .import_views(views, orphan_views, parent_view_id)
       .await?;
 
     Ok(())

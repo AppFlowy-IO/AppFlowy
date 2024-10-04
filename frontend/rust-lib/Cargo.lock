@@ -2538,6 +2538,7 @@ dependencies = [
  "quickcheck_macros",
  "rand 0.8.5",
  "rand_core 0.6.4",
+ "rayon",
  "semver",
  "serde",
  "serde_json",

@@ -1,7 +1,6 @@
 use collab::preclude::Collab;
 use collab_integrate::{CollabKVAction, PersistenceError};
 use std::collections::HashMap;
-use tracing::instrument;
 
 /// This function loads collab objects by their object_ids.
 pub fn load_collab_by_object_ids<'a, R>(
