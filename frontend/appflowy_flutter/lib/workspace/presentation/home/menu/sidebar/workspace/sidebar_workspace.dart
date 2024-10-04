@@ -264,7 +264,12 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => popoverController.show(),
+        onTap: () {
+          context.read<UserWorkspaceBloc>().add(
+                const UserWorkspaceEvent.fetchWorkspaces(),
+              );
+          popoverController.show();
+        },
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           height: 30,
