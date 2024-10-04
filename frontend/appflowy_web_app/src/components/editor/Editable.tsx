@@ -1,5 +1,3 @@
-import { YjsEditor } from '@/application/slate-yjs';
-import { CustomEditor } from '@/application/slate-yjs/command';
 import { useDecorate } from '@/components/editor/components/blocks/code/useDecorate';
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
@@ -26,7 +24,7 @@ const EditorEditable = () => {
 
     if (!selection) return;
     if (Range.isExpanded(selection)) {
-      CustomEditor.deleteBlockBackward(editor as YjsEditor, selection);
+      editor.delete();
     }
   }, [editor]);
 
