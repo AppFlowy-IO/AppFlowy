@@ -693,12 +693,37 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        final bool isPrimary = state.field.isPrimary;
+        if (state.field.isPrimary) {
+          return SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FlowyTooltip(
+                message: LocaleKeys.grid_field_switchPrimaryFieldTooltip.tr(),
+                child: FlowyButton(
+                  text: FlowyText(
+                    state.field.fieldType.i18n,
+                    lineHeight: 1.0,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  leftIcon: FlowySvg(
+                    state.field.fieldType.svgData,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  rightIcon: FlowySvg(
+                    FlowySvgs.more_s,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(460, 540)),
-            triggerActions: isPrimary ? 0 : PopoverTriggerFlags.hover,
+            triggerActions: PopoverTriggerFlags.hover,
             mutex: widget.popoverMutex,
             controller: _popoverController,
             offset: const Offset(8, 0),
@@ -715,23 +740,16 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: FlowyButton(
-                onTap: () {
-                  if (!isPrimary) {
-                    _popoverController.show();
-                  }
-                },
+                onTap: () => _popoverController.show(),
                 text: FlowyText(
                   state.field.fieldType.i18n,
                   lineHeight: 1.0,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
                 leftIcon: FlowySvg(
                   state.field.fieldType.svgData,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
-                rightIcon: FlowySvg(
+                rightIcon: const FlowySvg(
                   FlowySvgs.more_s,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
               ),
             ),
