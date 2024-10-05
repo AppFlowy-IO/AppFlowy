@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -16,11 +17,9 @@ class CoverTitle extends StatelessWidget {
   const CoverTitle({
     super.key,
     required this.view,
-    required this.offset,
   });
 
   final ViewPB view;
-  final double offset;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,6 @@ class CoverTitle extends StatelessWidget {
       create: (context) => ViewBloc(view: view)..add(const ViewEvent.initial()),
       child: _InnerCoverTitle(
         view: view,
-        offset: offset,
       ),
     );
   }
@@ -37,11 +35,9 @@ class CoverTitle extends StatelessWidget {
 class _InnerCoverTitle extends StatefulWidget {
   const _InnerCoverTitle({
     required this.view,
-    required this.offset,
   });
 
   final ViewPB view;
-  final double offset;
 
   @override
   State<_InnerCoverTitle> createState() => _InnerCoverTitleState();
@@ -50,6 +46,7 @@ class _InnerCoverTitle extends StatefulWidget {
 class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleTextController = TextEditingController();
   final titleFocusNode = FocusNode();
+
   late final editorContext = context.read<SharedEditorContext>();
   late final editorState = context.read<EditorState>();
   bool isTitleFocused = false;
@@ -99,12 +96,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         .textTheme
         .bodyMedium!
         .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
+    final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
       listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: widget.offset),
+          padding: EditorStyleCustomizer.documentPaddingWithOptionMenu,
+          constraints: BoxConstraints(maxWidth: width),
           child: Theme(
             data: Theme.of(context).copyWith(
               textSelectionTheme: TextSelectionThemeData(
