@@ -1,5 +1,5 @@
 use crate::util::unzip;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use std::time::Duration;
@@ -11,7 +11,7 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   let (imported_af_folder_cleaner, imported_af_data_path) =
     unzip("./tests/asset", &import_container_name).unwrap();
 
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
       .await;
@@ -34,15 +34,22 @@ async fn import_appflowy_data_folder_into_new_view_test() {
 
   // after import, the structure is:
   // workspace:
-  //   view: Getting Started
-  //   view: 040_local
-  //     view: Document1
-  //        view: Document2
-  //          view: Grid1
-  //          view: Grid2
+  //    Document1
+  //     Document2
+  //        Grid1
+  //        Grid2
+  //     040_local
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 2);
-  assert_eq!(views[1].name, import_container_name);
+  assert_eq!(views.len(), 1);
+  assert_eq!(views[0].name, "Document1");
+  assert_eq!(views[0].child_views.len(), 2);
+
+  for (index, view) in views[0].child_views.iter().enumerate() {
+    let view = test.get_view(&view.id).await;
+    if index == 1 {
+      assert_eq!(view.name, import_container_name);
+    }
+  }
 
   drop(cleaner);
   drop(imported_af_folder_cleaner);

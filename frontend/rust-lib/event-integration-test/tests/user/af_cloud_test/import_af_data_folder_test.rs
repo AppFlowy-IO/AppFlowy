@@ -1,7 +1,7 @@
 use crate::util::unzip;
 use assert_json_diff::assert_json_include;
 use collab_database::rows::database_row_document_id_from_row_id;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_user::errors::ErrorCode;
@@ -9,62 +9,32 @@ use serde_json::{json, Value};
 use std::env::temp_dir;
 
 #[tokio::test]
-async fn import_appflowy_data_need_migration_test() {
-  // In 037, the workspace array will be migrated to view.
-  let import_container_name = "037_local".to_string();
-  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
-  // Getting started
-  //  Document1
-  //  Document2(fav)
-  user_localhost_af_cloud().await;
-  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
-  let _ = test.af_cloud_sign_up().await;
-  test
-    .import_appflowy_data(
-      user_db_path.to_str().unwrap().to_string(),
-      Some(import_container_name.clone()),
-    )
-    .await
-    .unwrap();
-  // after import, the structure is:
-  // workspace:
-  //   view: Generate
-  //   view: Shared
-  //   view: 037_local
-  //      view: Getting Started
-  //        view: Document1
-  //        view: Document2
-
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
-  assert_eq!(views[2].name, import_container_name);
-
-  let child_views = test.get_view(&views[2].id).await.child_views;
-  assert_eq!(child_views.len(), 1);
-
-  let child_views = test.get_view(&child_views[0].id).await.child_views;
-  assert_eq!(child_views.len(), 2);
-  assert_eq!(child_views[0].name, "Document1");
-  assert_eq!(child_views[1].name, "Document2");
-  drop(cleaner);
-}
-
-#[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
   let import_container_name = "040_local".to_string();
   let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local, the structure is:
-  // workspace:
-  //  view: Document1
-  //    view: Document2
-  //      view: Grid1
-  //      view: Grid2
-  user_localhost_af_cloud().await;
+  //  Document1
+  //     Document2
+  //       Grid1
+  //       Grid2
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views[0].name, "General");
+  assert_eq!(views[1].name, "Shared");
+  assert_eq!(views.len(), 2);
+  let shared_space_id = views[1].id.clone();
+  let shared_space = test.get_view(&shared_space_id).await;
+
+  // by default, shared space is empty
+  assert!(shared_space.child_views.is_empty());
   // after sign up, the initial workspace is created, so the structure is:
   // workspace:
-  //   view: Getting Started
+  //   General
+  //     template_document
+  //     template_document
+  //   Shared
 
   test
     .import_appflowy_data(
@@ -75,24 +45,27 @@ async fn import_appflowy_data_folder_into_new_view_test() {
     .unwrap();
   // after import, the structure is:
   // workspace:
-  //   view: Getting Started
-  //   view: 040_local
-  //     view: Document1
-  //        view: Document2
-  //          view: Grid1
-  //          view: Grid2
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
-  assert_eq!(views[2].name, import_container_name);
+  //   General
+  //     template_document
+  //     template_document
+  //     040_local
+  //   Shared
+  let general_space = test.get_view(&shared_space_id).await;
+  let shared_sub_views = &general_space.child_views;
+  assert_eq!(shared_sub_views.len(), 1);
+  assert_eq!(shared_sub_views[0].name, import_container_name);
 
   // the 040_local should be an empty document, so try to get the document data
-  let _ = test.get_document_data(&views[2].id).await;
+  let _ = test.get_document_data(&shared_sub_views[0].id).await;
 
-  let local_child_views = test.get_view(&views[2].id).await.child_views;
-  assert_eq!(local_child_views.len(), 1);
-  assert_eq!(local_child_views[0].name, "Document1");
+  let _040_local_child_views = test.get_view(&shared_sub_views[0].id).await.child_views;
+  assert_eq!(_040_local_child_views.len(), 1);
+  assert_eq!(_040_local_child_views[0].name, "Document1");
 
-  let document1_child_views = test.get_view(&local_child_views[0].id).await.child_views;
+  let document1_child_views = test
+    .get_view(&_040_local_child_views[0].id)
+    .await
+    .child_views;
   assert_eq!(document1_child_views.len(), 1);
   assert_eq!(document1_child_views[0].name, "Document2");
 
@@ -122,12 +95,11 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
   let import_container_name = "040_local".to_string();
   let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local, the structure is:
-  // workspace:
-  //  view: Document1
-  //    view: Document2
-  //      view: Grid1
-  //      view: Grid2
-  user_localhost_af_cloud().await;
+  //  Document1
+  //     Document2
+  //       Grid1
+  //       Grid2
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
   // after sign up, the initial workspace is created, so the structure is:
@@ -138,19 +110,25 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
     .import_appflowy_data(user_db_path.to_str().unwrap().to_string(), None)
     .await
     .unwrap();
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views[0].name, "General");
+  assert_eq!(views[1].name, "Shared");
+  assert_eq!(views.len(), 2);
+  let shared_space_id = views[1].id.clone();
+  let shared_space_child_views = test.get_view(&shared_space_id).await.child_views;
+  assert_eq!(shared_space_child_views.len(), 1);
+
   // after import, the structure is:
   // workspace:
-  //   view: General
-  //   view: Shared
-  //   view: Document1
-  //      view: Document2
-  //        view: Grid1
-  //        view: Grid2
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
-  assert_eq!(views[2].name, "Document1");
-
-  let document_1_child_views = test.get_view(&views[2].id).await.child_views;
+  //   General
+  //   Shared
+  //      Document1
+  //        Document2
+  //           Grid1
+  //           Grid2
+  let document_1 = test.get_view(&shared_space_child_views[0].id).await;
+  assert_eq!(document_1.name, "Document1");
+  let document_1_child_views = test.get_view(&document_1.id).await.child_views;
   assert_eq!(document_1_child_views.len(), 1);
   assert_eq!(document_1_child_views[0].name, "Document2");
 
@@ -166,32 +144,9 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
 }
 
 #[tokio::test]
-async fn import_appflowy_data_folder_into_new_view_test2() {
-  let import_container_name = "040_local_2".to_string();
-  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
-  user_localhost_af_cloud().await;
-  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
-  let _ = test.af_cloud_sign_up().await;
-  test
-    .import_appflowy_data(
-      user_db_path.to_str().unwrap().to_string(),
-      Some(import_container_name.clone()),
-    )
-    .await
-    .unwrap();
-
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
-  assert_eq!(views[2].name, import_container_name);
-  assert_040_local_2_import_content(&test, &views[2].id).await;
-
-  drop(cleaner);
-}
-
-#[tokio::test]
 async fn import_empty_appflowy_data_folder_test() {
   let path = temp_dir();
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
   let error = test
@@ -217,9 +172,18 @@ async fn import_appflowy_data_folder_multiple_times_test() {
   //        Doc3_grid_1
   //        Doc3_grid_2
   //        Doc3_calendar_1
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views[0].name, "General");
+  assert_eq!(views[1].name, "Shared");
+  assert_eq!(views.len(), 2);
+  let shared_space_id = views[1].id.clone();
+  let shared_space = test.get_view(&shared_space_id).await;
+  // by default, shared space is empty
+  assert!(shared_space.child_views.is_empty());
+
   test
     .import_appflowy_data(
       user_db_path.to_str().unwrap().to_string(),
@@ -230,12 +194,22 @@ async fn import_appflowy_data_folder_multiple_times_test() {
   // after import, the structure is:
   //   General
   //   Shared
-  //   040_local_2
+  //      040_local_2
+  //        Getting Started
+  //           Doc1
+  //           Doc2
+  //           Grid1
+  //           Doc3
+  //              Doc3_grid_1
+  //              Doc3_grid_2
+  //              Doc3_calendar_1
 
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
-  assert_eq!(views[2].name, import_container_name);
-  assert_040_local_2_import_content(&test, &views[2].id).await;
+  let shared_space_children_views = test.get_view(&shared_space_id).await.child_views;
+  assert_eq!(shared_space_children_views.len(), 1);
+  let _040_local_view_id = shared_space_children_views[0].id.clone();
+  let _040_local_view = test.get_view(&_040_local_view_id).await;
+  assert_eq!(_040_local_view.name, import_container_name);
+  assert_040_local_2_import_content(&test, &_040_local_view_id).await;
 
   test
     .import_appflowy_data(
@@ -247,15 +221,13 @@ async fn import_appflowy_data_folder_multiple_times_test() {
   // after import, the structure is:
   //   Generate
   //   Shared
-  //   040_local_2
-  //      Getting started
-  //   040_local_2
-  //      Getting started
-  let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 4);
-  assert_eq!(views[3].name, import_container_name);
-  assert_040_local_2_import_content(&test, &views[2].id).await;
-  assert_040_local_2_import_content(&test, &views[3].id).await;
+  //     040_local_2
+  //     040_local_2
+  let shared_space_children_views = test.get_view(&shared_space_id).await.child_views;
+  assert_eq!(shared_space_children_views.len(), 2);
+  for view in shared_space_children_views {
+    assert_040_local_2_import_content(&test, &view.id).await;
+  }
   drop(cleaner);
 }
 

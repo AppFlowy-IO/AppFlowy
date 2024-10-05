@@ -413,18 +413,23 @@ impl FolderManager {
         .ok_or_else(|| FlowyError::internal().with_context("Cannot find the workspace ID"))?;
 
       // Get the latest view based on the last_edited_time in the workspace.
-      if let Some(latest_view) = folder
+      match folder
         .get_views_belong_to(&workspace_id)
         .iter()
         .max_by_key(|view| view.last_edited_time)
       {
-        info!(
-          "[AppFlowyData]: Attach parent-child views with the latest view: {:?}",
-          latest_view.id
-        );
-        views.iter_mut().for_each(|child_view| {
-          child_view.parent_view.parent_view_id = latest_view.id.clone();
-        });
+        None => info!("[AppFlowyData]: No views found in the workspace"),
+        Some(latest_view) => {
+          info!(
+            "[AppFlowyData]: Attach parent-child views with the latest view: {}:{}, is_space: {:?}",
+            latest_view.id,
+            latest_view.name,
+            latest_view.space_info(),
+          );
+          views.iter_mut().for_each(|child_view| {
+            child_view.parent_view.parent_view_id = latest_view.id.clone();
+          });
+        },
       }
     }
 
