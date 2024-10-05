@@ -1338,6 +1338,7 @@
       "delete": "Delete",
       "wrapCellContent": "Wrap text",
       "clear": "Clear cells",
+      "switchPrimaryFieldTooltip": "Cannot change field type of primary field",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
