@@ -1,12 +1,11 @@
 use collab_document::blocks::DocumentData;
-use serde_json::json;
-use std::time::Duration;
-
 use event_integration_test::document_event::assert_document_data_equal;
 use event_integration_test::user_event::user_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_document::entities::{DocumentSyncState, DocumentSyncStatePB};
+use serde_json::json;
+use std::time::Duration;
 
 use crate::util::{receive_with_timeout, unzip};
 
@@ -56,6 +55,16 @@ async fn af_cloud_sync_anon_user_document_test() {
   //  view: SyncDocument
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
+  for view in views.iter() {
+    let json = serde_json::from_str::<serde_json::Value>(view.extra.as_ref().unwrap()).unwrap();
+    let is_space = json.get("is_space").unwrap().as_bool().unwrap();
+    let permission = json.get("space_permission").unwrap().as_i64().unwrap();
+    if permission != 0 && permission != 1 {
+      panic!("permission should be 0 or 1, but got {}", permission);
+    }
+    assert!(is_space);
+  }
+
   let document_id = views[2].id.clone();
   test.open_document(document_id.clone()).await;
 

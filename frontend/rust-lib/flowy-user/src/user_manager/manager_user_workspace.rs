@@ -10,7 +10,7 @@ use collab_integrate::CollabKVDB;
 use tracing::{error, info, instrument, trace, warn};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::entities::{ImportedCollabData, ImportedFolderData};
+use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
@@ -70,6 +70,7 @@ impl UserManager {
     self
       .upload_folder_data(
         &current_session,
+        &import_data.source,
         import_data.parent_view_id,
         import_data.folder_data,
       )
@@ -81,6 +82,7 @@ impl UserManager {
   async fn upload_folder_data(
     &self,
     _current_session: &Session,
+    source: &ImportFrom,
     parent_view_id: Option<String>,
     folder_data: ImportedFolderData,
   ) -> Result<(), FlowyError> {
@@ -95,7 +97,7 @@ impl UserManager {
       .await?;
     self
       .user_workspace_service
-      .import_views(views, orphan_views, parent_view_id)
+      .import_views(source, views, orphan_views, parent_view_id)
       .await?;
 
     Ok(())

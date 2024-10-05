@@ -19,26 +19,26 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
-use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews, ViewBuilder};
+use collab_folder::hierarchy_builder::{ParentChildViews, ViewBuilder};
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::gen_view_id;
-use flowy_folder_pub::entities::{ImportedAppFlowyData, ImportedCollabData, ImportedFolderData};
+use flowy_folder_pub::entities::{
+  ImportFrom, ImportedAppFlowyData, ImportedCollabData, ImportedFolderData,
+};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
 use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 use flowy_user_pub::session::Session;
 use rayon::prelude::*;
-
-use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::sync::{Arc, Weak};
-use tracing::{error, event, info, instrument, trace, warn};
+use tracing::{error, event, info, instrument, warn};
 pub(crate) struct ImportedFolder {
   pub imported_session: Session,
   pub imported_collab_db: Arc<CollabKVDB>,
@@ -189,29 +189,15 @@ pub(crate) fn generate_import_data(
       id != user_workspace_id && id != workspace_database_id && id != &user_awareness_id
     });
 
-    match imported_folder.source {
-      ImportedSource::ExternalFolder => {
-        // 2. mapping the workspace database ids
-        if let Err(err) = mapping_workspace_database_ids(
-          &mut old_to_new_id_map,
-          &imported_session,
-          &imported_collab_db_read_txn,
-          &mut database_view_ids_by_database_id,
-          &mut database_object_ids,
-        ) {
-          error!("[AppflowyData]:import workspace database fail: {}", err);
-        }
-      },
-      ImportedSource::AnonUser => {
-        // 2. migrate the database with views object
-        migrate_database_with_views_object(
-          &mut old_to_new_id_map,
-          &imported_session,
-          &imported_collab_db_read_txn,
-          current_session,
-          current_collab_db_write_txn,
-        )?;
-      },
+    // 2. mapping the workspace database ids
+    if let Err(err) = mapping_workspace_database_ids(
+      &mut old_to_new_id_map,
+      &imported_session,
+      &imported_collab_db_read_txn,
+      &mut database_view_ids_by_database_id,
+      &mut database_object_ids,
+    ) {
+      error!("[AppflowyData]:import workspace database fail: {}", err);
     }
 
     // remove the database view ids from the object ids. Because there are no physical collab object
@@ -245,10 +231,6 @@ pub(crate) fn generate_import_data(
       old_to_new_id_map.exchange_new_id(object_id);
     });
 
-    trace!(
-      "[AppflowyData]:imported object ids: {:?}",
-      all_imported_object_ids.len()
-    );
     let gen_collabs = all_imported_object_ids
       .par_iter()
       .filter_map(|object_id| {
@@ -257,10 +239,6 @@ pub(crate) fn generate_import_data(
         gen_sv_and_doc_state(current_session.user_id, new_object_id, imported_collab)
       })
       .collect::<Vec<_>>();
-    trace!(
-      "[AppflowyData]:imported object ids2: {:?}",
-      gen_collabs.len()
-    );
 
     for gen_collab in gen_collabs {
       document_object_ids.insert(gen_collab.object_id.clone());
@@ -302,7 +280,13 @@ pub(crate) fn generate_import_data(
     Ok((views, orphan_views))
   })?;
 
+  let source = match imported_folder.source {
+    ImportedSource::ExternalFolder => ImportFrom::AppFlowyDataFolder,
+    ImportedSource::AnonUser => ImportFrom::AnonUser,
+  };
+
   Ok(ImportedAppFlowyData {
+    source,
     parent_view_id: imported_folder.parent_view_id,
     folder_data: ImportedFolderData {
       views,
@@ -434,65 +418,6 @@ fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDat
       WorkspaceDatabaseBody::create(collab)
     },
   }
-}
-
-#[instrument(level = "debug", skip_all, err)]
-fn migrate_database_with_views_object<'a, 'b, W, R>(
-  old_to_new_id_map: &mut OldToNewIdMap,
-  old_user_session: &Session,
-  old_collab_db_read_txn: &R,
-  new_user_session: &Session,
-  new_collab_w_txn: &W,
-) -> Result<(), PersistenceError>
-where
-  'a: 'b,
-  W: CollabKVAction<'a>,
-  R: CollabKVAction<'b>,
-  PersistenceError: From<W::Error>,
-  PersistenceError: From<R::Error>,
-{
-  let mut workspace_database_collab = Collab::new(
-    old_user_session.user_id,
-    &old_user_session.user_workspace.workspace_database_id,
-    "migrate_device",
-    vec![],
-    false,
-  );
-  old_collab_db_read_txn.load_doc_with_txn(
-    old_user_session.user_id,
-    &old_user_session.user_workspace.workspace_database_id,
-    &mut workspace_database_collab.transact_mut(),
-  )?;
-
-  let new_uid = new_user_session.user_id;
-  let new_object_id = &new_user_session.user_workspace.workspace_database_id;
-  let mut workspace_database_body = init_workspace_database_body(
-    &old_user_session.user_workspace.workspace_database_id,
-    workspace_database_collab,
-  );
-
-  for database_meta in workspace_database_body.get_all_database_meta() {
-    workspace_database_body.update_database(&database_meta.database_id, |update| {
-      let new_linked_views = update
-        .linked_views
-        .iter()
-        .map(|view_id| old_to_new_id_map.exchange_new_id(view_id))
-        .collect();
-      update.database_id = old_to_new_id_map.exchange_new_id(&update.database_id);
-      update.linked_views = new_linked_views;
-    })
-  }
-
-  {
-    let collab: &Collab = workspace_database_body.borrow();
-    let txn = collab.transact();
-    if let Err(err) = new_collab_w_txn.create_new_doc(new_uid, new_object_id, &txn) {
-      error!("🔴migrate database storage failed: {:?}", err);
-    }
-    drop(txn);
-  }
-
-  Ok(())
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -817,9 +742,6 @@ where
       },
     )
     .collect::<Vec<ParentChildViews>>();
-  let nested_view = NestedViews {
-    views: parent_views,
-  };
 
   // 6. after the parent views are created, the all_views_map only contains the orphan views
   info!(
@@ -836,11 +758,11 @@ where
 
   info!(
     "[AppflowyData]: parent views: {}, orphan views: {:?}",
-    nested_view,
+    parent_views.len(),
     orphan_views.len()
   );
 
-  Ok((nested_view.into_inner(), orphan_views))
+  Ok((parent_views, orphan_views))
 }
 
 fn parent_view_from_view(

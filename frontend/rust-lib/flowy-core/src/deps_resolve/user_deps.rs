@@ -1,9 +1,10 @@
 use crate::integrate::server::ServerProvider;
-use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews};
+use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_error::FlowyResult;
 use flowy_folder::manager::FolderManager;
+use flowy_folder_pub::entities::ImportFrom;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::user_manager::UserManager;
@@ -47,14 +48,25 @@ pub struct UserWorkspaceServiceImpl {
 impl UserWorkspaceService for UserWorkspaceServiceImpl {
   async fn import_views(
     &self,
+    source: &ImportFrom,
     views: Vec<ParentChildViews>,
     orphan_views: Vec<ParentChildViews>,
     parent_view_id: Option<String>,
   ) -> FlowyResult<()> {
-    self
-      .folder_manager
-      .insert_parent_child_views(views, orphan_views, parent_view_id)
-      .await?;
+    match source {
+      ImportFrom::AnonUser => {
+        self
+          .folder_manager
+          .flatten_views_hierarchy(views, orphan_views)
+          .await?;
+      },
+      ImportFrom::AppFlowyDataFolder => {
+        self
+          .folder_manager
+          .insert_views_with_parent(views, orphan_views, parent_view_id)
+          .await?;
+      },
+    }
     Ok(())
   }
 

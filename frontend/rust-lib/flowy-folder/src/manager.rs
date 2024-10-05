@@ -22,7 +22,7 @@ use arc_swap::ArcSwapOption;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
-use collab_folder::hierarchy_builder::ParentChildViews;
+use collab_folder::hierarchy_builder::{ParentChildViews, SpacePermission, ViewExtraBuilder};
 use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
   Workspace,
@@ -344,11 +344,43 @@ impl FolderManager {
     })
   }
 
+  /// All the views will become a space under the workspace.
+  pub async fn flatten_views_hierarchy(
+    &self,
+    mut views: Vec<ParentChildViews>,
+    orphan_views: Vec<ParentChildViews>,
+  ) -> Result<(), FlowyError> {
+    let lock = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(|| FlowyError::internal().with_context("The folder is not initialized"))?;
+    let mut folder = lock.write().await;
+    let workspace_id = folder
+      .get_workspace_id()
+      .ok_or_else(|| FlowyError::internal().with_context("Cannot find the workspace ID"))?;
+
+    views.iter_mut().for_each(|view| {
+      view.parent_view.parent_view_id = workspace_id.clone();
+      view.parent_view.extra = Some(
+        serde_json::to_string(
+          &ViewExtraBuilder::new()
+            .is_space(true, SpacePermission::PublicToAll)
+            .build(),
+        )
+        .unwrap(),
+      );
+    });
+    let all_views = views.into_iter().chain(orphan_views.into_iter()).collect();
+    folder.insert_nested_views(all_views);
+
+    Ok(())
+  }
+
   /// Inserts parent-child views into the folder. If a `parent_view_id` is provided,
   /// it will be used to set the `parent_view_id` for all child views. If not, the latest
   /// view (by `last_edited_time`) from the workspace will be used as the parent view.
   ///
-  pub async fn insert_parent_child_views(
+  pub async fn insert_views_with_parent(
     &self,
     mut views: Vec<ParentChildViews>,
     orphan_views: Vec<ParentChildViews>,
@@ -397,8 +429,8 @@ impl FolderManager {
     }
 
     // Insert the views into the folder.
-    folder.insert_nested_views(views);
-    folder.insert_nested_views(orphan_views);
+    let all_views = views.into_iter().chain(orphan_views.into_iter()).collect();
+    folder.insert_nested_views(all_views);
     Ok(())
   }
 

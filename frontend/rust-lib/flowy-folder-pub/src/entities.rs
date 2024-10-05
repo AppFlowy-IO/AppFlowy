@@ -4,9 +4,15 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub struct ImportedAppFlowyData {
+  pub source: ImportFrom,
   pub folder_data: ImportedFolderData,
   pub collab_data: ImportedCollabData,
   pub parent_view_id: Option<String>,
+}
+
+pub enum ImportFrom {
+  AnonUser,
+  AppFlowyDataFolder,
 }
 
 pub struct ImportedFolderData {
