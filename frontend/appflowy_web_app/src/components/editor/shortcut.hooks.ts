@@ -1,13 +1,12 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import { BlockType } from '@/application/types';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
-import { useCallback, KeyboardEvent } from 'react';
+import { KeyboardEvent, useCallback } from 'react';
 import { ReactEditor, useReadOnly } from 'slate-react';
-
-const SOFT_BREAK_TYPES = [BlockType.CalloutBlock, BlockType.CodeBlock];
 
 export function useShortcuts (editor: ReactEditor) {
   const yjsEditor = editor as YjsEditor;
@@ -16,12 +15,7 @@ export function useShortcuts (editor: ReactEditor) {
     const e = event.nativeEvent;
     const { selection } = editor;
 
-    if (!selection) return;
-    const [point, endPoint] = editor.edges(selection);
-    const node = getBlockEntry(yjsEditor, point);
-    const endNode = getBlockEntry(yjsEditor, endPoint);
-    const isSameBlock = node[0].blockId === endNode[0].blockId;
-
+    // Add more cases here for general shortcuts
     switch (true) {
       /**
        * Escape: Esc
@@ -30,6 +24,32 @@ export function useShortcuts (editor: ReactEditor) {
       case createHotkey(HOT_KEY_NAME.ESCAPE)(e):
         editor.deselect();
         break;
+
+      default:
+        break;
+    }
+
+    // Do not process shortcuts if editor is read-only or no selection
+    if (readOnly || !selection) return;
+    const [point, endPoint] = editor.edges(selection);
+    const node = getBlockEntry(yjsEditor, point);
+    const endNode = getBlockEntry(yjsEditor, endPoint);
+    const isSameBlock = node[0].blockId === endNode[0].blockId;
+
+    // Add more cases here for editing shortcuts
+    switch (!readOnly) {
+      /**
+       * Select all: Mod+A
+       * Default behavior: Select all text in the editor
+       * Special case for select all in code block: Only select all text in code block
+       */
+      case createHotkey(HOT_KEY_NAME.SELECT_ALL)(e):
+        if (node && node[0].type === BlockType.CodeBlock) {
+          event.preventDefault();
+          editor.select(node[1]);
+        }
+
+        break;
       /**
        * Indent block: Tab
        * Default behavior: Indent block
@@ -37,7 +57,7 @@ export function useShortcuts (editor: ReactEditor) {
       case createHotkey(HOT_KEY_NAME.INDENT_BLOCK)(e):
         event.preventDefault();
 
-        if (readOnly || !isSameBlock) return;
+        if (!isSameBlock) return;
         if (SOFT_BREAK_TYPES.includes(node[0]?.type as BlockType)) {
           editor.insertText('\t');
           break;
@@ -51,7 +71,7 @@ export function useShortcuts (editor: ReactEditor) {
        */
       case createHotkey(HOT_KEY_NAME.OUTDENT_BLOCK)(e):
         event.preventDefault();
-        if (readOnly || !isSameBlock) return;
+        if (!isSameBlock) return;
         CustomEditor.tabBackward(yjsEditor, point);
         break;
       /**
@@ -60,7 +80,6 @@ export function useShortcuts (editor: ReactEditor) {
        * Special case for soft break types: Insert \n
        */
       case createHotkey(HOT_KEY_NAME.SPLIT_BLOCK)(e):
-        if (readOnly) break;
         if (SOFT_BREAK_TYPES.includes(node[0]?.type as BlockType)) {
           event.preventDefault();
           editor.insertText('\n');
@@ -73,7 +92,6 @@ export function useShortcuts (editor: ReactEditor) {
        * Special case for soft break types: Split block
        */
       case createHotkey(HOT_KEY_NAME.INSERT_SOFT_BREAK)(e):
-        if (readOnly) break;
         event.preventDefault();
         if (node && SOFT_BREAK_TYPES.includes(node[0]?.type as BlockType)) {
           editor.insertBreak();
@@ -89,7 +107,6 @@ export function useShortcuts (editor: ReactEditor) {
        */
       case createHotkey(HOT_KEY_NAME.TOGGLE_TODO)(e):
       case createHotkey(HOT_KEY_NAME.TOGGLE_COLLAPSE)(e):
-        if (readOnly) break;
         event.preventDefault();
 
         if (node[0].type === BlockType.ToggleListBlock) {
@@ -104,7 +121,6 @@ export function useShortcuts (editor: ReactEditor) {
        */
       case createHotkey(HOT_KEY_NAME.BOLD)(e):
         event.preventDefault();
-        if (readOnly) break;
         CustomEditor.toggleMark(editor, {
           key: EditorMarkFormat.Bold,
           value: true,

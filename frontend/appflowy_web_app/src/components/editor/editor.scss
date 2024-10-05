@@ -10,6 +10,12 @@
   margin-left: 24px;
 }
 
+.block-element[data-block-type="quote"] {
+  .block-element {
+    margin-left: 0 !important;
+  }
+}
+
 .block-element[data-block-type="table/cell"] {
   margin-left: 0 !important;
 

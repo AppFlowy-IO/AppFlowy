@@ -54,7 +54,7 @@ describe('<Paragraph />', () => {
     cy.get('[role="textbox"]').should('exist');
 
     cy.get('[role="textbox"]').type('{movetostart}').type('{rightarrow}'.repeat(10))
-      .type(' New text at the `world` middle ');
+      .type(` New text at the 'world' middle `);
     cy.get('[role="textbox"]').type('{movetoend}').type('{leftarrow}'.repeat(6)).type('{backspace}'.repeat(4));
 
     cy.wrap(null).then(() => {
@@ -65,7 +65,7 @@ describe('<Paragraph />', () => {
         text: [
           { insert: 'Hello, ' },
           {
-            insert: 'wor New text at the `world` middle ld!',
+            insert: `wor New text at the 'world' middle ld!`,
             attributes: {
               italic: true,
               underline: true,

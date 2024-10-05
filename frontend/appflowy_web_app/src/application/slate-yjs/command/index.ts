@@ -9,25 +9,27 @@ import {
   getSharedRoot,
   handleCollapsedBreakWithTxn,
   handleDeleteEntireDocumentWithTxn,
+  handleIndentBlockWithTxn,
+  handleLiftBlockOnBackspaceAndEnterWithTxn,
+  handleLiftBlockOnTabWithTxn,
   handleMergeBlockBackwardWithTxn,
-  handleNonParagraphBlockBackspaceWithTxn,
-  handleRangeBreak,
-  handleLiftBlockOnBackspaceWithTxn,
   handleMergeBlockForwardWithTxn,
-  removeRangeWithTxn, handleIndentBlockWithTxn, handleLiftBlockOnTabWithTxn, turnToBlock,
+  handleNonParagraphBlockBackspaceAndEnterWithTxn,
+  handleRangeBreak,
+  removeRangeWithTxn,
+  turnToBlock,
 } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
   BlockType,
-  InlineBlockType,
-  Mention,
-  MentionType, TodoListBlockData,
-  ToggleListBlockData, YBlock,
-  YjsEditorKey, YSharedRoot,
+  MentionType,
+  TodoListBlockData,
+  ToggleListBlockData,
+  YjsEditorKey,
 } from '@/application/types';
-import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
-import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Range, Text, Transforms } from 'slate';
+import isEqual from 'lodash-es/isEqual';
+import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Text, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 export const CustomEditor = {
@@ -41,19 +43,6 @@ export const CustomEditor = {
   },
   // Get the text content of a block node, including the text content of its children and formula nodes
   getBlockTextContent (node: Node): string {
-    if (Element.isElement(node)) {
-      if (node.type === InlineBlockType.Formula) {
-        return (node as FormulaNode).data || '';
-      }
-
-      if (node.type === InlineBlockType.Mention && (node.data as Mention)?.type === MentionType.Date) {
-        const date = (node.data as Mention).date || '';
-        const isUnix = date?.length === 10;
-
-        return renderDate(date, 'MMM DD, YYYY', isUnix);
-      }
-    }
-
     if (Text.isText(node)) {
       if (node.formula) {
         return node.formula;
@@ -79,9 +68,8 @@ export const CustomEditor = {
   },
 
   setBlockData<T = BlockData> (editor: YjsEditor, blockId: string, updateData: T, select?: boolean) {
-    const readonly = editor.isElementReadOnly(editor);
 
-    if (readonly) {
+    if (editor.readOnly) {
       return;
     }
 
@@ -91,25 +79,36 @@ export const CustomEditor = {
       ...oldData,
       ...updateData,
     };
-    const operations = [() => {
-      block.set(YjsEditorKey.block_data, JSON.stringify(newData));
-    }];
-    const entry = Editor.above(editor, {
+
+    const newProperties = {
+      data: newData,
+    } as Partial<Element>;
+    const [entry] = editor.nodes({
+      at: [],
       match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
     });
 
-    executeOperations(editor.sharedRoot, operations, 'setBlockData');
-
-    if (!select) return;
-
     if (!entry) {
-      Transforms.select(editor, Editor.start(editor, [0]));
+      console.error('Block not found');
       return;
     }
 
-    const nodePath = entry[1];
+    const [, path] = entry;
+    let atChild = false;
+    const { selection } = editor;
 
-    Transforms.select(editor, Editor.start(editor, nodePath));
+    if (selection && Path.isAncestor(path, selection.anchor.path)) {
+      atChild = true;
+    }
+
+    Transforms.setNodes(editor, newProperties, { at: path });
+
+    if (!select) return;
+
+    if (atChild) {
+      Transforms.select(editor, Editor.start(editor, path));
+    }
+
   },
   // Insert break line at the specified path
   insertBreak (editor: YjsEditor, at?: BaseRange) {
@@ -142,11 +141,11 @@ export const CustomEditor = {
       const blockType = block.get(YjsEditorKey.block_type) as BlockType;
 
       if (blockType !== BlockType.Paragraph) {
-        handleNonParagraphBlockBackspaceWithTxn(sharedRoot, block);
+        handleNonParagraphBlockBackspaceAndEnterWithTxn(sharedRoot, block);
         return;
       }
 
-      if (path.length > 1 && handleLiftBlockOnBackspaceWithTxn(editor, sharedRoot, block, point)) {
+      if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
         return;
       }
 
@@ -256,6 +255,12 @@ export const CustomEditor = {
     const operations: (() => void)[] = [];
     const sharedRoot = getSharedRoot(editor);
     const sourceBlock = getBlock(blockId, sharedRoot);
+    const sourceType = sourceBlock.get(YjsEditorKey.block_type) as BlockType;
+    const oldData = dataStringTOJson(sourceBlock.get(YjsEditorKey.block_data));
+
+    if (sourceType === type && isEqual(oldData, data)) {
+      return;
+    }
 
     operations.push(() => {
       turnToBlock(sharedRoot, sourceBlock, type, data);

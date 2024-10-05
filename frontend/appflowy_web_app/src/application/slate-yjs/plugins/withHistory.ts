@@ -39,7 +39,7 @@ export function withYHistory<T extends YjsEditor> (
 ): T & YHistoryEditor {
   const e = editor as T & YHistoryEditor;
 
-  if (Editor.isElementReadOnly(e, e)) {
+  if (e.readOnly) {
     return e;
   }
 
@@ -52,6 +52,7 @@ export function withYHistory<T extends YjsEditor> (
 
   e.onChange = () => {
     onChange();
+
     const selection = e.selection;
 
     try {

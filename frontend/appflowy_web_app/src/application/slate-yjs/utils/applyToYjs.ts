@@ -1,16 +1,17 @@
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { getText } from '@/application/slate-yjs/utils/yjsOperations';
 import { calculateOffsetRelativeToParent } from '@/application/slate-yjs/utils/positions';
+import { getBlock, getNodeAtPath, getText } from '@/application/slate-yjs/utils/yjsOperations';
 import { YjsEditorKey, YSharedRoot } from '@/application/types';
 import {
-  Operation,
-  Element,
-  Editor,
-  InsertTextOperation,
-  RemoveTextOperation,
   Descendant,
-  SetNodeOperation, Path,
+  Editor,
+  Element, InsertNodeOperation,
+  InsertTextOperation,
+  Operation,
+  RemoveTextOperation,
+  SetNodeOperation,
+  Text,
 } from 'slate';
 import * as Y from 'yjs';
 
@@ -26,48 +27,90 @@ export function applyToYjs (ydoc: Y.Doc, editor: Editor, op: Operation, slateCon
       return applyRemoveText(ydoc, editor, op, slateContent);
     case 'set_node':
       return applySetNode(ydoc, editor, op, slateContent);
+    case 'insert_node':
+      return applyInsertNode(ydoc, editor, op, slateContent);
     default:
       return;
   }
 }
 
-function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, _slateContent: Descendant[]) {
-  const { path, offset, text } = op;
+function getAttributesAtOffset (ytext: Y.Text, offset: number): object | null {
+  const delta = ytext.toDelta();
+  let currentOffset = 0;
+
+  for (const op of delta) {
+    if ('insert' in op) {
+      const length = op.insert.length;
+
+      if (currentOffset <= offset && offset < currentOffset + length) {
+        return op.attributes || null;
+      }
+
+      currentOffset += length;
+    }
+  }
+
+  return null;
+}
+
+function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attributes }: InsertTextOperation & {
+  attributes?: object;
+}) {
   const node = findSlateNode(editor, path);
   const textId = node.textId as string;
   const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const yText = getText(textId, sharedRoot);
+
+  if (!yText) return;
   const point = { path, offset };
 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
+  const beforeAttributes = getAttributesAtOffset(yText, relativeOffset - 1);
 
-  yText.insert(relativeOffset, text);
-}
+  console.log('beforeAttributes', beforeAttributes);
 
-function getNodeAtPath (children: Descendant[], path: Path): Descendant | null {
-  let currentNode: Descendant | null = null;
-  let currentChildren = children;
+  if (beforeAttributes && ('formula' in beforeAttributes || 'mention' in beforeAttributes)) {
+    const newAttributes = {
+      ...attributes,
+    };
 
-  for (let i = 0; i < path.length; i++) {
-    const index = path[i];
-
-    if (index >= currentChildren.length) {
-      return null;
+    if ('formula' in beforeAttributes) {
+      Object.assign({
+        formula: undefined,
+      });
     }
 
-    currentNode = currentChildren[index];
-    if (i === path.length - 1) {
-      return currentNode;
+    if ('mention' in beforeAttributes) {
+      Object.assign({
+        mention: undefined,
+      });
     }
 
-    if (!Element.isElement(currentNode) || !currentNode.children) {
-      return null;
-    }
-
-    currentChildren = currentNode.children;
+    yText.insert(relativeOffset, text, newAttributes);
+  } else {
+    yText.insert(relativeOffset, text, attributes);
   }
 
-  return currentNode;
+  console.log('insertText', attributes, yText.toDelta());
+
+}
+
+function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, _slateContent: Descendant[]) {
+  const { path, offset, text } = op;
+
+  insertText(ydoc, editor, { path, offset, text, type: 'insert_text' });
+}
+
+function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, _slateContent: Descendant[]) {
+  const { path, node } = op;
+
+  if (!Text.isText(node)) return;
+  const text = node.text;
+  const offset = 0;
+
+  insertText(ydoc, editor, {
+    path, offset, text, type: 'insert_text',
+  });
 }
 
 function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, slateContent: Descendant[]) {
@@ -81,6 +124,9 @@ function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, 
 
   const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const yText = getText(textId, sharedRoot);
+
+  if (!yText) return;
+
   const point = { path, offset };
 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
@@ -100,26 +146,46 @@ function applySetNode (ydoc: Y.Doc, editor: Editor, op: SetNodeOperation, slateC
   const properties = Object.keys(newProperties);
 
   const isLeaf = properties.some((prop: string) => leafKeys.includes(prop));
+  const isData = properties.some((prop: string) => prop === 'data');
+  const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-  if (!isLeaf) {
-    console.log('set_node', newProperties);
+  console.log('applySetNode isLeaf', isLeaf, op);
+  if (isLeaf) {
+    const node = getNodeAtPath(slateContent, path.slice(0, -1)) as Element;
+    const textId = node.textId;
+
+    if (!textId) return;
+
+    const yText = getText(textId, sharedRoot);
+    const [start, end] = Editor.edges(editor, path);
+
+    const startRelativeOffset = Math.min(calculateOffsetRelativeToParent(node, start), yText.toJSON().length);
+    const endRelativeOffset = Math.min(calculateOffsetRelativeToParent(node, end), yText.toJSON().length);
+
+    const length = endRelativeOffset - startRelativeOffset;
+
+    yText.format(startRelativeOffset, length, newProperties);
     return;
   }
 
-  const node = getNodeAtPath(slateContent, path.slice(0, -1)) as Element;
-  const textId = node.textId;
+  if (isData) {
+    const node = getNodeAtPath(slateContent, path) as Element;
+    const blockId = node.blockId as string;
 
-  if (!textId) return;
+    if (!blockId) {
+      console.error('blockId is not found in node', node, newProperties);
+      return;
+    }
 
-  const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
-  const yText = getText(textId, sharedRoot);
-  const [start, end] = Editor.edges(editor, path);
+    const block = getBlock(blockId, sharedRoot);
 
-  const startRelativeOffset = Math.min(calculateOffsetRelativeToParent(node, start), yText.toJSON().length);
-  const endRelativeOffset = Math.min(calculateOffsetRelativeToParent(node, end), yText.toJSON().length);
+    if (
+      'data' in newProperties
+    ) {
+      block.set(YjsEditorKey.block_data, JSON.stringify(newProperties.data));
+      return;
+    }
+  }
 
-  const length = endRelativeOffset - startRelativeOffset;
-
-  yText.format(startRelativeOffset, length, newProperties);
-
+  console.error('set_node operation is not supported', op);
 }

@@ -1,4 +1,4 @@
-import { mountEditor, moveCursor } from '@/components/editor/__tests__/mount';
+import { mountEditor } from '@/components/editor/__tests__/mount';
 import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
 
 let documentTest: DocumentTest;

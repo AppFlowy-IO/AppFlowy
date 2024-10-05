@@ -58,6 +58,7 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
     /> : leaf.formula ? <FormulaLeaf formula={leaf.formula} text={text} /> : null;
 
     newChildren = <>
+      
       {node}
       <span className={'absolute opacity-0 left-0'}>
         {newChildren}

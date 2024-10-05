@@ -27,6 +27,8 @@ export enum EditorMarkFormat {
   StrikeThrough = 'strikethrough',
   Code = 'code',
   Href = 'href',
+  Formula = 'formula',
+  Mention = 'mention',
   FontColor = 'font_color',
   BgColor = 'bg_color',
   Align = 'align',

@@ -15,7 +15,7 @@ import {
 
 import { nanoid } from 'nanoid';
 import Delta, { Op } from 'quill-delta';
-import { BaseRange, Editor, Element, Node, NodeEntry, Path, Point, Range, Transforms } from 'slate';
+import { BaseRange, Descendant, Editor, Element, Node, NodeEntry, Path, Point, Range, Transforms } from 'slate';
 import * as Y from 'yjs';
 import { YjsEditor } from '../plugins/withYjs';
 import { slatePointToRelativePosition } from './positions';
@@ -109,12 +109,28 @@ export function updateBlockParent (sharedRoot: YSharedRoot, block: YBlock, paren
 
 export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, at: BaseRange) {
   const { startBlock, startOffset } = getBreakInfo(editor, sharedRoot, at);
-  const [blockNode] = startBlock;
+  const [blockNode, path] = startBlock;
   const blockId = blockNode.blockId as string;
   const block = getBlock(blockId, sharedRoot);
 
   if (!block) {
     throw new Error('Block not found');
+  }
+
+  const blockType = block.get(YjsEditorKey.block_type);
+  const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
+
+  if (yText.length === 0) {
+    if (blockType !== BlockType.Paragraph) {
+      handleNonParagraphBlockBackspaceAndEnterWithTxn(sharedRoot, block);
+      return;
+    }
+
+    const point = Editor.start(editor, at);
+
+    if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
+      return;
+    }
   }
 
   const { operations, select } = getSplitBlockOperations(sharedRoot, block, startOffset);
@@ -199,12 +215,6 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
 
   copyBlockText(sharedRoot, sourceBlock, newBlock);
 
-  if (CONTAINER_BLOCK_TYPES.includes(type)) {
-    transferChildren(sharedRoot, sourceBlock, newBlock);
-  } else {
-    liftChildren(sharedRoot, sourceBlock, newBlock);
-  }
-
   const parent = getBlock(sourceBlock.get(YjsEditorKey.block_parent), sharedRoot);
 
   if (!parent) return;
@@ -212,10 +222,16 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
   const index = parentChildren.toArray().findIndex((id) => id === sourceBlock.get(YjsEditorKey.block_id));
 
+  updateBlockParent(sharedRoot, newBlock, parent, index);
+
+  if (CONTAINER_BLOCK_TYPES.includes(type)) {
+    transferChildren(sharedRoot, sourceBlock, newBlock);
+  } else {
+    liftChildren(sharedRoot, sourceBlock, newBlock);
+  }
+
   // delete source block
   deleteBlock(sharedRoot, sourceBlock.get(YjsEditorKey.block_id));
-
-  updateBlockParent(sharedRoot, newBlock, parent, index);
 }
 
 function getSplitBlockOperations (sharedRoot: YSharedRoot, block: YBlock, offset: number): {
@@ -225,30 +241,21 @@ function getSplitBlockOperations (sharedRoot: YSharedRoot, block: YBlock, offset
   const operations: (() => void)[] = [];
 
   if (offset === 0) {
-    const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
-
-    if (yText.length === 0) {
-      operations.push(() => {
-        turnToBlock(sharedRoot, block, BlockType.Paragraph, {});
+    operations.push(() => {
+      const type = block.get(YjsEditorKey.block_type);
+      const data = dataStringTOJson(block.get(YjsEditorKey.block_data));
+      const isList = ListBlockTypes.includes(type);
+      const newBlock = createBlock(sharedRoot, {
+        ty: isList ? type : BlockType.Paragraph,
+        data: isList ? data : {},
       });
-      return { operations, select: false };
-    } else {
-      operations.push(() => {
-        const type = block.get(YjsEditorKey.block_type);
-        const data = dataStringTOJson(block.get(YjsEditorKey.block_data));
-        const isList = ListBlockTypes.includes(type);
-        const newBlock = createBlock(sharedRoot, {
-          ty: isList ? type : BlockType.Paragraph,
-          data: isList ? data : {},
-        });
-        const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
-        const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
-        const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
-        const prevIndex = index <= 0 ? 0 : index;
+      const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
+      const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
+      const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
+      const prevIndex = index <= 0 ? 0 : index;
 
-        updateBlockParent(sharedRoot, newBlock, parent, prevIndex);
-      });
-    }
+      updateBlockParent(sharedRoot, newBlock, parent, prevIndex);
+    });
 
     return { operations, select: true };
   }
@@ -537,11 +544,13 @@ export function getSplitBlockType (block: YBlock) {
       }
     }
 
-    case BlockType.HeadingBlock:
-    case BlockType.QuoteBlock:
-      return BlockType.Paragraph;
-    default:
+    case BlockType.BulletedListBlock:
+    case BlockType.NumberedListBlock:
+    case BlockType.TodoListBlock:
       return block.get(YjsEditorKey.block_type);
+
+    default:
+      return BlockType.Paragraph;
   }
 }
 
@@ -566,7 +575,7 @@ export function splitBlock (sharedRoot: YSharedRoot, block: YBlock, offset: numb
 
   const blockType = block.get(YjsEditorKey.block_type);
 
-  if (blockType === BlockType.ToggleListBlock) {
+  if (blockType === BlockType.ToggleListBlock || blockType === BlockType.QuoteBlock) {
     const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as ToggleListBlockData;
 
     if (!data.collapsed) {
@@ -716,7 +725,14 @@ export function getSelectionOrThrow (editor: YjsEditor, at?: BaseRange) {
   return newAt;
 }
 
-export function getBlockEntry (editor: YjsEditor, point: Point) {
+export function getBlockEntry (editor: YjsEditor, point?: Point) {
+  const { selection } = editor;
+  const at = point || (selection ? Editor.start(editor, selection) : null);
+
+  if (!at) {
+    throw new Error('Point not found');
+  }
+
   const blockEntry = editor.above({
     at: point,
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
@@ -729,7 +745,7 @@ export function getBlockEntry (editor: YjsEditor, point: Point) {
   return blockEntry as NodeEntry<Element>;
 }
 
-export function handleNonParagraphBlockBackspaceWithTxn (sharedRoot: YSharedRoot, block: YBlock) {
+export function handleNonParagraphBlockBackspaceAndEnterWithTxn (sharedRoot: YSharedRoot, block: YBlock) {
   const operations: (() => void)[] = [];
 
   operations.push(() => {
@@ -760,7 +776,7 @@ export function handleLiftBlockOnTabWithTxn (editor: YjsEditor, sharedRoot: YSha
   Transforms.select(editor, newPoint);
 }
 
-export function handleLiftBlockOnBackspaceWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
+export function handleLiftBlockOnBackspaceAndEnterWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
   const operations: (() => void)[] = [];
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
@@ -1142,4 +1158,30 @@ export function handleDeleteEntireDocumentWithTxn (editor: YjsEditor) {
 
   executeOperations(sharedRoot, operations, 'deleteEntireDocument');
   Transforms.select(editor, Editor.start(editor, [0]));
+}
+
+export function getNodeAtPath (children: Descendant[], path: Path): Descendant | null {
+  let currentNode: Descendant | null = null;
+  let currentChildren = children;
+
+  for (let i = 0; i < path.length; i++) {
+    const index = path[i];
+
+    if (index >= currentChildren.length) {
+      return null;
+    }
+
+    currentNode = currentChildren[index];
+    if (i === path.length - 1) {
+      return currentNode;
+    }
+
+    if (!Element.isElement(currentNode) || !currentNode.children) {
+      return null;
+    }
+
+    currentChildren = currentNode.children;
+  }
+
+  return currentNode;
 }

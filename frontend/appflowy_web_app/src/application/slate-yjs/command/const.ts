@@ -13,3 +13,4 @@ export const CONTAINER_BLOCK_TYPES = [
   BlockType.NumberedListBlock,
   BlockType.Page,
 ];
+export const SOFT_BREAK_TYPES = [BlockType.CalloutBlock, BlockType.CodeBlock];
