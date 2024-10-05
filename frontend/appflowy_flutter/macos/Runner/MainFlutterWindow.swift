@@ -75,6 +75,13 @@ class MainFlutterWindow: NSWindow {
     self.styleMask.insert(StyleMask.fullSizeContentView)
     self.isMovableByWindowBackground = true
 
+    // For the macOS version 15 or higher, set it to true to enable the window tiling
+    if #available(macOS 15.0, *) {
+      self.isMovable = true
+    } else {
+      self.isMovable = false
+    }
+
     self.layoutTrafficLights()
 
     RegisterGeneratedPlugins(registry: flutterViewController)
