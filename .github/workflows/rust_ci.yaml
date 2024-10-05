@@ -47,6 +47,8 @@ jobs:
         working-directory: AppFlowy-Cloud
         env:
           APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
+          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
@@ -133,6 +135,8 @@ jobs:
         working-directory: AppFlowy-Cloud
         env:
           APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
+          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then

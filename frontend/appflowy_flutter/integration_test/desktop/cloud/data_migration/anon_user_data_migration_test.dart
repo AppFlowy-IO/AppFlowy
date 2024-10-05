@@ -60,6 +60,7 @@ void main() {
 
       // sign up with Google
       await tester.tapGoogleLoginInButton();
+      // await tester.pumpAndSettle(const Duration(seconds: 16));
 
       // sign out
       await tester.expectToSeeHomePage();

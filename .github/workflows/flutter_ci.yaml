@@ -39,7 +39,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-2019]
+        os: [ windows-2019 ]
         include:
           - os: windows-2019
             flutter_profile: development-windows-x86
@@ -100,7 +100,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-latest]
+        os: [ macos-latest ]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -122,12 +122,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -216,11 +216,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -246,7 +246,9 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
+          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
+          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
@@ -322,12 +324,12 @@ jobs:
 
   # split the integration tests into different machines to minimize the time
   integration_test_1:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -352,12 +354,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_2:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -382,12 +384,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_3:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
