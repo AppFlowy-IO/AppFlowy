@@ -49,7 +49,7 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
       return widget.child ?? const SizedBox.shrink();
     }
 
-    // above macOS 15, we can control the window position by using system APIs
+    // For the macOS version 15 or higher, we can control the window position by using system APIs
     if (ApplicationInfo.macOSMajorVersion != null &&
         ApplicationInfo.macOSMajorVersion! >= 15) {
       return widget.child ?? const SizedBox.shrink();
