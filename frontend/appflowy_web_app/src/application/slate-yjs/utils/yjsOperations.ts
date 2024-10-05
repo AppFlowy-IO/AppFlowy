@@ -199,7 +199,11 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
 
   copyBlockText(sharedRoot, sourceBlock, newBlock);
 
-  transferChildren(sharedRoot, sourceBlock, newBlock);
+  if (CONTAINER_BLOCK_TYPES.includes(type)) {
+    transferChildren(sharedRoot, sourceBlock, newBlock);
+  } else {
+    liftChildren(sharedRoot, sourceBlock, newBlock);
+  }
 
   const parent = getBlock(sourceBlock.get(YjsEditorKey.block_parent), sharedRoot);
 

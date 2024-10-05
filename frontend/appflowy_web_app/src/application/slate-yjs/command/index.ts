@@ -14,7 +14,7 @@ import {
   handleRangeBreak,
   handleLiftBlockOnBackspaceWithTxn,
   handleMergeBlockForwardWithTxn,
-  removeRangeWithTxn, handleIndentBlockWithTxn, handleLiftBlockOnTabWithTxn,
+  removeRangeWithTxn, handleIndentBlockWithTxn, handleLiftBlockOnTabWithTxn, turnToBlock,
 } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
@@ -22,8 +22,8 @@ import {
   InlineBlockType,
   Mention,
   MentionType, TodoListBlockData,
-  ToggleListBlockData,
-  YjsEditorKey,
+  ToggleListBlockData, YBlock,
+  YjsEditorKey, YSharedRoot,
 } from '@/application/types';
 import { FormulaNode } from '@/components/editor/editor.type';
 import { renderDate } from '@/utils/time';
@@ -237,6 +237,30 @@ export const CustomEditor = {
   }: {
     key: EditorMarkFormat, value: boolean | string
   }) {
+    if (editor.marks && Object.keys(editor.marks).includes(key)) {
+      editor.removeMark(key);
+    } else {
+      editor.addMark(key, value);
+    }
+  },
+
+  addMark (editor: ReactEditor, {
+    key, value,
+  }: {
+    key: EditorMarkFormat, value: boolean | string
+  }) {
     editor.addMark(key, value);
+  },
+
+  turnToBlock<T extends BlockData> (editor: YjsEditor, blockId: string, type: BlockType, data: T) {
+    const operations: (() => void)[] = [];
+    const sharedRoot = getSharedRoot(editor);
+    const sourceBlock = getBlock(blockId, sharedRoot);
+
+    operations.push(() => {
+      turnToBlock(sharedRoot, sourceBlock, type, data);
+    });
+
+    executeOperations(sharedRoot, operations, 'turnToBlock');
   },
 };
