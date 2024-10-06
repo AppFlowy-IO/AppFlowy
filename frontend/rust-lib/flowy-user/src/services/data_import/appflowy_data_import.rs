@@ -23,7 +23,7 @@ use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews, ViewBuilde
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::gen_view_id;
 use flowy_folder_pub::entities::{
   ImportFrom, ImportedAppFlowyData, ImportedCollabData, ImportedFolderData,
@@ -255,7 +255,7 @@ pub(crate) fn generate_import_data(
       child_views,
       orphan_views,
       mut invalid_orphan_views,
-      not_exist_parent_view_ids: _,
+      not_exist_parent_view_ids,
     } = migrate_folder_views(
       &import_container_view_id,
       &mut old_to_new_id_map,
@@ -264,6 +264,15 @@ pub(crate) fn generate_import_data(
       &imported_collab_by_oid,
       &database_view_ids,
     )?;
+
+    // Create collaboration documents for views that don't have existing collaboration objects.
+    // Currently, when importing AppFlowy data, the view which is a space doesn't have a corresponding
+    // collab data in disk.
+    for view_id in not_exist_parent_view_ids {
+      if let Err(err) = create_empty_document_for_view(current_session.user_id, &view_id, current_collab_db_write_txn) {
+        error!("[AppflowyData]: create empty document for view failed: {}", err);
+      }
+    }
 
     let gen_collabs = all_imported_object_ids
         .par_iter()
@@ -368,6 +377,39 @@ pub(crate) fn generate_import_data(
       document_object_ids: document_object_ids.into_iter().collect(),
     },
   })
+}
+
+fn create_empty_document_for_view<'a, W>(
+  uid: i64,
+  view_id: &str,
+  collab_write_txn: &'a W,
+) -> FlowyResult<()>
+where
+  W: CollabKVAction<'a>,
+  PersistenceError: From<W::Error>,
+{
+  let import_container_doc_state = default_document_collab_data(view_id)
+    .map_err(|err| PersistenceError::InvalidData(err.to_string()))?
+    .doc_state
+    .to_vec();
+
+  let collab = Collab::new_with_source(
+    CollabOrigin::Empty,
+    view_id,
+    DataSource::DocStateV1(import_container_doc_state),
+    vec![],
+    false,
+  )
+  .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
+
+  write_collab_object(
+    &collab,
+    uid,
+    view_id,
+    collab_write_txn,
+    CollabType::Document,
+  );
+  Ok(())
 }
 
 #[instrument(level = "debug", skip_all, err)]

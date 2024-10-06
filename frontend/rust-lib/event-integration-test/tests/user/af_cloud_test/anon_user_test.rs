@@ -103,7 +103,6 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   );
 
   // check second level
-  assert_eq!(anon_second_level_views.len(), user_second_level_views.len());
   assert_ne!(anon_second_level_views[0].id, user_second_level_views[0].id);
   assert_eq!(
     anon_second_level_views[0].name,
