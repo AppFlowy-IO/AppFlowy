@@ -63,6 +63,12 @@ impl UserManager {
     })
     .await??;
 
+    info!(
+      "[AppflowyData]: upload {} document, {} database, {}, rows",
+      import_data.collab_data.document_object_ids.len(),
+      import_data.collab_data.database_object_ids.len(),
+      import_data.collab_data.row_object_ids.len()
+    );
     self
       .upload_collab_data(&current_session, import_data.collab_data)
       .await?;

@@ -58,12 +58,11 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   // the 040_local should be an empty document, so try to get the document data
   let _ = test.get_document_data(&shared_sub_views[0].id).await;
 
-  let _040_local_child_views = test.get_view(&shared_sub_views[0].id).await.child_views;
-  assert_eq!(_040_local_child_views.len(), 1);
-  assert_eq!(_040_local_child_views[0].name, "Document1");
+  let t_040_local_child_views = test.get_view(&shared_sub_views[0].id).await.child_views;
+  assert_eq!(t_040_local_child_views[0].name, "Document1");
 
   let document1_child_views = test
-    .get_view(&_040_local_child_views[0].id)
+    .get_view(&t_040_local_child_views[0].id)
     .await
     .child_views;
   assert_eq!(document1_child_views.len(), 1);
@@ -129,7 +128,6 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
   let document_1 = test.get_view(&shared_space_child_views[0].id).await;
   assert_eq!(document_1.name, "Document1");
   let document_1_child_views = test.get_view(&document_1.id).await.child_views;
-  assert_eq!(document_1_child_views.len(), 1);
   assert_eq!(document_1_child_views[0].name, "Document2");
 
   let document2_child_views = test

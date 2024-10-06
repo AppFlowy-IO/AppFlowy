@@ -228,13 +228,24 @@ pub(crate) fn generate_import_data(
     });
 
     // import the database
-    migrate_databases(
+    let MigrateDatabase {
+        database_view_ids ,
+        database_row_ids,
+    } = migrate_databases(
       &mut old_to_new_id_map,
       current_session,
       current_collab_db_write_txn,
       &mut all_imported_object_ids,
       &mut imported_collab_by_oid,
       &mut row_object_ids,
+    )?;
+
+    migrate_database_rows(
+      &mut old_to_new_id_map,
+      current_session,
+      current_collab_db_write_txn,
+      &mut imported_collab_by_oid,
+      database_row_ids,
     )?;
 
     // Update the parent view IDs of all top-level views to match the new container view ID, making
@@ -251,6 +262,7 @@ pub(crate) fn generate_import_data(
       &imported_session,
       &imported_collab_db_read_txn,
       &imported_collab_by_oid,
+      &database_view_ids,
     )?;
 
     let gen_collabs = all_imported_object_ids
@@ -488,25 +500,34 @@ fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDat
   }
 }
 
+struct MigrateDatabase {
+  database_view_ids: HashSet<String>,
+  database_row_ids: HashMap<String, HashSet<String>>,
+}
+
 #[instrument(level = "debug", skip_all, err)]
 fn migrate_databases<'a, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   session: &Session,
   collab_write_txn: &'a W,
-  imported_object_ids: &mut Vec<String>,
+  all_imported_object_ids: &mut Vec<String>,
   imported_collab_by_oid: &mut HashMap<String, Collab>,
   row_object_ids: &mut HashSet<String>,
-) -> Result<(), PersistenceError>
+) -> Result<MigrateDatabase, PersistenceError>
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   // Migrate databases
-  let mut row_document_object_ids = HashSet::new();
   let mut database_object_ids = vec![];
-  let mut imported_database_row_object_ids: HashMap<String, HashSet<String>> = HashMap::new();
-
-  for object_id in imported_object_ids.iter() {
+  let mut imported_database_row_ids: HashMap<String, HashSet<String>> = HashMap::new();
+  let mut imported_database_view_ids = HashSet::new();
+  let mut database_row_document_ids_pair = HashSet::new();
+  let all_imported_keys = imported_collab_by_oid
+    .keys()
+    .cloned()
+    .collect::<Vec<String>>();
+  for object_id in all_imported_object_ids.iter() {
     if let Some(database_collab) = imported_collab_by_oid.get_mut(object_id) {
       if !is_database_collab(database_collab) {
         continue;
@@ -522,8 +543,12 @@ where
         let old_database_id = database_view.database_id.clone();
         let new_database_id = old_to_new_id_map.exchange_new_id(&database_view.database_id);
 
+        imported_database_view_ids.insert(new_view_id.clone());
         database_view.id = new_view_id;
         database_view.database_id = new_database_id;
+        database_view
+          .row_orders
+          .retain(|row_order| all_imported_keys.contains(&row_order.id));
         database_view.row_orders.iter_mut().for_each(|row_order| {
           let old_row_id = String::from(row_order.id.clone());
           let old_row_document_id = database_row_document_id_from_row_id(&old_row_id);
@@ -531,10 +556,12 @@ where
           // The row document might not exist in the database row. But by querying the old_row_document_id,
           // we can know the document of the row is exist or not.
           let new_row_document_id = database_row_document_id_from_row_id(&new_row_id);
+          database_row_document_ids_pair
+            .insert((old_row_document_id.clone(), new_row_document_id.clone()));
           old_to_new_id_map.insert(old_row_document_id.clone(), new_row_document_id);
           row_order.id = RowId::from(new_row_id);
 
-          imported_database_row_object_ids
+          imported_database_row_ids
             .entry(old_database_id.clone())
             .or_default()
             .insert(old_row_id);
@@ -549,28 +576,70 @@ where
         row_object_ids.extend(new_row_ids);
       });
 
-      let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
+      let new_database_object_id = old_to_new_id_map.exchange_new_id(object_id);
       write_collab_object(
         database_collab,
         session.user_id,
-        &new_object_id,
+        &new_database_object_id,
         collab_write_txn,
         CollabType::Database,
       );
     }
   }
 
+  // write database rows into disk
+  let gen_database_row_document_collabs = database_row_document_ids_pair
+    .par_iter()
+    .filter_map(|(old_object_id, new_object_id)| {
+      let imported_collab = imported_collab_by_oid.get(old_object_id)?;
+      gen_sv_and_doc_state(
+        session.user_id,
+        new_object_id,
+        imported_collab,
+        CollabType::Document,
+      )
+    })
+    .collect::<Vec<_>>();
+  for gen_collab in gen_database_row_document_collabs {
+    write_gen_collab(gen_collab, collab_write_txn);
+  }
+
   // remove the database object ids from the object ids
-  imported_object_ids.retain(|id| !database_object_ids.contains(id));
+  all_imported_object_ids.retain(|id| !database_object_ids.contains(id));
 
   // remove database row object ids from the imported object ids
-  imported_object_ids.retain(|id| {
-    !imported_database_row_object_ids
+  all_imported_object_ids.retain(|id| {
+    !imported_database_row_ids
       .values()
       .flatten()
       .any(|row_id| row_id == id)
   });
 
+  let database_row_document_ids = database_row_document_ids_pair
+    .iter()
+    .map(|(old_object_id, _)| old_object_id.clone())
+    .collect::<HashSet<String>>();
+  all_imported_object_ids.retain(|id| !database_row_document_ids.contains(id));
+
+  Ok(MigrateDatabase {
+    database_view_ids: imported_database_view_ids,
+    database_row_ids: imported_database_row_ids,
+  })
+}
+
+#[instrument(level = "debug", skip_all, err)]
+fn migrate_database_rows<'a, W>(
+  old_to_new_id_map: &mut OldToNewIdMap,
+  session: &Session,
+  collab_write_txn: &'a W,
+  imported_collab_by_oid: &mut HashMap<String, Collab>,
+  imported_database_row_object_ids: HashMap<String, HashSet<String>>,
+) -> Result<(), PersistenceError>
+where
+  W: CollabKVAction<'a>,
+  PersistenceError: From<W::Error>,
+{
+  let mut row_document_ids = HashSet::new();
   for (database_id, imported_row_ids) in imported_database_row_object_ids {
     imported_row_ids.iter().for_each(|imported_row_id| {
       if let Some(imported_collab) = imported_collab_by_oid.get_mut(imported_row_id) {
@@ -591,7 +660,7 @@ where
         .is_some()
       {
         let new_row_document_id = old_to_new_id_map.exchange_new_id(&imported_row_document_id);
-        row_document_object_ids.insert(new_row_document_id);
+        row_document_ids.insert(new_row_document_id);
       }
     });
 
@@ -738,6 +807,7 @@ fn migrate_folder_views<'a, W>(
   imported_session: &Session,
   imported_collab_db_read_txn: &W,
   imported_collab_by_oid: &HashMap<String, Collab>,
+  database_view_ids: &HashSet<String>,
 ) -> Result<MigrateViews, PersistenceError>
 where
   W: CollabKVAction<'a>,
@@ -777,28 +847,39 @@ where
       "[AppflowyData]: Can't read the folder data"
     )))?;
 
-  let space_views = imported_folder_data
-    .workspace
-    .child_views
-    .iter()
-    .map(|view| view.id.clone())
-    .collect::<Vec<String>>();
-
   // Only import views whose collab data is available
   imported_folder_data.views.iter_mut().for_each(|view| {
-    view
-      .children
-      .retain(|view_identifier| imported_collab_by_oid.contains_key(&view_identifier.id));
+    view.children.retain(|view_identifier| {
+      let new_view_id = old_to_new_id_map.exchange_new_id(&view_identifier.id);
+      if database_view_ids.contains(&new_view_id) {
+        true
+      } else {
+        imported_collab_by_oid.contains_key(&view_identifier.id)
+      }
+    });
   });
   let mut not_exist_parent_view_ids = vec![];
   imported_folder_data.views.retain(|view| {
-    if space_views.contains(&view.id) {
-      if !imported_collab_by_oid.contains_key(&view.id) {
-        not_exist_parent_view_ids.push(old_to_new_id_map.exchange_new_id(&view.id));
-      }
+    let new_view_id = old_to_new_id_map.exchange_new_id(&view.id);
+    // If the view is a database view, it should be in the database view ids
+    if view.layout.is_database() && !database_view_ids.contains(&new_view_id) {
+      error!(
+        "[AppflowyData]: The database view:{} is not in the database view ids",
+        view.id
+      );
+    }
+
+    if database_view_ids.contains(&new_view_id) {
       true
     } else {
-      imported_collab_by_oid.contains_key(&view.id)
+      if view.space_info().is_some() {
+        if !imported_collab_by_oid.contains_key(&view.id) {
+          not_exist_parent_view_ids.push(new_view_id);
+        }
+        true
+      } else {
+        imported_collab_by_oid.contains_key(&view.id)
+      }
     }
   });
 
@@ -877,6 +958,16 @@ where
   let mut orphan_views = vec![];
   let mut invalid_orphan_views = vec![];
   for orphan_view in all_views_map.into_values() {
+    // when the view's parent view id is the same as its view id, it will be considered as the orphan view
+    // currently, only the document in database row follows this rule
+    if orphan_view.id == orphan_view.parent_view_id {
+      orphan_views.push(ParentChildViews {
+        view: orphan_view,
+        children: vec![],
+      });
+      continue;
+    }
+
     if parent_views
       .find_view(&orphan_view.parent_view_id)
       .is_none()
