@@ -782,6 +782,9 @@ impl DatabaseViewEditor {
       self.v_group_by_field(&field_id).await?;
     }
 
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    self.v_calculate_rows(rows).await?;
     Ok(())
   }
 
