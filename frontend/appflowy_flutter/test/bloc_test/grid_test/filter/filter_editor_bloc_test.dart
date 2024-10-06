@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
@@ -9,24 +10,35 @@ import '../util.dart';
 
 void main() {
   late AppFlowyGridTest gridTest;
+
   setUpAll(() async {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('filter editor bloc test:', () {
-    test('create filter', () async {
-      final context = await gridTest.createTestGrid();
-      final filterBloc = FilterEditorBloc(
-        viewId: context.gridView.id,
+  group('filter editor bloc:', () {
+    late GridTestContext context;
+    late FilterEditorBloc filterBloc;
+
+    setUp(() async {
+      context = await gridTest.makeDefaultTestGrid();
+      filterBloc = FilterEditorBloc(
+        viewId: context.view.id,
         fieldController: context.fieldController,
       );
-      await gridResponseFuture();
+    });
+
+    FieldInfo getFirstFieldByType(FieldType fieldType) {
+      return context.fieldController.fieldInfos
+          .firstWhere((field) => field.fieldType == fieldType);
+    }
+
+    test('create filter', () async {
       expect(filterBloc.state.filters.length, equals(0));
       expect(filterBloc.state.fields.length, equals(3));
 
       // through domain directly
-      final textField = context.getTextField();
-      final service = FilterBackendService(viewId: context.gridView.id);
+      final textField = getFirstFieldByType(FieldType.RichText);
+      final service = FilterBackendService(viewId: context.view.id);
       await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterConditionPB.TextIsEmpty,
@@ -37,7 +49,7 @@ void main() {
       expect(filterBloc.state.fields.length, equals(3));
 
       // through bloc event
-      final selectOptionField = context.getSelectOptionField();
+      final selectOptionField = getFirstFieldByType(FieldType.SingleSelect);
       filterBloc.add(FilterEditorEvent.createFilter(selectOptionField));
       await gridResponseFuture();
       expect(filterBloc.state.filters.length, equals(2));
@@ -53,15 +65,33 @@ void main() {
       expect(filterBloc.state.fields.length, equals(3));
     });
 
-    test('delete filter', () async {
-      final context = await gridTest.createTestGrid();
-      final filterBloc = FilterEditorBloc(
-        viewId: context.gridView.id,
-        fieldController: context.fieldController,
+    test('change filtering field', () async {
+      final textField = getFirstFieldByType(FieldType.RichText);
+      final selectField = getFirstFieldByType(FieldType.Checkbox);
+      filterBloc.add(FilterEditorEvent.createFilter(textField));
+      await gridResponseFuture();
+      expect(filterBloc.state.filters.length, equals(1));
+      expect(filterBloc.state.fields.length, equals(3));
+      expect(
+        filterBloc.state.filters.first.fieldType,
+        equals(FieldType.RichText),
+      );
+
+      final filter = filterBloc.state.filters.first;
+      filterBloc.add(
+        FilterEditorEvent.changeFilteringField(filter.filterId, selectField),
       );
       await gridResponseFuture();
+      expect(filterBloc.state.filters.length, equals(1));
+      expect(
+        filterBloc.state.filters.first.fieldType,
+        equals(FieldType.Checkbox),
+      );
+      expect(filterBloc.state.fields.length, equals(3));
+    });
 
-      final textField = context.getTextField();
+    test('delete filter', () async {
+      final textField = getFirstFieldByType(FieldType.RichText);
       filterBloc.add(FilterEditorEvent.createFilter(textField));
       await gridResponseFuture();
       expect(filterBloc.state.filters.length, equals(1));
@@ -75,15 +105,8 @@ void main() {
     });
 
     test('update filter', () async {
-      final context = await gridTest.createTestGrid();
-      final filterBloc = FilterEditorBloc(
-        viewId: context.gridView.id,
-        fieldController: context.fieldController,
-      );
-      await gridResponseFuture();
-
-      final service = FilterBackendService(viewId: context.gridView.id);
-      final textField = context.getTextField();
+      final service = FilterBackendService(viewId: context.view.id);
+      final textField = getFirstFieldByType(FieldType.RichText);
 
       // Create filter
       await service.insertTextFilter(
@@ -96,6 +119,7 @@ void main() {
       expect(filter.condition, equals(TextFilterConditionPB.TextIsEmpty));
 
       final textFilter = context.fieldController.filters.first;
+
       // Update the existing filter
       await service.insertTextFilter(
         fieldId: textField.id,
@@ -109,15 +133,8 @@ void main() {
       expect(filter.content, equals("ABC"));
     });
 
-    test('update field', () async {
-      final context = await gridTest.createTestGrid();
-      final filterBloc = FilterEditorBloc(
-        viewId: context.gridView.id,
-        fieldController: context.fieldController,
-      );
-      await gridResponseFuture();
-
-      final textField = context.getTextField();
+    test('update filtering field\'s name', () async {
+      final textField = getFirstFieldByType(FieldType.RichText);
       filterBloc.add(FilterEditorEvent.createFilter(textField));
       await gridResponseFuture();
       expect(filterBloc.state.filters.length, equals(1));
@@ -127,7 +144,7 @@ void main() {
 
       // edit field
       await FieldBackendService(
-        viewId: context.gridView.id,
+        viewId: context.view.id,
         fieldId: textField.id,
       ).updateField(name: "New Name");
       await gridResponseFuture();
@@ -136,28 +153,40 @@ void main() {
     });
 
     test('update field type', () async {
-      final context = await gridTest.createTestGrid();
-      final filterBloc = FilterEditorBloc(
-        viewId: context.gridView.id,
-        fieldController: context.fieldController,
-      );
-      await gridResponseFuture();
-
-      final checkboxField = context.getCheckboxField();
+      final checkboxField = getFirstFieldByType(FieldType.Checkbox);
       filterBloc.add(FilterEditorEvent.createFilter(checkboxField));
       await gridResponseFuture();
       expect(filterBloc.state.filters.length, equals(1));
 
       // edit field
       await FieldBackendService(
-        viewId: context.gridView.id,
+        viewId: context.view.id,
         fieldId: checkboxField.id,
       ).updateType(fieldType: FieldType.DateTime);
       await gridResponseFuture();
-      expect(filterBloc.state.filters.length, equals(0));
 
+      // filter is removed
+      expect(filterBloc.state.filters.length, equals(0));
       expect(filterBloc.state.fields.length, equals(3));
       expect(filterBloc.state.fields[2].fieldType, FieldType.DateTime);
+    });
+
+    test('update filter field', () async {
+      final checkboxField = getFirstFieldByType(FieldType.Checkbox);
+      filterBloc.add(FilterEditorEvent.createFilter(checkboxField));
+      await gridResponseFuture();
+      expect(filterBloc.state.filters.length, equals(1));
+
+      // edit field
+      await FieldBackendService(
+        viewId: context.view.id,
+        fieldId: checkboxField.id,
+      ).updateField(name: "HERRO");
+      await gridResponseFuture();
+
+      expect(filterBloc.state.filters.length, equals(1));
+      expect(filterBloc.state.fields.length, equals(3));
+      expect(filterBloc.state.fields[2].name, "HERRO");
     });
   });
 }
