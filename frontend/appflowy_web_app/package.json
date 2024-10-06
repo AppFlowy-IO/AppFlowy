@@ -156,6 +156,7 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "istanbul-lib-coverage": "^3.2.2",
     "jest-environment-jsdom": "^29.6.2",
+    "jest-node-exports-resolver": "^1.1.6",
     "nyc": "^15.1.0",
     "pino": "^9.2.0",
     "pino-pretty": "^11.2.1",

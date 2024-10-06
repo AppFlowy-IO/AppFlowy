@@ -310,33 +310,44 @@ impl DatabaseViewEditor {
         let rows = vec![Arc::new(row.clone())];
         let mut rows = self.v_filter_rows(rows).await;
 
-        if let Some(row) = rows.pop() {
-          let result = controller.did_update_group_row(old_row, &row, &field);
+        let mut group_changes = GroupChangesPB {
+          view_id: self.view_id.clone(),
+          ..Default::default()
+        };
 
-          if let Ok(result) = result {
-            let mut group_changes = GroupChangesPB {
-              view_id: self.view_id.clone(),
-              ..Default::default()
-            };
-            if let Some(inserted_group) = result.inserted_group {
-              tracing::trace!("Create group after editing the row: {:?}", inserted_group);
-              group_changes.inserted_groups.push(inserted_group);
-            }
-            if let Some(delete_group) = result.deleted_group {
-              tracing::trace!("Delete group after editing the row: {:?}", delete_group);
-              group_changes.deleted_groups.push(delete_group.group_id);
-            }
+        let (inserted_group, deleted_group, row_changesets) = if let Some(row) = rows.pop() {
+          if let Ok(result) = controller.did_update_group_row(old_row, &row, &field) {
+            (
+              result.inserted_group,
+              result.deleted_group,
+              result.row_changesets,
+            )
+          } else {
+            (None, None, vec![])
+          }
+        } else if let Ok(result) = controller.did_delete_row(row) {
+          (None, result.deleted_group, result.row_changesets)
+        } else {
+          (None, None, vec![])
+        };
 
-            if !group_changes.is_empty() {
-              notify_did_update_num_of_groups(&self.view_id, group_changes).await;
-            }
+        if let Some(inserted_group) = inserted_group {
+          tracing::trace!("Create group after editing the row: {:?}", inserted_group);
+          group_changes.inserted_groups.push(inserted_group);
+        }
+        if let Some(delete_group) = deleted_group {
+          tracing::trace!("Delete group after editing the row: {:?}", delete_group);
+          group_changes.deleted_groups.push(delete_group.group_id);
+        }
 
-            for changeset in result.row_changesets {
-              if !changeset.is_empty() {
-                tracing::trace!("Group change after editing the row: {:?}", changeset);
-                notify_did_update_group_rows(changeset).await;
-              }
-            }
+        if !group_changes.is_empty() {
+          notify_did_update_num_of_groups(&self.view_id, group_changes).await;
+        }
+
+        for changeset in row_changesets {
+          if !changeset.is_empty() {
+            tracing::trace!("Group change after editing the row: {:?}", changeset);
+            notify_did_update_group_rows(changeset).await;
           }
         }
       }
@@ -910,6 +921,16 @@ impl DatabaseViewEditor {
       .calculations_controller
       .did_receive_field_type_changed(field_id.to_owned(), new_field_type)
       .await;
+    if self.filter_controller.has_filters().await {
+      let changeset = FilterChangeset::DeleteAllWithFieldId {
+        field_id: field_id.to_string(),
+      };
+      let notification = self.filter_controller.apply_changeset(changeset).await;
+      notify_did_update_filter(notification).await;
+    }
+    if self.is_grouping_field(field_id).await {
+      let _ = self.v_group_by_field(field_id).await;
+    }
   }
 
   /// Notifies the view's field type-option data is changed
@@ -927,22 +948,13 @@ impl DatabaseViewEditor {
         .did_update_field_type_option(&field)
         .await;
 
-      if old_field.field_type != field.field_type {
-        let changeset = FilterChangeset::DeleteAllWithFieldId {
-          field_id: field.id.clone(),
-        };
-        let notification = self.filter_controller.apply_changeset(changeset).await;
-        notify_did_update_filter(notification).await;
-      }
-
       // If the id of the grouping field is equal to the updated field's id
       // and something critical changed, then we need to update the group setting
       if self.is_grouping_field(field_id).await
-        && (old_field.field_type != field.field_type
-          || matches!(
-            FieldType::from(field.field_type),
-            FieldType::SingleSelect | FieldType::MultiSelect
-          ))
+        && matches!(
+          FieldType::from(field.field_type),
+          FieldType::SingleSelect | FieldType::MultiSelect
+        )
       {
         self.v_group_by_field(field_id).await?;
       }

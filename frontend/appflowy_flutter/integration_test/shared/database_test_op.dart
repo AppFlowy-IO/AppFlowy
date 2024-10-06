@@ -247,10 +247,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     }
   }
 
-  Future<void> assertMultiSelectOption({
+  void assertMultiSelectOption({
     required int rowIndex,
     required List<String> contents,
-  }) async {
+  }) {
     final findCell = cellFinder(rowIndex, FieldType.MultiSelect);
     for (final content in contents) {
       if (content.isNotEmpty) {
@@ -418,10 +418,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(option);
   }
 
-  Future<void> findSelectOptionWithNameInGrid({
+  void findSelectOptionWithNameInGrid({
     required int rowIndex,
     required String name,
-  }) async {
+  }) {
     final findRow = find.byType(GridRow);
     final option = find.byWidgetPredicate(
       (widget) =>
@@ -433,10 +433,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(cell, findsOneWidget);
   }
 
-  Future<void> assertNumberOfSelectedOptionsInGrid({
+  void assertNumberOfSelectedOptionsInGrid({
     required int rowIndex,
     required Matcher matcher,
-  }) async {
+  }) {
     final findRow = find.byType(GridRow);
 
     final options = find.byWidgetPredicate(

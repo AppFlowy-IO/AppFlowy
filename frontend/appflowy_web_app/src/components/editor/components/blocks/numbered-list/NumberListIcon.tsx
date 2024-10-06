@@ -1,7 +1,7 @@
 import { NumberedListNode } from '@/components/editor/editor.type';
 import { getListLevel, letterize, romanize } from '@/components/editor/utils/list';
 import React, { useMemo } from 'react';
-import { ReactEditor, useSlate, useSlateStatic } from 'slate-react';
+import { ReactEditor, useSlate } from 'slate-react';
 import { Element, Path } from 'slate';
 
 enum Letter {
@@ -10,7 +10,7 @@ enum Letter {
   Roman = 'roman',
 }
 
-function getLetterNumber(index: number, letter: Letter) {
+function getLetterNumber (index: number, letter: Letter) {
   if (letter === Letter.Number) {
     return index;
   } else if (letter === Letter.Letter) {
@@ -20,9 +20,8 @@ function getLetterNumber(index: number, letter: Letter) {
   }
 }
 
-export function NumberListIcon({ block, className }: { block: NumberedListNode; className: string }) {
+export function NumberListIcon ({ block, className }: { block: NumberedListNode; className: string }) {
   const editor = useSlate();
-  const staticEditor = useSlateStatic();
 
   const path = ReactEditor.findPath(editor, block);
 
@@ -66,7 +65,7 @@ export function NumberListIcon({ block, className }: { block: NumberedListNode; 
   }, [editor, block, path]);
 
   const letter = useMemo(() => {
-    const level = getListLevel(staticEditor, block.type, path);
+    const level = getListLevel(editor, block.type, path);
 
     if (level % 3 === 0) {
       return Letter.Number;
@@ -75,7 +74,7 @@ export function NumberListIcon({ block, className }: { block: NumberedListNode; 
     } else {
       return Letter.Roman;
     }
-  }, [block.type, staticEditor, path]);
+  }, [block.type, editor, path]);
 
   const dataNumber = useMemo(() => {
     return getLetterNumber(index, letter);

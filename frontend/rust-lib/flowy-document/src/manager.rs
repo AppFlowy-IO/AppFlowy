@@ -17,8 +17,8 @@ use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use lib_infra::util::timestamp;
-use tracing::trace;
 use tracing::{event, instrument};
+use tracing::{info, trace};
 
 use crate::document::{
   subscribe_document_changed, subscribe_document_snapshot_state, subscribe_document_sync_state,
@@ -214,6 +214,10 @@ impl DocumentManager {
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
     // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
+      info!(
+        "document {} not found in local disk, try to get the doc state from the cloud",
+        doc_id
+      );
       doc_state = DataSource::DocStateV1(
         self
           .cloud_service

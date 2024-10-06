@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/tab/_round_underline_tab_indicator.dart';
 import 'package:appflowy/plugins/shared/share/export_tab.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/plugins/shared/share/share_tab.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -121,10 +122,8 @@ class _ShareMenuState extends State<ShareMenu>
         return const PublishTab();
       case ShareMenuTab.exportAs:
         return const ExportTab();
-      default:
-        return const Center(
-          child: FlowyText('🏡 under construction'),
-        );
+      case ShareMenuTab.share:
+        return const ShareTab();
     }
   }
 }

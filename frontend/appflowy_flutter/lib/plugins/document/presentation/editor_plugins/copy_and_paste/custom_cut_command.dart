@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 
 /// cut.
 ///
@@ -23,7 +24,7 @@ CommandShortcutEventHandler _cutCommandHandler = (editorState) {
     return KeyEventResult.ignored;
   }
 
-  customCopyCommand.execute(editorState);
+  handleCopyCommand(editorState, isCut: true);
 
   if (!selection.isCollapsed) {
     editorState.deleteSelectionIfNeeded();

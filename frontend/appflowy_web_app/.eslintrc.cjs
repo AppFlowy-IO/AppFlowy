@@ -69,5 +69,5 @@ module.exports = {
 
     ],
   },
-  ignorePatterns: ['src/**/*.test.ts', '**/__tests__/**/*.json', 'package.json'],
+  ignorePatterns: ['src/**/*.test.ts', '**/__tests__/**/*.json', 'package.json', '__mocks__/*.ts'],
 };

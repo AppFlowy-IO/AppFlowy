@@ -35,11 +35,13 @@ class MobileFilterEditor extends StatefulWidget {
 }
 
 class _MobileFilterEditorState extends State<MobileFilterEditor> {
-  final PageController _pageController = PageController();
+  final pageController = PageController();
+  final scrollController = ScrollController();
 
   @override
   void dispose() {
-    _pageController.dispose();
+    pageController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -47,7 +49,7 @@ class _MobileFilterEditorState extends State<MobileFilterEditor> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => MobileFilterEditorCubit(
-        pageController: _pageController,
+        pageController: pageController,
       ),
       child: Column(
         children: [
@@ -55,12 +57,12 @@ class _MobileFilterEditorState extends State<MobileFilterEditor> {
           SizedBox(
             height: 400,
             child: PageView.builder(
-              controller: _pageController,
+              controller: pageController,
               itemCount: 2,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return switch (index) {
-                  0 => const _ActiveFilters(),
+                  0 => _ActiveFilters(scrollController: scrollController),
                   1 => const _FilterDetail(),
                   _ => const SizedBox.shrink(),
                 };
@@ -124,15 +126,13 @@ class _Header extends StatelessWidget {
 
   bool _isBackButtonShown(MobileFilterEditorState state) {
     return state.maybeWhen(
-      overview: () => false,
+      overview: (_) => false,
       orElse: () => true,
     );
   }
 
   bool _isSaveButtonShown(MobileFilterEditorState state) {
     return state.maybeWhen(
-      create: (_) => true,
-      editField: (_, __) => true,
       editCondition: (filterId, newFilter, showSave) => showSave,
       editContent: (_, __) => true,
       orElse: () => false,
@@ -141,8 +141,6 @@ class _Header extends StatelessWidget {
 
   bool _isSaveButtonEnabled(MobileFilterEditorState state) {
     return state.maybeWhen(
-      create: (field) => field != null,
-      editField: (_, __) => true,
       editCondition: (_, __, enableSave) => enableSave,
       editContent: (_, __) => true,
       orElse: () => false,
@@ -151,27 +149,6 @@ class _Header extends StatelessWidget {
 
   void _saveOnTapHandler(BuildContext context, MobileFilterEditorState state) {
     state.maybeWhen(
-      create: (filterField) {
-        if (filterField != null) {
-          context
-              .read<FilterEditorBloc>()
-              .add(FilterEditorEvent.createFilter(filterField));
-        }
-      },
-      editField: (filterId, newField) {
-        final filter = context
-            .read<FilterEditorBloc>()
-            .state
-            .filters
-            .firstWhereOrNull((filter) => filter.filterId == filterId);
-        if (newField != null &&
-            filter != null &&
-            newField.id != filter.fieldId) {
-          context
-              .read<FilterEditorBloc>()
-              .add(FilterEditorEvent.changeFilteringField(filterId, newField));
-        }
-      },
       editCondition: (filterId, newFilter, _) {
         context
             .read<FilterEditorBloc>()
@@ -189,7 +166,11 @@ class _Header extends StatelessWidget {
 }
 
 class _ActiveFilters extends StatelessWidget {
-  const _ActiveFilters();
+  const _ActiveFilters({
+    required this.scrollController,
+  });
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +216,21 @@ class _ActiveFilters extends StatelessWidget {
   }
 
   Widget _filterList(BuildContext context, FilterEditorState state) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MobileFilterEditorCubit>().state.maybeWhen(
+            overview: (scrollToBottom) {
+              if (scrollToBottom && scrollController.hasClients) {
+                scrollController
+                    .jumpTo(scrollController.position.maxScrollExtent);
+                context.read<MobileFilterEditorCubit>().returnToOverview();
+              }
+            },
+            orElse: () {},
+          );
+    });
+
     return ListView.separated(
+      controller: scrollController,
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
       ),
@@ -548,16 +543,32 @@ class _FilterDetail extends StatelessWidget {
     return BlocBuilder<MobileFilterEditorCubit, MobileFilterEditorState>(
       builder: (context, state) {
         return state.maybeWhen(
-          create: (filterField) {
-            return _FilterableFieldList(
-              onSelectField: (field) =>
-                  context.read<MobileFilterEditorCubit>().changeField(field),
-            );
-          },
-          editField: (filterId, newField) {
+          create: () {
             return _FilterableFieldList(
               onSelectField: (field) {
-                context.read<MobileFilterEditorCubit>().changeField(field);
+                context
+                    .read<FilterEditorBloc>()
+                    .add(FilterEditorEvent.createFilter(field));
+                context.read<MobileFilterEditorCubit>().returnToOverview(
+                      scrollToBottom: true,
+                    );
+              },
+            );
+          },
+          editField: (filterId) {
+            return _FilterableFieldList(
+              onSelectField: (field) {
+                final filter = context
+                    .read<FilterEditorBloc>()
+                    .state
+                    .filters
+                    .firstWhereOrNull((filter) => filter.filterId == filterId);
+                if (filter != null && field.id != filter.fieldId) {
+                  context.read<FilterEditorBloc>().add(
+                        FilterEditorEvent.changeFilteringField(filterId, field),
+                      );
+                }
+                context.read<MobileFilterEditorCubit>().returnToOverview();
               },
             );
           },
@@ -619,13 +630,12 @@ class _FilterableFieldList extends StatelessWidget {
               return ListView.builder(
                 itemCount: blocState.fields.length,
                 itemBuilder: (context, index) {
-                  return FlowyOptionTile.checkbox(
+                  return FlowyOptionTile.text(
                     text: blocState.fields[index].name,
                     leftIcon: FieldIcon(
                       fieldInfo: blocState.fields[index],
                     ),
                     showTopBorder: false,
-                    isSelected: _isSelected(context, blocState, index),
                     onTap: () => onSelectField(blocState.fields[index]),
                   );
                 },
@@ -635,29 +645,6 @@ class _FilterableFieldList extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  bool _isSelected(BuildContext context, FilterEditorState state, int index) {
-    final field = state.fields[index];
-    return context.watch<MobileFilterEditorCubit>().state.maybeWhen(
-          create: (selectedField) {
-            return selectedField != null && selectedField.id == field.id;
-          },
-          editField: (filterId, selectedField) {
-            final filter = state.filters.firstWhereOrNull(
-              (filter) => filter.filterId == filterId,
-            );
-
-            final isOriginalSelectedField =
-                selectedField == null && filter?.fieldId == field.id;
-
-            final isNewSelectedField =
-                selectedField != null && selectedField.id == field.id;
-
-            return isOriginalSelectedField || isNewSelectedField;
-          },
-          orElse: () => false,
-        );
   }
 }
 
@@ -960,6 +947,14 @@ class _SelectOptionFilterContentEditor extends StatefulWidget {
 class _SelectOptionFilterContentEditorState
     extends State<_SelectOptionFilterContentEditor> {
   final TextEditingController textController = TextEditingController();
+  String filterText = "";
+  final List<SelectOptionPB> options = [];
+
+  @override
+  void initState() {
+    super.initState();
+    options.addAll(widget.delegate.getOptions(widget.field));
+  }
 
   @override
   void dispose() {
@@ -969,7 +964,6 @@ class _SelectOptionFilterContentEditorState
 
   @override
   Widget build(BuildContext context) {
-    final options = widget.delegate.getOptions(widget.field);
     return Column(
       children: [
         const Divider(
@@ -980,8 +974,15 @@ class _SelectOptionFilterContentEditorState
           padding: const EdgeInsets.all(16.0),
           child: FlowyMobileSearchTextField(
             controller: textController,
-            onChanged: (asdf) {},
-            onSubmitted: (asdf) {},
+            onChanged: (text) {
+              if (textController.value.composing.isCollapsed) {
+                setState(() {
+                  filterText = text;
+                  filterOptions();
+                });
+              }
+            },
+            onSubmitted: (_) {},
             hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
           ),
         ),
@@ -1010,6 +1011,20 @@ class _SelectOptionFilterContentEditorState
         ),
       ],
     );
+  }
+
+  void filterOptions() {
+    options
+      ..clear()
+      ..addAll(widget.delegate.getOptions(widget.field));
+
+    if (filterText.isNotEmpty) {
+      options.retainWhere((option) {
+        final name = option.name.toLowerCase();
+        final lFilter = filterText.toLowerCase();
+        return name.contains(lFilter);
+      });
+    }
   }
 
   MobileSelectedOptionIndicator _getIndicator() {

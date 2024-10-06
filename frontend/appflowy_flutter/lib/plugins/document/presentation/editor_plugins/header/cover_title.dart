@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/log.dart';
@@ -15,11 +17,9 @@ class CoverTitle extends StatelessWidget {
   const CoverTitle({
     super.key,
     required this.view,
-    required this.offset,
   });
 
   final ViewPB view;
-  final double offset;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,6 @@ class CoverTitle extends StatelessWidget {
       create: (context) => ViewBloc(view: view)..add(const ViewEvent.initial()),
       child: _InnerCoverTitle(
         view: view,
-        offset: offset,
       ),
     );
   }
@@ -36,11 +35,9 @@ class CoverTitle extends StatelessWidget {
 class _InnerCoverTitle extends StatefulWidget {
   const _InnerCoverTitle({
     required this.view,
-    required this.offset,
   });
 
   final ViewPB view;
-  final double offset;
 
   @override
   State<_InnerCoverTitle> createState() => _InnerCoverTitleState();
@@ -49,9 +46,11 @@ class _InnerCoverTitle extends StatefulWidget {
 class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleTextController = TextEditingController();
   final titleFocusNode = FocusNode();
+
   late final editorContext = context.read<SharedEditorContext>();
   late final editorState = context.read<EditorState>();
   bool isTitleFocused = false;
+  int lineCount = 1;
 
   @override
   void initState() {
@@ -97,12 +96,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         .textTheme
         .bodyMedium!
         .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
+    final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
       listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: widget.offset),
+          padding: EditorStyleCustomizer.documentPaddingWithOptionMenu,
+          constraints: BoxConstraints(maxWidth: width),
           child: Theme(
             data: Theme.of(context).copyWith(
               textSelectionTheme: TextSelectionThemeData(
@@ -111,11 +112,11 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
                     DefaultAppearanceSettings.getDefaultSelectionColor(context),
               ),
             ),
-            child: TextField(
+            child: TextFieldWithMetricLines(
               controller: titleTextController,
               focusNode: titleFocusNode,
-              maxLines: null,
               style: fontStyle,
+              onLineCountChange: (count) => lineCount = count,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -175,6 +176,10 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   }
 
   KeyEventResult _onKeyEvent(FocusNode focusNode, KeyEvent event) {
+    if (event is KeyUpEvent) {
+      return KeyEventResult.ignored;
+    }
+
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       // if enter is pressed, jump the first line of editor.
       _createNewLine();
@@ -218,7 +223,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final text = titleTextController.text;
 
     // if the cursor is not at the end of the text, ignore the event
-    if (!selection.isCollapsed || text.length != selection.extentOffset) {
+    if (lineCount != 1 &&
+        (!selection.isCollapsed || text.length != selection.extentOffset)) {
       return KeyEventResult.ignored;
     }
 

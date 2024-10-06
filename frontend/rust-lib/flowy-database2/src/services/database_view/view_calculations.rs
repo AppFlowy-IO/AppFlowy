@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use collab_database::fields::Field;
 use std::sync::Arc;
 
-use collab_database::rows::{Cell, RowCell};
+use collab_database::rows::Cell;
 
 use crate::services::calculations::{
   Calculation, CalculationsController, CalculationsDelegate, CalculationsTaskHandler,

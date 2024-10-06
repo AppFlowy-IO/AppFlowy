@@ -25,9 +25,9 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.22.0"
-  RUST_TOOLCHAIN: "1.77.2"
-  CARGO_MAKE_VERSION: "0.36.6"
+  FLUTTER_VERSION: "3.22.2"
+  RUST_TOOLCHAIN: "1.80.1"
+  CARGO_MAKE_VERSION: "0.37.18"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -73,9 +73,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ windows-latest ]
+        os: [ windows-2019 ]
         include:
-          - os: windows-latest
+          - os: windows-2019
             flutter_profile: development-windows-x86
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
@@ -241,12 +241,15 @@ jobs:
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
+          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
+          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
@@ -317,7 +320,7 @@ jobs:
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           sudo apt-get install network-manager
           docker ps -a
-          flutter test integration_test/cloud/cloud_runner.dart -d Linux --coverage
+          flutter test integration_test/desktop/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
   # split the integration tests into different machines to minimize the time
@@ -330,7 +333,7 @@ jobs:
         os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
-            target: 'x86_64-unknown-linux-gnu'
+            target: "x86_64-unknown-linux-gnu"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source code
@@ -360,7 +363,7 @@ jobs:
         os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
-            target: 'x86_64-unknown-linux-gnu'
+            target: "x86_64-unknown-linux-gnu"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source code
@@ -390,7 +393,7 @@ jobs:
         os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
-            target: 'x86_64-unknown-linux-gnu'
+            target: "x86_64-unknown-linux-gnu"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source code

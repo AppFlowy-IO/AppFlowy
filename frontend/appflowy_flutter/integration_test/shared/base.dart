@@ -174,7 +174,7 @@ extension AppFlowyTestBase on WidgetTester {
       await this.pumpAndSettle(
         Duration(milliseconds: milliseconds),
         EnginePhase.sendSemanticsUpdate,
-        const Duration(seconds: 5),
+        const Duration(seconds: 15),
       );
     }
   }

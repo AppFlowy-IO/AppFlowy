@@ -110,14 +110,38 @@ export class DocumentTest {
       }
 
       const blockText = new Y.Text();
-      
+
       blockText.applyDelta(child.text);
 
-      console.log(blockText.toJSON());
-
       this.textMap.set(blockId, blockText);
+      
+      const blockChildren = new Y.Array<BlockId>();
+
+      this.childrenMap.set(blockId, blockChildren);
 
       this.fromJSONChildren(child.children, blockId);
     }
+  }
+
+  toJSON () {
+    return this.toJSONChildren(this.pageId);
+  }
+
+  private toJSONChildren (parentId: BlockId): FromBlockJSON[] {
+    const parentChildren = this.childrenMap.get(parentId) ?? [];
+    const children = [];
+
+    for (const childId of parentChildren) {
+      const child = this.blocks.get(childId);
+
+      children.push({
+        type: child.get(YjsEditorKey.block_type),
+        data: JSON.parse(child.get(YjsEditorKey.block_data)),
+        text: this.textMap.get(childId).toDelta(),
+        children: this.toJSONChildren(childId),
+      });
+    }
+
+    return children;
   }
 }

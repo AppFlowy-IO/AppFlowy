@@ -1,8 +1,11 @@
 import { useOutlineDrawer } from '@/components/_shared/outline/outline.hooks';
 import { AFScroller } from '@/components/_shared/scroller';
+import { useViewErrorStatus } from '@/components/app/app.hooks';
 import { AppHeader } from '@/components/app/header';
 import Main from '@/components/app/Main';
 import SideBar from '@/components/app/SideBar';
+import DeletedPageComponent from '@/components/error/PageHasBeenDeleted';
+import RecordNotFound from '@/components/error/RecordNotFound';
 import SomethingError from '@/components/error/SomethingError';
 import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -15,9 +18,15 @@ function MainLayout () {
     toggleOpenDrawer,
   } = useOutlineDrawer();
 
+  const { notFound, deleted } = useViewErrorStatus();
+
   const main = useMemo(() => {
-    return <Main />;
-  }, []);
+    if (deleted) {
+      return <DeletedPageComponent />;
+    }
+
+    return notFound ? <RecordNotFound isViewNotFound /> : <Main />;
+  }, [deleted, notFound]);
 
   return (
     <div className={'h-screen w-screen'}>

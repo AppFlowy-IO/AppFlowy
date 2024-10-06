@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowCell};
+use collab_database::rows::{Cell, Row};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -290,7 +290,7 @@ impl CalculationsController {
     field_id: &'a str,
     cells_by_field: &'a mut DashMap<String, Vec<Arc<Cell>>>,
   ) -> Vec<Arc<Cell>> {
-    let mut cells = cells_by_field.get(field_id).map(|entry| entry.to_vec());
+    let cells = cells_by_field.get(field_id).map(|entry| entry.to_vec());
     match cells {
       None => {
         let fetch_cells = self

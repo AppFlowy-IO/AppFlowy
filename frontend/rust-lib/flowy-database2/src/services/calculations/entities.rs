@@ -3,8 +3,6 @@ use collab::preclude::Any;
 use collab_database::views::{CalculationMap, CalculationMapBuilder};
 use serde::Deserialize;
 
-use crate::entities::CalculationPB;
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct Calculation {
   pub id: String,

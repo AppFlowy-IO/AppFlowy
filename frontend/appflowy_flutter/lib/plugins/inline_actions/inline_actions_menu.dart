@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 
 abstract class InlineActionsMenuService {
   InlineActionsMenuStyle get style;
@@ -40,6 +39,7 @@ class InlineActionsMenu extends InlineActionsMenuService {
     if (_menuEntry != null) {
       editorState.service.keyboardService?.enable();
       editorState.service.scrollService?.enable();
+      keepEditorFocusNotifier.decrease();
     }
 
     _menuEntry?.remove();

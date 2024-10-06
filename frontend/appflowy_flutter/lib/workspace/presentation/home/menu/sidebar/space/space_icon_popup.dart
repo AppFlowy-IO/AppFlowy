@@ -74,7 +74,7 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       offset: const Offset(0, 4),
-      constraints: BoxConstraints.loose(const Size(380, 432)),
+      constraints: BoxConstraints.loose(const Size(360, 432)),
       margin: const EdgeInsets.all(0),
       direction: PopoverDirection.bottomWithCenterAligned,
       child: _buildPreview(),

@@ -1,11 +1,9 @@
-import { View } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 import TableSkeleton from '@/components/_shared/skeleton/TableSkeleton';
-import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
-import { useService } from '@/components/main/app.hooks';
+import { useAppTrash, useCurrentWorkspaceId } from '@/components/app/app.hooks';
 import { TableContainer } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -15,29 +13,20 @@ import TableRow from '@mui/material/TableRow';
 
 function TrashPage () {
   const { t } = useTranslation();
-  const [trashList, setTrashList] = React.useState<View[]>();
-  const service = useService();
+
   const currentWorkspaceId = useCurrentWorkspaceId();
-
-  const loadOutline = useCallback(async () => {
-
-    if (!service || !currentWorkspaceId) return;
-    try {
-      const res = await service?.getAppTrash(currentWorkspaceId);
-
-      if (!res) {
-        throw new Error('App trash not found');
-      }
-
-      setTrashList(res);
-    } catch (e) {
-      notify.error('App trash not found');
-    }
-  }, [currentWorkspaceId, service]);
+  const { trashList, loadTrash } = useAppTrash();
 
   useEffect(() => {
-    void loadOutline();
-  }, [loadOutline]);
+    void (async () => {
+      if (!currentWorkspaceId) return;
+      try {
+        await loadTrash?.(currentWorkspaceId);
+      } catch (e) {
+        notify.error('Failed to load trash');
+      }
+    })();
+  }, [loadTrash, currentWorkspaceId]);
 
   const columns = useMemo(() => {
     return [
@@ -49,9 +38,10 @@ function TrashPage () {
   }, [t]);
 
   return (
-    <div style={{
-      height: 'calc(100vh - 48px)',
-    }} className={'flex-1 h-full flex-col flex w-full items-center'}
+    <div
+      style={{
+        height: 'calc(100vh - 48px)',
+      }} className={'flex-1 h-full flex-col flex w-full items-center'}
     >
       <div className={'w-[964px] flex flex-col min-w-0 max-w-full px-6 py-10 h-full'}>
         <div

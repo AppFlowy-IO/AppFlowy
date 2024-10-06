@@ -483,48 +483,49 @@ impl DatabaseEditor {
     field_name: Option<String>,
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
-    let field = database.get_field(field_id);
-    match field {
-      None => {},
-      Some(field) => {
-        if field.is_primary {
-          return Err(FlowyError::new(
-            ErrorCode::Internal,
-            "Can not update primary field's field type",
-          ));
-        }
+    if let Some(field) = database.get_field(field_id) {
+      if field.is_primary {
+        return Err(FlowyError::new(
+          ErrorCode::Internal,
+          "Can not update primary field's field type",
+        ));
+      }
 
-        let old_field_type = FieldType::from(field.field_type);
-        let old_type_option_data = field.get_any_type_option(old_field_type);
-        let new_type_option_data = field
-          .get_any_type_option(new_field_type)
-          .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
+      let old_field_type = FieldType::from(field.field_type);
+      let old_type_option_data = field.get_any_type_option(old_field_type);
+      let new_type_option_data = field
+        .get_any_type_option(new_field_type)
+        .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
-        let transformed_type_option = transform_type_option(
-          view_id,
-          field_id,
-          old_field_type,
-          new_field_type,
-          old_type_option_data,
-          new_type_option_data,
-          &mut database,
-        )
-        .await;
+      let transformed_type_option = transform_type_option(
+        view_id,
+        field_id,
+        old_field_type,
+        new_field_type,
+        old_type_option_data,
+        new_type_option_data,
+        &mut database,
+      )
+      .await;
 
-        database.update_field(field_id, |update| {
-          update
-            .set_field_type(new_field_type.into())
-            .set_name_if_not_none(field_name)
-            .set_type_option(new_field_type.into(), Some(transformed_type_option));
-        });
+      database.update_field(field_id, |update| {
+        update
+          .set_field_type(new_field_type.into())
+          .set_name_if_not_none(field_name)
+          .set_type_option(new_field_type.into(), Some(transformed_type_option));
+      });
 
-        for view in self.database_views.editors().await {
-          view.v_did_update_field_type(field_id, new_field_type).await;
-        }
-      },
+      drop(database);
+
+      for view in self.database_views.editors().await {
+        view.v_did_update_field_type(field_id, new_field_type).await;
+      }
+
+      let database = self.database.read().await;
+
+      notify_did_update_database_field(&database, field_id)?;
     }
 
-    notify_did_update_database_field(&database, field_id)?;
     Ok(())
   }
 

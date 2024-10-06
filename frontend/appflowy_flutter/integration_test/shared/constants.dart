@@ -3,4 +3,6 @@ class Constants {
   static const gettingStartedPageName = 'Getting started';
   static const toDosPageName = 'To-dos';
   static const generalSpaceName = 'General';
+
+  static const defaultWorkspaceName = 'My Workspace';
 }
