@@ -345,7 +345,7 @@ impl FolderManager {
   }
 
   /// All the views will become a space under the workspace.
-  pub async fn flatten_views_hierarchy(
+  pub async fn insert_views_as_spaces(
     &self,
     mut views: Vec<ParentChildViews>,
     orphan_views: Vec<ParentChildViews>,

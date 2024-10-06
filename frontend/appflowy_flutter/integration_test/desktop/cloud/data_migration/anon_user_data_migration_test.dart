@@ -33,7 +33,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('appflowy cloud', () {
-    testWidgets('anon user,sign in,open space', (tester) async {
+    testWidgets('anon user -> sign in -> open imported space', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );

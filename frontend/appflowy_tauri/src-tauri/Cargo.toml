@@ -121,23 +121,23 @@ custom-protocol = ["tauri/custom-protocol"]
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
 <<<<<<< Updated upstream
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
 = = = = = = =
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
-collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e3351057414a01d3abbc8a5e72c2988cf70de8dc" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
+collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3c71194c34e2149315c06e120929c7959bc9903a" }
 >>>>>>> Stashed changes
 
 

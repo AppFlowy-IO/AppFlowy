@@ -19,7 +19,7 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
-use collab_folder::hierarchy_builder::{ParentChildViews, ViewBuilder};
+use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews, ViewBuilder};
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -748,8 +748,18 @@ where
     "[AppflowyData]: create orphan views: {:?}",
     all_views_map.keys()
   );
+  let parent_views = NestedViews {
+    views: parent_views,
+  };
+
   let mut orphan_views = vec![];
-  for orphan_view in all_views_map.into_values() {
+  for mut orphan_view in all_views_map.into_values() {
+    // if parent_views
+    //   .find_view(&orphan_view.parent_view_id)
+    //   .is_none()
+    // {
+    //   orphan_view.parent_view_id = root_view_id.to_string();
+    // }
     orphan_views.push(ParentChildViews {
       parent_view: orphan_view,
       child_views: vec![],
@@ -757,12 +767,12 @@ where
   }
 
   info!(
-    "[AppflowyData]: parent views: {}, orphan views: {:?}",
+    "[AppflowyData]: parent views: {}, orphan views: {}",
     parent_views.len(),
-    orphan_views.len()
+    orphan_views.len(),
   );
 
-  Ok((parent_views, orphan_views))
+  Ok((parent_views.into_inner(), orphan_views))
 }
 
 fn parent_view_from_view(

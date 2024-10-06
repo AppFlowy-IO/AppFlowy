@@ -57,7 +57,7 @@ impl UserWorkspaceService for UserWorkspaceServiceImpl {
       ImportFrom::AnonUser => {
         self
           .folder_manager
-          .flatten_views_hierarchy(views, orphan_views)
+          .insert_views_as_spaces(views, orphan_views)
           .await?;
       },
       ImportFrom::AppFlowyDataFolder => {
