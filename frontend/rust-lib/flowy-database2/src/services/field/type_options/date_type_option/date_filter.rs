@@ -18,7 +18,7 @@ impl DateFilterPB {
     let timestamp = if self.condition.is_filter_on_start_timestamp() {
       cell_data.timestamp
     } else {
-      cell_data.end_timestamp.or_else(|| cell_data.timestamp)
+      cell_data.end_timestamp.or(cell_data.timestamp)
     };
 
     Some(strategy.filter(timestamp))

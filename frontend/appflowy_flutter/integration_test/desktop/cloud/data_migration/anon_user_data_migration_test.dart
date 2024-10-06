@@ -33,7 +33,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('appflowy cloud', () {
-    testWidgets('anon user and then sign in', (tester) async {
+    testWidgets('anon user -> sign in -> open imported space', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
@@ -41,6 +41,10 @@ void main() {
       await tester.tapContinousAnotherWay();
       await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
+
+      const pageName = 'Test Document';
+      await tester.createNewPageWithNameUnderParent(name: pageName);
+      tester.expectToSeePageName(pageName);
 
       // rename the name of the anon user
       await tester.openSettings();
@@ -60,20 +64,16 @@ void main() {
 
       // sign up with Google
       await tester.tapGoogleLoginInButton();
+      // await tester.pumpAndSettle(const Duration(seconds: 16));
 
-      // sign out
+      // open the imported space
       await tester.expectToSeeHomePage();
-      await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.account);
+      await tester.clickSpaceHeader();
 
-      // Scroll to sign-out
-      await tester.scrollUntilVisible(
-        find.byType(AccountSignInOutButton),
-        100,
-        scrollable: find.findSettingsScrollable(),
-      );
+      // After import the anon user data, we will create a new space for it
+      await tester.openSpace("Getting started");
+      await tester.openPage(pageName);
 
-      await tester.logout();
       await tester.pumpAndSettle();
     });
   });

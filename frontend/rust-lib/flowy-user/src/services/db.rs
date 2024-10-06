@@ -44,18 +44,8 @@ impl UserDB {
   }
 
   /// Performs a conditional backup or restoration of the collaboration database (CollabDB) for a specific user.
-  ///
-  /// This function takes a user ID and conducts the following operations:
-  ///
-  /// **Backup or Restoration**:
-  ///   - If the CollabDB exists, it tries to open the database:
-  ///       - **Successful Open**: If the database opens successfully, it attempts to back it up.
-  ///       - **Failed Open**: If the database cannot be opened, it indicates a potential issue, and the function
-  ///         attempts to restore the database from the latest backup.
-  ///   - If the CollabDB does not exist, it immediately attempts to restore from the latest backup.
-  ///
   #[instrument(level = "debug", skip_all)]
-  pub fn backup_or_restore(&self, uid: i64, workspace_id: &str) {
+  pub fn backup(&self, uid: i64, workspace_id: &str) {
     // Obtain the path for the collaboration database.
     let collab_db_path = self.paths.collab_db_path(uid);
 
@@ -63,12 +53,10 @@ impl UserDB {
     if let Ok(history_folder) = self.paths.collab_db_history(uid, true) {
       // Initialize the backup utility for the collaboration database.
       let zip_backup = CollabDBZipBackup::new(collab_db_path.clone(), history_folder);
-
       if collab_db_path.exists() {
         // Validate the existing collaboration database.
         let result = self.open_collab_db(collab_db_path, uid);
         let is_ok = validate_collab_db(result, uid, workspace_id);
-
         if is_ok {
           // If database is valid, update the shared map and initiate backup.
           // Asynchronous backup operation.
@@ -77,9 +65,6 @@ impl UserDB {
               error!("Backup of collab db failed: {:?}", err);
             }
           });
-        } else if let Err(err) = zip_backup.restore_latest_backup() {
-          // If validation fails, attempt to restore from the latest backup.
-          error!("Restoring collab db failed: {:?}", err);
         }
       }
     }
@@ -94,21 +79,6 @@ impl UserDB {
         .unwrap_or_default();
     }
     vec![]
-  }
-
-  #[instrument(level = "debug", skip_all)]
-  pub fn restore_if_need(&self, uid: i64, workspace_id: &str) {
-    if let Ok(history_folder) = self.paths.collab_db_history(uid, false) {
-      let collab_db_path = self.paths.collab_db_path(uid);
-      let result = self.open_collab_db(&collab_db_path, uid);
-      let is_ok = validate_collab_db(result, uid, workspace_id);
-      if !is_ok {
-        let zip_backup = CollabDBZipBackup::new(collab_db_path, history_folder);
-        if let Err(err) = zip_backup.restore_latest_backup() {
-          error!("restore collab db failed, {:?}", err);
-        }
-      }
-    }
   }
 
   /// Close the database connection for the user.
@@ -277,8 +247,9 @@ impl CollabDBZipBackup {
     Ok(backups)
   }
 
-  #[instrument(skip_all, err)]
-  pub fn restore_latest_backup(&self) -> io::Result<()> {
+  #[deprecated(note = "This function is deprecated", since = "0.7.1")]
+  #[allow(dead_code)]
+  fn restore_latest_backup(&self) -> io::Result<()> {
     let mut latest_zip: Option<(String, PathBuf)> = None;
     // When the history folder does not exist, there is no backup to restore
     if !self.history_folder.exists() {

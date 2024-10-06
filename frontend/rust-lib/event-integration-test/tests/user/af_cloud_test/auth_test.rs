@@ -1,4 +1,4 @@
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_user::entities::UpdateUserProfilePayloadPB;
 
@@ -7,7 +7,7 @@ use crate::util::generate_test_email;
 #[tokio::test]
 async fn af_cloud_sign_up_test() {
   // user_localhost_af_cloud_with_nginx().await;
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let email = generate_test_email();
   let user = test.af_cloud_sign_in_with_email(&email).await.unwrap();
@@ -16,7 +16,7 @@ async fn af_cloud_sign_up_test() {
 
 #[tokio::test]
 async fn af_cloud_update_user_metadata() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let user = test.af_cloud_sign_up().await;
 

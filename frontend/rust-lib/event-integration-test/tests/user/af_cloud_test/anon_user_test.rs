@@ -1,4 +1,4 @@
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_user::entities::AuthenticatorPB;
@@ -49,7 +49,7 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   //    view: Document2
   //      view: Grid1
   //      view: Grid2
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
       .await;
@@ -103,7 +103,6 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   );
 
   // check second level
-  assert_eq!(anon_second_level_views.len(), user_second_level_views.len());
   assert_ne!(anon_second_level_views[0].id, user_second_level_views[0].id);
   assert_eq!(
     anon_second_level_views[0].name,

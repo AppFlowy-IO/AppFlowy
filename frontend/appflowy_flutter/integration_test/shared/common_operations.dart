@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -409,6 +410,19 @@ extension CommonOperations on WidgetTester {
       matching: find.byType(ViewAddButton),
     );
     await tapButton(addPageButton);
+  }
+
+  /// Click the + button in the space header
+  Future<void> clickSpaceHeader() async {
+    await tapButton(find.byType(SidebarSpaceHeader));
+  }
+
+  Future<void> openSpace(String spaceName) async {
+    final space = find.descendant(
+      of: find.byType(SidebarSpaceMenuItem),
+      matching: find.text(spaceName),
+    );
+    await tapButton(space);
   }
 
   /// Create a new page on the top level
