@@ -474,7 +474,7 @@ where
   .with_view_id(import_container_view_id)
   .with_layout(ViewLayout::Document)
   .with_name(&name)
-  .with_child_views(child_views)
+  .with_children(child_views)
   .build();
 
   Ok(import_container_views)
