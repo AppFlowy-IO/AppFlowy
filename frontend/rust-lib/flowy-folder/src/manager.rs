@@ -360,8 +360,8 @@ impl FolderManager {
       .ok_or_else(|| FlowyError::internal().with_context("Cannot find the workspace ID"))?;
 
     views.iter_mut().for_each(|view| {
-      view.parent_view.parent_view_id = workspace_id.clone();
-      view.parent_view.extra = Some(
+      view.view.parent_view_id = workspace_id.clone();
+      view.view.extra = Some(
         serde_json::to_string(
           &ViewExtraBuilder::new()
             .is_space(true, SpacePermission::PublicToAll)
@@ -403,7 +403,7 @@ impl FolderManager {
           parent_view_id
         );
         views.iter_mut().for_each(|child_view| {
-          child_view.parent_view.parent_view_id = parent_view_id.clone();
+          child_view.view.parent_view_id = parent_view_id.clone();
         });
       }
     } else {
@@ -427,7 +427,7 @@ impl FolderManager {
             latest_view.space_info(),
           );
           views.iter_mut().for_each(|child_view| {
-            child_view.parent_view.parent_view_id = latest_view.id.clone();
+            child_view.view.parent_view_id = latest_view.id.clone();
           });
         },
       }

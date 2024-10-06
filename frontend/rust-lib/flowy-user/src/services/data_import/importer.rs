@@ -7,22 +7,26 @@ pub fn load_collab_by_object_ids<'a, R>(
   uid: i64,
   collab_read_txn: &R,
   object_ids: &[String],
-) -> HashMap<String, Collab>
+) -> (HashMap<String, Collab>, Vec<String>)
 where
   R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
+  let mut invalid_object_ids = vec![];
   let mut collab_by_oid = HashMap::new();
   for object_id in object_ids {
     match load_collab_by_object_id(uid, collab_read_txn, object_id) {
       Ok(collab) => {
         collab_by_oid.insert(object_id.clone(), collab);
       },
-      Err(err) => tracing::error!("🔴load collab: {} failed: {:?} ", object_id, err),
+      Err(err) => {
+        invalid_object_ids.push(object_id.clone());
+        tracing::error!("🔴load collab: {} failed: {:?} ", object_id, err)
+      },
     }
   }
 
-  collab_by_oid
+  (collab_by_oid, invalid_object_ids)
 }
 
 /// This function loads single collab object by its object_id.

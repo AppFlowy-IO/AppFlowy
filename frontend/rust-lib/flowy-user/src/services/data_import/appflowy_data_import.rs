@@ -210,11 +210,22 @@ pub(crate) fn generate_import_data(
     all_imported_object_ids.retain(|id| !database_view_ids.contains(id));
 
     // 3. load imported collab objects data.
-    let mut imported_collab_by_oid = load_collab_by_object_ids(
+    let (mut imported_collab_by_oid, invalid_object_ids) = load_collab_by_object_ids(
       imported_session.user_id,
       &imported_collab_db_read_txn,
       &all_imported_object_ids,
     );
+
+    // remove the invalid object ids from the object ids
+    info!(
+      "[AppflowyData]: invalid object ids: {:?}",
+      invalid_object_ids
+    );
+    all_imported_object_ids.retain(|id| !invalid_object_ids.contains(id));
+    // the object ids now only contains the document collab object ids
+    all_imported_object_ids.iter().for_each(|object_id| {
+      old_to_new_id_map.exchange_new_id(object_id);
+    });
 
     // import the database
     migrate_databases(
@@ -226,36 +237,55 @@ pub(crate) fn generate_import_data(
       &mut row_object_ids,
     )?;
 
-    // the object ids now only contains the document collab object ids
-    all_imported_object_ids.iter().for_each(|object_id| {
-      old_to_new_id_map.exchange_new_id(object_id);
-    });
+    // Update the parent view IDs of all top-level views to match the new container view ID, making
+    // them child views of the container. This ensures that the hierarchy within the imported
+    // structure is correctly maintained.
+    let MigrateViews {
+      child_views,
+      orphan_views,
+      mut invalid_orphan_views,
+      not_exist_parent_view_ids: _,
+    } = migrate_folder_views(
+      &import_container_view_id,
+      &mut old_to_new_id_map,
+      &imported_session,
+      &imported_collab_db_read_txn,
+      &imported_collab_by_oid,
+    )?;
 
     let gen_collabs = all_imported_object_ids
-      .par_iter()
-      .filter_map(|object_id| {
-        let imported_collab = imported_collab_by_oid.get(object_id)?;
-        let new_object_id = old_to_new_id_map.get_new_id(object_id)?;
-        gen_sv_and_doc_state(current_session.user_id, new_object_id, imported_collab)
-      })
-      .collect::<Vec<_>>();
+        .par_iter()
+        .filter_map(|object_id| {
+          let f = || {
+            let imported_collab = imported_collab_by_oid.get(object_id)?;
+            let new_object_id = old_to_new_id_map.get_exchanged_id(object_id)?;
+            gen_sv_and_doc_state(
+              current_session.user_id,
+              new_object_id,
+              imported_collab,
+              CollabType::Document,
+            )
+          };
+          match f() {
+            None => {
+              warn!(
+              "[AppflowyData]: Can't find the new id for the imported object:{}, new object id:{:?}",
+              object_id,
+              old_to_new_id_map.get_exchanged_id(object_id),
+            );
+              None
+            },
+            Some(value) => Some(value),
+          }
+        })
+        .collect::<Vec<_>>();
 
     for gen_collab in gen_collabs {
       document_object_ids.insert(gen_collab.object_id.clone());
       write_gen_collab(gen_collab, current_collab_db_write_txn);
     }
 
-    // Update the parent view IDs of all top-level views to match the new container view ID, making
-    // them child views of the container. This ensures that the hierarchy within the imported
-    // structure is correctly maintained.
-    let (child_views, orphan_views) = mapping_folder_views(
-      &import_container_view_id,
-      &mut old_to_new_id_map,
-      &imported_session,
-      &imported_collab_db_read_txn,
-    )?;
-
-    let (views, orphan_views) = match imported_folder.source {
+    let (mut views, orphan_views) = match imported_folder.source {
       ImportedSource::ExternalFolder => match imported_container_view_name {
         None => Ok::<(Vec<ParentChildViews>, Vec<ParentChildViews>), anyhow::Error>((
           child_views,
@@ -263,19 +293,46 @@ pub(crate) fn generate_import_data(
         )),
         Some(container_name) => {
           // create a new view with given name and then attach views to it
-          let child_views = create_new_container_view(
+          let child_views = vec![create_new_container_view(
             current_session,
             &mut document_object_ids,
             &import_container_view_id,
             current_collab_db_write_txn,
             child_views,
             container_name,
-          )?;
+          )?];
           Ok((child_views, orphan_views))
         },
       },
       ImportedSource::AnonUser => Ok((child_views, orphan_views)),
     }?;
+
+    if !invalid_orphan_views.is_empty() {
+      let other_view_id = gen_view_id().to_string();
+      invalid_orphan_views
+        .iter_mut()
+        .for_each(|parent_child_views| {
+          parent_child_views.view.parent_view_id = other_view_id.clone();
+        });
+      let mut other_view = create_new_container_view(
+        current_session,
+        &mut document_object_ids,
+        &other_view_id,
+        current_collab_db_write_txn,
+        invalid_orphan_views,
+        "Others".to_string(),
+      )?;
+
+      // if the views is empty, the other view is the top level view
+      // otherwise, the other view is the child view of the first view
+      if views.is_empty() {
+        views.push(other_view);
+      } else {
+        let first_view = views.first_mut().unwrap();
+        other_view.view.parent_view_id = first_view.view.id.clone();
+        first_view.children.push(other_view);
+      }
+    }
 
     Ok((views, orphan_views))
   })?;
@@ -307,13 +364,23 @@ fn create_new_container_view<'a, W>(
   document_object_ids: &mut HashSet<String>,
   import_container_view_id: &str,
   collab_write_txn: &'a W,
-  child_views: Vec<ParentChildViews>,
+  mut child_views: Vec<ParentChildViews>,
   container_name: String,
-) -> Result<Vec<ParentChildViews>, PersistenceError>
+) -> Result<ParentChildViews, PersistenceError>
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
+  child_views.iter_mut().for_each(|parent_child_views| {
+    if parent_child_views.view.parent_view_id != import_container_view_id {
+      warn!(
+        "[AppflowyData]: The parent view id of the child views is not the import container view id: {}",
+        import_container_view_id
+      );
+      parent_child_views.view.parent_view_id = import_container_view_id.to_string();
+    }
+  });
+
   let name = if container_name.is_empty() {
     format!(
       "import_{}",
@@ -341,11 +408,12 @@ where
     current_session.user_id,
     import_container_view_id,
     collab_write_txn,
+    CollabType::Document,
   );
 
   document_object_ids.insert(import_container_view_id.to_string());
 
-  let import_container_views = vec![ViewBuilder::new(
+  let import_container_views = ViewBuilder::new(
     current_session.user_id,
     current_session.user_workspace.id.clone(),
   )
@@ -353,7 +421,7 @@ where
   .with_layout(ViewLayout::Document)
   .with_name(&name)
   .with_child_views(child_views)
-  .build()];
+  .build();
 
   Ok(import_container_views)
 }
@@ -482,15 +550,12 @@ where
       });
 
       let new_object_id = old_to_new_id_map.exchange_new_id(object_id);
-      // debug!(
-      //   "[AppflowyData]: migrate database from: {}, to: {}",
-      //   object_id, new_object_id,
-      // );
       write_collab_object(
         database_collab,
         session.user_id,
         &new_object_id,
         collab_write_txn,
+        CollabType::Database,
       );
     }
   }
@@ -534,7 +599,7 @@ where
       .par_iter()
       .filter_map(|imported_row_id| {
         let imported_collab = imported_collab_by_oid.get(imported_row_id)?;
-        match old_to_new_id_map.get_new_id(imported_row_id) {
+        match old_to_new_id_map.get_exchanged_id(imported_row_id) {
           None => {
             error!(
               "[AppflowyData]: Can't find the new id for the imported row:{}",
@@ -542,7 +607,12 @@ where
             );
             None
           },
-          Some(new_row_id) => gen_sv_and_doc_state(session.user_id, new_row_id, imported_collab),
+          Some(new_row_id) => gen_sv_and_doc_state(
+            session.user_id,
+            new_row_id,
+            imported_collab,
+            CollabType::DatabaseRow,
+          ),
         }
       })
       .collect::<Vec<_>>();
@@ -555,12 +625,19 @@ where
   Ok(())
 }
 
-fn write_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
-where
+fn write_collab_object<'a, W>(
+  collab: &Collab,
+  new_uid: i64,
+  new_object_id: &str,
+  w_txn: &'a W,
+  collab_type: CollabType,
+) where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  if let Ok(encode_collab) = collab.encode_collab_v1(|_| Ok::<(), PersistenceError>(())) {
+  if let Ok(encode_collab) =
+    collab.encode_collab_v1(|collab| collab_type.validate_require_data(collab))
+  {
     if let Ok(update) = Update::decode_v1(&encode_collab.doc_state) {
       let doc = Doc::new();
       {
@@ -613,9 +690,14 @@ where
   }
 }
 
-fn gen_sv_and_doc_state(uid: i64, object_id: &str, collab: &Collab) -> Option<GenCollab> {
+fn gen_sv_and_doc_state(
+  uid: i64,
+  object_id: &str,
+  collab: &Collab,
+  collab_type: CollabType,
+) -> Option<GenCollab> {
   let encoded_collab = collab
-    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+    .encode_collab_v1(|collab| collab_type.validate_require_data(collab))
     .ok()?;
   let update = Update::decode_v1(&encoded_collab.doc_state).ok()?;
   let doc = Doc::new();
@@ -641,13 +723,22 @@ fn gen_sv_and_doc_state(uid: i64, object_id: &str, collab: &Collab) -> Option<Ge
   })
 }
 
+struct MigrateViews {
+  child_views: Vec<ParentChildViews>,
+  orphan_views: Vec<ParentChildViews>,
+  invalid_orphan_views: Vec<ParentChildViews>,
+  #[allow(dead_code)]
+  not_exist_parent_view_ids: Vec<String>,
+}
+
 #[instrument(level = "debug", skip_all, err)]
-fn mapping_folder_views<'a, W>(
+fn migrate_folder_views<'a, W>(
   root_view_id: &str,
   old_to_new_id_map: &mut OldToNewIdMap,
   imported_session: &Session,
   imported_collab_db_read_txn: &W,
-) -> Result<(Vec<ParentChildViews>, Vec<ParentChildViews>), PersistenceError>
+  imported_collab_by_oid: &HashMap<String, Collab>,
+) -> Result<MigrateViews, PersistenceError>
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
@@ -680,11 +771,36 @@ where
       PersistenceError::Internal(anyhow!("[AppflowyData]:Can't open folder:{}", err))
     })?;
 
-  let imported_folder_data = imported_folder
+  let mut imported_folder_data = imported_folder
     .get_folder_data(&imported_session.user_workspace.id)
     .ok_or(PersistenceError::Internal(anyhow!(
       "[AppflowyData]: Can't read the folder data"
     )))?;
+
+  let space_views = imported_folder_data
+    .workspace
+    .child_views
+    .iter()
+    .map(|view| view.id.clone())
+    .collect::<Vec<String>>();
+
+  // Only import views whose collab data is available
+  imported_folder_data.views.iter_mut().for_each(|view| {
+    view
+      .children
+      .retain(|view_identifier| imported_collab_by_oid.contains_key(&view_identifier.id));
+  });
+  let mut not_exist_parent_view_ids = vec![];
+  imported_folder_data.views.retain(|view| {
+    if space_views.contains(&view.id) {
+      if !imported_collab_by_oid.contains_key(&view.id) {
+        not_exist_parent_view_ids.push(old_to_new_id_map.exchange_new_id(&view.id));
+      }
+      true
+    } else {
+      imported_collab_by_oid.contains_key(&view.id)
+    }
+  });
 
   // replace the old parent view id of the workspace
   old_to_new_id_map.0.insert(
@@ -700,7 +816,7 @@ where
     .collect::<Vec<String>>();
 
   // 1. Replace the  views id with new view id
-  let mut first_level_views = imported_folder_data
+  let mut views_not_in_trash = imported_folder_data
     .workspace
     .child_views
     .items
@@ -708,7 +824,7 @@ where
     .filter(|view| !trash_ids.contains(&view.id))
     .collect::<Vec<ViewIdentifier>>();
 
-  first_level_views.iter_mut().for_each(|view_identifier| {
+  views_not_in_trash.iter_mut().for_each(|view_identifier| {
     view_identifier.id = old_to_new_id_map.exchange_new_id(&view_identifier.id);
   });
 
@@ -733,11 +849,17 @@ where
     .collect::<HashMap<String, View>>();
 
   // 5. create the parent views. Each parent view contains the children views.
-  let parent_views = first_level_views
+  let parent_views = views_not_in_trash
     .into_iter()
     .flat_map(
       |view_identifier| match all_views_map.remove(&view_identifier.id) {
-        None => None,
+        None => {
+          warn!(
+            "[AppflowyData]: Can't find the view:{} in the all views map",
+            view_identifier.id
+          );
+          None
+        },
         Some(view) => parent_view_from_view(view, &mut all_views_map),
       },
     )
@@ -753,26 +875,38 @@ where
   };
 
   let mut orphan_views = vec![];
-  for mut orphan_view in all_views_map.into_values() {
-    // if parent_views
-    //   .find_view(&orphan_view.parent_view_id)
-    //   .is_none()
-    // {
-    //   orphan_view.parent_view_id = root_view_id.to_string();
-    // }
-    orphan_views.push(ParentChildViews {
-      parent_view: orphan_view,
-      child_views: vec![],
-    });
+  let mut invalid_orphan_views = vec![];
+  for orphan_view in all_views_map.into_values() {
+    if parent_views
+      .find_view(&orphan_view.parent_view_id)
+      .is_none()
+    {
+      invalid_orphan_views.push(ParentChildViews {
+        view: orphan_view,
+        children: vec![],
+      });
+    } else {
+      orphan_views.push(ParentChildViews {
+        view: orphan_view,
+        children: vec![],
+      });
+    }
   }
 
   info!(
-    "[AppflowyData]: parent views: {}, orphan views: {}",
+    "[AppflowyData]: parent views: {}, orphan views: {}, invalid orphan views: {}, views without collab data: {}",
     parent_views.len(),
     orphan_views.len(),
+    invalid_orphan_views.len(),
+    not_exist_parent_view_ids.len()
   );
 
-  Ok((parent_views.into_inner(), orphan_views))
+  Ok(MigrateViews {
+    child_views: parent_views.views,
+    orphan_views,
+    invalid_orphan_views,
+    not_exist_parent_view_ids,
+  })
 }
 
 fn parent_view_from_view(
@@ -791,8 +925,8 @@ fn parent_view_from_view(
     .collect::<Vec<ParentChildViews>>();
 
   Some(ParentChildViews {
-    parent_view,
-    child_views,
+    view: parent_view,
+    children: child_views,
   })
 }
 
@@ -811,7 +945,7 @@ impl OldToNewIdMap {
     (*view_id).clone()
   }
 
-  fn get_new_id(&self, old_id: &str) -> Option<&String> {
+  fn get_exchanged_id(&self, old_id: &str) -> Option<&String> {
     self.0.get(old_id)
   }
 }
@@ -961,6 +1095,7 @@ where
   PersistenceError: From<R::Error>,
 {
   load_collab_by_object_ids(uid, collab_read, object_ids)
+    .0
     .into_iter()
     .filter_map(|(oid, collab)| {
       collab
