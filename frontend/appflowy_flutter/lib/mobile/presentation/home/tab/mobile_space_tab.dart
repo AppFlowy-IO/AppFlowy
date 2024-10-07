@@ -187,7 +187,9 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     if (context.read<SpaceBloc>().state.spaces.isNotEmpty) {
       context.read<SpaceBloc>().add(
             SpaceEvent.createPage(
-              name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+              name: layout == ViewLayoutPB.Document
+                  ? ''
+                  : LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
               layout: layout,
             ),
           );
