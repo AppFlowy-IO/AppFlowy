@@ -11,6 +11,7 @@ type LocalChange = {
 };
 
 export interface YjsEditor extends Editor {
+  readOnly: boolean;
   isYjsEditor: (value: unknown) => value is YjsEditor;
   connect: () => void;
   disconnect: () => void;
@@ -71,16 +72,18 @@ export function withYjs<T extends Editor> (
   editor: T,
   doc: Y.Doc,
   opts?: {
+    readOnly: boolean;
     localOrigin: CollabOrigin;
     readSummary?: boolean;
     onContentChange?: (content: Descendant[]) => void;
   },
 ): T & YjsEditor {
-  const { localOrigin = CollabOrigin.Local, readSummary, onContentChange } = opts ?? {};
+  const { localOrigin = CollabOrigin.Local, readSummary, onContentChange, readOnly = true } = opts ?? {};
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
   e.interceptLocalChange = false;
+  e.readOnly = readOnly;
 
   e.sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 

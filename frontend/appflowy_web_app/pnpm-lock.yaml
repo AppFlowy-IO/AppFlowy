@@ -71,6 +71,9 @@ dependencies:
   emoji-regex:
     specifier: ^10.2.1
     version: 10.3.0
+  escape-string-regexp:
+    specifier: ^5.0.0
+    version: 5.0.0
   events:
     specifier: ^3.3.0
     version: 3.3.0
@@ -379,6 +382,9 @@ devDependencies:
   cypress-image-snapshot:
     specifier: ^4.0.1
     version: 4.0.1(cypress@13.7.2)(jest@29.5.0)
+  cypress-real-events:
+    specifier: ^1.13.0
+    version: 1.13.0(cypress@13.7.2)
   eslint:
     specifier: ^8.57.0
     version: 8.57.0
@@ -5801,6 +5807,14 @@ packages:
       - jest
     dev: true
 
+  /cypress-real-events@1.13.0(cypress@13.7.2):
+    resolution: {integrity: sha512-LoejtK+dyZ1jaT8wGT5oASTPfsNV8/ClRp99ruN60oPj8cBJYod80iJDyNwfPAu4GCxTXOhhAv9FO65Hpwt6Hg==}
+    peerDependencies:
+      cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x
+    dependencies:
+      cypress: 13.7.2
+    dev: true
+
   /cypress@13.7.2:
     resolution: {integrity: sha512-FF5hFI5wlRIHY8urLZjJjj/YvfCBrRpglbZCLr/cYcL9MdDe0+5usa8kTIrDHthlEc9lwihbkb5dmwqBDNS2yw==}
     engines: {node: ^16.0.0 || ^18.0.0 || >=20.0.0}
@@ -6377,6 +6391,11 @@ packages:
   /escape-string-regexp@4.0.0:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
+
+  /escape-string-regexp@5.0.0:
+    resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
+    engines: {node: '>=12'}
+    dev: false
 
   /escodegen@2.1.0:
     resolution: {integrity: sha512-2NlIDTwUWJN0mRPQOdtQBzbUHvdGY2P1VXSyU83Q3xKxM7WHX2Ql8dKq782Q9TgQUNOLEzEYu9bzLNj1q88I5w==}

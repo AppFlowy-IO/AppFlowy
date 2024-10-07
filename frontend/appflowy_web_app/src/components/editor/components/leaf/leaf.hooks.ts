@@ -11,17 +11,22 @@ export function useLeafSelected (text: Text) {
   const isSelected = useMemo(() => {
     if (readonly || !selection || !elementIsSelected || !text) return false;
 
-    const path = ReactEditor.findPath(editor, text);
+    try {
+      const path = ReactEditor.findPath(editor, text);
 
-    // get the start and end point of the mention
-    const start = Editor.start(editor, path);
-    const end = Editor.end(editor, path);
+      // get the start and end point of the mention
+      const start = Editor.start(editor, path);
+      const end = Editor.end(editor, path);
 
-    // check if the selection is inside the mention
-    return !!(Range.intersection(selection, {
-      anchor: start,
-      focus: end,
-    }));
+      // check if the selection is inside the mention
+      return !!(Range.intersection(selection, {
+        anchor: start,
+        focus: end,
+      }));
+    } catch (e) {
+      return false;
+    }
+
   }, [editor, elementIsSelected, readonly, selection, text]);
 
   const select = useCallback(() => {
