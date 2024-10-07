@@ -221,6 +221,88 @@ void main() {
       expect(newTitle, findsOneWidget);
     });
 
+    testWidgets('execute undo and redo in title', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      // press a random key to make the undo stack not empty
+      await tester.simulateKeyEvent(LogicalKeyboardKey.keyA);
+      await tester.pumpAndSettle();
+
+      // undo
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      // wait for the undo to be applied
+      await tester.pumpAndSettle(Durations.long1);
+
+      // expect the title is empty
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(''),
+            )
+            .controller
+            ?.text,
+        '',
+      );
+
+      // redo
+      if (UniversalPlatform.isMacOS) {
+        await tester.simulateKeyEvent(
+          LogicalKeyboardKey.keyZ,
+          isMetaPressed: true,
+          isShiftPressed: true,
+        );
+      } else {
+        await tester.simulateKeyEvent(
+          LogicalKeyboardKey.keyY,
+          isControlPressed: true,
+        );
+      }
+      await tester.pumpAndSettle(Durations.short1);
+
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(_testDocumentName),
+            )
+            .controller
+            ?.text,
+        _testDocumentName,
+      );
+    });
+
+    testWidgets('escape key should exit the editing mode', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(_testDocumentName),
+            )
+            .focusNode
+            ?.hasFocus,
+        isFalse,
+      );
+    });
+
     testWidgets('press arrow down key in title, check if the cursor flashes',
         (tester) async {
       await tester.initializeAppFlowy();
