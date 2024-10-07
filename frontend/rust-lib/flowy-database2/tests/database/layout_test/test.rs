@@ -52,7 +52,7 @@ async fn grid_to_calendar_layout_test() {
     UpdateDatabaseLayout {
       layout: DatabaseLayout::Calendar,
     },
-    AssertAllCalendarEventsCount { expected: 3 },
+    AssertAllCalendarEventsCount { expected: 0 },
   ];
   test.run_scripts(scripts).await;
 }

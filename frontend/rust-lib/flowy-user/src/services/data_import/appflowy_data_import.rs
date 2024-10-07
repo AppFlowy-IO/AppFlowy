@@ -913,15 +913,13 @@ where
 
     if database_view_ids.contains(&new_view_id) {
       true
-    } else {
-      if view.space_info().is_some() {
-        if !imported_collab_by_oid.contains_key(&view.id) {
-          not_exist_parent_view_ids.push(new_view_id);
-        }
-        true
-      } else {
-        imported_collab_by_oid.contains_key(&view.id)
+    } else if view.space_info().is_some() {
+      if !imported_collab_by_oid.contains_key(&view.id) {
+        not_exist_parent_view_ids.push(new_view_id);
       }
+      true
+    } else {
+      imported_collab_by_oid.contains_key(&view.id)
     }
   });
 

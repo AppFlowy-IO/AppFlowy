@@ -707,7 +707,7 @@ impl DatabaseViewEditor {
   ) -> FlowyResult<()> {
     let calculation_id = params
       .calculation_id
-      .unwrap_or_else(|| gen_database_calculation_id());
+      .unwrap_or_else(gen_database_calculation_id);
     let calculation = Calculation::none(
       calculation_id,
       params.field_id,
@@ -1058,42 +1058,42 @@ impl DatabaseViewEditor {
 
     // Text
     let primary_field = self.delegate.get_primary_field().await?;
-    let text_cells =
+    let mut primary_cells =
       get_cells_for_field(self.delegate.clone(), &self.view_id, &primary_field.id).await;
 
     // Date
-    let timestamp_by_row_id = get_cells_for_field(
+    let timestamp_cells = get_cells_for_field(
       self.delegate.clone(),
       &self.view_id,
       &calendar_setting.field_id,
     )
-    .await
-    .into_iter()
-    .map(|date_cell| {
-      let row_id = date_cell.row_id.clone();
+    .await;
 
-      // timestamp
-      let timestamp = date_cell
+    let mut events: Vec<CalendarEventPB> = vec![];
+    for timestamp_cell in timestamp_cells {
+      let row_id = timestamp_cell.row_id.clone();
+      let index = primary_cells
+        .iter()
+        .position(|text_cell| text_cell.row_id == row_id);
+
+      let timestamp = timestamp_cell
         .into_date_field_cell_data()
         .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
         .unwrap_or_default();
 
-      (row_id, timestamp)
-    })
-    .collect::<HashMap<RowId, i64>>();
-
-    let mut events: Vec<CalendarEventPB> = vec![];
-    for text_cell in text_cells {
-      let row_id = text_cell.row_id.clone();
-      let timestamp = timestamp_by_row_id
-        .get(&row_id)
-        .cloned()
-        .unwrap_or_default();
-
-      let title = text_cell
-        .into_text_field_cell_data()
-        .unwrap_or_default()
-        .into();
+      // The cell for given primary field might be empty.
+      // If yes, return empty string
+      // If not, return the text for the cell
+      let title = match index {
+        None => "".to_string(),
+        Some(index) => {
+          let text_cell = primary_cells.remove(index);
+          text_cell
+            .into_text_field_cell_data()
+            .unwrap_or_default()
+            .into()
+        },
+      };
 
       let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
@@ -1105,6 +1105,7 @@ impl DatabaseViewEditor {
       };
       events.push(event);
     }
+
     Some(events)
   }
 
