@@ -7,12 +7,15 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'exit_edit_mode_command.dart';
+
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
   ...commandShortcutEvents.map((e) => e.copyWith()),
 ];
 
 // Command shortcuts are order-sensitive. Verify order when modifying.
 List<CommandShortcutEvent> commandShortcutEvents = [
+  customExitEditingCommand,
   backspaceToTitle,
 
   arrowUpToTitle,
@@ -40,6 +43,7 @@ List<CommandShortcutEvent> commandShortcutEvents = [
         toggleTodoListCommand,
         undoCommand,
         redoCommand,
+        exitEditingCommand,
       ].contains(shortcut),
     ),
 
