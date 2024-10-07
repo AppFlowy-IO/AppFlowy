@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -85,6 +89,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   final subPageKey = GlobalKey();
 
   ViewListener? viewListener;
+  TrashListener? trashListener;
   Future<ViewPB?>? viewFuture;
 
   bool isHovering = false;
@@ -102,6 +107,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
       viewFuture = fetchView(viewId);
       viewListener = ViewListener(viewId: viewId)
         ..start(onViewUpdated: onViewUpdated);
+      trashListener = TrashListener()..start(trashUpdated: didUpdateTrash);
     }
   }
 
@@ -117,6 +123,27 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
         ..start(onViewUpdated: onViewUpdated);
     }
     super.didUpdateWidget(oldWidget);
+  }
+
+  void didUpdateTrash(FlowyResult<List<TrashPB>, FlowyError> trashOrFailed) {
+    final trashList = trashOrFailed.toNullable();
+    if (trashList == null) {
+      return;
+    }
+
+    final viewId = node.attributes[SubPageBlockKeys.viewId];
+    if (trashList.any((t) => t.id == viewId)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final transaction = editorState.transaction..deleteNode(node);
+          editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
+        }
+      });
+    }
   }
 
   void onViewUpdated(ViewPB view) {
