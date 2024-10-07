@@ -144,15 +144,15 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     .take()
     .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
   let (sender, task_rx) = mpsc::unbounded_channel::<Task>();
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let cloned_runtime = runtime.clone();
   let handle = std::thread::spawn(move || {
-    let runtime = Builder::new_multi_thread().enable_all().build().unwrap();
     let local_set = LocalSet::new();
-    runtime.block_on(local_set.run_until(Runner { rx: task_rx }));
+    cloned_runtime.block_on(local_set.run_until(Runner { rx: task_rx }));
   });
 
   *DART_APPFLOWY_CORE.sender.write().unwrap() = Some(sender);
   *DART_APPFLOWY_CORE.handle.write().unwrap() = Some(handle);
-  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
   *DART_APPFLOWY_CORE.core.write().unwrap() = runtime
     .block_on(async move { Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await) });

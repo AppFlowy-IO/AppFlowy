@@ -1670,10 +1670,17 @@ impl DatabaseEditor {
         loaded_rows.len(),
         blocking_read
       );
-      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
+      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor.clone()).await;
+
+      // Update calculation values
+      let calculate_rows = loaded_rows.clone();
+
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);
       }
+      tokio::spawn(async move {
+        let _ = view_editor.v_calculate_rows(calculate_rows).await;
+      });
     });
   }
 
@@ -1976,14 +1983,12 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self.database.write().await.remove_row(row_id).await
   }
 
-  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>> {
-    let cells = self
-      .database
-      .read()
-      .await
-      .get_cells_for_field(view_id, field_id)
-      .await;
-    cells.into_iter().map(Arc::new).collect()
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
+    let editor = self.editor_by_view_id.read().await.get(view_id).cloned();
+    match editor {
+      None => vec![],
+      Some(editor) => editor.v_get_cells_for_field(field_id).await,
+    }
   }
 
   async fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Arc<RowCell> {

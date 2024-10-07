@@ -170,22 +170,21 @@ impl RefCountValue for MockBlobTaskHandler {
   async fn did_remove(&self) {}
 }
 
+#[async_trait]
 impl TaskHandler for MockBlobTaskHandler {
   fn handler_id(&self) -> &str {
     "2"
   }
 
-  fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
-    Box::pin(async move {
-      match content {
-        TaskContent::Text(_) => panic!("Only support blob"),
-        TaskContent::Blob(bytes) => {
-          let _msg = String::from_utf8(bytes).unwrap();
-          tokio::time::sleep(Duration::from_millis(20)).await;
-        },
-      }
-      Ok(())
-    })
+  async fn run(&self, content: TaskContent) -> Result<(), Error> {
+    match content {
+      TaskContent::Text(_) => panic!("Only support blob"),
+      TaskContent::Blob(bytes) => {
+        let _msg = String::from_utf8(bytes).unwrap();
+        tokio::time::sleep(Duration::from_millis(20)).await;
+      },
+    }
+    Ok(())
   }
 }
 

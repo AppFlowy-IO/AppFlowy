@@ -11,7 +11,9 @@ use crate::entities::{
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
+use crate::services::calculations::{
+  Calculation, CalculationChangeset, CalculationEvent, CalculationsController,
+};
 use crate::services::cell::{CellBuilder, CellCache};
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_calculations::make_calculations_controller;
@@ -36,10 +38,11 @@ use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::priority_task::QualityOfService;
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
 use tracing::{instrument, trace, warn};
@@ -387,6 +390,27 @@ impl DatabaseViewEditor {
     rows
   }
 
+  pub async fn v_get_cells_for_field(&self, field_id: &str) -> Vec<RowCell> {
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    let rows = self.v_filter_rows(rows).await;
+    let rows = rows
+      .into_iter()
+      .filter_map(|row| {
+        row
+          .cells
+          .get(field_id)
+          .map(|cell| RowCell::new(row.id.clone(), Some(cell.clone())))
+      })
+      .collect::<Vec<_>>();
+    trace!(
+      "[Database]: get cells for field: {}, total rows:{}",
+      field_id,
+      rows.len()
+    );
+    rows
+  }
+
   pub async fn v_get_row(&self, row_id: &RowId) -> Option<(usize, Arc<RowDetail>)> {
     self.delegate.get_row_detail(&self.view_id, row_id).await
   }
@@ -650,6 +674,18 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_calculate_rows(&self, rows: Vec<Arc<Row>>) -> FlowyResult<()> {
+    self
+      .calculations_controller
+      .gen_task(
+        CalculationEvent::InitialRows(rows),
+        QualityOfService::UserInteractive,
+      )
+      .await;
+
+    Ok(())
+  }
+
   pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
     let all_sorts = self.v_get_all_sorts().await;
     self.sort_controller.write().await.delete_all_sorts().await;
@@ -669,11 +705,9 @@ impl DatabaseViewEditor {
     &self,
     params: UpdateCalculationChangesetPB,
   ) -> FlowyResult<()> {
-    let calculation_id = match params.calculation_id {
-      None => gen_database_calculation_id(),
-      Some(calculation_id) => calculation_id,
-    };
-
+    let calculation_id = params
+      .calculation_id
+      .unwrap_or_else(|| gen_database_calculation_id());
     let calculation = Calculation::none(
       calculation_id,
       params.field_id,
@@ -748,6 +782,9 @@ impl DatabaseViewEditor {
       self.v_group_by_field(&field_id).await?;
     }
 
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    self.v_calculate_rows(rows).await?;
     Ok(())
   }
 
