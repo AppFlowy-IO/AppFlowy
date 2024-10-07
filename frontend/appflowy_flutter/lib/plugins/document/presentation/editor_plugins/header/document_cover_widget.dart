@@ -102,6 +102,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   final titleTextController = TextEditingController();
   final titleFocusNode = FocusNode();
+  final isCoverTitleHovered = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -134,6 +135,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     widget.node.removeListener(_reload);
     titleTextController.dispose();
     titleFocusNode.dispose();
+    isCoverTitleHovered.dispose();
     super.dispose();
   }
 
@@ -156,6 +158,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                     hasCover: hasCover,
                     hasIcon: hasIcon,
                     offset: offset,
+                    isCoverTitleHovered: isCoverTitleHovered,
                   ),
                 ),
                 if (hasCover)
@@ -177,8 +180,12 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
-              child: CoverTitle(
-                view: widget.view,
+              child: MouseRegion(
+                onEnter: (event) => isCoverTitleHovered.value = true,
+                onExit: (event) => isCoverTitleHovered.value = false,
+                child: CoverTitle(
+                  view: widget.view,
+                ),
               ),
             ),
           ],
@@ -300,6 +307,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.hasIcon,
     required this.onIconOrCoverChanged,
     required this.offset,
+    required this.isCoverTitleHovered,
   });
 
   final Node node;
@@ -309,6 +317,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final void Function({(CoverType, String?)? cover, String? icon})
       onIconOrCoverChanged;
   final double offset;
+  final ValueNotifier<bool> isCoverTitleHovered;
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -328,12 +337,17 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
-        child: Visibility(
-          visible: !isHidden || isPopoverOpen,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: buildRowChildren(),
-          ),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: widget.isCoverTitleHovered,
+          builder: (context, isHovered, child) {
+            return Visibility(
+              visible: !isHidden || isPopoverOpen || isHovered,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: buildRowChildren(),
+              ),
+            );
+          },
         ),
       ),
     );
