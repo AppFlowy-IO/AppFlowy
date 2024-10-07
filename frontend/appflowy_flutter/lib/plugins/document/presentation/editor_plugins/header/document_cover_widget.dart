@@ -64,6 +64,9 @@ enum CoverType {
   }
 }
 
+// This key is used to intercept the selection event in the document cover widget.
+const _interceptorKey = 'document_cover_widget_interceptor';
+
 class DocumentCoverWidget extends StatefulWidget {
   const DocumentCoverWidget({
     super.key,
@@ -93,6 +96,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   bool get hasCover =>
       coverType != CoverType.none ||
       (cover != null && cover?.type != PageStyleCoverImageType.none);
+  RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
 
   String viewIcon = '';
   PageStyleCover? cover;
@@ -104,6 +108,12 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   final titleFocusNode = FocusNode();
   final isCoverTitleHovered = ValueNotifier<bool>(false);
 
+  late final gestureInterceptor = SelectionGestureInterceptor(
+    key: _interceptorKey,
+    canTap: (details) => !_isTapInBounds(details.globalPosition),
+    canPanStart: (details) => !_isDragInBounds(details.globalPosition),
+  );
+
   @override
   void initState() {
     super.initState();
@@ -113,6 +123,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     view = widget.view;
     titleTextController.text = view.name;
     widget.node.addListener(_reload);
+    widget.editorState.service.selectionService
+        .registerGestureInterceptor(gestureInterceptor);
 
     viewListener = ViewListener(viewId: widget.view.id)
       ..start(
@@ -136,6 +148,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     titleTextController.dispose();
     titleFocusNode.dispose();
     isCoverTitleHovered.dispose();
+    widget.editorState.service.selectionService
+        .unregisterGestureInterceptor(_interceptorKey);
     super.dispose();
   }
 
@@ -294,6 +308,24 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
       attributes,
       overwrite: true,
     );
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    if (_renderBox == null) {
+      return false;
+    }
+
+    final localPosition = _renderBox!.globalToLocal(offset);
+    return _renderBox!.paintBounds.contains(localPosition);
+  }
+
+  bool _isDragInBounds(Offset offset) {
+    if (_renderBox == null) {
+      return false;
+    }
+
+    final localPosition = _renderBox!.globalToLocal(offset);
+    return _renderBox!.paintBounds.contains(localPosition);
   }
 }
 
