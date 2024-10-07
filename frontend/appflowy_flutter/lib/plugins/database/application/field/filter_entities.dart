@@ -14,11 +14,12 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:equatable/equatable.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class DatabaseFilter {
+abstract class DatabaseFilter extends Equatable {
   const DatabaseFilter({
     required this.filterId,
     required this.fieldId,
@@ -112,16 +113,18 @@ abstract class DatabaseFilter {
 }
 
 final class TextFilter extends DatabaseFilter {
-  const TextFilter({
+  TextFilter({
     required super.filterId,
     required super.fieldId,
     required super.fieldType,
     required this.condition,
-    required this.content,
-  });
+    required String content,
+  }) {
+    this.content = canAttachContent ? content : "";
+  }
 
   final TextFilterConditionPB condition;
-  final String content;
+  late final String content;
 
   @override
   String get conditionName => condition.filterName;
@@ -182,19 +185,24 @@ final class TextFilter extends DatabaseFilter {
       content: content ?? this.content,
     );
   }
+
+  @override
+  List<Object?> get props => [filterId, fieldId, condition, content];
 }
 
 final class NumberFilter extends DatabaseFilter {
-  const NumberFilter({
+  NumberFilter({
     required super.filterId,
     required super.fieldId,
     required super.fieldType,
     required this.condition,
-    required this.content,
-  });
+    required String content,
+  }) {
+    this.content = canAttachContent ? content : "";
+  }
 
   final NumberFilterConditionPB condition;
-  final String content;
+  late final String content;
 
   @override
   String get conditionName => condition.filterName;
@@ -253,6 +261,9 @@ final class NumberFilter extends DatabaseFilter {
       content: content ?? this.content,
     );
   }
+
+  @override
+  List<Object?> get props => [filterId, fieldId, condition, content];
 }
 
 final class CheckboxFilter extends DatabaseFilter {
@@ -289,6 +300,9 @@ final class CheckboxFilter extends DatabaseFilter {
       condition: condition ?? this.condition,
     );
   }
+
+  @override
+  List<Object?> get props => [filterId, fieldId, condition];
 }
 
 final class ChecklistFilter extends DatabaseFilter {
@@ -325,19 +339,33 @@ final class ChecklistFilter extends DatabaseFilter {
       condition: condition ?? this.condition,
     );
   }
+
+  @override
+  List<Object?> get props => [filterId, fieldId, condition];
 }
 
 final class SelectOptionFilter extends DatabaseFilter {
-  const SelectOptionFilter({
+  SelectOptionFilter({
     required super.filterId,
     required super.fieldId,
     required super.fieldType,
     required this.condition,
-    required this.optionIds,
-  });
+    required List<String> optionIds,
+  }) {
+    if (canAttachContent) {
+      if (fieldType == FieldType.SingleSelect &&
+          (condition == SelectOptionFilterConditionPB.OptionIs ||
+              condition == SelectOptionFilterConditionPB.OptionIsNot) &&
+          optionIds.isNotEmpty) {
+        this.optionIds.add(optionIds.first);
+      } else {
+        this.optionIds.addAll(optionIds);
+      }
+    }
+  }
 
   final SelectOptionFilterConditionPB condition;
-  final List<String> optionIds;
+  final List<String> optionIds = [];
 
   @override
   String get conditionName => condition.i18n;
@@ -428,6 +456,9 @@ final class SelectOptionFilter extends DatabaseFilter {
       field.fieldType == FieldType.SingleSelect
           ? const SingleSelectOptionFilterDelegateImpl()
           : const MultiSelectOptionFilterDelegateImpl();
+
+  @override
+  List<Object?> get props => [filterId, fieldId, condition, optionIds];
 }
 
 enum DateTimeFilterCondition {
@@ -491,7 +522,8 @@ enum DateTimeFilterCondition {
   }
 
   static List<DateTimeFilterCondition> availableConditionsForFieldType(
-      FieldType fieldType,) {
+    FieldType fieldType,
+  ) {
     final result = [...values];
     if (fieldType == FieldType.CreatedTime ||
         fieldType == FieldType.LastEditedTime) {
@@ -504,20 +536,37 @@ enum DateTimeFilterCondition {
 }
 
 final class DateTimeFilter extends DatabaseFilter {
-  const DateTimeFilter({
+  DateTimeFilter({
     required super.filterId,
     required super.fieldId,
     required super.fieldType,
     required this.condition,
-    this.timestamp,
-    this.start,
-    this.end,
-  });
+    DateTime? timestamp,
+    DateTime? start,
+    DateTime? end,
+  }) {
+    if (canAttachContent) {
+      if (condition == DateFilterConditionPB.DateStartsBetween ||
+          condition == DateFilterConditionPB.DateEndsBetween) {
+        this.start = start;
+        this.end = end;
+        this.timestamp = null;
+      } else {
+        this.timestamp = timestamp;
+        this.start = null;
+        this.end = null;
+      }
+    } else {
+      this.timestamp = null;
+      this.start = null;
+      this.end = null;
+    }
+  }
 
   final DateFilterConditionPB condition;
-  final DateTime? timestamp;
-  final DateTime? start;
-  final DateTime? end;
+  late final DateTime? timestamp;
+  late final DateTime? start;
+  late final DateTime? end;
 
   @override
   String get conditionName => condition.toCondition().filterName;
@@ -654,6 +703,10 @@ final class DateTimeFilter extends DatabaseFilter {
       timestamp: timestamp,
     );
   }
+
+  @override
+  List<Object?> get props =>
+      [filterId, fieldId, condition, timestamp, start, end];
 }
 
 final class TimeFilter extends DatabaseFilter {
@@ -703,4 +756,7 @@ final class TimeFilter extends DatabaseFilter {
       content: content ?? this.content,
     );
   }
+
+  @override
+  List<Object?> get props => [filterId, fieldId, condition, content];
 }

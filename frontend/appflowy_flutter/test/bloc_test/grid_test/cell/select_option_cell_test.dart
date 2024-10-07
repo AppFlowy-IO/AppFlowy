@@ -1,4 +1,6 @@
 import 'package:appflowy/plugins/database/application/cell/bloc/select_option_cell_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,20 +8,25 @@ import 'package:flutter_test/flutter_test.dart';
 import '../util.dart';
 
 void main() {
-  late AppFlowyGridCellTest cellTest;
+  late AppFlowyGridTest cellTest;
+
   setUpAll(() async {
-    cellTest = await AppFlowyGridCellTest.ensureInitialized();
+    cellTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('SingleSelectOptionBloc', () {
-    test('create options', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
+  group('select cell bloc:', () {
+    late GridTestContext context;
+    late SelectOptionCellController cellController;
 
+    setUp(() async {
+      context = await cellTest.makeDefaultTestGrid();
+      await RowBackendService.createRow(viewId: context.view.id);
+      final fieldIndex = context.fieldController.fieldInfos
+          .indexWhere((field) => field.fieldType == FieldType.SingleSelect);
+      cellController = context.makeGridCellController(fieldIndex, 0).as();
+    });
+
+    test('create options', () async {
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
@@ -32,13 +39,6 @@ void main() {
     });
 
     test('update options', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
-
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
@@ -57,13 +57,6 @@ void main() {
     });
 
     test('delete options', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
-
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
@@ -108,13 +101,6 @@ void main() {
     });
 
     test('select/unselect option', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
-
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
@@ -135,13 +121,6 @@ void main() {
     });
 
     test('select an option or create one', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
-
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
@@ -163,13 +142,6 @@ void main() {
     });
 
     test('select multiple options', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
-
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
@@ -195,13 +167,6 @@ void main() {
     });
 
     test('filter options', () async {
-      await cellTest.createTestGrid();
-      await cellTest.createTestRow();
-      final cellController = cellTest.makeSelectOptionCellController(
-        FieldType.SingleSelect,
-        0,
-      );
-
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       await gridResponseFuture();
 
