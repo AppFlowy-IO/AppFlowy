@@ -240,7 +240,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final text = titleTextController.text;
 
     // if the cursor is not at the end of the text, ignore the event
-    if (lineCount != 1 &&
+    if ((key == LogicalKeyboardKey.arrowRight || lineCount != 1) &&
         (!selection.isCollapsed || text.length != selection.extentOffset)) {
       return KeyEventResult.ignored;
     }
