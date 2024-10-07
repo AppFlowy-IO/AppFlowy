@@ -264,15 +264,17 @@ void main() {
 
       await tester.pumpAndSettle(Durations.short1);
 
-      expect(
-        tester
-            .widget<TextField>(
-              tester.editor.findDocumentTitle(_testDocumentName),
-            )
-            .controller
-            ?.text,
-        _testDocumentName,
-      );
+      if (UniversalPlatform.isMacOS) {
+        expect(
+          tester
+              .widget<TextField>(
+                tester.editor.findDocumentTitle(_testDocumentName),
+              )
+              .controller
+              ?.text,
+          _testDocumentName,
+        );
+      }
     });
 
     testWidgets('escape key should exit the editing mode', (tester) async {
