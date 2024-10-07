@@ -46,7 +46,7 @@ jobs:
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
           APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
           APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
@@ -135,7 +135,7 @@ jobs:
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
           APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
           APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
