@@ -684,26 +684,19 @@ pub(crate) async fn update_checklist_cell_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: ChecklistCellDataChangesetParams = data.into_inner().try_into()?;
+  let params = data.try_into_inner()?;
   let database_editor = manager
-    .get_database_editor_with_view_id(&params.view_id)
+    .get_database_editor_with_view_id(&params.cell_id.view_id)
     .await?;
-  let changeset = ChecklistCellChangeset {
-    insert_options: params
-      .insert_options
-      .into_iter()
-      .map(|name| (name, false))
-      .collect(),
-    selected_option_ids: params.selected_option_ids,
-    delete_option_ids: params.delete_option_ids,
-    update_options: params.update_options,
-  };
+
+  let cell_id = params.cell_id.clone();
+
   database_editor
     .update_cell_with_changeset(
-      &params.view_id,
-      &params.row_id,
-      &params.field_id,
-      BoxAny::new(changeset),
+      &cell_id.view_id,
+      &(RowId::from(cell_id.row_id)),
+      &cell_id.field_id,
+      BoxAny::new(ChecklistCellChangeset::from(params)),
     )
     .await?;
   Ok(())

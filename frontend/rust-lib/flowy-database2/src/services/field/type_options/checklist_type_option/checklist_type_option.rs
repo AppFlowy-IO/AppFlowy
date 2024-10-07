@@ -78,7 +78,7 @@ impl CellDataChangeset for ChecklistTypeOption {
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
       None => {
-        let cell_data = ChecklistCellData::from_options(changeset.insert_options);
+        let cell_data = ChecklistCellData::from_options(changeset.insert_tasks);
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
     }
@@ -93,14 +93,14 @@ fn update_cell_data_with_changeset(
   // Delete the options
   cell_data
     .options
-    .retain(|option| !changeset.delete_option_ids.contains(&option.id));
+    .retain(|option| !changeset.delete_tasks.contains(&option.id));
   cell_data
     .selected_option_ids
-    .retain(|option_id| !changeset.delete_option_ids.contains(option_id));
+    .retain(|option_id| !changeset.delete_tasks.contains(option_id));
 
   // Insert new options
   changeset
-    .insert_options
+    .insert_tasks
     .into_iter()
     .for_each(|(option_name, is_selected)| {
       let option = SelectOption::new(&option_name);
@@ -112,7 +112,7 @@ fn update_cell_data_with_changeset(
 
   // Update options
   changeset
-    .update_options
+    .update_tasks
     .into_iter()
     .for_each(|updated_option| {
       if let Some(option) = cell_data
@@ -126,7 +126,7 @@ fn update_cell_data_with_changeset(
 
   // Select the options
   changeset
-    .selected_option_ids
+    .completed_task_ids
     .into_iter()
     .for_each(|option_id| {
       if let Some(index) = cell_data
@@ -139,6 +139,21 @@ fn update_cell_data_with_changeset(
         cell_data.selected_option_ids.push(option_id);
       }
     });
+
+  // Reorder
+  let mut split = changeset.reorder.split(' ').take(2);
+  if let (Some(from), Some(to)) = (split.next(), split.next()) {
+    if let (Some(from_index), Some(to_index)) = (
+      cell_data
+        .options
+        .iter()
+        .position(|option| option.id == from),
+      cell_data.options.iter().position(|option| option.id == to),
+    ) {
+      let option = cell_data.options.remove(from_index);
+      cell_data.options.insert(to_index, option);
+    }
+  }
 }
 
 impl CellDataDecoder for ChecklistTypeOption {

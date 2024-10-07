@@ -80,6 +80,9 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
           deleteTask: (id) async {
             await _deleteOption([id]);
           },
+          reorderTask: (fromIndex, toIndex) async {
+            await _reorderTask(fromIndex, toIndex, emit);
+          },
         );
       },
     );
@@ -105,6 +108,28 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     final result = await _checklistCellService.delete(optionIds: options);
     result.fold((l) => null, (err) => Log.error(err));
   }
+
+  Future<void> _reorderTask(
+    int fromIndex,
+    int toIndex,
+    Emitter<ChecklistCellState> emit,
+  ) async {
+    if (fromIndex < toIndex) {
+      toIndex--;
+    }
+
+    final fromId = state.tasks[fromIndex].data.id;
+    final toId = state.tasks[toIndex].data.id;
+
+    final newTasks = [...state.tasks];
+    newTasks.insert(toIndex, newTasks.removeAt(fromIndex));
+    emit(state.copyWith(tasks: newTasks));
+    final result = await _checklistCellService.reorder(
+      fromTaskId: fromId,
+      toTaskId: toId,
+    );
+    result.fold((l) => null, (err) => Log.error(err));
+  }
 }
 
 @freezed
@@ -120,6 +145,8 @@ class ChecklistCellEvent with _$ChecklistCellEvent {
   const factory ChecklistCellEvent.createNewTask(String description) =
       _CreateNewTask;
   const factory ChecklistCellEvent.deleteTask(String taskId) = _DeleteTask;
+  const factory ChecklistCellEvent.reorderTask(int fromIndex, int toIndex) =
+      _ReorderTask;
 }
 
 @freezed

@@ -1,4 +1,4 @@
-use crate::entities::FieldType;
+use crate::entities::{ChecklistCellDataChangesetPB, FieldType};
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 use collab::util::AnyMapExt;
 use collab_database::fields::select_type_option::SelectOption;
@@ -82,11 +82,31 @@ impl From<ChecklistCellData> for Cell {
 
 #[derive(Debug, Clone, Default)]
 pub struct ChecklistCellChangeset {
-  /// List of option names that will be inserted
-  pub insert_options: Vec<(String, bool)>,
-  pub selected_option_ids: Vec<String>,
-  pub delete_option_ids: Vec<String>,
-  pub update_options: Vec<SelectOption>,
+  pub insert_tasks: Vec<(String, bool)>,
+  pub delete_tasks: Vec<String>,
+  pub update_tasks: Vec<SelectOption>,
+  pub completed_task_ids: Vec<String>,
+  pub reorder: String,
+}
+
+impl From<ChecklistCellDataChangesetPB> for ChecklistCellChangeset {
+  fn from(value: ChecklistCellDataChangesetPB) -> Self {
+    ChecklistCellChangeset {
+      insert_tasks: value
+        .insert_task
+        .into_iter()
+        .map(|name| (name, false))
+        .collect(),
+      delete_tasks: value.delete_tasks,
+      update_tasks: value
+        .update_tasks
+        .into_iter()
+        .map(SelectOption::from)
+        .collect(),
+      completed_task_ids: value.completed_tasks,
+      reorder: value.reorder,
+    }
+  }
 }
 
 #[cfg(test)]

@@ -194,7 +194,7 @@ pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell
 
 pub fn insert_checklist_cell(insert_options: Vec<(String, bool)>, field: &Field) -> Cell {
   let changeset = ChecklistCellChangeset {
-    insert_options,
+    insert_tasks: insert_options,
     ..Default::default()
   };
   apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()

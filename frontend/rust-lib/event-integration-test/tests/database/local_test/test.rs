@@ -620,17 +620,20 @@ async fn update_checklist_cell_test() {
 
   // update the checklist cell
   let changeset = ChecklistCellDataChangesetPB {
-    view_id: grid_view.id.clone(),
-    row_id: database.rows[0].id.clone(),
-    field_id: checklist_field.id.clone(),
-    insert_options: vec![
+    cell_id: CellIdPB {
+      view_id: grid_view.id.clone(),
+      row_id: database.rows[0].id.clone(),
+      field_id: checklist_field.id.clone(),
+    },
+    insert_task: vec![
       "task 1".to_string(),
       "task 2".to_string(),
       "task 3".to_string(),
     ],
-    selected_option_ids: vec![],
-    delete_option_ids: vec![],
-    update_options: vec![],
+    completed_tasks: vec![],
+    delete_tasks: vec![],
+    update_tasks: vec![],
+    reorder: "".to_string(),
   };
   test.update_checklist_cell(changeset).await;
 
@@ -644,10 +647,12 @@ async fn update_checklist_cell_test() {
 
   // select some options
   let changeset = ChecklistCellDataChangesetPB {
-    view_id: grid_view.id.clone(),
-    row_id: database.rows[0].id.clone(),
-    field_id: checklist_field.id.clone(),
-    selected_option_ids: vec![cell.options[0].id.clone(), cell.options[1].id.clone()],
+    cell_id: CellIdPB {
+      view_id: grid_view.id.clone(),
+      row_id: database.rows[0].id.clone(),
+      field_id: checklist_field.id.clone(),
+    },
+    completed_tasks: vec![cell.options[0].id.clone(), cell.options[1].id.clone()],
     ..Default::default()
   };
   test.update_checklist_cell(changeset).await;

@@ -54,7 +54,7 @@ class ChecklistCellTextfield extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const contentPadding = EdgeInsets.symmetric(
-      vertical: 6.0,
+      vertical: 10.0,
       horizontal: 2.0,
     );
     return TextField(
@@ -65,6 +65,7 @@ class ChecklistCellTextfield extends StatelessWidget {
       decoration: InputDecoration(
         border: InputBorder.none,
         isCollapsed: true,
+        isDense: true,
         contentPadding: contentPadding,
         hintText: LocaleKeys.grid_checklist_taskHint.tr(),
       ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/checklist_cell_bloc.dart';
@@ -5,10 +7,11 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_edi
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../editable_cell_skeleton/checklist.dart';
@@ -19,14 +22,12 @@ class DesktopRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     ChecklistCellBloc bloc,
-    ChecklistCellState state,
     PopoverController popoverController,
   ) {
     return ChecklistItems(
       context: context,
       cellContainerNotifier: cellContainerNotifier,
       bloc: bloc,
-      state: state,
       popoverController: popoverController,
     );
   }
@@ -38,14 +39,12 @@ class ChecklistItems extends StatefulWidget {
     required this.context,
     required this.cellContainerNotifier,
     required this.bloc,
-    required this.state,
     required this.popoverController,
   });
 
   final BuildContext context;
   final CellContainerNotifier cellContainerNotifier;
   final ChecklistCellBloc bloc;
-  final ChecklistCellState state;
   final PopoverController popoverController;
 
   @override
@@ -57,28 +56,6 @@ class _ChecklistItemsState extends State<ChecklistItems> {
 
   @override
   Widget build(BuildContext context) {
-    final tasks = [...widget.state.tasks];
-    if (showIncompleteOnly) {
-      tasks.removeWhere((task) => task.isSelected);
-    }
-    // final children = tasks
-    //     .mapIndexed(
-    //       (index, task) => Padding(
-    //         padding: const EdgeInsets.symmetric(vertical: 2.0),
-    //         child: ChecklistItem(
-    //           key: ValueKey('${task.data.id}$index'),
-    //           task: task,
-    //           autofocus: widget.state.newTask && index == tasks.length - 1,
-    //           onSubmitted: () {
-    //             if (index == tasks.length - 1) {
-    //               // create a new task under the last task if the users press enter
-    //               widget.bloc.add(const ChecklistCellEvent.createNewTask(''));
-    //             }
-    //           },
-    //         ),
-    //       ),
-    //     )
-    //     .toList();
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: Column(
@@ -90,9 +67,13 @@ class _ChecklistItemsState extends State<ChecklistItems> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
-                  child: ChecklistProgressBar(
-                    tasks: widget.state.tasks,
-                    percent: widget.state.percent,
+                  child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+                    builder: (context, state) {
+                      return ChecklistProgressBar(
+                        tasks: state.tasks,
+                        percent: state.percent,
+                      );
+                    },
                   ),
                 ),
                 const HSpace(6.0),
@@ -116,45 +97,62 @@ class _ChecklistItemsState extends State<ChecklistItems> {
             ),
           ),
           const VSpace(2.0),
-          _ChecklistCellEditors(tasks: tasks),
+          BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+            buildWhen: (previous, current) =>
+                !listEquals(previous.tasks, current.tasks),
+            builder: (context, state) {
+              final tasks = showIncompleteOnly
+                  ? state.tasks.where((task) => !task.isSelected).toList()
+                  : state.tasks;
+              return ReorderableListView.builder(
+                shrinkWrap: true,
+                proxyDecorator: (child, index, _) => Material(
+                  color: Colors.transparent,
+                  child: Stack(
+                    children: [
+                      BlocProvider.value(
+                        value: context.read<ChecklistCellBloc>(),
+                        child: child,
+                      ),
+                      MouseRegion(
+                        cursor: Platform.isWindows
+                            ? SystemMouseCursors.click
+                            : SystemMouseCursors.grabbing,
+                        child: const SizedBox.expand(),
+                      ),
+                    ],
+                  ),
+                ),
+                buildDefaultDragHandles: false,
+                itemBuilder: (_, index) => Padding(
+                  key: ValueKey('${tasks[index].data.id}$index'),
+                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  child: ChecklistItem(
+                    task: tasks[index],
+                    index: index,
+                    autofocus: state.newTask && index == tasks.length - 1,
+                    onSubmitted: () {
+                      if (index == tasks.length - 1) {
+                        // create a new task under the last task if the users press enter
+                        context
+                            .read<ChecklistCellBloc>()
+                            .add(const ChecklistCellEvent.createNewTask(''));
+                      }
+                    },
+                  ),
+                ),
+                itemCount: tasks.length,
+                onReorder: (from, to) {
+                  context
+                      .read<ChecklistCellBloc>()
+                      .add(ChecklistCellEvent.reorderTask(from, to));
+                },
+              );
+            },
+          ),
           ChecklistItemControl(cellNotifer: widget.cellContainerNotifier),
         ],
       ),
-    );
-  }
-}
-
-class _ChecklistCellEditors extends StatelessWidget {
-  const _ChecklistCellEditors({
-    required this.tasks,
-  });
-
-  final List<ChecklistSelectOption> tasks;
-
-  @override
-  Widget build(BuildContext context) {
-    final bloc = context.read<ChecklistCellBloc>();
-    final state = bloc.state;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ...tasks.mapIndexed(
-          (index, task) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.0),
-            child: ChecklistItem(
-              key: ValueKey('${task.data.id}$index'),
-              task: task,
-              autofocus: state.newTask && index == tasks.length - 1,
-              onSubmitted: () {
-                if (index == tasks.length - 1) {
-                  // create a new task under the last task if the users press enter
-                  bloc.add(const ChecklistCellEvent.createNewTask(''));
-                }
-              },
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
