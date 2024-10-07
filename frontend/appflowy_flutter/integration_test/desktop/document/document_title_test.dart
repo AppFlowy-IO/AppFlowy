@@ -255,18 +255,13 @@ void main() {
       );
 
       // redo
-      if (UniversalPlatform.isMacOS) {
-        await tester.simulateKeyEvent(
-          LogicalKeyboardKey.keyZ,
-          isMetaPressed: true,
-          isShiftPressed: true,
-        );
-      } else {
-        await tester.simulateKeyEvent(
-          LogicalKeyboardKey.keyY,
-          isControlPressed: true,
-        );
-      }
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+        isShiftPressed: true,
+      );
+
       await tester.pumpAndSettle(Durations.short1);
 
       expect(
