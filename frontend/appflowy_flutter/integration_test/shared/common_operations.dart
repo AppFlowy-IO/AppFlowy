@@ -1,11 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -17,10 +11,12 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
@@ -40,6 +36,10 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'emoji.dart';
@@ -324,14 +324,10 @@ extension CommonOperations on WidgetTester {
     }
     await pumpAndSettle();
 
-    final defaultPageName = layout == ViewLayoutPB.Document
-        ? '' // the document name is empty by default
-        : LocaleKeys.menuAppHeader_defaultNewPageName.tr();
-
     // hover on it and change it's name
     if (name != null) {
       await hoverOnPageName(
-        defaultPageName,
+        layout.defaultName,
         layout: layout,
         onHover: () async {
           await renamePage(name);
@@ -345,7 +341,7 @@ extension CommonOperations on WidgetTester {
     if (openAfterCreated) {
       await openPage(
         // if the name is null, use the default name
-        name ?? defaultPageName,
+        name ?? layout.defaultName,
         layout: layout,
       );
       await pumpAndSettle();

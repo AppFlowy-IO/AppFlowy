@@ -93,9 +93,7 @@ class MobileSpace extends StatelessWidget {
             Navigator.of(sheetContext).pop();
             context.read<SpaceBloc>().add(
                   SpaceEvent.createPage(
-                    name: layout == ViewLayoutPB.Document
-                        ? ''
-                        : LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                    name: layout.defaultName,
                     layout: layout,
                     index: 0,
                   ),
