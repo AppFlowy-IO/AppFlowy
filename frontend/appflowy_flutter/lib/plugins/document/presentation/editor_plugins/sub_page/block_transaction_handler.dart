@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_transaction_handler/block_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SubPageBlockTransactionHandler extends BlockTransactionHandler {
   SubPageBlockTransactionHandler() : super(blockType: SubPageBlockKeys.type);
@@ -138,19 +142,29 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
       final viewOrResult = await ViewBackendService.createView(
         layoutType: ViewLayoutPB.Document,
         parentViewId: parentViewId,
-        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        name: '',
       );
 
       await viewOrResult.fold(
         (view) async {
           final transaction = editorState.transaction
             ..updateNode(node, {SubPageBlockKeys.viewId: view.id});
-          await editorState.apply(
+          await editorState
+              .apply(
             transaction,
             withUpdateSelection: false,
             options: const ApplyOptions(recordUndo: false),
-          );
-          editorState.reload();
+          )
+              .then((_) async {
+            editorState.reload();
+
+            // Open the new page
+            if (UniversalPlatform.isDesktop) {
+              getIt<TabsBloc>().openPlugin(view);
+            } else {
+              await context.pushView(view);
+            }
+          });
         },
         (error) async {
           Log.error(error);
