@@ -96,7 +96,7 @@ collab-plugins = { version = "0.2" }
 collab-user = { version = "0.2" }
 collab-importer = { version = "0.1" }
 yrs = "0.21.0"
-validator = { version = "0.16.1", features = ["derive"] }
+validator = { version = "0.18", features = ["derive"] }
 tokio-util = "0.7.11"
 zip = "2.2.0"
 dashmap = "6.0.1"

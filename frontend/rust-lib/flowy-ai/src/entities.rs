@@ -9,10 +9,11 @@ use flowy_ai_pub::cloud::{
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
+
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ChatId {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub value: String,
 }
 
@@ -36,11 +37,11 @@ pub struct FilePB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct SendChatPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub message: String,
 
   #[pb(index = 3)]
@@ -50,11 +51,11 @@ pub struct SendChatPayloadPB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct StreamChatPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub message: String,
 
   #[pb(index = 3)]
@@ -100,7 +101,7 @@ pub enum ChatMessageMetaTypePB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct StopStreamPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 }
 
@@ -114,7 +115,7 @@ pub enum ChatMessageTypePB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct LoadPrevChatMessagePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 
   #[pb(index = 2)]
@@ -127,7 +128,7 @@ pub struct LoadPrevChatMessagePB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct LoadNextChatMessagePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 
   #[pb(index = 2)]
@@ -367,11 +368,11 @@ pub enum ModelTypePB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ChatFilePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub file_path: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 }
 
@@ -510,17 +511,17 @@ pub struct OfflineAIPB {
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct CreateChatContextPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub content_type: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub text: String,
 
   #[pb(index = 3)]
   pub metadata: HashMap<String, String>,
 
   #[pb(index = 4)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 }

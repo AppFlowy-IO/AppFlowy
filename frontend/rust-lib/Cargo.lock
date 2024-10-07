@@ -1334,7 +1334,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1376,6 +1376,41 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0369ee1ad671834580515889b80f2ea915f23b8be8d0daa4bbaf2ac5c7590835"
 dependencies = [
  "cipher",
+]
+
+[[package]]
+name = "darling"
+version = "0.20.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54e36fcd13ed84ffdfda6f5be89b31287cbb80c439841fe69e04841435464391"
+dependencies = [
+ "darling_core",
+ "darling_macro",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.20.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c2cf1c23a687a1feeb728783b993c4e1ad83d99f351801977dd809b48d0a70f"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2",
+ "quote",
+ "strsim 0.10.0",
+ "syn 2.0.47",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.20.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a668eda54683121533a393014d8692171709ff57a7d61f187b6e782719f8933f"
+dependencies = [
+ "darling_core",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -1464,7 +1499,7 @@ dependencies = [
  "thiserror",
  "tracing",
  "uuid",
- "validator",
+ "validator 0.16.1",
 ]
 
 [[package]]
@@ -1939,7 +1974,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
- "validator",
+ "validator 0.18.1",
  "zip",
  "zip-extensions",
 ]
@@ -2116,7 +2151,7 @@ dependencies = [
  "tokio-util",
  "tracing",
  "url",
- "validator",
+ "validator 0.18.1",
 ]
 
 [[package]]
@@ -2186,7 +2221,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
- "validator",
+ "validator 0.18.1",
 ]
 
 [[package]]
@@ -2240,7 +2275,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "url",
- "validator",
+ "validator 0.18.1",
 ]
 
 [[package]]
@@ -2279,7 +2314,7 @@ dependencies = [
  "tracing",
  "unicode-segmentation",
  "uuid",
- "validator",
+ "validator 0.18.1",
 ]
 
 [[package]]
@@ -2339,13 +2374,13 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
- "strsim",
+ "strsim 0.11.0",
  "strum_macros 0.26.1",
  "tantivy",
  "tempfile",
  "tokio",
  "tracing",
- "validator",
+ "validator 0.18.1",
 ]
 
 [[package]]
@@ -2550,7 +2585,7 @@ dependencies = [
  "tracing",
  "unicode-segmentation",
  "uuid",
- "validator",
+ "validator 0.18.1",
 ]
 
 [[package]]
@@ -3153,6 +3188,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ident_case"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
+
+[[package]]
 name = "idna"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3420,7 +3461,7 @@ dependencies = [
  "thread-id",
  "tokio",
  "tracing",
- "validator",
+ "validator 0.18.1",
  "wasm-bindgen",
  "wasm-bindgen-futures",
 ]
@@ -3446,7 +3487,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "tracing",
- "validator",
+ "validator 0.18.1",
  "walkdir",
  "zip",
 ]
@@ -4218,7 +4259,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -4238,6 +4279,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4303,6 +4345,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -5703,6 +5758,12 @@ dependencies = [
 
 [[package]]
 name = "strsim"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
+
+[[package]]
+name = "strsim"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ee073c9e4cd00e28217186dbe12796d692868f432bf2e97ee73bed0c56dfa01"
@@ -6756,7 +6817,23 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "url",
- "validator_derive",
+ "validator_derive 0.16.0",
+]
+
+[[package]]
+name = "validator"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db79c75af171630a3148bd3e6d7c4f42b6a9a014c2945bc5ed0020cbb8d9478e"
+dependencies = [
+ "idna 0.5.0",
+ "once_cell",
+ "regex",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "url",
+ "validator_derive 0.18.2",
 ]
 
 [[package]]
@@ -6773,6 +6850,20 @@ dependencies = [
  "regex",
  "syn 1.0.109",
  "validator_types",
+]
+
+[[package]]
+name = "validator_derive"
+version = "0.18.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df0bcf92720c40105ac4b2dda2a4ea3aa717d4d6a862cc217da653a4bd5c6b10"
+dependencies = [
+ "darling",
+ "once_cell",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]

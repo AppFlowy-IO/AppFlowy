@@ -71,42 +71,42 @@ impl std::convert::From<DatabaseLayoutPB> for DatabaseLayout {
 #[derive(Default, Validate, ProtoBuf)]
 pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "lib_infra::validator_fn::required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub layout_type: Option<DatabaseLayoutPB>,
 
   #[pb(index = 3, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub insert_filter: Option<InsertFilterPB>,
 
   #[pb(index = 4, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub update_filter_type: Option<UpdateFilterTypePB>,
 
   #[pb(index = 5, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub update_filter_data: Option<UpdateFilterDataPB>,
 
   #[pb(index = 6, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub delete_filter: Option<DeleteFilterPB>,
 
   #[pb(index = 7, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub update_group: Option<UpdateGroupPB>,
 
   #[pb(index = 8, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub update_sort: Option<UpdateSortPayloadPB>,
 
   #[pb(index = 9, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub reorder_sort: Option<ReorderSortPayloadPB>,
 
   #[pb(index = 10, one_of)]
-  #[validate]
+  #[validate(nested)]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
