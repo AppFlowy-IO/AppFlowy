@@ -5,9 +5,10 @@ use bytes::Bytes;
 use event_integration_test::event_builder::EventBuilder;
 use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{
-  CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
-  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateCellChangesetPB, FieldType,
-  OrderObjectPositionPB, RelationCellChangesetPB, SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
+  CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB,
+  ChecklistCellInsertPB, DatabaseLayoutPB, DatabaseSettingChangesetPB, DatabaseViewIdPB,
+  DateCellChangesetPB, FieldType, OrderObjectPositionPB, RelationCellChangesetPB,
+  SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
 use lib_infra::util::timestamp;
 
@@ -626,9 +627,18 @@ async fn update_checklist_cell_test() {
       field_id: checklist_field.id.clone(),
     },
     insert_task: vec![
-      "task 1".to_string(),
-      "task 2".to_string(),
-      "task 3".to_string(),
+      ChecklistCellInsertPB {
+        name: "task 1".to_string(),
+        index: None,
+      },
+      ChecklistCellInsertPB {
+        name: "task 2".to_string(),
+        index: None,
+      },
+      ChecklistCellInsertPB {
+        name: "task 3".to_string(),
+        index: None,
+      },
     ],
     completed_tasks: vec![],
     delete_tasks: vec![],

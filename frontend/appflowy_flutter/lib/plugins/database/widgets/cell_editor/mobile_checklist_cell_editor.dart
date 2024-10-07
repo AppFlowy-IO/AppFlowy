@@ -76,7 +76,8 @@ class _TaskList extends StatelessWidget {
               .mapIndexed(
                 (index, task) => _ChecklistItem(
                   task: task,
-                  autofocus: state.newTask && index == state.tasks.length - 1,
+                  autofocus: state.phantomIndex != -1 &&
+                      index == state.tasks.length - 1,
                 ),
               )
               .toList(),

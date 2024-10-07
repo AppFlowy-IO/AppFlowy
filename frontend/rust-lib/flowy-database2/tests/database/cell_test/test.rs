@@ -6,8 +6,8 @@ use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleS
 use collab_database::fields::url_type_option::URLCellData;
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
 use flowy_database2::services::field::{
-  ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset, SelectOptionCellChangeset,
-  StringCellData, TimeCellData,
+  ChecklistCellChangeset, ChecklistCellInsertChangeset, DateCellChangeset, RelationCellChangeset,
+  SelectOptionCellChangeset, StringCellData, TimeCellData,
 };
 use lib_infra::box_any::BoxAny;
 use std::time::Duration;
@@ -49,7 +49,10 @@ async fn grid_cell_update() {
           ))
         },
         FieldType::Checklist => BoxAny::new(ChecklistCellChangeset {
-          insert_tasks: vec![("new option".to_string(), false)],
+          insert_tasks: vec![ChecklistCellInsertChangeset::new(
+            "new option".to_string(),
+            false,
+          )],
           ..Default::default()
         }),
         FieldType::Checkbox => BoxAny::new("1".to_string()),

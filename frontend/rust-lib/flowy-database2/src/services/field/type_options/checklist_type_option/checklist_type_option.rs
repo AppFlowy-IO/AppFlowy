@@ -99,16 +99,16 @@ fn update_cell_data_with_changeset(
     .retain(|option_id| !changeset.delete_tasks.contains(option_id));
 
   // Insert new options
-  changeset
-    .insert_tasks
-    .into_iter()
-    .for_each(|(option_name, is_selected)| {
-      let option = SelectOption::new(&option_name);
-      if is_selected {
-        cell_data.selected_option_ids.push(option.id.clone())
-      }
-      cell_data.options.push(option);
-    });
+  changeset.insert_tasks.into_iter().for_each(|new_task| {
+    let option = SelectOption::new(&new_task.name);
+    if new_task.is_complete {
+      cell_data.selected_option_ids.push(option.id.clone())
+    }
+    match new_task.index {
+      Some(index) => cell_data.options.insert(index as usize, option),
+      None => cell_data.options.push(option),
+    };
+  });
 
   // Update options
   changeset

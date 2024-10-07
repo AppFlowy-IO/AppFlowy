@@ -44,12 +44,12 @@ impl ChecklistCellData {
     ((selected_options as f64) / (total_options as f64) * 100.0).round() / 100.0
   }
 
-  pub fn from_options(options: Vec<(String, bool)>) -> Self {
-    let (options, selected_ids): (Vec<_>, Vec<_>) = options
+  pub fn from_options(new_tasks: Vec<ChecklistCellInsertChangeset>) -> Self {
+    let (options, selected_ids): (Vec<_>, Vec<_>) = new_tasks
       .into_iter()
-      .map(|(name, is_selected)| {
-        let option = SelectOption::new(&name);
-        let selected_id = is_selected.then(|| option.id.clone());
+      .map(|new_task| {
+        let option = SelectOption::new(&new_task.name);
+        let selected_id = new_task.is_complete.then(|| option.id.clone());
         (option, selected_id)
       })
       .unzip();
@@ -82,7 +82,7 @@ impl From<ChecklistCellData> for Cell {
 
 #[derive(Debug, Clone, Default)]
 pub struct ChecklistCellChangeset {
-  pub insert_tasks: Vec<(String, bool)>,
+  pub insert_tasks: Vec<ChecklistCellInsertChangeset>,
   pub delete_tasks: Vec<String>,
   pub update_tasks: Vec<SelectOption>,
   pub completed_task_ids: Vec<String>,
@@ -95,7 +95,11 @@ impl From<ChecklistCellDataChangesetPB> for ChecklistCellChangeset {
       insert_tasks: value
         .insert_task
         .into_iter()
-        .map(|name| (name, false))
+        .map(|pb| ChecklistCellInsertChangeset {
+          name: pb.name,
+          is_complete: false,
+          index: pb.index,
+        })
         .collect(),
       delete_tasks: value.delete_tasks,
       update_tasks: value
@@ -105,6 +109,23 @@ impl From<ChecklistCellDataChangesetPB> for ChecklistCellChangeset {
         .collect(),
       completed_task_ids: value.completed_tasks,
       reorder: value.reorder,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ChecklistCellInsertChangeset {
+  pub name: String,
+  pub is_complete: bool,
+  pub index: Option<i32>,
+}
+
+impl ChecklistCellInsertChangeset {
+  pub fn new(name: String, is_complete: bool) -> Self {
+    Self {
+      name,
+      is_complete,
+      index: None,
     }
   }
 }

@@ -17,13 +17,16 @@ class ChecklistCellBackendService {
 
   Future<FlowyResult<void, FlowyError>> create({
     required String name,
+    int? index,
   }) {
+    final insert = ChecklistCellInsertPB()..name = name;
+    if (index != null) {
+      insert.index = index;
+    }
+
     final payload = ChecklistCellDataChangesetPB()
-      ..cellId = (CellIdPB()
-        ..viewId = viewId
-        ..fieldId = fieldId
-        ..rowId = rowId)
-      ..insertTask.add(name);
+      ..cellId = _makdeCellId()
+      ..insertTask.add(insert);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
   }
@@ -32,10 +35,7 @@ class ChecklistCellBackendService {
     required List<String> optionIds,
   }) {
     final payload = ChecklistCellDataChangesetPB()
-      ..cellId = (CellIdPB()
-        ..viewId = viewId
-        ..fieldId = fieldId
-        ..rowId = rowId)
+      ..cellId = _makdeCellId()
       ..deleteTasks.addAll(optionIds);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -45,10 +45,7 @@ class ChecklistCellBackendService {
     required String optionId,
   }) {
     final payload = ChecklistCellDataChangesetPB()
-      ..cellId = (CellIdPB()
-        ..viewId = viewId
-        ..fieldId = fieldId
-        ..rowId = rowId)
+      ..cellId = _makdeCellId()
       ..completedTasks.add(optionId);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -63,10 +60,7 @@ class ChecklistCellBackendService {
       option.name = name;
     });
     final payload = ChecklistCellDataChangesetPB()
-      ..cellId = (CellIdPB()
-        ..viewId = viewId
-        ..fieldId = fieldId
-        ..rowId = rowId)
+      ..cellId = _makdeCellId()
       ..updateTasks.add(newOption);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -77,12 +71,16 @@ class ChecklistCellBackendService {
     required toTaskId,
   }) {
     final payload = ChecklistCellDataChangesetPB()
-      ..cellId = (CellIdPB()
-        ..viewId = viewId
-        ..fieldId = fieldId
-        ..rowId = rowId)
+      ..cellId = _makdeCellId()
       ..reorder = "$fromTaskId $toTaskId";
 
     return DatabaseEventUpdateChecklistCell(payload).send();
+  }
+
+  CellIdPB _makdeCellId() {
+    return CellIdPB()
+      ..viewId = viewId
+      ..fieldId = fieldId
+      ..rowId = rowId;
   }
 }

@@ -167,7 +167,6 @@ class _UpdateTaskDescriptionIntent extends Intent {
   const _UpdateTaskDescriptionIntent();
 }
 
-@visibleForTesting
 class ChecklistItem extends StatefulWidget {
   const ChecklistItem({
     super.key,
@@ -261,14 +260,13 @@ class _ChecklistItemState extends State<ChecklistItem> {
           borderRadius: Corners.s6Border,
         ),
         child: _buildChild(
-          context,
           isFocusedOrHovered,
         ),
       ),
     );
   }
 
-  Widget _buildChild(BuildContext context, bool isFocusedOrHovered) {
+  Widget _buildChild(bool isFocusedOrHovered) {
     return Row(
       children: [
         ReorderableDragStartListener(
@@ -279,6 +277,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
                 : SystemMouseCursors.grab,
             child: SizedBox(
               width: 20,
+              height: 32,
               child: Align(
                 alignment: AlignmentDirectional.centerEnd,
                 child: FlowySvg(
@@ -297,7 +296,6 @@ class _ChecklistItemState extends State<ChecklistItem> {
           child: ChecklistCellTextfield(
             textController: textController,
             focusNode: textFieldFocusNode,
-            autofocus: widget.autofocus,
             onChanged: () {
               _debounceOnChanged.call(() {
                 if (!isComposing) {
@@ -427,7 +425,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
           Expanded(
             child: CallbackShortcuts(
               bindings: isComposing
-                  ? {}
+                  ? const {}
                   : {
                       const SingleActivator(LogicalKeyboardKey.enter): () =>
                           _createNewTask(context),

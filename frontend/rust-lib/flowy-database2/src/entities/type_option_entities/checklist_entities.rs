@@ -22,7 +22,7 @@ pub struct ChecklistCellDataChangesetPB {
   pub cell_id: CellIdPB,
 
   #[pb(index = 2)]
-  pub insert_task: Vec<String>,
+  pub insert_task: Vec<ChecklistCellInsertPB>,
 
   #[pb(index = 3)]
   pub delete_tasks: Vec<String>,
@@ -35,4 +35,13 @@ pub struct ChecklistCellDataChangesetPB {
 
   #[pb(index = 6)]
   pub reorder: String,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf, Validate)]
+pub struct ChecklistCellInsertPB {
+  #[pb(index = 1)]
+  pub name: String,
+
+  #[pb(index = 2, one_of)]
+  pub index: Option<i32>,
 }
