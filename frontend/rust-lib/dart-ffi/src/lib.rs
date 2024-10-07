@@ -9,7 +9,6 @@ use std::pin::Pin;
 use std::sync::{Arc, RwLock};
 use std::task::{Context, Poll};
 use std::{ffi::CStr, os::raw::c_char};
-use tokio::runtime::Builder;
 use tokio::sync::mpsc;
 use tokio::task::LocalSet;
 use tracing::{debug, error, info, trace, warn};
