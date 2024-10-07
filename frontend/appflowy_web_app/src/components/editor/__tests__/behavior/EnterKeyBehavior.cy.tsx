@@ -1,27 +1,12 @@
-import { mountEditor, moveAndEnter, moveToLineStart } from '@/components/editor/__tests__/mount';
-import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
+import { initialEditorTest, moveAndEnter, moveToLineStart } from '@/components/editor/__tests__/mount';
+import { FromBlockJSON } from 'cypress/support/document';
 
 describe('Enter key behavior', () => {
   beforeEach(() => {
     cy.viewport(1280, 720);
     Object.defineProperty(window.navigator, 'language', { value: 'en-US' });
   });
-  let documentTest: DocumentTest;
-
-  const initializeEditor = (data: FromBlockJSON[]) => {
-    documentTest = new DocumentTest();
-    documentTest.fromJSON(data);
-    mountEditor({ readOnly: false, doc: documentTest.doc });
-    cy.get('[role="textbox"]').should('exist');
-  };
-
-  const assertJSON = (expectedJSON: FromBlockJSON[]) => {
-    cy.wrap(null).then(() => {
-      const finalJSON = documentTest.toJSON();
-
-      expect(finalJSON).to.deep.equal(expectedJSON);
-    });
-  };
+  const { assertJSON, initializeEditor } = initialEditorTest();
 
   it('should split paragraph blocks correctly', () => {
     const initialData: FromBlockJSON[] = [{

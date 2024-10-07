@@ -813,13 +813,7 @@ export function handleIndentBlockWithTxn (editor: YjsEditor, sharedRoot: YShared
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
   const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
-  const parentType = parent.get(YjsEditorKey.block_type);
   const [, path] = getBlockEntry(editor, point);
-
-  // Check if the parent block is a container block
-  if (!CONTAINER_BLOCK_TYPES.includes(parentType)) {
-    return false;
-  }
 
   // Check if the block can be indented (not the first child)
   if (index === 0) {
@@ -831,6 +825,11 @@ export function handleIndentBlockWithTxn (editor: YjsEditor, sharedRoot: YShared
   const previousSibling = getBlock(previousSiblingId, sharedRoot);
 
   if (!previousSibling) {
+    return false;
+  }
+
+  // Check if the parent block is a container block
+  if (!CONTAINER_BLOCK_TYPES.includes(previousSibling.get(YjsEditorKey.block_type))) {
     return false;
   }
 

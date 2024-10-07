@@ -1,4 +1,4 @@
-import { mountEditor, moveToLineStart } from '@/components/editor/__tests__/mount';
+import { initialEditorTest, mountEditor, moveToLineStart } from '@/components/editor/__tests__/mount';
 import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
 
 describe('Backspace key behavior', () => {
@@ -6,7 +6,8 @@ describe('Backspace key behavior', () => {
     cy.viewport(1280, 720);
     Object.defineProperty(window.navigator, 'language', { value: 'en-US' });
   });
-  let documentTest: DocumentTest;
+  const { assertJSON, initializeEditor } = initialEditorTest();
+
   const initialData: FromBlockJSON[] = [
     {
       type: 'paragraph',
@@ -58,21 +59,6 @@ describe('Backspace key behavior', () => {
       children: [],
     },
   ];
-
-  const initializeEditor = (data: FromBlockJSON[]) => {
-    documentTest = new DocumentTest();
-    documentTest.fromJSON(data);
-    mountEditor({ readOnly: false, doc: documentTest.doc });
-    cy.get('[role="textbox"]').should('exist');
-  };
-  
-  const assertJSON = (expectedJSON: FromBlockJSON[]) => {
-    cy.wrap(null).then(() => {
-      const finalJSON = documentTest.toJSON();
-
-      expect(finalJSON).to.deep.equal(expectedJSON);
-    });
-  };
 
   describe('backspace key behavior with range selections', () => {
 

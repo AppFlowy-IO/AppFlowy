@@ -55,8 +55,10 @@ function getAttributesAtOffset (ytext: Y.Text, offset: number): object | null {
 
 function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attributes }: InsertTextOperation & {
   attributes?: object;
-}) {
-  const node = findSlateNode(editor, path);
+}, slateContent: Descendant[]) {
+  const node = getNodeAtPath(slateContent, path.slice(0, -1)) as Element;
+
+  console.log('insertText', node);
   const textId = node.textId as string;
   const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const yText = getText(textId, sharedRoot);
@@ -67,7 +69,7 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
   const beforeAttributes = getAttributesAtOffset(yText, relativeOffset - 1);
 
-  console.log('beforeAttributes', beforeAttributes);
+  console.log('beforeAttributes', relativeOffset, beforeAttributes);
 
   if (beforeAttributes && ('formula' in beforeAttributes || 'mention' in beforeAttributes)) {
     const newAttributes = {
@@ -95,13 +97,13 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
 
 }
 
-function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, _slateContent: Descendant[]) {
+function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, slateContent: Descendant[]) {
   const { path, offset, text } = op;
 
-  insertText(ydoc, editor, { path, offset, text, type: 'insert_text' });
+  insertText(ydoc, editor, { path, offset, text, type: 'insert_text' }, slateContent);
 }
 
-function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, _slateContent: Descendant[]) {
+function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, slateContent: Descendant[]) {
   const { path, node } = op;
 
   if (!Text.isText(node)) return;
@@ -110,7 +112,7 @@ function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, 
 
   insertText(ydoc, editor, {
     path, offset, text, type: 'insert_text',
-  });
+  }, slateContent);
 }
 
 function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, slateContent: Descendant[]) {
