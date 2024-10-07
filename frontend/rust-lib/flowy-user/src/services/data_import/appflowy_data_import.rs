@@ -19,7 +19,7 @@ use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_c
 use collab_database::workspace_database::WorkspaceDatabaseBody;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
-use collab_folder::hierarchy_builder::{NestedViews, ParentChildViews, ViewBuilder};
+use collab_folder::hierarchy_builder::{NestedChildViewBuilder, NestedViews, ParentChildViews};
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -467,7 +467,7 @@ where
 
   document_object_ids.insert(import_container_view_id.to_string());
 
-  let import_container_views = ViewBuilder::new(
+  let import_container_views = NestedChildViewBuilder::new(
     current_session.user_id,
     current_session.user_workspace.id.clone(),
   )
