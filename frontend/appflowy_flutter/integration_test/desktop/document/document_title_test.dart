@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -329,6 +330,25 @@ void main() {
           Position(path: [0], offset: inputText.length),
         ),
       );
+    });
+
+    testWidgets(
+        'hover on the cover title, check if the add icon & add cover button are shown',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.hoverOnWidget(
+        title,
+        onHover: () async {
+          expect(find.byType(DocumentCoverWidget), findsOneWidget);
+        },
+      );
+
+      await tester.pumpAndSettle();
     });
   });
 }
