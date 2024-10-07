@@ -36,9 +36,8 @@ import '../../../shared/workspace.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('sidebar move page: ', () {
-    testWidgets('create a new document and move it to Getting started',
-        (tester) async {
+  group('workspace icon:', () {
+    testWidgets('remove icon from workspace', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
