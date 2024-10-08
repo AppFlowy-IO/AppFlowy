@@ -66,6 +66,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         Log.info('cover title got focus, clear the editor selection');
         editorState.selection = null;
       }
+
+      if (isTitleFocused) {
+        Log.info('cover title got focus, disable keyboard service');
+        editorState.service.keyboardService?.disable();
+      } else {
+        Log.info('cover title lost focus, enable keyboard service');
+        editorState.service.keyboardService?.enable();
+      }
     });
 
     editorState.selectionNotifier.addListener(() {
@@ -98,6 +106,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
     final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
+      listenWhen: (previous, current) =>
+          previous.view.name != current.view.name,
       listener: _onListen,
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
@@ -188,9 +198,16 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       return _moveCursorToNextLine(event.logicalKey);
     } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
       return _moveCursorToNextLine(event.logicalKey);
+    } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      return _exitEditing();
     }
 
     return KeyEventResult.ignored;
+  }
+
+  KeyEventResult _exitEditing() {
+    titleFocusNode.unfocus();
+    return KeyEventResult.handled;
   }
 
   Future<void> _createNewLine() async {
@@ -223,7 +240,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final text = titleTextController.text;
 
     // if the cursor is not at the end of the text, ignore the event
-    if (lineCount != 1 &&
+    if ((key == LogicalKeyboardKey.arrowRight || lineCount != 1) &&
         (!selection.isCollapsed || text.length != selection.extentOffset)) {
       return KeyEventResult.ignored;
     }

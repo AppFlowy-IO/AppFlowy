@@ -1,7 +1,6 @@
-import 'package:flutter/widgets.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/widgets.dart';
 
 /// Undo
 ///
@@ -15,6 +14,10 @@ final CommandShortcutEvent customUndoCommand = CommandShortcutEvent(
   command: 'ctrl+z',
   macOSCommand: 'cmd+z',
   handler: (editorState) {
+    // if the selection is null, it means the keyboard service is disabled
+    if (editorState.selection == null) {
+      return KeyEventResult.ignored;
+    }
     EditorNotification.undo().post();
     return KeyEventResult.handled;
   },
@@ -32,6 +35,9 @@ final CommandShortcutEvent customRedoCommand = CommandShortcutEvent(
   command: 'ctrl+y,ctrl+shift+z',
   macOSCommand: 'cmd+shift+z',
   handler: (editorState) {
+    if (editorState.selection == null) {
+      return KeyEventResult.ignored;
+    }
     EditorNotification.redo().post();
     return KeyEventResult.handled;
   },
