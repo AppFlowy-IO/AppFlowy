@@ -137,24 +137,16 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    _buildAnimations();
+
     widget.controller?._state = this;
-
-    _animationController = AnimationController(
-      duration: widget.animationDuration,
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+
     super.dispose();
   }
 
@@ -169,25 +161,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     final newEntry = OverlayEntry(
       builder: (context) => _buildOverlayContent(shouldAddMask),
     );
-
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
-
-    final (initialScale, initialOffset) = _getInitialAnimationValues();
-    final (endScale, endOffset) = _getEndAnimationValues();
-    _scaleAnimation = Tween<double>(begin: initialScale, end: endScale).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-    _slideAnimation =
-        Tween<Offset>(begin: initialOffset, end: endOffset).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
     _animationController.forward();
   }
 
@@ -329,27 +303,55 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     );
   }
 
-  (double, Offset) _getInitialAnimationValues() {
-    const scaleFactor = 0.95;
+  void _buildAnimations() {
+    _animationController = AnimationController(
+      duration: widget.animationDuration,
+      vsync: this,
+    );
+    _fadeAnimation = _buildFadeAnimation();
+    _scaleAnimation = _buildScaleAnimation();
+    _slideAnimation = _buildSlideAnimation();
+  }
+
+  Animation<double> _buildFadeAnimation() {
+    return Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  Animation<double> _buildScaleAnimation() {
+    return Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
+
+  Animation<Offset> _buildSlideAnimation() {
+    final values = _getSlideAnimationValues();
+    return Tween<Offset>(begin: values.$1, end: values.$2).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
+
+  (Offset, Offset) _getSlideAnimationValues() {
     const slideDistance = 20.0;
 
     switch (widget.direction) {
       case PopoverDirection.bottomWithLeftAligned:
-        return (scaleFactor, const Offset(-slideDistance, -slideDistance));
-
+        return (
+          const Offset(-slideDistance, -slideDistance),
+          const Offset(0, 0)
+        );
       default:
-        return (scaleFactor, Offset.zero);
-    }
-  }
-
-  (double, Offset) _getEndAnimationValues() {
-    const scaleFactor = 1.0;
-
-    switch (widget.direction) {
-      case PopoverDirection.bottomWithLeftAligned:
-        return (scaleFactor, Offset.zero);
-      default:
-        return (scaleFactor, Offset.zero);
+        return (Offset.zero, Offset.zero);
     }
   }
 }
