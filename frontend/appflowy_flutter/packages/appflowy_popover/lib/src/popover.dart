@@ -73,7 +73,12 @@ class Popover extends StatefulWidget {
     this.asBarrier = false,
     this.clickHandler = PopoverClickHandler.listener,
     this.skipTraversal = false,
-    this.animationDuration = const Duration(milliseconds: 200),
+    this.animationDuration = const Duration(milliseconds: 0),
+    this.beginOpacity = 0.0,
+    this.endOpacity = 1.0,
+    this.beginScaleFactor = 0.95,
+    this.endScaleFactor = 1.0,
+    this.slideDistance = 20.0,
   });
 
   final PopoverController? controller;
@@ -116,7 +121,18 @@ class Popover extends StatefulWidget {
   final bool skipTraversal;
 
   /// Animation time of the popover.
-  final Duration animationDuration;
+  final Duration? animationDuration;
+
+  /// The distance of the popover's slide animation.
+  final double slideDistance;
+
+  /// The scale factor of the popover's scale animation.
+  final double beginScaleFactor;
+  final double endScaleFactor;
+
+  /// The opacity of the popover's fade animation.
+  final double beginOpacity;
+  final double endOpacity;
 
   /// The content area of the popover.
   final Widget child;
@@ -128,11 +144,17 @@ class Popover extends StatefulWidget {
 class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   static final RootOverlayEntry _rootEntry = RootOverlayEntry();
   final PopoverLink popoverLink = PopoverLink();
+  late final layoutDelegate = PopoverLayoutDelegate(
+    direction: widget.direction,
+    link: popoverLink,
+    offset: widget.offset ?? Offset.zero,
+    windowPadding: widget.windowPadding ?? EdgeInsets.zero,
+  );
 
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<Offset> _slideAnimation;
+  late AnimationController animationController;
+  late Animation<double> fadeAnimation;
+  late Animation<double> scaleAnimation;
+  late Animation<Offset> slideAnimation;
 
   @override
   void initState() {
@@ -144,10 +166,24 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   @override
+  void deactivate() {
+    close(notify: false);
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
-    _animationController.dispose();
+    animationController.dispose();
 
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopoverTarget(
+      link: popoverLink,
+      child: _buildChild(context),
+    );
   }
 
   void showOverlay() {
@@ -157,17 +193,21 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       widget.mutex?.state = this;
     }
 
+    // rebuild slide animation before show overlay
+    // because the leader's size and offset may be changed
+    slideAnimation = _buildSlideAnimation();
+
     final shouldAddMask = _rootEntry.isEmpty;
     final newEntry = OverlayEntry(
       builder: (context) => _buildOverlayContent(shouldAddMask),
     );
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
-    _animationController.forward();
+    animationController.forward();
   }
 
   void close({bool notify = true}) {
     if (_rootEntry.contains(this)) {
-      _animationController.reverse().then((_) {
+      animationController.reverse().then((_) {
         _rootEntry.removeEntry(this);
         if (notify) {
           widget.onClose?.call();
@@ -178,7 +218,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   void _removeRootOverlay() {
     if (_rootEntry.contains(this)) {
-      _animationController.reverse().then((_) {
+      animationController.reverse().then((_) {
         _rootEntry.popEntry();
       });
     }
@@ -186,20 +226,6 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     if (widget.mutex?.state == this) {
       widget.mutex?.removeState();
     }
-  }
-
-  @override
-  void deactivate() {
-    close(notify: false);
-    super.deactivate();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PopoverTarget(
-      link: popoverLink,
-      child: _buildChild(context),
-    );
   }
 
   Widget _buildChild(BuildContext context) {
@@ -277,24 +303,21 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   Widget _buildPopoverContainer() {
     return AnimatedBuilder(
-      animation: _animationController,
+      animation: animationController,
       builder: (context, child) {
         return Opacity(
-          opacity: _fadeAnimation.value,
+          opacity: fadeAnimation.value,
           child: Transform.scale(
-            scale: _scaleAnimation.value,
+            scale: scaleAnimation.value,
             child: Transform.translate(
-              offset: _slideAnimation.value,
+              offset: slideAnimation.value,
               child: child,
             ),
           ),
         );
       },
       child: PopoverContainer(
-        direction: widget.direction,
-        popoverLink: popoverLink,
-        offset: widget.offset ?? Offset.zero,
-        windowPadding: widget.windowPadding ?? EdgeInsets.zero,
+        delegate: layoutDelegate,
         popupBuilder: widget.popupBuilder,
         onClose: close,
         onCloseAll: _removeRootOverlay,
@@ -304,28 +327,34 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   void _buildAnimations() {
-    _animationController = AnimationController(
+    animationController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
-    _fadeAnimation = _buildFadeAnimation();
-    _scaleAnimation = _buildScaleAnimation();
-    _slideAnimation = _buildSlideAnimation();
+    fadeAnimation = _buildFadeAnimation();
+    scaleAnimation = _buildScaleAnimation();
+    slideAnimation = _buildSlideAnimation();
   }
 
   Animation<double> _buildFadeAnimation() {
-    return Tween<double>(begin: 0.0, end: 1.0).animate(
+    return Tween<double>(
+      begin: widget.beginOpacity,
+      end: widget.endOpacity,
+    ).animate(
       CurvedAnimation(
-        parent: _animationController,
+        parent: animationController,
         curve: Curves.easeInOut,
       ),
     );
   }
 
   Animation<double> _buildScaleAnimation() {
-    return Tween<double>(begin: 0.95, end: 1.0).animate(
+    return Tween<double>(
+      begin: widget.beginScaleFactor,
+      end: widget.endScaleFactor,
+    ).animate(
       CurvedAnimation(
-        parent: _animationController,
+        parent: animationController,
         curve: Curves.easeOutCubic,
       ),
     );
@@ -333,22 +362,64 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   Animation<Offset> _buildSlideAnimation() {
     final values = _getSlideAnimationValues();
-    return Tween<Offset>(begin: values.$1, end: values.$2).animate(
+    return Tween<Offset>(
+      begin: values.$1,
+      end: values.$2,
+    ).animate(
       CurvedAnimation(
-        parent: _animationController,
+        parent: animationController,
         curve: Curves.easeOutCubic,
       ),
     );
   }
 
   (Offset, Offset) _getSlideAnimationValues() {
-    const slideDistance = 20.0;
+    final slideDistance = widget.slideDistance;
 
     switch (widget.direction) {
       case PopoverDirection.bottomWithLeftAligned:
         return (
-          const Offset(-slideDistance, -slideDistance),
-          const Offset(0, 0)
+          Offset(-slideDistance, -slideDistance),
+          Offset.zero,
+        );
+      case PopoverDirection.bottomWithCenterAligned:
+        return (
+          Offset(0, -slideDistance),
+          Offset.zero,
+        );
+      case PopoverDirection.bottomWithRightAligned:
+        return (
+          Offset(slideDistance, -slideDistance),
+          Offset.zero,
+        );
+      case PopoverDirection.topWithLeftAligned:
+        return (
+          Offset(-slideDistance, slideDistance),
+          Offset.zero,
+        );
+      case PopoverDirection.topWithCenterAligned:
+        return (
+          Offset(0, slideDistance),
+          Offset.zero,
+        );
+      case PopoverDirection.topWithRightAligned:
+        return (
+          Offset(slideDistance, slideDistance),
+          Offset.zero,
+        );
+      case PopoverDirection.leftWithTopAligned:
+      case PopoverDirection.leftWithCenterAligned:
+      case PopoverDirection.leftWithBottomAligned:
+        return (
+          Offset(slideDistance, 0),
+          Offset.zero,
+        );
+      case PopoverDirection.rightWithTopAligned:
+      case PopoverDirection.rightWithCenterAligned:
+      case PopoverDirection.rightWithBottomAligned:
+        return (
+          Offset(-slideDistance, 0),
+          Offset.zero,
         );
       default:
         return (Offset.zero, Offset.zero);
@@ -357,26 +428,20 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 }
 
 class PopoverContainer extends StatefulWidget {
-  final Widget? Function(BuildContext context) popupBuilder;
-  final PopoverDirection direction;
-  final PopoverLink popoverLink;
-  final Offset offset;
-  final EdgeInsets windowPadding;
-  final void Function() onClose;
-  final void Function() onCloseAll;
-  final bool skipTraversal;
-
   const PopoverContainer({
     super.key,
     required this.popupBuilder,
-    required this.direction,
-    required this.popoverLink,
-    required this.offset,
-    required this.windowPadding,
+    required this.delegate,
     required this.onClose,
     required this.onCloseAll,
     required this.skipTraversal,
   });
+
+  final Widget? Function(BuildContext context) popupBuilder;
+  final void Function() onClose;
+  final void Function() onCloseAll;
+  final bool skipTraversal;
+  final PopoverLayoutDelegate delegate;
 
   @override
   State<StatefulWidget> createState() => PopoverContainerState();
@@ -403,12 +468,7 @@ class PopoverContainerState extends State<PopoverContainer> {
       autofocus: true,
       skipTraversal: widget.skipTraversal,
       child: CustomSingleChildLayout(
-        delegate: PopoverLayoutDelegate(
-          direction: widget.direction,
-          link: widget.popoverLink,
-          offset: widget.offset,
-          windowPadding: widget.windowPadding,
-        ),
+        delegate: widget.delegate,
         child: widget.popupBuilder(context),
       ),
     );
