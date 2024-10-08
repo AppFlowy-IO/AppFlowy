@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/user/application/ai_service.dart';
@@ -45,11 +46,12 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
           isCanceled = true;
           await _exit();
         },
-        update: (result, isLoading) async {
+        update: (result, isLoading, aiError) async {
           emit(
             state.copyWith(
               result: result,
               loading: isLoading,
+              requestError: aiError,
             ),
           );
         },
@@ -73,7 +75,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
     await aiRepositoryCompleter.future;
 
     if (rewrite) {
-      add(const SmartEditEvent.update('', true));
+      add(const SmartEditEvent.update('', true, null));
     }
 
     if (enableLogging) {
@@ -91,7 +93,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (enableLogging) {
           Log.info('[smart_edit] start generating');
         }
-        add(const SmartEditEvent.update('', true));
+        add(const SmartEditEvent.update('', true, null));
       },
       onProcess: (text) async {
         if (isCanceled) {
@@ -102,7 +104,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
           Log.debug('[smart_edit] onProcess: $text');
         }
         final newResult = state.result + text;
-        add(SmartEditEvent.update(newResult, false));
+        add(SmartEditEvent.update(newResult, false, null));
       },
       onEnd: () async {
         if (isCanceled) {
@@ -111,7 +113,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (enableLogging) {
           Log.info('[smart_edit] end generating');
         }
-        add(SmartEditEvent.update('${state.result}\n', false));
+        add(SmartEditEvent.update('${state.result}\n', false, null));
       },
       onError: (error) async {
         if (isCanceled) {
@@ -120,7 +122,9 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
         if (enableLogging) {
           Log.info('[smart_edit] onError: $error');
         }
+        add(SmartEditEvent.update('', false, error));
         await _exit();
+        await _clearSelection();
       },
     );
   }
@@ -207,6 +211,14 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
       ),
     );
   }
+
+  Future<void> _clearSelection() async {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return;
+    }
+    editorState.selection = null;
+  }
 }
 
 @freezed
@@ -219,7 +231,11 @@ class SmartEditEvent with _$SmartEditEvent {
   const factory SmartEditEvent.replace() = _Replace;
   const factory SmartEditEvent.insertBelow() = _InsertBelow;
   const factory SmartEditEvent.cancel() = _Cancel;
-  const factory SmartEditEvent.update(String result, bool isLoading) = _Update;
+  const factory SmartEditEvent.update(
+    String result,
+    bool isLoading,
+    AIError? error,
+  ) = _Update;
 }
 
 @freezed
@@ -228,6 +244,7 @@ class SmartEditState with _$SmartEditState {
     required bool loading,
     required String result,
     required SmartEditAction action,
+    @Default(null) AIError? requestError,
   }) = _SmartEditState;
 
   factory SmartEditState.initial(SmartEditAction action) => SmartEditState(
