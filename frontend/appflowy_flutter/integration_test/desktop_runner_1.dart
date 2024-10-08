@@ -15,7 +15,7 @@ Future<void> runIntegration1OnDesktop() async {
   first_test.main();
 
   switch_folder_test.main();
-  document_test_runner.startTesting();
+  document_test_runner.main();
 
   // DON'T add more tests here. This is the first test runner for desktop.
 }

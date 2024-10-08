@@ -1,6 +1,7 @@
 import 'package:integration_test/integration_test.dart';
 
 import 'document_alignment_test.dart' as document_alignment_test;
+import 'document_app_lifecycle_test.dart' as document_app_lifecycle_test;
 import 'document_codeblock_paste_test.dart' as document_codeblock_paste_test;
 import 'document_copy_and_paste_test.dart' as document_copy_and_paste_test;
 import 'document_create_and_delete_test.dart'
@@ -10,7 +11,9 @@ import 'document_inline_page_reference_test.dart'
 import 'document_more_actions_test.dart' as document_more_actions_test;
 import 'document_option_action_test.dart' as document_option_action_test;
 import 'document_shortcuts_test.dart' as document_shortcuts_test;
+import 'document_sub_page_test.dart' as document_sub_page_test;
 import 'document_text_direction_test.dart' as document_text_direction_test;
+import 'document_title_test.dart' as document_title_test;
 import 'document_with_cover_image_test.dart' as document_with_cover_image_test;
 import 'document_with_database_test.dart' as document_with_database_test;
 import 'document_with_file_test.dart' as document_with_file_test;
@@ -24,7 +27,7 @@ import 'document_with_outline_block_test.dart' as document_with_outline_block;
 import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
 
-void startTesting() {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   // Document integration tests
@@ -47,4 +50,7 @@ void startTesting() {
   document_more_actions_test.main();
   document_with_file_test.main();
   document_shortcuts_test.main();
+  document_title_test.main();
+  document_sub_page_test.main();
+  document_app_lifecycle_test.main();
 }

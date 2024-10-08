@@ -3,16 +3,12 @@ import 'package:integration_test/integration_test.dart';
 import 'desktop/board/board_test_runner.dart' as board_test_runner;
 import 'desktop/database/database_row_cover_test.dart'
     as database_row_cover_test;
-import 'desktop/document/document_title_test.dart' as document_title_test;
-import 'desktop/document/document_app_lifecycle_test.dart'
-    as document_app_lifecycle_test;
-import 'desktop/document/document_sub_page_test.dart' as document_sub_page_test;
+import 'desktop/grid/grid_edit_row_test.dart' as grid_edit_row_test_runner;
 import 'desktop/grid/grid_filter_and_sort_test.dart'
     as grid_filter_and_sort_test_runner;
 import 'desktop/grid/grid_reopen_test.dart' as grid_reopen_test_runner;
 import 'desktop/grid/grid_reorder_row_test.dart'
     as grid_reorder_row_test_runner;
-import 'desktop/grid/grid_edit_row_test.dart' as grid_edit_row_test_runner;
 import 'desktop/grid/grid_row_test.dart' as grid_create_row_test_runner;
 import 'desktop/settings/settings_runner.dart' as settings_test_runner;
 import 'desktop/sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
@@ -51,7 +47,4 @@ Future<void> runIntegration3OnDesktop() async {
   grid_filter_and_sort_test_runner.main();
   grid_edit_row_test_runner.main();
   zoom_in_out_test.main();
-  document_title_test.main();
-  document_sub_page_test.main();
-  document_app_lifecycle_test.main();
 }
