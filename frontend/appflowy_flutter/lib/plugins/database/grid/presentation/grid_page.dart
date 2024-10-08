@@ -462,7 +462,7 @@ class _GridRowsState extends State<_GridRows> {
     }
 
     final child = GridRow(
-      key: ValueKey(rowId),
+      key: ValueKey("grid_row_$rowId"),
       fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
