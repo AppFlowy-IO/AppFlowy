@@ -64,6 +64,9 @@ enum CoverType {
   }
 }
 
+// This key is used to intercept the selection event in the document cover widget.
+const _interceptorKey = 'document_cover_widget_interceptor';
+
 class DocumentCoverWidget extends StatefulWidget {
   const DocumentCoverWidget({
     super.key,
@@ -93,6 +96,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   bool get hasCover =>
       coverType != CoverType.none ||
       (cover != null && cover?.type != PageStyleCoverImageType.none);
+  RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
 
   String viewIcon = '';
   PageStyleCover? cover;
@@ -102,6 +106,13 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   final titleTextController = TextEditingController();
   final titleFocusNode = FocusNode();
+  final isCoverTitleHovered = ValueNotifier<bool>(false);
+
+  late final gestureInterceptor = SelectionGestureInterceptor(
+    key: _interceptorKey,
+    canTap: (details) => !_isTapInBounds(details.globalPosition),
+    canPanStart: (details) => !_isDragInBounds(details.globalPosition),
+  );
 
   @override
   void initState() {
@@ -112,6 +123,8 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     view = widget.view;
     titleTextController.text = view.name;
     widget.node.addListener(_reload);
+    widget.editorState.service.selectionService
+        .registerGestureInterceptor(gestureInterceptor);
 
     viewListener = ViewListener(viewId: widget.view.id)
       ..start(
@@ -134,6 +147,9 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     widget.node.removeListener(_reload);
     titleTextController.dispose();
     titleFocusNode.dispose();
+    isCoverTitleHovered.dispose();
+    widget.editorState.service.selectionService
+        .unregisterGestureInterceptor(_interceptorKey);
     super.dispose();
   }
 
@@ -156,6 +172,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                     hasCover: hasCover,
                     hasIcon: hasIcon,
                     offset: offset,
+                    isCoverTitleHovered: isCoverTitleHovered,
                   ),
                 ),
                 if (hasCover)
@@ -177,8 +194,12 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
-              child: CoverTitle(
-                view: widget.view,
+              child: MouseRegion(
+                onEnter: (event) => isCoverTitleHovered.value = true,
+                onExit: (event) => isCoverTitleHovered.value = false,
+                child: CoverTitle(
+                  view: widget.view,
+                ),
               ),
             ),
           ],
@@ -288,6 +309,24 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
       overwrite: true,
     );
   }
+
+  bool _isTapInBounds(Offset offset) {
+    if (_renderBox == null) {
+      return false;
+    }
+
+    final localPosition = _renderBox!.globalToLocal(offset);
+    return _renderBox!.paintBounds.contains(localPosition);
+  }
+
+  bool _isDragInBounds(Offset offset) {
+    if (_renderBox == null) {
+      return false;
+    }
+
+    final localPosition = _renderBox!.globalToLocal(offset);
+    return _renderBox!.paintBounds.contains(localPosition);
+  }
 }
 
 @visibleForTesting
@@ -300,6 +339,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.hasIcon,
     required this.onIconOrCoverChanged,
     required this.offset,
+    required this.isCoverTitleHovered,
   });
 
   final Node node;
@@ -309,6 +349,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final void Function({(CoverType, String?)? cover, String? icon})
       onIconOrCoverChanged;
   final double offset;
+  final ValueNotifier<bool> isCoverTitleHovered;
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -328,12 +369,17 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       padding: EdgeInsets.symmetric(horizontal: widget.offset),
       child: SizedBox(
         height: 28,
-        child: Visibility(
-          visible: !isHidden || isPopoverOpen,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: buildRowChildren(),
-          ),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: widget.isCoverTitleHovered,
+          builder: (context, isHovered, child) {
+            return Visibility(
+              visible: !isHidden || isPopoverOpen || isHovered,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: buildRowChildren(),
+              ),
+            );
+          },
         ),
       ),
     );
