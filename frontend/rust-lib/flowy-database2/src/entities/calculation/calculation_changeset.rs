@@ -8,14 +8,14 @@ use validator::Validate;
 #[derive(Default, ProtoBuf, Validate)]
 pub struct UpdateCalculationChangesetPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub calculation_id: Option<String>,
 
   #[pb(index = 3)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 
   #[pb(index = 4)]
@@ -25,15 +25,15 @@ pub struct UpdateCalculationChangesetPB {
 #[derive(Default, ProtoBuf, Validate)]
 pub struct RemoveCalculationChangesetPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 
   #[pb(index = 3)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub calculation_id: String,
 }
 

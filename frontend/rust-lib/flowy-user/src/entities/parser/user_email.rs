@@ -1,5 +1,5 @@
 use flowy_error::ErrorCode;
-use validator::validate_email;
+use validator::ValidateEmail;
 
 #[derive(Debug)]
 pub struct UserEmail(pub String);
@@ -10,7 +10,7 @@ impl UserEmail {
       return Err(ErrorCode::EmailIsEmpty);
     }
 
-    if validate_email(&s) {
+    if ValidateEmail::validate_email(&s) {
       Ok(Self(s))
     } else {
       Err(ErrorCode::EmailFormatInvalid)
