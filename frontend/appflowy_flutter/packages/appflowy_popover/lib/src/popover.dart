@@ -156,6 +156,8 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   late Animation<double> scaleAnimation;
   late Animation<Offset> slideAnimation;
 
+  bool isDisposed = false;
+
   @override
   void initState() {
     super.initState();
@@ -173,6 +175,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    isDisposed = true;
     animationController.dispose();
 
     super.dispose();
@@ -207,12 +210,18 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   void close({bool notify = true}) {
     if (_rootEntry.contains(this)) {
-      animationController.reverse().then((_) {
+      callback() {
         _rootEntry.removeEntry(this);
         if (notify) {
           widget.onClose?.call();
         }
-      });
+      }
+
+      if (isDisposed) {
+        callback();
+      } else {
+        animationController.reverse().then((_) => callback());
+      }
     }
   }
 
