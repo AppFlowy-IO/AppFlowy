@@ -5,15 +5,16 @@ import 'popover.dart';
 /// If multiple popovers are exclusive,
 /// pass the same mutex to them.
 class PopoverMutex {
-  final _PopoverStateNotifier _stateNotifier = _PopoverStateNotifier();
   PopoverMutex();
+
+  final _PopoverStateNotifier _stateNotifier = _PopoverStateNotifier();
 
   void removePopoverListener(VoidCallback listener) {
     _stateNotifier.removeListener(listener);
   }
 
   VoidCallback listenOnPopoverChanged(VoidCallback callback) {
-    listenerCallback() {
+    void listenerCallback() {
       callback();
     }
 

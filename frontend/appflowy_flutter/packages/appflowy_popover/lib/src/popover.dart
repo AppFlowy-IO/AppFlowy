@@ -73,7 +73,7 @@ class Popover extends StatefulWidget {
     this.asBarrier = false,
     this.clickHandler = PopoverClickHandler.listener,
     this.skipTraversal = false,
-    this.animationDuration = const Duration(seconds: 2),
+    this.animationDuration = const Duration(milliseconds: 200),
     this.beginOpacity = 0.0,
     this.endOpacity = 1.0,
     this.beginScaleFactor = 0.95,
@@ -210,7 +210,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   void close({bool notify = true}) {
     if (_rootEntry.contains(this)) {
-      callback() {
+      void callback() {
         _rootEntry.removeEntry(this);
         if (notify) {
           widget.onClose?.call();

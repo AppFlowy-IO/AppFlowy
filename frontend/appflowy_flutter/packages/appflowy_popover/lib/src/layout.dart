@@ -6,17 +6,17 @@ import 'package:flutter/rendering.dart';
 import './popover.dart';
 
 class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
-  PopoverLink link;
-  PopoverDirection direction;
-  final Offset offset;
-  final EdgeInsets windowPadding;
-
   PopoverLayoutDelegate({
     required this.link,
     required this.direction,
     required this.offset,
     required this.windowPadding,
   });
+
+  PopoverLink link;
+  PopoverDirection direction;
+  final Offset offset;
+  final EdgeInsets windowPadding;
 
   @override
   bool shouldRelayout(PopoverLayoutDelegate oldDelegate) {
@@ -170,24 +170,30 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
     }
     return Offset(
       math.max(
-          windowPadding.left,
-          math.min(
-              windowPadding.left + size.width - childSize.width, position.dx)),
+        windowPadding.left,
+        math.min(
+          windowPadding.left + size.width - childSize.width,
+          position.dx,
+        ),
+      ),
       math.max(
-          windowPadding.top,
-          math.min(
-              windowPadding.top + size.height - childSize.height, position.dy)),
+        windowPadding.top,
+        math.min(
+          windowPadding.top + size.height - childSize.height,
+          position.dy,
+        ),
+      ),
     );
   }
 }
 
 class PopoverTarget extends SingleChildRenderObjectWidget {
-  final PopoverLink link;
   const PopoverTarget({
     super.key,
     super.child,
     required this.link,
   });
+  final PopoverLink link;
 
   @override
   PopoverTargetRenderBox createRenderObject(BuildContext context) {
@@ -198,14 +204,16 @@ class PopoverTarget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, PopoverTargetRenderBox renderObject) {
+    BuildContext context,
+    PopoverTargetRenderBox renderObject,
+  ) {
     renderObject.link = link;
   }
 }
 
 class PopoverTargetRenderBox extends RenderProxyBox {
-  PopoverLink link;
   PopoverTargetRenderBox({required this.link, RenderBox? child}) : super(child);
+  PopoverLink link;
 
   @override
   bool get alwaysNeedsCompositing => true;
