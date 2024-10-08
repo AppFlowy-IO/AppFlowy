@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/condition_list.dart';
+import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_checklist_cell.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:flutter/gestures.dart';
@@ -508,6 +509,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> renameChecklistTask({
     required int index,
     required String name,
+    bool enter = true,
   }) async {
     final textField = find
         .descendant(
@@ -517,7 +519,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
         .at(index);
 
     await enterText(textField, name);
-    await testTextInput.receiveAction(TextInputAction.done);
+    if (enter) {
+      await testTextInput.receiveAction(TextInputAction.done);
+    }
     await pumpAndSettle();
   }
 
@@ -543,6 +547,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(button);
+  }
+
+  void assertPhantomChecklistItemAtIndex({required int index}) {
+    final paddings = find.descendant(
+      of: find.descendant(
+        of: find.byType(ChecklistRowDetailCell),
+        matching: find.byType(ReorderableListView),
+      ),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Padding &&
+            (widget.child is ChecklistItem ||
+                widget.child is PhantomChecklistItem),
+      ),
+    );
+    final phantom = widget<Padding>(paddings.at(index)).child!;
+    expect(phantom is PhantomChecklistItem, true);
   }
 
   Future<void> openFirstRowDetailPage() async {

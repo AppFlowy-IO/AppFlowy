@@ -28,7 +28,7 @@ class DesktopRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
     ChecklistCellBloc bloc,
     PopoverController popoverController,
   ) {
-    return ChecklistRowDetailCellContent(
+    return ChecklistRowDetailCell(
       context: context,
       cellContainerNotifier: cellContainerNotifier,
       bloc: bloc,
@@ -37,8 +37,8 @@ class DesktopRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
   }
 }
 
-class ChecklistRowDetailCellContent extends StatefulWidget {
-  const ChecklistRowDetailCellContent({
+class ChecklistRowDetailCell extends StatefulWidget {
+  const ChecklistRowDetailCell({
     super.key,
     required this.context,
     required this.cellContainerNotifier,
@@ -52,12 +52,10 @@ class ChecklistRowDetailCellContent extends StatefulWidget {
   final PopoverController popoverController;
 
   @override
-  State<ChecklistRowDetailCellContent> createState() =>
-      _ChecklistRowDetailCellContentState();
+  State<ChecklistRowDetailCell> createState() => _ChecklistRowDetailCellState();
 }
 
-class _ChecklistRowDetailCellContentState
-    extends State<ChecklistRowDetailCellContent> {
+class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -65,7 +63,7 @@ class _ChecklistRowDetailCellContentState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ProgressAndHideCompleteButton(
+          ProgressAndHideCompleteButton(
             onToggleHideComplete: () => context
                 .read<ChecklistCellBloc>()
                 .add(const ChecklistCellEvent.toggleShowIncompleteOnly()),
@@ -101,8 +99,10 @@ class _ChecklistRowDetailCellContentState
   }
 }
 
-class _ProgressAndHideCompleteButton extends StatelessWidget {
-  const _ProgressAndHideCompleteButton({
+@visibleForTesting
+class ProgressAndHideCompleteButton extends StatelessWidget {
+  const ProgressAndHideCompleteButton({
+    super.key,
     required this.onToggleHideComplete,
   });
 
@@ -368,6 +368,7 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
   }
 }
 
+@visibleForTesting
 class ChecklistItemControl extends StatelessWidget {
   const ChecklistItemControl({
     super.key,
