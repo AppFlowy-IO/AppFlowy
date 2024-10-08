@@ -27,7 +27,9 @@ class PopoverCompositedTransformFollower extends CompositedTransformFollower {
 
   @override
   void updateRenderObject(
-      BuildContext context, PopoverRenderFollowerLayer renderObject) {
+    BuildContext context,
+    PopoverRenderFollowerLayer renderObject,
+  ) {
     final screenSize = MediaQuery.of(context).size;
     renderObject
       ..screenSize = screenSize
@@ -40,8 +42,6 @@ class PopoverCompositedTransformFollower extends CompositedTransformFollower {
 }
 
 class PopoverRenderFollowerLayer extends RenderFollowerLayer {
-  Size screenSize;
-
   PopoverRenderFollowerLayer({
     required super.link,
     super.showWhenUnlinked = true,
@@ -51,6 +51,8 @@ class PopoverRenderFollowerLayer extends RenderFollowerLayer {
     super.child,
     required this.screenSize,
   });
+
+  Size screenSize;
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -62,10 +64,11 @@ class PopoverRenderFollowerLayer extends RenderFollowerLayer {
 
     if (link.leader!.offset.dx + link.leaderSize!.width + size.width >
         screenSize.width) {
-      debugPrint("over flow");
+      debugPrint('over flow');
     }
     debugPrint(
-        "right: ${link.leader!.offset.dx + link.leaderSize!.width + size.width}, screen with: ${screenSize.width}");
+      'right: ${link.leader!.offset.dx + link.leaderSize!.width + size.width}, screen with: ${screenSize.width}',
+    );
   }
 }
 

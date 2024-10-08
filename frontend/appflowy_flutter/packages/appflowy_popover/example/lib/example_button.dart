@@ -33,12 +33,10 @@ class _PopoverMenuState extends State<PopoverMenu> {
           child: ListView(children: [
             Container(
               margin: const EdgeInsets.all(8),
-              child: const Text("Popover",
+              child: const Text('Popover',
                   style: TextStyle(
                       fontSize: 14,
-                      color: Colors.black,
-                      fontStyle: null,
-                      decoration: null)),
+                      color: Colors.black,),),
             ),
             Popover(
               triggerActions:
@@ -50,7 +48,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
               },
               child: TextButton(
                 onPressed: () {},
-                child: const Text("First"),
+                child: const Text('First'),
               ),
             ),
             Popover(
@@ -63,18 +61,15 @@ class _PopoverMenuState extends State<PopoverMenu> {
               },
               child: TextButton(
                 onPressed: () {},
-                child: const Text("Second"),
+                child: const Text('Second'),
               ),
             ),
-          ]),
-        ));
+          ],),
+        ),);
   }
 }
 
 class ExampleButton extends StatelessWidget {
-  final String label;
-  final Offset? offset;
-  final PopoverDirection? direction;
 
   const ExampleButton({
     super.key,
@@ -82,6 +77,9 @@ class ExampleButton extends StatelessWidget {
     this.direction,
     this.offset = Offset.zero,
   });
+  final String label;
+  final Offset? offset;
+  final PopoverDirection? direction;
 
   @override
   Widget build(BuildContext context) {

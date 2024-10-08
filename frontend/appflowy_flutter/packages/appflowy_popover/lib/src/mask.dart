@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 typedef EntryMap = LinkedHashMap<PopoverState, OverlayEntryContext>;
 
 class RootOverlayEntry {
-  final EntryMap _entries = EntryMap();
   RootOverlayEntry();
+
+  final EntryMap _entries = EntryMap();
 
   void addEntry(
     BuildContext context,
@@ -55,22 +56,26 @@ class RootOverlayEntry {
 }
 
 class OverlayEntryContext {
-  final bool asBarrier;
-  final PopoverState popoverState;
-  final OverlayEntry overlayEntry;
-
   OverlayEntryContext(
     this.overlayEntry,
     this.popoverState,
     this.asBarrier,
   );
+
+  final bool asBarrier;
+  final PopoverState popoverState;
+  final OverlayEntry overlayEntry;
 }
 
 class PopoverMask extends StatelessWidget {
+  const PopoverMask({
+    super.key,
+    required this.onTap,
+    this.decoration,
+  });
+
   final void Function() onTap;
   final Decoration? decoration;
-
-  const PopoverMask({super.key, required this.onTap, this.decoration});
 
   @override
   Widget build(BuildContext context) {
