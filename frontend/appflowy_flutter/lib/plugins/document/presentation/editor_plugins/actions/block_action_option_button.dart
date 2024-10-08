@@ -71,8 +71,6 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
     return PopoverActionList<PopoverAction>(
       popoverMutex: PopoverMutex(),
       actions: popoverActions,
-      animationDuration: const Duration(milliseconds: 2000),
-      slideDistance: 5,
       direction:
           context.read<AppearanceSettingsCubit>().state.layoutDirection ==
                   LayoutDirection.rtlLayout

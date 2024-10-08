@@ -41,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 48.0, vertical: 24.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ExampleButton(
                   label: 'Left Center',
                   offset: Offset(0, -10),
-                  direction: PopoverDirection.leftWithCenterAligned,
+                  direction: PopoverDirection.rightWithCenterAligned,
                 ),
                 ExampleButton(
                   label: 'Left bottom',
@@ -62,43 +63,44 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ExampleButton(
-                    label: 'Top',
-                    offset: Offset(0, 10),
-                    direction: PopoverDirection.bottomWithCenterAligned,
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ExampleButton(
-                          label: 'Central',
-                          offset: Offset(0, 10),
-                          direction: PopoverDirection.bottomWithCenterAligned,
-                        ),
-                      ],
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ExampleButton(
+                  label: 'Top',
+                  offset: Offset(0, 10),
+                  direction: PopoverDirection.bottomWithCenterAligned,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ExampleButton(
+                      label: 'Central',
+                      offset: Offset(0, 10),
+                      direction: PopoverDirection.bottomWithCenterAligned,
                     ),
-                  ),
-                  ExampleButton(
-                    label: 'Bottom',
-                    offset: Offset(0, -10),
-                    direction: PopoverDirection.topWithCenterAligned,
-                  ),
-                ],
-              ),
+                  ],
+                ),
+                ExampleButton(
+                  label: 'Bottom',
+                  offset: Offset(0, -10),
+                  direction: PopoverDirection.topWithCenterAligned,
+                ),
+              ],
             ),
             Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ExampleButton(
                   label: 'Right top',
                   offset: Offset(0, 10),
                   direction: PopoverDirection.bottomWithRightAligned,
                 ),
-                Expanded(child: SizedBox.shrink()),
+                ExampleButton(
+                  label: 'Right Center',
+                  offset: Offset(0, 10),
+                  direction: PopoverDirection.leftWithCenterAligned,
+                ),
                 ExampleButton(
                   label: 'Right bottom',
                   offset: Offset(0, -10),
