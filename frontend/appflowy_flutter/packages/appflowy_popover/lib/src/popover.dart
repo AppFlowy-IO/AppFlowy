@@ -54,6 +54,28 @@ enum PopoverClickHandler {
 }
 
 class Popover extends StatefulWidget {
+  const Popover({
+    super.key,
+    required this.child,
+    required this.popupBuilder,
+    this.controller,
+    this.offset,
+    this.maskDecoration = const BoxDecoration(
+      color: Color.fromARGB(0, 244, 67, 54),
+    ),
+    this.triggerActions = 0,
+    this.direction = PopoverDirection.rightWithTopAligned,
+    this.mutex,
+    this.windowPadding,
+    this.onOpen,
+    this.onClose,
+    this.canClose,
+    this.asBarrier = false,
+    this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
+    this.animationDuration = const Duration(milliseconds: 200),
+  });
+
   final PopoverController? controller;
 
   /// The offset from the [child] where the popover will be drawn
@@ -93,42 +115,47 @@ class Popover extends StatefulWidget {
 
   final bool skipTraversal;
 
+  /// Animation time of the popover.
+  final Duration animationDuration;
+
   /// The content area of the popover.
   final Widget child;
-
-  const Popover({
-    super.key,
-    required this.child,
-    required this.popupBuilder,
-    this.controller,
-    this.offset,
-    this.maskDecoration = const BoxDecoration(
-      color: Color.fromARGB(0, 244, 67, 54),
-    ),
-    this.triggerActions = 0,
-    this.direction = PopoverDirection.rightWithTopAligned,
-    this.mutex,
-    this.windowPadding,
-    this.onOpen,
-    this.onClose,
-    this.canClose,
-    this.asBarrier = false,
-    this.clickHandler = PopoverClickHandler.listener,
-    this.skipTraversal = false,
-  });
 
   @override
   State<Popover> createState() => PopoverState();
 }
 
-class PopoverState extends State<Popover> {
+class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   static final RootOverlayEntry _rootEntry = RootOverlayEntry();
   final PopoverLink popoverLink = PopoverLink();
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     widget.controller?._state = this;
+
+    _animationController = AnimationController(
+      duration: widget.animationDuration,
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   void showOverlay() {
@@ -137,57 +164,50 @@ class PopoverState extends State<Popover> {
     if (widget.mutex != null) {
       widget.mutex?.state = this;
     }
+
     final shouldAddMask = _rootEntry.isEmpty;
-    final newEntry = OverlayEntry(builder: (context) {
-      final children = <Widget>[];
-      if (shouldAddMask) {
-        children.add(
-          PopoverMask(
-            decoration: widget.maskDecoration,
-            onTap: () async {
-              if (!(await widget.canClose?.call() ?? true)) {
-                return;
-              }
-              _removeRootOverlay();
-            },
-          ),
-        );
-      }
+    final newEntry = OverlayEntry(
+      builder: (context) => _buildOverlayContent(shouldAddMask),
+    );
 
-      children.add(
-        PopoverContainer(
-          direction: widget.direction,
-          popoverLink: popoverLink,
-          offset: widget.offset ?? Offset.zero,
-          windowPadding: widget.windowPadding ?? EdgeInsets.zero,
-          popupBuilder: widget.popupBuilder,
-          onClose: close,
-          onCloseAll: _removeRootOverlay,
-          skipTraversal: widget.skipTraversal,
-        ),
-      );
-
-      return CallbackShortcuts(
-        bindings: {
-          const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
-        },
-        child: FocusScope(child: Stack(children: children)),
-      );
-    });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
+
+    final (initialScale, initialOffset) = _getInitialAnimationValues();
+    final (endScale, endOffset) = _getEndAnimationValues();
+    _scaleAnimation = Tween<double>(begin: initialScale, end: endScale).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: initialOffset, end: endOffset).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _animationController.forward();
   }
 
   void close({bool notify = true}) {
     if (_rootEntry.contains(this)) {
-      _rootEntry.removeEntry(this);
-      if (notify) {
-        widget.onClose?.call();
-      }
+      _animationController.reverse().then((_) {
+        _rootEntry.removeEntry(this);
+        if (notify) {
+          widget.onClose?.call();
+        }
+      });
     }
   }
 
   void _removeRootOverlay() {
-    _rootEntry.popEntry();
+    if (_rootEntry.contains(this)) {
+      _animationController.reverse().then((_) {
+        _rootEntry.popEntry();
+      });
+    }
 
     if (widget.mutex?.state == this) {
       widget.mutex?.removeState();
@@ -251,6 +271,85 @@ class PopoverState extends State<Popover> {
       close();
     } else {
       handler();
+    }
+  }
+
+  Widget _buildOverlayContent(bool shouldAddMask) {
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
+      },
+      child: FocusScope(
+        child: Stack(
+          children: [
+            if (shouldAddMask) _buildMask(),
+            _buildPopoverContainer(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMask() {
+    return PopoverMask(
+      decoration: widget.maskDecoration,
+      onTap: () async {
+        if (await widget.canClose?.call() ?? true) {
+          _removeRootOverlay();
+        }
+      },
+    );
+  }
+
+  Widget _buildPopoverContainer() {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _fadeAnimation.value,
+          child: Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Transform.translate(
+              offset: _slideAnimation.value,
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: PopoverContainer(
+        direction: widget.direction,
+        popoverLink: popoverLink,
+        offset: widget.offset ?? Offset.zero,
+        windowPadding: widget.windowPadding ?? EdgeInsets.zero,
+        popupBuilder: widget.popupBuilder,
+        onClose: close,
+        onCloseAll: _removeRootOverlay,
+        skipTraversal: widget.skipTraversal,
+      ),
+    );
+  }
+
+  (double, Offset) _getInitialAnimationValues() {
+    const scaleFactor = 0.95;
+    const slideDistance = 20.0;
+
+    switch (widget.direction) {
+      case PopoverDirection.bottomWithLeftAligned:
+        return (scaleFactor, const Offset(-slideDistance, -slideDistance));
+
+      default:
+        return (scaleFactor, Offset.zero);
+    }
+  }
+
+  (double, Offset) _getEndAnimationValues() {
+    const scaleFactor = 1.0;
+
+    switch (widget.direction) {
+      case PopoverDirection.bottomWithLeftAligned:
+        return (scaleFactor, Offset.zero);
+      default:
+        return (scaleFactor, Offset.zero);
     }
   }
 }
