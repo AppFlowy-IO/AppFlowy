@@ -200,11 +200,14 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     // because the leader's size and offset may be changed
     slideAnimation = _buildSlideAnimation();
 
-    final shouldAddMask = _rootEntry.isEmpty;
-    final newEntry = OverlayEntry(
-      builder: (context) => _buildOverlayContent(shouldAddMask),
+    _rootEntry.addEntry(
+      context,
+      this,
+      OverlayEntry(
+        builder: (context) => _buildOverlayContent(),
+      ),
+      widget.asBarrier,
     );
-    _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
     animationController.forward();
   }
 
@@ -283,7 +286,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     }
   }
 
-  Widget _buildOverlayContent(bool shouldAddMask) {
+  Widget _buildOverlayContent() {
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
@@ -291,7 +294,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       child: FocusScope(
         child: Stack(
           children: [
-            if (shouldAddMask) _buildMask(),
+            if (_rootEntry.isEmpty) _buildMask(),
             _buildPopoverContainer(),
           ],
         ),

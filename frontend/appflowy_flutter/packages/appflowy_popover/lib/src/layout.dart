@@ -58,16 +58,22 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    if (link.leaderSize == null) {
+    final leaderOffset = link.leaderOffset;
+    final leaderSize = link.leaderSize;
+
+    if (leaderOffset == null || leaderSize == null) {
       return Offset.zero;
     }
+
     final anchorRect = Rect.fromLTWH(
-      link.leaderOffset!.dx + offset.dx,
-      link.leaderOffset!.dy + offset.dy,
-      link.leaderSize!.width,
-      link.leaderSize!.height,
+      leaderOffset.dx + offset.dx,
+      leaderOffset.dy + offset.dy,
+      leaderSize.width,
+      leaderSize.height,
     );
+
     Offset position;
+
     switch (direction) {
       case PopoverDirection.topLeft:
         position = Offset(
@@ -168,6 +174,7 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
       default:
         throw UnimplementedError();
     }
+
     return Offset(
       math.max(
         windowPadding.left,
