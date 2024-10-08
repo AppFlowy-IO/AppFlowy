@@ -142,7 +142,6 @@ class ChecklistItemList extends StatelessWidget {
         ),
         buildDefaultDragHandles: false,
         itemBuilder: (context, index) => itemList[index],
-        // separatorBuilder: (context, index) => const VSpace(4),
         itemCount: itemList.length,
         padding: const EdgeInsets.symmetric(vertical: 6.0),
         onReorder: (from, to) {

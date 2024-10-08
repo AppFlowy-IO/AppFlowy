@@ -27,21 +27,17 @@ class _MobileChecklistCellEditScreenState
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints.tightFor(height: 420),
-      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const DragHandle(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: _buildHeader(context),
-              ),
-              const Divider(),
-              const Expanded(child: _TaskList()),
-            ],
-          );
-        },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const DragHandle(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: _buildHeader(context),
+          ),
+          const Divider(),
+          const Expanded(child: _TaskList()),
+        ],
       ),
     );
   }
@@ -75,20 +71,42 @@ class _TaskList extends StatelessWidget {
           state.tasks
               .mapIndexed(
                 (index, task) => _ChecklistItem(
+                  key: ValueKey('mobile_checklist_task_${task.data.id}'),
                   task: task,
-                  autofocus: state.phantomIndex != -1 &&
+                  index: index,
+                  autofocus: state.phantomIndex != null &&
                       index == state.tasks.length - 1,
+                  onAutofocus: () {
+                    context
+                        .read<ChecklistCellBloc>()
+                        .add(const ChecklistCellEvent.updatePhantomIndex(null));
+                  },
                 ),
               )
               .toList(),
         );
-        cells.add(const _NewTaskButton());
+        cells.add(
+          const _NewTaskButton(key: ValueKey('mobile_checklist_new_task')),
+        );
 
-        return ListView.separated(
+        return ReorderableListView.builder(
+          shrinkWrap: true,
+          proxyDecorator: (child, index, _) => Material(
+            color: Colors.transparent,
+            child: BlocProvider.value(
+              value: context.read<ChecklistCellBloc>(),
+              child: child,
+            ),
+          ),
+          buildDefaultDragHandles: false,
           itemCount: cells.length,
-          separatorBuilder: (_, __) => const VSpace(8),
-          itemBuilder: (_, int index) => cells[index],
+          itemBuilder: (_, index) => cells[index],
           padding: const EdgeInsets.only(bottom: 12.0),
+          onReorder: (from, to) {
+            context
+                .read<ChecklistCellBloc>()
+                .add(ChecklistCellEvent.reorderTask(from, to));
+          },
         );
       },
     );
@@ -96,26 +114,37 @@ class _TaskList extends StatelessWidget {
 }
 
 class _ChecklistItem extends StatefulWidget {
-  const _ChecklistItem({required this.task, required this.autofocus});
+  const _ChecklistItem({
+    super.key,
+    required this.task,
+    required this.index,
+    required this.autofocus,
+    this.onAutofocus,
+  });
 
   final ChecklistSelectOption task;
+  final int index;
   final bool autofocus;
+  final VoidCallback? onAutofocus;
 
   @override
   State<_ChecklistItem> createState() => _ChecklistItemState();
 }
 
 class _ChecklistItemState extends State<_ChecklistItem> {
-  late final TextEditingController _textController;
-  final FocusNode _focusNode = FocusNode();
+  late final TextEditingController textController;
+  final FocusNode focusNode = FocusNode();
   Timer? _debounceOnChanged;
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: widget.task.data.name);
+    textController = TextEditingController(text: widget.task.data.name);
     if (widget.autofocus) {
-      _focusNode.requestFocus();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        focusNode.requestFocus();
+        widget.onAutofocus?.call();
+      });
     }
   }
 
@@ -123,47 +152,50 @@ class _ChecklistItemState extends State<_ChecklistItem> {
   void didUpdateWidget(covariant oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name &&
-        !_focusNode.hasFocus) {
-      _textController.text = widget.task.data.name;
+        !focusNode.hasFocus) {
+      textController.text = widget.task.data.name;
     }
   }
 
   @override
   void dispose() {
-    _textController.dispose();
-    _focusNode.dispose();
+    textController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
       constraints: const BoxConstraints(minHeight: 44),
       child: Row(
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(22),
-            onTap: () => context
-                .read<ChecklistCellBloc>()
-                .add(ChecklistCellEvent.selectTask(widget.task.data.id)),
-            child: SizedBox.square(
-              dimension: 44,
-              child: Center(
-                child: FlowySvg(
-                  widget.task.isSelected
-                      ? FlowySvgs.check_filled_s
-                      : FlowySvgs.uncheck_s,
-                  size: const Size.square(20.0),
-                  blendMode: BlendMode.dst,
+          ReorderableDelayedDragStartListener(
+            index: widget.index,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () => context
+                  .read<ChecklistCellBloc>()
+                  .add(ChecklistCellEvent.selectTask(widget.task.data.id)),
+              child: SizedBox.square(
+                dimension: 44,
+                child: Center(
+                  child: FlowySvg(
+                    widget.task.isSelected
+                        ? FlowySvgs.check_filled_s
+                        : FlowySvgs.uncheck_s,
+                    size: const Size.square(20.0),
+                    blendMode: BlendMode.dst,
+                  ),
                 ),
               ),
             ),
           ),
           Expanded(
             child: TextField(
-              controller: _textController,
-              focusNode: _focusNode,
+              controller: textController,
+              focusNode: focusNode,
               style: Theme.of(context).textTheme.bodyMedium,
               keyboardType: TextInputType.multiline,
               maxLines: null,
@@ -262,7 +294,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
 }
 
 class _NewTaskButton extends StatelessWidget {
-  const _NewTaskButton();
+  const _NewTaskButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -271,6 +303,9 @@ class _NewTaskButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
+          context
+              .read<ChecklistCellBloc>()
+              .add(const ChecklistCellEvent.updatePhantomIndex(-1));
           context
               .read<ChecklistCellBloc>()
               .add(const ChecklistCellEvent.createNewTask(""));
