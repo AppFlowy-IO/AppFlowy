@@ -7,7 +7,6 @@ import 'package:appflowy/plugins/document/application/document_appearance_cubit.
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
-import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
@@ -84,55 +83,39 @@ class _DocumentPageState extends State<DocumentPage>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      // Due to how DropTarget works, there is no way to differentiate if an overlay is
-      // blocking the target visibly, so when we have an overlay with a drop target,
-      // we should disable the drop target for the Editor, until it is closed.
-      //
-      // See FileBlockComponent for sample use.
-      //
-      // Relates to:
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/2
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/331
-      //
-      create: (_) => EditorDropManagerState(),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: getIt<ActionNavigationBloc>()),
-          BlocProvider.value(value: documentBloc),
-        ],
-        child: BlocBuilder<DocumentBloc, DocumentState>(
-          buildWhen: shouldRebuildDocument,
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator.adaptive());
-            }
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
+        BlocProvider.value(value: documentBloc),
+      ],
+      child: BlocBuilder<DocumentBloc, DocumentState>(
+        buildWhen: shouldRebuildDocument,
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
 
-            final editorState = state.editorState;
-            this.editorState = editorState;
-            final error = state.error;
-            if (error != null || editorState == null) {
-              Log.error(error);
-              return Center(child: AppFlowyErrorPage(error: error));
-            }
+          final editorState = state.editorState;
+          this.editorState = editorState;
+          final error = state.error;
+          if (error != null || editorState == null) {
+            Log.error(error);
+            return Center(child: AppFlowyErrorPage(error: error));
+          }
 
-            if (state.forceClose) {
-              widget.onDeleted();
-              return const SizedBox.shrink();
-            }
+          if (state.forceClose) {
+            widget.onDeleted();
+            return const SizedBox.shrink();
+          }
 
-            editorState.transactionStream.listen(onEditorTransaction);
+          editorState.transactionStream.listen(onEditorTransaction);
 
-            return BlocListener<ActionNavigationBloc, ActionNavigationState>(
-              listenWhen: (_, curr) => curr.action != null,
-              listener: onNotificationAction,
-              child: Consumer<EditorDropManagerState>(
-                builder: (context, dropState, _) =>
-                    buildEditorPage(context, state, dropState),
-              ),
-            );
-          },
-        ),
+          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
+            listenWhen: (_, curr) => curr.action != null,
+            listener: onNotificationAction,
+            child: buildEditorPage(context, state),
+          );
+        },
       ),
     );
   }
@@ -140,7 +123,6 @@ class _DocumentPageState extends State<DocumentPage>
   Widget buildEditorPage(
     BuildContext context,
     DocumentState state,
-    EditorDropManagerState dropState,
   ) {
     final width = context.read<DocumentAppearanceCubit>().state.width;
 
@@ -164,7 +146,6 @@ class _DocumentPageState extends State<DocumentPage>
       child = EditorDropHandler(
         viewId: widget.view.id,
         editorState: state.editorState!,
-        isDropEnabled: dropState.isDropEnabled,
         child: AppFlowyEditorPage(
           editorState: state.editorState!,
           // if the view's name is empty, focus on the title
