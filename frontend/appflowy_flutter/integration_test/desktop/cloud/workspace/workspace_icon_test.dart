@@ -47,10 +47,15 @@ void main() {
       await tester.openWorkspaceMenu();
 
       // click the workspace icon
-      await tester.tapButton(find.byType(WorkspaceIcon).first);
+      await tester.tapButton(
+        find.descendant(
+          of: find.byType(WorkspaceMenuItem),
+          matching: find.byType(WorkspaceIcon),
+        ),
+      );
       // click the remove icon button
       await tester.tapButton(
-        find.text(LocaleKeys.document_plugins_cover_removeIcon.tr()),
+        find.text(LocaleKeys.button_remove.tr()),
       );
 
       // nothing should happen
