@@ -17,6 +17,8 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     this.direction = PopoverDirection.rightWithTopAligned,
     this.asBarrier = false,
     this.offset = Offset.zero,
+    this.animationDuration = const Duration(),
+    this.slideDistance = 20,
     this.constraints = const BoxConstraints(
       minWidth: 120,
       maxWidth: 460,
@@ -35,6 +37,8 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final bool asBarrier;
   final Offset offset;
   final BoxConstraints constraints;
+  final Duration animationDuration;
+  final double slideDistance;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -55,6 +59,8 @@ class _PopoverActionListState<T extends PopoverAction>
     final child = widget.buildChild(popoverController);
     return AppFlowyPopover(
       asBarrier: widget.asBarrier,
+      animationDuration: widget.animationDuration,
+      slideDistance: widget.slideDistance,
       controller: popoverController,
       constraints: widget.constraints,
       direction: widget.direction,

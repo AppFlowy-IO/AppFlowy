@@ -73,7 +73,7 @@ class Popover extends StatefulWidget {
     this.asBarrier = false,
     this.clickHandler = PopoverClickHandler.listener,
     this.skipTraversal = false,
-    this.animationDuration = const Duration(milliseconds: 0),
+    this.animationDuration = const Duration(seconds: 2),
     this.beginOpacity = 0.0,
     this.endOpacity = 1.0,
     this.beginScaleFactor = 0.95,
