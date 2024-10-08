@@ -47,4 +47,6 @@ Future<void> runIntegration3OnDesktop() async {
   grid_filter_and_sort_test_runner.main();
   grid_edit_row_test_runner.main();
   zoom_in_out_test.main();
+
+  // DON'T add more tests here. Add them to desktop_runner_4.dart
 }

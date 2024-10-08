@@ -1,6 +1,6 @@
 import 'package:integration_test/integration_test.dart';
 
-import 'desktop/document/document_test_runner.dart' as document_test_runner;
+import 'desktop/document/document_test_runner_1.dart' as document_test_runner;
 import 'desktop/uncategorized/empty_test.dart' as first_test;
 import 'desktop/uncategorized/switch_folder_test.dart' as switch_folder_test;
 
@@ -17,5 +17,5 @@ Future<void> runIntegration1OnDesktop() async {
   switch_folder_test.main();
   document_test_runner.main();
 
-  // DON'T add more tests here. This is the first test runner for desktop.
+  // DON'T add more tests here.
 }
