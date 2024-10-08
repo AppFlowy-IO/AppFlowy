@@ -24,7 +24,7 @@ import 'document_with_outline_block_test.dart' as document_with_outline_block;
 import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
 
-void startTesting() {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   // Document integration tests
@@ -47,4 +47,6 @@ void startTesting() {
   document_more_actions_test.main();
   document_with_file_test.main();
   document_shortcuts_test.main();
+
+  // Don't add new tests here. Add them to document_test_runner_2.dart
 }
