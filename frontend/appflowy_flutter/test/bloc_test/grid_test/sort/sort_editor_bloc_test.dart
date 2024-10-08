@@ -106,9 +106,9 @@ void main() {
       test('reorder sorts', () async {
         final selectOptionField = getFirstFieldByType(FieldType.SingleSelect);
         final checkboxField = getFirstFieldByType(FieldType.Checkbox);
-        sortBloc
-          ..add(SortEditorEvent.createSort(fieldId: selectOptionField.id))
-          ..add(SortEditorEvent.createSort(fieldId: checkboxField.id));
+        sortBloc.add(SortEditorEvent.createSort(fieldId: selectOptionField.id));
+        await gridResponseFuture();
+        sortBloc.add(SortEditorEvent.createSort(fieldId: checkboxField.id));
         await gridResponseFuture();
 
         expect(sortBloc.state.sorts[0].fieldId, selectOptionField.id);
