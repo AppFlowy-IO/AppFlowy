@@ -1,4 +1,3 @@
-import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { calculateOffsetRelativeToParent } from '@/application/slate-yjs/utils/positions';
 import { getBlock, getNodeAtPath, getText } from '@/application/slate-yjs/utils/yjsOperations';
@@ -58,7 +57,7 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
 }, slateContent: Descendant[]) {
   const node = getNodeAtPath(slateContent, path.slice(0, -1)) as Element;
 
-  console.log('insertText', node);
+  console.log('insertText', node, slateContent);
   const textId = node.textId as string;
   const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const yText = getText(textId, sharedRoot);
@@ -67,6 +66,8 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
   const point = { path, offset };
 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
+
+  console.log('insertText', point, node);
   const beforeAttributes = getAttributesAtOffset(yText, relativeOffset - 1);
 
   console.log('beforeAttributes', relativeOffset, beforeAttributes);
@@ -111,7 +112,7 @@ function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, 
   const offset = 0;
 
   insertText(ydoc, editor, {
-    path, offset, text, type: 'insert_text',
+    path, offset, text, type: 'insert_text', attributes: {},
   }, slateContent);
 }
 
@@ -134,12 +135,6 @@ function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
 
   yText.delete(relativeOffset, text.length);
-}
-
-function findSlateNode (editor: Editor, path: number[]): Element {
-  const entry = CustomEditor.findTextNode(editor, path);
-
-  return entry[0];
 }
 
 function applySetNode (ydoc: Y.Doc, editor: Editor, op: SetNodeOperation, slateContent: Descendant[]) {

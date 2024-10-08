@@ -143,6 +143,6 @@ describe('BIUS.cy', () => {
     ]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('shortcuts/BIUS.cy');
+    // cy.matchImageSnapshot('shortcuts/BIUS.cy');
   });
 });

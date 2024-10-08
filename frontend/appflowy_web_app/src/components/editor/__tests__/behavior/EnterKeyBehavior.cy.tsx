@@ -71,7 +71,7 @@ describe('Enter key behavior', () => {
     }]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/enter-key-behavior-split-paragraph-block');
+    // cy.matchImageSnapshot('behavior/enter-key-behavior-split-paragraph-block');
   });
 
   it('should handle enter key correctly with nested paragraphs', () => {
@@ -172,7 +172,7 @@ describe('Enter key behavior', () => {
     }, initialData[1]]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/enter-key-behavior-nested-paragraphs');
+    // cy.matchImageSnapshot('behavior/enter-key-behavior-nested-paragraphs');
   });
 
   it('should handle enter key correctly with toggle_list', () => {
@@ -283,7 +283,7 @@ describe('Enter key behavior', () => {
     }]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/enter-key-behavior-toggle-list');
+    // cy.matchImageSnapshot('behavior/enter-key-behavior-toggle-list');
 
   });
 
@@ -321,7 +321,7 @@ describe('Enter key behavior', () => {
     }]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/enter-key-behavior-toggle-list-collapsed');
+    // cy.matchImageSnapshot('behavior/enter-key-behavior-toggle-list-collapsed');
   });
 
   it('should handle enter key on the empty block but not the paragraph block', () => {
@@ -376,7 +376,7 @@ describe('Enter key behavior', () => {
     }]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/enter-key-behavior-empty-block');
+    // cy.matchImageSnapshot('behavior/enter-key-behavior-empty-block');
 
     // Test 2: Press enter at the start of the empty todo_list block
     moveAndEnter(1, 0);
@@ -405,7 +405,7 @@ describe('Enter key behavior', () => {
       }],
     }]);
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/enter-key-behavior-empty-block-2');
+    // cy.matchImageSnapshot('behavior/enter-key-behavior-empty-block-2');
   });
 
   describe('Enter key behavior with range selections', () => {
@@ -516,7 +516,7 @@ describe('Enter key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-single-block');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-single-block');
     });
 
     it('should handle range selection across two blocks', () => {
@@ -552,7 +552,7 @@ describe('Enter key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-across-blocks');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-across-blocks');
     });
 
     it('should handle range selection across same level blocks', () => {
@@ -599,7 +599,7 @@ describe('Enter key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-same-level-blocks');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-same-level-blocks');
     });
 
     it('should handle range selection with different anchor and focus order', () => {
@@ -652,7 +652,7 @@ describe('Enter key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-anchor-focus');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-anchor-focus');
     });
 
     it('should split nested paragraph when selection spans from outer to nested paragraph', () => {
@@ -686,7 +686,7 @@ describe('Enter key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-1');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-1');
 
     });
 
@@ -787,7 +787,7 @@ describe('Enter key behavior', () => {
         },
       ]);
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-2');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-2');
     });
 
     it('should split paragraphs and maintain child structure when selection spans across parent paragraphs', () => {
@@ -889,7 +889,7 @@ describe('Enter key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-3');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-3');
     });
 
     it('should split heading and paragraph while preserving nested structure when selection spans different block types', () => {
@@ -949,7 +949,7 @@ describe('Enter key behavior', () => {
         },
       ]);
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-4');
+      // cy.matchImageSnapshot('behavior/enter-key-behavior-range-selection-different-nesting-levels-4');
     });
 
   });

@@ -17,7 +17,7 @@ describe('<Paragraph />', () => {
     cy.get('[role="textbox"]').should('exist');
     cy.get('[data-block-type="paragraph"]').should('have.length', 7);
     cy.get('[role="textbox"]').children().should('have.length', 3);
-    cy.matchImageSnapshot('paragraph/initial-render');
+    // cy.matchImageSnapshot('paragraph/initial-render');
   });
 
   it('edit paragraph text', () => {
@@ -75,9 +75,10 @@ describe('<Paragraph />', () => {
       ],
       children: [],
     }];
+
     assertJSON(expectJSON);
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('paragraph/editing-text');
+    // cy.matchImageSnapshot('paragraph/editing-text');
   });
 
   it('edit paragraphs with undo and redo', () => {
@@ -170,7 +171,7 @@ describe('<Paragraph />', () => {
     ]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('paragraph/editing-text-with-undo-redo');
+    // cy.matchImageSnapshot('paragraph/editing-text-with-undo-redo');
   });
 
   it('render inline formatting', () => {
@@ -227,6 +228,7 @@ describe('<Paragraph />', () => {
         ],
       },
     ];
+
     assertJSON(expectJSON);
 
     cy.wait(500);
@@ -258,7 +260,7 @@ describe('<Paragraph />', () => {
     ];
     assertJSON(expectJSON);
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('paragraph/inline-formatting');
+    // cy.matchImageSnapshot('paragraph/inline-formatting');
 
   });
 

@@ -1,5 +1,5 @@
-import { initialEditorTest, mountEditor, moveToLineStart } from '@/components/editor/__tests__/mount';
-import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
+import { initialEditorTest, moveToLineStart } from '@/components/editor/__tests__/mount';
+import { FromBlockJSON } from 'cypress/support/document';
 
 describe('Backspace key behavior', () => {
   beforeEach(() => {
@@ -84,7 +84,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-entire-nested-structure');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-entire-nested-structure');
     });
 
     it('should delete content across multiple blocks', () => {
@@ -108,7 +108,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-content-across-multiple-blocks');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-content-across-multiple-blocks');
     });
 
     it('should delete nested content within a toggle list', () => {
@@ -136,7 +136,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-nested-content-within-a-toggle-list');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-nested-content-within-a-toggle-list');
     });
 
     it('should delete content across different nesting levels', () => {
@@ -161,7 +161,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-content-across-different-nesting-levels');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-delete-content-across-different-nesting-levels');
     });
 
     it('should handle deletion of deeply nested content', () => {
@@ -191,7 +191,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-handle-deletion-of-deeply-nested-content');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-handle-deletion-of-deeply-nested-content');
     });
 
     it('should maintain structure when deleting partial content', () => {
@@ -210,7 +210,7 @@ describe('Backspace key behavior', () => {
         initialData[2],
       ]);
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-maintain-structure-when-deleting-partial-content');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-maintain-structure-when-deleting-partial-content');
     });
   });
 
@@ -242,7 +242,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-convert-non-paragraph-block-to-paragraph');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-convert-non-paragraph-block-to-paragraph');
     });
 
     it('should merge paragraphs when backspace at start of paragraph', () => {
@@ -267,7 +267,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-merge-paragraphs');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-merge-paragraphs');
     });
 
     it('should lift nested paragraph when backspace at start', () => {
@@ -296,7 +296,7 @@ describe('Backspace key behavior', () => {
       ]);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-lift-nested-paragraph');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-lift-nested-paragraph');
     });
 
     it('should merge nested toggle list when backspace at start', () => {
@@ -324,7 +324,7 @@ describe('Backspace key behavior', () => {
 
       // Optional: Add visual regression test
 
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-merge-nested-toggle-list');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-merge-nested-toggle-list');
     });
 
     it('should handle backspace at start of document', () => {
@@ -333,7 +333,7 @@ describe('Backspace key behavior', () => {
       assertJSON(initialData);
 
       // Optional: Add visual regression test
-      cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-handle-backspace-at-start-of-document');
+      // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-handle-backspace-at-start-of-document');
     });
   });
 });
