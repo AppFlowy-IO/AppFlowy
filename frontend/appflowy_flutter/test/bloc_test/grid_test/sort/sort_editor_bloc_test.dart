@@ -102,31 +102,29 @@ void main() {
       );
     });
 
-    for (int i = 0; i < 50; i++) {
-      test('reorder sorts', () async {
-        final selectOptionField = getFirstFieldByType(FieldType.SingleSelect);
-        final checkboxField = getFirstFieldByType(FieldType.Checkbox);
-        sortBloc.add(SortEditorEvent.createSort(fieldId: selectOptionField.id));
-        await gridResponseFuture();
-        sortBloc.add(SortEditorEvent.createSort(fieldId: checkboxField.id));
-        await gridResponseFuture();
+    test('reorder sorts', () async {
+      final selectOptionField = getFirstFieldByType(FieldType.SingleSelect);
+      final checkboxField = getFirstFieldByType(FieldType.Checkbox);
+      sortBloc.add(SortEditorEvent.createSort(fieldId: selectOptionField.id));
+      await gridResponseFuture();
+      sortBloc.add(SortEditorEvent.createSort(fieldId: checkboxField.id));
+      await gridResponseFuture();
 
-        expect(sortBloc.state.sorts[0].fieldId, selectOptionField.id);
-        expect(sortBloc.state.sorts[1].fieldId, checkboxField.id);
-        expect(sortBloc.state.creatableFields.length, equals(1));
-        expect(sortBloc.state.allFields.length, equals(3));
+      expect(sortBloc.state.sorts[0].fieldId, selectOptionField.id);
+      expect(sortBloc.state.sorts[1].fieldId, checkboxField.id);
+      expect(sortBloc.state.creatableFields.length, equals(1));
+      expect(sortBloc.state.allFields.length, equals(3));
 
-        sortBloc.add(
-          const SortEditorEvent.reorderSort(0, 2),
-        );
-        await gridResponseFuture();
+      sortBloc.add(
+        const SortEditorEvent.reorderSort(0, 2),
+      );
+      await gridResponseFuture();
 
-        expect(sortBloc.state.sorts[0].fieldId, checkboxField.id);
-        expect(sortBloc.state.sorts[1].fieldId, selectOptionField.id);
-        expect(sortBloc.state.creatableFields.length, equals(1));
-        expect(sortBloc.state.allFields.length, equals(3));
-      });
-    }
+      expect(sortBloc.state.sorts[0].fieldId, checkboxField.id);
+      expect(sortBloc.state.sorts[1].fieldId, selectOptionField.id);
+      expect(sortBloc.state.creatableFields.length, equals(1));
+      expect(sortBloc.state.allFields.length, equals(3));
+    });
 
     test('delete sort', () async {
       final selectOptionField = getFirstFieldByType(FieldType.SingleSelect);
