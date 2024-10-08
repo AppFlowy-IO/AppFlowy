@@ -189,15 +189,46 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.hoverOnFirstRowOfGrid(() async {
-        // Open the row menu and then click the delete
+        // Open the row menu and click the delete button
         await tester.tapRowMenuButtonInGrid();
-        await tester.pumpAndSettle();
         await tester.tapDeleteOnRowMenu();
-        await tester.pumpAndSettle();
-
-        // 3 initial rows - 1 deleted
-        tester.assertNumberOfRowsInGridPage(2);
       });
+      expect(find.byType(ConfirmPopup), findsOneWidget);
+      await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
+
+      tester.assertNumberOfRowsInGridPage(2);
+    });
+
+    testWidgets('delete row in two views', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      await tester.renameLinkedView(
+        tester.findTabBarLinkViewByViewLayout(ViewLayoutPB.Grid),
+        'grid 1',
+      );
+      tester.assertNumberOfRowsInGridPage(3);
+
+      await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Grid);
+      await tester.renameLinkedView(
+        tester.findTabBarLinkViewByViewLayout(ViewLayoutPB.Grid).at(1),
+        'grid 2',
+      );
+      tester.assertNumberOfRowsInGridPage(3);
+
+      await tester.hoverOnFirstRowOfGrid(() async {
+        // Open the row menu and click the delete button
+        await tester.tapRowMenuButtonInGrid();
+        await tester.tapDeleteOnRowMenu();
+      });
+      expect(find.byType(ConfirmPopup), findsOneWidget);
+      await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
+      // 3 initial rows - 1 deleted
+      tester.assertNumberOfRowsInGridPage(2);
+
+      await tester.tapTabBarLinkedViewByViewName('grid 1');
+      tester.assertNumberOfRowsInGridPage(2);
     });
   });
 }

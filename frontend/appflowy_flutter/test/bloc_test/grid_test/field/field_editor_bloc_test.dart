@@ -119,7 +119,6 @@ void main() {
       );
 
       editorBloc.add(const FieldEditorEvent.insertLeft());
-      // TODO(RS): Shouldn't need to wait here!?
       await gridResponseFuture();
       editorBloc.add(const FieldEditorEvent.insertRight());
       await gridResponseFuture();
