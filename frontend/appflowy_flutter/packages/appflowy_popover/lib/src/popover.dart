@@ -170,10 +170,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   @override
   void deactivate() {
-    close(
-      notify: false,
-      withAnimation: false,
-    );
+    close(notify: false);
 
     super.deactivate();
   }
@@ -226,7 +223,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   void close({
     bool notify = true,
-    bool withAnimation = true,
+    bool withAnimation = false,
   }) {
     if (rootEntry.contains(this)) {
       void callback() {
