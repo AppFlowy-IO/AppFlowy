@@ -200,6 +200,7 @@ class PopoverTarget extends SingleChildRenderObjectWidget {
     super.child,
     required this.link,
   });
+
   final PopoverLink link;
 
   @override
@@ -219,7 +220,11 @@ class PopoverTarget extends SingleChildRenderObjectWidget {
 }
 
 class PopoverTargetRenderBox extends RenderProxyBox {
-  PopoverTargetRenderBox({required this.link, RenderBox? child}) : super(child);
+  PopoverTargetRenderBox({
+    required this.link,
+    RenderBox? child,
+  }) : super(child);
+
   PopoverLink link;
 
   @override

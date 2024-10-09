@@ -629,23 +629,23 @@ class FieldNameTextField extends StatefulWidget {
 }
 
 class _FieldNameTextFieldState extends State<FieldNameTextField> {
-  FocusNode focusNode = FocusNode();
+  final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    focusNode.addListener(() {
-      if (focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
+    focusNode.addListener(_onFocusChanged);
+    widget.popoverMutex?.addPopoverListener(_onPopoverChanged);
+  }
 
-    widget.popoverMutex?.listenOnPopoverChanged(() {
-      if (focusNode.hasFocus) {
-        focusNode.unfocus();
-      }
-    });
+  @override
+  void dispose() {
+    widget.popoverMutex?.removePopoverListener(_onPopoverChanged);
+    focusNode.removeListener(_onFocusChanged);
+    focusNode.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -662,15 +662,16 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
     );
   }
 
-  @override
-  void dispose() {
-    focusNode.removeListener(() {
-      if (focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
-    focusNode.dispose();
-    super.dispose();
+  void _onFocusChanged() {
+    if (focusNode.hasFocus) {
+      widget.popoverMutex?.close();
+    }
+  }
+
+  void _onPopoverChanged() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
   }
 }
 
