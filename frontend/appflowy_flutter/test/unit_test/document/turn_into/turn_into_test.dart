@@ -16,14 +16,20 @@ void main() {
     Future<void> checkTurnInto(
       Document document,
       String originalType,
-      String originalText,
-    ) async {
+      String originalText, {
+      String? toType,
+      void Function(EditorState editorState, Node node)? afterTurnInto,
+    }) async {
       final editorState = EditorState(document: document);
       final cubit = BlockActionOptionCubit(
         editorState: editorState,
         blockComponentBuilder: {},
       );
-      for (final type in EditorOptionActionType.turnInto.supportTypes) {
+
+      final types = toType == null
+          ? EditorOptionActionType.turnInto.supportTypes
+          : [toType];
+      for (final type in types) {
         if (type == originalType) {
           continue;
         }
@@ -38,6 +44,10 @@ void main() {
         final newNode = editorState.getNodeAtPath([0])!;
         expect(newNode.type, type);
         expect(newNode.delta!.toPlainText(), originalText);
+        afterTurnInto?.call(
+          editorState,
+          newNode,
+        );
 
         // turn it back the originalType for the next test
         await cubit.turnIntoBlock(
@@ -153,6 +163,66 @@ void main() {
         document,
         CalloutBlockKeys.type,
         text,
+      );
+    });
+
+    test('from nested list to heading', () async {
+      const text = 'bulleted list';
+      const nestedText1 = 'nested bulleted list 1';
+      const nestedText2 = 'nested bulleted list 2';
+      const nestedText3 = 'nested bulleted list 3';
+      final document = createDocument([
+        bulletedListNode(
+          text: text,
+          children: [
+            bulletedListNode(
+              text: nestedText1,
+            ),
+            bulletedListNode(
+              text: nestedText2,
+            ),
+            bulletedListNode(
+              text: nestedText3,
+            ),
+          ],
+        ),
+      ]);
+      await checkTurnInto(
+        document,
+        BulletedListBlockKeys.type,
+        text,
+        toType: HeadingBlockKeys.type,
+        afterTurnInto: (editorState, node) {
+          expect(node.type, HeadingBlockKeys.type);
+          expect(node.children.length, 0);
+          expect(node.delta!.toPlainText(), text);
+
+          expect(editorState.document.root.children.length, 4);
+          expect(
+            editorState.document.root.children[1].type,
+            BulletedListBlockKeys.type,
+          );
+          expect(
+            editorState.document.root.children[1].delta!.toPlainText(),
+            nestedText1,
+          );
+          expect(
+            editorState.document.root.children[2].type,
+            BulletedListBlockKeys.type,
+          );
+          expect(
+            editorState.document.root.children[2].delta!.toPlainText(),
+            nestedText2,
+          );
+          expect(
+            editorState.document.root.children[3].type,
+            BulletedListBlockKeys.type,
+          );
+          expect(
+            editorState.document.root.children[3].delta!.toPlainText(),
+            nestedText3,
+          );
+        },
       );
     });
   });
