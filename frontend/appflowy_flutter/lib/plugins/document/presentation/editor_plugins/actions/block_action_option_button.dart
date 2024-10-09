@@ -25,23 +25,6 @@ class BlockOptionButton extends StatelessWidget {
   final EditorState editorState;
   final Map<String, BlockComponentBuilder> blockComponentBuilder;
 
-  List<PopoverAction> get popoverActions => actions.map((e) {
-        switch (e) {
-          case OptionAction.divider:
-            return DividerOptionAction();
-          case OptionAction.color:
-            return ColorOptionAction(editorState: editorState);
-          case OptionAction.align:
-            return AlignOptionAction(editorState: editorState);
-          case OptionAction.depth:
-            return DepthOptionAction(editorState: editorState);
-          case OptionAction.turnInto:
-            return TurnIntoOptionAction(editorState: editorState);
-          default:
-            return OptionActionWrapper(e);
-        }
-      }).toList();
-
   @override
   Widget build(BuildContext context) {
     final direction =
@@ -56,7 +39,7 @@ class BlockOptionButton extends StatelessWidget {
       ),
       child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
         builder: (context, _) => PopoverActionList<PopoverAction>(
-          actions: popoverActions,
+          actions: _buildPopoverActions(context),
           animationDuration: Durations.short3,
           slideDistance: 5,
           beginScaleFactor: 1.0,
@@ -78,6 +61,25 @@ class BlockOptionButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<PopoverAction> _buildPopoverActions(BuildContext context) {
+    return actions.map((e) {
+      switch (e) {
+        case OptionAction.divider:
+          return DividerOptionAction();
+        case OptionAction.color:
+          return ColorOptionAction(editorState: editorState);
+        case OptionAction.align:
+          return AlignOptionAction(editorState: editorState);
+        case OptionAction.depth:
+          return DepthOptionAction(editorState: editorState);
+        case OptionAction.turnInto:
+          return TurnIntoOptionAction(editorState: editorState);
+        default:
+          return OptionActionWrapper(e);
+      }
+    }).toList();
   }
 
   void _onPopoverBuilder() {

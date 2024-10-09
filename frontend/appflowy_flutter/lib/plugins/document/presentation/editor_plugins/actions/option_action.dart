@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -538,8 +539,53 @@ class TurnIntoOptionAction extends CustomActionCell {
       leftIcon: FlowySvg(leftIcon),
       rightIcon: rightIcon,
       itemHeight: ActionListSizes.itemHeight,
-      onTap: () {},
+      onTap: () {
+        _turnIntoBlock(type, node, level: level);
+      },
     );
+  }
+
+  Future<bool> _turnIntoBlock(
+    String type,
+    Node node, {
+    int? level,
+  }) async {
+    final builder = editorState.renderer.blockComponentBuilder(type);
+
+    if (builder == null) {
+      Log.error('Block type $type is not supported');
+      return false;
+    }
+
+    Log.info(
+      'Turn into block: from ${node.type} to $type',
+    );
+
+    if (type == node.type && type != HeadingBlockKeys.type) {
+      Log.info('Block type is the same');
+      return false;
+    }
+
+    final selection = editorState.selection;
+    final beforeNode = node;
+    final afterNode = node.copyWith(
+      type: type,
+      attributes: {
+        if (type == HeadingBlockKeys.type) HeadingBlockKeys.level: level,
+        if (type == TodoListBlockKeys.type) TodoListBlockKeys.checked: false,
+        blockComponentBackgroundColor:
+            node.attributes[blockComponentBackgroundColor],
+        blockComponentTextDirection:
+            node.attributes[blockComponentTextDirection],
+        blockComponentDelta: (beforeNode.delta ?? Delta()).toJson(),
+      },
+    );
+    await editorState.formatNode(
+      selection,
+      (node) => afterNode,
+    );
+
+    return true;
   }
 
   Widget? _buildRightIcon(

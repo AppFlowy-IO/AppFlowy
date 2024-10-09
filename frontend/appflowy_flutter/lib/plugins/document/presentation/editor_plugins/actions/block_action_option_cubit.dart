@@ -30,8 +30,6 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       case OptionAction.duplicate:
         await _duplicateBlock(transaction, node);
         break;
-      case OptionAction.turnInto:
-        break;
       case OptionAction.moveUp:
         transaction.moveNode(node.path.previous, node);
         break;
@@ -45,6 +43,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       case OptionAction.color:
       case OptionAction.divider:
       case OptionAction.depth:
+      case OptionAction.turnInto:
         throw UnimplementedError();
     }
 
