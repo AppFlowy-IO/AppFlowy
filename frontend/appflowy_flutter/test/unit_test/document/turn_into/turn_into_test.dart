@@ -225,5 +225,65 @@ void main() {
         },
       );
     });
+
+    test('from numbered list to heading', () async {
+      const text = 'numbered list';
+      const nestedText1 = 'nested numbered list 1';
+      const nestedText2 = 'nested numbered list 2';
+      const nestedText3 = 'nested numbered list 3';
+      final document = createDocument([
+        numberedListNode(
+          delta: Delta()..insert(text),
+          children: [
+            numberedListNode(
+              delta: Delta()..insert(nestedText1),
+            ),
+            numberedListNode(
+              delta: Delta()..insert(nestedText2),
+            ),
+            numberedListNode(
+              delta: Delta()..insert(nestedText3),
+            ),
+          ],
+        ),
+      ]);
+      await checkTurnInto(
+        document,
+        NumberedListBlockKeys.type,
+        text,
+        toType: HeadingBlockKeys.type,
+        afterTurnInto: (editorState, node) {
+          expect(node.type, HeadingBlockKeys.type);
+          expect(node.children.length, 0);
+          expect(node.delta!.toPlainText(), text);
+
+          expect(editorState.document.root.children.length, 4);
+          expect(
+            editorState.document.root.children[1].type,
+            NumberedListBlockKeys.type,
+          );
+          expect(
+            editorState.document.root.children[1].delta!.toPlainText(),
+            nestedText1,
+          );
+          expect(
+            editorState.document.root.children[2].type,
+            NumberedListBlockKeys.type,
+          );
+          expect(
+            editorState.document.root.children[2].delta!.toPlainText(),
+            nestedText2,
+          );
+          expect(
+            editorState.document.root.children[3].type,
+            NumberedListBlockKeys.type,
+          );
+          expect(
+            editorState.document.root.children[3].delta!.toPlainText(),
+            nestedText3,
+          );
+        },
+      );
+    });
   });
 }
