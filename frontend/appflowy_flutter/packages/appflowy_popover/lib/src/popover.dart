@@ -325,6 +325,9 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     return AnimatedBuilder(
       animation: animationController,
       builder: (context, child) {
+        debugPrint(
+          'scaleAnimation: ${scaleAnimation.value}, fadeAnimation: ${fadeAnimation.value}, slideAnimation: ${slideAnimation.value}',
+        );
         return Opacity(
           opacity: fadeAnimation.value,
           child: Transform.scale(
@@ -375,7 +378,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     ).animate(
       CurvedAnimation(
         parent: animationController,
-        curve: Curves.easeOutCubic,
+        curve: Curves.easeInOut,
       ),
     );
   }
@@ -388,7 +391,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     ).animate(
       CurvedAnimation(
         parent: animationController,
-        curve: Curves.easeOutCubic,
+        curve: Curves.linear,
       ),
     );
   }
