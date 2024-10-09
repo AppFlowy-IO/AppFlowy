@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
@@ -13,7 +15,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dar
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalculateCell extends StatefulWidget {
@@ -126,7 +127,7 @@ class _CalculateCellState extends State<CalculateCell> {
   }
 
   Widget _showCalculateValue(BuildContext context, String? prefix) {
-    prefix = prefix != null ? '$prefix ' : '';
+    prefix = prefix != null && prefix.isNotEmpty ? '$prefix ' : '';
     final calculateValue =
         '$prefix${_withoutTrailingZeros(widget.calculation!.value)}';
 
