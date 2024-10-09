@@ -68,7 +68,7 @@ class _RowEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
+      create: (_) =>
           DocumentBloc(documentId: view.id)..add(const DocumentEvent.initial()),
       child: BlocConsumer<DocumentBloc, DocumentState>(
         listenWhen: (previous, current) =>
@@ -86,9 +86,7 @@ class _RowEditor extends StatelessWidget {
         },
         builder: (context, state) {
           if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           final editorState = state.editorState;
@@ -107,6 +105,7 @@ class _RowEditor extends StatelessWidget {
                 child: EditorDropHandler(
                   viewId: view.id,
                   editorState: editorState,
+                  isLocalMode: context.read<DocumentBloc>().isLocalMode,
                   child: AppFlowyEditorPage(
                     shrinkWrap: true,
                     autoFocus: false,
@@ -115,9 +114,9 @@ class _RowEditor extends StatelessWidget {
                       context: context,
                       padding: const EdgeInsets.only(left: 16, right: 54),
                     ),
-                    showParagraphPlaceholder: (editorState, node) =>
+                    showParagraphPlaceholder: (editorState, _) =>
                         editorState.document.isEmpty,
-                    placeholderText: (node) =>
+                    placeholderText: (_) =>
                         LocaleKeys.cardDetails_notesPlaceholder.tr(),
                   ),
                 ),

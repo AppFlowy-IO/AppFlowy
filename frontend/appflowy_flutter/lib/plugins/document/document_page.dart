@@ -146,6 +146,7 @@ class _DocumentPageState extends State<DocumentPage>
       child = EditorDropHandler(
         viewId: widget.view.id,
         editorState: state.editorState!,
+        isLocalMode: context.read<DocumentBloc>().isLocalMode,
         child: AppFlowyEditorPage(
           editorState: state.editorState!,
           // if the view's name is empty, focus on the title
