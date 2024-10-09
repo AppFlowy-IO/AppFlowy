@@ -267,8 +267,8 @@ class ColorOptionAction extends PopoverActionCell {
   Widget? leftIcon(Color iconColor) {
     return const FlowySvg(
       FlowySvgs.color_format_m,
-      size: Size.square(16),
-    );
+      size: Size.square(15),
+    ).padding(all: 1.0);
   }
 
   @override
@@ -340,8 +340,8 @@ class DepthOptionAction extends PopoverActionCell {
   Widget? leftIcon(Color iconColor) {
     return FlowySvg(
       OptionAction.depth.svg,
-      size: const Size.square(12),
-    ).padding(all: 2.0);
+      size: const Size.square(16),
+    );
   }
 
   @override

@@ -231,7 +231,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   void close({
     bool notify = true,
-    bool withAnimation = true,
+    bool withAnimation = false,
   }) {
     if (rootEntry.contains(this)) {
       void callback() {

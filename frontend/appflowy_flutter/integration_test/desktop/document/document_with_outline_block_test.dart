@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/outline/ou
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -183,7 +182,9 @@ Future<void> hoverAndClickDepthOptionAction(
   int level,
 ) async {
   await tester.editor.hoverAndClickOptionMenuButton([3]);
-  await tester.tap(find.byType(AppFlowyPopover).hitTestable().last);
+  await tester.tapButton(
+    find.findFlowyTooltip(LocaleKeys.document_plugins_optionAction_depth.tr()),
+  );
   await tester.pumpAndSettle();
 
   // Find a total of 4 HoverButtons under the [BlockOptionButton],
