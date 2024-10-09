@@ -33,7 +33,7 @@ enum OptionAction {
       case OptionAction.duplicate:
         return FlowySvgs.copy_s;
       case OptionAction.turnInto:
-        return const FlowySvgData('editor/turn_into');
+        return FlowySvgs.copy_s;
       case OptionAction.moveUp:
         return const FlowySvgData('editor/move_up');
       case OptionAction.moveDown:

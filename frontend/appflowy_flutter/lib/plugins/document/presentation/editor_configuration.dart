@@ -18,6 +18,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+final _supportAlignBuilderType = [ImageBlockKeys.type];
+final _supportDepthBuilderType = [OutlineBlockKeys.type];
+final _supportColorBuilderTypes = [
+  ParagraphBlockKeys.type,
+  HeadingBlockKeys.type,
+  BulletedListBlockKeys.type,
+  NumberedListBlockKeys.type,
+  QuoteBlockKeys.type,
+  TodoListBlockKeys.type,
+  CalloutBlockKeys.type,
+  OutlineBlockKeys.type,
+  ToggleListBlockKeys.type,
+];
+final _supportTurnIntoBuilderTypes = [
+  ParagraphBlockKeys.type,
+  HeadingBlockKeys.type,
+  BulletedListBlockKeys.type,
+  NumberedListBlockKeys.type,
+  QuoteBlockKeys.type,
+  TodoListBlockKeys.type,
+  CalloutBlockKeys.type,
+];
+
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
   required EditorState editorState,
@@ -285,30 +308,17 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       }
       final builder = entry.value;
 
-      // customize the action builder.
-      final supportColorBuilderTypes = [
-        ParagraphBlockKeys.type,
-        HeadingBlockKeys.type,
-        BulletedListBlockKeys.type,
-        NumberedListBlockKeys.type,
-        QuoteBlockKeys.type,
-        TodoListBlockKeys.type,
-        CalloutBlockKeys.type,
-        OutlineBlockKeys.type,
-        ToggleListBlockKeys.type,
-      ];
-
-      final supportAlignBuilderType = [ImageBlockKeys.type];
-      final supportDepthBuilderType = [OutlineBlockKeys.type];
       final colorAction = [OptionAction.divider, OptionAction.color];
       final alignAction = [OptionAction.divider, OptionAction.align];
       final depthAction = [OptionAction.depth];
+      final turnIntoAction = [OptionAction.turnInto];
 
       final List<OptionAction> actions = [
         ...standardActions,
-        if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
-        if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
-        if (supportDepthBuilderType.contains(entry.key)) ...depthAction,
+        if (_supportTurnIntoBuilderTypes.contains(entry.key)) ...turnIntoAction,
+        if (_supportColorBuilderTypes.contains(entry.key)) ...colorAction,
+        if (_supportAlignBuilderType.contains(entry.key)) ...alignAction,
+        if (_supportDepthBuilderType.contains(entry.key)) ...depthAction,
       ];
 
       if (UniversalPlatform.isDesktop) {
