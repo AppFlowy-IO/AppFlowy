@@ -47,6 +47,8 @@ class _PopoverMenuState extends State<PopoverMenu> {
                   PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               mutex: popOverMutex,
               offset: const Offset(10, 0),
+              asBarrier: true,
+              debugId: 'First',
               popupBuilder: (BuildContext context) {
                 return const PopoverMenu();
               },
@@ -59,6 +61,8 @@ class _PopoverMenuState extends State<PopoverMenu> {
               triggerActions:
                   PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               mutex: popOverMutex,
+              asBarrier: true,
+              debugId: 'Second',
               offset: const Offset(10, 0),
               popupBuilder: (BuildContext context) {
                 return const PopoverMenu();
@@ -94,6 +98,7 @@ class ExampleButton extends StatelessWidget {
       animationDuration: Durations.medium1,
       offset: offset,
       direction: direction,
+      debugId: label,
       child: TextButton(
         child: Text(label),
         onPressed: () {},
