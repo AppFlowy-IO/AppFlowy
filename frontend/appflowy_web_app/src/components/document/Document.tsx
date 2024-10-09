@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export interface DocumentProps {
   doc: YDoc;
+  readOnly: boolean;
   navigateToView?: (viewId: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   loadView?: LoadView;
@@ -20,6 +21,7 @@ export interface DocumentProps {
 
 export const Document = ({
   doc,
+  readOnly,
   loadView,
   navigateToView,
   loadViewMeta,
@@ -58,7 +60,7 @@ export const Document = ({
             createRowDoc={createRowDoc}
             readSummary={isTemplateThumb}
             doc={doc}
-            readOnly={true}
+            readOnly={readOnly}
             jumpBlockId={blockId}
             onJumpedBlockId={onJumpedBlockId}
             variant={variant}

@@ -17,6 +17,7 @@ import {
   fetchViewInfo,
 } from '@/application/services/js-services/fetch';
 import { APIService } from '@/application/services/js-services/http';
+import { SyncManager } from '@/application/services/js-services/sync';
 
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
@@ -456,5 +457,18 @@ export class AFClientService implements AFService {
 
   getActiveSubscription (workspaceId: string) {
     return APIService.getActiveSubscription(workspaceId);
+  }
+
+  registerDocUpdate (doc: Y.Doc, workspaceId: string, objectId: string) {
+    const token = getTokenParsed();
+    const userId = token?.user.id;
+
+    if (!userId) {
+      throw new Error('User not found');
+    }
+
+    const sync = new SyncManager(doc, userId, workspaceId, objectId);
+
+    sync.initialize();
   }
 }

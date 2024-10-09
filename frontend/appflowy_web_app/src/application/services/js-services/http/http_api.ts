@@ -288,6 +288,24 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   return blobToBytes(response?.data);
 }
 
+export async function updateCollab (workspaceId: string, objectId: string, docState: Uint8Array, context: {
+  version_vector: number;
+}) {
+  const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}/web-update`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    doc_state: docState,
+  });
+
+  if (response?.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  return context;
+}
+
 export async function getCollab (workspaceId: string, objectId: string, collabType: Types) {
   const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}`;
   const response = await axiosInstance?.get<{
