@@ -15,6 +15,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/uplo
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -275,6 +276,7 @@ class EditorOperations {
                 widget.blockComponentContext.node.path.equals(path),
           ),
         );
+        await tester.pumpUntilFound(find.byType(PopoverActionList));
       },
     );
   }
