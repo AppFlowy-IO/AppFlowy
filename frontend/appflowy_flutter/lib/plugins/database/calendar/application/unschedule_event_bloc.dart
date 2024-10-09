@@ -42,7 +42,7 @@ class UnscheduleEventsBloc
               state.copyWith(
                 allEvents: events,
                 unscheduleEvents:
-                    events.where((element) => !element.isScheduled).toList(),
+                    events.where((element) => !element.hasTimestamp()).toList(),
               ),
             );
           },
@@ -55,7 +55,7 @@ class UnscheduleEventsBloc
               state.copyWith(
                 allEvents: events,
                 unscheduleEvents:
-                    events.where((element) => !element.isScheduled).toList(),
+                    events.where((element) => !element.hasTimestamp()).toList(),
               ),
             );
           },
@@ -65,7 +65,7 @@ class UnscheduleEventsBloc
               state.copyWith(
                 allEvents: events,
                 unscheduleEvents:
-                    events.where((element) => !element.isScheduled).toList(),
+                    events.where((element) => !element.hasTimestamp()).toList(),
               ),
             );
           },

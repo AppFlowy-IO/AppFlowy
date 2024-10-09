@@ -18,9 +18,7 @@ use crate::services::cell::{CellBuilder, CellCache};
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_calculations::make_calculations_controller;
 use crate::services::database_view::view_filter::make_filter_controller;
-use crate::services::database_view::view_group::{
-  get_cell_for_row, get_cells_for_field, new_group_controller,
-};
+use crate::services::database_view::view_group::{get_cell_for_row, new_group_controller};
 use crate::services::database_view::view_operation::DatabaseViewOperation;
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
@@ -1029,16 +1027,15 @@ impl DatabaseViewEditor {
     let timestamp = date_cell
       .into_date_field_cell_data()
       .unwrap_or_default()
-      .timestamp
-      .unwrap_or_default();
+      .timestamp;
 
     let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
+
     Some(CalendarEventPB {
       row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
-      is_scheduled: timestamp != 0,
     })
   }
 
@@ -1056,53 +1053,34 @@ impl DatabaseViewEditor {
       Some(calendar_setting) => calendar_setting,
     };
 
-    // Text
     let primary_field = self.delegate.get_primary_field().await?;
-    let mut primary_cells =
-      get_cells_for_field(self.delegate.clone(), &self.view_id, &primary_field.id).await;
-
-    // Date
-    let timestamp_cells = get_cells_for_field(
-      self.delegate.clone(),
-      &self.view_id,
-      &calendar_setting.field_id,
-    )
-    .await;
 
     let mut events: Vec<CalendarEventPB> = vec![];
-    for timestamp_cell in timestamp_cells {
-      let row_id = timestamp_cell.row_id.clone();
-      let index = primary_cells
-        .iter()
-        .position(|text_cell| text_cell.row_id == row_id);
+
+    let rows = self.v_get_all_rows().await;
+
+    for row in rows {
+      let primary_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, &row.id).await;
+      let timestamp_cell =
+        get_cell_for_row(self.delegate.clone(), &calendar_setting.field_id, &row.id).await;
 
       let timestamp = timestamp_cell
-        .into_date_field_cell_data()
-        .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
+        .and_then(|cell| cell.into_date_field_cell_data())
+        .and_then(|cell_data| cell_data.timestamp);
+
+      let title = primary_cell
+        .and_then(|cell| cell.into_text_field_cell_data())
+        .map(|cell_data| cell_data.into())
         .unwrap_or_default();
 
-      // The cell for given primary field might be empty.
-      // If yes, return empty string
-      // If not, return the text for the cell
-      let title = match index {
-        None => "".to_string(),
-        Some(index) => {
-          let text_cell = primary_cells.remove(index);
-          text_cell
-            .into_text_field_cell_data()
-            .unwrap_or_default()
-            .into()
-        },
-      };
-
-      let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
+      let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row.id).await?;
       let event = CalendarEventPB {
         row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,
-        is_scheduled: timestamp != 0,
       };
+
       events.push(event);
     }
 
