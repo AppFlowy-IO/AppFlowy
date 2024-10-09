@@ -430,45 +430,6 @@ class OptionAlignWrapper extends ActionCell {
   String get name => inner.description;
 }
 
-// class TurnIntoOptionAction extends PopoverActionCell {
-//   TurnIntoOptionAction({
-//     required this.editorState,
-//   });
-
-//   final EditorState editorState;
-
-//   @override
-//   Widget? leftIcon(Color iconColor) {
-//     // todo(lucas): replace the svg with the correct one
-//     return const FlowySvg(
-//       FlowySvgs.copy_s,
-//     );
-//   }
-
-//   @override
-//   String get name => LocaleKeys.document_plugins_optionAction_turnInto.tr();
-
-//   @override
-//   Widget Function(
-//     BuildContext context,
-//     PopoverController parentController,
-//     PopoverController controller,
-//   ) get builder => (context, parentController, controller) {
-//         final children = EditorOptionActionType.turnInto.supportTypes.map((e) {
-//           return HoverButton(
-//             onTap: () {},
-//             itemHeight: ActionListSizes.itemHeight,
-//             name: e,
-//           );
-//         }).toList(growable: false);
-
-//         return Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: children,
-//         );
-//       };
-// }
-
 class TurnIntoOptionAction extends CustomActionCell {
   TurnIntoOptionAction({
     required this.editorState,
@@ -486,7 +447,6 @@ class TurnIntoOptionAction extends CustomActionCell {
       direction: PopoverDirection.rightWithCenterAligned,
       offset: const Offset(10, 0),
       animationDuration: Durations.short3,
-      slideDistance: 5,
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
       child: HoverButton(
