@@ -60,9 +60,6 @@ class Popover extends StatefulWidget {
     required this.popupBuilder,
     this.controller,
     this.offset,
-    this.maskDecoration = const BoxDecoration(
-      color: Color.fromARGB(0, 244, 67, 54),
-    ),
     this.triggerActions = 0,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
@@ -79,6 +76,9 @@ class Popover extends StatefulWidget {
     this.beginScaleFactor = 0.95,
     this.endScaleFactor = 1.0,
     this.slideDistance = 20.0,
+    this.maskDecoration = const BoxDecoration(
+      color: Color.fromARGB(0, 244, 67, 54),
+    ),
   });
 
   final PopoverController? controller;
@@ -142,7 +142,8 @@ class Popover extends StatefulWidget {
 }
 
 class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
-  static final RootOverlayEntry _rootEntry = RootOverlayEntry();
+  static final RootOverlayEntry rootEntry = RootOverlayEntry();
+
   final PopoverLink popoverLink = PopoverLink();
   late final layoutDelegate = PopoverLayoutDelegate(
     direction: widget.direction,
@@ -156,20 +157,21 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   late Animation<double> scaleAnimation;
   late Animation<Offset> slideAnimation;
 
+  // If the widget is disposed, prevent the animation from being called.
   bool isDisposed = false;
 
   @override
   void initState() {
     super.initState();
 
-    _buildAnimations();
-
     widget.controller?._state = this;
+    _buildAnimations();
   }
 
   @override
   void deactivate() {
     close(notify: false);
+
     super.deactivate();
   }
 
@@ -189,6 +191,16 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     );
   }
 
+  @override
+  void reassemble() {
+    // clear the overlay
+    while (rootEntry.isNotEmpty) {
+      rootEntry.popEntry();
+    }
+
+    super.reassemble();
+  }
+
   void showOverlay() {
     close();
 
@@ -196,11 +208,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       widget.mutex?.state = this;
     }
 
-    // rebuild slide animation before show overlay
-    // because the leader's size and offset may be changed
-    slideAnimation = _buildSlideAnimation();
-
-    _rootEntry.addEntry(
+    rootEntry.addEntry(
       context,
       this,
       OverlayEntry(
@@ -208,13 +216,14 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       ),
       widget.asBarrier,
     );
+
     animationController.forward();
   }
 
   void close({bool notify = true}) {
-    if (_rootEntry.contains(this)) {
+    if (rootEntry.contains(this)) {
       void callback() {
-        _rootEntry.removeEntry(this);
+        rootEntry.removeEntry(this);
         if (notify) {
           widget.onClose?.call();
         }
@@ -229,11 +238,9 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   void _removeRootOverlay() {
-    if (_rootEntry.contains(this)) {
-      animationController.reverse().then((_) {
-        _rootEntry.popEntry();
-      });
-    }
+    animationController.reverse().then((_) {
+      rootEntry.popEntry();
+    });
 
     if (widget.mutex?.state == this) {
       widget.mutex?.removeState();
@@ -279,7 +286,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   void _callHandler(VoidCallback handler) {
-    if (_rootEntry.contains(this)) {
+    if (rootEntry.contains(this)) {
       close();
     } else {
       handler();
@@ -294,7 +301,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       child: FocusScope(
         child: Stack(
           children: [
-            if (_rootEntry.isEmpty) _buildMask(),
+            if (rootEntry.isEmpty) _buildMask(),
             _buildPopoverContainer(),
           ],
         ),
@@ -331,9 +338,9 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       child: PopoverContainer(
         delegate: layoutDelegate,
         popupBuilder: widget.popupBuilder,
+        skipTraversal: widget.skipTraversal,
         onClose: close,
         onCloseAll: _removeRootOverlay,
-        skipTraversal: widget.skipTraversal,
       ),
     );
   }
