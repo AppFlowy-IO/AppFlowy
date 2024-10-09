@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod checklist_entities;
 mod checklist_filter;
 mod checklist_type_option;
