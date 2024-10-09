@@ -24,7 +24,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.decorationColor,
     this.borderRadius,
     this.animationDuration = const Duration(),
-    this.slideDistance = 20.0,
+    this.slideDistance = 5.0,
     this.beginScaleFactor = 0.9,
     this.endScaleFactor = 1.0,
     this.beginOpacity = 0.0,
