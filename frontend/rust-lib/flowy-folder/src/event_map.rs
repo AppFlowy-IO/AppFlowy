@@ -48,6 +48,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::UnpublishViews, unpublish_views_handler)
     .event(FolderEvent::SetPublishNamespace, set_publish_namespace_handler)
     .event(FolderEvent::GetPublishNamespace, get_publish_namespace_handler)
+    .event(FolderEvent::ListPublishedViews, list_published_views_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -200,4 +201,7 @@ pub enum FolderEvent {
 
   #[event(input = "ImportZipPB", output = "RepeatedViewPB")]
   ImportZipFile = 48,
+
+  #[event(output = "RepeatedPublishInfoResponsePB")]
+  ListPublishedViews = 49,
 }

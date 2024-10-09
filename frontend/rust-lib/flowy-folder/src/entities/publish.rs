@@ -29,6 +29,8 @@ pub struct PublishInfoResponsePB {
   pub publish_name: String,
   #[pb(index = 3, one_of)]
   pub namespace: Option<String>,
+  #[pb(index = 4)]
+  pub publisher_email: String,
 }
 
 impl From<PublishInfoResponse> for PublishInfoResponsePB {
@@ -37,8 +39,15 @@ impl From<PublishInfoResponse> for PublishInfoResponsePB {
       view_id: info.view_id,
       publish_name: info.publish_name,
       namespace: info.namespace,
+      publisher_email: "TODO".to_string(),
     }
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedPublishInfoResponsePB {
+  #[pb(index = 1)]
+  pub items: Vec<PublishInfoResponsePB>,
 }
 
 #[derive(Default, ProtoBuf)]

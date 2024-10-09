@@ -479,3 +479,10 @@ pub(crate) async fn get_publish_namespace_handler(
   let namespace = folder.get_publish_namespace().await?;
   data_result_ok(PublishNamespacePB { namespace })
 }
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn list_published_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedPublishInfoResponsePB, FlowyError> {
+  todo!()
+}
