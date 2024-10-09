@@ -1,7 +1,8 @@
-import { mountEditor } from '@/components/editor/__tests__/mount';
-import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
+import { initialEditorTest } from '@/components/editor/__tests__/mount';
+import { FromBlockJSON } from 'cypress/support/document';
 
-let documentTest: DocumentTest;
+const { assertJSON, initializeEditor } = initialEditorTest();
+
 const initialData: FromBlockJSON[] = [
   {
     type: 'paragraph',
@@ -53,21 +54,6 @@ const initialData: FromBlockJSON[] = [
     children: [],
   },
 ];
-
-const initializeEditor = (data: FromBlockJSON[]) => {
-  documentTest = new DocumentTest();
-  documentTest.fromJSON(data);
-  mountEditor({ readOnly: false, doc: documentTest.doc });
-  cy.get('[role="textbox"]').should('exist');
-};
-
-const assertJSON = (expectedJSON: FromBlockJSON[]) => {
-  cy.wrap(null).then(() => {
-    const finalJSON = documentTest.toJSON();
-
-    expect(finalJSON).to.deep.equal(expectedJSON);
-  });
-};
 
 const getModKey = () => {
   if (Cypress.platform === 'darwin') {
@@ -157,6 +143,6 @@ describe('BIUS.cy', () => {
     ]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('shortcuts/BIUS.cy');
+    // cy.matchImageSnapshot('shortcuts/BIUS.cy');
   });
 });

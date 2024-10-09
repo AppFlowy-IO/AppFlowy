@@ -33,6 +33,7 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
               onContentChange,
             }),
           ),
+          'x-appflowy-fragment',
         ),
       ) as YjsEditor),
     [doc, readOnly, localOrigin, readSummary, onContentChange],
