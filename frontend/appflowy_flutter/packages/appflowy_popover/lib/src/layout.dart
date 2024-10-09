@@ -1,20 +1,22 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import './popover.dart';
 
 class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
-  PopoverLink link;
-  PopoverDirection direction;
-  final Offset offset;
-  final EdgeInsets windowPadding;
-
   PopoverLayoutDelegate({
     required this.link,
     required this.direction,
     required this.offset,
     required this.windowPadding,
   });
+
+  PopoverLink link;
+  PopoverDirection direction;
+  final Offset offset;
+  final EdgeInsets windowPadding;
 
   @override
   bool shouldRelayout(PopoverLayoutDelegate oldDelegate) {
@@ -52,141 +54,26 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
       maxHeight:
           constraints.maxHeight - windowPadding.top - windowPadding.bottom,
     );
-    // assert(link.leaderSize != null);
-    // // if (link.leaderSize == null) {
-    // //   return constraints.loosen();
-    // // }
-    // final anchorRect = Rect.fromLTWH(
-    //   link.leaderOffset!.dx,
-    //   link.leaderOffset!.dy,
-    //   link.leaderSize!.width,
-    //   link.leaderSize!.height,
-    // );
-    // BoxConstraints childConstraints;
-    // switch (direction) {
-    //   case PopoverDirection.topLeft:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.left,
-    //       anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.topRight:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth - anchorRect.right,
-    //       anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.bottomLeft:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.left,
-    //       constraints.maxHeight - anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.bottomRight:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth - anchorRect.right,
-    //       constraints.maxHeight - anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.center:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth,
-    //       constraints.maxHeight,
-    //     ));
-    //     break;
-    //   case PopoverDirection.topWithLeftAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth - anchorRect.left,
-    //       anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.topWithCenterAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth,
-    //       anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.topWithRightAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.right,
-    //       anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.rightWithTopAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth - anchorRect.right,
-    //       constraints.maxHeight - anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.rightWithCenterAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth - anchorRect.right,
-    //       constraints.maxHeight,
-    //     ));
-    //     break;
-    //   case PopoverDirection.rightWithBottomAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth - anchorRect.right,
-    //       anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.bottomWithLeftAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.left,
-    //       constraints.maxHeight - anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.bottomWithCenterAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       constraints.maxWidth,
-    //       constraints.maxHeight - anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.bottomWithRightAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.right,
-    //       constraints.maxHeight - anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.leftWithTopAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.left,
-    //       constraints.maxHeight - anchorRect.top,
-    //     ));
-    //     break;
-    //   case PopoverDirection.leftWithCenterAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.left,
-    //       constraints.maxHeight,
-    //     ));
-    //     break;
-    //   case PopoverDirection.leftWithBottomAligned:
-    //     childConstraints = BoxConstraints.loose(Size(
-    //       anchorRect.left,
-    //       anchorRect.bottom,
-    //     ));
-    //     break;
-    //   case PopoverDirection.custom:
-    //     childConstraints = constraints.loosen();
-    //     break;
-    //   default:
-    //     throw UnimplementedError();
-    // }
-    // return childConstraints;
   }
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    if (link.leaderSize == null) {
+    final leaderOffset = link.leaderOffset;
+    final leaderSize = link.leaderSize;
+
+    if (leaderOffset == null || leaderSize == null) {
       return Offset.zero;
     }
+
     final anchorRect = Rect.fromLTWH(
-      link.leaderOffset!.dx + offset.dx,
-      link.leaderOffset!.dy + offset.dy,
-      link.leaderSize!.width,
-      link.leaderSize!.height,
+      leaderOffset.dx + offset.dx,
+      leaderOffset.dy + offset.dy,
+      leaderSize.width,
+      leaderSize.height,
     );
+
     Offset position;
+
     switch (direction) {
       case PopoverDirection.topLeft:
         position = Offset(
@@ -287,26 +174,34 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
       default:
         throw UnimplementedError();
     }
+
     return Offset(
       math.max(
-          windowPadding.left,
-          math.min(
-              windowPadding.left + size.width - childSize.width, position.dx)),
+        windowPadding.left,
+        math.min(
+          windowPadding.left + size.width - childSize.width,
+          position.dx,
+        ),
+      ),
       math.max(
-          windowPadding.top,
-          math.min(
-              windowPadding.top + size.height - childSize.height, position.dy)),
+        windowPadding.top,
+        math.min(
+          windowPadding.top + size.height - childSize.height,
+          position.dy,
+        ),
+      ),
     );
   }
 }
 
 class PopoverTarget extends SingleChildRenderObjectWidget {
-  final PopoverLink link;
   const PopoverTarget({
     super.key,
     super.child,
     required this.link,
   });
+
+  final PopoverLink link;
 
   @override
   PopoverTargetRenderBox createRenderObject(BuildContext context) {
@@ -317,14 +212,20 @@ class PopoverTarget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, PopoverTargetRenderBox renderObject) {
+    BuildContext context,
+    PopoverTargetRenderBox renderObject,
+  ) {
     renderObject.link = link;
   }
 }
 
 class PopoverTargetRenderBox extends RenderProxyBox {
+  PopoverTargetRenderBox({
+    required this.link,
+    RenderBox? child,
+  }) : super(child);
+
   PopoverLink link;
-  PopoverTargetRenderBox({required this.link, RenderBox? child}) : super(child);
 
   @override
   bool get alwaysNeedsCompositing => true;

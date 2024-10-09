@@ -70,12 +70,12 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
   Widget build(BuildContext context) {
     return PopoverActionList<PopoverAction>(
       popoverMutex: PopoverMutex(),
+      actions: popoverActions,
       direction:
           context.read<AppearanceSettingsCubit>().state.layoutDirection ==
                   LayoutDirection.rtlLayout
               ? PopoverDirection.rightWithCenterAligned
               : PopoverDirection.leftWithCenterAligned,
-      actions: popoverActions,
       onPopupBuilder: () {
         keepEditorFocusNotifier.increase();
         widget.blockComponentState.alwaysShowActions = true;
