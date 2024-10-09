@@ -1,8 +1,10 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -13,7 +15,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Document deletion', () {
-    testWidgets('Trash breadcrumbs', (tester) async {
+    testWidgets('Trash breadcrumb', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -57,6 +59,26 @@ void main() {
 
       expect(find.byType(DocumentBanner), findsOneWidget);
       expect(find.byType(TrashBreadcrumb), findsOneWidget);
+
+      // Navigate using the trash breadcrumb
+      await tester.tap(find.byType(TrashBreadcrumb));
+      await tester.pumpAndSettle();
+
+      // Restore all
+      await tester.tap(find.text(LocaleKeys.trash_restoreAll.tr()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(LocaleKeys.trash_restore.tr()));
+      await tester.pumpAndSettle();
+
+      // Navigate back to the document
+      await tester.openPage('Getting started');
+      await tester.pumpAndSettle();
+
+      await tester.tap(mentionBlock);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DocumentBanner), findsNothing);
+      expect(find.byType(TrashBreadcrumb), findsNothing);
     });
   });
 }
