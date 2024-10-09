@@ -443,7 +443,7 @@ class TurnIntoOptionAction extends CustomActionCell {
     return AppFlowyPopover(
       asBarrier: true,
       controller: innerController,
-      popupBuilder: (context) => _buildTurnIntoOption(context),
+      popupBuilder: (context) => _buildTurnIntoOptionMenu(context),
       direction: PopoverDirection.rightWithCenterAligned,
       offset: const Offset(10, 0),
       animationDuration: Durations.short3,
@@ -461,9 +461,14 @@ class TurnIntoOptionAction extends CustomActionCell {
     );
   }
 
-  Widget _buildTurnIntoOption(BuildContext context) {
+  Widget _buildTurnIntoOptionMenu(BuildContext context) {
     final selection = editorState.selection?.normalized;
-    if (selection == null || selection.isCollapsed) {
+    // the selection may not be collapsed, for example, if a block contains some children,
+    // the selection will be the start from the current block and end at the last child block.
+    // we should take care of this case:
+    // converting a block that contains children to a heading block,
+    //  we should move all the children under the heading block.
+    if (selection == null) {
       return const SizedBox.shrink();
     }
 
@@ -472,36 +477,100 @@ class TurnIntoOptionAction extends CustomActionCell {
       return const SizedBox.shrink();
     }
 
-    final children = EditorOptionActionType.turnInto.supportTypes.map((e) {
-      final name = _buildLocalization(e, node);
-      final leftIcon = _buildLeftIcon(e, node);
-      final rightIcon = e == node.type
-          ? const FlowySvg(
-              FlowySvgs.workspace_selected_s,
-              blendMode: null,
-            )
-          : null;
-
-      return HoverButton(
-        name: name,
-        leftIcon: FlowySvg(leftIcon),
-        rightIcon: rightIcon,
-        itemHeight: ActionListSizes.itemHeight,
-        onTap: () {},
-      );
-    }).toList(growable: false);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: children,
+      children: _buildTurnIntoOptions(context, node),
     );
   }
 
-  FlowySvgData _buildLeftIcon(String type, Node node) {
+  List<Widget> _buildTurnIntoOptions(BuildContext context, Node node) {
+    final children = <Widget>[];
+
+    for (final type in EditorOptionActionType.turnInto.supportTypes) {
+      if (type != HeadingBlockKeys.type) {
+        children.add(
+          _buildTurnIntoOption(
+            context,
+            type,
+            node,
+          ),
+        );
+      } else {
+        // support h4-6
+        for (final i in [1, 2, 3]) {
+          children.add(
+            _buildTurnIntoOption(
+              context,
+              type,
+              node,
+              level: i,
+            ),
+          );
+        }
+      }
+    }
+
+    return children;
+  }
+
+  Widget _buildTurnIntoOption(
+    BuildContext context,
+    String type,
+    Node node, {
+    int? level,
+  }) {
+    final name = _buildLocalization(
+      type,
+      level: level,
+    );
+    final leftIcon = _buildLeftIcon(
+      type,
+      level: level,
+    );
+    final rightIcon = _buildRightIcon(
+      type,
+      node,
+      level: level,
+    );
+
+    return HoverButton(
+      name: name,
+      leftIcon: FlowySvg(leftIcon),
+      rightIcon: rightIcon,
+      itemHeight: ActionListSizes.itemHeight,
+      onTap: () {},
+    );
+  }
+
+  Widget? _buildRightIcon(
+    String type,
+    Node node, {
+    int? level,
+  }) {
+    if (type != node.type) {
+      return null;
+    }
+
+    if (node.type == HeadingBlockKeys.type) {
+      final nodeLevel = node.attributes[HeadingBlockKeys.level] ?? 1;
+      if (level != nodeLevel) {
+        return null;
+      }
+    }
+
+    return const FlowySvg(
+      FlowySvgs.workspace_selected_s,
+      blendMode: null,
+    );
+  }
+
+  FlowySvgData _buildLeftIcon(
+    String type, {
+    int? level,
+  }) {
     if (type == ParagraphBlockKeys.type) {
       return FlowySvgs.slash_menu_icon_text_s;
     } else if (type == HeadingBlockKeys.type) {
-      final int level = node.attributes[HeadingBlockKeys.level] ?? 1;
       switch (level) {
         case 1:
           return FlowySvgs.slash_menu_icon_h1_s;
@@ -528,12 +597,14 @@ class TurnIntoOptionAction extends CustomActionCell {
     throw UnimplementedError('Unsupported block type: $type');
   }
 
-  String _buildLocalization(String type, Node node) {
+  String _buildLocalization(
+    String type, {
+    int? level,
+  }) {
     switch (type) {
       case ParagraphBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_text.tr();
       case HeadingBlockKeys.type:
-        final level = node.attributes[HeadingBlockKeys.level] ?? 1;
         switch (level) {
           case 1:
             return LocaleKeys.document_slashMenu_name_heading1.tr();
