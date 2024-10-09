@@ -22,7 +22,7 @@ void main() {
       final fieldInfo = context.fieldController.fieldInfos
           .firstWhere((field) => field.fieldType == FieldType.SingleSelect);
       editorBloc = FieldEditorBloc(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldController: context.fieldController,
         fieldInfo: fieldInfo,
         isNew: false,

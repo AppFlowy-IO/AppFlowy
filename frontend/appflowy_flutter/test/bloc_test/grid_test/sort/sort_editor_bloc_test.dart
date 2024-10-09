@@ -20,7 +20,7 @@ void main() {
     setUp(() async {
       context = await gridTest.makeDefaultTestGrid();
       sortBloc = SortEditorBloc(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldController: context.fieldController,
       );
     });
@@ -170,7 +170,7 @@ void main() {
 
       // edit field
       await FieldBackendService(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldId: selectOptionField.id,
       ).updateField(name: "HERRO");
       await gridResponseFuture();
@@ -191,7 +191,7 @@ void main() {
 
       // edit field
       await FieldBackendService(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldId: selectOptionField.id,
       ).delete();
       await gridResponseFuture();
