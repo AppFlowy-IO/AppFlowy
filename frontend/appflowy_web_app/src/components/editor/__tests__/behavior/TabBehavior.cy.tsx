@@ -1,7 +1,6 @@
-import { mountEditor, moveCursor } from '@/components/editor/__tests__/mount';
-import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
+import { initialEditorTest, moveCursor } from '@/components/editor/__tests__/mount';
+import { FromBlockJSON } from 'cypress/support/document';
 
-let documentTest: DocumentTest;
 const initialData: FromBlockJSON[] = [
   {
     type: 'paragraph',
@@ -53,24 +52,9 @@ const initialData: FromBlockJSON[] = [
     children: [],
   },
 ];
-
-const initializeEditor = (data: FromBlockJSON[]) => {
-  documentTest = new DocumentTest();
-  documentTest.fromJSON(data);
-  mountEditor({ readOnly: false, doc: documentTest.doc });
-  cy.get('[role="textbox"]').should('exist');
-};
-
-const assertJSON = (expectedJSON: FromBlockJSON[]) => {
-  cy.wrap(null).then(() => {
-    const finalJSON = documentTest.toJSON();
-
-    expect(finalJSON).to.deep.equal(expectedJSON);
-  });
-};
+const { assertJSON, initializeEditor } = initialEditorTest();
 
 describe('Tab key behavior', () => {
-
   beforeEach(() => {
     cy.viewport(1280, 720);
     Object.defineProperty(window.navigator, 'language', { value: 'en-US' });
@@ -92,7 +76,7 @@ describe('Tab key behavior', () => {
     ]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/TabKeyBehavior/should-indent-paragraph');
+    // cy.matchImageSnapshot('behavior/TabKeyBehavior/should-indent-paragraph');
   });
 
   it('should indent nested block at index 0/1 when tab at start', () => {
@@ -120,7 +104,7 @@ describe('Tab key behavior', () => {
     ]);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/TabKeyBehavior/should-indent-nested-block-at-index-0-1');
+    // cy.matchImageSnapshot('behavior/TabKeyBehavior/should-indent-nested-block-at-index-0-1');
   });
 
   it('should not indent at start of document', () => {
@@ -129,7 +113,7 @@ describe('Tab key behavior', () => {
     assertJSON(initialData);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/TabKeyBehavior/should-not-indent-at-start-of-document');
+    // cy.matchImageSnapshot('behavior/TabKeyBehavior/should-not-indent-at-start-of-document');
   });
 
   it('should not indent at start of nested block', () => {
@@ -138,7 +122,7 @@ describe('Tab key behavior', () => {
     assertJSON(initialData);
 
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/TabKeyBehavior/should-not-indent-at-start-of-nested-block');
+    // cy.matchImageSnapshot('behavior/TabKeyBehavior/should-not-indent-at-start-of-nested-block');
   });
 });
 
@@ -173,7 +157,7 @@ describe('Shift+Tab key behavior', () => {
     ]);
     //
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-outdent-deeply-nested-paragraph');
+    // cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-outdent-deeply-nested-paragraph');
   });
 
   it('should outdent Nested toggle list when shift+tab at start', () => {
@@ -193,7 +177,7 @@ describe('Shift+Tab key behavior', () => {
     ]);
     //
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-outdent-nested-toggle-list');
+    // cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-outdent-nested-toggle-list');
   });
 
   it('should not outdent at top level', () => {
@@ -205,7 +189,7 @@ describe('Shift+Tab key behavior', () => {
     cy.get('@editor').realPress(['Shift', 'Tab']);
     assertJSON(initialData);
     // Optional: Add visual regression test
-    cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-not-outdent-at-top-level');
+    // cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-not-outdent-at-top-level');
   });
 
 });

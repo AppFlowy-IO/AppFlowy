@@ -28,7 +28,7 @@ export function MentionLeaf ({ mention, text }: {
   }, [date, page_id, reminder, type]);
 
   // check if the mention is selected
-  const { isSelected, select } = useLeafSelected(text);
+  const { isSelected, select, isCursorAfter, isCursorBefore } = useLeafSelected(text);
   const className = useMemo(() => {
     const classList = ['w-fit mention', 'relative', 'rounded', 'p-0.5'];
 
@@ -36,8 +36,10 @@ export function MentionLeaf ({ mention, text }: {
     else classList.push('cursor-pointer');
 
     if (isSelected) classList.push('selected');
+    if (isCursorAfter) classList.push('cursor-after');
+    if (isCursorBefore) classList.push('cursor-before');
     return classList.join(' ');
-  }, [readonly, isSelected]);
+  }, [readonly, isSelected, isCursorAfter, isCursorBefore]);
 
   return <span
     onClick={select}

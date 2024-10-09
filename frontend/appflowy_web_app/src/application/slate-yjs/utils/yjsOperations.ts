@@ -20,6 +20,37 @@ import * as Y from 'yjs';
 import { YjsEditor } from '../plugins/withYjs';
 import { slatePointToRelativePosition } from './positions';
 
+export function createEmptyDocument () {
+  const doc = new Y.Doc();
+  const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+  const document = new Y.Map();
+  const blocks = new Y.Map() as YBlocks;
+  const pageId = nanoid(8);
+  const meta = new Y.Map();
+  const childrenMap = new Y.Map() as YChildrenMap;
+  const textMap = new Y.Map() as YTextMap;
+
+  const block = new Y.Map();
+
+  block.set(YjsEditorKey.block_id, pageId);
+  block.set(YjsEditorKey.block_type, BlockType.Page);
+  block.set(YjsEditorKey.block_children, pageId);
+  block.set(YjsEditorKey.block_external_id, pageId);
+  block.set(YjsEditorKey.block_external_type, YjsEditorKey.text);
+  block.set(YjsEditorKey.block_data, '');
+  blocks.set(pageId, block);
+
+  document.set(YjsEditorKey.page_id, pageId);
+  document.set(YjsEditorKey.blocks, blocks);
+  document.set(YjsEditorKey.meta, meta);
+  childrenMap.set(pageId, new Y.Array());
+  meta.set(YjsEditorKey.children_map, childrenMap);
+  meta.set(YjsEditorKey.text_map, textMap);
+  sharedRoot.set(YjsEditorKey.document, document);
+
+  return doc;
+}
+
 export function getText (textId: string, sharedRoot: YSharedRoot) {
 
   const document = sharedRoot.get(YjsEditorKey.document);
@@ -29,7 +60,7 @@ export function getText (textId: string, sharedRoot: YSharedRoot) {
   return textMap.get(textId);
 }
 
-function assertDocExists (sharedRoot: YSharedRoot): YDoc {
+export function assertDocExists (sharedRoot: YSharedRoot): YDoc {
   const doc = sharedRoot.doc;
 
   if (!doc) {
@@ -813,13 +844,7 @@ export function handleIndentBlockWithTxn (editor: YjsEditor, sharedRoot: YShared
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
   const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
-  const parentType = parent.get(YjsEditorKey.block_type);
   const [, path] = getBlockEntry(editor, point);
-
-  // Check if the parent block is a container block
-  if (!CONTAINER_BLOCK_TYPES.includes(parentType)) {
-    return false;
-  }
 
   // Check if the block can be indented (not the first child)
   if (index === 0) {
@@ -831,6 +856,11 @@ export function handleIndentBlockWithTxn (editor: YjsEditor, sharedRoot: YShared
   const previousSibling = getBlock(previousSiblingId, sharedRoot);
 
   if (!previousSibling) {
+    return false;
+  }
+
+  // Check if the parent block is a container block
+  if (!CONTAINER_BLOCK_TYPES.includes(previousSibling.get(YjsEditorKey.block_type))) {
     return false;
   }
 

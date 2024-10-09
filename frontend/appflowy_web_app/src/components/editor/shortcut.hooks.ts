@@ -6,6 +6,7 @@ import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import { BlockType } from '@/application/types';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { KeyboardEvent, useCallback } from 'react';
+import { Editor, Text, Range, Transforms, BasePoint } from 'slate';
 import { ReactEditor, useReadOnly } from 'slate-react';
 
 export function useShortcuts (editor: ReactEditor) {
@@ -27,6 +28,34 @@ export function useShortcuts (editor: ReactEditor) {
 
       default:
         break;
+    }
+
+    if (selection && Range.isCollapsed(selection)) {
+      if (
+        createHotkey(HOT_KEY_NAME.UP)(e)
+      ) {
+        const before = Editor.before(editor, selection, { unit: 'offset' });
+        const beforeText = findInlineTextNode(editor, before);
+
+        if (before && beforeText) {
+          e.preventDefault();
+          Transforms.move(editor, { unit: 'line', reverse: true, distance: 2 });
+          return;
+        }
+      }
+
+      if (
+        createHotkey(HOT_KEY_NAME.DOWN)(e)
+      ) {
+        const after = Editor.after(editor, selection, { unit: 'offset' });
+        const afterText = findInlineTextNode(editor, after);
+
+        if (after && afterText) {
+          e.preventDefault();
+          Transforms.move(editor, { unit: 'line', distance: 2 });
+          return;
+        }
+      }
     }
 
     // Do not process shortcuts if editor is read-only or no selection
@@ -174,4 +203,15 @@ export function useShortcuts (editor: ReactEditor) {
   return {
     onKeyDown,
   };
+}
+
+function findInlineTextNode (editor: Editor, point?: BasePoint) {
+  const [node] = editor.nodes({
+    at: point,
+    match: (n) => {
+      return !Editor.isEditor(n) && Text.isText(n) && Boolean(n.mention || n.formula);
+    },
+  });
+
+  return node;
 }
