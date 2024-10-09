@@ -18,28 +18,47 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-final _supportAlignBuilderType = [ImageBlockKeys.type];
-final _supportDepthBuilderType = [OutlineBlockKeys.type];
-final _supportColorBuilderTypes = [
-  ParagraphBlockKeys.type,
-  HeadingBlockKeys.type,
-  BulletedListBlockKeys.type,
-  NumberedListBlockKeys.type,
-  QuoteBlockKeys.type,
-  TodoListBlockKeys.type,
-  CalloutBlockKeys.type,
-  OutlineBlockKeys.type,
-  ToggleListBlockKeys.type,
-];
-final _supportTurnIntoBuilderTypes = [
-  ParagraphBlockKeys.type,
-  HeadingBlockKeys.type,
-  BulletedListBlockKeys.type,
-  NumberedListBlockKeys.type,
-  QuoteBlockKeys.type,
-  TodoListBlockKeys.type,
-  CalloutBlockKeys.type,
-];
+enum EditorOptionActionType {
+  turnInto,
+  color,
+  align,
+  depth;
+
+  Set<String> get supportTypes {
+    switch (this) {
+      case EditorOptionActionType.turnInto:
+        return {
+          ParagraphBlockKeys.type,
+          HeadingBlockKeys.type,
+          QuoteBlockKeys.type,
+          CalloutBlockKeys.type,
+          BulletedListBlockKeys.type,
+          NumberedListBlockKeys.type,
+          TodoListBlockKeys.type,
+        };
+      case EditorOptionActionType.color:
+        return {
+          ParagraphBlockKeys.type,
+          HeadingBlockKeys.type,
+          BulletedListBlockKeys.type,
+          NumberedListBlockKeys.type,
+          QuoteBlockKeys.type,
+          TodoListBlockKeys.type,
+          CalloutBlockKeys.type,
+          OutlineBlockKeys.type,
+          ToggleListBlockKeys.type,
+        };
+      case EditorOptionActionType.align:
+        return {
+          ImageBlockKeys.type,
+        };
+      case EditorOptionActionType.depth:
+        return {
+          OutlineBlockKeys.type,
+        };
+    }
+  }
+}
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -315,10 +334,14 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
 
       final List<OptionAction> actions = [
         ...standardActions,
-        if (_supportTurnIntoBuilderTypes.contains(entry.key)) ...turnIntoAction,
-        if (_supportColorBuilderTypes.contains(entry.key)) ...colorAction,
-        if (_supportAlignBuilderType.contains(entry.key)) ...alignAction,
-        if (_supportDepthBuilderType.contains(entry.key)) ...depthAction,
+        if (EditorOptionActionType.turnInto.supportTypes.contains(entry.key))
+          ...turnIntoAction,
+        if (EditorOptionActionType.color.supportTypes.contains(entry.key))
+          ...colorAction,
+        if (EditorOptionActionType.align.supportTypes.contains(entry.key))
+          ...alignAction,
+        if (EditorOptionActionType.depth.supportTypes.contains(entry.key))
+          ...depthAction,
       ];
 
       if (UniversalPlatform.isDesktop) {

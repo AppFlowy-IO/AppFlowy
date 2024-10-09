@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -260,8 +261,8 @@ class ColorOptionAction extends PopoverActionCell {
   Widget? leftIcon(Color iconColor) {
     return const FlowySvg(
       FlowySvgs.color_format_m,
-      size: Size.square(12),
-    ).padding(all: 2.0);
+      size: Size.square(16),
+    );
   }
 
   @override
@@ -427,4 +428,174 @@ class OptionAlignWrapper extends ActionCell {
 
   @override
   String get name => inner.description;
+}
+
+// class TurnIntoOptionAction extends PopoverActionCell {
+//   TurnIntoOptionAction({
+//     required this.editorState,
+//   });
+
+//   final EditorState editorState;
+
+//   @override
+//   Widget? leftIcon(Color iconColor) {
+//     // todo(lucas): replace the svg with the correct one
+//     return const FlowySvg(
+//       FlowySvgs.copy_s,
+//     );
+//   }
+
+//   @override
+//   String get name => LocaleKeys.document_plugins_optionAction_turnInto.tr();
+
+//   @override
+//   Widget Function(
+//     BuildContext context,
+//     PopoverController parentController,
+//     PopoverController controller,
+//   ) get builder => (context, parentController, controller) {
+//         final children = EditorOptionActionType.turnInto.supportTypes.map((e) {
+//           return HoverButton(
+//             onTap: () {},
+//             itemHeight: ActionListSizes.itemHeight,
+//             name: e,
+//           );
+//         }).toList(growable: false);
+
+//         return Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: children,
+//         );
+//       };
+// }
+
+class TurnIntoOptionAction extends CustomActionCell {
+  TurnIntoOptionAction({
+    required this.editorState,
+  });
+
+  final EditorState editorState;
+  final PopoverController innerController = PopoverController();
+
+  @override
+  Widget buildWithContext(BuildContext context, PopoverController controller) {
+    return AppFlowyPopover(
+      asBarrier: true,
+      controller: innerController,
+      popupBuilder: (context) => _buildTurnIntoOption(context),
+      direction: PopoverDirection.rightWithCenterAligned,
+      offset: const Offset(10, 0),
+      animationDuration: Durations.short3,
+      slideDistance: 5,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      child: HoverButton(
+        itemHeight: ActionListSizes.itemHeight,
+        // todo(lucas): replace the svg with the correct one
+        leftIcon: const FlowySvg(FlowySvgs.copy_s),
+        name: LocaleKeys.document_plugins_optionAction_turnInto.tr(),
+        onTap: () {
+          innerController.show();
+        },
+      ),
+    );
+  }
+
+  Widget _buildTurnIntoOption(BuildContext context) {
+    final selection = editorState.selection?.normalized;
+    if (selection == null || selection.isCollapsed) {
+      return const SizedBox.shrink();
+    }
+
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return const SizedBox.shrink();
+    }
+
+    final children = EditorOptionActionType.turnInto.supportTypes.map((e) {
+      final name = _buildLocalization(e, node);
+      final leftIcon = _buildLeftIcon(e, node);
+      final rightIcon = e == node.type
+          ? const FlowySvg(
+              FlowySvgs.workspace_selected_s,
+              blendMode: null,
+            )
+          : null;
+
+      return HoverButton(
+        name: name,
+        leftIcon: FlowySvg(leftIcon),
+        rightIcon: rightIcon,
+        itemHeight: ActionListSizes.itemHeight,
+        onTap: () {},
+      );
+    }).toList(growable: false);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: children,
+    );
+  }
+
+  FlowySvgData _buildLeftIcon(String type, Node node) {
+    if (type == ParagraphBlockKeys.type) {
+      return FlowySvgs.slash_menu_icon_text_s;
+    } else if (type == HeadingBlockKeys.type) {
+      final int level = node.attributes[HeadingBlockKeys.level] ?? 1;
+      switch (level) {
+        case 1:
+          return FlowySvgs.slash_menu_icon_h1_s;
+        case 2:
+          return FlowySvgs.slash_menu_icon_h2_s;
+        case 3:
+          return FlowySvgs.slash_menu_icon_h3_s;
+        // support h4-h6
+        default:
+          return FlowySvgs.slash_menu_icon_text_s;
+      }
+    } else if (type == QuoteBlockKeys.type) {
+      return FlowySvgs.slash_menu_icon_quote_s;
+    } else if (type == BulletedListBlockKeys.type) {
+      return FlowySvgs.slash_menu_icon_bulleted_list_s;
+    } else if (type == NumberedListBlockKeys.type) {
+      return FlowySvgs.slash_menu_icon_numbered_list_s;
+    } else if (type == TodoListBlockKeys.type) {
+      return FlowySvgs.slash_menu_icon_checkbox_s;
+    } else if (type == CalloutBlockKeys.type) {
+      return FlowySvgs.slash_menu_icon_callout_s;
+    }
+
+    throw UnimplementedError('Unsupported block type: $type');
+  }
+
+  String _buildLocalization(String type, Node node) {
+    switch (type) {
+      case ParagraphBlockKeys.type:
+        return LocaleKeys.document_slashMenu_name_text.tr();
+      case HeadingBlockKeys.type:
+        final level = node.attributes[HeadingBlockKeys.level] ?? 1;
+        switch (level) {
+          case 1:
+            return LocaleKeys.document_slashMenu_name_heading1.tr();
+          case 2:
+            return LocaleKeys.document_slashMenu_name_heading2.tr();
+          case 3:
+            return LocaleKeys.document_slashMenu_name_heading3.tr();
+          default:
+            return LocaleKeys.document_slashMenu_name_text.tr();
+        }
+      case QuoteBlockKeys.type:
+        return LocaleKeys.document_slashMenu_name_quote.tr();
+      case BulletedListBlockKeys.type:
+        return LocaleKeys.document_slashMenu_name_bulletedList.tr();
+      case NumberedListBlockKeys.type:
+        return LocaleKeys.document_slashMenu_name_numberedList.tr();
+      case TodoListBlockKeys.type:
+        return LocaleKeys.document_slashMenu_name_todoList.tr();
+      case CalloutBlockKeys.type:
+        return LocaleKeys.document_slashMenu_name_callout.tr();
+    }
+
+    throw UnimplementedError('Unsupported block type: $type');
+  }
 }

@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'drag_to_reorder/draggable_option_button.dart';
 
-class BlockOptionButton extends StatefulWidget {
+class BlockOptionButton extends StatelessWidget {
   const BlockOptionButton({
     super.key,
     required this.blockComponentContext,
@@ -25,83 +25,87 @@ class BlockOptionButton extends StatefulWidget {
   final EditorState editorState;
   final Map<String, BlockComponentBuilder> blockComponentBuilder;
 
-  @override
-  State<BlockOptionButton> createState() => _BlockOptionButtonState();
-}
-
-class _BlockOptionButtonState extends State<BlockOptionButton> {
-  late final List<PopoverAction> popoverActions;
-
-  @override
-  void initState() {
-    super.initState();
-
-    popoverActions = widget.actions.map((e) {
-      switch (e) {
-        case OptionAction.divider:
-          return DividerOptionAction();
-        case OptionAction.color:
-          return ColorOptionAction(editorState: widget.editorState);
-        case OptionAction.align:
-          return AlignOptionAction(editorState: widget.editorState);
-        case OptionAction.depth:
-          return DepthOptionAction(editorState: widget.editorState);
-        default:
-          return OptionActionWrapper(e);
-      }
-    }).toList();
-  }
+  List<PopoverAction> get popoverActions => actions.map((e) {
+        switch (e) {
+          case OptionAction.divider:
+            return DividerOptionAction();
+          case OptionAction.color:
+            return ColorOptionAction(editorState: editorState);
+          case OptionAction.align:
+            return AlignOptionAction(editorState: editorState);
+          case OptionAction.depth:
+            return DepthOptionAction(editorState: editorState);
+          case OptionAction.turnInto:
+            return TurnIntoOptionAction(editorState: editorState);
+          default:
+            return OptionActionWrapper(e);
+        }
+      }).toList();
 
   @override
   Widget build(BuildContext context) {
+    final direction =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+                LayoutDirection.rtlLayout
+            ? PopoverDirection.rightWithCenterAligned
+            : PopoverDirection.leftWithCenterAligned;
     return BlocProvider(
       create: (context) => BlockActionOptionCubit(
-        editorState: widget.editorState,
-        blockComponentBuilder: widget.blockComponentBuilder,
+        editorState: editorState,
+        blockComponentBuilder: blockComponentBuilder,
       ),
-      child: PopoverActionList<PopoverAction>(
-        popoverMutex: PopoverMutex(),
-        actions: popoverActions,
-        animationDuration: Durations.short3,
-        slideDistance: 5,
-        beginScaleFactor: 1.0,
-        beginOpacity: 0.8,
-        direction:
-            context.read<AppearanceSettingsCubit>().state.layoutDirection ==
-                    LayoutDirection.rtlLayout
-                ? PopoverDirection.rightWithCenterAligned
-                : PopoverDirection.leftWithCenterAligned,
-        onPopupBuilder: () {
-          keepEditorFocusNotifier.increase();
-          widget.blockComponentState.alwaysShowActions = true;
-        },
-        onClosed: () {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            if (!mounted) {
-              return;
-            }
-            widget.editorState.selectionType = null;
-            widget.editorState.selection = null;
-            widget.blockComponentState.alwaysShowActions = false;
-            keepEditorFocusNotifier.decrease();
-          });
-        },
-        onSelected: (action, controller) {
-          if (action is OptionActionWrapper) {
-            context.read<BlockActionOptionCubit>().handleAction(
-                  action.inner,
-                  widget.blockComponentContext.node,
-                );
-            controller.close();
-          }
-        },
-        buildChild: (controller) => DraggableOptionButton(
-          controller: controller,
-          editorState: widget.editorState,
-          blockComponentContext: widget.blockComponentContext,
-          blockComponentBuilder: widget.blockComponentBuilder,
+      child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
+        builder: (context, _) => PopoverActionList<PopoverAction>(
+          actions: popoverActions,
+          animationDuration: Durations.short3,
+          slideDistance: 5,
+          beginScaleFactor: 1.0,
+          beginOpacity: 0.8,
+          direction: direction,
+          onPopupBuilder: _onPopoverBuilder,
+          onClosed: () => _onPopoverClosed(context),
+          onSelected: (action, controller) => _onActionSelected(
+            context,
+            action,
+            controller,
+          ),
+          buildChild: (controller) => DraggableOptionButton(
+            controller: controller,
+            editorState: editorState,
+            blockComponentContext: blockComponentContext,
+            blockComponentBuilder: blockComponentBuilder,
+          ),
         ),
       ),
     );
+  }
+
+  void _onPopoverBuilder() {
+    keepEditorFocusNotifier.increase();
+    blockComponentState.alwaysShowActions = true;
+  }
+
+  void _onPopoverClosed(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      editorState.selectionType = null;
+      editorState.selection = null;
+      blockComponentState.alwaysShowActions = false;
+    });
+  }
+
+  void _onActionSelected(
+    BuildContext context,
+    PopoverAction action,
+    PopoverController controller,
+  ) {
+    if (action is! OptionActionWrapper) {
+      return;
+    }
+
+    context.read<BlockActionOptionCubit>().handleAction(
+          action.inner,
+          blockComponentContext.node,
+        );
+    controller.close();
   }
 }
