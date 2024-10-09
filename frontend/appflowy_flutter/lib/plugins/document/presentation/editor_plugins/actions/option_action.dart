@@ -1,15 +1,16 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 const optionActionColorDefaultColor = 'appflowy_theme_default_color';
@@ -148,7 +149,11 @@ enum OptionDepthType {
 
 class DividerOptionAction extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 4.0),
       child: Divider(
@@ -434,17 +439,32 @@ class OptionAlignWrapper extends ActionCell {
 class TurnIntoOptionAction extends CustomActionCell {
   TurnIntoOptionAction({
     required this.editorState,
+    required this.blockComponentBuilder,
   });
 
   final EditorState editorState;
+  final Map<String, BlockComponentBuilder> blockComponentBuilder;
   final PopoverController innerController = PopoverController();
 
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     return AppFlowyPopover(
       asBarrier: true,
       controller: innerController,
-      popupBuilder: (context) => _buildTurnIntoOptionMenu(context),
+      mutex: mutex,
+      popupBuilder: (context) => BlocProvider<BlockActionOptionCubit>(
+        create: (context) => BlockActionOptionCubit(
+          editorState: editorState,
+          blockComponentBuilder: blockComponentBuilder,
+        ),
+        child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
+          builder: (context, _) => _buildTurnIntoOptionMenu(context),
+        ),
+      ),
       direction: PopoverDirection.rightWithCenterAligned,
       offset: const Offset(10, 0),
       animationDuration: Durations.short3,
@@ -540,52 +560,13 @@ class TurnIntoOptionAction extends CustomActionCell {
       rightIcon: rightIcon,
       itemHeight: ActionListSizes.itemHeight,
       onTap: () {
-        _turnIntoBlock(type, node, level: level);
+        context.read<BlockActionOptionCubit>().turnIntoBlock(
+              type,
+              node,
+              level: level,
+            );
       },
     );
-  }
-
-  Future<bool> _turnIntoBlock(
-    String type,
-    Node node, {
-    int? level,
-  }) async {
-    final builder = editorState.renderer.blockComponentBuilder(type);
-
-    if (builder == null) {
-      Log.error('Block type $type is not supported');
-      return false;
-    }
-
-    Log.info(
-      'Turn into block: from ${node.type} to $type',
-    );
-
-    if (type == node.type && type != HeadingBlockKeys.type) {
-      Log.info('Block type is the same');
-      return false;
-    }
-
-    final selection = editorState.selection;
-    final beforeNode = node;
-    final afterNode = node.copyWith(
-      type: type,
-      attributes: {
-        if (type == HeadingBlockKeys.type) HeadingBlockKeys.level: level,
-        if (type == TodoListBlockKeys.type) TodoListBlockKeys.checked: false,
-        blockComponentBackgroundColor:
-            node.attributes[blockComponentBackgroundColor],
-        blockComponentTextDirection:
-            node.attributes[blockComponentTextDirection],
-        blockComponentDelta: (beforeNode.delta ?? Delta()).toJson(),
-      },
-    );
-    await editorState.formatNode(
-      selection,
-      (node) => afterNode,
-    );
-
-    return true;
   }
 
   Widget? _buildRightIcon(

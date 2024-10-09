@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -198,5 +198,59 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         return null;
       },
     );
+  }
+
+  Future<bool> turnIntoBlock(
+    String type,
+    Node node, {
+    int? level,
+  }) async {
+    final toType = type;
+    final builder = editorState.renderer.blockComponentBuilder(type);
+
+    if (builder == null) {
+      Log.error('Block type $type is not supported');
+      return false;
+    }
+
+    Log.info(
+      'Turn into block: from ${node.type} to $type',
+    );
+
+    if (type == node.type && type != HeadingBlockKeys.type) {
+      Log.info('Block type is the same');
+      return false;
+    }
+
+    Node afterNode = node.copyWith(
+      type: type,
+      attributes: {
+        if (toType == HeadingBlockKeys.type) HeadingBlockKeys.level: level,
+        if (toType == TodoListBlockKeys.type) TodoListBlockKeys.checked: false,
+        blockComponentBackgroundColor:
+            node.attributes[blockComponentBackgroundColor],
+        blockComponentTextDirection:
+            node.attributes[blockComponentTextDirection],
+        blockComponentDelta: (node.delta ?? Delta()).toJson(),
+      },
+    );
+    final insertedNode = [];
+    // heading block and callout block should not have children
+    if ([HeadingBlockKeys.type, CalloutBlockKeys.type].contains(toType)) {
+      afterNode = afterNode.copyWith(
+        children: [],
+      );
+      insertedNode.addAll(node.children.map((e) => e.copyWith()));
+    }
+
+    final transaction = editorState.transaction;
+    transaction.insertNodes(node.path, [
+      afterNode,
+      ...insertedNode,
+    ]);
+    transaction.deleteNode(node);
+    await editorState.apply(transaction);
+
+    return true;
   }
 }

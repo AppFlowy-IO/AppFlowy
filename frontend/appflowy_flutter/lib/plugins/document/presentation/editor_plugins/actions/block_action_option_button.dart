@@ -40,6 +40,7 @@ class BlockOptionButton extends StatelessWidget {
       child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
         builder: (context, _) => PopoverActionList<PopoverAction>(
           actions: _buildPopoverActions(context),
+          popoverMutex: PopoverMutex(),
           animationDuration: Durations.short3,
           slideDistance: 5,
           beginScaleFactor: 1.0,
@@ -75,7 +76,10 @@ class BlockOptionButton extends StatelessWidget {
         case OptionAction.depth:
           return DepthOptionAction(editorState: editorState);
         case OptionAction.turnInto:
-          return TurnIntoOptionAction(editorState: editorState);
+          return TurnIntoOptionAction(
+            editorState: editorState,
+            blockComponentBuilder: blockComponentBuilder,
+          );
         default:
           return OptionActionWrapper(e);
       }
