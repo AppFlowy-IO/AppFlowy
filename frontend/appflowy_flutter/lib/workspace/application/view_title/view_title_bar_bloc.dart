@@ -9,9 +9,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'view_title_bar_bloc.freezed.dart';
 
 class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
-  ViewTitleBarBloc({
-    required this.view,
-  }) : super(ViewTitleBarState.initial()) {
+  ViewTitleBarBloc({required this.view}) : super(ViewTitleBarState.initial()) {
+    trashService = TrashService();
     viewListener = ViewListener(viewId: view.id)
       ..start(
         onViewChildViewsUpdated: (_) => add(const ViewTitleBarEvent.reload()),
@@ -39,9 +38,10 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
               (f) => [],
             );
 
-            final trash =
-                (await TrashService().readTrash()).toNullable()?.items;
-            final isDeleted = trash?.any((t) => t.id == view.id) ?? false;
+            final isDeleted = (await trashService.readTrash()).fold(
+              (s) => s.items.any((t) => t.id == view.id),
+              (f) => false,
+            );
 
             emit(state.copyWith(ancestors: ancestors, isDeleted: isDeleted));
           },
@@ -56,6 +56,7 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
   }
 
   final ViewPB view;
+  late final TrashService trashService;
   late final ViewListener viewListener;
   late final TrashListener trashListener;
 

@@ -279,12 +279,12 @@ extension CommonOperations on WidgetTester {
 
   /// Tap the delete permanently button.
   ///
-  /// the restore button will show after the current page is deleted.
+  /// the delete permanently button will show after the current page is deleted.
   Future<void> tapDeletePermanentlyButton() async {
-    final restoreButton = find.textContaining(
+    final deleteButton = find.textContaining(
       LocaleKeys.deletePagePrompt_deletePermanent.tr(),
     );
-    await tapButton(restoreButton);
+    await tapButton(deleteButton);
   }
 
   /// Tap the share button above the document page.

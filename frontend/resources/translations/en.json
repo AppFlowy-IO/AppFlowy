@@ -226,7 +226,8 @@
   "deletePagePrompt": {
     "text": "This page is in Trash",
     "restore": "Restore page",
-    "deletePermanent": "Delete this page permanently? This action cannot be undone"
+    "deletePermanent": "Delete permanently",
+    "deletePermanentDescription": "Are you sure you want to delete this page permanently? This is irreversible."
   },
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
