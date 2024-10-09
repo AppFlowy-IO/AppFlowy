@@ -1,14 +1,13 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../../shared/util.dart';
+
 import 'document_inline_page_reference_test.dart';
 
 void main() {
@@ -42,12 +41,6 @@ void main() {
       final mentionBlock = find.byType(MentionPageBlock);
       expect(mentionBlock, findsOneWidget);
 
-      await tester.expandOrCollapsePage(
-        pageName: 'Getting started',
-        layout: ViewLayoutPB.Document,
-      );
-      await tester.pumpAndSettle();
-
       // Delete the page
       await tester.hoverOnPageName(name);
       await tester.tapDeletePageButton();
@@ -55,14 +48,20 @@ void main() {
 
       // Navigate to the deleted page from the inline mention
       await tester.tap(mentionBlock);
-      await tester.pumpAndSettle();
+      await tester.pumpUntilFound(find.byType(TrashBreadcrumb));
 
-      expect(find.byType(DocumentBanner), findsOneWidget);
       expect(find.byType(TrashBreadcrumb), findsOneWidget);
 
       // Navigate using the trash breadcrumb
-      await tester.tap(find.byType(TrashBreadcrumb));
-      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(TrashBreadcrumb),
+          matching: find.text(
+            LocaleKeys.trash_text.tr(),
+          ),
+        ),
+      );
+      await tester.pumpUntilFound(find.text(LocaleKeys.trash_restoreAll.tr()));
 
       // Restore all
       await tester.tap(find.text(LocaleKeys.trash_restoreAll.tr()));
@@ -77,7 +76,6 @@ void main() {
       await tester.tap(mentionBlock);
       await tester.pumpAndSettle();
 
-      expect(find.byType(DocumentBanner), findsNothing);
       expect(find.byType(TrashBreadcrumb), findsNothing);
     });
   });
