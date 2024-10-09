@@ -206,12 +206,6 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     int? level,
   }) async {
     final toType = type;
-    final builder = editorState.renderer.blockComponentBuilder(type);
-
-    if (builder == null) {
-      Log.error('Block type $type is not supported');
-      return false;
-    }
 
     Log.info(
       'Turn into block: from ${node.type} to $type',
