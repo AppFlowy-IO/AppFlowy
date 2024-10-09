@@ -121,28 +121,7 @@ class ViewTitleBar extends StatelessWidget {
 
   List<Widget> _buildDeletedTitle(BuildContext context, ViewPB view) {
     return [
-      SizedBox(
-        height: 32,
-        child: FlowyButton(
-          useIntrinsicWidth: true,
-          onTap: () {
-            getIt<MenuSharedState>().latestOpenView = null;
-            getIt<TabsBloc>().add(
-              TabsEvent.openPlugin(
-                plugin: makePlugin(pluginType: PluginType.trash),
-              ),
-            );
-          },
-          text: Row(
-            children: [
-              const FlowySvg(FlowySvgs.trash_s),
-              const HSpace(4.0),
-              FlowyText.regular(LocaleKeys.trash_text.tr()),
-              const HSpace(4.0),
-            ],
-          ),
-        ),
-      ),
+      const TrashBreadcrumb(),
       const FlowySvg(FlowySvgs.title_bar_divider_s),
       FlowyTooltip(
         key: ValueKey(view.id),
@@ -155,6 +134,38 @@ class ViewTitleBar extends StatelessWidget {
         ),
       ),
     ];
+  }
+}
+
+class TrashBreadcrumb extends StatelessWidget {
+  const TrashBreadcrumb({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 32,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        onTap: () {
+          getIt<MenuSharedState>().latestOpenView = null;
+          getIt<TabsBloc>().add(
+            TabsEvent.openPlugin(
+              plugin: makePlugin(pluginType: PluginType.trash),
+            ),
+          );
+        },
+        text: Row(
+          children: [
+            const FlowySvg(FlowySvgs.trash_s),
+            const HSpace(4.0),
+            FlowyText.regular(LocaleKeys.trash_text.tr()),
+            const HSpace(4.0),
+          ],
+        ),
+      ),
+    );
   }
 }
 
