@@ -206,22 +206,23 @@ class CreateOptionTextField extends StatefulWidget {
 }
 
 class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
-  late final FocusNode _focusNode;
+  final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode()
-      ..addListener(() {
-        if (_focusNode.hasFocus) {
-          widget.popoverMutex?.close();
-        }
-      });
-    widget.popoverMutex?.listenOnPopoverChanged(() {
-      if (_focusNode.hasFocus) {
-        _focusNode.unfocus();
-      }
-    });
+
+    focusNode.addListener(_onFocusChanged);
+    widget.popoverMutex?.addPopoverListener(_onPopoverChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.popoverMutex?.removePopoverListener(_onPopoverChanged);
+    focusNode.removeListener(_onFocusChanged);
+    focusNode.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -234,7 +235,7 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
           child: FlowyTextField(
             autoClearWhenDone: true,
             text: text,
-            focusNode: _focusNode,
+            focusNode: focusNode,
             onCanceled: () {
               context
                   .read<SelectOptionTypeOptionBloc>()
@@ -252,15 +253,16 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
     );
   }
 
-  @override
-  void dispose() {
-    _focusNode.removeListener(() {
-      if (_focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
-    _focusNode.dispose();
-    super.dispose();
+  void _onFocusChanged() {
+    if (focusNode.hasFocus) {
+      widget.popoverMutex?.close();
+    }
+  }
+
+  void _onPopoverChanged() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
   }
 }
 

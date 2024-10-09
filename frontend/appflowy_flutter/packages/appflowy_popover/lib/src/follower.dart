@@ -61,14 +61,6 @@ class PopoverRenderFollowerLayer extends RenderFollowerLayer {
     if (link.leader == null) {
       return;
     }
-
-    if (link.leader!.offset.dx + link.leaderSize!.width + size.width >
-        screenSize.width) {
-      debugPrint('over flow');
-    }
-    debugPrint(
-      'right: ${link.leader!.offset.dx + link.leaderSize!.width + size.width}, screen with: ${screenSize.width}',
-    );
   }
 }
 

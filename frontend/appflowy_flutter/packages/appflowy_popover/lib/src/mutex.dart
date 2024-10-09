@@ -9,17 +9,12 @@ class PopoverMutex {
 
   final _PopoverStateNotifier _stateNotifier = _PopoverStateNotifier();
 
-  void removePopoverListener(VoidCallback listener) {
-    _stateNotifier.removeListener(listener);
+  void addPopoverListener(VoidCallback listener) {
+    _stateNotifier.addListener(listener);
   }
 
-  VoidCallback listenOnPopoverChanged(VoidCallback callback) {
-    void listenerCallback() {
-      callback();
-    }
-
-    _stateNotifier.addListener(listenerCallback);
-    return listenerCallback;
+  void removePopoverListener(VoidCallback listener) {
+    _stateNotifier.removeListener(listener);
   }
 
   void close() => _stateNotifier.state?.close();
