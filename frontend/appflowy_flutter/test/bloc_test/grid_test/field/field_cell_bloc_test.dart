@@ -23,7 +23,7 @@ void main() {
       'update field width',
       build: () => FieldCellBloc(
         fieldInfo: context.fieldController.fieldInfos[0],
-        viewId: context.view.id,
+        viewId: context.viewId,
       ),
       act: (bloc) {
         width = bloc.state.width;
@@ -39,7 +39,7 @@ void main() {
     blocTest(
       'field width should not be less than 50px',
       build: () => FieldCellBloc(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldInfo: context.fieldController.fieldInfos[0],
       ),
       act: (bloc) {

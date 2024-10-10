@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

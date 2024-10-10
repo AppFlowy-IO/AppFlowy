@@ -154,11 +154,9 @@ void main() {
       tester.assertNumberOfRowsInGridPage(0);
 
       await tester.tapFilterButtonInGrid('date');
-      await tester.tapDateFilterButtonInGrid();
       await tester.tapDateFilterCondition(DateTimeFilterCondition.before);
       tester.assertNumberOfRowsInGridPage(7);
 
-      await tester.tapDateFilterButtonInGrid();
       await tester.tapDateFilterCondition(DateTimeFilterCondition.isEmpty);
       tester.assertNumberOfRowsInGridPage(3);
 
@@ -189,7 +187,6 @@ void main() {
       tester.assertNumberOfRowsInGridPage(3);
 
       await tester.tapFilterButtonInGrid('Created at');
-      await tester.tapDateFilterButtonInGrid();
       await tester.tapDateFilterCondition(DateTimeFilterCondition.before);
       tester.assertNumberOfRowsInGridPage(0);
 

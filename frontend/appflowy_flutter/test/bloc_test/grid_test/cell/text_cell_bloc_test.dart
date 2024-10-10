@@ -21,7 +21,7 @@ void main() {
 
     setUp(() async {
       context = await cellTest.makeDefaultTestGrid();
-      await RowBackendService.createRow(viewId: context.view.id);
+      await RowBackendService.createRow(viewId: context.viewId);
       final fieldIndex = context.fieldController.fieldInfos
           .indexWhere((field) => field.fieldType == FieldType.RichText);
       cellController = context.makeGridCellController(fieldIndex, 0).as();
@@ -47,7 +47,7 @@ void main() {
       await primaryBloc.close();
 
       await FieldBackendService.createField(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldName: "Second",
       );
       await gridResponseFuture();
@@ -69,7 +69,7 @@ void main() {
       expect(bloc.state.wrap, true);
 
       await FieldSettingsBackendService(
-        viewId: context.view.id,
+        viewId: context.viewId,
       ).updateFieldSettings(
         fieldId: cellController.fieldId,
         wrapCellContent: false,
@@ -85,7 +85,7 @@ void main() {
 
       expect(bloc.state.emoji!.value, "");
 
-      await RowBackendService(viewId: context.view.id)
+      await RowBackendService(viewId: context.viewId)
           .updateMeta(rowId: cellController.rowId, iconURL: "dummy");
       await gridResponseFuture();
 
@@ -99,7 +99,7 @@ void main() {
 
       expect(bloc.state.hasDocument!.value, false);
 
-      await RowBackendService(viewId: context.view.id)
+      await RowBackendService(viewId: context.viewId)
           .updateMeta(rowId: cellController.rowId, isDocumentEmpty: false);
       await gridResponseFuture();
 
