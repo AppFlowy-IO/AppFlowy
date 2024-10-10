@@ -16,7 +16,7 @@ impl ParseFilterData for RelationFilterPB {
 }
 
 impl PreFillCellsWithFilter for RelationFilterPB {
-  fn get_compliant_cell(&self, _field: &Field) -> (Option<Cell>, bool) {
-    (None, false)
+  fn get_compliant_cell(&self, _field: &Field) -> Option<Cell> {
+    None
   }
 }

@@ -33,7 +33,7 @@ impl TextFilterPB {
 }
 
 impl PreFillCellsWithFilter for TextFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let text = match self.condition {
       TextFilterConditionPB::TextIs
       | TextFilterConditionPB::TextContains
@@ -46,9 +46,7 @@ impl PreFillCellsWithFilter for TextFilterPB {
       _ => None,
     };
 
-    let open_after_create = matches!(self.condition, TextFilterConditionPB::TextIsNotEmpty);
-
-    (text.map(|s| insert_text_cell(s, field)), open_after_create)
+    text.map(|s| insert_text_cell(s, field))
   }
 }
 

@@ -97,7 +97,7 @@ impl SelectOptionFilterStrategy {
 }
 
 impl PreFillCellsWithFilter for SelectOptionFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let get_non_empty_expected_options = || {
       if !self.option_ids.is_empty() {
         Some(self.option_ids.clone())
@@ -124,10 +124,7 @@ impl PreFillCellsWithFilter for SelectOptionFilterPB {
       _ => None,
     };
 
-    (
-      option_ids.map(|ids| insert_select_option_cell(ids, field)),
-      false,
-    )
+    option_ids.map(|ids| insert_select_option_cell(ids, field))
   }
 }
 #[cfg(test)]

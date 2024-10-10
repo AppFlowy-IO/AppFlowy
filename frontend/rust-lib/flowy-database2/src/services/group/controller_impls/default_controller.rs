@@ -80,6 +80,7 @@ impl GroupController for DefaultGroupController {
         row_meta: row.into(),
         index: Some(index as i32),
         is_new: true,
+        is_hidden_in_view: false,
       }],
     )]
   }

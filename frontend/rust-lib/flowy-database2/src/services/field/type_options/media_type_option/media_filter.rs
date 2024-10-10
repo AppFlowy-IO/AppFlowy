@@ -2,7 +2,7 @@ use collab_database::{fields::Field, rows::Cell};
 
 use crate::{
   entities::{MediaFilterConditionPB, MediaFilterPB},
-  services::{cell::insert_text_cell, filter::PreFillCellsWithFilter},
+  services::filter::PreFillCellsWithFilter,
 };
 
 impl MediaFilterPB {
@@ -16,16 +16,7 @@ impl MediaFilterPB {
 }
 
 impl PreFillCellsWithFilter for MediaFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
-    let text = match self.condition {
-      MediaFilterConditionPB::MediaIsNotEmpty if !self.content.is_empty() => {
-        Some(self.content.clone())
-      },
-      _ => None,
-    };
-
-    let open_after_create = matches!(self.condition, MediaFilterConditionPB::MediaIsNotEmpty);
-
-    (text.map(|s| insert_text_cell(s, field)), open_after_create)
+  fn get_compliant_cell(&self, _field: &Field) -> Option<Cell> {
+    None
   }
 }

@@ -323,7 +323,7 @@ void main() {
       tester.assertNumberOfEventsInCalendar(1);
 
       await tester.tapFilterButtonInGrid('Tags');
-      await tester.tapSelectFilterCondition(
+      await tester.changeSelectFilterCondition(
         SelectOptionFilterConditionPB.OptionIsEmpty,
       );
       await tester.dismissCellEditor();

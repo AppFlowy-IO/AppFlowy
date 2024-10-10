@@ -69,11 +69,7 @@ class DatabaseViewCache {
 
           if (changeset.insertedRows.isNotEmpty) {
             for (final callback in _callbacks) {
-              callback.onRowsCreated?.call(
-                changeset.insertedRows
-                    .map((insertedRow) => insertedRow.rowMeta.id)
-                    .toList(),
-              );
+              callback.onRowsCreated?.call(changeset.insertedRows);
             }
           }
         },

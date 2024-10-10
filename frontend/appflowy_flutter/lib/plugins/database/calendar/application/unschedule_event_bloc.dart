@@ -104,12 +104,12 @@ class UnscheduleEventsBloc
 
   void _startListening() {
     final onDatabaseChanged = DatabaseCallbacks(
-      onRowsCreated: (rowIds) async {
+      onRowsCreated: (rows) async {
         if (isClosed) {
           return;
         }
-        for (final id in rowIds) {
-          final event = await _loadEvent(id);
+        for (final row in rows) {
+          final event = await _loadEvent(row.rowMeta.id);
           if (event != null && !isClosed) {
             add(UnscheduleEventsEvent.didReceiveEvent(event));
           }

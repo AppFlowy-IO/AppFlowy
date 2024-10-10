@@ -34,7 +34,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
 }
 
 pub trait PreFillCellsWithFilter {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool);
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell>;
 }
 
 pub struct FilterController {
@@ -222,10 +222,8 @@ impl FilterController {
     FilterChangesetNotificationPB::from_filters(&self.view_id, &filters)
   }
 
-  pub async fn fill_cells(&self, cells: &mut Cells) -> bool {
+  pub async fn fill_cells(&self, cells: &mut Cells) {
     let filters = self.filters.read().await;
-
-    let mut open_after_create = false;
 
     let mut min_required_filters: Vec<&FilterInner> = vec![];
     for filter in filters.iter() {
@@ -247,12 +245,11 @@ impl FilterController {
           min_required_filters.retain(
             |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id != field_id),
           );
-          open_after_create = true;
           continue;
         }
 
         if let Some(field) = field_map.get(field_id) {
-          let (cell, flag) = match field_type {
+          let cell = match field_type {
             FieldType::RichText | FieldType::URL => {
               let filter = condition_and_content.cloned::<TextFilterPB>().unwrap();
               filter.get_compliant_cell(field)
@@ -289,21 +286,15 @@ impl FilterController {
               let filter = condition_and_content.cloned::<TimeFilterPB>().unwrap();
               filter.get_compliant_cell(field)
             },
-            _ => (None, false),
+            _ => None,
           };
 
           if let Some(cell) = cell {
             cells.insert(field_id.clone(), cell);
           }
-
-          if flag {
-            open_after_create = flag;
-          }
         }
       }
     }
-
-    open_after_create
   }
 
   #[tracing::instrument(
