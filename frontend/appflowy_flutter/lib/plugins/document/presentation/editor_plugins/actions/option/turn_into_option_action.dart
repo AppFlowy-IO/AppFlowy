@@ -73,6 +73,20 @@ class TurnIntoOptionAction extends CustomActionCell {
       return const SizedBox.shrink();
     }
 
+    return TurnIntoOptionMenu(node: node);
+  }
+}
+
+class TurnIntoOptionMenu extends StatelessWidget {
+  const TurnIntoOptionMenu({
+    super.key,
+    required this.node,
+  });
+
+  final Node node;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: _buildTurnIntoOptions(context, node),
@@ -85,20 +99,18 @@ class TurnIntoOptionAction extends CustomActionCell {
     for (final type in EditorOptionActionType.turnInto.supportTypes) {
       if (type != HeadingBlockKeys.type) {
         children.add(
-          _buildTurnIntoOption(
-            context,
-            type,
-            node,
+          _TurnInfoButton(
+            type: type,
+            node: node,
           ),
         );
       } else {
-        // support h4-6
+        // support h46
         for (final i in [1, 2, 3]) {
           children.add(
-            _buildTurnIntoOption(
-              context,
-              type,
-              node,
+            _TurnInfoButton(
+              type: type,
+              node: node,
               level: i,
             ),
           );
@@ -108,13 +120,21 @@ class TurnIntoOptionAction extends CustomActionCell {
 
     return children;
   }
+}
 
-  Widget _buildTurnIntoOption(
-    BuildContext context,
-    String type,
-    Node node, {
-    int? level,
-  }) {
+class _TurnInfoButton extends StatelessWidget {
+  const _TurnInfoButton({
+    required this.type,
+    required this.node,
+    this.level,
+  });
+
+  final String type;
+  final Node node;
+  final int? level;
+
+  @override
+  Widget build(BuildContext context) {
     final name = _buildLocalization(
       type,
       level: level,
@@ -180,7 +200,7 @@ class TurnIntoOptionAction extends CustomActionCell {
           return FlowySvgs.slash_menu_icon_h2_s;
         case 3:
           return FlowySvgs.slash_menu_icon_h3_s;
-        // support h4-h6
+        // support h4h6
         default:
           return FlowySvgs.slash_menu_icon_text_s;
       }

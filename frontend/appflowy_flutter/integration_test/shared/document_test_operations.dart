@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option/option_actions.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_title.dart';
@@ -279,6 +280,17 @@ class EditorOperations {
         await tester.pumpUntilFound(find.byType(PopoverActionList));
       },
     );
+  }
+
+  /// open the turn into menu
+  Future<void> openTurnIntoMenu(Path path) async {
+    await hoverAndClickOptionMenuButton(path);
+    await tester.tapButton(
+      find.findTextInFlowyText(
+        LocaleKeys.document_plugins_optionAction_turnInto.tr(),
+      ),
+    );
+    await tester.pumpUntilFound(find.byType(TurnIntoOptionMenu));
   }
 
   /// Drag block
