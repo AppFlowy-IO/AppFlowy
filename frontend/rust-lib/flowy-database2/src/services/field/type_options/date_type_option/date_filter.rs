@@ -160,10 +160,7 @@ impl PreFillCellsWithFilter for DateFilterPB {
       _ => None,
     };
 
-    let cell =
-      start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, None, field));
-
-    cell
+    start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, None, field))
   }
 }
 
