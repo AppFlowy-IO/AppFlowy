@@ -122,7 +122,7 @@ class Popover extends StatefulWidget {
   final bool skipTraversal;
 
   /// Animation time of the popover.
-  final Duration? animationDuration;
+  final Duration animationDuration;
 
   /// The distance of the popover's slide animation.
   final double slideDistance;
@@ -223,7 +223,9 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       animationController,
     );
 
-    animationController.forward();
+    if (widget.animationDuration != Duration.zero) {
+      animationController.forward();
+    }
   }
 
   void close({
@@ -238,7 +240,9 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         }
       }
 
-      if (isDisposed || !withAnimation) {
+      if (isDisposed ||
+          !withAnimation ||
+          widget.animationDuration == Duration.zero) {
         callback();
       } else {
         animationController.reverse().then((_) => callback());
