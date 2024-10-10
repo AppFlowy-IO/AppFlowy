@@ -14,6 +14,7 @@ const defaultInitialValue: Descendant[] = [];
 function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
   const readSummary = context.readSummary;
+  const readOnly = context.readOnly;
   const localOrigin = CollabOrigin.Local;
   const [, setClock] = useState(0);
   const onContentChange = useCallback(() => {
@@ -26,14 +27,16 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
         withReact(
           withYHistory(
             withYjs(createEditor(), doc, {
+              readOnly: readOnly,
               localOrigin,
               readSummary,
               onContentChange,
             }),
           ),
+          'x-appflowy-fragment',
         ),
       ) as YjsEditor),
-    [onContentChange, readSummary, doc, localOrigin],
+    [doc, readOnly, localOrigin, readSummary, onContentChange],
   );
   const [, setIsConnected] = useState(false);
 

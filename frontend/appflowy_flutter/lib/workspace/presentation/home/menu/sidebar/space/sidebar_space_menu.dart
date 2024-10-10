@@ -31,7 +31,7 @@ class SidebarSpaceMenu extends StatelessWidget {
             for (final space in state.spaces)
               SizedBox(
                 height: HomeSpaceViewSizes.viewHeight,
-                child: _SidebarSpaceMenuItem(
+                child: SidebarSpaceMenuItem(
                   space: space,
                   isSelected: state.currentSpace?.id == space.id,
                 ),
@@ -53,8 +53,9 @@ class SidebarSpaceMenu extends StatelessWidget {
   }
 }
 
-class _SidebarSpaceMenuItem extends StatelessWidget {
-  const _SidebarSpaceMenuItem({
+class SidebarSpaceMenuItem extends StatelessWidget {
+  const SidebarSpaceMenuItem({
+    super.key,
     required this.space,
     required this.isSelected,
   });

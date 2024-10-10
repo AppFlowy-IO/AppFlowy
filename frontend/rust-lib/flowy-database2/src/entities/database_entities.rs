@@ -77,7 +77,7 @@ pub struct RepeatedDatabaseIdPB {
 #[derive(Clone, ProtoBuf, Default, Debug, Validate)]
 pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub value: String,
 }
 

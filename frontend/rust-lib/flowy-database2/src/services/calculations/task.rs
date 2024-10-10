@@ -1,8 +1,8 @@
-use lib_infra::future::BoxResultFuture;
+use crate::services::calculations::CalculationsController;
+use async_trait::async_trait;
+
 use lib_infra::priority_task::{TaskContent, TaskHandler};
 use std::sync::Arc;
-
-use crate::services::calculations::CalculationsController;
 
 pub struct CalculationsTaskHandler {
   handler_id: String,
@@ -18,6 +18,7 @@ impl CalculationsTaskHandler {
   }
 }
 
+#[async_trait]
 impl TaskHandler for CalculationsTaskHandler {
   fn handler_id(&self) -> &str {
     &self.handler_id
@@ -27,16 +28,14 @@ impl TaskHandler for CalculationsTaskHandler {
     "CalculationsTaskHandler"
   }
 
-  fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
+  async fn run(&self, content: TaskContent) -> Result<(), anyhow::Error> {
     let calculations_controller = self.calculations_controller.clone();
-    Box::pin(async move {
-      if let TaskContent::Text(predicate) = content {
-        calculations_controller
-          .process(&predicate)
-          .await
-          .map_err(anyhow::Error::from)?;
-      }
-      Ok(())
-    })
+    if let TaskContent::Text(predicate) = content {
+      calculations_controller
+        .process(&predicate)
+        .await
+        .map_err(anyhow::Error::from)?;
+    }
+    Ok(())
   }
 }

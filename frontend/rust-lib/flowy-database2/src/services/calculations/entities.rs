@@ -3,8 +3,6 @@ use collab::preclude::Any;
 use collab_database::views::{CalculationMap, CalculationMapBuilder};
 use serde::Deserialize;
 
-use crate::entities::CalculationPB;
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct Calculation {
   pub id: String,
@@ -28,19 +26,6 @@ impl From<Calculation> for CalculationMap {
       (CALCULATION_TYPE.into(), Any::BigInt(data.calculation_type)),
       (CALCULATION_VALUE.into(), data.value.into()),
     ])
-  }
-}
-
-impl std::convert::From<&CalculationPB> for Calculation {
-  fn from(calculation: &CalculationPB) -> Self {
-    let calculation_type = calculation.calculation_type.into();
-
-    Self {
-      id: calculation.id.clone(),
-      field_id: calculation.field_id.clone(),
-      calculation_type,
-      value: calculation.value.clone(),
-    }
   }
 }
 

@@ -174,7 +174,8 @@ class FieldController {
           (FilterChangesetNotificationPB changeset) {
             _filterNotifier?.filters =
                 _filterListFromPBs(changeset.filters.items);
-            _updateFieldInfos();
+            _fieldNotifier.fieldInfos =
+                _updateFieldInfos(_fieldNotifier.fieldInfos);
           },
           (err) => Log.error(err),
         );
@@ -396,7 +397,7 @@ class FieldController {
             (updatedFields, fieldInfos) =
                 await updateFields(changeset.updatedFields, fieldInfos);
 
-            _fieldNotifier.fieldInfos = fieldInfos;
+            _fieldNotifier.fieldInfos = _updateFieldInfos(fieldInfos);
             for (final listener in _updatedFieldCallbacks.values) {
               listener(updatedFields);
             }
@@ -465,25 +466,22 @@ class FieldController {
     _fieldSettings.clear();
     _fieldSettings.addAll(setting.fieldSettings.items);
 
-    _updateFieldInfos();
+    _fieldNotifier.fieldInfos = _updateFieldInfos(_fieldNotifier.fieldInfos);
   }
 
   /// Attach sort, filter, group information and field settings to `FieldInfo`
-  void _updateFieldInfos() {
-    final List<FieldInfo> newFieldInfos = [];
-    for (final field in _fieldNotifier.fieldInfos) {
-      newFieldInfos.add(
-        field.copyWith(
-          fieldSettings: _fieldSettings
-              .firstWhereOrNull((setting) => setting.fieldId == field.id),
-          isGroupField: _groupConfigurationByFieldId[field.id] != null,
-          hasFilter: getFilterByFieldId(field.id) != null,
-          hasSort: getSortByFieldId(field.id) != null,
-        ),
-      );
-    }
-
-    _fieldNotifier.fieldInfos = newFieldInfos;
+  List<FieldInfo> _updateFieldInfos(List<FieldInfo> fieldInfos) {
+    return fieldInfos
+        .map(
+          (field) => field.copyWith(
+            fieldSettings: _fieldSettings
+                .firstWhereOrNull((setting) => setting.fieldId == field.id),
+            isGroupField: _groupConfigurationByFieldId[field.id] != null,
+            hasFilter: getFilterByFieldId(field.id) != null,
+            hasSort: getSortByFieldId(field.id) != null,
+          ),
+        )
+        .toList();
   }
 
   /// Load all of the fields. This is required when opening the database
@@ -506,7 +504,8 @@ class FieldController {
             _loadAllFieldSettings(),
             _loadSettings(),
           ]);
-          _updateFieldInfos();
+          _fieldNotifier.fieldInfos =
+              _updateFieldInfos(_fieldNotifier.fieldInfos);
 
           return FlowyResult.success(null);
         },

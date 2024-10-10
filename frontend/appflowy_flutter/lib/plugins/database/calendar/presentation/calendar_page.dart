@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -31,6 +33,8 @@ import 'layout/sizes.dart';
 import 'toolbar/calendar_setting_bar.dart';
 
 class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
+  final _toggleExtension = ToggleExtensionNotifier();
+
   @override
   Widget content(
     BuildContext context,
@@ -52,6 +56,7 @@ class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     return CalendarSettingBar(
       key: _makeValueKey(controller),
       databaseController: controller,
+      toggleExtension: _toggleExtension,
     );
   }
 
@@ -60,7 +65,18 @@ class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     BuildContext context,
     DatabaseController controller,
   ) {
-    return SizedBox.fromSize();
+    return DatabaseViewSettingExtension(
+      key: _makeValueKey(controller),
+      viewId: controller.viewId,
+      databaseController: controller,
+      toggleExtension: _toggleExtension,
+    );
+  }
+
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+    super.dispose();
   }
 
   ValueKey _makeValueKey(DatabaseController controller) {

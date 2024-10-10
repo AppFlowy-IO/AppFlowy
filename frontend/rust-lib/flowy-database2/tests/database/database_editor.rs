@@ -248,7 +248,7 @@ impl DatabaseEditorTest {
       .unwrap()
       .clone();
     let cell_changeset = ChecklistCellChangeset {
-      selected_option_ids: selected_options,
+      completed_task_ids: selected_options,
       ..Default::default()
     };
     self

@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_title.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
@@ -19,8 +17,11 @@ import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'util.dart';
 
@@ -329,9 +330,13 @@ class EditorOperations {
     await tester.pumpAndSettle(Durations.short1);
   }
 
-  Finder findDocumentTitle(String title) {
+  Finder findDocumentTitle(String? title) {
+    final parent = UniversalPlatform.isDesktop
+        ? find.byType(CoverTitle)
+        : find.byType(DocumentImmersiveCover);
+
     return find.descendant(
-      of: find.byType(CoverTitle),
+      of: parent,
       matching: find.byWidgetPredicate(
         (widget) {
           if (widget is! TextField) {
@@ -339,6 +344,10 @@ class EditorOperations {
           }
 
           if (widget.controller?.text == title) {
+            return true;
+          }
+
+          if (title == null) {
             return true;
           }
 

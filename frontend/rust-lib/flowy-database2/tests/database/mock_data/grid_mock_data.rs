@@ -17,7 +17,9 @@ use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
-use flowy_database2::services::field::{ChecklistTypeOption, FieldBuilder, RelationTypeOption};
+use flowy_database2::services::field::{
+  ChecklistCellInsertChangeset, ChecklistTypeOption, FieldBuilder, RelationTypeOption,
+};
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
 pub fn make_test_grid() -> DatabaseData {
@@ -189,7 +191,10 @@ pub fn make_test_grid() -> DatabaseData {
               row_builder.insert_url_cell("AppFlowy website - https://www.appflowy.io")
             },
             FieldType::Checklist => {
-              row_builder.insert_checklist_cell(vec![("First thing".to_string(), false)])
+              row_builder.insert_checklist_cell(vec![ChecklistCellInsertChangeset::new(
+                "First thing".to_string(),
+                false,
+              )])
             },
             FieldType::Time => row_builder.insert_time_cell(75),
             _ => "".to_owned(),
@@ -208,11 +213,11 @@ pub fn make_test_grid() -> DatabaseData {
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(1)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
             FieldType::Checklist => row_builder.insert_checklist_cell(vec![
-              ("Have breakfast".to_string(), true),
-              ("Have lunch".to_string(), true),
-              ("Take a nap".to_string(), false),
-              ("Have dinner".to_string(), true),
-              ("Shower and head to bed".to_string(), false),
+              ChecklistCellInsertChangeset::new("Have breakfast".to_string(), true),
+              ChecklistCellInsertChangeset::new("Have lunch".to_string(), true),
+              ChecklistCellInsertChangeset::new("Take a nap".to_string(), false),
+              ChecklistCellInsertChangeset::new("Have dinner".to_string(), true),
+              ChecklistCellInsertChangeset::new("Shower and head to bed".to_string(), false),
             ]),
             _ => "".to_owned(),
           };
@@ -250,7 +255,10 @@ pub fn make_test_grid() -> DatabaseData {
             },
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
             FieldType::Checklist => {
-              row_builder.insert_checklist_cell(vec![("Task 1".to_string(), true)])
+              row_builder.insert_checklist_cell(vec![ChecklistCellInsertChangeset::new(
+                "Task 1".to_string(),
+                true,
+              )])
             },
             _ => "".to_owned(),
           };
@@ -290,9 +298,9 @@ pub fn make_test_grid() -> DatabaseData {
             },
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
             FieldType::Checklist => row_builder.insert_checklist_cell(vec![
-              ("Sprint".to_string(), true),
-              ("Sprint some more".to_string(), false),
-              ("Rest".to_string(), true),
+              ChecklistCellInsertChangeset::new("Sprint".to_string(), true),
+              ChecklistCellInsertChangeset::new("Sprint some more".to_string(), false),
+              ChecklistCellInsertChangeset::new("Rest".to_string(), true),
             ]),
             _ => "".to_owned(),
           };

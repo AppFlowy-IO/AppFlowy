@@ -570,7 +570,7 @@ class _FieldEditIconButtonState extends State<FieldEditIconButton> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       offset: const Offset(0, 4),
-      constraints: BoxConstraints.loose(const Size(380, 432)),
+      constraints: BoxConstraints.loose(const Size(360, 432)),
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
       controller: popoverController,
@@ -629,23 +629,23 @@ class FieldNameTextField extends StatefulWidget {
 }
 
 class _FieldNameTextFieldState extends State<FieldNameTextField> {
-  FocusNode focusNode = FocusNode();
+  final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    focusNode.addListener(() {
-      if (focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
+    focusNode.addListener(_onFocusChanged);
+    widget.popoverMutex?.addPopoverListener(_onPopoverChanged);
+  }
 
-    widget.popoverMutex?.listenOnPopoverChanged(() {
-      if (focusNode.hasFocus) {
-        focusNode.unfocus();
-      }
-    });
+  @override
+  void dispose() {
+    widget.popoverMutex?.removePopoverListener(_onPopoverChanged);
+    focusNode.removeListener(_onFocusChanged);
+    focusNode.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -662,15 +662,16 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
     );
   }
 
-  @override
-  void dispose() {
-    focusNode.removeListener(() {
-      if (focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
-    focusNode.dispose();
-    super.dispose();
+  void _onFocusChanged() {
+    if (focusNode.hasFocus) {
+      widget.popoverMutex?.close();
+    }
+  }
+
+  void _onPopoverChanged() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
   }
 }
 
@@ -693,12 +694,37 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        final bool isPrimary = state.field.isPrimary;
+        if (state.field.isPrimary) {
+          return SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FlowyTooltip(
+                message: LocaleKeys.grid_field_switchPrimaryFieldTooltip.tr(),
+                child: FlowyButton(
+                  text: FlowyText(
+                    state.field.fieldType.i18n,
+                    lineHeight: 1.0,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  leftIcon: FlowySvg(
+                    state.field.fieldType.svgData,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  rightIcon: FlowySvg(
+                    FlowySvgs.more_s,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(460, 540)),
-            triggerActions: isPrimary ? 0 : PopoverTriggerFlags.hover,
+            triggerActions: PopoverTriggerFlags.hover,
             mutex: widget.popoverMutex,
             controller: _popoverController,
             offset: const Offset(8, 0),
@@ -715,23 +741,16 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: FlowyButton(
-                onTap: () {
-                  if (!isPrimary) {
-                    _popoverController.show();
-                  }
-                },
+                onTap: () => _popoverController.show(),
                 text: FlowyText(
                   state.field.fieldType.i18n,
                   lineHeight: 1.0,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
                 leftIcon: FlowySvg(
                   state.field.fieldType.svgData,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
-                rightIcon: FlowySvg(
+                rightIcon: const FlowySvg(
                   FlowySvgs.more_s,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
               ),
             ),

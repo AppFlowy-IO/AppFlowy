@@ -289,6 +289,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
           },
           updateWorkspaceIcon: (workspaceId, icon) async {
+            final workspace = state.workspaces.firstWhere(
+              (e) => e.workspaceId == workspaceId,
+            );
+            if (icon == workspace.icon) {
+              Log.info('ignore same icon update');
+              return;
+            }
+
             final result = await _userService.updateWorkspaceIcon(
               workspaceId,
               icon,

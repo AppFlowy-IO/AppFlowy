@@ -876,7 +876,7 @@
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "100 lifetime",
+        "itemSix": "20 lifetime",
         "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
@@ -1338,6 +1338,7 @@
       "delete": "Delete",
       "wrapCellContent": "Wrap text",
       "clear": "Clear cells",
+      "switchPrimaryFieldTooltip": "Cannot change field type of primary field",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
@@ -1574,7 +1575,7 @@
         "file": "File"
       },
       "subPage": {
-        "name": "Embed sub-page",
+        "name": "Insert page",
         "keyword1": "sub page",
         "keyword2": "page",
         "keyword3": "child page",
@@ -1763,7 +1764,6 @@
         "failedToOpenMsg": "Failed to open, file not found"
       },
       "subPage": {
-        "inTrashHint": " - (in trash)",
         "handlingPasteHint": " - (handling paste)",
         "errors": {
           "failedDeletePage": "Failed to delete page",

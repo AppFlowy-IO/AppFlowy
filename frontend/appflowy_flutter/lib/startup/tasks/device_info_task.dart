@@ -11,6 +11,10 @@ class ApplicationInfo {
   static String applicationVersion = '';
   static String buildNumber = '';
   static String deviceId = '';
+
+  // macOS major version
+  static int? macOSMajorVersion;
+  static int? macOSMinorVersion;
 }
 
 class ApplicationInfoTask extends LaunchTask {
@@ -20,6 +24,12 @@ class ApplicationInfoTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    if (Platform.isMacOS) {
+      final macInfo = await deviceInfoPlugin.macOsInfo;
+      ApplicationInfo.macOSMajorVersion = macInfo.majorVersion;
+      ApplicationInfo.macOSMinorVersion = macInfo.minorVersion;
+    }
 
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfoPlugin.androidInfo;

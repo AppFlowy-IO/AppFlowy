@@ -1,18 +1,17 @@
+use crate::util::{receive_with_timeout, unzip};
 use collab_document::blocks::DocumentData;
-use serde_json::json;
-use std::time::Duration;
-
+use collab_folder::SpaceInfo;
 use event_integration_test::document_event::assert_document_data_equal;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_document::entities::{DocumentSyncState, DocumentSyncStatePB};
-
-use crate::util::{receive_with_timeout, unzip};
+use serde_json::json;
+use std::time::Duration;
 
 #[tokio::test]
 async fn af_cloud_edit_document_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
   test.wait_ws_connected().await;
@@ -44,7 +43,7 @@ async fn af_cloud_edit_document_test() {
 #[tokio::test]
 async fn af_cloud_sync_anon_user_document_test() {
   let (cleaner, user_db_path) = unzip("./tests/asset", "040_sync_local_document").unwrap();
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
       .await;
@@ -56,6 +55,11 @@ async fn af_cloud_sync_anon_user_document_test() {
   //  view: SyncDocument
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
+  for view in views.iter() {
+    let space_info = serde_json::from_str::<SpaceInfo>(view.extra.as_ref().unwrap()).unwrap();
+    assert!(space_info.is_space);
+  }
+
   let document_id = views[2].id.clone();
   test.open_document(document_id.clone()).await;
 

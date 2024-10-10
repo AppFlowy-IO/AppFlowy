@@ -1,6 +1,7 @@
 import { useDecorate } from '@/components/editor/components/blocks/code/useDecorate';
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
+import { useShortcuts } from '@/components/editor/shortcut.hooks';
 import React, { Suspense, useCallback } from 'react';
 import { NodeEntry, Range } from 'slate';
 import { Editable, RenderElementProps, useSlate } from 'slate-react';
@@ -19,6 +20,11 @@ const EditorEditable = () => {
       </Suspense>
     );
   }, []);
+
+  const {
+    onKeyDown,
+  } = useShortcuts(editor);
+
   const onCompositionStart = useCallback(() => {
     const { selection } = editor;
 
@@ -45,6 +51,7 @@ const EditorEditable = () => {
         autoCorrect={'off'}
         autoComplete={'off'}
         onCompositionStart={onCompositionStart}
+        onKeyDown={onKeyDown}
       />
     </>
   );

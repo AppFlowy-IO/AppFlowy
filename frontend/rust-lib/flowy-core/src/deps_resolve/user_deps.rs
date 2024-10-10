@@ -4,6 +4,7 @@ use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_error::FlowyResult;
 use flowy_folder::manager::FolderManager;
+use flowy_folder_pub::entities::ImportFrom;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::user_manager::UserManager;
@@ -45,12 +46,31 @@ pub struct UserWorkspaceServiceImpl {
 
 #[async_trait]
 impl UserWorkspaceService for UserWorkspaceServiceImpl {
-  async fn did_import_views(&self, views: Vec<ParentChildViews>) -> FlowyResult<()> {
-    self.folder_manager.insert_parent_child_views(views).await?;
+  async fn import_views(
+    &self,
+    source: &ImportFrom,
+    views: Vec<ParentChildViews>,
+    orphan_views: Vec<ParentChildViews>,
+    parent_view_id: Option<String>,
+  ) -> FlowyResult<()> {
+    match source {
+      ImportFrom::AnonUser => {
+        self
+          .folder_manager
+          .insert_views_as_spaces(views, orphan_views)
+          .await?;
+      },
+      ImportFrom::AppFlowyDataFolder => {
+        self
+          .folder_manager
+          .insert_views_with_parent(views, orphan_views, parent_view_id)
+          .await?;
+      },
+    }
     Ok(())
   }
 
-  async fn did_import_database_views(
+  async fn import_database_views(
     &self,
     ids_by_database_id: HashMap<String, Vec<String>>,
   ) -> FlowyResult<()> {
