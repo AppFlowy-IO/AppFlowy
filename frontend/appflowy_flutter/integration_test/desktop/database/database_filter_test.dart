@@ -191,7 +191,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('create new row when filters don\t autofill', (tester) async {
+    testWidgets('create new row when filters don\'t autofill', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
