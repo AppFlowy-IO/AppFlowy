@@ -231,15 +231,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
     final payload = DatabaseViewRowIdPB(viewId: viewId, rowId: rowId);
-    return DatabaseEventGetCalendarEvent(payload).send().then((result) {
-      return result.fold(
-        (eventPB) => _calendarEventDataFromEventPB(eventPB),
-        (r) {
-          Log.error(r);
-          return null;
-        },
-      );
-    });
+    return DatabaseEventGetCalendarEvent(payload).send().fold(
+      (eventPB) => _calendarEventDataFromEventPB(eventPB),
+      (r) {
+        Log.error(r);
+        return null;
+      },
+    );
   }
 
   void _loadAllEvents() async {
@@ -341,6 +339,30 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           }
         }
       },
+      onNumOfRowsChanged: (rows, rowById, reason) {
+        reason.maybeWhen(
+          updateRowsVisibility: (changeset) async {
+            if (isClosed) {
+              return;
+            }
+            for (final id in changeset.invisibleRows) {
+              if (_containsEvent(id)) {
+                add(CalendarEvent.didDeleteEvents([id]));
+              }
+            }
+            for (final row in changeset.visibleRows) {
+              final id = row.rowMeta.id;
+              if (!_containsEvent(id)) {
+                final event = await _loadEvent(id);
+                if (event != null) {
+                  add(CalendarEvent.didReceiveEvent(event));
+                }
+              }
+            }
+          },
+          orElse: () {},
+        );
+      },
     );
 
     final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
@@ -370,6 +392,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       return false;
     }
     return state.allEvents[index].date.day != event.date.day;
+  }
+
+  bool _containsEvent(String rowId) {
+    return state.allEvents.any((element) => element.event!.eventId == rowId);
   }
 
   Int64 _eventTimestamp(CalendarDayEvent event, DateTime date) {

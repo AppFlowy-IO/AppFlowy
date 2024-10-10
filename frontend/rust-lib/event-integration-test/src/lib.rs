@@ -77,7 +77,7 @@ impl EventIntegrationTest {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
     let config = AppFlowyCoreConfig::new(
-      Version::new(0, 5, 8),
+      Version::new(0, 7, 0),
       path.clone(),
       path,
       device_id,

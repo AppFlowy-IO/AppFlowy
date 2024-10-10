@@ -40,7 +40,7 @@ class TransactionAdapter {
 
   Future<void> apply(Transaction transaction, EditorState editorState) async {
     if (enableDocumentInternalLog) {
-      Log.debug(
+      Log.info(
         '[TransactionAdapter] 2. apply transaction begin ${transaction.hashCode} in $hashCode',
       );
     }
@@ -48,7 +48,7 @@ class TransactionAdapter {
     await _applyInternal(transaction, editorState);
 
     if (enableDocumentInternalLog) {
-      Log.debug(
+      Log.info(
         '[TransactionAdapter] 3. apply transaction end ${transaction.hashCode} in $hashCode',
       );
     }
@@ -60,17 +60,12 @@ class TransactionAdapter {
   ) async {
     final stopwatch = Stopwatch()..start();
     if (enableDocumentInternalLog) {
-      Log.debug('transaction => ${transaction.toJson()}');
+      Log.info('transaction => ${transaction.toJson()}');
     }
-    final actions = transaction.operations
-        .map((op) => op.toBlockAction(editorState, documentId))
-        .whereNotNull()
-        .expand((element) => element)
-        .toList(growable: false); // avoid lazy evaluation
-    final textActions = actions.where(
-      (e) =>
-          e.textDeltaType != TextDeltaType.none && e.textDeltaPayloadPB != null,
-    );
+
+    final actions = transactionToBlockActions(transaction, editorState);
+    final textActions = filterTextDeltaActions(actions);
+
     final actionCostTime = stopwatch.elapsedMilliseconds;
     for (final textAction in textActions) {
       final payload = textAction.textDeltaPayloadPB!;
@@ -82,8 +77,8 @@ class TransactionAdapter {
           delta: payload.delta,
         );
         if (enableDocumentInternalLog) {
-          Log.debug(
-            '[editor_transaction_adapter] create external text: ${payload.delta}',
+          Log.info(
+            '[editor_transaction_adapter] create external text: id: ${payload.textId} delta: ${payload.delta}',
           );
         }
       } else if (type == TextDeltaType.update) {
@@ -93,18 +88,18 @@ class TransactionAdapter {
           delta: payload.delta,
         );
         if (enableDocumentInternalLog) {
-          Log.debug(
-            '[editor_transaction_adapter] update external text: ${payload.delta}',
+          Log.info(
+            '[editor_transaction_adapter] update external text: id: ${payload.textId} delta: ${payload.delta}',
           );
         }
       }
     }
-    final blockActions =
-        actions.map((e) => e.blockActionPB).toList(growable: false);
+
+    final blockActions = filterBlockActions(actions);
 
     for (final action in blockActions) {
       if (enableDocumentInternalLog) {
-        Log.debug(
+        Log.info(
           '[editor_transaction_adapter] action => ${action.toProto3Json()}',
         );
       }
@@ -114,13 +109,43 @@ class TransactionAdapter {
       documentId: documentId,
       actions: blockActions,
     );
+
     final elapsed = stopwatch.elapsedMilliseconds;
     stopwatch.stop();
     if (enableDocumentInternalLog) {
-      Log.debug(
+      Log.info(
         '[editor_transaction_adapter] apply transaction cost: total $elapsed ms, converter action $actionCostTime ms, apply action ${elapsed - actionCostTime} ms',
       );
     }
+  }
+
+  List<BlockActionWrapper> transactionToBlockActions(
+    Transaction transaction,
+    EditorState editorState,
+  ) {
+    return transaction.operations
+        .map((op) => op.toBlockAction(editorState, documentId))
+        .whereNotNull()
+        .expand((element) => element)
+        .toList(growable: false); // avoid lazy evaluation
+  }
+
+  List<BlockActionWrapper> filterTextDeltaActions(
+    List<BlockActionWrapper> actions,
+  ) {
+    return actions
+        .where(
+          (e) =>
+              e.textDeltaType != TextDeltaType.none &&
+              e.textDeltaPayloadPB != null,
+        )
+        .toList(growable: false);
+  }
+
+  List<BlockActionPB> filterBlockActions(
+    List<BlockActionWrapper> actions,
+  ) {
+    return actions.map((e) => e.blockActionPB).toList(growable: false);
   }
 }
 
@@ -294,6 +319,15 @@ extension on UpdateOperation {
         externalType: _kExternalTextType,
       );
 
+      if (enableDocumentInternalLog) {
+        Log.info('create text delta: $textDeltaPayloadPB');
+      }
+
+      // update the external text id and external type to the block
+      blockActionPB.payload.block
+        ..externalId = textId
+        ..externalType = _kExternalTextType;
+
       actions.add(
         BlockActionWrapper(
           blockActionPB: blockActionPB,
@@ -309,6 +343,15 @@ extension on UpdateOperation {
               textId: textId,
               delta: jsonEncode(diff),
             );
+
+      if (enableDocumentInternalLog) {
+        Log.info('update text delta: $textDeltaPayloadPB');
+      }
+
+      // update the external text id and external type to the block
+      blockActionPB.payload.block
+        ..externalId = textId
+        ..externalType = _kExternalTextType;
 
       actions.add(
         BlockActionWrapper(

@@ -3,21 +3,28 @@ use collab_folder::{ViewIcon, ViewLayout};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub enum ImportData {
-  AppFlowyDataFolder { items: Vec<AppFlowyData> },
+pub struct ImportedAppFlowyData {
+  pub source: ImportFrom,
+  pub folder_data: ImportedFolderData,
+  pub collab_data: ImportedCollabData,
+  pub parent_view_id: Option<String>,
 }
 
-pub enum AppFlowyData {
-  Folder {
-    views: Vec<ParentChildViews>,
-    /// Used to update the [DatabaseViewTrackerList] when importing the database.
-    database_view_ids_by_database_id: HashMap<String, Vec<String>>,
-  },
-  CollabObject {
-    row_object_ids: Vec<String>,
-    document_object_ids: Vec<String>,
-    database_object_ids: Vec<String>,
-  },
+pub enum ImportFrom {
+  AnonUser,
+  AppFlowyDataFolder,
+}
+
+pub struct ImportedFolderData {
+  pub views: Vec<ParentChildViews>,
+  pub orphan_views: Vec<ParentChildViews>,
+  /// Used to update the [DatabaseViewTrackerList] when importing the database.
+  pub database_view_ids_by_database_id: HashMap<String, Vec<String>>,
+}
+pub struct ImportedCollabData {
+  pub row_object_ids: Vec<String>,
+  pub document_object_ids: Vec<String>,
+  pub database_object_ids: Vec<String>,
 }
 
 pub struct ImportViews {

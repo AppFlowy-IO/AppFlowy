@@ -20,7 +20,7 @@ flowy-notification = { workspace = true }
 flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error", "impl_from_collab_document", "impl_from_collab_persistence"] }
 lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }
-validator = { version = "0.16.0", features = ["derive"] }
+validator = { workspace = true, features = ["derive"] }
 protobuf.workspace = true
 bytes.workspace = true
 nanoid = "0.4.0"

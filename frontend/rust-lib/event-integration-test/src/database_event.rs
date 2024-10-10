@@ -11,6 +11,7 @@ use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::cell::CellBuilder;
+use flowy_database2::services::field::ChecklistCellInsertChangeset;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
@@ -656,11 +657,11 @@ impl<'a> TestRowBuilder<'a> {
     multi_select_field.id.clone()
   }
 
-  pub fn insert_checklist_cell(&mut self, options: Vec<(String, bool)>) -> String {
+  pub fn insert_checklist_cell(&mut self, new_tasks: Vec<ChecklistCellInsertChangeset>) -> String {
     let checklist_field = self.field_with_type(&FieldType::Checklist);
     self
       .cell_build
-      .insert_checklist_cell(&checklist_field.id, options);
+      .insert_checklist_cell(&checklist_field.id, new_tasks);
     checklist_field.id.clone()
   }
 

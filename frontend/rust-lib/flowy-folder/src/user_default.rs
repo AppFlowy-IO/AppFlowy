@@ -28,12 +28,12 @@ impl DefaultFolderBuilder {
 
     let views = workspace_view_builder.write().await.build();
     // Safe to unwrap because we have at least one view. check out the DocumentFolderOperation.
-    let first_view = views.first().unwrap().parent_view.clone();
+    let first_view = views.first().unwrap().view.clone();
 
     let first_level_views = views
       .iter()
       .map(|value| ViewIdentifier {
-        id: value.parent_view.id.clone(),
+        id: value.view.id.clone(),
       })
       .collect::<Vec<_>>();
 
@@ -62,11 +62,11 @@ impl DefaultFolderBuilder {
 impl From<&ParentChildViews> for ViewPB {
   fn from(value: &ParentChildViews) -> Self {
     view_pb_with_child_views(
-      Arc::new(value.parent_view.clone()),
+      Arc::new(value.view.clone()),
       value
-        .child_views
+        .children
         .iter()
-        .map(|v| Arc::new(v.parent_view.clone()))
+        .map(|v| Arc::new(v.view.clone()))
         .collect(),
     )
   }

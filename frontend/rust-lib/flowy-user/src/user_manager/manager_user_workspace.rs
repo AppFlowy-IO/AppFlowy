@@ -10,7 +10,7 @@ use collab_integrate::CollabKVDB;
 use tracing::{error, info, instrument, trace, warn};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::entities::{AppFlowyData, ImportData};
+use flowy_folder_pub::entities::{ImportFrom, ImportedCollabData, ImportedFolderData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
@@ -63,89 +63,87 @@ impl UserManager {
     })
     .await??;
 
-    match import_data {
-      ImportData::AppFlowyDataFolder { items } => {
-        for item in items {
-          self
-            .upload_appflowy_data_item(&current_session, item)
-            .await?;
-        }
-      },
-    }
+    info!(
+      "[AppflowyData]: upload {} document, {} database, {}, rows",
+      import_data.collab_data.document_object_ids.len(),
+      import_data.collab_data.database_object_ids.len(),
+      import_data.collab_data.row_object_ids.len()
+    );
+    self
+      .upload_collab_data(&current_session, import_data.collab_data)
+      .await?;
+
+    self
+      .upload_folder_data(
+        &current_session,
+        &import_data.source,
+        import_data.parent_view_id,
+        import_data.folder_data,
+      )
+      .await?;
+
     Ok(())
   }
 
-  async fn upload_appflowy_data_item(
+  async fn upload_folder_data(
+    &self,
+    _current_session: &Session,
+    source: &ImportFrom,
+    parent_view_id: Option<String>,
+    folder_data: ImportedFolderData,
+  ) -> Result<(), FlowyError> {
+    let ImportedFolderData {
+      views,
+      orphan_views,
+      database_view_ids_by_database_id,
+    } = folder_data;
+    self
+      .user_workspace_service
+      .import_database_views(database_view_ids_by_database_id)
+      .await?;
+    self
+      .user_workspace_service
+      .import_views(source, views, orphan_views, parent_view_id)
+      .await?;
+
+    Ok(())
+  }
+
+  async fn upload_collab_data(
     &self,
     current_session: &Session,
-    item: AppFlowyData,
+    collab_data: ImportedCollabData,
   ) -> Result<(), FlowyError> {
-    match item {
-      AppFlowyData::Folder {
-        views,
-        database_view_ids_by_database_id,
-      } => {
-        // Since `async_trait` does not implement `Sync`, and the handler requires `Sync`, we use a
-        // channel to synchronize the operation. This approach allows asynchronous trait methods to be compatible
-        // with synchronous handler requirements."
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        let cloned_workspace_service = self.user_workspace_service.clone();
-        af_spawn(async move {
-          let result = async {
-            cloned_workspace_service
-              .did_import_database_views(database_view_ids_by_database_id)
-              .await?;
-            cloned_workspace_service.did_import_views(views).await?;
-            Ok::<(), FlowyError>(())
-          }
-          .await;
-          let _ = tx.send(result);
-        })
-        .await?;
-        rx.await??;
-      },
-      AppFlowyData::CollabObject {
-        row_object_ids,
-        document_object_ids,
-        database_object_ids,
-      } => {
-        let user = self
-          .get_user_profile_from_disk(current_session.user_id)
-          .await?;
-        let user_collab_db = self
-          .get_collab_db(current_session.user_id)?
-          .upgrade()
-          .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
+    let user = self
+      .get_user_profile_from_disk(current_session.user_id)
+      .await?;
+    let user_collab_db = self
+      .get_collab_db(current_session.user_id)?
+      .upgrade()
+      .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
 
-        let user_id = current_session.user_id;
-        let weak_user_collab_db = Arc::downgrade(&user_collab_db);
-        let weak_user_cloud_service = self.cloud_services.get_user_service()?;
-        match upload_collab_objects_data(
-          user_id,
-          weak_user_collab_db,
-          &user.workspace_id,
-          &user.authenticator,
-          AppFlowyData::CollabObject {
-            row_object_ids,
-            document_object_ids,
-            database_object_ids,
-          },
-          weak_user_cloud_service,
-        )
-        .await
-        {
-          Ok(_) => info!(
-            "Successfully uploaded collab objects data for user:{}",
-            user_id
-          ),
-          Err(err) => {
-            error!(
-              "Failed to upload collab objects data: {:?} for user:{}",
-              err, user_id
-            );
-            // TODO(nathan): retry uploading the collab objects data.
-          },
-        }
+    let user_id = current_session.user_id;
+    let weak_user_collab_db = Arc::downgrade(&user_collab_db);
+    let weak_user_cloud_service = self.cloud_services.get_user_service()?;
+    match upload_collab_objects_data(
+      user_id,
+      weak_user_collab_db,
+      &current_session.user_workspace.id,
+      &user.authenticator,
+      collab_data,
+      weak_user_cloud_service,
+    )
+    .await
+    {
+      Ok(_) => info!(
+        "Successfully uploaded collab objects data for user:{}",
+        user_id
+      ),
+      Err(err) => {
+        error!(
+          "Failed to upload collab objects data: {:?} for user:{}",
+          err, user_id
+        );
       },
     }
     Ok(())
@@ -160,6 +158,7 @@ impl UserManager {
       imported_session: old_user.session.as_ref().clone(),
       imported_collab_db: old_collab_db.clone(),
       container_name: None,
+      parent_view_id: None,
       source: ImportedSource::AnonUser,
     };
     self.perform_import(import_context).await?;

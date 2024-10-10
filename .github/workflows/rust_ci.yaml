@@ -46,7 +46,9 @@ jobs:
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
+          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
+          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
@@ -127,12 +129,15 @@ jobs:
         run: |
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env 
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
+          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
+          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
