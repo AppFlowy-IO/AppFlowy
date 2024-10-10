@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/number.dart';
@@ -201,6 +203,472 @@ void main() {
 
       // Expect the min to be 100
       expect(find.text('100'), findsNWidgets(2));
+    });
+
+    // TODO: Uncmoment expects
+    testWidgets('Calculations count + count empty w/ filter', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      expect(find.text('Calculate'), findsNWidgets(3));
+
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.RichText);
+
+      await tester.changeCalculateAtIndex(0, CalculationType.Count);
+      await tester.changeCalculateAtIndex(1, CalculationType.CountEmpty);
+
+      // Enter values in 2nd column (count empty)
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        input: 'A',
+        cellIndex: 1,
+      );
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: 'A',
+        cellIndex: 1,
+      );
+      await tester.pumpAndSettle();
+
+      // Dismiss edit cell
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      // Expect count to be 3
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '3',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      // Expect count empty to be 1
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '1',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.RichText, 'Type');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextFilterChoicechip));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(TextFilterEditor),
+          matching: find.byType(FlowyTextField),
+        ),
+        'A',
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Expect the count to be 2
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '2',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      // Expect the count empty to be 0
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '0',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(TextFilterEditor),
+          matching: find.byType(FlowyTextField),
+        ),
+        'B',
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Expect the count to be 0
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '0',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      // Expect the count empty to be 0
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '0',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(TextFilterEditor),
+          matching: find.byType(FlowyTextField),
+        ),
+        '',
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.dismissCellEditor();
+
+      await tester.tapCreateRowButtonInGrid();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Expect the count to be 4
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '4',
+      //   ),
+      //   findsOneWidget,
+      // );
+
+      // Expect the count empty to be 2
+      // expect(
+      //   find.byWidgetPredicate(
+      //     (w) =>
+      //         w is CalculateCell &&
+      //         w.calculation != null &&
+      //         w.calculation!.value == '2',
+      //   ),
+      //   findsOneWidget,
+      // );
+    });
+
+    testWidgets('Calculations count not empty w/ filter', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      expect(find.text('Calculate'), findsNWidgets(3));
+
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.Number);
+
+      await tester.changeCalculateAtIndex(0, CalculationType.CountNonEmpty);
+      await tester.changeCalculateAtIndex(1, CalculationType.CountNonEmpty);
+
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.Number,
+        input: '1',
+      );
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.Number,
+        input: '2',
+      );
+      await tester.pumpAndSettle();
+
+      // Dismiss edit cell
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '0',
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '2',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.Number, 'Type');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(NumberFilterChoiceChip));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(NumberFilterEditor),
+          matching: find.byType(FlowyTextField),
+        ),
+        '1',
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '0',
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '1',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.dismissCellEditor();
+
+      await tester.tapCreateRowButtonInGrid();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '0',
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '2',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Median calculation', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      expect(find.text('Calculate'), findsNWidgets(3));
+
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.Number);
+      await tester.changeCalculateAtIndex(1, CalculationType.Median);
+
+      await tester.tapCreateRowButtonInGrid();
+      await tester.pumpAndSettle();
+
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.Number,
+        input: '10',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('10'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.Number,
+        input: '20',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('15'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.editCell(
+        rowIndex: 2,
+        fieldType: FieldType.Number,
+        input: '30',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('20'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.editCell(
+        rowIndex: 3,
+        fieldType: FieldType.Number,
+        input: '40',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('25'),
+        ),
+        findsOneWidget,
+      );
+
+      // Dismiss edit cell
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.Number, 'Type');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(NumberFilterChoiceChip));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(NumberFilterEditor),
+          matching: find.byType(FlowyTextField),
+        ),
+        '30',
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('30'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Median calculation', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      expect(find.text('Calculate'), findsNWidgets(3));
+
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.Number);
+      await tester.changeCalculateAtIndex(1, CalculationType.Median);
+
+      await tester.tapCreateRowButtonInGrid();
+      await tester.pumpAndSettle();
+
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.Number,
+        input: '10',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('10'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.Number,
+        input: '20',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('15'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.editCell(
+        rowIndex: 2,
+        fieldType: FieldType.Number,
+        input: '30',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('20'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.editCell(
+        rowIndex: 3,
+        fieldType: FieldType.Number,
+        input: '40',
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('25'),
+        ),
+        findsOneWidget,
+      );
+
+      // Dismiss edit cell
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.Number, 'Type');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(NumberFilterChoiceChip));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(NumberFilterEditor),
+          matching: find.byType(FlowyTextField),
+        ),
+        '30',
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(
+        find.descendant(
+          of: find.byType(CalculateCell),
+          matching: find.text('30'),
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

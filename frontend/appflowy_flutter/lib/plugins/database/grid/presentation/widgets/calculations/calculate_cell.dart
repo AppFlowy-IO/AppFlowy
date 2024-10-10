@@ -87,35 +87,11 @@ class _CalculateCellState extends State<CalculateCell> {
             }
           });
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                if (widget.calculation != null)
-                  RemoveCalculationButton(
-                    onTap: () => context.read<CalculationsBloc>().add(
-                          CalculationsEvent.removeCalculation(
-                            widget.fieldInfo.id,
-                            widget.calculation!.id,
-                          ),
-                        ),
-                  ),
-                ...widget.fieldInfo.fieldType.calculationsForFieldType().map(
-                      (type) => CalculationTypeItem(
-                        type: type,
-                        onTap: () {
-                          if (type != widget.calculation?.calculationType) {
-                            context.read<CalculationsBloc>().add(
-                                  CalculationsEvent.updateCalculationType(
-                                    widget.fieldInfo.id,
-                                    type,
-                                    calculationId: widget.calculation?.id,
-                                  ),
-                                );
-                          }
-                        },
-                      ),
-                    ),
-              ],
+          return BlocProvider.value(
+            value: context.read<CalculationsBloc>(),
+            child: CalculateSelector(
+              fieldInfo: widget.fieldInfo,
+              calculation: widget.calculation,
             ),
           );
         },
@@ -209,4 +185,50 @@ class _CalculateCellState extends State<CalculateCell> {
               .iconSymbol(false),
         _ => null,
       };
+}
+
+class CalculateSelector extends StatelessWidget {
+  const CalculateSelector({
+    super.key,
+    required this.fieldInfo,
+    this.calculation,
+  });
+
+  final FieldInfo fieldInfo;
+  final CalculationPB? calculation;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          if (calculation != null)
+            RemoveCalculationButton(
+              onTap: () => context.read<CalculationsBloc>().add(
+                    CalculationsEvent.removeCalculation(
+                      fieldInfo.id,
+                      calculation!.id,
+                    ),
+                  ),
+            ),
+          ...fieldInfo.fieldType.calculationsForFieldType().map(
+                (type) => CalculationTypeItem(
+                  type: type,
+                  onTap: () {
+                    if (type != calculation?.calculationType) {
+                      context.read<CalculationsBloc>().add(
+                            CalculationsEvent.updateCalculationType(
+                              fieldInfo.id,
+                              type,
+                              calculationId: calculation?.id,
+                            ),
+                          );
+                    }
+                  },
+                ),
+              ),
+        ],
+      ),
+    );
+  }
 }
