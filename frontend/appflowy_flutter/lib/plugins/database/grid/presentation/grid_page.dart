@@ -145,51 +145,7 @@ class _GridPageState extends State<GridPage> {
           }
         },
         child: BlocConsumer<GridBloc, GridState>(
-          listener: (context, state) {
-            state.loadingState.whenOrNull(
-              // If initial row id is defined, open row details overlay
-              finish: (_) async {
-                if (widget.initialRowId != null && !_didOpenInitialRow) {
-                  _didOpenInitialRow = true;
-
-                  _openRow(context, widget.initialRowId!);
-                  return;
-                }
-
-                final bloc = context.read<DatabaseTabBarBloc>();
-                final isCurrentView =
-                    bloc.state.tabBars[bloc.state.selectedIndex].viewId ==
-                        widget.view.id;
-
-                if (state.openRowDetail &&
-                    state.createdRow != null &&
-                    isCurrentView) {
-                  final rowController = RowController(
-                    viewId: widget.view.id,
-                    rowMeta: state.createdRow!,
-                    rowCache: context.read<GridBloc>().rowCache,
-                  );
-                  unawaited(
-                    FlowyOverlay.show(
-                      context: context,
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<ViewBloc>(),
-                        child: RowDetailPage(
-                          databaseController:
-                              context.read<GridBloc>().databaseController,
-                          rowController: rowController,
-                          userProfile: context.read<GridBloc>().userProfile,
-                        ),
-                      ),
-                    ),
-                  );
-                  context
-                      .read<GridBloc>()
-                      .add(const GridEvent.resetCreatedRow());
-                }
-              },
-            );
-          },
+          listener: listener,
           builder: (context, state) => state.loadingState.map(
             loading: (_) => const Center(
               child: CircularProgressIndicator.adaptive(),
@@ -244,6 +200,48 @@ class _GridPageState extends State<GridPage> {
         ),
       );
     });
+  }
+
+  void listener(BuildContext context, GridState state) {
+    state.loadingState.whenOrNull(
+      // If initial row id is defined, open row details overlay
+      finish: (_) async {
+        if (widget.initialRowId != null && !_didOpenInitialRow) {
+          _didOpenInitialRow = true;
+
+          _openRow(context, widget.initialRowId!);
+          return;
+        }
+
+        final bloc = context.read<DatabaseTabBarBloc>();
+        final isCurrentView =
+            bloc.state.tabBars[bloc.state.selectedIndex].viewId ==
+                widget.view.id;
+
+        if (state.openRowDetail && state.createdRow != null && isCurrentView) {
+          final rowController = RowController(
+            viewId: widget.view.id,
+            rowMeta: state.createdRow!,
+            rowCache: context.read<GridBloc>().rowCache,
+          );
+          unawaited(
+            FlowyOverlay.show(
+              context: context,
+              builder: (_) => BlocProvider.value(
+                value: context.read<ViewBloc>(),
+                child: RowDetailPage(
+                  databaseController:
+                      context.read<GridBloc>().databaseController,
+                  rowController: rowController,
+                  userProfile: context.read<GridBloc>().userProfile,
+                ),
+              ),
+            ),
+          );
+          context.read<GridBloc>().add(const GridEvent.resetCreatedRow());
+        }
+      },
+    );
   }
 }
 
