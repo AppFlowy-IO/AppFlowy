@@ -1,11 +1,12 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/select/select_option.dart';
 import 'package:appflowy/util/field_type_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -314,6 +315,30 @@ void main() {
         fieldType: FieldType.DateTime,
         content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
+    });
+
+    testWidgets('text in viewport while typing', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      await tester.changeCalculateAtIndex(0, CalculationType.Count);
+
+      // add very large text with 200 lines
+      final largeText = List.generate(
+        200,
+        (index) => 'Line ${index + 1}',
+      ).join('\n');
+
+      await tester.editCell(
+        rowIndex: 2,
+        fieldType: FieldType.RichText,
+        input: largeText,
+      );
+
+      // checks if last line is in view port
+      tester.expectToSeeText('Line 200');
     });
 
     // Disable this test because it fails on CI randomly
