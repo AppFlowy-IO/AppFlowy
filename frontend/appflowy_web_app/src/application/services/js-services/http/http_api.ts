@@ -1173,3 +1173,49 @@ export async function getActiveSubscription (workspaceId: string) {
 
   return Promise.reject(response?.data);
 }
+
+export async function importFile (file: File, onProgress: (progress: number) => void) {
+  const url = `/api/import`;
+
+  const fileName = file.name.split('.').slice(0, -1).join('.') || crypto.randomUUID();
+
+  const fileSize = file.size;
+
+  const mimeType = file.type || 'application/octet-stream';
+
+  const validZipTypes = [
+    'application/zip',
+    'application/x-zip',
+    'application/x-zip-compressed',
+    'application/octet-stream',
+  ];
+
+  if (!validZipTypes.includes(mimeType) && !file.name.toLowerCase().endsWith('.zip')) {
+    throw new Error('Please select a valid ZIP file.');
+  }
+
+  const formData = new FormData();
+
+  formData.append(fileName, file, file.name);
+
+  try {
+    const response = await axios.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'X-Content-Length': fileSize.toString(),
+      },
+      onUploadProgress: (progressEvent) => {
+        const { progress = 0 } = progressEvent;
+
+        console.log(`Upload progress: ${progress * 100}%`);
+        onProgress(progress);
+      },
+    });
+
+    console.log('Import successful:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error importing file:', error);
+    throw error;
+  }
+}

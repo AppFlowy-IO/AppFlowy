@@ -2500,7 +2500,12 @@
       "uploadedAt": "Uploaded on {time}",
       "linkedAt": "Link added on {time}",
       "empty": "Upload or embed a file"
-    }
+    },
+    "importNotion": "Import from Notion",
+    "import": "Import",
+    "importSuccess": "Uploaded successfully",
+    "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
+    "importFailed": "Import failed, please check the file format"
   },
   "globalComment": {
     "comments": "Comments",

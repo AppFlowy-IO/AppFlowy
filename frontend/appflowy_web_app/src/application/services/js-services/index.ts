@@ -471,4 +471,8 @@ export class AFClientService implements AFService {
 
     sync.initialize();
   }
+
+  importFile (file: File, onProgress: (progress: number) => void) {
+    return APIService.importFile(file, onProgress);
+  }
 }
