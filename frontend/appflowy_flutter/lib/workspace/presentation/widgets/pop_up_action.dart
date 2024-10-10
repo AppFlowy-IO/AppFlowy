@@ -28,6 +28,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
       maxWidth: 460,
       maxHeight: 300,
     ),
+    this.showAtCursor = false,
   });
 
   final PopoverMutex? popoverMutex;
@@ -47,6 +48,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final double endScaleFactor;
   final double beginOpacity;
   final double endOpacity;
+  final bool showAtCursor;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -78,9 +80,12 @@ class _PopoverActionListState<T extends PopoverAction>
       direction: widget.direction,
       mutex: widget.mutex,
       offset: widget.offset,
-      triggerActions: PopoverTriggerFlags.none,
+      triggerActions: widget.showAtCursor
+          ? PopoverTriggerFlags.secondaryClick
+          : PopoverTriggerFlags.none,
       onClose: widget.onClosed,
-      popupBuilder: (BuildContext popoverContext) {
+      showAtCursor: widget.showAtCursor,
+      popupBuilder: (_) {
         widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {
           if (action is ActionCell) {
@@ -110,9 +115,7 @@ class _PopoverActionListState<T extends PopoverAction>
 
         return IntrinsicHeight(
           child: IntrinsicWidth(
-            child: Column(
-              children: children,
-            ),
+            child: Column(children: children),
           ),
         );
       },

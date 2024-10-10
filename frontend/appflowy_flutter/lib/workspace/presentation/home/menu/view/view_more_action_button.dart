@@ -13,14 +13,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// ··· button beside the view name
-class ViewMoreActionButton extends StatelessWidget {
-  const ViewMoreActionButton({
+class ViewMoreActionPopover extends StatelessWidget {
+  const ViewMoreActionPopover({
     super.key,
     required this.view,
     required this.onEditing,
     required this.onAction,
     required this.spaceType,
     required this.isExpanded,
+    this.showAtCursor = false,
+    required this.buildChild,
   });
 
   final ViewPB view;
@@ -28,6 +30,8 @@ class ViewMoreActionButton extends StatelessWidget {
   final void Function(ViewMoreActionType type, dynamic data) onAction;
   final FolderSpaceType spaceType;
   final bool isExpanded;
+  final bool showAtCursor;
+  final Widget Function(PopoverController) buildChild;
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +40,10 @@ class ViewMoreActionButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
       actions: wrappers,
-      constraints: const BoxConstraints(
-        minWidth: 260,
-      ),
-      buildChild: (popover) {
-        return FlowyIconButton(
-          width: 24,
-          icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
-          onPressed: () {
-            onEditing(true);
-            popover.show();
-          },
-        );
-      },
+      constraints: const BoxConstraints(minWidth: 260),
+      showAtCursor: showAtCursor,
+      onPopupBuilder: () => onEditing(true),
+      buildChild: buildChild,
       onSelected: (_, __) {},
       onClosed: () => onEditing(false),
     );

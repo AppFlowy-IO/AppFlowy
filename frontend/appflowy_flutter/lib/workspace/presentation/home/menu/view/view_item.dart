@@ -550,7 +550,19 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         children.addAll(widget.rightIconsBuilder!(context, widget.view));
       } else {
         // ··· more action button
-        children.add(_buildViewMoreActionButton(context));
+        children.add(
+          _buildViewMoreActionButton(
+            context,
+            (popover) => FlowyTooltip(
+              message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
+              child: FlowyIconButton(
+                width: 24,
+                icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+                onPressed: popover.show,
+              ),
+            ),
+          ),
+        );
         // only support add button for document layout
         if (widget.view.layout == ViewLayoutPB.Document) {
           // + button
@@ -566,12 +578,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       onTap: () => widget.onSelected(context, widget.view),
       onTertiaryTapDown: (_) =>
           widget.onTertiarySelected?.call(context, widget.view),
-      child: SizedBox(
-        height: widget.height,
-        child: Padding(
-          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: Row(
-            children: children,
+      child: _buildViewMoreActionButton(
+        context,
+        showAtCursor: true,
+        (_) => SizedBox(
+          height: widget.height,
+          child: Padding(
+            padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+            child: Row(children: children),
           ),
         ),
       ),
@@ -700,103 +714,104 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   // ··· more action button
-  Widget _buildViewMoreActionButton(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
-      child: BlocProvider(
-        create: (context) => SpaceBloc(
-          userProfile: context.read<SpaceBloc>().userProfile,
-          workspaceId: context.read<SpaceBloc>().workspaceId,
-        )..add(const SpaceEvent.initial(openFirstPage: false)),
-        child: ViewMoreActionButton(
-          view: widget.view,
-          isExpanded: widget.isExpanded,
-          spaceType: widget.spaceType,
-          onEditing: (value) =>
-              context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-          onAction: (action, data) async {
-            switch (action) {
-              case ViewMoreActionType.favorite:
-              case ViewMoreActionType.unFavorite:
-                context
-                    .read<FavoriteBloc>()
-                    .add(FavoriteEvent.toggle(widget.view));
-                break;
-              case ViewMoreActionType.rename:
-                unawaited(
-                  NavigatorTextFieldDialog(
-                    title: LocaleKeys.disclosureAction_rename.tr(),
-                    autoSelectAllText: true,
-                    value: widget.view.name,
-                    maxLength: 256,
-                    onConfirm: (newValue, _) {
-                      context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-                    },
-                  ).show(context),
+  Widget _buildViewMoreActionButton(
+    BuildContext context,
+    Widget Function(PopoverController) buildChild, {
+    bool showAtCursor = false,
+  }) {
+    return BlocProvider(
+      create: (context) => SpaceBloc(
+        userProfile: context.read<SpaceBloc>().userProfile,
+        workspaceId: context.read<SpaceBloc>().workspaceId,
+      )..add(const SpaceEvent.initial(openFirstPage: false)),
+      child: ViewMoreActionPopover(
+        view: widget.view,
+        isExpanded: widget.isExpanded,
+        spaceType: widget.spaceType,
+        showAtCursor: showAtCursor,
+        onEditing: (value) =>
+            context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
+        buildChild: buildChild,
+        onAction: (action, data) async {
+          switch (action) {
+            case ViewMoreActionType.favorite:
+            case ViewMoreActionType.unFavorite:
+              context
+                  .read<FavoriteBloc>()
+                  .add(FavoriteEvent.toggle(widget.view));
+              break;
+            case ViewMoreActionType.rename:
+              unawaited(
+                NavigatorTextFieldDialog(
+                  title: LocaleKeys.disclosureAction_rename.tr(),
+                  autoSelectAllText: true,
+                  value: widget.view.name,
+                  maxLength: 256,
+                  onConfirm: (newValue, _) {
+                    context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                  },
+                ).show(context),
+              );
+              break;
+            case ViewMoreActionType.delete:
+              // get if current page contains published child views
+              final (containPublishedPage, _) =
+                  await ViewBackendService.containPublishedPage(
+                widget.view,
+              );
+              if (containPublishedPage && context.mounted) {
+                await showConfirmDeletionDialog(
+                  context: context,
+                  name: widget.view.name,
+                  description: LocaleKeys.publish_containsPublishedPage.tr(),
+                  onConfirm: () {
+                    context.read<ViewBloc>().add(const ViewEvent.delete());
+                  },
                 );
-                break;
-              case ViewMoreActionType.delete:
-                // get if current page contains published child views
-                final (containPublishedPage, _) =
-                    await ViewBackendService.containPublishedPage(
-                  widget.view,
-                );
-                if (containPublishedPage && context.mounted) {
-                  await showConfirmDeletionDialog(
-                    context: context,
-                    name: widget.view.name,
-                    description: LocaleKeys.publish_containsPublishedPage.tr(),
-                    onConfirm: () {
-                      context.read<ViewBloc>().add(const ViewEvent.delete());
-                    },
-                  );
-                } else if (context.mounted) {
-                  context.read<ViewBloc>().add(const ViewEvent.delete());
-                }
-                break;
-              case ViewMoreActionType.duplicate:
-                context.read<ViewBloc>().add(const ViewEvent.duplicate());
-                break;
-              case ViewMoreActionType.openInNewTab:
-                context.read<TabsBloc>().openTab(widget.view);
-                break;
-              case ViewMoreActionType.collapseAllPages:
-                context
-                    .read<ViewBloc>()
-                    .add(const ViewEvent.collapseAllPages());
-                break;
-              case ViewMoreActionType.changeIcon:
-                if (data is! EmojiPickerResult) {
-                  return;
-                }
-                final result = data;
-                await ViewBackendService.updateViewIcon(
-                  viewId: widget.view.id,
-                  viewIcon: result.emoji,
-                  iconType: result.type.toProto(),
-                );
-                break;
-              case ViewMoreActionType.moveTo:
-                final value = data;
-                if (value is! (ViewPB, ViewPB)) {
-                  return;
-                }
-                final space = value.$1;
-                final target = value.$2;
-                moveViewCrossSpace(
-                  context,
-                  space,
-                  widget.view,
-                  widget.parentView,
-                  widget.spaceType,
-                  widget.view,
-                  target.id,
-                );
-              default:
-                throw UnsupportedError('$action is not supported');
-            }
-          },
-        ),
+              } else if (context.mounted) {
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+              }
+              break;
+            case ViewMoreActionType.duplicate:
+              context.read<ViewBloc>().add(const ViewEvent.duplicate());
+              break;
+            case ViewMoreActionType.openInNewTab:
+              context.read<TabsBloc>().openTab(widget.view);
+              break;
+            case ViewMoreActionType.collapseAllPages:
+              context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
+              break;
+            case ViewMoreActionType.changeIcon:
+              if (data is! EmojiPickerResult) {
+                return;
+              }
+              final result = data;
+              await ViewBackendService.updateViewIcon(
+                viewId: widget.view.id,
+                viewIcon: result.emoji,
+                iconType: result.type.toProto(),
+              );
+              break;
+            case ViewMoreActionType.moveTo:
+              final value = data;
+              if (value is! (ViewPB, ViewPB)) {
+                return;
+              }
+              final space = value.$1;
+              final target = value.$2;
+              moveViewCrossSpace(
+                context,
+                space,
+                widget.view,
+                widget.parentView,
+                widget.spaceType,
+                widget.view,
+                target.id,
+              );
+            default:
+              throw UnsupportedError('$action is not supported');
+          }
+        },
       ),
     );
   }

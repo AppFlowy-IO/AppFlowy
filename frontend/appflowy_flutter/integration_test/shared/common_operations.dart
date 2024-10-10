@@ -199,7 +199,7 @@ extension CommonOperations on WidgetTester {
   ///
   /// Must call [hoverOnPageName] first.
   Future<void> tapPageOptionButton() async {
-    final optionButton = find.byType(ViewMoreActionButton);
+    final optionButton = find.byType(ViewMoreActionPopover);
     await tapButton(optionButton);
   }
 
