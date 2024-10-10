@@ -1221,7 +1221,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(TextFilterConditionList));
     final button = find.descendant(
       of: find.byType(HoverButton),
-      matching: find.text(condition.filterName),
+      matching: find.text(
+        condition.filterName,
+      ),
     );
 
     await tapButton(button);
@@ -1240,7 +1242,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> changeDateFilterCondition(
-      DateTimeFilterCondition condition) async {
+    DateTimeFilterCondition condition,
+  ) async {
     await tapButton(find.byType(DateFilterConditionList));
     final button = find.descendant(
       of: find.byType(HoverButton),
