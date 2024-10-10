@@ -18,6 +18,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+/// Build the block component builders.
+///
+/// Every block type should have a corresponding builder in the map.
+/// Otherwise, the errorBlockComponentBuilder will be rendered.
+///
+/// Additional, you can define the block render options in the builder
+/// - customize the block option actions. (... button and + button)
+/// - customize the block component configuration. (padding, placeholder, etc.)
+/// - customize the block icon. (bulleted list, numbered list, todo list)
+/// - customize the hover menu. (show the menu at the top-right corner of the block)
 Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   required BuildContext context,
   required EditorState editorState,
