@@ -261,4 +261,8 @@ export class AFClientService implements AFService {
   registerDocUpdate (_doc: YDoc, _workspaceId: string, _objectId: string): void {
     throw new Error('Method not implemented.');
   }
+
+  importFile (_file: File, _onProgress: (progress: number) => void) {
+    return Promise.reject('Method not implemented');
+  }
 }
