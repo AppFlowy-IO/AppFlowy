@@ -108,7 +108,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
           cursorColor: Colors.transparent,
           cursorWidth: 0,
         );
-    final blockBuilders = getEditorBuilderMap(
+    final blockBuilders = buildBlockComponentBuilders(
       context: context,
       editorState: editorState,
       styleCustomizer: styleCustomizer,

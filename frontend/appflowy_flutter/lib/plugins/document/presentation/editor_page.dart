@@ -281,7 +281,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         // setup the theme
         editorStyle: styleCustomizer.style(),
         // customize the block builders
-        blockComponentBuilders: getEditorBuilderMap(
+        blockComponentBuilders: buildBlockComponentBuilders(
           slashMenuItems: slashMenuItems,
           context: context,
           editorState: widget.editorState,

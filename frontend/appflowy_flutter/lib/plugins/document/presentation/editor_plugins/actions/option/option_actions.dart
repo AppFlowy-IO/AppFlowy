@@ -1,5 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:easy_localization/easy_localization.dart';
 
 export 'align_option_action.dart';
@@ -7,6 +10,48 @@ export 'color_option_action.dart';
 export 'depth_option_action.dart';
 export 'divider_option_action.dart';
 export 'turn_into_option_action.dart';
+
+enum EditorOptionActionType {
+  turnInto,
+  color,
+  align,
+  depth;
+
+  Set<String> get supportTypes {
+    switch (this) {
+      case EditorOptionActionType.turnInto:
+        return {
+          ParagraphBlockKeys.type,
+          HeadingBlockKeys.type,
+          QuoteBlockKeys.type,
+          CalloutBlockKeys.type,
+          BulletedListBlockKeys.type,
+          NumberedListBlockKeys.type,
+          TodoListBlockKeys.type,
+        };
+      case EditorOptionActionType.color:
+        return {
+          ParagraphBlockKeys.type,
+          HeadingBlockKeys.type,
+          BulletedListBlockKeys.type,
+          NumberedListBlockKeys.type,
+          QuoteBlockKeys.type,
+          TodoListBlockKeys.type,
+          CalloutBlockKeys.type,
+          OutlineBlockKeys.type,
+          ToggleListBlockKeys.type,
+        };
+      case EditorOptionActionType.align:
+        return {
+          ImageBlockKeys.type,
+        };
+      case EditorOptionActionType.depth:
+        return {
+          OutlineBlockKeys.type,
+        };
+    }
+  }
+}
 
 enum OptionAction {
   delete,
