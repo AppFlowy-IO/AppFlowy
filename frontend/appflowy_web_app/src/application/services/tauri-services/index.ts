@@ -257,4 +257,8 @@ export class AFClientService implements AFService {
   getActiveSubscription (_workspaceId: string): Promise<SubscriptionPlan[]> {
     return Promise.reject('Method not implemented');
   }
+
+  registerDocUpdate (_doc: YDoc, _workspaceId: string, _objectId: string): void {
+    throw new Error('Method not implemented.');
+  }
 }

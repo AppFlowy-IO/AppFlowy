@@ -296,7 +296,7 @@ export async function updateCollab (workspaceId: string, objectId: string, docSt
     code: number;
     message: string;
   }>(url, {
-    doc_state: docState,
+    doc_state: Array.from(docState),
   });
 
   if (response?.data.code !== 0) {

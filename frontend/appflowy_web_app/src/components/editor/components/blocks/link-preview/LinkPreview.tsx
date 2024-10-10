@@ -39,6 +39,7 @@ export const LinkPreview = memo(
         onClick={() => {
           window.open(url, '_blank');
         }}
+        contentEditable={false}
         {...attributes}
         ref={ref}
         className={`link-preview-block relative w-full cursor-pointer py-1`}
@@ -80,11 +81,14 @@ export const LinkPreview = memo(
             </>
           )}
         </div>
-        <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
+        <div
+          ref={ref}
+          className={'absolute left-0 top-0 h-full w-full caret-transparent'}
+        >
           {children}
         </div>
       </div>
     );
-  })
+  }),
 );
 export default LinkPreview;

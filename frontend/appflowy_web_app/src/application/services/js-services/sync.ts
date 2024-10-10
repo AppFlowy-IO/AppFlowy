@@ -117,7 +117,7 @@ export class SyncManager {
   public initialize () {
     if (this.hasUnsyncedChanges) {
       // Send an update if there are unsynced changes
-      void this.sendUpdate();
+      this.debouncedSendUpdate();
     }
   }
 

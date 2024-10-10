@@ -32,7 +32,10 @@ function AppPage () {
   const rendered = useContext(AppContext)?.rendered;
 
   const helmet = useMemo(() => {
-    return view && rendered ? <Suspense><ViewHelmet name={view.name} icon={view.icon || undefined} /></Suspense> : null;
+    return view && rendered ? <Suspense><ViewHelmet
+      name={view.name}
+      icon={view.icon || undefined}
+    /></Suspense> : null;
   }, [rendered, view]);
 
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
@@ -119,7 +122,7 @@ function AppPage () {
     return doc && viewMeta && View ? (
       <View
         doc={doc}
-        readOnly={false}
+        readOnly={true}
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}
