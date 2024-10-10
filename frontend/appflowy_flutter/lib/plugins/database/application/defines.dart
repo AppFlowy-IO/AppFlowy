@@ -29,6 +29,9 @@ typedef OnNumOfRowsChanged = void Function(
   UnmodifiableMapView<RowId, RowInfo> rowById,
   ChangedReason reason,
 );
+typedef OnRowsVisibilityChanged = void Function(
+  List<(RowId, bool)> rowVisibilityChanges,
+);
 
 @freezed
 class LoadingState with _$LoadingState {

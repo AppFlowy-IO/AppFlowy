@@ -22,7 +22,7 @@ void main() {
       final fieldInfo = context.fieldController.fieldInfos
           .firstWhere((field) => field.fieldType == FieldType.SingleSelect);
       editorBloc = FieldEditorBloc(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldController: context.fieldController,
         fieldInfo: fieldInfo,
         isNew: false,
@@ -119,7 +119,6 @@ void main() {
       );
 
       editorBloc.add(const FieldEditorEvent.insertLeft());
-      // TODO(RS): Shouldn't need to wait here!?
       await gridResponseFuture();
       editorBloc.add(const FieldEditorEvent.insertRight());
       await gridResponseFuture();

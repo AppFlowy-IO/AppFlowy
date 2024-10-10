@@ -1,7 +1,6 @@
-import { mountEditor, moveCursor } from '@/components/editor/__tests__/mount';
-import { DocumentTest, FromBlockJSON } from 'cypress/support/document';
+import { initialEditorTest, moveCursor } from '@/components/editor/__tests__/mount';
+import { FromBlockJSON } from 'cypress/support/document';
 
-let documentTest: DocumentTest;
 const initialData: FromBlockJSON[] = [{
   type: 'paragraph',
   data: {},
@@ -9,20 +8,7 @@ const initialData: FromBlockJSON[] = [{
   children: [],
 }];
 
-const initializeEditor = (data: FromBlockJSON[]) => {
-  documentTest = new DocumentTest();
-  documentTest.fromJSON(data);
-  mountEditor({ readOnly: false, doc: documentTest.doc });
-  cy.get('[role="textbox"]').should('exist');
-};
-
-const assertJSON = (expectedJSON: FromBlockJSON[]) => {
-  cy.wrap(null).then(() => {
-    const finalJSON = documentTest.toJSON();
-
-    expect(finalJSON).to.deep.equal(expectedJSON);
-  });
-};
+const { assertJSON, initializeEditor } = initialEditorTest();
 
 describe('Markdown editing', () => {
   beforeEach(() => {
@@ -63,8 +49,143 @@ describe('Markdown editing', () => {
     }];
 
     assertJSON(expectedJson);
-    // Test `Italic`
     cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('#');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('Heading 1');
+    expectedJson = [...expectedJson, {
+      type: 'heading',
+      data: { level: 1 },
+      text: [{ insert: 'Heading 1' }],
+      children: [],
+    }];
+    assertJSON(expectedJson);
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('###');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('Heading 3');
+    expectedJson = [...expectedJson, {
+      type: 'heading',
+      data: { level: 3 },
+      text: [{ insert: 'Heading 3' }],
+      children: [],
+    }];
+    assertJSON(expectedJson);
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('####');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('Heading 4');
+    expectedJson = [...expectedJson, {
+      type: 'heading',
+      data: { level: 4 },
+      text: [{ insert: 'Heading 4' }],
+      children: [],
+    }];
+    assertJSON(expectedJson);
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').realPress('Tab');
+    cy.get('@editor').type('paragraph: heading can not be nested');
+    expectedJson = [...expectedJson, {
+      type: 'paragraph',
+      data: {},
+      text: [{ insert: 'paragraph: heading can not be nested' }],
+      children: [],
+    }];
+    assertJSON(expectedJson);
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').realPress('Tab');
+    cy.get('@editor').type('#####');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('Heading 5');
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('######');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('Heading 6');
+    expectedJson = [...expectedJson.slice(0, -1), {
+      ...expectedJson[expectedJson.length - 1],
+      children: [{
+        type: 'heading',
+        data: { level: 5 },
+        text: [{ insert: 'Heading 5' }],
+        children: [],
+      }, {
+        type: 'heading',
+        data: { level: 6 },
+        text: [{ insert: 'Heading 6' }],
+        children: [],
+      }],
+    }];
+    assertJSON(expectedJson);
+
+    cy.get('@editor').realPress(['Enter', 'Enter']);
+    cy.get('@editor').type('Outer paragraph');
+
+    moveCursor(5, 0);
+    cy.get('@editor').type('#');
+    cy.get('@editor').realPress('Space');
+    expectedJson = [...expectedJson.slice(0, 5), {
+      ...expectedJson[5],
+      type: 'heading',
+      data: { level: 1 },
+      children: [],
+    }, {
+      type: 'heading',
+      data: { level: 5 },
+      text: [{ insert: 'Heading 5' }],
+      children: [],
+    }, {
+      type: 'heading',
+      data: { level: 6 },
+      text: [{ insert: 'Heading 6' }],
+      children: [],
+    }, {
+      type: 'paragraph',
+      data: {},
+      text: [{ insert: 'Outer paragraph' }],
+      children: [],
+    }];
+    assertJSON(expectedJson);
+    cy.wait(500);
+    cy.get('@editor').type('{movetoend}');
+
+    cy.get('@editor').realPress(['Enter', 'Tab']);
+    cy.get('@editor').type('Inner paragraph');
+    cy.get('@editor').realPress(['Enter']);
+    cy.get('@editor').type('Hi');
+    cy.get('@editor').realPress(['ArrowLeft', 'ArrowLeft']);
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').realPress('ArrowUp');
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('Hello');
+    expectedJson = [...expectedJson.slice(0, -1), {
+      ...expectedJson[expectedJson.length - 1],
+      children: [{
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Inner paragraph' }],
+        children: [],
+      }, {
+        type: 'paragraph',
+        data: {},
+        text: [],
+        children: [],
+      }, {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Hello' }],
+        children: [],
+      }, {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Hi' }],
+        children: [],
+      }],
+    }];
+    assertJSON(expectedJson);
+    moveCursor(12, 2);
+    cy.get('@editor').realPress(['Enter', 'Backspace']);
+
+    // Test `Italic`
     cy.get('@editor').type('_italic');
     cy.get('@editor').realPress(['_']);
     expectedJson = [
@@ -116,12 +237,14 @@ describe('Markdown editing', () => {
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').type('$E=mc^2');
     cy.get('@editor').realPress(['$']);
+
+    cy.get('@editor').type('inline formula');
     expectedJson = [
       ...expectedJson,
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: '$', attributes: { formula: 'E=mc^2' } }],
+        text: [{ insert: '$', attributes: { formula: 'E=mc^2' } }, { insert: 'inline formula' }],
         children: [],
       },
     ];

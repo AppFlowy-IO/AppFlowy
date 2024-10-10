@@ -44,7 +44,9 @@ class MobileTabBarHeader extends StatelessWidget {
                 controller: state
                     .tabBarControllerByViewId[currentView.viewId]!.controller,
                 features: switch (currentView.layout) {
-                  ViewLayoutPB.Board => [MobileDatabaseControlFeatures.filter],
+                  ViewLayoutPB.Board || ViewLayoutPB.Calendar => [
+                      MobileDatabaseControlFeatures.filter,
+                    ],
                   ViewLayoutPB.Grid => [
                       MobileDatabaseControlFeatures.sort,
                       MobileDatabaseControlFeatures.filter,

@@ -132,20 +132,20 @@ impl DatabaseLayoutTest {
         for (index, event) in events.into_iter().enumerate() {
           if index == 0 {
             assert_eq!(event.title, "A");
-            assert_eq!(event.timestamp, 1678090778);
+            assert_eq!(event.timestamp, Some(1678090778));
           }
 
           if index == 1 {
             assert_eq!(event.title, "B");
-            assert_eq!(event.timestamp, 1677917978);
+            assert_eq!(event.timestamp, Some(1677917978));
           }
           if index == 2 {
             assert_eq!(event.title, "C");
-            assert_eq!(event.timestamp, 1679213978);
+            assert_eq!(event.timestamp, Some(1679213978));
           }
           if index == 4 {
             assert_eq!(event.title, "E");
-            assert_eq!(event.timestamp, 1678695578);
+            assert_eq!(event.timestamp, Some(1678695578));
           }
         }
       },

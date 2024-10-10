@@ -46,7 +46,7 @@ pub struct RepeatedWorkspaceMemberPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct WorkspaceMemberInvitationPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -98,7 +98,7 @@ impl From<WorkspaceInvitation> for WorkspaceInvitationPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct AcceptWorkspaceInvitationPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub invite_id: String,
 }
 
@@ -106,7 +106,7 @@ pub struct AcceptWorkspaceInvitationPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct AddWorkspaceMemberPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -117,14 +117,14 @@ pub struct AddWorkspaceMemberPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct QueryWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct RemoveWorkspaceMemberPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -135,7 +135,7 @@ pub struct RemoveWorkspaceMemberPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct UpdateWorkspaceMemberPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -178,14 +178,14 @@ impl From<Role> for AFRolePB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct UserWorkspaceIdPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct CancelWorkspaceSubscriptionPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -198,7 +198,7 @@ pub struct CancelWorkspaceSubscriptionPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct SuccessWorkspaceSubscriptionPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2, one_of)]
@@ -214,25 +214,25 @@ pub struct WorkspaceMemberIdPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct CreateWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub name: String,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct RenameWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub new_name: String,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct ChangeWorkspaceIconPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -242,7 +242,7 @@ pub struct ChangeWorkspaceIconPB {
 #[derive(ProtoBuf, Default, Clone, Validate, Debug)]
 pub struct SubscribeWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
@@ -397,7 +397,7 @@ impl From<AFWorkspaceSettings> for UseAISettingPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct UpdateUserWorkspaceSettingPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2, one_of)]
@@ -643,7 +643,7 @@ impl From<i64> for WorkspaceSubscriptionStatusPB {
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct UpdateWorkspaceSubscriptionPaymentPeriodPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]

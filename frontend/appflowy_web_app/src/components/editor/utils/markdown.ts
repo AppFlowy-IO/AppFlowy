@@ -214,7 +214,6 @@ const rules: Rule[] = [
       if (key === '**') return true;
       const text = match[1] || match[2];
 
-      console.log('applyMarkdown italic', text);
       return !text || text.length === 0;
     },
   },
@@ -272,7 +271,6 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
     if (rule.type === 'block') {
       const match = text.match(rule.match);
 
-      console.log('applyMarkdown match', match, rule.match, text);
       if (match && !rule.filter?.(editor, match)) {
 
         if (rule.transform) {
@@ -292,8 +290,6 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
       }) + insertText;
 
       const matches = [...text.matchAll(new RegExp(rule.match, 'g'))];
-
-      console.log('applyMarkdown mark', rule.match, text, matches);
 
       if (matches.length > 0 && matches.every((match) => !rule.filter?.(editor, match))) {
         for (const match of matches.reverse()) {
