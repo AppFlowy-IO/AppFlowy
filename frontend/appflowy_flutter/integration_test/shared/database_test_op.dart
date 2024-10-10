@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/condition_list.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:flutter/gestures.dart';
@@ -411,8 +412,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> selectOption({required String name}) async {
-    final option = find.byWidgetPredicate(
-      (widget) => widget is SelectOptionTagCell && widget.option.name == name,
+    final option = find.descendant(
+      of: find.byType(SelectOptionCellEditor),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is SelectOptionTagCell && widget.option.name == name,
+      ),
     );
 
     await tapButton(option);
@@ -1157,10 +1161,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(ChecklistFilterConditionList));
   }
 
-  Future<void> tapDateFilterButtonInGrid() async {
-    await tapButton(find.byType(DateFilterConditionList));
-  }
-
   /// The [SelectOptionFilterList] must show up first.
   Future<void> tapOptionFilterWithName(String name) async {
     final findCell = find.descendant(
@@ -1194,7 +1194,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
+  Future<void> tapSelectFilterCondition(
+    SelectOptionFilterConditionPB condition,
+  ) async {
+    await tapButton(find.byType(SelectOptionFilterConditionList));
+    final button = find.descendant(
+      of: find.byType(HoverButton),
+      matching: find.text(condition.i18n),
+    );
+
+    await tapButton(button);
+  }
+
   Future<void> tapDateFilterCondition(DateTimeFilterCondition condition) async {
+    await tapButton(find.byType(DateFilterConditionList));
     final button = find.descendant(
       of: find.byType(HoverButton),
       matching: find.text(condition.filterName),
