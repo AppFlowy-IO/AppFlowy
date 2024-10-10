@@ -486,3 +486,18 @@ pub(crate) async fn list_published_views_handler(
 ) -> DataResult<RepeatedPublishInfoResponsePB, FlowyError> {
   todo!()
 }
+
+#[tracing::instrument(level = "debug", skip(folder))]
+pub(crate) async fn get_default_publish_info_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<PublishInfoResponsePB, FlowyError> {
+  todo!()
+}
+
+#[tracing::instrument(level = "debug", skip(folder))]
+pub(crate) async fn set_default_publish_info_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  todo!()
+}

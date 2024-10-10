@@ -49,6 +49,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::SetPublishNamespace, set_publish_namespace_handler)
     .event(FolderEvent::GetPublishNamespace, get_publish_namespace_handler)
     .event(FolderEvent::ListPublishedViews, list_published_views_handler)
+    .event(FolderEvent::GetDefaultPublishInfo, get_default_publish_info_handler)
+    .event(FolderEvent::SetDefaultPublishInfo, set_default_publish_info_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -204,4 +206,10 @@ pub enum FolderEvent {
 
   #[event(output = "RepeatedPublishInfoResponsePB")]
   ListPublishedViews = 49,
+
+  #[event(output = "PublishInfoResponsePB")]
+  GetDefaultPublishInfo = 50,
+
+  #[event(input = "ViewIdPB")]
+  SetDefaultPublishInfo = 51,
 }
