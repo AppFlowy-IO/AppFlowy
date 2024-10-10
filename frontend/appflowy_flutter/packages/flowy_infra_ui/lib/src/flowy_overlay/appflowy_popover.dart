@@ -24,7 +24,11 @@ class AppFlowyPopover extends StatelessWidget {
     this.decorationColor,
     this.borderRadius,
     this.animationDuration = const Duration(),
-    this.slideDistance = 20.0,
+    this.slideDistance = 5.0,
+    this.beginScaleFactor = 0.9,
+    this.endScaleFactor = 1.0,
+    this.beginOpacity = 0.0,
+    this.endOpacity = 1.0,
   });
 
   final Widget child;
@@ -45,6 +49,10 @@ class AppFlowyPopover extends StatelessWidget {
   final BorderRadius? borderRadius;
   final Duration animationDuration;
   final double slideDistance;
+  final double beginScaleFactor;
+  final double endScaleFactor;
+  final double beginOpacity;
+  final double endOpacity;
 
   /// The widget that will be used to trigger the popover.
   ///
@@ -63,6 +71,10 @@ class AppFlowyPopover extends StatelessWidget {
       controller: controller,
       animationDuration: animationDuration,
       slideDistance: slideDistance,
+      beginScaleFactor: beginScaleFactor,
+      endScaleFactor: endScaleFactor,
+      beginOpacity: beginOpacity,
+      endOpacity: endOpacity,
       onOpen: onOpen,
       onClose: onClose,
       canClose: canClose,

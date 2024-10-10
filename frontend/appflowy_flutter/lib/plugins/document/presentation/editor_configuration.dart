@@ -18,6 +18,48 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+enum EditorOptionActionType {
+  turnInto,
+  color,
+  align,
+  depth;
+
+  Set<String> get supportTypes {
+    switch (this) {
+      case EditorOptionActionType.turnInto:
+        return {
+          ParagraphBlockKeys.type,
+          HeadingBlockKeys.type,
+          QuoteBlockKeys.type,
+          CalloutBlockKeys.type,
+          BulletedListBlockKeys.type,
+          NumberedListBlockKeys.type,
+          TodoListBlockKeys.type,
+        };
+      case EditorOptionActionType.color:
+        return {
+          ParagraphBlockKeys.type,
+          HeadingBlockKeys.type,
+          BulletedListBlockKeys.type,
+          NumberedListBlockKeys.type,
+          QuoteBlockKeys.type,
+          TodoListBlockKeys.type,
+          CalloutBlockKeys.type,
+          OutlineBlockKeys.type,
+          ToggleListBlockKeys.type,
+        };
+      case EditorOptionActionType.align:
+        return {
+          ImageBlockKeys.type,
+        };
+      case EditorOptionActionType.depth:
+        return {
+          OutlineBlockKeys.type,
+        };
+    }
+  }
+}
+
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
   required EditorState editorState,
@@ -285,30 +327,21 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       }
       final builder = entry.value;
 
-      // customize the action builder.
-      final supportColorBuilderTypes = [
-        ParagraphBlockKeys.type,
-        HeadingBlockKeys.type,
-        BulletedListBlockKeys.type,
-        NumberedListBlockKeys.type,
-        QuoteBlockKeys.type,
-        TodoListBlockKeys.type,
-        CalloutBlockKeys.type,
-        OutlineBlockKeys.type,
-        ToggleListBlockKeys.type,
-      ];
-
-      final supportAlignBuilderType = [ImageBlockKeys.type];
-      final supportDepthBuilderType = [OutlineBlockKeys.type];
       final colorAction = [OptionAction.divider, OptionAction.color];
       final alignAction = [OptionAction.divider, OptionAction.align];
       final depthAction = [OptionAction.depth];
+      final turnIntoAction = [OptionAction.turnInto];
 
       final List<OptionAction> actions = [
         ...standardActions,
-        if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
-        if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
-        if (supportDepthBuilderType.contains(entry.key)) ...depthAction,
+        if (EditorOptionActionType.turnInto.supportTypes.contains(entry.key))
+          ...turnIntoAction,
+        if (EditorOptionActionType.color.supportTypes.contains(entry.key))
+          ...colorAction,
+        if (EditorOptionActionType.align.supportTypes.contains(entry.key))
+          ...alignAction,
+        if (EditorOptionActionType.depth.supportTypes.contains(entry.key))
+          ...depthAction,
       ];
 
       if (UniversalPlatform.isDesktop) {

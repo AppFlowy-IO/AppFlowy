@@ -15,14 +15,18 @@ class RootOverlayEntry {
 
   void addEntry(
     BuildContext context,
+    String id,
     PopoverState newState,
     OverlayEntry entry,
     bool asBarrier,
+    AnimationController animationController,
   ) {
     _entries[newState] = OverlayEntryContext(
+      id,
       entry,
       newState,
       asBarrier,
+      animationController,
     );
     Overlay.of(context).insert(entry);
   }
@@ -32,30 +36,49 @@ class RootOverlayEntry {
     removedEntry?.overlayEntry.remove();
   }
 
-  PopoverState? popEntry() {
+  OverlayEntryContext? popEntry() {
     if (isEmpty) {
       return null;
     }
 
     final lastEntry = _entries.values.last;
     _entries.remove(lastEntry.popoverState);
-    lastEntry.overlayEntry.remove();
-    lastEntry.popoverState.widget.onClose?.call();
+    lastEntry.animationController.reverse().then((_) {
+      lastEntry.overlayEntry.remove();
+      lastEntry.popoverState.widget.onClose?.call();
+    });
 
-    return lastEntry.asBarrier ? lastEntry.popoverState : popEntry();
+    return lastEntry.asBarrier ? lastEntry : popEntry();
+  }
+
+  bool isLastEntryAsBarrier() {
+    if (isEmpty) {
+      return false;
+    }
+
+    return _entries.values.last.asBarrier;
   }
 }
 
 class OverlayEntryContext {
   OverlayEntryContext(
+    this.id,
     this.overlayEntry,
     this.popoverState,
     this.asBarrier,
+    this.animationController,
   );
 
+  final String id;
   final OverlayEntry overlayEntry;
   final PopoverState popoverState;
   final bool asBarrier;
+  final AnimationController animationController;
+
+  @override
+  String toString() {
+    return 'OverlayEntryContext(id: $id, asBarrier: $asBarrier, popoverState: ${popoverState.widget.debugId})';
+  }
 }
 
 class PopoverMask extends StatelessWidget {

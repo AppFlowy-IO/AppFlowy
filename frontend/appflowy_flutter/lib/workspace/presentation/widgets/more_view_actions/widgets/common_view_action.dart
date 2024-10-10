@@ -41,6 +41,7 @@ class ViewAction extends StatelessWidget {
       context,
       // this is a dummy controller, we don't need to control the popover here.
       PopoverController(),
+      null,
     );
   }
 
