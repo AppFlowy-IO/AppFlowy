@@ -141,16 +141,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           resetOpenRowDetail: () {
             emit(
               state.copyWith(
-                database: state.database,
-                allEvents: state.allEvents,
-                initialEvents: state.initialEvents,
-                editingEvent: state.editingEvent,
-                newEvent: state.newEvent,
-                updateEvent: state.updateEvent,
-                deleteEventIds: state.deleteEventIds,
-                settings: state.settings,
-                loadingState: state.loadingState,
-                noneOrError: state.noneOrError,
                 openRow: null,
               ),
             );
