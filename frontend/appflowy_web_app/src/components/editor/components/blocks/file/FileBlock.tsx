@@ -42,6 +42,7 @@ export const FileBlock = memo(
     return (
       <div
         {...attributes}
+        contentEditable={false}
         className={className}
         onMouseEnter={() => {
           if (!url) return;
@@ -81,7 +82,10 @@ export const FileBlock = memo(
             />
           )}
         </div>
-        <div ref={ref} className={`absolute h-full w-full caret-transparent`}>
+        <div
+          ref={ref}
+          className={`absolute h-full w-full caret-transparent`}
+        >
           {children}
         </div>
 

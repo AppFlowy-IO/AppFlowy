@@ -5,7 +5,8 @@ import {
   LoadView,
   LoadViewMeta,
 } from '@/application/types';
-import { createContext, useContext } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
+import { BaseRange } from 'slate';
 
 export interface EditorLayoutStyle {
   fontLayout: FontLayout;
@@ -24,6 +25,11 @@ export enum EditorVariant {
   app = 'app',
 }
 
+interface Decorate {
+  range: BaseRange;
+  class_name: string;
+}
+
 export interface EditorContextState {
   readOnly: boolean;
   layoutStyle?: EditorLayoutStyle;
@@ -38,6 +44,9 @@ export interface EditorContextState {
   onJumpedBlockId?: () => void;
   variant?: EditorVariant;
   onRendered?: () => void;
+  decorateState?: Record<string, Decorate>;
+  addDecorate?: (range: BaseRange, class_name: string, type: string) => void;
+  removeDecorate?: (type: string) => void;
 }
 
 export const EditorContext = createContext<EditorContextState>({
@@ -47,7 +56,39 @@ export const EditorContext = createContext<EditorContextState>({
 });
 
 export const EditorContextProvider = ({ children, ...props }: EditorContextState & { children: React.ReactNode }) => {
-  return <EditorContext.Provider value={props}>{children}</EditorContext.Provider>;
+  const [decorateState, setDecorateState] = useState<Record<string, Decorate>>({});
+
+  const addDecorate = useCallback((range: BaseRange, class_name: string, type: string) => {
+    setDecorateState((prev) => ({
+      ...prev,
+      [type]: {
+        range,
+        class_name,
+      },
+    }));
+  }, []);
+
+  const removeDecorate = useCallback((type: string) => {
+    setDecorateState((prev) => {
+      if (prev[type] === undefined) {
+        return prev;
+      }
+
+      const newState = { ...prev };
+
+      delete newState[type];
+      return newState;
+    });
+  }, []);
+
+  return <EditorContext.Provider
+    value={{
+      ...props,
+      decorateState,
+      addDecorate,
+      removeDecorate,
+    }}
+  >{children}</EditorContext.Provider>;
 };
 
 export function useEditorContext () {

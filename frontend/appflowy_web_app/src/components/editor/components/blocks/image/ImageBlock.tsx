@@ -34,6 +34,7 @@ export const ImageBlock = memo(
       <div
         {...attributes}
         ref={containerRef}
+        contentEditable={false}
         onMouseEnter={() => {
           if (!url) return;
           setShowToolbar(true);
@@ -41,7 +42,10 @@ export const ImageBlock = memo(
         onMouseLeave={() => setShowToolbar(false)}
         className={`${className || ''} image-block relative w-full cursor-default`}
       >
-        <div ref={ref} className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}>
+        <div
+          ref={ref}
+          className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}
+        >
           {children}
         </div>
         <div
@@ -49,9 +53,17 @@ export const ImageBlock = memo(
           className={`flex w-full select-none overflow-hidden ${url ? '' : 'rounded-[8px] border border-line-divider'} ${alignCss}`}
         >
           {url ? (
-            <ImageRender showToolbar={showToolbar} selected={selected} node={node} />
+            <ImageRender
+              showToolbar={showToolbar}
+              selected={selected}
+              node={node}
+            />
           ) : (
-            <ImageEmpty node={node} onEscape={onFocusNode} containerRef={containerRef} />
+            <ImageEmpty
+              node={node}
+              onEscape={onFocusNode}
+              containerRef={containerRef}
+            />
           )}
         </div>
       </div>

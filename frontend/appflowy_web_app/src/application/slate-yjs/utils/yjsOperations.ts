@@ -15,10 +15,28 @@ import {
 
 import { nanoid } from 'nanoid';
 import Delta, { Op } from 'quill-delta';
-import { BaseRange, Descendant, Editor, Element, Node, NodeEntry, Path, Point, Range, Transforms } from 'slate';
+import {
+  BaseRange,
+  Descendant,
+  Text,
+  Editor,
+  Element,
+  Node,
+  NodeEntry,
+  Path,
+  Point,
+  Range,
+  Transforms,
+  BasePoint,
+} from 'slate';
+import { ReactEditor } from 'slate-react';
 import * as Y from 'yjs';
 import { YjsEditor } from '../plugins/withYjs';
-import { slatePointToRelativePosition } from './positions';
+import {
+  calculateOffsetRelativeToParent,
+  calculatePointFromParentOffset,
+  slatePointToRelativePosition,
+} from './positions';
 
 export function createEmptyDocument () {
   const doc = new Y.Doc();
@@ -1214,4 +1232,82 @@ export function getNodeAtPath (children: Descendant[], path: Path): Descendant |
   }
 
   return currentNode;
+}
+
+export function getSelectionTexts (editor: ReactEditor) {
+  const selection = editor.selection;
+
+  if (!selection) return [];
+
+  const texts: Text[] = [];
+
+  const isExpanded = Range.isExpanded(selection);
+
+  if (isExpanded) {
+    let anchor = Range.start(selection);
+    const focus = Range.end(selection);
+    const isEnd = Editor.isEnd(editor, anchor, anchor.path);
+
+    if (isEnd) {
+      const after = Editor.after(editor, anchor);
+
+      if (after) {
+        anchor = after;
+      }
+    }
+
+    Array.from(
+      Editor.nodes(editor, {
+        at: {
+          anchor,
+          focus,
+        },
+      }),
+    ).forEach((match) => {
+      const node = match[0] as Element;
+
+      if (Text.isText(node)) {
+        texts.push(node);
+      } else if (Editor.isInline(editor, node)) {
+        texts.push(...(node.children as Text[]));
+      }
+    });
+  }
+
+  return texts;
+}
+
+export function getOffsetPointFromSlateRange (editor: YjsEditor, point: BasePoint): { offset: number; textId: string } {
+
+  const [node] = editor.nodes({
+    at: point,
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
+  });
+
+  if (!node) {
+    throw new Error('Node not found');
+  }
+
+  const [textNode] = node as NodeEntry<Element>;
+
+  return {
+    textId: textNode.textId as string,
+    offset: calculateOffsetRelativeToParent(textNode, point),
+  };
+}
+
+export function getSlatePointFromOffset (editor: YjsEditor, range: { offset: number; textId: string }): BasePoint {
+  const [node] = editor.nodes({
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId === range.textId,
+  });
+
+  if (!node) {
+    throw new Error('Node not found');
+  }
+
+  const [textNode, path] = node as NodeEntry<Element>;
+
+  const start = calculatePointFromParentOffset(textNode, path, range.offset);
+
+  return start;
 }

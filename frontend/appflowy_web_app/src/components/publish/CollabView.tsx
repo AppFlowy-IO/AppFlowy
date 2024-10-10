@@ -39,6 +39,7 @@ function CollabView ({ doc }: CollabViewProps) {
     }
   }, [layout]) as React.FC<{
     doc: YDoc;
+    readOnly: boolean;
     navigateToView?: (viewId: string) => Promise<void>;
     loadViewMeta?: LoadViewMeta;
     createRowDoc?: CreateRowDoc;
@@ -106,6 +107,7 @@ function CollabView ({ doc }: CollabViewProps) {
       >
         <View
           doc={doc}
+          readOnly={true}
           loadViewMeta={loadViewMeta}
           createRowDoc={createRowDoc}
           navigateToView={navigateToView}

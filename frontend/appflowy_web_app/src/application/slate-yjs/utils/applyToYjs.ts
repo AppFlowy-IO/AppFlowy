@@ -79,13 +79,13 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
 
     if ('formula' in beforeAttributes) {
       Object.assign({
-        formula: undefined,
+        formula: null,
       });
     }
 
     if ('mention' in beforeAttributes) {
       Object.assign({
-        mention: undefined,
+        mention: null,
       });
     }
 
@@ -138,12 +138,11 @@ function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, 
 }
 
 function applySetNode (ydoc: Y.Doc, editor: Editor, op: SetNodeOperation, slateContent: Descendant[]) {
-  const { newProperties, path } = op;
+  const { newProperties, path, properties } = op;
   const leafKeys = Object.values(EditorMarkFormat) as string[];
-  const properties = Object.keys(newProperties);
 
-  const isLeaf = properties.some((prop: string) => leafKeys.includes(prop));
-  const isData = properties.some((prop: string) => prop === 'data');
+  const isLeaf = Object.keys(newProperties).some((prop: string) => leafKeys.includes(prop)) || (Object.keys(newProperties).length === 0 && Object.keys(properties).some((prop: string) => leafKeys.includes(prop)));
+  const isData = Object.keys(newProperties).some((prop: string) => prop === 'data');
   const sharedRoot = ydoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   console.log('applySetNode isLeaf', isLeaf, op);
@@ -154,14 +153,32 @@ function applySetNode (ydoc: Y.Doc, editor: Editor, op: SetNodeOperation, slateC
     if (!textId) return;
 
     const yText = getText(textId, sharedRoot);
-    const [start, end] = Editor.edges(editor, path);
+    const start = {
+      path,
+      offset: 0,
+    };
+    const end = {
+      path,
+      offset: (getNodeAtPath(slateContent, path) as Text).text.length,
+    };
 
     const startRelativeOffset = Math.min(calculateOffsetRelativeToParent(node, start), yText.toJSON().length);
     const endRelativeOffset = Math.min(calculateOffsetRelativeToParent(node, end), yText.toJSON().length);
 
     const length = endRelativeOffset - startRelativeOffset;
 
-    yText.format(startRelativeOffset, length, newProperties);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formats: Record<string, any> = {
+      ...newProperties,
+    };
+
+    Object.entries(properties).forEach(([key, val]) => {
+      if (val && !(key in newProperties)) {
+        formats[key] = null;
+      }
+    });
+
+    yText.format(startRelativeOffset, length, formats);
     return;
   }
 

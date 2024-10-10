@@ -9,17 +9,25 @@ export const DividerNode = memo(
       }, [attributes.className]);
 
       return (
-        <div {...attributes} className={className}>
-          <div contentEditable={false} className={'w-full px-1 py-2'}>
+        <div {...attributes} contentEditable={false}
+             className={className}
+        >
+          <div
+            contentEditable={false}
+            className={'w-full px-1 py-2'}
+          >
             <hr className={'border-line-border'} />
           </div>
-          <div ref={ref} className={`absolute h-full w-full caret-transparent`}>
+          <div
+            ref={ref}
+            className={`absolute h-full w-full caret-transparent`}
+          >
             {children}
           </div>
         </div>
       );
-    }
-  )
+    },
+  ),
 );
 
 export default DividerNode;

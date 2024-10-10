@@ -2501,7 +2501,12 @@
       "uploadedAt": "Uploaded on {time}",
       "linkedAt": "Link added on {time}",
       "empty": "Upload or embed a file"
-    }
+    },
+    "importNotion": "Import from Notion",
+    "import": "Import",
+    "importSuccess": "Uploaded successfully",
+    "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
+    "importFailed": "Import failed, please check the file format"
   },
   "globalComment": {
     "comments": "Comments",
@@ -2681,19 +2686,21 @@
     "alreadyProTitle": "You've reached the workspace plan limit",
     "alreadyProMessage": "Ask them to contact <email/> to unlock more members",
     "repeatApproveError": "You've already approved this request",
-    "ensurePlanLimit": "Ensure the workspace plan limit is not exceeded. If the limit is exceeded, consider <upgrade/> the workspace plan or <download/>."
+    "ensurePlanLimit": "Ensure the workspace plan limit is not exceeded. If the limit is exceeded, consider <upgrade/> the workspace plan or <download/>.",
+    "requestToJoin": "requested to join",
+    "asMember": "as a member"
   },
   "upgradePlanModal": {
-    "title": "Unlock Premium Features",
-    "message": "You're trying to use a premium feature. Upgrade your plan to access all our powerful tools and capabilities!",
+    "title": "Upgrade to Pro",
+    "message": "{name} has reached the free member limit. Upgrade to the Pro Plan to invite more members.",
     "upgradeSteps": "How to upgrade your plan on AppFlowy:",
     "step1": "1. Go to Settings",
     "step2": "2. Click on 'Plan'",
     "step3": "3. Select 'Change Plan'",
     "appNote": "Note: ",
-    "actionButton": "Upgrade Now",
+    "actionButton": "Upgrade",
     "downloadLink": "Download App",
-    "laterButton": "Maybe Later",
+    "laterButton": "Later",
     "refreshNote": "After successful upgrade, click <refresh/> to activate your new features.",
     "refresh": "here"
   }
