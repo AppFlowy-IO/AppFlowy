@@ -285,6 +285,8 @@ extension CommonOperations on WidgetTester {
       LocaleKeys.deletePagePrompt_deletePermanent.tr(),
     );
     await tapButton(deleteButton);
+    await tap(find.text(LocaleKeys.button_delete.tr()));
+    await pumpAndSettle();
   }
 
   /// Tap the share button above the document page.
