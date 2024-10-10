@@ -36,7 +36,7 @@ enum OptionAction {
       case OptionAction.duplicate:
         return FlowySvgs.copy_s;
       case OptionAction.turnInto:
-        return FlowySvgs.copy_s;
+        return FlowySvgs.turninto_s;
       case OptionAction.moveUp:
         return const FlowySvgData('editor/move_up');
       case OptionAction.moveDown:
@@ -473,7 +473,7 @@ class TurnIntoOptionAction extends CustomActionCell {
       child: HoverButton(
         itemHeight: ActionListSizes.itemHeight,
         // todo(lucas): replace the svg with the correct one
-        leftIcon: const FlowySvg(FlowySvgs.copy_s),
+        leftIcon: const FlowySvg(FlowySvgs.turninto_s),
         name: LocaleKeys.document_plugins_optionAction_turnInto.tr(),
         onTap: () {
           innerController.show();
