@@ -205,7 +205,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   void showOverlay() {
-    close();
+    close(withAnimation: true);
 
     if (widget.mutex != null) {
       widget.mutex?.state = this;

@@ -232,7 +232,7 @@ class AlignOptionAction extends PopoverActionCell {
       return OptionAlignType.center;
     }
     final node = editorState.getNodeAtPath(selection.start.path);
-    final align = node?.attributes['align'];
+    final align = node?.attributes[blockComponentAlign];
     return OptionAlignType.fromString(align);
   }
 
@@ -250,85 +250,10 @@ class AlignOptionAction extends PopoverActionCell {
     }
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
-      'align': align.name,
+      blockComponentAlign: align.name,
     });
     await editorState.apply(transaction);
   }
-}
-
-class ColorOptionAction extends PopoverActionCell {
-  ColorOptionAction({
-    required this.editorState,
-  });
-
-  final EditorState editorState;
-
-  @override
-  Widget? leftIcon(Color iconColor) {
-    return const FlowySvg(
-      FlowySvgs.color_format_m,
-      size: Size.square(15),
-    ).padding(all: 1.0);
-  }
-
-  @override
-  String get name => LocaleKeys.document_plugins_optionAction_color.tr();
-
-  @override
-  Widget Function(
-    BuildContext context,
-    PopoverController parentController,
-    PopoverController controller,
-  ) get builder => (context, parentController, controller) {
-        final selection = editorState.selection?.normalized;
-        if (selection == null) {
-          return const SizedBox.shrink();
-        }
-        final node = editorState.getNodeAtPath(selection.start.path);
-        if (node == null) {
-          return const SizedBox.shrink();
-        }
-        final bgColor =
-            node.attributes[blockComponentBackgroundColor] as String?;
-        final selectedColor = bgColor?.tryToColor();
-        // get default background color for callout block from themeExtension
-        final defaultColor = node.type == CalloutBlockKeys.type
-            ? AFThemeExtension.of(context).calloutBGColor
-            : Colors.transparent;
-        final colors = [
-          // reset to default background color
-          FlowyColorOption(
-            color: defaultColor,
-            i18n: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
-            id: optionActionColorDefaultColor,
-          ),
-          ...FlowyTint.values.map(
-            (e) => FlowyColorOption(
-              color: e.color(context),
-              i18n: e.tintName(AppFlowyEditorL10n.current),
-              id: e.id,
-            ),
-          ),
-        ];
-
-        return FlowyColorPicker(
-          colors: colors,
-          selected: selectedColor,
-          border: Border.all(
-            color: AFThemeExtension.of(context).onBackground,
-          ),
-          onTap: (option, index) async {
-            final transaction = editorState.transaction;
-            transaction.updateNode(node, {
-              blockComponentBackgroundColor: option.id,
-            });
-            await editorState.apply(transaction);
-
-            controller.close();
-            parentController.close();
-          },
-        );
-      };
 }
 
 class DepthOptionAction extends PopoverActionCell {
@@ -655,5 +580,118 @@ class TurnIntoOptionAction extends CustomActionCell {
     }
 
     throw UnimplementedError('Unsupported block type: $type');
+  }
+}
+
+class ColorOptionAction extends CustomActionCell {
+  ColorOptionAction({
+    required this.editorState,
+  });
+
+  final EditorState editorState;
+  final PopoverController innerController = PopoverController();
+
+  @override
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
+    return AppFlowyPopover(
+      asBarrier: true,
+      controller: innerController,
+      mutex: mutex,
+      popupBuilder: (context) => _buildColorOptionMenu(
+        context,
+        controller,
+      ),
+      direction: PopoverDirection.rightWithCenterAligned,
+      offset: const Offset(10, 0),
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      child: HoverButton(
+        itemHeight: ActionListSizes.itemHeight,
+        leftIcon: const FlowySvg(
+          FlowySvgs.color_format_m,
+          size: Size.square(15),
+        ),
+        name: LocaleKeys.document_plugins_optionAction_color.tr(),
+        onTap: () {
+          innerController.show();
+        },
+      ),
+    );
+  }
+
+  Widget _buildColorOptionMenu(
+    BuildContext context,
+    PopoverController controller,
+  ) {
+    final selection = editorState.selection?.normalized;
+    if (selection == null) {
+      return const SizedBox.shrink();
+    }
+
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return const SizedBox.shrink();
+    }
+
+    return _buildColorOptions(context, node, controller);
+  }
+
+  Widget _buildColorOptions(
+    BuildContext context,
+    Node node,
+    PopoverController controller,
+  ) {
+    final selection = editorState.selection?.normalized;
+    if (selection == null) {
+      return const SizedBox.shrink();
+    }
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return const SizedBox.shrink();
+    }
+    final bgColor = node.attributes[blockComponentBackgroundColor] as String?;
+    final selectedColor = bgColor?.tryToColor();
+    // get default background color for callout block from themeExtension
+    final defaultColor = node.type == CalloutBlockKeys.type
+        ? AFThemeExtension.of(context).calloutBGColor
+        : Colors.transparent;
+    final colors = [
+      // reset to default background color
+      FlowyColorOption(
+        color: defaultColor,
+        i18n: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+        id: optionActionColorDefaultColor,
+      ),
+      ...FlowyTint.values.map(
+        (e) => FlowyColorOption(
+          color: e.color(context),
+          i18n: e.tintName(AppFlowyEditorL10n.current),
+          id: e.id,
+        ),
+      ),
+    ];
+
+    return FlowyColorPicker(
+      colors: colors,
+      selected: selectedColor,
+      border: Border.all(
+        color: AFThemeExtension.of(context).onBackground,
+      ),
+      onTap: (option, index) async {
+        final transaction = editorState.transaction;
+        transaction.updateNode(node, {
+          blockComponentBackgroundColor: option.id,
+        });
+        await editorState.apply(transaction);
+
+        innerController.close();
+        controller.close();
+      },
+    );
   }
 }
