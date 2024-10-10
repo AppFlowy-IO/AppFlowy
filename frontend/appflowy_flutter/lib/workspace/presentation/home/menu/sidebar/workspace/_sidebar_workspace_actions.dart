@@ -73,7 +73,11 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
   final UserWorkspacePB workspace;
 
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     if (inner == WorkspaceMoreAction.divider) {
       return const Divider();
     }

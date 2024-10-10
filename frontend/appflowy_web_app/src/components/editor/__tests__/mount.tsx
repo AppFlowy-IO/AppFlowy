@@ -32,7 +32,7 @@ export const moveToLineStart = (lineIndex: number) => {
 export const moveCursor = (lineIndex: number, charIndex: number) => {
   moveToLineStart(lineIndex);
   // Move the cursor with right arrow key and batch the movement
-  const batchSize = 5;
+  const batchSize = 1;
   const batches = Math.ceil(charIndex / batchSize);
 
   for (let i = 0; i < batches; i++) {
@@ -40,7 +40,7 @@ export const moveCursor = (lineIndex: number, charIndex: number) => {
 
     cy.get('@targetBlock')
       .type('{rightarrow}'.repeat(remainingMoves))
-      .wait(50);
+      .wait(20);
   }
 };
 

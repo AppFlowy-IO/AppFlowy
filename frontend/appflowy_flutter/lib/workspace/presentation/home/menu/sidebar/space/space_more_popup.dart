@@ -90,7 +90,11 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
   final void Function(PopoverController controller, dynamic data) onTap;
 
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     if (inner == SpaceMoreActionType.divider) {
       return _buildDivider();
     } else if (inner == SpaceMoreActionType.changeIcon) {
