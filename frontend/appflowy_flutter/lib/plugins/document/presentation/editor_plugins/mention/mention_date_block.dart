@@ -126,7 +126,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   );
                 } else {
                   _updateBlock(
-                    parsedDate!.withoutTime,
+                    parsedDate!,
                     includeTime: includeTime,
                   );
                 }
