@@ -28,4 +28,16 @@ class ImportBackendService {
 
     return FolderEventImportData(request).send();
   }
+
+  static Future<FlowyResult<void, FlowyError>> importZipFiles(
+    List<ImportZipPB> values,
+  ) async {
+    for (final value in values) {
+      final result = await FolderEventImportZipFile(value).send();
+      if (result.isFailure) {
+        return result;
+      }
+    }
+    return FlowyResult.success(null);
+  }
 }

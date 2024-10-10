@@ -5,24 +5,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum ImportType {
-  historyDocument,
-  historyDatabase,
   markdownOrText,
-  databaseCSV,
-  databaseRawData;
+  csv,
+  afDatabase;
 
   @override
   String toString() {
     switch (this) {
-      case ImportType.historyDocument:
-        return LocaleKeys.importPanel_documentFromV010.tr();
-      case ImportType.historyDatabase:
-        return LocaleKeys.importPanel_databaseFromV010.tr();
       case ImportType.markdownOrText:
         return LocaleKeys.importPanel_textAndMarkdown.tr();
-      case ImportType.databaseCSV:
+      case ImportType.csv:
         return LocaleKeys.importPanel_csv.tr();
-      case ImportType.databaseRawData:
+      case ImportType.afDatabase:
         return LocaleKeys.importPanel_database.tr();
     }
   }
@@ -30,11 +24,8 @@ enum ImportType {
   WidgetBuilder get icon => (context) {
         final FlowySvgData svg;
         switch (this) {
-          case ImportType.historyDatabase:
-            svg = FlowySvgs.document_s;
-          case ImportType.historyDocument:
-          case ImportType.databaseCSV:
-          case ImportType.databaseRawData:
+          case ImportType.csv:
+          case ImportType.afDatabase:
             svg = FlowySvgs.board_s;
           case ImportType.markdownOrText:
             svg = FlowySvgs.text_s;
@@ -48,9 +39,7 @@ enum ImportType {
 
   bool get enableOnRelease {
     switch (this) {
-      case ImportType.historyDatabase:
-      case ImportType.historyDocument:
-      case ImportType.databaseRawData:
+      case ImportType.afDatabase:
         return kDebugMode;
       default:
         return true;
@@ -59,24 +48,19 @@ enum ImportType {
 
   List<String> get allowedExtensions {
     switch (this) {
-      case ImportType.historyDocument:
-        return ['afdoc'];
-      case ImportType.historyDatabase:
-      case ImportType.databaseRawData:
+      case ImportType.afDatabase:
         return ['afdb'];
       case ImportType.markdownOrText:
         return ['md', 'txt'];
-      case ImportType.databaseCSV:
+      case ImportType.csv:
         return ['csv'];
     }
   }
 
   bool get allowMultiSelect {
     switch (this) {
-      case ImportType.historyDocument:
-      case ImportType.databaseCSV:
-      case ImportType.databaseRawData:
-      case ImportType.historyDatabase:
+      case ImportType.csv:
+      case ImportType.afDatabase:
       case ImportType.markdownOrText:
         return true;
     }

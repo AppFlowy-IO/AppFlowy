@@ -1592,13 +1592,9 @@ impl FolderManager {
     Ok((view, encoded_collab))
   }
 
-  #[allow(dead_code)]
-  pub(crate) async fn import_zip_file(
-    &self,
-    _parent_view_id: &str,
-    _zip_file_path: &str,
-  ) -> FlowyResult<RepeatedViewPB> {
-    todo!()
+  pub(crate) async fn import_zip_file(&self, zip_file_path: &str) -> FlowyResult<()> {
+    self.cloud_service.import_zip(zip_file_path).await?;
+    Ok(())
   }
 
   /// Import function to handle the import of data.

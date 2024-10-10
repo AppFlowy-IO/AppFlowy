@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
@@ -152,18 +151,16 @@ class _ImportPanelState extends State<ImportPanel> {
     showLoading.value = true;
 
     final importValues = <ImportValuePayloadPB>[];
-
     for (final file in result.files) {
       final path = file.path;
       if (path == null) {
         continue;
       }
-      final data = await File(path).readAsString();
       final name = p.basenameWithoutExtension(path);
 
       switch (importType) {
         case ImportType.markdownOrText:
-        case ImportType.historyDocument:
+          final data = await File(path).readAsString();
           final bytes = _documentDataFrom(importType, data);
           if (bytes != null) {
             importValues.add(
@@ -171,29 +168,12 @@ class _ImportPanelState extends State<ImportPanel> {
                 ..name = name
                 ..data = bytes
                 ..viewLayout = ViewLayoutPB.Document
-                ..importType = ImportTypePB.HistoryDocument,
+                ..importType = ImportTypePB.Markdown,
             );
           }
           break;
-        case ImportType.historyDatabase:
-          importValues.add(
-            ImportValuePayloadPB.create()
-              ..name = name
-              ..data = utf8.encode(data)
-              ..viewLayout = ViewLayoutPB.Grid
-              ..importType = ImportTypePB.HistoryDatabase,
-          );
-          break;
-        case ImportType.databaseRawData:
-          importValues.add(
-            ImportValuePayloadPB.create()
-              ..name = name
-              ..data = utf8.encode(data)
-              ..viewLayout = ViewLayoutPB.Grid
-              ..importType = ImportTypePB.RawDatabase,
-          );
-          break;
-        case ImportType.databaseCSV:
+        case ImportType.csv:
+          final data = await File(path).readAsString();
           importValues.add(
             ImportValuePayloadPB.create()
               ..name = name
@@ -203,14 +183,16 @@ class _ImportPanelState extends State<ImportPanel> {
           );
           break;
         default:
-          assert(false, 'Unsupported Type $importType');
+          break;
       }
     }
 
-    await ImportBackendService.importPages(
-      parentViewId,
-      importValues,
-    );
+    if (importValues.isNotEmpty) {
+      await ImportBackendService.importPages(
+        parentViewId,
+        importValues,
+      );
+    }
 
     showLoading.value = false;
     widget.importCallback(importType, '', null);
@@ -221,9 +203,6 @@ Uint8List? _documentDataFrom(ImportType importType, String data) {
   switch (importType) {
     case ImportType.markdownOrText:
       final document = customMarkdownToDocument(data);
-      return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
-    case ImportType.historyDocument:
-      final document = EditorMigration.migrateDocument(data);
       return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
     default:
       assert(false, 'Unsupported Type $importType');

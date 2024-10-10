@@ -2,10 +2,10 @@ use collab_folder::ViewLayout;
 
 #[derive(Clone, Debug)]
 pub enum ImportType {
-  HistoryDocument = 0,
-  HistoryDatabase = 1,
-  RawDatabase = 2,
-  CSV = 3,
+  Markdown = 0,
+  AFDatabase = 1,
+  CSV = 2,
+  NotionZip = 3,
 }
 
 #[derive(Clone, Debug)]
