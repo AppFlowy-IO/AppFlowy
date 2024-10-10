@@ -293,6 +293,16 @@ class EditorOperations {
     await tester.pumpUntilFound(find.byType(TurnIntoOptionMenu));
   }
 
+  Future<void> openDepthMenu(Path path) async {
+    await hoverAndClickOptionMenuButton(path);
+    await tester.tapButton(
+      find.findTextInFlowyText(
+        LocaleKeys.document_plugins_optionAction_depth.tr(),
+      ),
+    );
+    await tester.pumpUntilFound(find.byType(DepthOptionMenu));
+  }
+
   /// Drag block
   ///
   /// [offset] is the offset to move the block.

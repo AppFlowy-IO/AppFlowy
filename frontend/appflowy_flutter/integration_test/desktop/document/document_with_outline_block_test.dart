@@ -1,7 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/outline/outline_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -181,15 +179,9 @@ Future<void> hoverAndClickDepthOptionAction(
   List<int> path,
   int level,
 ) async {
-  await tester.editor.hoverAndClickOptionMenuButton([3]);
-  await tester.tapButton(
-    find.findFlowyTooltip(LocaleKeys.document_plugins_optionAction_depth.tr()),
-  );
-  await tester.pumpAndSettle();
-
-  // Find a total of 4 HoverButtons under the [BlockOptionButton],
-  // in addition to 3 HoverButtons under the [DepthOptionAction] - (child of BlockOptionButton)
-  await tester.tap(find.byType(HoverButton).hitTestable().at(3 + level));
+  await tester.editor.openDepthMenu(path);
+  final type = OptionDepthType.fromLevel(level);
+  await tester.tapButton(find.findTextInFlowyText(type.description));
   await tester.pumpAndSettle();
 }
 

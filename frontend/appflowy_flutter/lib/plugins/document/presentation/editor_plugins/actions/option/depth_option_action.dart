@@ -33,7 +33,9 @@ enum OptionDepthType {
 }
 
 class DepthOptionAction extends PopoverActionCell {
-  DepthOptionAction({required this.editorState});
+  DepthOptionAction({
+    required this.editorState,
+  });
 
   final EditorState editorState;
 
@@ -51,36 +53,14 @@ class DepthOptionAction extends PopoverActionCell {
   @override
   PopoverActionCellBuilder get builder =>
       (context, parentController, controller) {
-        final children = buildDepthOptions(context, (depth) async {
-          await onDepthChanged(depth);
-          controller.close();
-          parentController.close();
-        });
-
-        return SizedBox(
-          width: 42,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          ),
+        return DepthOptionMenu(
+          onTap: (depth) async {
+            await onDepthChanged(depth);
+            parentController.close();
+            parentController.close();
+          },
         );
       };
-
-  List<Widget> buildDepthOptions(
-    BuildContext context,
-    Future<void> Function(OptionDepthType) onTap,
-  ) {
-    return OptionDepthType.values
-        .map((e) => OptionDepthWrapper(e))
-        .map(
-          (e) => HoverButton(
-            onTap: () => onTap(e.inner),
-            itemHeight: ActionListSizes.itemHeight,
-            name: e.name,
-          ),
-        )
-        .toList();
-  }
 
   OptionDepthType depth(Node node) {
     final level = node.attributes[OutlineBlockKeys.depth];
@@ -101,6 +81,42 @@ class DepthOptionAction extends PopoverActionCell {
       {OutlineBlockKeys.depth: depth.level},
     );
     await editorState.apply(transaction);
+  }
+}
+
+class DepthOptionMenu extends StatelessWidget {
+  const DepthOptionMenu({
+    super.key,
+    required this.onTap,
+  });
+
+  final Future<void> Function(OptionDepthType) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 42,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: buildDepthOptions(context, onTap),
+      ),
+    );
+  }
+
+  List<Widget> buildDepthOptions(
+    BuildContext context,
+    Future<void> Function(OptionDepthType) onTap,
+  ) {
+    return OptionDepthType.values
+        .map((e) => OptionDepthWrapper(e))
+        .map(
+          (e) => HoverButton(
+            onTap: () => onTap(e.inner),
+            itemHeight: ActionListSizes.itemHeight,
+            name: e.name,
+          ),
+        )
+        .toList();
   }
 }
 
