@@ -57,7 +57,7 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 
 ## Stay Up-to-Date
 
-<p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github - how to star the repo" width="100%" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/AppFlowy-IO/appflowy/refs/heads/main/doc/imgs/howtostar.gif" alt="AppFlowy Github - how to star the repo" width="100%" /></p>
 
 ## Getting Started with development
 
