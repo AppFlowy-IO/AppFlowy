@@ -11,12 +11,16 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
     required this.direction,
     required this.offset,
     required this.windowPadding,
+    this.showAtCursor = false,
+    this.cursorOffset,
   });
 
   PopoverLink link;
   PopoverDirection direction;
   final Offset offset;
   final EdgeInsets windowPadding;
+  final bool showAtCursor;
+  final Offset? cursorOffset;
 
   @override
   bool shouldRelayout(PopoverLayoutDelegate oldDelegate) {
@@ -33,6 +37,14 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
     }
 
     if (link.leaderSize != oldDelegate.link.leaderSize) {
+      return true;
+    }
+
+    if (showAtCursor != oldDelegate.showAtCursor) {
+      return true;
+    }
+
+    if (showAtCursor && cursorOffset != oldDelegate.cursorOffset) {
       return true;
     }
 
@@ -58,21 +70,43 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    final leaderOffset = link.leaderOffset;
+    final effectiveOffset =
+        showAtCursor && cursorOffset != null && link.leaderOffset != null
+            ? link.leaderOffset! + cursorOffset!
+            : link.leaderOffset;
+
     final leaderSize = link.leaderSize;
 
-    if (leaderOffset == null || leaderSize == null) {
+    if (effectiveOffset == null || leaderSize == null) {
       return Offset.zero;
     }
 
     final anchorRect = Rect.fromLTWH(
-      leaderOffset.dx + offset.dx,
-      leaderOffset.dy + offset.dy,
+      effectiveOffset.dx + offset.dx,
+      effectiveOffset.dy + offset.dy,
       leaderSize.width,
       leaderSize.height,
     );
 
-    Offset position;
+    Offset position = effectiveOffset;
+    if (showAtCursor) {
+      return Offset(
+        math.max(
+          windowPadding.left,
+          math.min(
+            windowPadding.left + size.width - childSize.width,
+            anchorRect.left,
+          ),
+        ),
+        math.max(
+          windowPadding.top,
+          math.min(
+            windowPadding.top + size.height - childSize.height,
+            anchorRect.top,
+          ),
+        ),
+      );
+    }
 
     switch (direction) {
       case PopoverDirection.topLeft:
@@ -190,6 +224,24 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
           position.dy,
         ),
       ),
+    );
+  }
+
+  PopoverLayoutDelegate copyWith({
+    PopoverLink? link,
+    PopoverDirection? direction,
+    Offset? offset,
+    EdgeInsets? windowPadding,
+    bool? showAtCursor,
+    Offset? cursorOffset,
+  }) {
+    return PopoverLayoutDelegate(
+      link: link ?? this.link,
+      direction: direction ?? this.direction,
+      offset: offset ?? this.offset,
+      windowPadding: windowPadding ?? this.windowPadding,
+      showAtCursor: showAtCursor ?? this.showAtCursor,
+      cursorOffset: cursorOffset ?? this.cursorOffset,
     );
   }
 }

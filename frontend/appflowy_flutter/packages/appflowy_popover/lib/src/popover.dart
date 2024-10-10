@@ -1,4 +1,5 @@
 import 'package:appflowy_popover/src/layout.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,19 +9,15 @@ import 'mutex.dart';
 class PopoverController {
   PopoverState? _state;
 
-  void close() {
-    _state?.close();
-  }
-
-  void show() {
-    _state?.showOverlay();
-  }
+  void close() => _state?.close();
+  void show() => _state?.showOverlay();
 }
 
 class PopoverTriggerFlags {
   static const int none = 0x00;
   static const int click = 0x01;
   static const int hover = 0x02;
+  static const int secondaryClick = 0x04;
 }
 
 enum PopoverDirection {
@@ -80,6 +77,7 @@ class Popover extends StatefulWidget {
     this.maskDecoration = const BoxDecoration(
       color: Color.fromARGB(0, 244, 67, 54),
     ),
+    this.showAtCursor = false,
   });
 
   final PopoverController? controller;
@@ -140,6 +138,8 @@ class Popover extends StatefulWidget {
   /// The content area of the popover.
   final Widget child;
 
+  final bool showAtCursor;
+
   @override
   State<Popover> createState() => PopoverState();
 }
@@ -148,11 +148,12 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   static final RootOverlayEntry rootEntry = RootOverlayEntry();
 
   final PopoverLink popoverLink = PopoverLink();
-  late final layoutDelegate = PopoverLayoutDelegate(
+  late PopoverLayoutDelegate layoutDelegate = PopoverLayoutDelegate(
     direction: widget.direction,
     link: popoverLink,
     offset: widget.offset ?? Offset.zero,
     windowPadding: widget.windowPadding ?? EdgeInsets.zero,
+    showAtCursor: widget.showAtCursor,
   );
 
   late AnimationController animationController;
@@ -216,9 +217,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       context,
       widget.debugId ?? '',
       this,
-      OverlayEntry(
-        builder: (context) => _buildOverlayContent(shouldAddMask),
-      ),
+      OverlayEntry(builder: (_) => _buildOverlayContent(shouldAddMask)),
       widget.asBarrier,
       animationController,
     );
@@ -269,9 +268,11 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       child,
       () {
         widget.onOpen?.call();
-        if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
-          showOverlay();
+        if (widget.triggerActions & PopoverTriggerFlags.none != 0) {
+          return;
         }
+
+        showOverlay();
       },
     );
 
@@ -288,11 +289,37 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   Widget _buildClickHandler(Widget child, VoidCallback handler) {
     return switch (widget.clickHandler) {
       PopoverClickHandler.listener => Listener(
-          onPointerDown: (_) => _callHandler(handler),
+          onPointerDown: (event) {
+            if (widget.showAtCursor) {
+              layoutDelegate =
+                  layoutDelegate.copyWith(cursorOffset: event.localPosition);
+            }
+
+            if (event.buttons == kSecondaryMouseButton &&
+                widget.triggerActions & PopoverTriggerFlags.secondaryClick !=
+                    0) {
+              return _callHandler(handler);
+            }
+
+            if (event.buttons == kPrimaryMouseButton &&
+                widget.triggerActions & PopoverTriggerFlags.click != 0) {
+              return _callHandler(handler);
+            }
+          },
           child: child,
         ),
       PopoverClickHandler.gestureDetector => GestureDetector(
-          onTap: () => _callHandler(handler),
+          onTap: () {
+            if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
+              return _callHandler(handler);
+            }
+          },
+          onSecondaryTap: () {
+            if (widget.triggerActions & PopoverTriggerFlags.secondaryClick !=
+                0) {
+              return _callHandler(handler);
+            }
+          },
           child: child,
         ),
     };
@@ -345,18 +372,16 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     if (widget.animationDuration != Duration.zero) {
       child = AnimatedBuilder(
         animation: animationController,
-        builder: (context, child) {
-          return Opacity(
-            opacity: fadeAnimation.value,
-            child: Transform.scale(
-              scale: scaleAnimation.value,
-              child: Transform.translate(
-                offset: slideAnimation.value,
-                child: child,
-              ),
+        builder: (_, child) => Opacity(
+          opacity: fadeAnimation.value,
+          child: Transform.scale(
+            scale: scaleAnimation.value,
+            child: Transform.translate(
+              offset: slideAnimation.value,
+              child: child,
             ),
-          );
-        },
+          ),
+        ),
         child: child,
       );
     }
