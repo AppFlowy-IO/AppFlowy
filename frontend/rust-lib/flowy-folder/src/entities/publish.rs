@@ -31,6 +31,8 @@ pub struct PublishInfoResponsePB {
   pub namespace: Option<String>,
   #[pb(index = 4)]
   pub publisher_email: String,
+  #[pb(index = 5)]
+  pub publish_timestamp_sec: i64,
 }
 
 impl From<PublishInfoResponse> for PublishInfoResponsePB {
@@ -39,7 +41,8 @@ impl From<PublishInfoResponse> for PublishInfoResponsePB {
       view_id: info.view_id,
       publish_name: info.publish_name,
       namespace: info.namespace,
-      publisher_email: "TODO".to_string(),
+      publisher_email: todo!(),
+      publish_timestamp_sec: todo!(),
     }
   }
 }
