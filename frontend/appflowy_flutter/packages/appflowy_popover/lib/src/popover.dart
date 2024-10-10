@@ -334,28 +334,34 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildPopoverContainer() {
-    return AnimatedBuilder(
-      animation: animationController,
-      builder: (context, child) {
-        return Opacity(
-          opacity: fadeAnimation.value,
-          child: Transform.scale(
-            scale: scaleAnimation.value,
-            child: Transform.translate(
-              offset: slideAnimation.value,
-              child: child,
-            ),
-          ),
-        );
-      },
-      child: PopoverContainer(
-        delegate: layoutDelegate,
-        popupBuilder: widget.popupBuilder,
-        skipTraversal: widget.skipTraversal,
-        onClose: close,
-        onCloseAll: _removeRootOverlay,
-      ),
+    Widget child = PopoverContainer(
+      delegate: layoutDelegate,
+      popupBuilder: widget.popupBuilder,
+      skipTraversal: widget.skipTraversal,
+      onClose: close,
+      onCloseAll: _removeRootOverlay,
     );
+
+    if (widget.animationDuration != Duration.zero) {
+      child = AnimatedBuilder(
+        animation: animationController,
+        builder: (context, child) {
+          return Opacity(
+            opacity: fadeAnimation.value,
+            child: Transform.scale(
+              scale: scaleAnimation.value,
+              child: Transform.translate(
+                offset: slideAnimation.value,
+                child: child,
+              ),
+            ),
+          );
+        },
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   void _buildAnimations() {
