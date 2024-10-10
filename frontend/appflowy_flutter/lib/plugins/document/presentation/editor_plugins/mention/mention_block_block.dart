@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
@@ -12,41 +13,23 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
+    show EditorState, Node, TextTransaction;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 final pageMemorizer = <String, ViewPB?>{};
 
-Node pageMentionNode(String viewId) {
-  return paragraphNode(
-    delta: Delta(
-      operations: [
-        TextInsert(
-          '\$',
-          attributes: {
-            MentionBlockKeys.mention: {
-              MentionBlockKeys.type: MentionType.page.name,
-              MentionBlockKeys.pageId: viewId,
-            },
-          },
-        ),
-      ],
-    ),
-  );
-}
-
-class MentionPageBlock extends StatefulWidget {
-  const MentionPageBlock({
+class MentionBlockBlock extends StatefulWidget {
+  const MentionBlockBlock({
     super.key,
     required this.editorState,
     required this.pageId,
+    required this.blockId,
     required this.node,
     required this.textStyle,
     required this.index,
@@ -54,6 +37,7 @@ class MentionPageBlock extends StatefulWidget {
 
   final EditorState editorState;
   final String pageId;
+  final String? blockId;
   final Node node;
   final TextStyle? textStyle;
 
@@ -61,66 +45,61 @@ class MentionPageBlock extends StatefulWidget {
   final int index;
 
   @override
-  State<MentionPageBlock> createState() => _MentionPageBlockState();
+  State<MentionBlockBlock> createState() => _MentionBlockBlockState();
 }
 
-class _MentionPageBlockState extends State<MentionPageBlock> {
+class _MentionBlockBlockState extends State<MentionBlockBlock> {
   late final EditorState editorState;
-  late final ViewListener viewListener = ViewListener(viewId: widget.pageId);
-  late Future<ViewPB?> viewPBFuture;
 
   @override
   void initState() {
     super.initState();
 
     editorState = context.read<EditorState>();
-    viewPBFuture = fetchView(widget.pageId);
-    viewListener.start(
-      onViewUpdated: (p0) {
-        pageMemorizer[p0.id] = p0;
-        viewPBFuture = fetchView(widget.pageId);
-        editorState.reload();
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    viewListener.stop();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ViewPB?>(
-      initialData: pageMemorizer[widget.pageId],
-      future: viewPBFuture,
-      builder: (context, state) {
-        final view = state.data;
-        // memorize the result
-        pageMemorizer[widget.pageId] = view;
+    return BlocProvider(
+      create: (context) => MentionBloc(
+        pageId: widget.pageId,
+        blockId: widget.blockId,
+      )..add(const MentionEvent.initial()),
+      child: BlocBuilder<MentionBloc, MentionState>(
+        builder: (context, state) {
+          final view = state.view;
+          if (state.isLoading) {
+            return const CircularProgressIndicator();
+          }
 
-        if (view == null) {
-          return _NoAccessMentionPageBlock(
-            textStyle: widget.textStyle,
-          );
-        }
+          if (state.isDeleted || view == null) {
+            return _NoAccessMentionPageBlock(
+              textStyle: widget.textStyle,
+            );
+          }
 
-        if (UniversalPlatform.isMobile) {
-          return _MobileMentionPageBlock(
-            view: view,
-            textStyle: widget.textStyle,
-            handleTap: handleTap,
-            handleDoubleTap: handleDoubleTap,
-          );
-        } else {
-          return _DesktopMentionPageBlock(
-            view: view,
-            textStyle: widget.textStyle,
-            handleTap: handleTap,
-          );
-        }
-      },
+          if (state.isInTrash) {
+            return _NoAccessMentionPageBlock(
+              textStyle: widget.textStyle,
+            );
+          }
+
+          if (UniversalPlatform.isMobile) {
+            return _MobileMentionPageBlock(
+              view: view,
+              textStyle: widget.textStyle,
+              handleTap: handleTap,
+              handleDoubleTap: handleDoubleTap,
+            );
+          } else {
+            return _DesktopMentionPageBlock(
+              view: view,
+              textStyle: widget.textStyle,
+              handleTap: handleTap,
+            );
+          }
+        },
+      ),
     );
   }
 

@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 enum MentionType {
@@ -46,6 +46,7 @@ class MentionBlockKeys {
   static const mention = 'mention';
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';
+  static const blockId = 'block_id';
 
   // Related to Reminder and Date blocks
   static const date = 'date'; // Start Date
@@ -77,6 +78,19 @@ class MentionBlock extends StatelessWidget {
         final String? pageId = mention[MentionBlockKeys.pageId] as String?;
         if (pageId == null) {
           return const SizedBox.shrink();
+        }
+        final String? blockId = mention[MentionBlockKeys.blockId] as String?;
+
+        if (blockId != null) {
+          return MentionBlockBlock(
+            key: ValueKey(pageId),
+            editorState: editorState,
+            pageId: pageId,
+            blockId: blockId,
+            node: node,
+            textStyle: textStyle,
+            index: index,
+          );
         }
 
         return MentionPageBlock(
