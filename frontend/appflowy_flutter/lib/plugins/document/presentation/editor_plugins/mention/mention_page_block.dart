@@ -86,9 +86,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         builder: (context, state) {
           final view = state.view;
           if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const SizedBox.shrink();
           }
 
           if (state.isDeleted || view == null) {
@@ -209,18 +207,20 @@ class _MentionPageBlockContent extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const HSpace(4),
-        view.icon.value.isNotEmpty
-            ? FlowyText.emoji(
-                view.icon.value,
-                fontSize: emojiSize,
-                lineHeight: textStyle?.height,
-                optimizeEmojiAlign: true,
-              )
-            : FlowySvg(
-                view.layout.icon,
-                size: Size.square(iconSize + 2.0),
-              ),
+        if (_shouldDisplayViewName(context, view.id, content)) ...[
+          const HSpace(4),
+          view.icon.value.isNotEmpty
+              ? FlowyText.emoji(
+                  view.icon.value,
+                  fontSize: emojiSize,
+                  lineHeight: textStyle?.height,
+                  optimizeEmojiAlign: true,
+                )
+              : FlowySvg(
+                  view.layout.icon,
+                  size: Size.square(iconSize + 2.0),
+                ),
+        ],
         const HSpace(2),
         FlowyText(
           text,
@@ -239,24 +239,42 @@ class _MentionPageBlockContent extends StatelessWidget {
     ViewPB view,
     String? blockContent,
   ) {
-    // if the block is from the same doc,
-    // 1. block content is not empty, display the **block content only**.
-    // 2. block content is empty, display the **view name**.
-    // if the block is from another doc,
-    // 1. block content is not empty, display the **view name and block content**.
-    // 2. block content is empty, display the **view name**.
-    final currentViewId = context.read<DocumentBloc?>()?.documentId;
-    if (view.id == currentViewId) {
-      if (blockContent != null && blockContent.isNotEmpty) {
-        return blockContent;
-      }
-      return view.name;
-    } else {
-      if (blockContent != null && blockContent.isNotEmpty) {
-        return '${view.name} - $blockContent';
-      }
-      return view.name;
+    final shouldDisplayViewName = _shouldDisplayViewName(
+      context,
+      view.id,
+      blockContent,
+    );
+
+    if (blockContent == null || blockContent.isEmpty) {
+      return shouldDisplayViewName ? view.name : '';
     }
+
+    return shouldDisplayViewName
+        ? '${view.name} - $blockContent'
+        : blockContent;
+  }
+
+  // display the view name or not
+  // if the block is from the same doc,
+  // 1. block content is not empty, display the **block content only**.
+  // 2. block content is empty, display the **view name**.
+  // if the block is from another doc,
+  // 1. block content is not empty, display the **view name and block content**.
+  // 2. block content is empty, display the **view name**.
+  bool _shouldDisplayViewName(
+    BuildContext context,
+    String viewId,
+    String? blockContent,
+  ) {
+    if (_isSameDocument(context, viewId)) {
+      return blockContent == null || blockContent.isEmpty;
+    }
+    return true;
+  }
+
+  bool _isSameDocument(BuildContext context, String viewId) {
+    final currentViewId = context.read<DocumentBloc?>()?.documentId;
+    return viewId == currentViewId;
   }
 }
 

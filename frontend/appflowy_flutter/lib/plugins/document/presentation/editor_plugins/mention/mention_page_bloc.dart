@@ -110,8 +110,8 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
         },
         onViewDeleted: (view) {
           add(
-            const MentionPageEvent.didUpdateViewStatus(
-              (null, false, true),
+            MentionPageEvent.didUpdateViewStatus(
+              (state.view, false, true),
             ),
           );
         },
