@@ -2,15 +2,14 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
@@ -108,6 +107,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
           } else {
             return _DesktopMentionPageBlock(
               view: view,
+              content: state.blockContent,
               textStyle: widget.textStyle,
               handleTap: () => handleTap(view),
             );
@@ -118,12 +118,6 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   Future<void> handleTap(ViewPB view) async {
-    final view = await fetchView(widget.pageId);
-    if (view == null) {
-      Log.error('Page(${widget.pageId}) not found');
-      return;
-    }
-
     if (UniversalPlatform.isMobile && mounted) {
       await context.pushView(view);
     } else {
@@ -199,13 +193,19 @@ class _MentionPageBlockContent extends StatelessWidget {
   const _MentionPageBlockContent({
     required this.view,
     required this.textStyle,
+    this.content,
   });
 
   final ViewPB view;
   final TextStyle? textStyle;
+  final String? content;
 
   @override
   Widget build(BuildContext context) {
+    String text = view.name;
+    if (content != null && content!.isNotEmpty) {
+      text = '$text - $content';
+    }
     final emojiSize = textStyle?.fontSize ?? 12.0;
     final iconSize = textStyle?.fontSize ?? 16.0;
 
@@ -226,7 +226,7 @@ class _MentionPageBlockContent extends StatelessWidget {
               ),
         const HSpace(2),
         FlowyText(
-          view.name,
+          text,
           decoration: TextDecoration.underline,
           fontSize: textStyle?.fontSize,
           fontWeight: textStyle?.fontWeight,
@@ -294,10 +294,12 @@ class _DesktopMentionPageBlock extends StatelessWidget {
     required this.view,
     required this.textStyle,
     required this.handleTap,
+    required this.content,
   });
 
   final TextStyle? textStyle;
   final ViewPB view;
+  final String? content;
   final VoidCallback handleTap;
 
   @override
@@ -311,6 +313,7 @@ class _DesktopMentionPageBlock extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: _MentionPageBlockContent(
             view: view,
+            content: content,
             textStyle: textStyle,
           ),
         ),
