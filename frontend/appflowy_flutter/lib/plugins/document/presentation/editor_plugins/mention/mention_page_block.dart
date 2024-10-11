@@ -245,7 +245,7 @@ class _MentionPageBlockContent extends StatelessWidget {
     // if the block is from another doc,
     // 1. block content is not empty, display the **view name and block content**.
     // 2. block content is empty, display the **view name**.
-    final currentViewId = context.read<DocumentBloc>().documentId;
+    final currentViewId = context.read<DocumentBloc?>()?.documentId;
     if (view.id == currentViewId) {
       if (blockContent != null && blockContent.isNotEmpty) {
         return blockContent;

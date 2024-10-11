@@ -215,6 +215,7 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     }
   }
 
+  // move this function to a util file
   Future<String> _convertDeltaToPlainText(Delta? delta) async {
     var text = '';
     if (delta == null) {
