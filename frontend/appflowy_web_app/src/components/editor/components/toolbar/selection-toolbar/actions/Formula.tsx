@@ -25,9 +25,17 @@ function Formula () {
       editor.delete();
 
       editor.insertText('$');
+
+      const newSelection = editor.selection;
+
+      if (!newSelection) {
+        console.error('newSelection is undefined');
+        return;
+      }
+
       Transforms.select(editor, {
         anchor: start,
-        focus: { path: start.path, offset: start.offset + 1 },
+        focus: newSelection.focus,
       });
       CustomEditor.addMark(editor, {
         key: EditorMarkFormat.Formula,
@@ -46,10 +54,7 @@ function Formula () {
 
       CustomEditor.removeMark(editor, EditorMarkFormat.Formula);
 
-      editor.collapse({
-        edge: 'end',
-      });
-      editor.deleteBackward('character');
+      editor.delete();
       editor.insertText(formula);
     }
 
