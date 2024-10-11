@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/number.dart';
@@ -99,6 +101,7 @@ void main() {
       await tester.hoverOnFirstRowOfGrid();
       await tester.tapRowMenuButtonInGrid();
       await tester.tapDeleteOnRowMenu();
+      await tester.tap(find.text(LocaleKeys.button_delete.tr()));
 
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
