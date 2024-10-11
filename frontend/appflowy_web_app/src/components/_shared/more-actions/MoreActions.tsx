@@ -83,7 +83,7 @@ function MoreActions () {
       },
     ];
 
-    const importShow = false;
+    const importShow = true;
 
     if (importShow) {
       items.unshift({

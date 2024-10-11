@@ -51,10 +51,14 @@ function Import () {
           </div>
         }
         open={openSuccess}
-        onOk={() => setOpenSuccess(false)}
+        onOk={() => {
+          setOpenSuccess(false);
+          handleImportClose();
+        }}
         cancelButtonProps={{
           className: 'hidden',
         }}
+        closable={false}
         onClose={() => setOpenSuccess(false)}
       >
         <div className="text-text-caption">{t('web.importSuccessMessage')}</div>
