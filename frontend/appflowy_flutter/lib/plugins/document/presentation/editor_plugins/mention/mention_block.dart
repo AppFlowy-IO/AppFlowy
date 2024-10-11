@@ -25,7 +25,7 @@ Node dateMentionNode() {
     delta: Delta(
       operations: [
         TextInsert(
-          '\$',
+          MentionBlockKeys.mentionChar,
           attributes: {
             MentionBlockKeys.mention: {
               MentionBlockKeys.type: MentionType.date.name,
@@ -51,6 +51,8 @@ class MentionBlockKeys {
   static const date = 'date'; // Start Date
   static const includeTime = 'include_time';
   static const reminderOption = 'reminder_option';
+
+  static const mentionChar = '\$';
 }
 
 class MentionBlock extends StatelessWidget {

@@ -4,15 +4,12 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/delta/text_delta_extension.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -36,8 +33,11 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     on<MentionPageEvent>((event, emit) async {
       await event.when(
         initial: () async {
-          final (view, isInTrash, isDeleted) = await _fetchView(pageId);
-          final blockContent = await _fetchBlockContent();
+          final (view, isInTrash, isDeleted) =
+              await ViewBackendService.getMentionPageStatus(
+            pageId,
+          );
+          final blockContent = await _getBlockContent();
           emit(
             state.copyWith(
               view: view,
@@ -50,8 +50,7 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
 
           if (view != null) {
             _startListeningView();
-            // this function is time-consuming, don't block the doc rendering
-            unawaited(_startListeningDocument());
+            _startListeningDocument();
           }
         },
         didUpdateBlockContent: (content) {
@@ -118,37 +117,34 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
       );
   }
 
-  Future<String?> _fetchBlockContent() async {
+  Future<String?> _getBlockContent() async {
     if (blockId == null) {
       return null;
     }
 
-    final documentResult =
-        await _documentService.getDocument(documentId: pageId);
-    final document = documentResult.fold((l) => l, (f) => null);
-    if (document == null) {
-      Log.error('unable to get the document for page $pageId');
-      return null;
-    }
-    final blockResult = await _documentService.getBlockFromDocument(
-      document: document,
+    final documentNodeResult = await _documentService.getDocumentNode(
+      documentId: pageId,
       blockId: blockId!,
     );
-    final block = blockResult.fold((l) => l, (f) => null);
-    if (block == null) {
-      Log.error('unable to get the block $blockId from the document $pageId');
+    final documentNode = documentNodeResult.fold((l) => l, (f) => null);
+    if (documentNode == null) {
+      Log.error(
+        'unable to get the document node for block $blockId in page $pageId',
+      );
       return null;
     }
 
-    final node = document.buildNode(blockId!);
-    _blockTextId = (node?.externalValues as ExternalValues?)?.externalId;
-    _initialDelta = node?.delta;
+    final block = documentNode.$2;
+    final node = documentNode.$3;
+
+    _blockTextId = (node.externalValues as ExternalValues?)?.externalId;
+    _initialDelta = node.delta;
     _block = block;
 
-    return _convertDeltaToPlainText(_initialDelta);
+    return _convertDeltaToText(_initialDelta);
   }
 
-  Future<void> _startListeningDocument() async {
+  void _startListeningDocument() {
     // only observe the block content if the block id is not null
     if (blockId == null ||
         _blockTextId == null ||
@@ -160,7 +156,6 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     _documentListener = DocumentListener(id: pageId)
       ..start(
         onDocEventUpdate: (docEvent) {
-          debugPrint('docEvent: ${docEvent.toProto3Json()}');
           for (final block in docEvent.events) {
             for (final event in block.event) {
               if (event.id == _blockTextId) {
@@ -176,33 +171,6 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
       );
   }
 
-  Future<MentionPageStatus> _fetchView(String pageId) async {
-    // Try to fetch the view from the main storage
-    final view = await ViewBackendService.getView(pageId).then(
-      (value) => value.toNullable(),
-    );
-
-    if (view != null) {
-      return (view, false, false);
-    }
-
-    // if the view is not found, try to fetch from trash
-    final trashViews = await TrashService().readTrash();
-    final trash = trashViews.fold(
-      (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
-      (r) => null,
-    );
-    if (trash != null) {
-      final trashView = ViewPB()
-        ..id = trash.id
-        ..name = trash.name;
-      return (trashView, true, false);
-    }
-
-    Log.info('No view found for page $pageId');
-    return (null, false, true);
-  }
-
   Future<void> _updateBlockContent(String deltaJson) async {
     if (_initialDelta == null || _block == null) {
       return;
@@ -211,7 +179,7 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     try {
       final incremental = Delta.fromJson(jsonDecode(deltaJson));
       final delta = _initialDelta!.compose(incremental);
-      final content = await _convertDeltaToPlainText(delta);
+      final content = await _convertDeltaToText(delta);
       add(MentionPageEvent.didUpdateBlockContent(content));
       _initialDelta = delta;
     } catch (e) {
@@ -219,45 +187,24 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     }
   }
 
-  // move this function to a util file
-  Future<String> _convertDeltaToPlainText(Delta? delta) async {
-    var text = '';
+  Future<String> _convertDeltaToText(Delta? delta) async {
     if (delta == null) {
-      return text;
+      return _initialDelta?.toPlainText() ?? '';
     }
 
-    final defaultPlainText = delta.toPlainText();
-    final ops = delta.iterator;
-    while (ops.moveNext()) {
-      final op = ops.current;
-      final attributes = op.attributes;
-      if (op is TextInsert) {
-        if (op.text == '\$') {
-          // if the text is '$', it means the block is empty
-          final mention = attributes?[MentionBlockKeys.mention];
-          final mentionPageId = mention?[MentionBlockKeys.pageId];
-          if (mentionPageId != null) {
-            if (mentionPageId == pageId) {
-              // if the mention page is the current page, return the view name
-              text += state.view?.name ?? '';
-            } else {
-              // if the mention page is not the current page, return the mention page name
-              final viewResult =
-                  await ViewBackendService.getView(mentionPageId);
-              final name = viewResult.fold((l) => l.name, (f) => '');
-              text += name;
-            }
-          }
+    return delta.toText(
+      getMentionPageName: (mentionedPageId) async {
+        if (mentionedPageId == pageId) {
+          // if the mention page is the current page, return the view name
+          return state.view?.name ?? '';
         } else {
-          text += op.text;
+          // if the mention page is not the current page, return the mention page name
+          final viewResult = await ViewBackendService.getView(mentionedPageId);
+          final name = viewResult.fold((l) => l.name, (f) => '');
+          return name;
         }
-      } else {
-        // if the delta contains other types of operations,
-        // return the default plain text
-        return defaultPlainText;
-      }
-    }
-    return text;
+      },
+    );
   }
 }
 

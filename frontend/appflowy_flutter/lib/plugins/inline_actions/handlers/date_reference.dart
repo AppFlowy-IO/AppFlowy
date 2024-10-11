@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/date/date_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
@@ -8,6 +6,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 final _keywords = [
   LocaleKeys.inlineActions_date.tr().toLowerCase(),
@@ -122,7 +121,7 @@ class DateReferenceService extends InlineActionsDelegate {
         node,
         start,
         end,
-        '\$',
+        MentionBlockKeys.mentionChar,
         attributes: {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.date.name,

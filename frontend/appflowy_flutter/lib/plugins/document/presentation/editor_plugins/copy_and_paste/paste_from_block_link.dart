@@ -40,7 +40,7 @@ extension PasteFromBlockLink on EditorState {
     transaction.insertText(
       node,
       selection.startIndex,
-      '\$',
+      MentionBlockKeys.mentionChar,
       attributes: {
         MentionBlockKeys.mention: {
           MentionBlockKeys.type: MentionType.page.name,

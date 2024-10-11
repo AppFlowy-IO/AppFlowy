@@ -28,7 +28,7 @@ Node pageMentionNode(String viewId) {
     delta: Delta(
       operations: [
         TextInsert(
-          '\$',
+          MentionBlockKeys.mentionChar,
           attributes: {
             MentionBlockKeys.mention: {
               MentionBlockKeys.type: MentionType.page.name,
