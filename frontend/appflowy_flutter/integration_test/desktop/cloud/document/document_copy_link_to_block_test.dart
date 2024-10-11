@@ -38,7 +38,8 @@ void main() {
       );
     });
 
-    testWidgets('copy link to block and paste it in doc', (tester) async {
+    testWidgets('copy link to block(another page) and paste it in doc',
+        (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
@@ -93,6 +94,75 @@ void main() {
           ),
         ),
         findsOneWidget,
+      );
+    });
+
+    testWidgets('copy link to block(same page) and paste it in doc',
+        (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      // create a new page and paste it
+      const pageName = 'copy link to block';
+      await tester.createNewPageInSpace(
+        spaceName: Constants.generalSpaceName,
+        layout: ViewLayoutPB.Document,
+        pageName: pageName,
+      );
+
+      // copy the link to block from the first line
+      const inputText = 'Hello World';
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText(inputText);
+      await tester.ime.insertCharacter('\n');
+      await tester.pumpAndSettle();
+      await tester.editor.copyLinkToBlock([0]);
+
+      // paste the link to the second line
+      await tester.editor.tapLineOfEditorAt(1);
+      await tester.editor.paste();
+      await tester.pumpAndSettle();
+
+      // check the content of the block
+      final node = tester.editor.getNodeAtPath([1]);
+      final delta = node.delta!;
+      final insert = (delta.first as TextInsert).text;
+      final attributes = delta.first.attributes;
+      expect(insert, MentionBlockKeys.mentionChar);
+      final mention =
+          attributes?[MentionBlockKeys.mention] as Map<String, dynamic>;
+      expect(mention[MentionBlockKeys.type], MentionType.page.name);
+      expect(mention[MentionBlockKeys.blockId], isNotNull);
+      expect(mention[MentionBlockKeys.pageId], isNotNull);
+      expect(
+        find.descendant(
+          of: find.byType(AppFlowyEditor),
+          matching: find.textContaining(
+            inputText,
+            findRichText: true,
+          ),
+        ),
+        findsNWidgets(2),
+      );
+
+      // edit the pasted block
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText('!');
+      await tester.pumpAndSettle();
+
+      // check the content of the block
+      expect(
+        find.descendant(
+          of: find.byType(AppFlowyEditor),
+          matching: find.textContaining(
+            '$inputText!',
+            findRichText: true,
+          ),
+        ),
+        findsNWidgets(2),
       );
     });
   });
