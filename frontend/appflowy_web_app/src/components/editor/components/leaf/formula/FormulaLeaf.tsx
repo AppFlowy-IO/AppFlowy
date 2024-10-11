@@ -65,7 +65,7 @@ function FormulaLeaf ({ formula, text }: {
 
     CustomEditor.removeMark(editor, EditorMarkFormat.Formula);
 
-    editor.deleteBackward('character');
+    editor.delete();
     editor.insertText(formula);
   }, [editor, formula, handleClose, text]);
 
