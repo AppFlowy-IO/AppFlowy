@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
@@ -144,7 +145,7 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     _initialDelta = node?.delta;
     _block = block;
 
-    return _initialDelta?.toPlainText();
+    return _convertDeltaToPlainText(_initialDelta);
   }
 
   Future<void> _startListeningDocument() async {
@@ -198,7 +199,7 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     return (null, false, true);
   }
 
-  void _updateBlockContent(String deltaJson) {
+  Future<void> _updateBlockContent(String deltaJson) async {
     if (_initialDelta == null || _block == null) {
       return;
     }
@@ -206,12 +207,52 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
     try {
       final incremental = Delta.fromJson(jsonDecode(deltaJson));
       final delta = _initialDelta!.compose(incremental);
-      final content = delta.toPlainText();
+      final content = await _convertDeltaToPlainText(delta);
       add(MentionPageEvent.didUpdateBlockContent(content));
       _initialDelta = delta;
     } catch (e) {
       Log.error('failed to update block content: $e');
     }
+  }
+
+  Future<String> _convertDeltaToPlainText(Delta? delta) async {
+    var text = '';
+    if (delta == null) {
+      return text;
+    }
+
+    final defaultPlainText = delta.toPlainText();
+    final ops = delta.iterator;
+    while (ops.moveNext()) {
+      final op = ops.current;
+      final attributes = op.attributes;
+      if (op is TextInsert) {
+        if (op.text == '\$') {
+          // if the text is '$', it means the block is empty
+          final mention = attributes?[MentionBlockKeys.mention];
+          final mentionPageId = mention?[MentionBlockKeys.pageId];
+          if (mentionPageId != null) {
+            if (mentionPageId == pageId) {
+              // if the mention page is the current page, return the view name
+              text += state.view?.name ?? '';
+            } else {
+              // if the mention page is not the current page, return the mention page name
+              final viewResult =
+                  await ViewBackendService.getView(mentionPageId);
+              final name = viewResult.fold((l) => l.name, (f) => '');
+              text += name;
+            }
+          }
+        } else {
+          text += op.text;
+        }
+      } else {
+        // if the delta contains other types of operations,
+        // return the default plain text
+        return defaultPlainText;
+      }
+    }
+    return text;
   }
 }
 

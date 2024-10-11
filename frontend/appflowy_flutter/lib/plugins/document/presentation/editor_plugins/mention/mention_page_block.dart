@@ -202,10 +202,7 @@ class _MentionPageBlockContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String text = view.name;
-    if (content != null && content!.isNotEmpty) {
-      text = '$text - $content';
-    }
+    final text = _getDisplayText(context, view, content);
     final emojiSize = textStyle?.fontSize ?? 12.0;
     final iconSize = textStyle?.fontSize ?? 16.0;
 
@@ -235,6 +232,31 @@ class _MentionPageBlockContent extends StatelessWidget {
         const HSpace(4),
       ],
     );
+  }
+
+  String _getDisplayText(
+    BuildContext context,
+    ViewPB view,
+    String? blockContent,
+  ) {
+    // if the block is from the same doc,
+    // 1. block content is not empty, display the **block content only**.
+    // 2. block content is empty, display the **view name**.
+    // if the block is from another doc,
+    // 1. block content is not empty, display the **view name and block content**.
+    // 2. block content is empty, display the **view name**.
+    final currentViewId = context.read<DocumentBloc>().documentId;
+    if (view.id == currentViewId) {
+      if (blockContent != null && blockContent.isNotEmpty) {
+        return blockContent;
+      }
+      return view.name;
+    } else {
+      if (blockContent != null && blockContent.isNotEmpty) {
+        return '${view.name} - $blockContent';
+      }
+      return view.name;
+    }
   }
 }
 
