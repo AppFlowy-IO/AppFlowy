@@ -73,6 +73,20 @@ class EditorOperations {
     expect(find.byType(FlowyEmojiPicker), findsOneWidget);
   }
 
+  Future<void> paste() async {
+    if (UniversalPlatform.isMacOS) {
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isMetaPressed: true,
+      );
+    } else {
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed: true,
+      );
+    }
+  }
+
   Future<void> tapGettingStartedIcon() async {
     await tester.tapButton(
       find.descendant(
@@ -291,6 +305,16 @@ class EditorOperations {
       ),
     );
     await tester.pumpUntilFound(find.byType(TurnIntoOptionMenu));
+  }
+
+  /// copy link to block
+  Future<void> copyLinkToBlock(Path path) async {
+    await hoverAndClickOptionMenuButton(path);
+    await tester.tapButton(
+      find.findTextInFlowyText(
+        LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr(),
+      ),
+    );
   }
 
   Future<void> openDepthMenu(Path path) async {
