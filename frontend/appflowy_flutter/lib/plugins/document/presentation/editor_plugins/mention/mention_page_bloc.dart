@@ -164,7 +164,11 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
           for (final block in docEvent.events) {
             for (final event in block.event) {
               if (event.id == _blockTextId) {
-                _updateBlockContent(event.value);
+                if (event.command == DeltaTypePB.Updated) {
+                  _updateBlockContent(event.value);
+                } else if (event.command == DeltaTypePB.Removed) {
+                  add(const MentionPageEvent.didUpdateBlockContent(''));
+                }
               }
             }
           }
