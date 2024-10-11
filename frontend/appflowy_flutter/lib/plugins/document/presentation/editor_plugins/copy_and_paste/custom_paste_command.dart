@@ -51,7 +51,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     Log.info('paste command: plainText: ${plainText?.length}');
     Log.info('paste command: image: ${image?.$2?.length}');
 
-    if (await editorState.pasteBlockLink(plainText)) {
+    if (await editorState.pasteAppFlowySharePageLink(plainText)) {
       Log.info('Pasted block link');
       return;
     }

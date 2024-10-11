@@ -4,13 +4,13 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 extension PasteFromBlockLink on EditorState {
-  Future<bool> pasteBlockLink(String? blockLink) async {
-    if (blockLink == null || blockLink.isEmpty) {
+  Future<bool> pasteAppFlowySharePageLink(String? sharePageLink) async {
+    if (sharePageLink == null || sharePageLink.isEmpty) {
       return false;
     }
 
     // Check if the link matches the appflowy block link format
-    final match = appflowyBlockLinkRegex.firstMatch(blockLink);
+    final match = appflowySharePageLinkRegex.firstMatch(sharePageLink);
 
     if (match == null) {
       return false;
@@ -20,8 +20,10 @@ extension PasteFromBlockLink on EditorState {
     final pageId = match.group(2);
     final blockId = match.group(3);
 
-    if (workspaceId == null || pageId == null || blockId == null) {
-      Log.error('Failed to extract information from block link: $blockLink');
+    if (workspaceId == null || pageId == null) {
+      Log.error(
+        'Failed to extract information from block link: $sharePageLink',
+      );
       return false;
     }
 
