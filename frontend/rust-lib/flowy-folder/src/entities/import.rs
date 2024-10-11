@@ -111,6 +111,6 @@ impl TryInto<ImportParams> for ImportPayloadPB {
 #[derive(Clone, Debug, Validate, ProtoBuf, Default)]
 pub struct ImportZipPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub file_path: String,
 }
