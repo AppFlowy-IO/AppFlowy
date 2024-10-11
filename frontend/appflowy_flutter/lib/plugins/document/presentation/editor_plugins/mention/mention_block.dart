@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
@@ -81,22 +80,11 @@ class MentionBlock extends StatelessWidget {
         }
         final String? blockId = mention[MentionBlockKeys.blockId] as String?;
 
-        if (blockId != null) {
-          return MentionBlockBlock(
-            key: ValueKey(pageId),
-            editorState: editorState,
-            pageId: pageId,
-            blockId: blockId,
-            node: node,
-            textStyle: textStyle,
-            index: index,
-          );
-        }
-
         return MentionPageBlock(
           key: ValueKey(pageId),
           editorState: editorState,
           pageId: pageId,
+          blockId: blockId,
           node: node,
           textStyle: textStyle,
           index: index,

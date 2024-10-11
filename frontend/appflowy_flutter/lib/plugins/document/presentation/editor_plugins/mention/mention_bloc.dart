@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,50 +8,45 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'mention_bloc.freezed.dart';
 
-class MentionBloc extends Bloc<MentionEvent, MentionState> {
-  MentionBloc({
+typedef MentionPageStatus = (ViewPB? view, bool isInTrash, bool isDeleted);
+
+class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
+  MentionPageBloc({
     required this.pageId,
     this.blockId,
-  }) : super(MentionState.initial()) {
-    on<MentionEvent>((event, emit) async {
+  }) : super(MentionPageState.initial()) {
+    on<MentionPageEvent>((event, emit) async {
       await event.when(
         initial: () async {
-          final view = await _fetchView(pageId);
-          if (view == null) {
-            emit(
-              state.copyWith(
-                isLoading: false,
-                isDeleted: true,
-                content: '',
-              ),
-            );
-          } else {
-            emit(
-              state.copyWith(
-                view: view,
-                content: view.name,
-                isLoading: false,
-                isInTrash: false,
-                isDeleted: false,
-              ),
-            );
+          final (view, isInTrash, isDeleted) = await _fetchView(pageId);
+          emit(
+            state.copyWith(
+              view: view,
+              // todo: support fetch the block content from the view
+              blockContent: view?.name ?? '',
+              isLoading: false,
+              isInTrash: isInTrash,
+              isDeleted: isDeleted,
+            ),
+          );
 
+          if (view != null) {
             _startListeningView();
           }
         },
         didUpdateBlockContent: (content) {
           emit(
             state.copyWith(
-              content: content,
+              blockContent: content,
             ),
           );
         },
-        didUpdateViewStatus: (view, isInTrash, isDeleted) {
+        didUpdateViewStatus: (mentionPageStatus) {
           emit(
             state.copyWith(
-              view: view,
-              isInTrash: isInTrash,
-              isDeleted: isDeleted,
+              view: mentionPageStatus.$1,
+              isInTrash: mentionPageStatus.$2,
+              isDeleted: mentionPageStatus.$3,
             ),
           );
         },
@@ -60,99 +56,102 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
 
   @override
   Future<void> close() {
-    _viewListener.stop();
+    _viewListener?.stop();
     return super.close();
   }
 
   final String pageId;
   final String? blockId;
 
-  late final ViewListener _viewListener;
+  ViewListener? _viewListener;
 
   void _startListeningView() {
     _viewListener = ViewListener(viewId: pageId)
       ..start(
         onViewUpdated: (view) {
           add(
-            MentionEvent.didUpdateViewStatus(
-              view,
-              false,
-              false,
+            MentionPageEvent.didUpdateViewStatus(
+              (view, false, false),
             ),
           );
         },
         onViewMoveToTrash: (view) {
           add(
-            MentionEvent.didUpdateViewStatus(
-              state.view,
-              true,
-              false,
+            MentionPageEvent.didUpdateViewStatus(
+              (state.view, true, false),
             ),
           );
         },
         onViewDeleted: (view) {
           add(
-            MentionEvent.didUpdateViewStatus(
-              state.view,
-              false,
-              true,
+            const MentionPageEvent.didUpdateViewStatus(
+              (null, false, true),
             ),
           );
         },
       );
   }
 
-  Future<ViewPB?> _fetchView(String pageId) async {
+  Future<MentionPageStatus> _fetchView(String pageId) async {
+    // Try to fetch the view from the main storage
     final view = await ViewBackendService.getView(pageId).then(
       (value) => value.toNullable(),
     );
 
-    if (view == null) {
-      // try to fetch from trash
-      final trashViews = await TrashService().readTrash();
-      final trash = trashViews.fold(
-        (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
-        (r) => null,
-      );
-      if (trash != null) {
-        return ViewPB()
-          ..id = trash.id
-          ..name = trash.name;
-      }
+    if (view != null) {
+      return (view, false, false);
     }
 
-    return view;
+    // if the view is not found, try to fetch from trash
+    final trashViews = await TrashService().readTrash();
+    final trash = trashViews.fold(
+      (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
+      (r) => null,
+    );
+    if (trash != null) {
+      final trashView = ViewPB()
+        ..id = trash.id
+        ..name = trash.name;
+      return (trashView, true, false);
+    }
+
+    Log.info('No view found for page $pageId');
+    return (null, false, true);
   }
 }
 
 @freezed
-class MentionEvent with _$MentionEvent {
-  const factory MentionEvent.initial() = _Initial;
-  const factory MentionEvent.didUpdateBlockContent(
+class MentionPageEvent with _$MentionPageEvent {
+  const factory MentionPageEvent.initial() = _Initial;
+  const factory MentionPageEvent.didUpdateBlockContent(
     String content,
   ) = _DidUpdateBlockContent;
-  const factory MentionEvent.didUpdateViewStatus(
-    ViewPB? view,
-    bool isInTrash,
-    bool isDeleted,
-  ) = _DidUpdateViewStatus;
+  const factory MentionPageEvent.didUpdateViewStatus(MentionPageStatus status) =
+      _DidUpdateViewStatus;
 }
 
 @freezed
-class MentionState with _$MentionState {
-  const factory MentionState({
+class MentionPageState with _$MentionPageState {
+  const factory MentionPageState({
     required bool isLoading,
     required bool isInTrash,
     required bool isDeleted,
-    required String content,
+    // non-null case:
+    // - page is found
+    // - page is in trash
+    // null case:
+    // - page is deleted
     required ViewPB? view,
-  }) = _MentionState;
+    // the plain text content of the block
+    // it doesn't contain any formatting
+    required String blockContent,
+  }) = _MentionPageState;
 
-  factory MentionState.initial() => const MentionState(
+  factory MentionPageState.initial() => const MentionPageState(
         isLoading: true,
         isInTrash: false,
         isDeleted: false,
-        content: '',
+        blockContent: '',
         view: null,
       );
 }
