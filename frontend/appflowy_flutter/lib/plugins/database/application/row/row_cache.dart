@@ -122,6 +122,9 @@ class RowCache {
     if (_isInitialRows) {
       _hideRows(changeset.invisibleRows);
       _showRows(changeset.visibleRows);
+      _changedNotifier?.receive(
+        ChangedReason.updateRowsVisibility(changeset),
+      );
     } else {
       _pendingVisibilityChanges.add(changeset);
     }
@@ -310,6 +313,7 @@ class RowChangesetNotifier extends ChangeNotifier {
       initial: (_) {},
       reorderRows: (_) => notifyListeners(),
       reorderSingleRow: (_) => notifyListeners(),
+      updateRowsVisibility: (_) => notifyListeners(),
       setInitialRows: (_) => notifyListeners(),
       didFetchRow: (_) => notifyListeners(),
     );
@@ -372,6 +376,9 @@ class ChangedReason with _$ChangedReason {
     ReorderSingleRowPB reorderRow,
     RowInfo rowInfo,
   ) = _ReorderSingleRow;
+  const factory ChangedReason.updateRowsVisibility(
+    RowsVisibilityChangePB changeset,
+  ) = _UpdateRowsVisibility;
   const factory ChangedReason.setInitialRows() = _SetInitialRows;
 }
 

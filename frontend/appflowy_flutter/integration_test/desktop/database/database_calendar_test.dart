@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_event_editor.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -276,6 +276,60 @@ void main() {
       await tester.clickUnscheduledEvent();
 
       tester.assertRowDetailPageOpened();
+    });
+
+    testWidgets('filter calendar events', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      // Create the calendar view
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Calendar,
+      );
+
+      // Create a new event on the first of this month
+      final today = DateTime.now();
+      final firstOfThisMonth = DateTime(today.year, today.month);
+      await tester.doubleClickCalendarCell(firstOfThisMonth);
+      await tester.dismissEventEditor();
+
+      tester.assertNumberOfEventsInCalendar(1);
+
+      await tester.openCalendarEvent(index: 0, date: firstOfThisMonth);
+      await tester.tapButton(finderForFieldType(FieldType.MultiSelect));
+      await tester.createOption(name: "asdf");
+      await tester.createOption(name: "qwer");
+      await tester.dismissCellEditor();
+
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.MultiSelect, "Tags");
+
+      await tester.tapFilterButtonInGrid('Tags');
+      await tester.tapOptionFilterWithName('asdf');
+      await tester.dismissCellEditor();
+
+      tester.assertNumberOfEventsInCalendar(1);
+
+      final secondOfThisMonth = DateTime(today.year, today.month, 2);
+      await tester.doubleClickCalendarCell(secondOfThisMonth);
+      await tester.dismissEventEditor();
+      tester.assertNumberOfEventsInCalendar(2);
+
+      await tester.openCalendarEvent(index: 0, date: secondOfThisMonth);
+      await tester.tapButton(finderForFieldType(FieldType.MultiSelect));
+      await tester.selectOption(name: "asdf");
+      await tester.dismissCellEditor();
+
+      tester.assertNumberOfEventsInCalendar(1);
+
+      await tester.tapFilterButtonInGrid('Tags');
+      await tester.tapSelectFilterCondition(
+        SelectOptionFilterConditionPB.OptionIsEmpty,
+      );
+      await tester.dismissCellEditor();
+
+      tester.assertNumberOfEventsInCalendar(1);
+      tester.assertNumberOfEventsOnSpecificDay(1, secondOfThisMonth);
     });
   });
 }

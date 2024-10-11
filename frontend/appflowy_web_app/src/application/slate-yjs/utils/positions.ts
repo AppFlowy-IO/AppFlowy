@@ -57,7 +57,11 @@ export function slatePointToRelativePosition (
   const textId = node.textId as string;
   const ytext = getText(textId, sharedRoot);
 
-  const offset = Math.min(calculateOffsetRelativeToParent(node, point), ytext.toJSON().length);
+  if (!ytext) {
+    throw new Error('YText not found');
+  }
+
+  const offset = Math.min(calculateOffsetRelativeToParent(node, point), ytext.length);
 
   const relPos = Y.createRelativePositionFromTypeIndex(ytext, offset);
 
@@ -116,7 +120,7 @@ export function relativePositionToSlatePoint (
   return calculatePointFromParentOffset(node, path, absIndex);
 }
 
-function calculatePointFromParentOffset (slateNode: Element, path: number[], parentOffset: number): BasePoint {
+export function calculatePointFromParentOffset (slateNode: Element, path: number[], parentOffset: number): BasePoint {
   let remainingOffset = parentOffset;
   let childIndex = 0;
 
@@ -152,3 +156,4 @@ function calculatePointFromParentOffset (slateNode: Element, path: number[], par
 
   return calculatePointFromParentOffset(childNode, [...path, childIndex], remainingOffset);
 }
+

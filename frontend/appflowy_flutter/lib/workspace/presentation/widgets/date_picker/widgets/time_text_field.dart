@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 const _maxLengthTwelveHour = 8;
@@ -64,7 +63,7 @@ class _TimeTextFieldState extends State<TimeTextField> {
     }
 
     _focusNode.addListener(_focusNodeListener);
-    widget.popoverMutex?.listenOnPopoverChanged(_popoverListener);
+    widget.popoverMutex?.addPopoverListener(_popoverListener);
   }
 
   @override

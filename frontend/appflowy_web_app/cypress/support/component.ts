@@ -13,6 +13,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
+import 'cypress-real-events';
 
 // Import commands.js using ES2015 syntax:
 import '@cypress/code-coverage/support';

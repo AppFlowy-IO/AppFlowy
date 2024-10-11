@@ -8,12 +8,14 @@ interface FileDropzoneProps {
   onChange?: (files: File[]) => void;
   accept?: string;
   multiple?: boolean;
+  disabled?: boolean;
 }
 
 function FileDropzone ({
   onChange,
   accept,
   multiple,
+  disabled,
 }: FileDropzoneProps) {
   const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
@@ -76,6 +78,8 @@ function FileDropzone ({
       style={{
         borderColor: dragging ? 'var(--fill-active)' : undefined,
         backgroundColor: dragging ? 'var(--fill-active)' : undefined,
+        pointerEvents: disabled ? 'none' : undefined,
+        cursor: disabled ? 'not-allowed' : undefined,
       }}
     >
       <div className={'flex flex-col items-center justify-center gap-4 h-full'}>
@@ -86,6 +90,7 @@ function FileDropzone ({
       </div>
       <input
         type="file"
+        disabled={disabled}
         ref={fileInputRef}
         style={{ display: 'none' }}
         accept={accept}

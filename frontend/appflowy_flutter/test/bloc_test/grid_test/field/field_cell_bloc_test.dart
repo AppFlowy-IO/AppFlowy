@@ -11,19 +11,19 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('$FieldCellBloc', () {
+  group('field cell bloc:', () {
     late GridTestContext context;
     late double width;
 
     setUp(() async {
-      context = await gridTest.createTestGrid();
+      context = await gridTest.makeDefaultTestGrid();
     });
 
     blocTest(
       'update field width',
       build: () => FieldCellBloc(
-        fieldInfo: context.fieldInfos[0],
-        viewId: context.gridView.id,
+        fieldInfo: context.fieldController.fieldInfos[0],
+        viewId: context.viewId,
       ),
       act: (bloc) {
         width = bloc.state.width;
@@ -37,10 +37,10 @@ void main() {
     );
 
     blocTest(
-      'field width should not be lesser than 50px',
+      'field width should not be less than 50px',
       build: () => FieldCellBloc(
-        viewId: context.gridView.id,
-        fieldInfo: context.fieldInfos[0],
+        viewId: context.viewId,
+        fieldInfo: context.fieldController.fieldInfos[0],
       ),
       act: (bloc) {
         bloc.add(const FieldCellEvent.onResizeStart());

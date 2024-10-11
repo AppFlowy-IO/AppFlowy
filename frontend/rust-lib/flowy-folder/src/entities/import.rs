@@ -57,7 +57,7 @@ pub struct ImportValuePayloadPB {
 #[derive(Clone, Debug, Validate, ProtoBuf, Default)]
 pub struct ImportPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub parent_view_id: String,
 
   #[pb(index = 2)]

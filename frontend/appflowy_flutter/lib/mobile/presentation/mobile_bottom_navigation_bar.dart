@@ -29,23 +29,41 @@ final PropertyValueNotifier<ViewLayoutPB?> mobileCreateNewPageNotifier =
 final ValueNotifier<BottomNavigationBarActionType> bottomNavigationBarType =
     ValueNotifier(BottomNavigationBarActionType.home);
 
-const _homeLabel = 'home';
-const _addLabel = 'add';
-const _notificationLabel = 'notification';
+enum BottomNavigationBarItemType {
+  home,
+  add,
+  notification;
+
+  String get label {
+    return switch (this) {
+      BottomNavigationBarItemType.home => 'home',
+      BottomNavigationBarItemType.add => 'add',
+      BottomNavigationBarItemType.notification => 'notification',
+    };
+  }
+
+  ValueKey get valueKey {
+    return ValueKey(label);
+  }
+}
+
 final _items = <BottomNavigationBarItem>[
-  const BottomNavigationBarItem(
-    label: _homeLabel,
-    icon: FlowySvg(FlowySvgs.m_home_unselected_m),
-    activeIcon: FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
+  BottomNavigationBarItem(
+    key: BottomNavigationBarItemType.home.valueKey,
+    label: BottomNavigationBarItemType.home.label,
+    icon: const FlowySvg(FlowySvgs.m_home_unselected_m),
+    activeIcon: const FlowySvg(FlowySvgs.m_home_selected_m, blendMode: null),
   ),
-  const BottomNavigationBarItem(
-    label: _addLabel,
-    icon: FlowySvg(FlowySvgs.m_home_add_m),
+  BottomNavigationBarItem(
+    key: BottomNavigationBarItemType.add.valueKey,
+    label: BottomNavigationBarItemType.add.label,
+    icon: const FlowySvg(FlowySvgs.m_home_add_m),
   ),
-  const BottomNavigationBarItem(
-    label: _notificationLabel,
-    icon: _NotificationNavigationBarItemIcon(),
-    activeIcon: _NotificationNavigationBarItemIcon(
+  BottomNavigationBarItem(
+    key: BottomNavigationBarItemType.notification.valueKey,
+    label: BottomNavigationBarItemType.notification.label,
+    icon: const _NotificationNavigationBarItemIcon(),
+    activeIcon: const _NotificationNavigationBarItemIcon(
       isActive: true,
     ),
   ),
@@ -234,11 +252,11 @@ class _HomePageNavigationBar extends StatelessWidget {
     closePopupMenu();
 
     final label = _items[bottomBarIndex].label;
-    if (label == _addLabel) {
+    if (label == BottomNavigationBarItemType.add.label) {
       // show an add dialog
       mobileCreateNewPageNotifier.value = ViewLayoutPB.Document;
       return;
-    } else if (label == _notificationLabel) {
+    } else if (label == BottomNavigationBarItemType.notification.label) {
       getIt<ReminderBloc>().add(const ReminderEvent.refresh());
     }
     // When navigating to a new branch, it's recommended to use the goBranch

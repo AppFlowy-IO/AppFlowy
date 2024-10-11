@@ -26,10 +26,15 @@ import '../../shared/util.dart';
 // - [x] Redo adding a SubPageBlock (Expect the view to be restored)
 // - [x] Redo delete of a SubPageBlock (Expect the view to be moved to trash again)
 // - [x] Renaming a child view (Expect the view name to be updated in the document)
-// - [x] Deleting a view (to trash) linked to a SubPageBlock shows a hint that the view is in trash (Expect a hint to be shown)
-// - [x] Deleting a view (in trash) linked to a SubPageBlock deletes the SubPageBlock (Expect the SubPageBlock to be deleted)
+// - [x] Deleting a view (to trash) linked to a SubPageBlock deleted the SubPageBlock (Expect the SubPageBlock to be deleted)
 // - [x] Duplicating a SubPageBlock node from Action Menu (Expect a new view is created under current view with same content and name + (copy))
 // - [x] Dragging a SubPageBlock node to a new position in the document (Expect everything to be normal)
+
+/// The defaut page name is empty, if we're looking for a "text" we can look for
+/// [LocaleKeys.menuAppHeader_defaultNewPageName] but it won't work for eg. hoverOnPageName
+/// as it looks at the text provided instead of the actual displayed text.
+///
+const _defaultPageName = "";
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -66,9 +71,9 @@ void main() {
         pageName: 'SubPageBlock',
         layout: ViewLayoutPB.Document,
       );
+      await tester.pumpAndSettle();
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -94,8 +99,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -151,8 +155,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -213,8 +216,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -258,8 +260,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -300,39 +301,6 @@ void main() {
       expect(find.text('Child page (copy)'), findsNothing);
     });
 
-    testWidgets('Undo adding a SubPageBlock', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
-
-      await tester.insertSubPageFromSlashMenu(true);
-
-      await tester.expandOrCollapsePage(
-        pageName: 'SubPageBlock',
-        layout: ViewLayoutPB.Document,
-      );
-
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
-      expect(find.text('Child page'), findsNWidgets(2));
-
-      await tester.editor.tapLineOfEditorAt(0);
-
-      // Undo
-      await tester.simulateKeyEvent(
-        LogicalKeyboardKey.keyZ,
-        isControlPressed: Platform.isLinux || Platform.isWindows,
-        isMetaPressed: Platform.isMacOS,
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.byType(SubPageBlockComponent), findsNothing);
-      expect(find.text('Child page'), findsNothing);
-    });
-
     testWidgets('Undo delete of a SubPageBlock', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -345,8 +313,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -370,55 +337,6 @@ void main() {
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
     });
 
-    // Redo: undoing adding a subpage block, then redoing to bring it back
-    // -> Add a subpage block
-    // -> Undo
-    // -> Redo
-    testWidgets('Redo adding of a SubPageBlock', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
-
-      await tester.insertSubPageFromSlashMenu(true);
-
-      await tester.expandOrCollapsePage(
-        pageName: 'SubPageBlock',
-        layout: ViewLayoutPB.Document,
-      );
-
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
-      expect(find.text('Child page'), findsNWidgets(2));
-
-      await tester.editor.tapLineOfEditorAt(0);
-
-      // Undo
-      await tester.simulateKeyEvent(
-        LogicalKeyboardKey.keyZ,
-        isControlPressed: Platform.isLinux || Platform.isWindows,
-        isMetaPressed: Platform.isMacOS,
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.byType(SubPageBlockComponent), findsNothing);
-      expect(find.text('Child page'), findsNothing);
-
-      // Redo
-      await tester.simulateKeyEvent(
-        LogicalKeyboardKey.keyZ,
-        isShiftPressed: true,
-        isControlPressed: Platform.isLinux || Platform.isWindows,
-        isMetaPressed: Platform.isMacOS,
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.byType(SubPageBlockComponent), findsOneWidget);
-      expect(find.text('Child page'), findsNWidgets(2));
-    });
-
     // Redo: undoing deleting a subpage block, then redoing to delete it again
     // -> Add a subpage block
     // -> Delete
@@ -436,8 +354,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -476,8 +393,7 @@ void main() {
       expect(find.text('Child page'), findsNothing);
     });
 
-    testWidgets('Delete a view first to trash, then from trash',
-        (tester) async {
+    testWidgets('Delete a view from sidebar', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
@@ -489,37 +405,16 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
       expect(find.text('Child page'), findsNWidgets(2));
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
 
-      final hintText = LocaleKeys.document_plugins_subPage_inTrashHint.tr();
-      expect(find.text(hintText), findsNothing);
-
       await tester.hoverOnPageName('Child page');
       await tester.tapDeletePageButton();
       await tester.pumpAndSettle(const Duration(seconds: 1));
-
-      expect(find.text(hintText), findsOne);
-
-      // Go to trash
-      await tester.tapTrashButton();
-      await tester.pumpAndSettle();
-
-      // Tap on delete all button
-      await tester.tap(find.text(LocaleKeys.trash_deleteAll.tr()));
-      await tester.pumpAndSettle();
-
-      // Tap ok to delete app pages in trash
-      await tester.tap(find.text(LocaleKeys.button_delete.tr()));
-      await tester.pumpAndSettle();
-
-      await tester.openPage('SubPageBlock');
-      await tester.pumpAndSettle();
 
       expect(find.text('Child page'), findsNothing);
       expect(find.byType(SubPageBlockComponent), findsNothing);
@@ -537,8 +432,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester
-          .hoverOnPageName(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+      await tester.hoverOnPageName(_defaultPageName);
       await tester.renamePage('Child page');
       await tester.pumpAndSettle();
 
@@ -578,10 +472,6 @@ void main() {
       expect(afterNode.type, SubPageBlockKeys.type);
       expect(afterNode.type, beforeNode.type);
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
-      expect(
-        find.text(LocaleKeys.document_plugins_subPage_inTrashHint.tr()),
-        findsNothing,
-      );
     });
   });
 }
@@ -601,6 +491,10 @@ extension _SubPageTestHelper on WidgetTester {
       LocaleKeys.document_slashMenu_subPage_name.tr(),
       offset: 100,
     );
+
+    // Navigate to the previous page to see the SubPageBlock
+    await openPage('SubPageBlock');
+    await pumpAndSettle();
 
     await pumpUntilFound(find.byType(SubPageBlockComponent));
   }

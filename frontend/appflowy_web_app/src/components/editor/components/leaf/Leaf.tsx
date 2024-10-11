@@ -59,7 +59,9 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
 
     newChildren = <>
       {node}
-      <span className={'absolute opacity-0 left-0'}>
+      <span
+        className={'absolute opacity-0 left-0'}
+      >
         {newChildren}
       </span>
     </>;

@@ -108,11 +108,8 @@ pub struct CalendarEventPB {
   #[pb(index = 3)]
   pub title: String,
 
-  #[pb(index = 4)]
-  pub timestamp: i64,
-
-  #[pb(index = 5)]
-  pub is_scheduled: bool,
+  #[pb(index = 4, one_of)]
+  pub timestamp: Option<i64>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

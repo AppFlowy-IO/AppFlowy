@@ -19,49 +19,52 @@ class MobileRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     ChecklistCellBloc bloc,
-    ChecklistCellState state,
     PopoverController popoverController,
   ) {
-    return InkWell(
-      borderRadius: const BorderRadius.all(Radius.circular(14)),
-      onTap: () => showMobileBottomSheet(
-        context,
-        backgroundColor: AFThemeExtension.of(context).background,
-        builder: (context) {
-          return BlocProvider.value(
-            value: bloc,
-            child: const MobileChecklistCellEditScreen(),
-          );
-        },
-      ),
-      child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 48,
-          minWidth: double.infinity,
-        ),
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(color: Theme.of(context).colorScheme.outline),
-          ),
+    return BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+      builder: (context, state) {
+        return InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(14)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        alignment: AlignmentDirectional.centerStart,
-        child: state.tasks.isEmpty
-            ? FlowyText(
-                LocaleKeys.grid_row_textPlaceholder.tr(),
-                fontSize: 15,
-                color: Theme.of(context).hintColor,
-              )
-            : ChecklistProgressBar(
-                tasks: state.tasks,
-                percent: state.percent,
-                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 15,
-                      color: Theme.of(context).hintColor,
-                    ),
+          onTap: () => showMobileBottomSheet(
+            context,
+            backgroundColor: AFThemeExtension.of(context).background,
+            builder: (context) {
+              return BlocProvider.value(
+                value: bloc,
+                child: const MobileChecklistCellEditScreen(),
+              );
+            },
+          ),
+          child: Container(
+            constraints: const BoxConstraints(
+              minHeight: 48,
+              minWidth: double.infinity,
+            ),
+            decoration: BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(color: Theme.of(context).colorScheme.outline),
               ),
-      ),
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+            alignment: AlignmentDirectional.centerStart,
+            child: state.tasks.isEmpty
+                ? FlowyText(
+                    LocaleKeys.grid_row_textPlaceholder.tr(),
+                    fontSize: 15,
+                    color: Theme.of(context).hintColor,
+                  )
+                : ChecklistProgressBar(
+                    tasks: state.tasks,
+                    percent: state.percent,
+                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          color: Theme.of(context).hintColor,
+                        ),
+                  ),
+          ),
+        );
+      },
     );
   }
 }

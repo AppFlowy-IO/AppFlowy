@@ -380,11 +380,11 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
 #[derive(Debug, Clone, Default, ProtoBuf, Validate)]
 pub struct FieldChangesetPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 3, one_of)]
@@ -606,11 +606,11 @@ impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
 #[derive(Debug, Clone, Default, ProtoBuf, Validate)]
 pub struct ClearFieldPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 }
 

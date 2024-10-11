@@ -81,15 +81,15 @@ pub struct DocumentRedoUndoResponsePB {
 #[derive(Default, ProtoBuf, Validate)]
 pub struct UploadFileParamsPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub document_id: String,
 
   #[pb(index = 3)]
-  #[validate(custom = "required_valid_path")]
+  #[validate(custom(function = "required_valid_path"))]
   pub local_file_path: String,
 }
 
@@ -100,7 +100,7 @@ pub struct UploadedFilePB {
   pub url: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_valid_path")]
+  #[validate(custom(function = "required_valid_path"))]
   pub local_file_path: String,
 }
 
@@ -111,7 +111,7 @@ pub struct DownloadFilePB {
   pub url: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_valid_path")]
+  #[validate(custom(function = "required_valid_path"))]
   pub local_file_path: String,
 }
 

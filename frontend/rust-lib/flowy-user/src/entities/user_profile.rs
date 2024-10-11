@@ -1,9 +1,10 @@
 use std::convert::TryInto;
 use std::str::FromStr;
-use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
+use lib_infra::validator_fn::required_not_empty_str;
+use validator::Validate;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::{AIModelPB, AuthenticatorPB};
@@ -222,7 +223,7 @@ impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
 #[derive(ProtoBuf, Default, Debug, Clone, Validate)]
 pub struct UserWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub workspace_id: String,
 
   #[pb(index = 2)]

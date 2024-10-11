@@ -933,8 +933,6 @@ impl FolderManager {
       ));
     }
 
-    tracing::warn!("[DEBUG] Duplicating view {}", view_id);
-
     // filter the view ids that in the trash or private section
     let filtered_view_ids = match self.mutex_folder.load_full() {
       None => Vec::default(),
@@ -1022,7 +1020,6 @@ impl FolderManager {
 
       if is_source_view {
         new_view_id = duplicated_view.id.clone();
-        tracing::warn!("[DEBUG] Setting new view id to {}", new_view_id);
       }
 
       if sync_after_create {
@@ -1074,8 +1071,6 @@ impl FolderManager {
     notify_parent_view_did_change(workspace_id, &folder, vec![parent_view_id.to_string()]);
 
     let duplicated_view = self.get_view_pb(&new_view_id).await?;
-
-    tracing::warn!("[DEBUG] Duplicated view: {:?}", duplicated_view);
 
     Ok(duplicated_view)
   }

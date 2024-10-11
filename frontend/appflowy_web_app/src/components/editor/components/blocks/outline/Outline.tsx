@@ -52,21 +52,29 @@ export const Outline = memo(
           </div>
         );
       },
-      [jumpToHeading]
+      [jumpToHeading],
     );
 
     return (
-      <div {...attributes} className={`outline-block relative my-2 px-1 ${className || ''}`}>
-        <div ref={ref} className={'absolute left-0 top-0 select-none caret-transparent'}>
+      <div {...attributes} contentEditable={false}
+           className={`outline-block relative my-2 px-1 ${className || ''}`}
+      >
+        <div
+          ref={ref}
+          className={'absolute left-0 top-0 select-none caret-transparent'}
+        >
           {children}
         </div>
-        <div contentEditable={false} className={`flex w-full select-none flex-col`}>
+        <div
+          contentEditable={false}
+          className={`flex w-full select-none flex-col`}
+        >
           <div className={'text-md my-2 font-bold'}>{t('document.outlineBlock.placeholder')}</div>
           {root.map(renderHeading)}
         </div>
       </div>
     );
-  })
+  }),
 );
 
 export default Outline;

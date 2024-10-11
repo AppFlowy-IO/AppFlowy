@@ -21,7 +21,7 @@ derivative = "2.2.0"
 serde_json = { workspace = true, optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_repr = { workspace = true, optional = true }
-validator = "0.16.1"
+validator = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 bincode = { version = "1.3", optional = true }
 protobuf = { workspace = true, optional = true }
@@ -45,5 +45,3 @@ default = ["local_set", "use_protobuf"]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf = ["protobuf"]
 local_set = []
-
-

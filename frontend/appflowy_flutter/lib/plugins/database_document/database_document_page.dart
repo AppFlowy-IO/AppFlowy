@@ -182,6 +182,7 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
 
   Widget _buildBanner(BuildContext context) {
     return DocumentBanner(
+      viewName: widget.view.name,
       onRestore: () => context.read<DocumentBloc>().add(
             const DocumentEvent.restorePage(),
           ),

@@ -17,35 +17,38 @@ class MobileGridChecklistCellSkin extends IEditableChecklistCellSkin {
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     ChecklistCellBloc bloc,
-    ChecklistCellState state,
     PopoverController popoverController,
   ) {
-    return FlowyButton(
-      radius: BorderRadius.zero,
-      hoverColor: Colors.transparent,
-      text: Container(
-        alignment: Alignment.centerLeft,
-        padding: GridSize.cellContentInsets,
-        child: state.tasks.isEmpty
-            ? const SizedBox.shrink()
-            : ChecklistProgressBar(
-                tasks: state.tasks,
-                percent: state.percent,
-                textStyle: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontSize: 15),
-              ),
-      ),
-      onTap: () => showMobileBottomSheet(
-        context,
-        builder: (context) {
-          return BlocProvider.value(
-            value: bloc,
-            child: const MobileChecklistCellEditScreen(),
-          );
-        },
-      ),
+    return BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+      builder: (context, state) {
+        return FlowyButton(
+          radius: BorderRadius.zero,
+          hoverColor: Colors.transparent,
+          text: Container(
+            alignment: Alignment.centerLeft,
+            padding: GridSize.cellContentInsets,
+            child: state.tasks.isEmpty
+                ? const SizedBox.shrink()
+                : ChecklistProgressBar(
+                    tasks: state.tasks,
+                    percent: state.percent,
+                    textStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 15),
+                  ),
+          ),
+          onTap: () => showMobileBottomSheet(
+            context,
+            builder: (context) {
+              return BlocProvider.value(
+                value: bloc,
+                child: const MobileChecklistCellEditScreen(),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

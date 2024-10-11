@@ -1,4 +1,22 @@
 # Release Notes
+## Version 0.7.1 - 07/10/2024
+### New Features
+- Copy link to share and open it in a browser
+- Enable the ability to edit the page title within the body of the document
+- Filter by last modified, created at, or a date range
+- Allow customization of database property icons
+- Support CTRL/CMD+X to delete the current line when the selection is collapsed in the document
+- Support window tiling on macOS
+- Add filters to grid views on mobile
+- Create and manage workspaces on mobile
+- Automatically convert property types for imported CSV files
+
+### Bug Fixes
+- Fixed calculations with filters applied
+- Fixed issues with importing data folders into a cloud account
+- Fixed French IME backtick issues
+- Fixed selection gesture bugs on mobile
+
 ## Version 0.7.0 - 19/09/2024
 ### New Features
 - Support reordering blocks in document with drag and drop

@@ -17,11 +17,9 @@ function ToggleIcon ({ block, className }: { block: ToggleListNode; className: s
     }
 
     return debounce(() => {
-      CustomEditor.setBlockData(editor as YjsEditor, block.blockId, {
-        collapsed: !collapsed,
-      }, true);
+      CustomEditor.toggleToggleList(editor as YjsEditor, block.blockId);
     }, 100);
-  }, [readOnly, editor, block.blockId, collapsed]);
+  }, [readOnly, editor, block.blockId]);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

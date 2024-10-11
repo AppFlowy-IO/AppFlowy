@@ -6,7 +6,7 @@ export function withInsertBreak (editor: ReactEditor) {
   const { insertBreak } = editor;
 
   editor.insertBreak = () => {
-    if (editor.isElementReadOnly(editor)) {
+    if ((editor as YjsEditor).readOnly) {
       insertBreak();
       return;
     }
