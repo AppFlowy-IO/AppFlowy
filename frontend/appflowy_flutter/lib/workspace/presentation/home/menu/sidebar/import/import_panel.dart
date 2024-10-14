@@ -194,6 +194,16 @@ class _ImportPanelState extends State<ImportPanel> {
               ..importType = ImportTypePB.CSV,
           );
           break;
+        case ImportType.afDatabase:
+          final data = await File(path).readAsString();
+          importValues.add(
+            ImportValuePayloadPB.create()
+              ..name = name
+              ..data = utf8.encode(data)
+              ..viewLayout = ViewLayoutPB.Grid
+              ..importType = ImportTypePB.AFDatabase,
+          );
+          break;
         default:
           break;
       }
