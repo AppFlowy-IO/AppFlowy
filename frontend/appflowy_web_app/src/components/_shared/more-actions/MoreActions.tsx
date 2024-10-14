@@ -1,6 +1,5 @@
 import { invalidToken } from '@/application/session/token';
 import CacheClearingDialog from '@/components/_shared/modal/CacheClearingDialog';
-import Import from '@/components/_shared/more-actions/importer/Import';
 import { Popover } from '@/components/_shared/popover';
 import { AFConfigContext } from '@/components/main/app.hooks';
 import { ThemeModeContext } from '@/components/main/useAppThemeMode';
@@ -13,9 +12,8 @@ import { ReactComponent as SunIcon } from '@/assets/sun.svg';
 import { ReactComponent as LoginIcon } from '@/assets/login.svg';
 import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
-import { ReactComponent as ImportIcon } from '@/assets/import.svg';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function MoreActions () {
   const { isDark, setDark } = useContext(ThemeModeContext) || {};
@@ -37,7 +35,6 @@ function MoreActions () {
   const navigate = useNavigate();
 
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
-  const [, setSearch] = useSearchParams();
 
   const handleLogin = useCallback(() => {
     invalidToken();
@@ -83,24 +80,8 @@ function MoreActions () {
       },
     ];
 
-    const importShow = true;
-
-    if (importShow) {
-      items.unshift({
-        Icon: ImportIcon,
-        label: t('web.import'),
-        onClick: () => {
-          setSearch(prev => {
-            prev.set('action', 'import');
-            prev.set('source', 'notion');
-            return prev;
-          });
-        },
-      });
-    }
-
     return items;
-  }, [t, isAuthenticated, handleLogin, isDark, setSearch, setDark]);
+  }, [t, isAuthenticated, handleLogin, isDark, setDark]);
 
   return (
     <>
@@ -146,7 +127,6 @@ function MoreActions () {
         open={openConfirm}
         onClose={() => setOpenConfirm(false)}
       />
-      <Import />
     </>
   );
 }

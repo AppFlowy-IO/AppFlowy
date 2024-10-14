@@ -78,7 +78,7 @@ const createServer = async (req: Request) => {
     });
   }
 
-  if (['/after-payment', '/login', '/as-template', '/app', '/accept-invitation'].some(item => reqUrl.pathname.startsWith(item))) {
+  if (['/after-payment', '/login', '/as-template', '/app', '/accept-invitation', '/import'].some(item => reqUrl.pathname.startsWith(item))) {
     timer();
     const htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = load(htmlData);

@@ -263,6 +263,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setOutline(res);
+
+      const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
+
+      if (!firstView) {
+        setRendered(true);
+      }
+
       try {
 
         await service.openWorkspace(workspaceId);
@@ -285,12 +292,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         if (lastViewId && findView(res, lastViewId)) {
           navigate(`/app/${workspaceId}/${lastViewId}${search}`);
 
-        } else {
-          const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
-
-          if (firstView) {
-            navigate(`/app/${workspaceId}/${firstView.view_id}${search}`);
-          }
+        } else if (firstView) {
+          navigate(`/app/${workspaceId}/${firstView.view_id}${search}`);
         }
 
       } catch (e) {

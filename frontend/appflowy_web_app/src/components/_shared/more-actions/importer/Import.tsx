@@ -2,12 +2,17 @@ import { NormalModal } from '@/components/_shared/modal';
 import ImporterModal from '@/components/_shared/more-actions/importer/ImporterModal';
 import { useImport } from '@/components/_shared/more-actions/importer/useImport.hook';
 import { LoginModal } from '@/components/login';
-import { getPlatform } from '@/utils/platform';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckedIcon } from '@/assets/check_circle.svg';
 
-function Import () {
+function Import ({
+  disableClose,
+  onSuccessfulImport,
+}: {
+  disableClose: boolean;
+  onSuccessfulImport?: () => void;
+}) {
   const {
     open,
     handleImportClose,
@@ -18,15 +23,11 @@ function Import () {
   } = useImport();
   const [openSuccess, setOpenSuccess] = React.useState(false);
   const { t } = useTranslation();
-  const isMobile = useMemo(() => {
-    return getPlatform().isMobile;
-  }, []);
 
   const handleSuccess = React.useCallback(() => {
     setOpenSuccess(true);
   }, []);
 
-  if (isMobile) return null;
   return (
     <>
       <LoginModal
@@ -36,9 +37,10 @@ function Import () {
       />
       {open && <ImporterModal
         open={open}
+        disableClose={disableClose}
         source={source || undefined}
         onClose={handleImportClose}
-        onSuccess={handleSuccess}
+        onSuccess={onSuccessfulImport || handleSuccess}
       />}
       {openSuccess && (<NormalModal
         classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[20%] ' }}
