@@ -63,6 +63,8 @@ pub trait FolderCloudService: Send + Sync + 'static {
   ) -> Result<(), Error>;
 
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error>;
+
+  async fn import_zip(&self, file_path: &str) -> Result<(), Error>;
 }
 
 #[derive(Debug)]

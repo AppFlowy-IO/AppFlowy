@@ -16,7 +16,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::workspace_database::WorkspaceDatabaseBody;
+use collab_database::workspace_database::WorkspaceDatabase;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::hierarchy_builder::{NestedChildViewBuilder, NestedViews, ParentChildViews};
@@ -505,11 +505,11 @@ where
     &mut workspace_database_collab.transact_mut(),
   )?;
 
-  let workspace_database_body = init_workspace_database_body(
+  let workspace_database = init_workspace_database(
     &imported_session.user_workspace.workspace_database_id,
     workspace_database_collab,
   );
-  for database_meta_list in workspace_database_body.get_all_database_meta() {
+  for database_meta_list in workspace_database.get_all_database_meta() {
     database_view_ids_by_database_id.insert(
       old_to_new_id_map.exchange_new_id(&database_meta_list.database_id),
       database_meta_list
@@ -528,8 +528,8 @@ where
   Ok(())
 }
 
-fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDatabaseBody {
-  match WorkspaceDatabaseBody::open(collab) {
+fn init_workspace_database(object_id: &str, collab: Collab) -> WorkspaceDatabase {
+  match WorkspaceDatabase::open(collab) {
     Ok(body) => body,
     Err(err) => {
       error!(
@@ -537,7 +537,7 @@ fn init_workspace_database_body(object_id: &str, collab: Collab) -> WorkspaceDat
         err
       );
       let collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
-      WorkspaceDatabaseBody::create(collab)
+      WorkspaceDatabase::create(collab)
     },
   }
 }
