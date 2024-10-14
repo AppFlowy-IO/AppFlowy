@@ -8,14 +8,18 @@ use validator::Validate;
 
 #[derive(Clone, Debug, ProtoBuf_Enum)]
 pub enum ImportTypePB {
-  Markdown = 0,
-  AFDatabase = 1,
-  CSV = 2,
+  HistoryDocument = 0,
+  HistoryDatabase = 1,
+  Markdown = 2,
+  AFDatabase = 3,
+  CSV = 4,
 }
 
 impl From<ImportTypePB> for ImportType {
   fn from(pb: ImportTypePB) -> Self {
     match pb {
+      ImportTypePB::HistoryDocument => ImportType::HistoryDocument,
+      ImportTypePB::HistoryDatabase => ImportType::HistoryDatabase,
       ImportTypePB::Markdown => ImportType::Markdown,
       ImportTypePB::AFDatabase => ImportType::AFDatabase,
       ImportTypePB::CSV => ImportType::CSV,

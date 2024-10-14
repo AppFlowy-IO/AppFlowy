@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum ImportType {
+  historyDocument,
+  historyDatabase,
   markdownOrText,
   csv,
   afDatabase;
@@ -12,6 +14,10 @@ enum ImportType {
   @override
   String toString() {
     switch (this) {
+      case ImportType.historyDocument:
+        return LocaleKeys.importPanel_documentFromV010.tr();
+      case ImportType.historyDatabase:
+        return LocaleKeys.importPanel_databaseFromV010.tr();
       case ImportType.markdownOrText:
         return LocaleKeys.importPanel_textAndMarkdown.tr();
       case ImportType.csv:
@@ -24,6 +30,9 @@ enum ImportType {
   WidgetBuilder get icon => (context) {
         final FlowySvgData svg;
         switch (this) {
+          case ImportType.historyDatabase:
+            svg = FlowySvgs.document_s;
+          case ImportType.historyDocument:
           case ImportType.csv:
           case ImportType.afDatabase:
             svg = FlowySvgs.board_s;
@@ -39,6 +48,8 @@ enum ImportType {
 
   bool get enableOnRelease {
     switch (this) {
+      case ImportType.historyDatabase:
+      case ImportType.historyDocument:
       case ImportType.afDatabase:
         return kDebugMode;
       default:
@@ -48,6 +59,9 @@ enum ImportType {
 
   List<String> get allowedExtensions {
     switch (this) {
+      case ImportType.historyDocument:
+        return ['afdoc'];
+      case ImportType.historyDatabase:
       case ImportType.afDatabase:
         return ['afdb'];
       case ImportType.markdownOrText:
@@ -59,6 +73,8 @@ enum ImportType {
 
   bool get allowMultiSelect {
     switch (this) {
+      case ImportType.historyDocument:
+      case ImportType.historyDatabase:
       case ImportType.csv:
       case ImportType.afDatabase:
       case ImportType.markdownOrText:

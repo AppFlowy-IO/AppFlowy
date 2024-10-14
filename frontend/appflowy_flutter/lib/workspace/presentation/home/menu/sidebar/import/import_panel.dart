@@ -159,6 +159,17 @@ class _ImportPanelState extends State<ImportPanel> {
       final name = p.basenameWithoutExtension(path);
 
       switch (importType) {
+        case ImportType.historyDatabase:
+          final data = await File(path).readAsString();
+          importValues.add(
+            ImportValuePayloadPB.create()
+              ..name = name
+              ..data = utf8.encode(data)
+              ..viewLayout = ViewLayoutPB.Grid
+              ..importType = ImportTypePB.HistoryDatabase,
+          );
+          break;
+        case ImportType.historyDocument:
         case ImportType.markdownOrText:
           final data = await File(path).readAsString();
           final bytes = _documentDataFrom(importType, data);
