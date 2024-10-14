@@ -30,12 +30,20 @@
     text-align: left;
     justify-content: flex-start;
   }
+
+  .quote-block {
+    @apply items-start;
+  }
 }
 
 .block-element.block-align-right {
   > div > .text-element {
     text-align: right;
     justify-content: flex-end;
+  }
+
+  .quote-block {
+    @apply items-end;
   }
 }
 
@@ -45,6 +53,9 @@
     justify-content: center;
   }
 
+  .quote-block {
+    @apply items-center;
+  }
 }
 
 

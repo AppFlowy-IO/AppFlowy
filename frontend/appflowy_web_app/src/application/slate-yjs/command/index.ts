@@ -5,7 +5,7 @@ import {
   executeOperations,
   getBlock,
   getBlockEntry,
-  getSelectionOrThrow,
+  getSelectionOrThrow, getSelectionTexts,
   getSharedRoot,
   handleCollapsedBreakWithTxn,
   handleDeleteEntireDocumentWithTxn,
@@ -33,14 +33,6 @@ import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Te
 import { ReactEditor } from 'slate-react';
 
 export const CustomEditor = {
-  findTextNode (editor: ReactEditor, path: number[]): NodeEntry<Element> {
-    const [node] = editor.nodes({
-      at: path,
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
-    });
-
-    return node as NodeEntry<Element>;
-  },
   // Get the text content of a block node, including the text content of its children and formula nodes
   getBlockTextContent (node: Node): string {
     if (Text.isText(node)) {
@@ -151,6 +143,7 @@ export const CustomEditor = {
 
       handleMergeBlockBackwardWithTxn(editor, node, point);
     } else {
+
       Transforms.collapse(editor, { edge: 'start' });
       removeRangeWithTxn(editor, sharedRoot, newAt);
     }
@@ -236,7 +229,7 @@ export const CustomEditor = {
   }: {
     key: EditorMarkFormat, value: boolean | string
   }) {
-    if (editor.marks && Object.keys(editor.marks).includes(key)) {
+    if (CustomEditor.isMarkActive(editor, key)) {
       editor.removeMark(key);
     } else {
       editor.addMark(key, value);
@@ -249,6 +242,10 @@ export const CustomEditor = {
     key: EditorMarkFormat, value: boolean | string
   }) {
     editor.addMark(key, value);
+  },
+
+  removeMark (editor: ReactEditor, key: EditorMarkFormat) {
+    editor.removeMark(key);
   },
 
   turnToBlock<T extends BlockData> (editor: YjsEditor, blockId: string, type: BlockType, data: T) {
@@ -267,5 +264,63 @@ export const CustomEditor = {
     });
 
     executeOperations(sharedRoot, operations, 'turnToBlock');
+  },
+
+  isBlockActive (editor: YjsEditor, type: BlockType) {
+    try {
+      const [node] = getBlockEntry(editor);
+
+      return node.type === type;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  hasMark (editor: ReactEditor, key: string) {
+    const selection = editor.selection;
+
+    if (!selection) return false;
+
+    const isExpanded = Range.isExpanded(selection);
+
+    if (isExpanded) {
+
+      const texts = getSelectionTexts(editor);
+
+      return texts.some((node) => {
+        const { text, ...attributes } = node;
+
+        if (!text) return true;
+        return Boolean((attributes as Record<string, boolean | string>)[key]);
+      });
+    }
+
+    const marks = Editor.marks(editor) as Record<string, string | boolean> | null;
+
+    return marks ? !!marks[key] : false;
+  },
+
+  isMarkActive (editor: ReactEditor, key: string) {
+    const selection = editor.selection;
+
+    if (!selection) return false;
+
+    const isExpanded = Range.isExpanded(selection);
+
+    if (isExpanded) {
+
+      const texts = getSelectionTexts(editor);
+
+      return texts.every((node) => {
+        const { text, ...attributes } = node;
+
+        if (!text) return true;
+        return Boolean((attributes as Record<string, boolean | string>)[key]);
+      });
+    }
+
+    const marks = Editor.marks(editor) as Record<string, string | boolean> | null;
+
+    return marks ? !!marks[key] : false;
   },
 };

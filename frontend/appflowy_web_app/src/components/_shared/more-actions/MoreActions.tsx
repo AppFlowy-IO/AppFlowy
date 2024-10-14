@@ -1,5 +1,6 @@
 import { invalidToken } from '@/application/session/token';
 import CacheClearingDialog from '@/components/_shared/modal/CacheClearingDialog';
+import Import from '@/components/_shared/more-actions/importer/Import';
 import { Popover } from '@/components/_shared/popover';
 import { AFConfigContext } from '@/components/main/app.hooks';
 import { ThemeModeContext } from '@/components/main/useAppThemeMode';
@@ -12,8 +13,9 @@ import { ReactComponent as SunIcon } from '@/assets/sun.svg';
 import { ReactComponent as LoginIcon } from '@/assets/login.svg';
 import { ReactComponent as ReportIcon } from '@/assets/report.svg';
 import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
+import { ReactComponent as ImportIcon } from '@/assets/import.svg';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 function MoreActions () {
   const { isDark, setDark } = useContext(ThemeModeContext) || {};
@@ -35,18 +37,21 @@ function MoreActions () {
   const navigate = useNavigate();
 
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
+  const [, setSearch] = useSearchParams();
 
   const handleLogin = useCallback(() => {
     invalidToken();
     navigate('/login?redirectTo=' + encodeURIComponent(window.location.href));
   }, [navigate]);
   const actions = useMemo(() => {
-    return [
+    const items = [
+
       {
         Icon: LoginIcon,
         label: isAuthenticated ? t('button.logout') : t('web.login'),
         onClick: handleLogin,
       },
+
       isDark
         ? {
           Icon: SunIcon,
@@ -77,7 +82,25 @@ function MoreActions () {
         },
       },
     ];
-  }, [isAuthenticated, t, handleLogin, isDark, setDark]);
+
+    const importShow = false;
+
+    if (importShow) {
+      items.unshift({
+        Icon: ImportIcon,
+        label: t('web.import'),
+        onClick: () => {
+          setSearch(prev => {
+            prev.set('action', 'import');
+            prev.set('source', 'notion');
+            return prev;
+          });
+        },
+      });
+    }
+
+    return items;
+  }, [t, isAuthenticated, handleLogin, isDark, setSearch, setDark]);
 
   return (
     <>
@@ -111,7 +134,7 @@ function MoreActions () {
                   'flex items-center gap-2 rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
                 }
               >
-                <action.Icon />
+                <action.Icon className={'w-4 h-4'} />
                 <span>{action.label}</span>
               </button>
             ))}
@@ -119,7 +142,11 @@ function MoreActions () {
           </div>
         </Popover>
       )}
-      <CacheClearingDialog open={openConfirm} onClose={() => setOpenConfirm(false)} />
+      <CacheClearingDialog
+        open={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+      />
+      <Import />
     </>
   );
 }

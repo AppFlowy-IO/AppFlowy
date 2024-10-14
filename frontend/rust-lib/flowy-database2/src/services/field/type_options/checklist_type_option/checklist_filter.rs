@@ -43,7 +43,7 @@ impl ChecklistFilterPB {
 }
 
 impl PreFillCellsWithFilter for ChecklistFilterPB {
-  fn get_compliant_cell(&self, _field: &Field) -> (Option<Cell>, bool) {
-    (None, true)
+  fn get_compliant_cell(&self, _field: &Field) -> Option<Cell> {
+    None
   }
 }

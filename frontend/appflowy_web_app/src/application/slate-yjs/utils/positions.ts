@@ -1,4 +1,5 @@
-import { getText } from '@/application/slate-yjs/utils/yjsOperations';
+import { slateNodeToDeltaInsert } from '@/application/slate-yjs/utils/convert';
+import { getText, getTextMap } from '@/application/slate-yjs/utils/yjsOperations';
 import { YSharedRoot } from '@/application/types';
 import { BasePoint, BaseRange, Node, Element, Editor, NodeEntry, Text } from 'slate';
 import { RelativeRange } from '../types';
@@ -55,9 +56,19 @@ export function slatePointToRelativePosition (
   }
 
   const textId = node.textId as string;
-  const ytext = getText(textId, sharedRoot);
+  let ytext = getText(textId, sharedRoot);
 
-  const offset = Math.min(calculateOffsetRelativeToParent(node, point), ytext.toJSON().length);
+  if (!ytext) {
+    const newYText = new Y.Text();
+    const textMap = getTextMap(sharedRoot);
+    const ops = (node.children as Text[]).map(slateNodeToDeltaInsert);
+
+    newYText.applyDelta(ops);
+    textMap.set(textId, newYText);
+    ytext = newYText;
+  }
+
+  const offset = Math.min(calculateOffsetRelativeToParent(node, point), ytext.length);
 
   const relPos = Y.createRelativePositionFromTypeIndex(ytext, offset);
 
@@ -116,7 +127,7 @@ export function relativePositionToSlatePoint (
   return calculatePointFromParentOffset(node, path, absIndex);
 }
 
-function calculatePointFromParentOffset (slateNode: Element, path: number[], parentOffset: number): BasePoint {
+export function calculatePointFromParentOffset (slateNode: Element, path: number[], parentOffset: number): BasePoint {
   let remainingOffset = parentOffset;
   let childIndex = 0;
 
@@ -152,3 +163,4 @@ function calculatePointFromParentOffset (slateNode: Element, path: number[], par
 
   return calculatePointFromParentOffset(childNode, [...path, childIndex], remainingOffset);
 }
+

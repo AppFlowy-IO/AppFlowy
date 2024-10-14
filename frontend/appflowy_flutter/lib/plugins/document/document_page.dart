@@ -175,6 +175,7 @@ class _DocumentPageState extends State<DocumentPage>
 
   Widget buildBanner(BuildContext context) {
     return DocumentBanner(
+      viewName: widget.view.name,
       onRestore: () =>
           context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
       onDelete: () => context
