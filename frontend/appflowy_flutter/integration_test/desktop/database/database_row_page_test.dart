@@ -1,3 +1,6 @@
+import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_checklist_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -9,7 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -334,6 +337,140 @@ void main() {
       await tester.tapEscButton();
 
       tester.assertNumberOfRowsInGridPage(4);
+    });
+
+    testWidgets('edit checklist cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      const fieldType = FieldType.Checklist;
+      await tester.createField(fieldType);
+
+      await tester.openFirstRowDetailPage();
+      await tester.hoverOnWidget(
+        find.byType(ChecklistRowDetailCell),
+        onHover: () async {
+          await tester.tapButton(find.byType(ChecklistItemControl));
+        },
+      );
+
+      tester.assertPhantomChecklistItemAtIndex(index: 0);
+      await tester.enterText(find.byType(PhantomChecklistItem), 'task 1');
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+      tester.assertChecklistTaskInEditor(
+        index: 0,
+        name: "task 1",
+        isChecked: false,
+      );
+      tester.assertPhantomChecklistItemAtIndex(index: 1);
+
+      await tester.enterText(find.byType(PhantomChecklistItem), 'task 2');
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+      tester.assertChecklistTaskInEditor(
+        index: 1,
+        name: "task 2",
+        isChecked: false,
+      );
+      tester.assertPhantomChecklistItemAtIndex(index: 2);
+
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(PhantomChecklistItem), findsNothing);
+
+      await tester.renameChecklistTask(index: 0, name: "task -1", enter: false);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+
+      tester.assertChecklistTaskInEditor(
+        index: 0,
+        name: "task -1",
+        isChecked: false,
+      );
+      tester.assertPhantomChecklistItemAtIndex(index: 1);
+
+      await tester.enterText(find.byType(PhantomChecklistItem), 'task 0');
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+      tester.assertPhantomChecklistItemAtIndex(index: 2);
+
+      await tester.checkChecklistTask(index: 1);
+      expect(find.byType(PhantomChecklistItem), findsNothing);
+      expect(find.byType(ChecklistItem), findsNWidgets(3));
+
+      tester.assertChecklistTaskInEditor(
+        index: 0,
+        name: "task -1",
+        isChecked: false,
+      );
+      tester.assertChecklistTaskInEditor(
+        index: 1,
+        name: "task 0",
+        isChecked: true,
+      );
+      tester.assertChecklistTaskInEditor(
+        index: 2,
+        name: "task 2",
+        isChecked: false,
+      );
+
+      await tester.tapButton(
+        find.descendant(
+          of: find.byType(ProgressAndHideCompleteButton),
+          matching: find.byType(FlowyIconButton),
+        ),
+      );
+      expect(find.byType(ChecklistItem), findsNWidgets(2));
+
+      tester.assertChecklistTaskInEditor(
+        index: 0,
+        name: "task -1",
+        isChecked: false,
+      );
+      tester.assertChecklistTaskInEditor(
+        index: 1,
+        name: "task 2",
+        isChecked: false,
+      );
+
+      await tester.renameChecklistTask(index: 1, name: "task 3", enter: false);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+
+      await tester.renameChecklistTask(index: 0, name: "task 1", enter: false);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+
+      await tester.enterText(find.byType(PhantomChecklistItem), 'task 2');
+      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+      tester.assertChecklistTaskInEditor(
+        index: 0,
+        name: "task 1",
+        isChecked: false,
+      );
+      tester.assertChecklistTaskInEditor(
+        index: 1,
+        name: "task 2",
+        isChecked: false,
+      );
+      tester.assertChecklistTaskInEditor(
+        index: 2,
+        name: "task 3",
+        isChecked: false,
+      );
+      tester.assertPhantomChecklistItemAtIndex(index: 2);
+
+      await tester.checkChecklistTask(index: 1);
+      expect(find.byType(ChecklistItem), findsNWidgets(2));
     });
   });
 }

@@ -1,5 +1,5 @@
 export 'actions/block_action_list.dart';
-export 'actions/option_action.dart';
+export 'actions/option/option_actions.dart';
 export 'align_toolbar_item/align_toolbar_item.dart';
 export 'base/backtick_character_command.dart';
 export 'base/cover_title_command.dart';

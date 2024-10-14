@@ -25,6 +25,8 @@ class GridTestContext {
   final ViewPB view;
   final DatabaseController databaseController;
 
+  String get viewId => view.id;
+
   List<RowInfo> get rowInfos {
     return databaseController.rowCache.rowInfos;
   }

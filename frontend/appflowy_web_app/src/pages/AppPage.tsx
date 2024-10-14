@@ -2,15 +2,15 @@ import { AppendBreadcrumb, CreateRowDoc, LoadView, LoadViewMeta, ViewLayout, YDo
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
 import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
-import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
 import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
+import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
 import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
 import { ViewMetaProps } from '@/components/view-meta';
-import React, { lazy, Suspense, memo, useCallback, useEffect, useMemo, useContext } from 'react';
+import React, { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 
 const ViewHelmet = lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
 
@@ -32,7 +32,10 @@ function AppPage () {
   const rendered = useContext(AppContext)?.rendered;
 
   const helmet = useMemo(() => {
-    return view && rendered ? <Suspense><ViewHelmet name={view.name} icon={view.icon || undefined} /></Suspense> : null;
+    return view && rendered ? <Suspense><ViewHelmet
+      name={view.name}
+      icon={view.icon || undefined}
+    /></Suspense> : null;
   }, [rendered, view]);
 
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
@@ -73,6 +76,7 @@ function AppPage () {
     }
   }, [view?.layout]) as React.FC<{
     doc: YDoc;
+    readOnly: boolean;
     navigateToView?: (viewId: string) => Promise<void>;
     loadViewMeta?: LoadViewMeta;
     createRowDoc?: CreateRowDoc;
@@ -114,9 +118,11 @@ function AppPage () {
   }, [viewMeta]);
 
   const viewDom = useMemo(() => {
+
     return doc && viewMeta && View ? (
       <View
         doc={doc}
+        readOnly={true}
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}

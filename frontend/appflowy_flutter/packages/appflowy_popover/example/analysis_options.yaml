@@ -7,7 +7,13 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
+
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -22,8 +28,33 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    - require_trailing_commas
+
+    - prefer_collection_literals
+    - prefer_final_fields
+    - prefer_final_in_for_each
+    - prefer_final_locals
+
+    - sized_box_for_whitespace
+    - use_decorated_box
+
+    - unnecessary_parenthesis
+    - unnecessary_await_in_return
+    - unnecessary_raw_strings
+
+    - avoid_unnecessary_containers
+    - avoid_redundant_argument_values
+    - avoid_unused_constructor_parameters
+
+    - always_declare_return_types
+
+    - sort_constructors_first
+    - unawaited_futures
+
+    - prefer_single_quotes
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+errors:
+  invalid_annotation_target: ignore

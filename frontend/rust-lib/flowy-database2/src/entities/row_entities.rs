@@ -345,6 +345,9 @@ pub struct InsertedRowPB {
 
   #[pb(index = 3)]
   pub is_new: bool,
+
+  #[pb(index = 4)]
+  pub is_hidden_in_view: bool,
 }
 
 impl InsertedRowPB {
@@ -353,6 +356,7 @@ impl InsertedRowPB {
       row_meta,
       index: None,
       is_new: false,
+      is_hidden_in_view: false,
     }
   }
 
@@ -368,6 +372,7 @@ impl std::convert::From<RowMetaPB> for InsertedRowPB {
       row_meta,
       index: None,
       is_new: false,
+      is_hidden_in_view: false,
     }
   }
 }
@@ -378,6 +383,7 @@ impl From<InsertedRow> for InsertedRowPB {
       row_meta: data.row_detail.into(),
       index: data.index,
       is_new: data.is_new,
+      is_hidden_in_view: false,
     }
   }
 }

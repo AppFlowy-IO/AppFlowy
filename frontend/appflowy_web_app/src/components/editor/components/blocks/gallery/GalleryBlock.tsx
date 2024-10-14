@@ -76,10 +76,13 @@ const GalleryBlock = memo(
 
     return (
       <div
-        ref={ref} {...attributes} className={className} onMouseEnter={() => {
-        if (!photos.length) return;
-        setHovered(true);
-      }}
+        contentEditable={false}
+        ref={ref} {...attributes}
+        className={className}
+        onMouseEnter={() => {
+          if (!photos.length) return;
+          setHovered(true);
+        }}
         onMouseLeave={() => setHovered(false)}
       >
         <div className={'absolute left-0 top-0 h-full w-full pointer-events-none'}>
@@ -96,7 +99,8 @@ const GalleryBlock = memo(
                 onPreview={(index) => {
                   previewIndexRef.current = index;
                   handleOpenPreview();
-                }} images={photos}
+                }}
+                images={photos}
               />
           ) : <div
             className={
@@ -107,7 +111,11 @@ const GalleryBlock = memo(
             {t('document.plugins.image.addAnImageMobile')}
           </div>}
         {hovered &&
-          <GalleryToolbar onCopy={handleCopy} onDownload={handleDownload} onOpenPreview={handleOpenPreview} />}
+          <GalleryToolbar
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+            onOpenPreview={handleOpenPreview}
+          />}
 
         {openPreview && <Suspense><GalleryPreview
           images={photos}

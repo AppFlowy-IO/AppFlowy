@@ -1,6 +1,11 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { isAtBlockStart, isAtBlockEnd, isEntireDocumentSelected } from '@/application/slate-yjs/utils/yjsOperations';
+import {
+  isAtBlockStart,
+  isAtBlockEnd,
+  isEntireDocumentSelected,
+  getBlockEntry,
+} from '@/application/slate-yjs/utils/yjsOperations';
 import { TextUnit, Range, EditorFragmentDeletionOptions } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { TextDeleteOptions } from 'slate/dist/interfaces/transforms/text';
@@ -14,6 +19,15 @@ export function withDelete (editor: ReactEditor) {
     if (!selection) return;
 
     if (Range.isCollapsed(selection)) {
+      deleteText(options);
+      return;
+    }
+
+    const [start, end] = Range.edges(selection);
+    const startBlock = getBlockEntry(editor as YjsEditor, start)[0];
+    const endBlock = getBlockEntry(editor as YjsEditor, end)[0];
+
+    if (startBlock.blockId === endBlock.blockId) {
       deleteText(options);
       return;
     }

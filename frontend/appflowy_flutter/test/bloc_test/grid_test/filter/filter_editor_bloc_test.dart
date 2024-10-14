@@ -22,7 +22,7 @@ void main() {
     setUp(() async {
       context = await gridTest.makeDefaultTestGrid();
       filterBloc = FilterEditorBloc(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldController: context.fieldController,
       );
     });
@@ -38,7 +38,7 @@ void main() {
 
       // through domain directly
       final textField = getFirstFieldByType(FieldType.RichText);
-      final service = FilterBackendService(viewId: context.view.id);
+      final service = FilterBackendService(viewId: context.viewId);
       await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterConditionPB.TextIsEmpty,
@@ -105,7 +105,7 @@ void main() {
     });
 
     test('update filter', () async {
-      final service = FilterBackendService(viewId: context.view.id);
+      final service = FilterBackendService(viewId: context.viewId);
       final textField = getFirstFieldByType(FieldType.RichText);
 
       // Create filter
@@ -144,7 +144,7 @@ void main() {
 
       // edit field
       await FieldBackendService(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldId: textField.id,
       ).updateField(name: "New Name");
       await gridResponseFuture();
@@ -160,7 +160,7 @@ void main() {
 
       // edit field
       await FieldBackendService(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldId: checkboxField.id,
       ).updateType(fieldType: FieldType.DateTime);
       await gridResponseFuture();
@@ -179,7 +179,7 @@ void main() {
 
       // edit field
       await FieldBackendService(
-        viewId: context.view.id,
+        viewId: context.viewId,
         fieldId: checkboxField.id,
       ).updateField(name: "HERRO");
       await gridResponseFuture();
