@@ -258,7 +258,7 @@ class NotificationDocumentContent extends StatelessWidget {
           ),
         );
 
-    final blockBuilders = getEditorBuilderMap(
+    final blockBuilders = buildBlockComponentBuilders(
       context: context,
       editorState: editorState,
       styleCustomizer: styleCustomizer,

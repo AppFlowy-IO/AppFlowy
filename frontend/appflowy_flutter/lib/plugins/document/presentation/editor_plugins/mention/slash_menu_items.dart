@@ -34,7 +34,7 @@ Future<void> insertDateReference(EditorState editorState) async {
       node,
       selection.start.offset,
       0,
-      '\$',
+      MentionBlockKeys.mentionChar,
       attributes: {
         MentionBlockKeys.mention: {
           MentionBlockKeys.type: MentionType.date.name,
