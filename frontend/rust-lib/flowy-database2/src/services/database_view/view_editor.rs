@@ -215,11 +215,15 @@ impl DatabaseViewEditor {
   }
 
   pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
-    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
-    let changeset = RowsChangePB::from_update(update_row.into());
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
-      .payload(changeset)
-      .send();
+    let rows = vec![Arc::new(row_detail.row.clone())];
+    let mut rows = self.v_filter_rows(rows).await;
+    if rows.pop().is_some() {
+      let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
+      let changeset = RowsChangePB::from_update(update_row.into());
+      send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
+        .payload(changeset)
+        .send();
+    }
   }
 
   pub async fn v_did_create_row(
@@ -227,7 +231,7 @@ impl DatabaseViewEditor {
     row_detail: &RowDetail,
     index: u32,
     is_move_row: bool,
-    _is_local_change: bool,
+    is_local_change: bool,
     row_changes: &DashMap<String, RowsChangePB>,
   ) {
     // Send the group notification if the current view has groups
@@ -242,23 +246,27 @@ impl DatabaseViewEditor {
       }
     }
 
-    if let Some(index) = self
+    let index = self
       .sort_controller
       .write()
       .await
       .did_create_row(&row_detail.row)
-      .await
-    {
-      row_changes
-        .entry(self.view_id.clone())
-        .or_insert_with(|| {
-          let mut change = RowsChangePB::new();
-          change.is_move_row = is_move_row;
-          change
-        })
-        .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32));
-    };
+      .await;
+
+    row_changes
+      .entry(self.view_id.clone())
+      .or_insert_with(|| {
+        let mut change = RowsChangePB::new();
+        change.is_move_row = is_move_row;
+        change
+      })
+      .inserted_rows
+      .push(InsertedRowPB {
+        row_meta: RowMetaPB::from(row_detail),
+        index: index.map(|index| index as i32),
+        is_new: true,
+        is_hidden_in_view: is_local_change && index.is_none(),
+      });
 
     self
       .gen_did_create_row_view_tasks(row_detail.row.clone())

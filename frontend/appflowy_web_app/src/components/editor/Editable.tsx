@@ -2,20 +2,51 @@ import { useDecorate } from '@/components/editor/components/blocks/code/useDecor
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { useShortcuts } from '@/components/editor/shortcut.hooks';
-import React, { Suspense, useCallback } from 'react';
-import { NodeEntry, Range } from 'slate';
+import React, { lazy, Suspense, useCallback } from 'react';
+import { BaseRange, Editor, NodeEntry, Range } from 'slate';
 import { Editable, RenderElementProps, useSlate } from 'slate-react';
 import { Element } from './components/element';
 import { Skeleton } from '@mui/material';
 
+const Toolbars = lazy(() => import('./components/toolbar'));
+
 const EditorEditable = () => {
-  const { readOnly } = useEditorContext();
+  const { readOnly, decorateState } = useEditorContext();
   const editor = useSlate();
 
   const codeDecorate = useDecorate(editor);
+
+  const decorate = useCallback(
+    ([, path]: NodeEntry): BaseRange[] => {
+      const highlightRanges: (Range & {
+        class_name: string;
+      })[] = [];
+
+      if (!decorateState) return [];
+
+      Object.values(decorateState).forEach((state) => {
+        const intersection = Range.intersection(state.range, Editor.range(editor, path));
+
+        if (intersection) {
+          highlightRanges.push({
+            ...intersection,
+            class_name: state.class_name,
+          });
+        }
+      });
+
+      return highlightRanges;
+    },
+    [editor, decorateState],
+  );
   const renderElement = useCallback((props: RenderElementProps) => {
     return (
-      <Suspense fallback={<Skeleton width={'100%'} height={24} />}>
+      <Suspense
+        fallback={<Skeleton
+          width={'100%'}
+          height={24}
+        />}
+      >
         <Element {...props} />
       </Suspense>
     );
@@ -36,12 +67,14 @@ const EditorEditable = () => {
 
   return (
     <>
+
       <Editable
         role={'textbox'}
         decorate={(entry: NodeEntry) => {
-          const decoration = codeDecorate?.(entry);
+          const codeDecoration = codeDecorate?.(entry);
+          const decoration = decorate(entry);
 
-          return decoration || [];
+          return [...codeDecoration, ...decoration];
         }}
         className={'outline-none mb-36 w-[964px] min-w-0 max-w-full px-6 focus:outline-none'}
         renderLeaf={Leaf}
@@ -53,6 +86,11 @@ const EditorEditable = () => {
         onCompositionStart={onCompositionStart}
         onKeyDown={onKeyDown}
       />
+      {!readOnly &&
+        <Suspense>
+          <Toolbars />
+        </Suspense>
+      }
     </>
   );
 };

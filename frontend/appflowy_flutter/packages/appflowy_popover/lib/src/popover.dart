@@ -73,9 +73,10 @@ class Popover extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 200),
     this.beginOpacity = 0.0,
     this.endOpacity = 1.0,
-    this.beginScaleFactor = 0.95,
+    this.beginScaleFactor = 1.0,
     this.endScaleFactor = 1.0,
-    this.slideDistance = 20.0,
+    this.slideDistance = 5.0,
+    this.debugId,
     this.maskDecoration = const BoxDecoration(
       color: Color.fromARGB(0, 244, 67, 54),
     ),
@@ -121,7 +122,7 @@ class Popover extends StatefulWidget {
   final bool skipTraversal;
 
   /// Animation time of the popover.
-  final Duration? animationDuration;
+  final Duration animationDuration;
 
   /// The distance of the popover's slide animation.
   final double slideDistance;
@@ -133,6 +134,8 @@ class Popover extends StatefulWidget {
   /// The opacity of the popover's fade animation.
   final double beginOpacity;
   final double endOpacity;
+
+  final String? debugId;
 
   /// The content area of the popover.
   final Widget child;
@@ -202,7 +205,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   void showOverlay() {
-    close();
+    close(withAnimation: true);
 
     if (widget.mutex != null) {
       widget.mutex?.state = this;
@@ -211,14 +214,18 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     final shouldAddMask = rootEntry.isEmpty;
     rootEntry.addEntry(
       context,
+      widget.debugId ?? '',
       this,
       OverlayEntry(
         builder: (context) => _buildOverlayContent(shouldAddMask),
       ),
       widget.asBarrier,
+      animationController,
     );
 
-    animationController.forward();
+    if (widget.animationDuration != Duration.zero) {
+      animationController.forward();
+    }
   }
 
   void close({
@@ -233,7 +240,9 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         }
       }
 
-      if (isDisposed || !withAnimation) {
+      if (isDisposed ||
+          !withAnimation ||
+          widget.animationDuration == Duration.zero) {
         callback();
       } else {
         animationController.reverse().then((_) => callback());
@@ -242,9 +251,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   void _removeRootOverlay() {
-    animationController.reverse().then((_) {
-      rootEntry.popEntry();
-    });
+    rootEntry.popEntry();
 
     if (widget.mutex?.state == this) {
       widget.mutex?.removeState();
@@ -252,41 +259,43 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildChild(BuildContext context) {
+    Widget child = widget.child;
+
     if (widget.triggerActions == 0) {
-      return widget.child;
+      return child;
     }
 
-    return MouseRegion(
-      onEnter: (event) {
-        if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
+    child = _buildClickHandler(
+      child,
+      () {
+        widget.onOpen?.call();
+        if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
           showOverlay();
         }
       },
-      child: _buildClickHandler(
-        widget.child,
-        () {
-          widget.onOpen?.call();
-          if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
-            showOverlay();
-          }
-        },
-      ),
     );
+
+    if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
+      child = MouseRegion(
+        onEnter: (event) => showOverlay(),
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildClickHandler(Widget child, VoidCallback handler) {
-    switch (widget.clickHandler) {
-      case PopoverClickHandler.listener:
-        return Listener(
+    return switch (widget.clickHandler) {
+      PopoverClickHandler.listener => Listener(
           onPointerDown: (_) => _callHandler(handler),
           child: child,
-        );
-      case PopoverClickHandler.gestureDetector:
-        return GestureDetector(
+        ),
+      PopoverClickHandler.gestureDetector => GestureDetector(
           onTap: () => _callHandler(handler),
           child: child,
-        );
-    }
+        ),
+    };
   }
 
   void _callHandler(VoidCallback handler) {
@@ -325,28 +334,34 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildPopoverContainer() {
-    return AnimatedBuilder(
-      animation: animationController,
-      builder: (context, child) {
-        return Opacity(
-          opacity: fadeAnimation.value,
-          child: Transform.scale(
-            scale: scaleAnimation.value,
-            child: Transform.translate(
-              offset: slideAnimation.value,
-              child: child,
-            ),
-          ),
-        );
-      },
-      child: PopoverContainer(
-        delegate: layoutDelegate,
-        popupBuilder: widget.popupBuilder,
-        skipTraversal: widget.skipTraversal,
-        onClose: close,
-        onCloseAll: _removeRootOverlay,
-      ),
+    Widget child = PopoverContainer(
+      delegate: layoutDelegate,
+      popupBuilder: widget.popupBuilder,
+      skipTraversal: widget.skipTraversal,
+      onClose: close,
+      onCloseAll: _removeRootOverlay,
     );
+
+    if (widget.animationDuration != Duration.zero) {
+      child = AnimatedBuilder(
+        animation: animationController,
+        builder: (context, child) {
+          return Opacity(
+            opacity: fadeAnimation.value,
+            child: Transform.scale(
+              scale: scaleAnimation.value,
+              child: Transform.translate(
+                offset: slideAnimation.value,
+                child: child,
+              ),
+            ),
+          );
+        },
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   void _buildAnimations() {
@@ -378,7 +393,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     ).animate(
       CurvedAnimation(
         parent: animationController,
-        curve: Curves.easeOutCubic,
+        curve: Curves.easeInOut,
       ),
     );
   }
@@ -391,7 +406,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     ).animate(
       CurvedAnimation(
         parent: animationController,
-        curve: Curves.easeOutCubic,
+        curve: Curves.linear,
       ),
     );
   }

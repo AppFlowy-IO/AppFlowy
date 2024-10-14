@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 
 class SocialMediaSection extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     final List<Widget> children = [
       Divider(
         height: 1,

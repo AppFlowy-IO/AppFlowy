@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -13,7 +14,6 @@ import 'package:appflowy/plugins/database/calendar/application/unschedule_event_
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -165,6 +165,19 @@ class _CalendarPageState extends State<CalendarPage> {
                         state.updateEvent!.event!.eventId,
                   );
                   _eventController.add(state.updateEvent!);
+                }
+              },
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.openRow != c.openRow,
+              listener: (context, state) {
+                if (state.openRow != null) {
+                  showEventDetails(
+                    context: context,
+                    databaseController: _calendarBloc.databaseController,
+                    rowMeta: state.openRow!,
+                  );
+                  _calendarBloc.add(const CalendarEvent.resetOpenRowDetail());
                 }
               },
             ),
@@ -367,10 +380,10 @@ class _CalendarPageState extends State<CalendarPage> {
 void showEventDetails({
   required BuildContext context,
   required DatabaseController databaseController,
-  required CalendarEventPB event,
+  required RowMetaPB rowMeta,
 }) {
   final rowController = RowController(
-    rowMeta: event.rowMeta,
+    rowMeta: rowMeta,
     viewId: databaseController.viewId,
     rowCache: databaseController.rowCache,
   );
@@ -521,7 +534,7 @@ class UnscheduleEventsList extends StatelessWidget {
             } else {
               showEventDetails(
                 context: context,
-                event: event,
+                rowMeta: event.rowMeta,
                 databaseController: databaseController,
               );
               PopoverContainer.of(context).close();

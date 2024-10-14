@@ -13,16 +13,13 @@ impl CheckboxFilterPB {
 }
 
 impl PreFillCellsWithFilter for CheckboxFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let is_checked = match self.condition {
       CheckboxFilterConditionPB::IsChecked => Some(true),
       CheckboxFilterConditionPB::IsUnChecked => None,
     };
 
-    (
-      is_checked.map(|is_checked| insert_checkbox_cell(is_checked, field)),
-      false,
-    )
+    is_checked.map(|is_checked| insert_checkbox_cell(is_checked, field))
   }
 }
 

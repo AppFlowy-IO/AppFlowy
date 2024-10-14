@@ -95,8 +95,8 @@ const rules: Rule[] = [
       const level = match[1].length;
       const [node] = getBlockEntry(editor);
 
-      deletePrefix(editor, level);
       CustomEditor.turnToBlock<HeadingBlockData>(editor, node.blockId as string, BlockType.HeadingBlock, { level });
+      deletePrefix(editor, level);
     },
   },
   {
@@ -107,8 +107,8 @@ const rules: Rule[] = [
       return getNodeType(editor) === BlockType.QuoteBlock;
     },
     transform: (editor) => {
-      deletePrefix(editor, 1);
       CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.QuoteBlock, {});
+      deletePrefix(editor, 1);
     },
   },
   {
@@ -123,10 +123,11 @@ const rules: Rule[] = [
       return blockType === BlockType.TodoListBlock && (blockData as TodoListBlockData).checked === checked;
     },
     transform: (editor, match) => {
-      deletePrefix(editor, match[0].length - 1);
+
       const checked = match[2] === 'x';
 
       CustomEditor.turnToBlock<TodoListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.TodoListBlock, { checked });
+      deletePrefix(editor, match[0].length - 1);
     },
   },
   {
@@ -137,8 +138,9 @@ const rules: Rule[] = [
       return getNodeType(editor) === BlockType.ToggleListBlock;
     },
     transform: (editor) => {
-      deletePrefix(editor, 1);
       CustomEditor.turnToBlock<ToggleListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.ToggleListBlock, { collapsed: false });
+      deletePrefix(editor, 1);
+
     },
   },
   {
@@ -149,9 +151,9 @@ const rules: Rule[] = [
       return !isEmptyLine(editor, 2) || getNodeType(editor) === BlockType.CodeBlock;
     },
     transform: (editor) => {
-      deletePrefix(editor, 2);
 
       CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.CodeBlock, {});
+      deletePrefix(editor, 2);
     },
   },
   {
@@ -162,8 +164,9 @@ const rules: Rule[] = [
       return getNodeType(editor) === BlockType.BulletedListBlock;
     },
     transform: (editor) => {
-      deletePrefix(editor, 1);
+
       CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.BulletedListBlock, {});
+      deletePrefix(editor, 1);
     },
   },
   {
@@ -180,8 +183,8 @@ const rules: Rule[] = [
     transform: (editor, match) => {
       const start = parseInt(match[1]);
 
-      deletePrefix(editor, String(start).length + 1);
       CustomEditor.turnToBlock<NumberedListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.NumberedListBlock, { number: start });
+      deletePrefix(editor, String(start).length + 1);
     },
   },
 
@@ -193,8 +196,9 @@ const rules: Rule[] = [
       return !isEmptyLine(editor, 2) || getNodeType(editor) === BlockType.DividerBlock;
     },
     transform: (editor) => {
-      deletePrefix(editor, 2);
+
       CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.DividerBlock, {});
+      deletePrefix(editor, 2);
     },
   },
 
