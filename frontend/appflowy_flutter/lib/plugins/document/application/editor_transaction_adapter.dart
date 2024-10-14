@@ -281,8 +281,8 @@ extension on UpdateOperation {
     assert(parentId.isNotEmpty);
 
     // create the external text if the node contains the delta in its data.
-    final prevDelta = oldAttributes['delta'];
-    final delta = attributes['delta'];
+    final prevDelta = oldAttributes[blockComponentDelta];
+    final delta = attributes[blockComponentDelta];
     final diff = prevDelta != null && delta != null
         ? Delta.fromJson(prevDelta).diff(
             Delta.fromJson(delta),
@@ -290,6 +290,7 @@ extension on UpdateOperation {
         : null;
 
     final composedAttributes = composeAttributes(oldAttributes, attributes);
+    final composedDelta = composedAttributes?[blockComponentDelta];
     composedAttributes?.remove(blockComponentDelta);
 
     final payload = BlockActionPayloadPB()
@@ -306,12 +307,13 @@ extension on UpdateOperation {
     if (textId == null || textId.isEmpty) {
       // to be compatible with the old version, we create a new text id if the text id is empty.
       final textId = nanoid(6);
-      final textDeltaPayloadPB = delta == null
+      final textDelta = composedDelta ?? delta ?? prevDelta;
+      final textDeltaPayloadPB = textDelta == null
           ? null
           : TextDeltaPayloadPB(
               documentId: documentId,
               textId: textId,
-              delta: jsonEncode(delta),
+              delta: jsonEncode(textDelta),
             );
 
       node.externalValues = ExternalValues(
