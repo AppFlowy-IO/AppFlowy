@@ -2,7 +2,7 @@ use crate::database::group_test::script::DatabaseGroupTest;
 
 #[tokio::test]
 async fn group_group_by_url() {
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let url_field = test.get_url_field().await;
 
   // Group by URL field
@@ -17,7 +17,7 @@ async fn group_group_by_url() {
 
 #[tokio::test]
 async fn group_alter_url_to_another_group_url_test() {
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let url_field = test.get_url_field().await;
 
   // Group by URL field
@@ -37,7 +37,7 @@ async fn group_alter_url_to_another_group_url_test() {
 
 #[tokio::test]
 async fn group_alter_url_to_new_url_test() {
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let url_field = test.get_url_field().await;
 
   // Group by URL field
@@ -58,7 +58,7 @@ async fn group_alter_url_to_new_url_test() {
 
 #[tokio::test]
 async fn group_move_url_group_row_test() {
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let url_field = test.get_url_field().await;
 
   // Group by URL field

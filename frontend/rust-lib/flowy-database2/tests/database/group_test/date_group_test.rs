@@ -7,7 +7,7 @@ use std::collections::HashMap;
 #[tokio::test]
 async fn group_by_date_test() {
   let date_diffs = vec![-1, 0, 7, -15, -1];
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let date_field = test.get_field(FieldType::DateTime).await;
 
   for diff in date_diffs {
@@ -70,7 +70,7 @@ async fn group_by_date_test() {
 
 #[tokio::test]
 async fn change_row_group_on_date_cell_changed_test() {
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let date_field = test.get_field(FieldType::DateTime).await;
 
   // Group by date field
@@ -89,7 +89,7 @@ async fn change_row_group_on_date_cell_changed_test() {
 
 #[tokio::test]
 async fn change_date_on_moving_row_to_another_group() {
-  let mut test = DatabaseGroupTest::new().await;
+  let test = DatabaseGroupTest::new().await;
   let date_field = test.get_field(FieldType::DateTime).await;
 
   // Group by date field

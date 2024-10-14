@@ -25,7 +25,7 @@ async fn board_layout_setting_test() {
 
 #[tokio::test]
 async fn calendar_initial_layout_setting_test() {
-  let mut test = DatabaseLayoutTest::new_calendar().await;
+  let test = DatabaseLayoutTest::new_calendar().await;
   let date_field = test.get_first_date_field().await;
   let default_calendar_setting = CalendarLayoutSetting::new(date_field.id.clone());
 
@@ -37,7 +37,7 @@ async fn calendar_initial_layout_setting_test() {
 
 #[tokio::test]
 async fn calendar_get_events_test() {
-  let mut test = DatabaseLayoutTest::new_calendar().await;
+  let test = DatabaseLayoutTest::new_calendar().await;
 
   // Assert the default calendar events
   test.assert_default_all_calendar_events().await;
