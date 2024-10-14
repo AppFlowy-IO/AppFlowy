@@ -15,7 +15,7 @@ async fn grid_create_field() {
   test.create_field(params).await;
   test
     .assert_field_type_option_equal(
-      test.field_count(),
+      test.field_count() - 1,
       field.get_any_type_option(field.field_type).unwrap(),
     )
     .await;
@@ -25,7 +25,7 @@ async fn grid_create_field() {
   test.create_field(params).await;
   test
     .assert_field_type_option_equal(
-      test.field_count(),
+      test.field_count() - 1,
       field.get_any_type_option(field.field_type).unwrap(),
     )
     .await;
@@ -35,7 +35,7 @@ async fn grid_create_field() {
   test.create_field(params).await;
   test
     .assert_field_type_option_equal(
-      test.field_count(),
+      test.field_count() - 1,
       field.get_any_type_option(field.field_type).unwrap(),
     )
     .await;
@@ -45,7 +45,7 @@ async fn grid_create_field() {
   test.create_field(params).await;
   test
     .assert_field_type_option_equal(
-      test.field_count(),
+      test.field_count() - 1,
       field.get_any_type_option(field.field_type).unwrap(),
     )
     .await;

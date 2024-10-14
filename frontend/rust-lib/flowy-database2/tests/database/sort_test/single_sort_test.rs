@@ -86,8 +86,8 @@ async fn sort_change_notification_by_update_text_test() {
     .await;
   test
     .assert_sort_changed(
-      vec!["A", "E", "AE", "C", "CB", "DA", ""],
       vec!["A", "AE", "C", "CB", "DA", "E", ""],
+      vec!["A", "E", "AE", "C", "CB", "DA", ""],
     )
     .await;
 }
