@@ -1,93 +1,41 @@
 use crate::database::group_test::script::DatabaseGroupTest;
-use crate::database::group_test::script::GroupScript::*;
 use collab_database::fields::select_type_option::SelectOption;
 
 #[tokio::test]
 async fn group_init_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    AssertGroupCount(4),
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 3,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 0,
-      row_count: 0,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.assert_group_count(4).await;
+  test.assert_group_row_count(1, 2).await;
+  test.assert_group_row_count(2, 2).await;
+  test.assert_group_row_count(3, 1).await;
+  test.assert_group_row_count(0, 0).await;
 }
 
 #[tokio::test]
 async fn group_move_row_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group = test.group_at_index(1).await;
-  let scripts = vec![
-    // Move the row at 0 in group0 to group1 at 1
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 1,
-      to_row_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 2,
-    },
-    AssertRow {
-      group_index: 1,
-      row_index: 1,
-      row: group.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  test.move_row(1, 0, 1, 1).await;
+  test.assert_group_row_count(1, 2).await;
+  test
+    .assert_row(1, 1, group.rows.first().unwrap().clone())
+    .await;
 }
 
 #[tokio::test]
 async fn test_row_movement_between_groups_with_assertions() {
   let mut test = DatabaseGroupTest::new().await;
   for _ in 0..5 {
-    let scripts = vec![
-      MoveRow {
-        from_group_index: 1,
-        from_row_index: 0,
-        to_group_index: 2,
-        to_row_index: 1,
-      },
-      AssertGroupRowCount {
-        group_index: 1,
-        row_count: 1,
-      },
-      AssertGroupRowCount {
-        group_index: 2,
-        row_count: 3,
-      },
-      // Move the row back to origin group
-      MoveRow {
-        from_group_index: 2,
-        from_row_index: 1,
-        to_group_index: 1,
-        to_row_index: 0,
-      },
-      AssertGroupRowCount {
-        group_index: 2,
-        row_count: 2,
-      },
-      AssertGroupRowCount {
-        group_index: 1,
-        row_count: 2,
-      },
-    ];
-    test.run_scripts(scripts).await;
+    test.move_row(1, 0, 2, 1).await;
+    test.assert_group_row_count(1, 1).await;
+    test.assert_group_row_count(2, 3).await;
+
+    // Move the row back to the original group
+    test.move_row(2, 1, 1, 0).await;
+    test.assert_group_row_count(2, 2).await;
+    test.assert_group_row_count(1, 2).await;
+
     tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
   }
 }
@@ -96,54 +44,21 @@ async fn test_row_movement_between_groups_with_assertions() {
 async fn group_move_two_row_to_other_group_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group_1 = test.group_at_index(1).await;
-  let scripts = vec![
-    // Move row at index 0 from group 1 to group 2 at index 1
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 1,
-      row: group_1.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  test.move_row(1, 0, 2, 1).await;
+  test.assert_group_row_count(1, 1).await;
+  test.assert_group_row_count(2, 3).await;
+  test
+    .assert_row(2, 1, group_1.rows.first().unwrap().clone())
+    .await;
 
   let group_1 = test.group_at_index(1).await;
-  // Move row at index 0 from group 1 to group 2 at index 1
-  let scripts = vec![
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 4,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 1,
-      row: group_1.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.move_row(1, 0, 2, 1).await;
+  test.assert_group_row_count(1, 0).await;
+  test.assert_group_row_count(2, 4).await;
+  test
+    .assert_row(2, 1, group_1.rows.first().unwrap().clone())
+    .await;
 }
 
 #[tokio::test]
@@ -151,226 +66,92 @@ async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group_1 = test.group_at_index(1).await;
   let group_2 = test.group_at_index(2).await;
-  let scripts = vec![
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 1,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 1,
-      row: group_1.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
 
-  let scripts = vec![
-    MoveRow {
-      from_group_index: 2,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 2,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 2,
-      row: group_2.rows.first().unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.move_row(1, 0, 2, 1).await;
+  test
+    .assert_row(2, 1, group_1.rows.first().unwrap().clone())
+    .await;
+
+  test.move_row(2, 0, 2, 2).await;
+  test
+    .assert_row(2, 2, group_2.rows.first().unwrap().clone())
+    .await;
 }
 
 #[tokio::test]
 async fn group_move_row_to_other_group_and_reorder_from_bottom_to_up_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![MoveRow {
-    from_group_index: 1,
-    from_row_index: 0,
-    to_group_index: 2,
-    to_row_index: 1,
-  }];
-  test.run_scripts(scripts).await;
+  test.move_row(1, 0, 2, 1).await;
 
   let group = test.group_at_index(2).await;
-  let scripts = vec![
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-    MoveRow {
-      from_group_index: 2,
-      from_row_index: 2,
-      to_group_index: 2,
-      to_row_index: 0,
-    },
-    AssertRow {
-      group_index: 2,
-      row_index: 0,
-      row: group.rows.get(2).unwrap().clone(),
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.assert_group_row_count(2, 3).await;
+
+  test.move_row(2, 2, 2, 0).await;
+  test
+    .assert_row(2, 0, group.rows.get(2).unwrap().clone())
+    .await;
 }
+
 #[tokio::test]
 async fn group_create_row_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    CreateRow { group_index: 1 },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 3,
-    },
-    CreateRow { group_index: 2 },
-    CreateRow { group_index: 2 },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 4,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.create_row(1).await;
+  test.assert_group_row_count(1, 3).await;
+
+  test.create_row(2).await;
+  test.create_row(2).await;
+  test.assert_group_row_count(2, 4).await;
 }
 
 #[tokio::test]
 async fn group_delete_row_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    DeleteRow {
-      group_index: 1,
-      row_index: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.delete_row(1, 0).await;
+  test.assert_group_row_count(1, 1).await;
 }
 
 #[tokio::test]
 async fn group_delete_all_row_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    DeleteRow {
-      group_index: 1,
-      row_index: 0,
-    },
-    DeleteRow {
-      group_index: 1,
-      row_index: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 0,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.delete_row(1, 0).await;
+  test.delete_row(1, 0).await;
+  test.assert_group_row_count(1, 0).await;
 }
 
 #[tokio::test]
 async fn group_update_row_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    // Update the row at 0 in group0 by setting the row's group field data
-    UpdateGroupedCell {
-      from_group_index: 1,
-      row_index: 0,
-      to_group_index: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.update_grouped_cell(1, 0, 2).await;
+  test.assert_group_row_count(1, 1).await;
+  test.assert_group_row_count(2, 3).await;
 }
 
 #[tokio::test]
 async fn group_reorder_group_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    // Update the row at 0 in group0 by setting the row's group field data
-    UpdateGroupedCell {
-      from_group_index: 1,
-      row_index: 0,
-      to_group_index: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.update_grouped_cell(1, 0, 2).await;
+  test.assert_group_row_count(1, 1).await;
+  test.assert_group_row_count(2, 3).await;
 }
 
 #[tokio::test]
 async fn group_move_to_default_group_test() {
   let mut test = DatabaseGroupTest::new().await;
-  let scripts = vec![
-    UpdateGroupedCell {
-      from_group_index: 1,
-      row_index: 0,
-      to_group_index: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 0,
-      row_count: 1,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.update_grouped_cell(1, 0, 0).await;
+  test.assert_group_row_count(1, 1).await;
+  test.assert_group_row_count(0, 1).await;
 }
 
 #[tokio::test]
 async fn group_move_from_default_group_test() {
   let mut test = DatabaseGroupTest::new().await;
-  // Move one row from group 1 to group 0
-  let scripts = vec![
-    UpdateGroupedCell {
-      from_group_index: 1,
-      row_index: 0,
-      to_group_index: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 0,
-      row_count: 1,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.update_grouped_cell(1, 0, 0).await;
+  test.assert_group_row_count(1, 1).await;
+  test.assert_group_row_count(0, 1).await;
 
-  // Move one row from group 0 to group 1
-  let scripts = vec![
-    UpdateGroupedCell {
-      from_group_index: 0,
-      row_index: 0,
-      to_group_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 0,
-      row_count: 0,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  test.update_grouped_cell(0, 0, 1).await;
+  test.assert_group_row_count(1, 2).await;
+  test.assert_group_row_count(0, 0).await;
 }
 
 #[tokio::test]
@@ -378,29 +159,12 @@ async fn group_move_group_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group_0 = test.group_at_index(0).await;
   let group_1 = test.group_at_index(1).await;
-  let scripts = vec![
-    MoveGroup {
-      from_group_index: 0,
-      to_group_index: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 0,
-      row_count: 2,
-    },
-    AssertGroup {
-      group_index: 0,
-      expected_group: group_1,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 0,
-    },
-    AssertGroup {
-      group_index: 1,
-      expected_group: group_0,
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  test.move_group(0, 1).await;
+  test.assert_group_row_count(0, 2).await;
+  test.assert_group(0, group_1).await;
+  test.assert_group_row_count(1, 0).await;
+  test.assert_group(1, group_0).await;
 }
 
 #[tokio::test]
@@ -408,35 +172,14 @@ async fn group_move_group_row_after_move_group_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group_1 = test.group_at_index(1).await;
   let group_2 = test.group_at_index(2).await;
-  let scripts = vec![
-    MoveGroup {
-      from_group_index: 1,
-      to_group_index: 2,
-    },
-    AssertGroup {
-      group_index: 1,
-      expected_group: group_2,
-    },
-    AssertGroup {
-      group_index: 2,
-      expected_group: group_1,
-    },
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 1,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  test.move_group(1, 2).await;
+  test.assert_group(1, group_2).await;
+  test.assert_group(2, group_1).await;
+
+  test.move_row(1, 0, 2, 0).await;
+  test.assert_group_row_count(1, 1).await;
+  test.assert_group_row_count(2, 3).await;
 }
 
 #[tokio::test]
@@ -444,39 +187,27 @@ async fn group_move_group_to_default_group_pos_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group_0 = test.group_at_index(0).await;
   let group_3 = test.group_at_index(3).await;
-  let scripts = vec![
-    MoveGroup {
-      from_group_index: 3,
-      to_group_index: 0,
-    },
-    AssertGroup {
-      group_index: 0,
-      expected_group: group_3,
-    },
-    AssertGroup {
-      group_index: 1,
-      expected_group: group_0,
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  test.move_group(3, 0).await;
+  test.assert_group(0, group_3).await;
+  test.assert_group(1, group_0).await;
 }
 
 #[tokio::test]
 async fn group_insert_single_select_option_test() {
   let mut test = DatabaseGroupTest::new().await;
   let new_option_name = "New option";
-  let scripts = vec![
-    AssertGroupCount(4),
-    UpdateSingleSelectSelectOption {
-      inserted_options: vec![SelectOption {
-        id: new_option_name.to_string(),
-        name: new_option_name.to_string(),
-        color: Default::default(),
-      }],
-    },
-    AssertGroupCount(5),
-  ];
-  test.run_scripts(scripts).await;
+
+  test.assert_group_count(4).await;
+  test
+    .update_single_select_option(vec![SelectOption {
+      id: new_option_name.to_string(),
+      name: new_option_name.to_string(),
+      color: Default::default(),
+    }])
+    .await;
+
+  test.assert_group_count(5).await;
   let new_group = test.group_at_index(4).await;
   assert_eq!(new_group.group_id, new_option_name);
 }
@@ -485,33 +216,19 @@ async fn group_insert_single_select_option_test() {
 async fn group_group_by_other_field() {
   let mut test = DatabaseGroupTest::new().await;
   let multi_select_field = test.get_multi_select_field().await;
-  let scripts = vec![
-    GroupByField {
-      field_id: multi_select_field.id.clone(),
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 3,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 2,
-    },
-    AssertGroupCount(4),
-  ];
-  test.run_scripts(scripts).await;
+
+  test.group_by_field(&multi_select_field.id).await;
+  test.assert_group_row_count(1, 3).await;
+  test.assert_group_row_count(2, 2).await;
+  test.assert_group_count(4).await;
 }
 
 #[tokio::test]
 async fn group_manual_create_new_group() {
   let mut test = DatabaseGroupTest::new().await;
   let new_group_name = "Resumed";
-  let scripts = vec![
-    AssertGroupCount(4),
-    CreateGroup {
-      name: new_group_name.to_string(),
-    },
-    AssertGroupCount(5),
-  ];
-  test.run_scripts(scripts).await;
+
+  test.assert_group_count(4).await;
+  test.create_group(new_group_name).await;
+  test.assert_group_count(5).await;
 }

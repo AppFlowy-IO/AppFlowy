@@ -6,15 +6,6 @@ use flowy_database2::services::setting::{BoardLayoutSetting, CalendarLayoutSetti
 
 use crate::database::database_editor::DatabaseEditorTest;
 
-pub enum LayoutScript {
-  AssertBoardLayoutSetting { expected: BoardLayoutSetting },
-  AssertCalendarLayoutSetting { expected: CalendarLayoutSetting },
-  UpdateBoardLayoutSetting { new_setting: BoardLayoutSetting },
-  AssertDefaultAllCalendarEvents,
-  AssertAllCalendarEventsCount { expected: usize },
-  UpdateDatabaseLayout { layout: DatabaseLayout },
-}
-
 pub struct DatabaseLayoutTest {
   database_test: DatabaseEditorTest,
 }
@@ -55,100 +46,97 @@ impl DatabaseLayoutTest {
       .unwrap()
   }
 
-  pub async fn run_scripts(&mut self, scripts: Vec<LayoutScript>) {
-    for script in scripts {
-      self.run_script(script).await;
-    }
+  pub async fn update_database_layout(&mut self, layout: DatabaseLayout) {
+    self
+      .database_test
+      .editor
+      .update_view_layout(&self.database_test.view_id, layout)
+      .await
+      .unwrap();
   }
 
-  pub async fn run_script(&mut self, script: LayoutScript) {
-    match script {
-      LayoutScript::UpdateDatabaseLayout { layout } => {
-        self
-          .database_test
-          .editor
-          .update_view_layout(&self.database_test.view_id, layout)
-          .await
-          .unwrap();
-      },
-      LayoutScript::AssertAllCalendarEventsCount { expected } => {
-        let events = self
-          .database_test
-          .editor
-          .get_all_calendar_events(&self.database_test.view_id)
-          .await;
-        assert_eq!(events.len(), expected);
-      },
-      LayoutScript::AssertBoardLayoutSetting { expected } => {
-        let view_id = self.database_test.view_id.clone();
-        let layout_ty = DatabaseLayout::Board;
+  pub async fn assert_all_calendar_events_count(&self, expected: usize) {
+    let events = self
+      .database_test
+      .editor
+      .get_all_calendar_events(&self.database_test.view_id)
+      .await;
+    assert_eq!(events.len(), expected);
+  }
 
-        let layout_settings = self.get_layout_setting(&view_id, layout_ty).await;
+  pub async fn assert_board_layout_setting(&self, expected: BoardLayoutSetting) {
+    let view_id = self.database_test.view_id.clone();
+    let layout_ty = DatabaseLayout::Board;
 
-        assert!(layout_settings.calendar.is_none());
-        assert_eq!(
-          layout_settings.board.unwrap().hide_ungrouped_column,
-          expected.hide_ungrouped_column
-        );
-      },
-      LayoutScript::AssertCalendarLayoutSetting { expected } => {
-        let view_id = self.database_test.view_id.clone();
-        let layout_ty = DatabaseLayout::Calendar;
+    let layout_settings = self.get_layout_setting(&view_id, layout_ty).await;
 
-        let layout_settings = self.get_layout_setting(&view_id, layout_ty).await;
+    assert!(layout_settings.calendar.is_none());
+    assert_eq!(
+      layout_settings.board.unwrap().hide_ungrouped_column,
+      expected.hide_ungrouped_column
+    );
+  }
 
-        assert!(layout_settings.board.is_none());
+  pub async fn assert_calendar_layout_setting(&self, expected: CalendarLayoutSetting) {
+    let view_id = self.database_test.view_id.clone();
+    let layout_ty = DatabaseLayout::Calendar;
 
-        let calendar_setting = layout_settings.calendar.unwrap();
-        assert_eq!(calendar_setting.layout_ty, expected.layout_ty);
-        assert_eq!(
-          calendar_setting.first_day_of_week,
-          expected.first_day_of_week
-        );
-        assert_eq!(calendar_setting.show_weekends, expected.show_weekends);
-      },
-      LayoutScript::UpdateBoardLayoutSetting { new_setting } => {
-        let changeset = LayoutSettingChangeset {
-          view_id: self.database_test.view_id.clone(),
-          layout_type: DatabaseLayout::Board,
-          board: Some(new_setting),
-          calendar: None,
-        };
-        self
-          .database_test
-          .editor
-          .set_layout_setting(&self.database_test.view_id, changeset)
-          .await
-          .unwrap()
-      },
-      LayoutScript::AssertDefaultAllCalendarEvents => {
-        let events = self
-          .database_test
-          .editor
-          .get_all_calendar_events(&self.database_test.view_id)
-          .await;
-        assert_eq!(events.len(), 5);
+    let layout_settings = self.get_layout_setting(&view_id, layout_ty).await;
 
-        for (index, event) in events.into_iter().enumerate() {
-          if index == 0 {
-            assert_eq!(event.title, "A");
-            assert_eq!(event.timestamp, Some(1678090778));
-          }
+    assert!(layout_settings.board.is_none());
 
-          if index == 1 {
-            assert_eq!(event.title, "B");
-            assert_eq!(event.timestamp, Some(1677917978));
-          }
-          if index == 2 {
-            assert_eq!(event.title, "C");
-            assert_eq!(event.timestamp, Some(1679213978));
-          }
-          if index == 4 {
-            assert_eq!(event.title, "E");
-            assert_eq!(event.timestamp, Some(1678695578));
-          }
-        }
-      },
+    let calendar_setting = layout_settings.calendar.unwrap();
+    assert_eq!(calendar_setting.layout_ty, expected.layout_ty);
+    assert_eq!(
+      calendar_setting.first_day_of_week,
+      expected.first_day_of_week
+    );
+    assert_eq!(calendar_setting.show_weekends, expected.show_weekends);
+  }
+
+  pub async fn update_board_layout_setting(&mut self, new_setting: BoardLayoutSetting) {
+    let changeset = LayoutSettingChangeset {
+      view_id: self.database_test.view_id.clone(),
+      layout_type: DatabaseLayout::Board,
+      board: Some(new_setting),
+      calendar: None,
+    };
+    self
+      .database_test
+      .editor
+      .set_layout_setting(&self.database_test.view_id, changeset)
+      .await
+      .unwrap();
+  }
+
+  pub async fn assert_default_all_calendar_events(&self) {
+    let events = self
+      .database_test
+      .editor
+      .get_all_calendar_events(&self.database_test.view_id)
+      .await;
+    assert_eq!(events.len(), 5);
+
+    for (index, event) in events.into_iter().enumerate() {
+      match index {
+        0 => {
+          assert_eq!(event.title, "A");
+          assert_eq!(event.timestamp, Some(1678090778));
+        },
+        1 => {
+          assert_eq!(event.title, "B");
+          assert_eq!(event.timestamp, Some(1677917978));
+        },
+        2 => {
+          assert_eq!(event.title, "C");
+          assert_eq!(event.timestamp, Some(1679213978));
+        },
+        4 => {
+          assert_eq!(event.title, "E");
+          assert_eq!(event.timestamp, Some(1678695578));
+        },
+        _ => {},
+      }
     }
   }
 }

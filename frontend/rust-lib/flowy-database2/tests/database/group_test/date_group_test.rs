@@ -1,13 +1,8 @@
-use std::collections::HashMap;
-use std::vec;
-
-use chrono::NaiveDateTime;
-use chrono::{offset, Duration};
+use crate::database::group_test::script::DatabaseGroupTest;
+use chrono::{offset, Duration, NaiveDateTime};
 use collab_database::fields::date_type_option::DateCellData;
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
-
-use crate::database::group_test::script::DatabaseGroupTest;
-use crate::database::group_test::script::GroupScript::*;
+use std::collections::HashMap;
 
 #[tokio::test]
 async fn group_by_date_test() {
@@ -52,136 +47,68 @@ async fn group_by_date_test() {
     .format("%Y/%m/%d")
     .to_string();
 
-  let scripts = vec![
-    GroupByField {
-      field_id: date_field.id.clone(),
-    },
-    AssertGroupCount(7),
-    AssertGroupRowCount {
-      group_index: 0,
-      row_count: 0,
-    },
-    // Added via `make_test_board`
-    AssertGroupId {
-      group_index: 1,
-      group_id: "2022/03/01".to_string(),
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 3,
-    },
-    // Added via `make_test_board`
-    AssertGroupId {
-      group_index: 2,
-      group_id: "2022/11/01".to_string(),
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 2,
-    },
-    AssertGroupId {
-      group_index: 3,
-      group_id: last_30_days,
-    },
-    AssertGroupRowCount {
-      group_index: 3,
-      row_count: 1,
-    },
-    AssertGroupId {
-      group_index: 4,
-      group_id: last_day,
-    },
-    AssertGroupRowCount {
-      group_index: 4,
-      row_count: 2,
-    },
-    AssertGroupId {
-      group_index: 5,
-      group_id: today.format("%Y/%m/%d").to_string(),
-    },
-    AssertGroupRowCount {
-      group_index: 5,
-      row_count: 1,
-    },
-    AssertGroupId {
-      group_index: 6,
-      group_id: next_7_days,
-    },
-    AssertGroupRowCount {
-      group_index: 6,
-      row_count: 1,
-    },
-  ];
-  test.run_scripts(scripts).await;
+  // Group by date field
+  test.group_by_field(&date_field.id).await;
+  test.assert_group_count(7).await;
+
+  test.assert_group_row_count(0, 0).await; // Empty group
+  test.assert_group_id(1, "2022/03/01").await;
+  test.assert_group_row_count(1, 3).await;
+  test.assert_group_id(2, "2022/11/01").await;
+  test.assert_group_row_count(2, 2).await;
+  test.assert_group_id(3, &last_30_days).await;
+  test.assert_group_row_count(3, 1).await;
+  test.assert_group_id(4, &last_day).await;
+  test.assert_group_row_count(4, 2).await;
+  test
+    .assert_group_id(5, &today.format("%Y/%m/%d").to_string())
+    .await;
+  test.assert_group_row_count(5, 1).await;
+  test.assert_group_id(6, &next_7_days).await;
+  test.assert_group_row_count(6, 1).await;
 }
 
 #[tokio::test]
 async fn change_row_group_on_date_cell_changed_test() {
   let mut test = DatabaseGroupTest::new().await;
   let date_field = test.get_field(FieldType::DateTime).await;
-  let scripts = vec![
-    GroupByField {
-      field_id: date_field.id.clone(),
-    },
-    AssertGroupCount(3),
-    // Nov 2, 2022
-    UpdateGroupedCellWithData {
-      from_group_index: 1,
-      row_index: 0,
-      cell_data: "1667408732".to_string(),
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  // Group by date field
+  test.group_by_field(&date_field.id).await;
+  test.assert_group_count(3).await;
+
+  // Update date cell to a new timestamp
+  test
+    .update_grouped_cell_with_data(1, 0, "1667408732".to_string())
+    .await;
+
+  // Check that row counts in groups have updated correctly
+  test.assert_group_row_count(1, 2).await;
+  test.assert_group_row_count(2, 3).await;
 }
 
 #[tokio::test]
 async fn change_date_on_moving_row_to_another_group() {
   let mut test = DatabaseGroupTest::new().await;
   let date_field = test.get_field(FieldType::DateTime).await;
-  let scripts = vec![
-    GroupByField {
-      field_id: date_field.id.clone(),
-    },
-    AssertGroupCount(3),
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 3,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 2,
-    },
-    MoveRow {
-      from_group_index: 1,
-      from_row_index: 0,
-      to_group_index: 2,
-      to_row_index: 0,
-    },
-    AssertGroupRowCount {
-      group_index: 1,
-      row_count: 2,
-    },
-    AssertGroupRowCount {
-      group_index: 2,
-      row_count: 3,
-    },
-    AssertGroupId {
-      group_index: 2,
-      group_id: "2022/11/01".to_string(),
-    },
-  ];
-  test.run_scripts(scripts).await;
 
+  // Group by date field
+  test.group_by_field(&date_field.id).await;
+  test.assert_group_count(3).await;
+  test.assert_group_row_count(1, 3).await;
+  test.assert_group_row_count(2, 2).await;
+
+  // Move a row from one group to another
+  test.move_row(1, 0, 2, 0).await;
+
+  // Verify row counts after the move
+  test.assert_group_row_count(1, 2).await;
+  test.assert_group_row_count(2, 3).await;
+  test.assert_group_id(2, "2022/11/01").await;
+
+  // Verify the timestamp of the moved row matches the new group's date
   let group = test.group_at_index(2).await;
-  let rows = group.clone().rows;
+  let rows = group.rows;
   let row_id = &rows.first().unwrap().id;
   let row = test
     .get_rows()
@@ -189,13 +116,13 @@ async fn change_date_on_moving_row_to_another_group() {
     .into_iter()
     .find(|r| r.id.to_string() == *row_id)
     .unwrap();
-  let cell = row.cells.get(&date_field.id.clone()).unwrap();
+  let cell = row.cells.get(&date_field.id).unwrap();
   let date_cell = DateCellData::from(cell);
 
-  let date_time =
+  let expected_date_time =
     NaiveDateTime::parse_from_str("2022/11/01 00:00:00", "%Y/%m/%d %H:%M:%S").unwrap();
   assert_eq!(
-    date_time.and_utc().timestamp(),
+    expected_date_time.and_utc().timestamp(),
     date_cell.timestamp.unwrap()
   );
 }

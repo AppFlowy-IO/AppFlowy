@@ -1,9 +1,6 @@
-use collab_database::views::DatabaseLayout;
-use flowy_database2::services::setting::BoardLayoutSetting;
-use flowy_database2::services::setting::CalendarLayoutSetting;
-
 use crate::database::layout_test::script::DatabaseLayoutTest;
-use crate::database::layout_test::script::LayoutScript::*;
+use collab_database::views::DatabaseLayout;
+use flowy_database2::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 #[tokio::test]
 async fn board_layout_setting_test() {
@@ -13,18 +10,17 @@ async fn board_layout_setting_test() {
     hide_ungrouped_column: true,
     ..default_board_setting
   };
-  let scripts = vec![
-    AssertBoardLayoutSetting {
-      expected: default_board_setting,
-    },
-    UpdateBoardLayoutSetting {
-      new_setting: new_board_setting.clone(),
-    },
-    AssertBoardLayoutSetting {
-      expected: new_board_setting,
-    },
-  ];
-  test.run_scripts(scripts).await;
+
+  // Assert the initial default board layout setting
+  test
+    .assert_board_layout_setting(default_board_setting)
+    .await;
+
+  // Update the board layout setting and assert the changes
+  test
+    .update_board_layout_setting(new_board_setting.clone())
+    .await;
+  test.assert_board_layout_setting(new_board_setting).await;
 }
 
 #[tokio::test]
@@ -32,27 +28,26 @@ async fn calendar_initial_layout_setting_test() {
   let mut test = DatabaseLayoutTest::new_calendar().await;
   let date_field = test.get_first_date_field().await;
   let default_calendar_setting = CalendarLayoutSetting::new(date_field.id.clone());
-  let scripts = vec![AssertCalendarLayoutSetting {
-    expected: default_calendar_setting,
-  }];
-  test.run_scripts(scripts).await;
+
+  // Assert the initial calendar layout setting
+  test
+    .assert_calendar_layout_setting(default_calendar_setting)
+    .await;
 }
 
 #[tokio::test]
 async fn calendar_get_events_test() {
   let mut test = DatabaseLayoutTest::new_calendar().await;
-  let scripts = vec![AssertDefaultAllCalendarEvents];
-  test.run_scripts(scripts).await;
+
+  // Assert the default calendar events
+  test.assert_default_all_calendar_events().await;
 }
 
 #[tokio::test]
 async fn grid_to_calendar_layout_test() {
   let mut test = DatabaseLayoutTest::new_no_date_grid().await;
-  let scripts = vec![
-    UpdateDatabaseLayout {
-      layout: DatabaseLayout::Calendar,
-    },
-    AssertAllCalendarEventsCount { expected: 3 },
-  ];
-  test.run_scripts(scripts).await;
+
+  // Update layout to calendar and assert the number of calendar events
+  test.update_database_layout(DatabaseLayout::Calendar).await;
+  test.assert_all_calendar_events_count(3).await;
 }
