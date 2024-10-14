@@ -42,11 +42,7 @@ typedef ViewItemRightIconsBuilder = List<Widget> Function(
   ViewPB view,
 );
 
-enum IgnoreViewType {
-  none,
-  hide,
-  disable,
-}
+enum IgnoreViewType { none, hide, disable }
 
 class ViewItem extends StatelessWidget {
   const ViewItem({
@@ -73,6 +69,7 @@ class ViewItem extends StatelessWidget {
     this.extendBuilder,
     this.disableSelectedStatus,
     this.shouldIgnoreView,
+    this.enableRightClickContext = false,
   });
 
   final ViewPB view;
@@ -134,6 +131,10 @@ class ViewItem extends StatelessWidget {
   // ignore the views when rendering the child views
   final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
+  /// Whether to add right-click to show the view action context menu
+  ///
+  final bool enableRightClickContext;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -148,13 +149,10 @@ class ViewItem extends StatelessWidget {
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
           // filter the child views that should be ignored
-          var childViews = state.view.childViews;
+          List<ViewPB> childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where(
-                  (childView) =>
-                      shouldIgnoreView!(childView) != IgnoreViewType.hide,
-                )
+                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
                 .toList();
           }
 
@@ -166,6 +164,7 @@ class ViewItem extends StatelessWidget {
             level: level,
             leftPadding: leftPadding,
             showActions: state.isEditing,
+            enableRightClickContext: enableRightClickContext,
             isExpanded: state.isExpanded,
             disableSelectedStatus: disableSelectedStatus,
             onSelected: onSelected,
@@ -192,9 +191,7 @@ class ViewItem extends StatelessWidget {
                 message: LocaleKeys.space_cannotMovePageToDatabase.tr(),
                 child: MouseRegion(
                   cursor: SystemMouseCursors.forbidden,
-                  child: IgnorePointer(
-                    child: child,
-                  ),
+                  child: IgnorePointer(child: child),
                 ),
               ),
             );
@@ -207,6 +204,7 @@ class ViewItem extends StatelessWidget {
   }
 }
 
+// TODO: We shouldn't have local global variables
 bool _isDragging = false;
 
 class InnerViewItem extends StatefulWidget {
@@ -221,6 +219,7 @@ class InnerViewItem extends StatefulWidget {
     required this.level,
     required this.leftPadding,
     required this.showActions,
+    this.enableRightClickContext = false,
     required this.onSelected,
     this.onTertiarySelected,
     this.isFirstChild = false,
@@ -253,6 +252,7 @@ class InnerViewItem extends StatefulWidget {
   final double leftPadding;
 
   final bool showActions;
+  final bool enableRightClickContext;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final double height;
@@ -297,6 +297,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           parentView: widget.parentView,
           level: widget.level,
           showActions: widget.showActions,
+          enableRightClickContext: widget.enableRightClickContext,
           spaceType: widget.spaceType,
           onSelected: widget.onSelected,
           onTertiarySelected: widget.onTertiarySelected,
@@ -329,6 +330,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           isFirstChild: childView.id == widget.childViews.first.id,
           view: childView,
           level: widget.level + 1,
+          enableRightClickContext: widget.enableRightClickContext,
           onSelected: widget.onSelected,
           onTertiarySelected: widget.onTertiarySelected,
           isDraggable: widget.isDraggable,
@@ -346,10 +348,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
 
       child = Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          ...children,
-        ],
+        children: [child, ...children],
       );
     }
 
@@ -359,9 +358,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
       child = DraggableViewItem(
         isFirstChild: widget.isFirstChild,
         view: widget.view,
-        onDragging: (isDragging) {
-          _isDragging = isDragging;
-        },
+        onDragging: (isDragging) => _isDragging = isDragging,
         onMove: widget.isPlaceholder
             ? (from, to) => moveViewCrossSpace(
                   context,
@@ -373,32 +370,31 @@ class _InnerViewItemState extends State<InnerViewItem> {
                   to.parentViewId,
                 )
             : null,
-        feedback: (context) {
-          return Container(
-            width: 250,
-            decoration: BoxDecoration(
-              color: Brightness.light == Theme.of(context).brightness
-                  ? Colors.white
-                  : Colors.black54,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ViewItem(
-              view: widget.view,
-              parentView: widget.parentView,
-              spaceType: widget.spaceType,
-              level: widget.level,
-              onSelected: widget.onSelected,
-              onTertiarySelected: widget.onTertiarySelected,
-              isDraggable: false,
-              leftPadding: widget.leftPadding,
-              isFeedback: true,
-              leftIconBuilder: widget.leftIconBuilder,
-              rightIconsBuilder: widget.rightIconsBuilder,
-              extendBuilder: widget.extendBuilder,
-              shouldIgnoreView: widget.shouldIgnoreView,
-            ),
-          );
-        },
+        feedback: (context) => Container(
+          width: 250,
+          decoration: BoxDecoration(
+            color: Brightness.light == Theme.of(context).brightness
+                ? Colors.white
+                : Colors.black54,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ViewItem(
+            view: widget.view,
+            parentView: widget.parentView,
+            spaceType: widget.spaceType,
+            level: widget.level,
+            onSelected: widget.onSelected,
+            onTertiarySelected: widget.onTertiarySelected,
+            isDraggable: false,
+            leftPadding: widget.leftPadding,
+            isFeedback: true,
+            enableRightClickContext: widget.enableRightClickContext,
+            leftIconBuilder: widget.leftIconBuilder,
+            rightIconsBuilder: widget.rightIconsBuilder,
+            extendBuilder: widget.extendBuilder,
+            shouldIgnoreView: widget.shouldIgnoreView,
+          ),
+        ),
         child: child,
       );
     } else {
@@ -430,6 +426,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.isDraggable = true,
     required this.spaceType,
     required this.showActions,
+    this.enableRightClickContext = false,
     required this.onSelected,
     this.onTertiarySelected,
     required this.isFeedback,
@@ -456,6 +453,7 @@ class SingleInnerViewItem extends StatefulWidget {
 
   final bool isDraggable;
   final bool showActions;
+  final bool enableRightClickContext;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final FolderSpaceType spaceType;
@@ -482,17 +480,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    var isSelected = widget.isSelected;
+    bool isSelected = widget.isSelected;
 
     if (widget.disableSelectedStatus == true) {
       isSelected = false;
     }
 
     if (widget.isPlaceholder) {
-      return const SizedBox(
-        height: 4,
-        width: double.infinity,
-      );
+      return const SizedBox(height: 4, width: double.infinity);
     }
 
     if (widget.isFeedback || !widget.isHoverEnabled) {
@@ -503,14 +498,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     }
 
     return FlowyHover(
-      style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.secondary,
-      ),
+      style: HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
       resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
-      builder: (_, onHover) => _buildViewItem(onHover, isSelected),
       isSelected: () => widget.showActions || isSelected,
+      builder: (_, onHover) => _buildViewItem(onHover, isSelected),
     );
   }
 
@@ -532,16 +525,16 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       _buildViewIconButton(),
       const HSpace(6),
       // title
-      widget.extendBuilder != null
-          ? Expanded(
-              child: Row(
+      Expanded(
+        child: widget.extendBuilder != null
+            ? Row(
                 children: [
                   Flexible(child: name),
                   ...widget.extendBuilder!(widget.view),
                 ],
-              ),
-            )
-          : Expanded(child: name),
+              )
+            : name,
+      ),
     ];
 
     // hover action
@@ -573,23 +566,34 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    final child = GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => widget.onSelected(context, widget.view),
-      onTertiaryTapDown: (_) =>
-          widget.onTertiarySelected?.call(context, widget.view),
-      child: _buildViewMoreActionButton(
-        context,
-        showAtCursor: true,
-        (_) => SizedBox(
-          height: widget.height,
-          child: Padding(
-            padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-            child: Row(children: children),
+    Widget child;
+    if (widget.enableRightClickContext) {
+      child = GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => widget.onSelected(context, widget.view),
+        onTertiaryTapDown: (_) =>
+            widget.onTertiarySelected?.call(context, widget.view),
+        child: _buildViewMoreActionButton(
+          context,
+          showAtCursor: true,
+          (_) => SizedBox(
+            height: widget.height,
+            child: Padding(
+              padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+              child: Row(children: children),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      child = SizedBox(
+        height: widget.height,
+        child: Padding(
+          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+          child: Row(children: children),
+        ),
+      );
+    }
 
     if (isSelected) {
       final popoverController = getIt<RenameViewBloc>().state.controller;
@@ -708,9 +712,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       );
     }
 
-    viewBloc.add(
-      const ViewEvent.setIsExpanded(true),
-    );
+    viewBloc.add(const ViewEvent.setIsExpanded(true));
   }
 
   // ··· more action button
@@ -756,17 +758,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             case ViewMoreActionType.delete:
               // get if current page contains published child views
               final (containPublishedPage, _) =
-                  await ViewBackendService.containPublishedPage(
-                widget.view,
-              );
+                  await ViewBackendService.containPublishedPage(widget.view);
               if (containPublishedPage && context.mounted) {
                 await showConfirmDeletionDialog(
                   context: context,
                   name: widget.view.name,
                   description: LocaleKeys.publish_containsPublishedPage.tr(),
-                  onConfirm: () {
-                    context.read<ViewBloc>().add(const ViewEvent.delete());
-                  },
+                  onConfirm: () =>
+                      context.read<ViewBloc>().add(const ViewEvent.delete()),
                 );
               } else if (context.mounted) {
                 context.read<ViewBloc>().add(const ViewEvent.delete());
@@ -887,15 +886,7 @@ void moveViewCrossSpace(
     context.read<ViewBloc>().add(const ViewEvent.unpublish(sync: false));
   }
 
-  context.read<ViewBloc>().add(
-        ViewEvent.move(
-          from,
-          toId,
-          null,
-          null,
-          null,
-        ),
-      );
+  context.read<ViewBloc>().add(ViewEvent.move(from, toId, null, null, null));
 }
 
 class ViewItemDefaultLeftIcon extends StatelessWidget {
@@ -940,9 +931,8 @@ class ViewItemDefaultLeftIcon extends StatelessWidget {
     if (isHovered != null) {
       return ValueListenableBuilder<bool>(
         valueListenable: isHovered!,
-        builder: (_, isHovered, child) {
-          return Opacity(opacity: isHovered ? 1.0 : 0.0, child: child);
-        },
+        builder: (_, isHovered, child) =>
+            Opacity(opacity: isHovered ? 1.0 : 0.0, child: child),
         child: child,
       );
     }

@@ -593,6 +593,7 @@ class SpacePages extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,
+                    enableRightClickContext: !disableSelectedStatus,
                     disableSelectedStatus: disableSelectedStatus,
                     isExpandedNotifier: isExpandedNotifier,
                     rightIconsBuilder: rightIconsBuilder,
