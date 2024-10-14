@@ -7,6 +7,7 @@ enum ActionType {
 class ActionArgumentKeys {
   static String view = "view";
   static String nodePath = "node_path";
+  static String blockId = "block_id";
   static String rowId = "row_id";
 }
 

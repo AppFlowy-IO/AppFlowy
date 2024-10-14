@@ -178,10 +178,14 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 UniversalPlatform.isDesktop) {
               final view = action!.arguments?[ActionArgumentKeys.view];
               final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+              final blockId = action.arguments?[ActionArgumentKeys.blockId];
               if (view != null) {
                 getIt<TabsBloc>().openPlugin(
                   view.plugin(),
-                  arguments: {PluginArgumentKeys.selection: nodePath},
+                  arguments: {
+                    PluginArgumentKeys.selection: nodePath,
+                    PluginArgumentKeys.blockId: blockId,
+                  },
                 );
               }
             } else if (action?.type == ActionType.openRow &&
