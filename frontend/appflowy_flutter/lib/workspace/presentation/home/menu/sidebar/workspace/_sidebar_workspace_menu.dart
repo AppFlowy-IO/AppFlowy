@@ -321,7 +321,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
     return SizedBox(
       height: 40,
       child: FlowyButton(
-        key: importNotionButtonKey,
+        key: createWorkspaceButtonKey,
         onTap: () {
           _showCreateWorkspaceDialog(context);
           PopoverContainer.of(context).closeAll();
@@ -376,7 +376,7 @@ class _ImportNotionButton extends StatelessWidget {
     return SizedBox(
       height: 40,
       child: FlowyButton(
-        key: createWorkspaceButtonKey,
+        key: importNotionButtonKey,
         onTap: () {
           _showImportNotinoDialog(context);
         },
