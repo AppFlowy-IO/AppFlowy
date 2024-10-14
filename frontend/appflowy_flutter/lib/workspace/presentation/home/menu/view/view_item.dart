@@ -566,34 +566,29 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    Widget child;
+    Widget child = SizedBox(
+      height: widget.height,
+      child: Padding(
+        padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+        child: Row(children: children),
+      ),
+    );
+
     if (widget.enableRightClickContext) {
-      child = GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => widget.onSelected(context, widget.view),
-        onTertiaryTapDown: (_) =>
-            widget.onTertiarySelected?.call(context, widget.view),
-        child: _buildViewMoreActionButton(
-          context,
-          showAtCursor: true,
-          (_) => SizedBox(
-            height: widget.height,
-            child: Padding(
-              padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-              child: Row(children: children),
-            ),
-          ),
-        ),
-      );
-    } else {
-      child = SizedBox(
-        height: widget.height,
-        child: Padding(
-          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: Row(children: children),
-        ),
+      child = _buildViewMoreActionButton(
+        context,
+        showAtCursor: true,
+        (_) => child,
       );
     }
+
+    child = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => widget.onSelected(context, widget.view),
+      onTertiaryTapDown: (_) =>
+          widget.onTertiarySelected?.call(context, widget.view),
+      child: child,
+    );
 
     if (isSelected) {
       final popoverController = getIt<RenameViewBloc>().state.controller;
