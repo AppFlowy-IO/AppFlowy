@@ -89,7 +89,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
             return const SizedBox.shrink();
           }
 
-          if (state.isDeleted || view == null) {
+          if (view == null) {
             return _NoAccessMentionPageBlock(
               textStyle: widget.textStyle,
             );
