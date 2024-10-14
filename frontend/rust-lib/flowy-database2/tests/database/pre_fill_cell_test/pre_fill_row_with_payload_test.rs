@@ -18,11 +18,12 @@ async fn row_data_payload_with_empty_hashmap_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(text_field.id.clone(), test.rows.len(), false)
+    .assert_cell_existence(text_field.id.clone(), index, false)
     .await;
   test
-    .assert_cell_content(text_field.id, test.rows.len(), "".to_string())
+    .assert_cell_content(text_field.id, index, "".to_string())
     .await;
 }
 
@@ -44,14 +45,15 @@ async fn row_data_payload_with_unknown_field_id_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(text_field.id.clone(), test.rows.len(), false)
+    .assert_cell_existence(text_field.id.clone(), index, false)
     .await;
   test
-    .assert_cell_content(text_field.id.clone(), test.rows.len(), "".to_string())
+    .assert_cell_content(text_field.id.clone(), index, "".to_string())
     .await;
   test
-    .assert_cell_existence(malformed_field_id.to_string(), test.rows.len(), false)
+    .assert_cell_existence(malformed_field_id.to_string(), index, false)
     .await;
 }
 
@@ -70,11 +72,12 @@ async fn row_data_payload_with_empty_string_text_data_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(text_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(text_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(text_field.id, test.rows.len(), cell_data.to_string())
+    .assert_cell_content(text_field.id, index, cell_data.to_string())
     .await;
 }
 
@@ -93,15 +96,12 @@ async fn row_data_payload_with_text_data_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(text_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(text_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(
-      text_field.id.clone(),
-      test.rows.len(),
-      cell_data.to_string(),
-    )
+    .assert_cell_content(text_field.id.clone(), index, cell_data.to_string())
     .await;
 }
 
@@ -129,23 +129,24 @@ async fn row_data_payload_with_multi_text_data_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(text_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(text_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(text_field.id, test.rows.len(), text_cell_data.to_string())
+    .assert_cell_content(text_field.id, index, text_cell_data.to_string())
     .await;
   test
-    .assert_cell_existence(number_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(number_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(number_field.id, test.rows.len(), "$1,234".to_string())
+    .assert_cell_content(number_field.id, index, "$1,234".to_string())
     .await;
   test
-    .assert_cell_existence(url_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(url_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(url_field.id, test.rows.len(), url_cell_data.to_string())
+    .assert_cell_content(url_field.id, index, url_cell_data.to_string())
     .await;
 }
 
@@ -164,15 +165,12 @@ async fn row_data_payload_with_date_time_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(date_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(date_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(
-      date_field.id.clone(),
-      test.rows.len(),
-      "2024/03/15".to_string(),
-    )
+    .assert_cell_content(date_field.id.clone(), index, "2024/03/15".to_string())
     .await;
 }
 
@@ -195,8 +193,9 @@ async fn row_data_payload_with_invalid_date_time_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(date_field.id.clone(), test.rows.len(), false)
+    .assert_cell_existence(date_field.id.clone(), index, false)
     .await;
 }
 
@@ -213,17 +212,13 @@ async fn row_data_payload_with_checkbox_test() {
       ..Default::default()
     })
     .await;
-
+  let index = test.rows.len() - 1;
   test.wait(100).await;
   test
-    .assert_cell_existence(checkbox_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(checkbox_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(
-      checkbox_field.id.clone(),
-      test.rows.len(),
-      cell_data.to_string(),
-    )
+    .assert_cell_content(checkbox_field.id.clone(), index, cell_data.to_string())
     .await;
 }
 
@@ -256,15 +251,12 @@ async fn row_data_payload_with_select_option_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(multi_select_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(multi_select_field.id.clone(), index, true)
     .await;
   test
-    .assert_cell_content(
-      multi_select_field.id.clone(),
-      test.rows.len(),
-      stringified_cell_data,
-    )
+    .assert_cell_content(multi_select_field.id.clone(), index, stringified_cell_data)
     .await;
 }
 
@@ -288,11 +280,12 @@ async fn row_data_payload_with_invalid_select_option_id_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(multi_select_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(multi_select_field.id.clone(), index, true)
     .await;
   test
-    .assert_select_option_cell_strict(multi_select_field.id.clone(), test.rows.len(), first_id)
+    .assert_select_option_cell_strict(multi_select_field.id.clone(), index, first_id)
     .await;
 }
 
@@ -321,14 +314,11 @@ async fn row_data_payload_with_too_many_select_option_test() {
     .await;
 
   test.wait(100).await;
+  let index = test.rows.len() - 1;
   test
-    .assert_cell_existence(single_select_field.id.clone(), test.rows.len(), true)
+    .assert_cell_existence(single_select_field.id.clone(), index, true)
     .await;
   test
-    .assert_select_option_cell_strict(
-      single_select_field.id.clone(),
-      test.rows.len(),
-      stringified_cell_data,
-    )
+    .assert_select_option_cell_strict(single_select_field.id.clone(), index, stringified_cell_data)
     .await;
 }

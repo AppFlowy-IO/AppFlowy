@@ -216,7 +216,7 @@ async fn according_to_invalid_date_time_is_filter_test() {
   test.assert_row_count(8).await;
 
   test
-    .assert_cell_existence(datetime_field.id.clone(), test.rows.len(), false)
+    .assert_cell_existence(datetime_field.id.clone(), test.rows.len() - 1, false)
     .await;
 }
 
