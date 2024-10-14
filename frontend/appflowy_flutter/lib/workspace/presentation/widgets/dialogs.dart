@@ -16,6 +16,62 @@ import 'package:universal_platform/universal_platform.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
+class NavigatorCustomDialog extends StatefulWidget {
+  const NavigatorCustomDialog({
+    super.key,
+    required this.child,
+    this.cancel,
+    this.confirm,
+    this.hideCancelButton = false,
+  });
+
+  final Widget child;
+  final void Function()? cancel;
+  final void Function()? confirm;
+  final bool hideCancelButton;
+
+  @override
+  State<NavigatorCustomDialog> createState() => _NavigatorCustomDialog();
+}
+
+class _NavigatorCustomDialog extends State<NavigatorCustomDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return StyledDialog(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ...[
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 400,
+                maxHeight: 260,
+              ),
+              child: widget.child,
+            ),
+          ],
+          if (widget.confirm != null) ...[
+            const VSpace(20),
+            OkCancelButton(
+              onOkPressed: () {
+                widget.confirm?.call();
+                Navigator.of(context).pop();
+              },
+              onCancelPressed: widget.hideCancelButton
+                  ? null
+                  : () {
+                      widget.cancel?.call();
+                      Navigator.of(context).pop();
+                    },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class NavigatorTextFieldDialog extends StatefulWidget {
   const NavigatorTextFieldDialog({
     super.key,
