@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
@@ -17,6 +15,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 Node subPageNode({String? viewId}) {
@@ -60,7 +59,7 @@ class SubPageBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => node.delta == null && node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.children.isEmpty;
 }
 
 class SubPageBlockComponent extends BlockComponentStatefulWidget {

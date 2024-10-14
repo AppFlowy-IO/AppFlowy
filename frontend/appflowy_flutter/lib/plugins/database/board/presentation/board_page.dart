@@ -292,6 +292,14 @@ class _BoardContentState extends State<_BoardContent> {
               ready: (value) {
                 widget.onEditStateChanged?.call();
               },
+              openRowDetail: (value) {
+                _openCard(
+                  context: context,
+                  databaseController:
+                      context.read<BoardBloc>().databaseController,
+                  rowMeta: value.rowMeta,
+                );
+              },
               orElse: () {},
             );
           },

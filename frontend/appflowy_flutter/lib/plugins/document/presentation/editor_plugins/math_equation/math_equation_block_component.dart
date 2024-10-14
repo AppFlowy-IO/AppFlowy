@@ -82,7 +82,7 @@ class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) =>
+  BlockComponentValidate get validate => (node) =>
       node.children.isEmpty &&
       node.attributes[MathEquationBlockKeys.formula] is String;
 }

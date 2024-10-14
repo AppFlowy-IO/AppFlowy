@@ -8,6 +8,7 @@ use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
 use serde_json::to_vec;
+use std::path::PathBuf;
 use std::sync::Arc;
 use tracing::instrument;
 use uuid::Uuid;
@@ -260,11 +261,18 @@ where
 
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error> {
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.inner.try_get_client();
-    let namespace = try_get_client?
+    let namespace = self
+      .inner
+      .try_get_client()?
       .get_workspace_publish_namespace(&workspace_id)
       .await
       .map_err(FlowyError::from)?;
     Ok(namespace)
+  }
+
+  async fn import_zip(&self, file_path: &str) -> Result<(), Error> {
+    let file_path = PathBuf::from(file_path);
+    self.inner.try_get_client()?.import_file(&file_path).await?;
+    Ok(())
   }
 }

@@ -60,7 +60,7 @@ class OutlineBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.children.isEmpty;
 }
 
 class OutlineBlockWidget extends BlockComponentStatefulWidget {

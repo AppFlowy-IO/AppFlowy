@@ -46,6 +46,14 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             _startListening();
             await _openGrid(emit);
           },
+          openRowDetail: (row) {
+            emit(
+              state.copyWith(
+                createdRow: row,
+                openRowDetail: true,
+              ),
+            );
+          },
           createRow: (openRowDetail) async {
             final result = await RowBackendService.createRow(viewId: viewId);
             result.fold(
@@ -74,9 +82,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             emit(state.copyWith(rowInfos: rows));
 
             databaseController.moveRow(fromRowId: fromRow, toRowId: toRow);
-          },
-          didReceiveGridUpdate: (grid) {
-            emit(state.copyWith(grid: grid));
           },
           didReceiveFieldUpdate: (fields) {
             emit(
@@ -112,18 +117,20 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  RowCache getRowCache(RowId rowId) => databaseController.rowCache;
+  RowCache get rowCache => databaseController.rowCache;
 
   void _startListening() {
     final onDatabaseChanged = DatabaseCallbacks(
-      onDatabaseChanged: (database) {
-        if (!isClosed) {
-          add(GridEvent.didReceiveGridUpdate(database));
-        }
-      },
       onNumOfRowsChanged: (rowInfos, _, reason) {
         if (!isClosed) {
           add(GridEvent.didLoadRows(rowInfos, reason));
+        }
+      },
+      onRowsCreated: (rows) {
+        for (final row in rows) {
+          if (!isClosed && row.isHiddenInView) {
+            add(GridEvent.openRowDetail(row.rowMeta));
+          }
         }
       },
       onRowsUpdated: (rows, reason) {
@@ -176,6 +183,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 @freezed
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
+  const factory GridEvent.openRowDetail(RowMetaPB row) = _OpenRowDetail;
   const factory GridEvent.createRow({bool? openRowDetail}) = _CreateRow;
   const factory GridEvent.resetCreatedRow() = _ResetCreatedRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
@@ -188,10 +196,6 @@ class GridEvent with _$GridEvent {
     List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
 
-  const factory GridEvent.didReceiveGridUpdate(
-    DatabasePB grid,
-  ) = _DidReceiveGridUpdate;
-
   const factory GridEvent.didReceveFilters(List<DatabaseFilter> filters) =
       _DidReceiveFilters;
   const factory GridEvent.didReceveSorts(List<DatabaseSort> sorts) =
@@ -202,7 +206,6 @@ class GridEvent with _$GridEvent {
 class GridState with _$GridState {
   const factory GridState({
     required String viewId,
-    required DatabasePB? grid,
     required List<FieldInfo> fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
@@ -220,7 +223,6 @@ class GridState with _$GridState {
         rowInfos: [],
         rowCount: 0,
         createdRow: null,
-        grid: null,
         viewId: viewId,
         reorderable: true,
         loadingState: const LoadingState.loading(),

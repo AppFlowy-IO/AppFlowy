@@ -147,7 +147,7 @@ class ReminderReferenceService extends InlineActionsDelegate {
         node,
         start,
         end,
-        '\$',
+        MentionBlockKeys.mentionChar,
         attributes: {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.date.name,

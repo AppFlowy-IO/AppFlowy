@@ -34,25 +34,29 @@ export function NumberListIcon ({ block, className }: { block: NumberedListNode;
       return index;
     }
 
-    let prevPath = Path.previous(path);
+    try {
+      let prevPath = Path.previous(path);
 
-    while (prevPath) {
-      const prev = editor.node(prevPath);
+      while (prevPath) {
+        const prev = editor.node(prevPath);
 
-      const prevNode = prev[0] as Element;
+        const prevNode = prev[0] as Element;
 
-      if (prevNode.type === block.type) {
-        index += 1;
-        topNode = prevNode;
-      } else {
-        break;
+        if (prevNode.type === block.type) {
+          index += 1;
+          topNode = prevNode;
+        } else {
+          break;
+        }
+
+        if (prevPath.length === 1 && prevPath[0] === 0) {
+          return index;
+        }
+
+        prevPath = Path.previous(prevPath);
       }
-
-      if (prevPath.length === 1 && prevPath[0] === 0) {
-        return index;
-      }
-
-      prevPath = Path.previous(prevPath);
+    } catch (e) {
+      // do nothing
     }
 
     if (!topNode) {
