@@ -1,5 +1,6 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,10 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      // tap the mention block to jump to the page
+      await tester.tapButton(find.byType(MentionPageBlock));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('copy link to block(same page) and paste it in doc',
