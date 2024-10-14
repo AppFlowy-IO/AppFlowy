@@ -3,7 +3,7 @@ use crate::services::cell::insert_date_cell;
 use crate::services::field::TimestampCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
-use chrono::{Duration, NaiveDate};
+use chrono::{Duration, Local, NaiveDate, TimeZone};
 use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
@@ -67,7 +67,10 @@ impl DateFilterPB {
 
 #[inline]
 fn naive_date_from_timestamp(timestamp: i64) -> Option<NaiveDate> {
-  chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc().date())
+  Local
+    .timestamp_opt(timestamp, 0)
+    .single()
+    .map(|date_time| date_time.date_naive())
 }
 
 enum DateFilterStrategy {
@@ -139,20 +142,32 @@ impl PreFillCellsWithFilter for DateFilterPB {
       DateFilterConditionPB::DateStartsBefore | DateFilterConditionPB::DateEndsBefore => self
         .timestamp
         .and_then(|timestamp| {
-          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+          Local
+            .timestamp_opt(timestamp, 0)
+            .single()
+            .map(|date| date.naive_local())
         })
-        .map(|date_time| {
+        .and_then(|date_time| {
           let answer = date_time - Duration::days(1);
-          answer.and_utc().timestamp()
+          Local
+            .from_local_datetime(&answer)
+            .single()
+            .map(|date_time| date_time.timestamp())
         }),
       DateFilterConditionPB::DateStartsAfter | DateFilterConditionPB::DateEndsAfter => self
         .timestamp
         .and_then(|timestamp| {
-          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+          Local
+            .timestamp_opt(timestamp, 0)
+            .single()
+            .map(|date| date.naive_local())
         })
-        .map(|date_time| {
+        .and_then(|date_time| {
           let answer = date_time + Duration::days(1);
-          answer.and_utc().timestamp()
+          Local
+            .from_local_datetime(&answer)
+            .single()
+            .map(|date_time| date_time.timestamp())
         }),
       DateFilterConditionPB::DateStartsBetween | DateFilterConditionPB::DateEndsBetween => {
         self.start
