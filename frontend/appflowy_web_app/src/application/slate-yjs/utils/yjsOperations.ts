@@ -69,11 +69,16 @@ export function createEmptyDocument () {
   return doc;
 }
 
-export function getText (textId: string, sharedRoot: YSharedRoot) {
-
+export function getTextMap (sharedRoot: YSharedRoot) {
   const document = sharedRoot.get(YjsEditorKey.document);
   const meta = document.get(YjsEditorKey.meta) as YMeta;
-  const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
+
+  return meta.get(YjsEditorKey.text_map) as YTextMap;
+}
+
+export function getText (textId: string, sharedRoot: YSharedRoot) {
+
+  const textMap = getTextMap(sharedRoot);
 
   return textMap.get(textId);
 }
@@ -191,6 +196,8 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
   } else {
     Transforms.select(editor, Editor.start(editor, at));
   }
+
+  console.log('handleCollapsedBreakWithTxn', editor.selection);
 }
 
 export function removeRangeWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {

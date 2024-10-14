@@ -143,6 +143,7 @@ export const CustomEditor = {
 
       handleMergeBlockBackwardWithTxn(editor, node, point);
     } else {
+
       Transforms.collapse(editor, { edge: 'start' });
       removeRangeWithTxn(editor, sharedRoot, newAt);
     }

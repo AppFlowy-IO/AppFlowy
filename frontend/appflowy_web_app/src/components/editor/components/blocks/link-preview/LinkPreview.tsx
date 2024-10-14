@@ -90,5 +90,5 @@ export const LinkPreview = memo(
       </div>
     );
   }),
-);
+  (prev, next) => prev.node.data.url === next.node.data.url);
 export default LinkPreview;

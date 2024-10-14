@@ -64,6 +64,7 @@ export function yDataToSlateContent ({
     const yText = textId ? textMap.get(textId) : undefined;
 
     if (!yText) {
+
       if (children.length === 0) {
         children.push({
           text: '',
@@ -185,7 +186,7 @@ function dealWithEmptyAttribute (attributes: Record<string, any>) {
 }
 
 // Helper function to convert Slate text node to Delta insert
-function slateNodeToDeltaInsert (node: Text): YDelta {
+export function slateNodeToDeltaInsert (node: Text): YDelta {
   const { text, ...attributes } = node;
 
   return {
