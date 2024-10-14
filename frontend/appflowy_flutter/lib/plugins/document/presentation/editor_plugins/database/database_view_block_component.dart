@@ -36,7 +36,7 @@ class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) =>
+  BlockComponentValidate get validate => (node) =>
       node.children.isEmpty &&
       node.attributes[DatabaseBlockKeys.parentID] is String &&
       node.attributes[DatabaseBlockKeys.viewID] is String;

@@ -111,7 +111,7 @@ class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => node.delta == null && node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.children.isEmpty;
 }
 
 class CustomImageBlockComponent extends BlockComponentStatefulWidget {
