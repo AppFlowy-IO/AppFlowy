@@ -17,6 +17,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -176,12 +177,13 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (action?.type == ActionType.openView &&
                 UniversalPlatform.isDesktop) {
-              final view = action!.arguments?[ActionArgumentKeys.view];
+              final view =
+                  action!.arguments?[ActionArgumentKeys.view] as ViewPB?;
               final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
               final blockId = action.arguments?[ActionArgumentKeys.blockId];
               if (view != null) {
                 getIt<TabsBloc>().openPlugin(
-                  view.plugin(),
+                  view,
                   arguments: {
                     PluginArgumentKeys.selection: nodePath,
                     PluginArgumentKeys.blockId: blockId,

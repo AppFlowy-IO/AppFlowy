@@ -232,12 +232,15 @@ class _MentionPageBlockContent extends StatelessWidget {
                 ),
         ],
         const HSpace(2),
-        FlowyText(
-          text,
-          decoration: TextDecoration.underline,
-          fontSize: textStyle?.fontSize,
-          fontWeight: textStyle?.fontWeight,
-          lineHeight: textStyle?.height,
+        Flexible(
+          child: FlowyText(
+            text,
+            decoration: TextDecoration.underline,
+            fontSize: textStyle?.fontSize,
+            fontWeight: textStyle?.fontWeight,
+            lineHeight: textStyle?.height,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const HSpace(4),
       ],
