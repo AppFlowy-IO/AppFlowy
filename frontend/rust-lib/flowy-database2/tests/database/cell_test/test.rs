@@ -128,7 +128,7 @@ async fn url_cell_data_test() {
 
 #[tokio::test]
 async fn update_updated_at_field_on_other_cell_update() {
-  let mut test = DatabaseCellTest::new().await;
+  let test = DatabaseCellTest::new().await;
   let updated_at_field = test.get_first_field(FieldType::LastEditedTime).await;
 
   let text_field = test
