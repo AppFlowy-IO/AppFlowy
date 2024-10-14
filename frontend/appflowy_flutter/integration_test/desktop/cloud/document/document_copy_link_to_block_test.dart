@@ -1,4 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -100,6 +101,27 @@ void main() {
       // tap the mention block to jump to the page
       await tester.tapButton(find.byType(MentionPageBlock));
       await tester.pumpAndSettle();
+
+      // expect to go to the getting started page
+      final documentPage = find.byType(DocumentPage);
+      expect(documentPage, findsOneWidget);
+      expect(
+        tester.widget<DocumentPage>(documentPage).view.name,
+        Constants.gettingStartedPageName,
+      );
+      // and the block is selected
+      expect(
+        tester.widget<DocumentPage>(documentPage).initialBlockId,
+        mention[MentionBlockKeys.blockId],
+      );
+      expect(
+        tester.editor.getCurrentEditorState().selection,
+        Selection.collapsed(
+          Position(
+            path: [0],
+          ),
+        ),
+      );
     });
 
     testWidgets('copy link to block(same page) and paste it in doc',
