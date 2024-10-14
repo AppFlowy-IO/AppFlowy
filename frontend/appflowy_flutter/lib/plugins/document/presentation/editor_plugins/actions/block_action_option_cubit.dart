@@ -145,7 +145,11 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
   }
 
   Future<void> _copyLinkToBlock(Node node) async {
-    final viewId = getIt<DocumentBloc>().documentId;
+    final context = editorState.document.root.context;
+    final viewId = context?.read<DocumentBloc>().documentId;
+    if (viewId == null) {
+      return;
+    }
 
     final workspace = await FolderEventReadCurrentWorkspace().send();
     final workspaceId = workspace.fold(
