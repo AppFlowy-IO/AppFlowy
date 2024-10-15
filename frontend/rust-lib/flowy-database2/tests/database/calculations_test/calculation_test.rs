@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::database::calculations_test::script::DatabaseCalculationTest;
 use collab_database::fields::Field;
 use flowy_database2::entities::{CalculationType, FieldType, UpdateCalculationChangesetPB};
+use lib_infra::box_any::BoxAny;
 
 #[tokio::test]
 async fn calculations_test() {
@@ -35,7 +36,7 @@ async fn calculations_test() {
     })
     .await;
 
-  test.assert_calculation_value(expected_sum).await;
+  test.assert_calculation_float_value(expected_sum).await;
 
   // Insert Min calculation and assert its value
   test
@@ -47,7 +48,7 @@ async fn calculations_test() {
     })
     .await;
 
-  test.assert_calculation_value(expected_min).await;
+  test.assert_calculation_float_value(expected_min).await;
 
   // Insert Average calculation and assert its value
   test
@@ -59,7 +60,7 @@ async fn calculations_test() {
     })
     .await;
 
-  test.assert_calculation_value(expected_average).await;
+  test.assert_calculation_float_value(expected_average).await;
 
   // Insert Max calculation and assert its value
   test
@@ -71,7 +72,7 @@ async fn calculations_test() {
     })
     .await;
 
-  test.assert_calculation_value(expected_max).await;
+  test.assert_calculation_float_value(expected_max).await;
 
   // Insert Median calculation and assert its value
   test
@@ -83,5 +84,83 @@ async fn calculations_test() {
     })
     .await;
 
-  test.assert_calculation_value(expected_median).await;
+  test.assert_calculation_float_value(expected_median).await;
+}
+
+#[tokio::test]
+async fn calculations_empty_test() {
+  let mut test = DatabaseCalculationTest::new().await;
+
+  let view_id = &test.view_id();
+  let text_fields = test
+    .fields
+    .clone()
+    .into_iter()
+    .filter(|field| field.field_type == FieldType::RichText as i64)
+    .collect::<Vec<Arc<Field>>>();
+  let field_id = &text_fields.first().unwrap().id.clone();
+  let calculation_id = "calc_id".to_owned();
+
+  test
+    .insert_calculation(UpdateCalculationChangesetPB {
+      view_id: view_id.clone(),
+      field_id: field_id.clone(),
+      calculation_id: Some(calculation_id.clone()),
+      calculation_type: CalculationType::CountEmpty,
+    })
+    .await;
+  test.assert_calculation_value("1").await;
+
+  // Update the cell with a non-empty value
+  test
+    .update_cell(
+      &field_id,
+      test.rows[1].id.clone(),
+      BoxAny::new("change".to_string()),
+    )
+    .await
+    .unwrap();
+
+  // sleep for 3 seconds to wait for the calculation to update
+  tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+  test.assert_calculation_value("0").await;
+}
+
+#[tokio::test]
+async fn calculations_non_empty_test() {
+  let mut test = DatabaseCalculationTest::new().await;
+
+  let view_id = &test.view_id();
+  let text_fields = test
+    .fields
+    .clone()
+    .into_iter()
+    .filter(|field| field.field_type == FieldType::RichText as i64)
+    .collect::<Vec<Arc<Field>>>();
+  let field_id = &text_fields.first().unwrap().id.clone();
+  let calculation_id = "calc_id".to_owned();
+
+  test
+    .insert_calculation(UpdateCalculationChangesetPB {
+      view_id: view_id.clone(),
+      field_id: field_id.clone(),
+      calculation_id: Some(calculation_id.clone()),
+      calculation_type: CalculationType::CountNonEmpty,
+    })
+    .await;
+  test.assert_calculation_value("6").await;
+
+  // Update the cell with a non-empty value
+  test
+    .update_cell(
+      &field_id,
+      test.rows[1].id.clone(),
+      BoxAny::new("change".to_string()),
+    )
+    .await
+    .unwrap();
+
+  // sleep for 3 seconds to wait for the calculation to update
+  tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+  test.assert_calculation_value("7").await;
 }

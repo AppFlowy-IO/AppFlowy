@@ -34,10 +34,16 @@ impl DatabaseCalculationTest {
     self.editor.update_calculation(payload).await.unwrap();
   }
 
-  pub async fn assert_calculation_value(&mut self, expected: f64) {
+  pub async fn assert_calculation_float_value(&mut self, expected: f64) {
     let calculations = self.editor.get_all_calculations(&self.view_id()).await;
     let calculation = calculations.items.first().unwrap();
     assert_eq!(calculation.value, format!("{:.5}", expected));
+  }
+
+  pub async fn assert_calculation_value(&mut self, expected: &str) {
+    let calculations = self.editor.get_all_calculations(&self.view_id()).await;
+    let calculation = calculations.items.first().unwrap();
+    assert_eq!(calculation.value, expected);
   }
 }
 
