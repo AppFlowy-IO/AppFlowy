@@ -13,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 enum MobileViewBottomSheetBodyAction {
   undo,
   redo,
-  share,
   rename,
   duplicate,
   delete,
@@ -24,6 +23,7 @@ enum MobileViewBottomSheetBodyAction {
   unpublish,
   copyPublishLink,
   visitSite,
+  copyShareLink,
 }
 
 typedef MobileViewBottomSheetBodyActionCallback = void Function(
@@ -122,6 +122,15 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.duplicate,
           ),
         ),
+        // copy link
+        _divider(),
+        MobileQuickActionButton(
+          text: 'Copy share link',
+          icon: FlowySvgs.m_toolbar_link_m,
+          onTap: () => onAction(
+            MobileViewBottomSheetBodyAction.copyShareLink,
+          ),
+        ),
         _divider(),
         ..._buildPublishActions(context),
         _divider(),
@@ -150,17 +159,10 @@ class MobileViewBottomSheetBody extends StatelessWidget {
     final isPublished = context.watch<ShareBloc>().state.isPublished;
     if (isPublished) {
       return [
-        // MobileQuickActionButton(
-        //   text: LocaleKeys.shareAction_copyLink.tr(),
-        //   icon: FlowySvgs.copy_s,
-        //   onTap: () => onAction(
-        //     MobileViewBottomSheetBodyAction.copyPublishLink,
-        //   ),
-        // ),
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_visitSite.tr(),
           icon: FlowySvgs.share_s,
-          iconSize: const Size.square(20),
+          iconSize: const Size.square(21),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.visitSite,
           ),

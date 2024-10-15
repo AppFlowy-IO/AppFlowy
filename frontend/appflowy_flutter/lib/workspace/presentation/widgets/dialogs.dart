@@ -15,6 +15,7 @@ import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+export 'package:toastification/toastification.dart';
 
 class NavigatorCustomDialog extends StatefulWidget {
   const NavigatorCustomDialog({

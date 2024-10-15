@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -30,26 +31,17 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
       onAction: (action) async {
         switch (action) {
           case MobileViewBottomSheetBodyAction.duplicate:
-            context.pop();
             context.read<ViewBloc>().add(const ViewEvent.duplicate());
-            // show toast
-            break;
-          case MobileViewBottomSheetBodyAction.share:
-            // unimplemented
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.delete:
-            // pop to home page
-            context
-              ..pop()
-              ..pop();
             context.read<ViewBloc>().add(const ViewEvent.delete());
+            context.popToHome();
             break;
           case MobileViewBottomSheetBodyAction.addToFavorites:
           case MobileViewBottomSheetBodyAction.removeFromFavorites:
-            context.pop();
             context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-
+            context.pop();
             break;
           case MobileViewBottomSheetBodyAction.undo:
             EditorNotification.undo().post();
@@ -64,59 +56,25 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.publish:
-            final id = context.read<ShareBloc>().view.id;
-            final publishName = await generatePublishName(
-              id,
-              view.name,
-            );
+            await _publish(context);
             if (context.mounted) {
-              context.read<ShareBloc>().add(
-                    ShareEvent.publish(
-                      '',
-                      publishName,
-                      [view.id],
-                    ),
-                  );
-              showToastNotification(
-                context,
-                message: LocaleKeys.publish_publishSuccessfully.tr(),
-              );
               context.pop();
             }
             break;
           case MobileViewBottomSheetBodyAction.unpublish:
-            context.read<ShareBloc>().add(const ShareEvent.unPublish());
-            showToastNotification(
-              context,
-              message: LocaleKeys.publish_unpublishSuccessfully.tr(),
-            );
+            _unpublish(context);
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.copyPublishLink:
-            final url = context.read<ShareBloc>().state.url;
-            if (url.isNotEmpty) {
-              unawaited(
-                getIt<ClipboardService>().setData(
-                  ClipboardServiceData(plainText: url),
-                ),
-              );
-              showToastNotification(
-                context,
-                message: LocaleKeys.grid_url_copy.tr(),
-              );
-            }
+            _copyPublishLink(context);
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.visitSite:
-            final url = context.read<ShareBloc>().state.url;
-            if (url.isNotEmpty) {
-              unawaited(
-                afLaunchUrl(
-                  Uri.parse(url),
-                  mode: LaunchMode.externalApplication,
-                ),
-              );
-            }
+            _visitPublishedSite(context);
+            context.pop();
+            break;
+          case MobileViewBottomSheetBodyAction.copyShareLink:
+            _copyShareLink(context);
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.rename:
@@ -125,11 +83,93 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         }
       },
       onRename: (name) {
-        if (name != view.name) {
-          context.read<ViewBloc>().add(ViewEvent.rename(name));
-        }
+        _onRename(context, name);
         context.pop();
       },
     );
+  }
+
+  Future<void> _publish(BuildContext context) async {
+    final id = context.read<ShareBloc>().view.id;
+    final publishName = await generatePublishName(
+      id,
+      view.name,
+    );
+    if (context.mounted) {
+      context.read<ShareBloc>().add(
+            ShareEvent.publish(
+              '',
+              publishName,
+              [view.id],
+            ),
+          );
+      showToastNotification(
+        context,
+        message: LocaleKeys.publish_publishSuccessfully.tr(),
+      );
+    }
+  }
+
+  void _unpublish(BuildContext context) {
+    context.read<ShareBloc>().add(const ShareEvent.unPublish());
+    showToastNotification(
+      context,
+      message: LocaleKeys.publish_unpublishSuccessfully.tr(),
+    );
+    context.pop();
+  }
+
+  void _copyPublishLink(BuildContext context) {
+    final url = context.read<ShareBloc>().state.url;
+    if (url.isNotEmpty) {
+      unawaited(
+        getIt<ClipboardService>().setData(
+          ClipboardServiceData(plainText: url),
+        ),
+      );
+      showToastNotification(
+        context,
+        message: LocaleKeys.grid_url_copy.tr(),
+      );
+    }
+  }
+
+  void _visitPublishedSite(BuildContext context) {
+    final url = context.read<ShareBloc>().state.url;
+    if (url.isNotEmpty) {
+      unawaited(
+        afLaunchUrl(
+          Uri.parse(url),
+          mode: LaunchMode.externalApplication,
+        ),
+      );
+    }
+  }
+
+  void _copyShareLink(BuildContext context) {
+    final url = context.read<ShareBloc>().state.url;
+    if (url.isNotEmpty) {
+      unawaited(
+        getIt<ClipboardService>().setData(
+          ClipboardServiceData(plainText: url),
+        ),
+      );
+      showToastNotification(
+        context,
+        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+      );
+    } else {
+      showToastNotification(
+        context,
+        message: LocaleKeys.shareAction_copyLinkToBlockFailed.tr(),
+        type: ToastificationType.error,
+      );
+    }
+  }
+
+  void _onRename(BuildContext context, String name) {
+    if (name != view.name) {
+      context.read<ViewBloc>().add(ViewEvent.rename(name));
+    }
   }
 }
