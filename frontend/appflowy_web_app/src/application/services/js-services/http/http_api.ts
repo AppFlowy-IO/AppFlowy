@@ -1198,24 +1198,22 @@ export async function importFile (file: File, onProgress: (progress: number) => 
 
   formData.append(fileName, file, file.name);
 
-  try {
-    const response = await axios.post(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'X-Content-Length': fileSize.toString(),
-      },
-      onUploadProgress: (progressEvent) => {
-        const { progress = 0 } = progressEvent;
+  const response = await axiosInstance?.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'X-Content-Length': fileSize.toString(),
+    },
+    onUploadProgress: (progressEvent) => {
+      const { progress = 0 } = progressEvent;
 
-        console.log(`Upload progress: ${progress * 100}%`);
-        onProgress(progress);
-      },
-    });
+      console.log(`Upload progress: ${progress * 100}%`);
+      onProgress(progress);
+    },
+  });
 
-    console.log('Import successful:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error importing file:', error);
-    throw error;
+  if (response?.data.code === 0) {
+    return;
   }
+
+  return Promise.reject(response?.data);
 }

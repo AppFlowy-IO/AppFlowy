@@ -80,7 +80,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
   const logout = useCallback(() => {
     invalidToken();
-    navigate(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
+    navigate(`/login?redirectTo=${encodeURIComponent(window.location.href)}`);
   }, [navigate]);
 
   // If the user is not authenticated, log out the user
@@ -263,11 +263,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setOutline(res);
+
+      const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
+
+      if (!firstView) {
+        setRendered(true);
+      }
+
       try {
 
         await service.openWorkspace(workspaceId);
         const wId = window.location.pathname.split('/')[2];
         const pageId = window.location.pathname.split('/')[3];
+        const search = window.location.search;
 
         // skip /app/trash and /app/*other-pages
         if (wId && !uuidValidate(wId)) {
@@ -282,14 +290,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const lastViewId = localStorage.getItem('last_view_id');
 
         if (lastViewId && findView(res, lastViewId)) {
-          navigate(`/app/${workspaceId}/${lastViewId}`);
+          navigate(`/app/${workspaceId}/${lastViewId}${search}`);
 
-        } else {
-          const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
-
-          if (firstView) {
-            navigate(`/app/${workspaceId}/${firstView.view_id}`);
-          }
+        } else if (firstView) {
+          navigate(`/app/${workspaceId}/${firstView.view_id}${search}`);
         }
 
       } catch (e) {

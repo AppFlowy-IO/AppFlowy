@@ -2510,7 +2510,8 @@
     "import": "Import",
     "importSuccess": "Uploaded successfully",
     "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
-    "importFailed": "Import failed, please check the file format"
+    "importFailed": "Import failed, please check the file format",
+    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse"
   },
   "globalComment": {
     "comments": "Comments",
