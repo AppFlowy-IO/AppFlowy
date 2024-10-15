@@ -168,7 +168,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         _divider(),
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_unPublish.tr(),
-          icon: FlowySvgs.share_publish_s,
+          icon: FlowySvgs.m_unpublish_s,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.unpublish,
           ),
@@ -178,7 +178,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
       return [
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_publish.tr(),
-          icon: FlowySvgs.share_publish_s,
+          icon: FlowySvgs.m_publish_s,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.publish,
           ),
