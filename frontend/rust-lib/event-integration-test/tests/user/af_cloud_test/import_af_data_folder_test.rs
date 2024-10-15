@@ -1,12 +1,99 @@
 use crate::util::unzip;
 use assert_json_diff::assert_json_include;
+use collab::core::collab::DataSource;
+use collab::core::origin::CollabOrigin;
+use collab::preclude::{Any, Collab};
 use collab_database::rows::database_row_document_id_from_row_id;
+use collab_document::blocks::TextDelta;
+use collab_document::document::Document;
 use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
+use flowy_folder::entities::ViewLayoutPB;
 use flowy_user::errors::ErrorCode;
 use serde_json::{json, Value};
 use std::env::temp_dir;
+
+#[tokio::test]
+async fn import_appflowy_data_with_ref_views_test() {
+  let import_container_name = "data_ref_doc".to_string();
+  let (_cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
+  use_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  let _ = test.af_cloud_sign_up().await;
+  let views = test.get_all_workspace_views().await;
+  let shared_space_id = views[1].id.clone();
+  test
+    .import_appflowy_data(
+      user_db_path.to_str().unwrap().to_string(),
+      Some(import_container_name.clone()),
+    )
+    .await
+    .unwrap();
+
+  let general_space = test.get_view(&shared_space_id).await;
+  let shared_sub_views = &general_space.child_views;
+  assert_eq!(shared_sub_views.len(), 1);
+  assert_eq!(shared_sub_views[0].name, import_container_name);
+
+  let imported_view_id = shared_sub_views[0].id.clone();
+  let imported_sub_views = test.get_view(&imported_view_id).await.child_views;
+  assert_eq!(imported_sub_views.len(), 1);
+
+  let imported_get_started_view_id = imported_sub_views[0].id.clone();
+  let doc_state = test
+    .get_document_doc_state(&imported_get_started_view_id)
+    .await;
+  let collab = Collab::new_with_source(
+    CollabOrigin::Empty,
+    &imported_get_started_view_id,
+    DataSource::DocStateV1(doc_state),
+    vec![],
+    false,
+  )
+  .unwrap();
+  let document = Document::open(collab).unwrap();
+
+  let page_id = document.get_page_id().unwrap();
+  let block_ids = document.get_block_children_ids(&page_id);
+  let mut page_ids = vec![];
+  let mut link_ids = vec![];
+  for block_id in block_ids.iter() {
+    // Process block deltas
+    if let Some(mut block_deltas) = document.get_block_delta(block_id).map(|t| t.1) {
+      for d in block_deltas.iter_mut() {
+        if let TextDelta::Inserted(_, Some(attrs)) = d {
+          if let Some(Any::Map(mention)) = attrs.get_mut("mention") {
+            if let Some(page_id) = mention.get("page_id").map(|v| v.to_string()) {
+              page_ids.push(page_id);
+            }
+          }
+        }
+      }
+    }
+
+    if let Some((_, data)) = document.get_block_data(block_id) {
+      if let Some(link_view_id) = data.get("view_id").and_then(|v| v.as_str()) {
+        link_ids.push(link_view_id.to_string());
+      }
+    }
+  }
+
+  assert_eq!(page_ids.len(), 1);
+  for page_id in page_ids {
+    let view = test.get_view(&page_id).await;
+    assert_eq!(view.name, "1");
+    let data = serde_json::to_string(&test.get_document_data(&view.id).await).unwrap();
+    assert!(data.contains("hello world"));
+  }
+
+  assert_eq!(link_ids.len(), 1);
+  for link_id in link_ids {
+    let database_view = test.get_view(&link_id).await;
+    assert_eq!(database_view.layout, ViewLayoutPB::Grid);
+    assert_eq!(database_view.name, "Untitled");
+  }
+}
 
 #[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
