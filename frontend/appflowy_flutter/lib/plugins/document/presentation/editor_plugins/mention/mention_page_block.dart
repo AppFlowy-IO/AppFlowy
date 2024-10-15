@@ -117,8 +117,11 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   Future<void> handleTap(ViewPB view) async {
-    if (UniversalPlatform.isMobile && mounted) {
-      await context.pushView(view);
+    if (UniversalPlatform.isMobile) {
+      final currentViewId = context.read<DocumentBloc>().documentId;
+      if (mounted && currentViewId != widget.pageId) {
+        await context.pushView(view);
+      }
     } else {
       final action = NavigationAction(
         objectId: view.id,

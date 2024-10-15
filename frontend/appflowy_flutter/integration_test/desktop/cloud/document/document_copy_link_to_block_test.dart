@@ -2,6 +2,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -34,9 +35,7 @@ void main() {
       final content = await Clipboard.getData(Clipboard.kTextPlain);
       expect(
         content?.text,
-        matches(
-          r'^https:\/\/appflowy\.com\/app\/[a-f0-9-]{36}\/[a-f0-9-]{36}\?blockId=[A-Za-z0-9_-]+$',
-        ),
+        matches(appflowySharePageLinkPattern),
       );
     });
 

@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/base/view_page/more_bottom_sheet.da
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
+import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -98,6 +99,11 @@ class MobileViewPageMoreButton extends StatelessWidget {
             providers: [
               BlocProvider.value(value: context.read<ViewBloc>()),
               BlocProvider.value(value: context.read<FavoriteBloc>()),
+              BlocProvider.value(value: context.read<MobileViewPageBloc>()),
+              BlocProvider(
+                create: (_) =>
+                    ShareBloc(view: view)..add(const ShareEvent.initial()),
+              ),
             ],
             child: MobileViewPageMoreBottomSheet(view: view),
           ),

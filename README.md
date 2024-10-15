@@ -119,7 +119,7 @@ We do not claim to outperform Notion in terms of functionality and design, at le
 
 Distributed under the AGPLv3 License. See [`LICENSE.md`](https://github.com/AppFlowy-IO/AppFlowy/blob/main/LICENSE) for more information.
 
-## Acknowledgements
+## Acknowledgments
 
 Special thanks to these amazing projects which help power AppFlowy.IO:
 

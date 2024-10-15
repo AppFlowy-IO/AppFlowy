@@ -11,20 +11,52 @@ const AppRouter = lazy(() => import('@/components/app/AppRouter'));
 const AsTemplatePage = lazy(() => import('@/pages/AsTemplatePage'));
 const AcceptInvitationPage = lazy(() => import('@/pages/AcceptInvitationPage'));
 const AfterPaymentPage = lazy(() => import('@/pages/AfterPaymentPage'));
+const ImportPage = lazy(() => import('@/pages/ImportPage'));
 
 import '@/styles/app.scss';
 
 const AppMain = withAppWrapper(() => {
   return (
     <Routes>
-      <Route path={'/:namespace/:publishName'} element={<PublishPage />} />
-      <Route path={'/login'} element={<Suspense><LoginPage /></Suspense>} />
-      <Route path={AUTH_CALLBACK_PATH} element={<LoginAuth />} />
-      <Route path="/404" element={<NotFound />} />
-      <Route path="/after-payment" element={<Suspense><AfterPaymentPage /></Suspense>} />
-      <Route path="/as-template" element={<Suspense><AsTemplatePage /></Suspense>} />
-      <Route path="/accept-invitation" element={<Suspense><AcceptInvitationPage /></Suspense>} />
-      <Route path="/" element={<Navigate to="/app" replace />} />
+      <Route
+        path={'/:namespace/:publishName'}
+        element={<PublishPage />}
+      />
+      <Route
+        path={'/login'}
+        element={<Suspense><LoginPage /></Suspense>}
+      />
+      <Route
+        path={AUTH_CALLBACK_PATH}
+        element={<LoginAuth />}
+      />
+      <Route
+        path="/404"
+        element={<NotFound />}
+      />
+      <Route
+        path="/after-payment"
+        element={<Suspense><AfterPaymentPage /></Suspense>}
+      />
+      <Route
+        path="/as-template"
+        element={<Suspense><AsTemplatePage /></Suspense>}
+      />
+      <Route
+        path="/accept-invitation"
+        element={<Suspense><AcceptInvitationPage /></Suspense>}
+      />
+      <Route
+        path={'/import'}
+        element={<Suspense><ImportPage /></Suspense>}
+      />
+      <Route
+        path="/"
+        element={<Navigate
+          to="/app"
+          replace
+        />}
+      />
       <Route
         path="/app/*"
         element={
@@ -33,7 +65,10 @@ const AppMain = withAppWrapper(() => {
           </Suspense>
         }
       />
-      <Route path="*" element={<NotFound />} />
+      <Route
+        path="*"
+        element={<NotFound />}
+      />
     </Routes>
   );
 });

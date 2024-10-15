@@ -128,14 +128,18 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
                   final newView = view.rebuild(
                     (b) => b.name = e.newName,
                   );
+                  Log.info('rename view: ${newView.id} to ${newView.name}');
                   return state.copyWith(
                     successOrFailure: FlowyResult.success(null),
                     view: newView,
                   );
                 },
-                (error) => state.copyWith(
-                  successOrFailure: FlowyResult.failure(error),
-                ),
+                (error) {
+                  Log.error('rename view failed: $error');
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.failure(error),
+                  );
+                },
               ),
             );
           },

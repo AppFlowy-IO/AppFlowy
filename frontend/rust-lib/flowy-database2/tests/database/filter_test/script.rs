@@ -20,71 +20,6 @@ pub struct FilterRowChanged {
   pub(crate) hiding_num_of_rows: usize,
 }
 
-pub enum FilterScript {
-  UpdateTextCell {
-    row_id: RowId,
-    text: String,
-    changed: Option<FilterRowChanged>,
-  },
-  UpdateChecklistCell {
-    row_id: RowId,
-    selected_option_ids: Vec<String>,
-  },
-  UpdateSingleSelectCell {
-    row_id: RowId,
-    option_id: String,
-    changed: Option<FilterRowChanged>,
-  },
-  CreateDataFilter {
-    parent_filter_id: Option<String>,
-    field_type: FieldType,
-    data: BoxAny,
-    changed: Option<FilterRowChanged>,
-  },
-  UpdateTextFilter {
-    filter: FilterPB,
-    condition: TextFilterConditionPB,
-    content: String,
-    changed: Option<FilterRowChanged>,
-  },
-  CreateAndFilter {
-    parent_filter_id: Option<String>,
-    changed: Option<FilterRowChanged>,
-  },
-  CreateOrFilter {
-    parent_filter_id: Option<String>,
-    changed: Option<FilterRowChanged>,
-  },
-  DeleteFilter {
-    filter_id: String,
-    changed: Option<FilterRowChanged>,
-  },
-  // CreateSimpleAdvancedFilter,
-  // CreateComplexAdvancedFilter,
-  AssertFilterCount {
-    count: usize,
-  },
-  AssertNumberOfVisibleRows {
-    expected: usize,
-  },
-  AssertFilters {
-    /// 1. assert that the filter type is correct
-    /// 2. if the filter is data, assert that the field_type, condition and content are correct
-    /// (no field_id)
-    /// 3. if the filter is and/or, assert that each child is correct as well.
-    expected: Vec<FilterPB>,
-  },
-  // AssertSimpleAdvancedFilter,
-  // AssertComplexAdvancedFilterResult,
-  #[allow(dead_code)]
-  AssertGridSetting {
-    expected_setting: DatabaseViewSettingPB,
-  },
-  Wait {
-    millisecond: u64,
-  },
-}
-
 pub struct DatabaseFilterTest {
   inner: DatabaseEditorTest,
   recv: Option<Receiver<DatabaseViewChanged>>,
@@ -147,167 +82,171 @@ impl DatabaseFilterTest {
     }
   }
 
-  pub async fn run_scripts(&mut self, scripts: Vec<FilterScript>) {
-    for script in scripts {
-      self.run_script(script).await;
+  pub async fn update_text_cell_with_change(
+    &mut self,
+    row_id: RowId,
+    text: String,
+    changed: Option<FilterRowChanged>,
+  ) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    self.update_text_cell(row_id, &text).await.unwrap();
+  }
+
+  pub async fn update_checklist_cell(&mut self, row_id: RowId, selected_option_ids: Vec<String>) {
+    self
+      .set_checklist_cell(row_id, selected_option_ids)
+      .await
+      .unwrap();
+  }
+
+  pub async fn update_single_select_cell_with_change(
+    &mut self,
+    row_id: RowId,
+    option_id: String,
+    changed: Option<FilterRowChanged>,
+  ) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    self
+      .update_single_select_cell(row_id, &option_id)
+      .await
+      .unwrap();
+  }
+
+  pub async fn create_data_filter(
+    &mut self,
+    parent_filter_id: Option<String>,
+    field_type: FieldType,
+    data: BoxAny,
+    changed: Option<FilterRowChanged>,
+  ) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    let field = self.get_first_field(field_type).await;
+    let params = FilterChangeset::Insert {
+      parent_filter_id,
+      data: FilterInner::Data {
+        field_id: field.id,
+        field_type,
+        condition_and_content: data,
+      },
+    };
+    self
+      .editor
+      .modify_view_filters(&self.view_id, params)
+      .await
+      .unwrap();
+  }
+
+  pub async fn update_text_filter(
+    &mut self,
+    filter: FilterPB,
+    condition: TextFilterConditionPB,
+    content: String,
+    changed: Option<FilterRowChanged>,
+  ) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    let current_filter = filter.data.unwrap();
+    let params = FilterChangeset::UpdateData {
+      filter_id: filter.id,
+      data: FilterInner::Data {
+        field_id: current_filter.field_id,
+        field_type: current_filter.field_type,
+        condition_and_content: BoxAny::new(TextFilterPB { condition, content }),
+      },
+    };
+    self
+      .editor
+      .modify_view_filters(&self.view_id, params)
+      .await
+      .unwrap();
+  }
+
+  pub async fn create_and_filter(
+    &mut self,
+    parent_filter_id: Option<String>,
+    changed: Option<FilterRowChanged>,
+  ) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    let params = FilterChangeset::Insert {
+      parent_filter_id,
+      data: FilterInner::And { children: vec![] },
+    };
+    self
+      .editor
+      .modify_view_filters(&self.view_id, params)
+      .await
+      .unwrap();
+  }
+
+  pub async fn create_or_filter(
+    &mut self,
+    parent_filter_id: Option<String>,
+    changed: Option<FilterRowChanged>,
+  ) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    let params = FilterChangeset::Insert {
+      parent_filter_id,
+      data: FilterInner::Or { children: vec![] },
+    };
+    self
+      .editor
+      .modify_view_filters(&self.view_id, params)
+      .await
+      .unwrap();
+  }
+
+  pub async fn delete_filter(&mut self, filter_id: String, changed: Option<FilterRowChanged>) {
+    self.subscribe_view_changed().await;
+    self.assert_future_changed(changed).await;
+    let params = FilterChangeset::Delete { filter_id };
+    self
+      .editor
+      .modify_view_filters(&self.view_id, params)
+      .await
+      .unwrap();
+  }
+
+  pub async fn assert_filter_count(&self, count: usize) {
+    let filters = self.editor.get_all_filters(&self.view_id).await.items;
+    assert_eq!(count, filters.len());
+  }
+
+  pub async fn assert_grid_setting(&self, expected_setting: DatabaseViewSettingPB) {
+    let setting = self
+      .editor
+      .get_database_view_setting(&self.view_id)
+      .await
+      .unwrap();
+    assert_eq!(expected_setting, setting);
+  }
+
+  pub async fn assert_filters(&self, expected: Vec<FilterPB>) {
+    let actual = self.get_all_filters().await;
+    for (actual_filter, expected_filter) in actual.iter().zip(expected.iter()) {
+      Self::assert_filter(actual_filter, expected_filter);
     }
   }
 
-  pub async fn run_script(&mut self, script: FilterScript) {
-    match script {
-      FilterScript::UpdateTextCell {
-        row_id,
-        text,
-        changed,
-      } => {
-        self.subscribe_view_changed().await;
-        self.assert_future_changed(changed).await;
-        self.update_text_cell(row_id, &text).await.unwrap();
-      },
-      FilterScript::UpdateChecklistCell {
-        row_id,
-        selected_option_ids,
-      } => {
-        self
-          .set_checklist_cell(row_id, selected_option_ids)
-          .await
-          .unwrap();
-      },
-      FilterScript::UpdateSingleSelectCell {
-        row_id,
-        option_id,
-        changed,
-      } => {
-        self.subscribe_view_changed().await;
-        self.assert_future_changed(changed).await;
-        self
-          .update_single_select_cell(row_id, &option_id)
-          .await
-          .unwrap();
-      },
-      FilterScript::CreateDataFilter {
-        parent_filter_id,
-        field_type,
-        data,
-        changed,
-      } => {
-        self.subscribe_view_changed().await;
-        self.assert_future_changed(changed).await;
-        let field = self.get_first_field(field_type).await;
-        let params = FilterChangeset::Insert {
-          parent_filter_id,
-          data: FilterInner::Data {
-            field_id: field.id,
-            field_type,
-            condition_and_content: data,
-          },
-        };
-        self
-          .editor
-          .modify_view_filters(&self.view_id, params)
-          .await
-          .unwrap();
-      },
-      FilterScript::UpdateTextFilter {
-        filter,
-        condition,
-        content,
-        changed,
-      } => {
-        self.subscribe_view_changed().await;
+  pub async fn assert_number_of_visible_rows(&self, expected: usize) {
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    let _ = self
+      .editor
+      .open_database_view(&self.view_id, Some(tx))
+      .await
+      .unwrap();
+    rx.await.unwrap();
 
-        self.assert_future_changed(changed).await;
-        let current_filter = filter.data.unwrap();
-        let params = FilterChangeset::UpdateData {
-          filter_id: filter.id,
-          data: FilterInner::Data {
-            field_id: current_filter.field_id,
-            field_type: current_filter.field_type,
-            condition_and_content: BoxAny::new(TextFilterPB { condition, content }),
-          },
-        };
-        self
-          .editor
-          .modify_view_filters(&self.view_id, params)
-          .await
-          .unwrap();
-      },
-      FilterScript::CreateAndFilter {
-        parent_filter_id,
-        changed,
-      } => {
-        self.subscribe_view_changed().await;
-        self.assert_future_changed(changed).await;
-        let params = FilterChangeset::Insert {
-          parent_filter_id,
-          data: FilterInner::And { children: vec![] },
-        };
-        self
-          .editor
-          .modify_view_filters(&self.view_id, params)
-          .await
-          .unwrap();
-      },
-      FilterScript::CreateOrFilter {
-        parent_filter_id,
-        changed,
-      } => {
-        self.subscribe_view_changed().await;
-        self.assert_future_changed(changed).await;
-        let params = FilterChangeset::Insert {
-          parent_filter_id,
-          data: FilterInner::Or { children: vec![] },
-        };
-        self
-          .editor
-          .modify_view_filters(&self.view_id, params)
-          .await
-          .unwrap();
-      },
-      FilterScript::AssertFilterCount { count } => {
-        let filters = self.editor.get_all_filters(&self.view_id).await.items;
-        assert_eq!(count, filters.len());
-      },
-      FilterScript::DeleteFilter { filter_id, changed } => {
-        self.subscribe_view_changed().await;
-        self.assert_future_changed(changed).await;
-        let params = FilterChangeset::Delete { filter_id };
-        self
-          .editor
-          .modify_view_filters(&self.view_id, params)
-          .await
-          .unwrap();
-      },
-      FilterScript::AssertGridSetting { expected_setting } => {
-        let setting = self
-          .editor
-          .get_database_view_setting(&self.view_id)
-          .await
-          .unwrap();
-        assert_eq!(expected_setting, setting);
-      },
-      FilterScript::AssertFilters { expected } => {
-        let actual = self.get_all_filters().await;
-        for (actual_filter, expected_filter) in actual.iter().zip(expected.iter()) {
-          Self::assert_filter(actual_filter, expected_filter);
-        }
-      },
-      FilterScript::AssertNumberOfVisibleRows { expected } => {
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        let _ = self
-          .editor
-          .open_database_view(&self.view_id, Some(tx))
-          .await
-          .unwrap();
-        rx.await.unwrap();
+    let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
+    assert_eq!(rows.len(), expected);
+  }
 
-        let rows = self.editor.get_all_rows(&self.view_id).await.unwrap();
-        assert_eq!(rows.len(), expected);
-      },
-      FilterScript::Wait { millisecond } => {
-        tokio::time::sleep(Duration::from_millis(millisecond)).await;
-      },
-    }
+  pub async fn wait(&self, millisecond: u64) {
+    tokio::time::sleep(Duration::from_millis(millisecond)).await;
   }
 
   async fn subscribe_view_changed(&mut self) {

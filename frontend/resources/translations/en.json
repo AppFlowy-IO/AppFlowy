@@ -125,6 +125,9 @@
     "publishOnAppFlowy": "Publish on AppFlowy",
     "shareTabTitle": "Invite to collaborate",
     "shareTabDescription": "For easy collaboration with anyone",
+    "copyLinkSuccess": "Copied link to clipboard",
+    "copyShareLink": "Copy share link",
+    "copyLinkFailed": "Failed to copy link to clipboard",
     "copyLinkToBlockSuccess": "Copied block link to clipboard",
     "copyLinkToBlockFailed": "Failed to copy block link to clipboard"
   },
@@ -2510,7 +2513,8 @@
     "import": "Import",
     "importSuccess": "Uploaded successfully",
     "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
-    "importFailed": "Import failed, please check the file format"
+    "importFailed": "Import failed, please check the file format",
+    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse"
   },
   "globalComment": {
     "comments": "Comments",
