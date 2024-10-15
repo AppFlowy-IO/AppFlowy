@@ -241,26 +241,26 @@ void main() {
       await tester.pumpAndSettle();
 
       // Expect count to be 3
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '3',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '3',
+        ),
+        findsOneWidget,
+      );
 
       // Expect count empty to be 1
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '1',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '1',
+        ),
+        findsOneWidget,
+      );
 
       await tester.tapDatabaseFilterButton();
       await tester.tapCreateFilterByFieldType(FieldType.RichText, 'Type');
@@ -279,26 +279,26 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Expect the count to be 2
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '2',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '2',
+        ),
+        findsOneWidget,
+      );
 
       // Expect the count empty to be 0
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '0',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '0',
+        ),
+        findsOneWidget,
+      );
 
       await tester.enterText(
         find.descendant(
@@ -310,26 +310,26 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Expect the count to be 0
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '0',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '0',
+        ),
+        findsOneWidget,
+      );
 
       // Expect the count empty to be 0
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '0',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '0',
+        ),
+        findsOneWidget,
+      );
 
       await tester.enterText(
         find.descendant(
@@ -345,26 +345,26 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Expect the count to be 4
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '4',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '4',
+        ),
+        findsOneWidget,
+      );
 
       // Expect the count empty to be 2
-      // expect(
-      //   find.byWidgetPredicate(
-      //     (w) =>
-      //         w is CalculateCell &&
-      //         w.calculation != null &&
-      //         w.calculation!.value == '2',
-      //   ),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is CalculateCell &&
+              w.calculation != null &&
+              w.calculation!.value == '2',
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Calculations count not empty w/ filter', (tester) async {
