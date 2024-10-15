@@ -114,7 +114,7 @@ async fn calculations_empty_test() {
   // Update the cell with a non-empty value
   test
     .update_cell(
-      &field_id,
+      field_id,
       test.rows[1].id.clone(),
       BoxAny::new("change".to_string()),
     )
@@ -153,7 +153,7 @@ async fn calculations_non_empty_test() {
   // Update the cell with a non-empty value
   test
     .update_cell(
-      &field_id,
+      field_id,
       test.rows[1].id.clone(),
       BoxAny::new("change".to_string()),
     )
