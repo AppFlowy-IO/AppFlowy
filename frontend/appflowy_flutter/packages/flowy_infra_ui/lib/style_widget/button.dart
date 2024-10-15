@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -143,7 +142,7 @@ class FlowyButton extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
-  final EdgeInsets? margin;
+  final EdgeInsetsGeometry? margin;
   final Widget? leftIcon;
   final Widget? rightIcon;
   final Color? hoverColor;
@@ -390,13 +389,10 @@ class FlowyTextButton extends StatelessWidget {
       children.add(heading!);
       children.add(const HSpace(8));
     }
-    children.add(FlowyText(
+    children.add(Text(
       text,
       overflow: overflow,
-      color: fontColor ?? Theme.of(context).colorScheme.onPrimary,
       textAlign: TextAlign.center,
-      lineHeight: lineHeight,
-      fontSize: fontSize,
     ));
 
     Widget child = Row(
@@ -431,6 +427,7 @@ class FlowyTextButton extends StatelessWidget {
             TextStyle(
               fontWeight: fontWeight ?? FontWeight.w500,
               fontSize: fontSize,
+              color: fontColor ?? Theme.of(context).colorScheme.onPrimary,
               decoration: decoration,
               fontFamily: fontFamily,
               height: lineHeight ?? 1.1,

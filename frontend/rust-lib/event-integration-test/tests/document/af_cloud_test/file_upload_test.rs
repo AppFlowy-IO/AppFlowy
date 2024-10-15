@@ -1,5 +1,5 @@
 use crate::document::generate_random_bytes;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_storage_pub::storage::FileUploadState;
 use lib_infra::util::md5;
@@ -14,7 +14,7 @@ use tokio::time::timeout;
 
 #[tokio::test]
 async fn af_cloud_upload_big_file_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let mut test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
   tokio::time::sleep(Duration::from_secs(6)).await;
@@ -78,7 +78,7 @@ async fn af_cloud_upload_big_file_test() {
 
 #[tokio::test]
 async fn af_cloud_upload_6_files_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
   let workspace_id = test.get_current_workspace().await.id;

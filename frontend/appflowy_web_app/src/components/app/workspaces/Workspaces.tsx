@@ -83,7 +83,7 @@ export function Workspaces () {
       <div className={'flex items-center gap-1.5 text-text-title overflow-hidden'}>
         <Avatar
           variant={'rounded'}
-          className={`w-6 h-6 rounded-[8px] p-1 ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}
+          className={`w-6 h-6 border border-line-divider rounded-[8px] p-1 ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}
           {...getAvatarProps(selectedWorkspace)}
         />
         <div className={'text-text-title flex-1 truncate font-semibold'}>{selectedWorkspace.name}</div>

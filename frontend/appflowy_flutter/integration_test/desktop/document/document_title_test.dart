@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -219,6 +220,132 @@ void main() {
 
       final newTitle = tester.editor.findDocumentTitle(_testDocumentName);
       expect(newTitle, findsOneWidget);
+    });
+
+    testWidgets('execute undo and redo in title', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      // press a random key to make the undo stack not empty
+      await tester.simulateKeyEvent(LogicalKeyboardKey.keyA);
+      await tester.pumpAndSettle();
+
+      // undo
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      // wait for the undo to be applied
+      await tester.pumpAndSettle(Durations.long1);
+
+      // expect the title is empty
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(''),
+            )
+            .controller
+            ?.text,
+        '',
+      );
+
+      // redo
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyZ,
+        isControlPressed: !UniversalPlatform.isMacOS,
+        isMetaPressed: UniversalPlatform.isMacOS,
+        isShiftPressed: true,
+      );
+
+      await tester.pumpAndSettle(Durations.short1);
+
+      if (UniversalPlatform.isMacOS) {
+        expect(
+          tester
+              .widget<TextField>(
+                tester.editor.findDocumentTitle(_testDocumentName),
+              )
+              .controller
+              ?.text,
+          _testDocumentName,
+        );
+      }
+    });
+
+    testWidgets('escape key should exit the editing mode', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widget<TextField>(
+              tester.editor.findDocumentTitle(_testDocumentName),
+            )
+            .focusNode
+            ?.hasFocus,
+        isFalse,
+      );
+    });
+
+    testWidgets('press arrow down key in title, check if the cursor flashes',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.enterText(title, _testDocumentName);
+      await tester.pumpAndSettle();
+
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      const inputText = 'Hello World';
+      await tester.ime.insertText(inputText);
+
+      await tester.tapButton(
+        tester.editor.findDocumentTitle(_testDocumentName),
+      );
+      await tester.simulateKeyEvent(LogicalKeyboardKey.arrowDown);
+      final editorState = tester.editor.getCurrentEditorState();
+      expect(
+        editorState.selection,
+        Selection.collapsed(
+          Position(path: [0], offset: inputText.length),
+        ),
+      );
+    });
+
+    testWidgets(
+        'hover on the cover title, check if the add icon & add cover button are shown',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.hoverOnWidget(
+        title,
+        onHover: () async {
+          expect(find.byType(DocumentCoverWidget), findsOneWidget);
+        },
+      );
+
+      await tester.pumpAndSettle();
     });
   });
 }

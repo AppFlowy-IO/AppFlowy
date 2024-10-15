@@ -95,19 +95,29 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   @override
   Future<void> close() async {
     isClosing = true;
-    _updateSelectionDebounce.dispose();
-    _syncThrottle.dispose();
+    await checkDocumentIntegrity();
+    await _cancelSubscriptions();
+    _clearEditorState();
+    return super.close();
+  }
+
+  Future<void> _cancelSubscriptions() async {
     await _documentService.syncAwarenessStates(documentId: documentId);
     await _documentListener.stop();
     await _syncStateListener.stop();
     await _viewListener?.stop();
     await _transactionSubscription?.cancel();
     await _documentService.closeDocument(viewId: documentId);
+  }
+
+  void _clearEditorState() {
+    _updateSelectionDebounce.dispose();
+    _syncThrottle.dispose();
+
     _syncTimer?.cancel();
     _syncTimer = null;
     state.editorState?.service.keyboardService?.closeKeyboard();
     state.editorState?.dispose();
-    return super.close();
   }
 
   Future<void> _onDocumentEvent(
@@ -156,7 +166,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       },
       restorePage: () async {
         if (databaseViewId == null && rowId == null) {
-          final result = await _trashService.putback(documentId);
+          final result = await TrashService.putback(documentId);
           final isDeleted = result.fold((l) => false, (r) => true);
           emit(state.copyWith(isDeleted: isDeleted));
         }
@@ -387,6 +397,34 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       documentId: documentId,
       metadata: jsonEncode(metadata.toJson()),
     );
+  }
+
+  // this is only used for debug mode
+  Future<void> checkDocumentIntegrity() async {
+    if (!enableDocumentInternalLog) {
+      return;
+    }
+
+    final cloudDocResult =
+        await _documentService.getDocument(documentId: documentId);
+    final cloudDoc = cloudDocResult.fold((s) => s, (f) => null)?.toDocument();
+    final localDoc = state.editorState?.document;
+    if (cloudDoc == null || localDoc == null) {
+      return;
+    }
+    final cloudJson = cloudDoc.toJson();
+    final localJson = localDoc.toJson();
+    final deepEqual = const DeepCollectionEquality().equals(
+      cloudJson,
+      localJson,
+    );
+    if (!deepEqual) {
+      Log.error('document integrity check failed');
+      // Enable it to debug the document integrity check failed
+      // Log.error('cloud doc: $cloudJson');
+      // Log.error('local doc: $localJson');
+      assert(false, 'document integrity check failed');
+    }
   }
 }
 

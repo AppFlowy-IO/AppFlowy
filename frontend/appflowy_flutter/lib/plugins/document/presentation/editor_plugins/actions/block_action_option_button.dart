@@ -1,15 +1,15 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option/option_actions.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'drag_to_reorder/draggable_option_button.dart';
 
-class BlockOptionButton extends StatefulWidget {
+class BlockOptionButton extends StatelessWidget {
   const BlockOptionButton({
     super.key,
     required this.blockComponentContext,
@@ -26,192 +26,92 @@ class BlockOptionButton extends StatefulWidget {
   final Map<String, BlockComponentBuilder> blockComponentBuilder;
 
   @override
-  State<BlockOptionButton> createState() => _BlockOptionButtonState();
-}
+  Widget build(BuildContext context) {
+    final direction =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+                LayoutDirection.rtlLayout
+            ? PopoverDirection.rightWithCenterAligned
+            : PopoverDirection.leftWithCenterAligned;
+    return BlocProvider(
+      create: (context) => BlockActionOptionCubit(
+        editorState: editorState,
+        blockComponentBuilder: blockComponentBuilder,
+      ),
+      child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
+        builder: (context, _) => PopoverActionList<PopoverAction>(
+          actions: _buildPopoverActions(context),
+          popoverMutex: PopoverMutex(),
+          animationDuration: Durations.short3,
+          slideDistance: 5,
+          beginScaleFactor: 1.0,
+          beginOpacity: 0.8,
+          direction: direction,
+          onPopupBuilder: _onPopoverBuilder,
+          onClosed: () => _onPopoverClosed(context),
+          onSelected: (action, controller) => _onActionSelected(
+            context,
+            action,
+            controller,
+          ),
+          buildChild: (controller) => DraggableOptionButton(
+            controller: controller,
+            editorState: editorState,
+            blockComponentContext: blockComponentContext,
+            blockComponentBuilder: blockComponentBuilder,
+          ),
+        ),
+      ),
+    );
+  }
 
-class _BlockOptionButtonState extends State<BlockOptionButton> {
-  late final List<PopoverAction> popoverActions;
-
-  @override
-  void initState() {
-    super.initState();
-
-    popoverActions = widget.actions.map((e) {
+  List<PopoverAction> _buildPopoverActions(BuildContext context) {
+    return actions.map((e) {
       switch (e) {
         case OptionAction.divider:
           return DividerOptionAction();
         case OptionAction.color:
-          return ColorOptionAction(editorState: widget.editorState);
+          return ColorOptionAction(editorState: editorState);
         case OptionAction.align:
-          return AlignOptionAction(editorState: widget.editorState);
+          return AlignOptionAction(editorState: editorState);
         case OptionAction.depth:
-          return DepthOptionAction(editorState: widget.editorState);
+          return DepthOptionAction(editorState: editorState);
+        case OptionAction.turnInto:
+          return TurnIntoOptionAction(
+            editorState: editorState,
+            blockComponentBuilder: blockComponentBuilder,
+          );
         default:
           return OptionActionWrapper(e);
       }
     }).toList();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return PopoverActionList<PopoverAction>(
-      popoverMutex: PopoverMutex(),
-      direction:
-          context.read<AppearanceSettingsCubit>().state.layoutDirection ==
-                  LayoutDirection.rtlLayout
-              ? PopoverDirection.rightWithCenterAligned
-              : PopoverDirection.leftWithCenterAligned,
-      actions: popoverActions,
-      onPopupBuilder: () {
-        keepEditorFocusNotifier.increase();
-        widget.blockComponentState.alwaysShowActions = true;
-      },
-      onClosed: () {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          if (!mounted) {
-            return;
-          }
-          widget.editorState.selectionType = null;
-          widget.editorState.selection = null;
-          widget.blockComponentState.alwaysShowActions = false;
-          keepEditorFocusNotifier.decrease();
-        });
-      },
-      onSelected: (action, controller) {
-        if (action is OptionActionWrapper) {
-          _onSelectAction(context, action.inner);
-          controller.close();
-        }
-      },
-      buildChild: (controller) => DraggableOptionButton(
-        controller: controller,
-        editorState: widget.editorState,
-        blockComponentContext: widget.blockComponentContext,
-        blockComponentBuilder: widget.blockComponentBuilder,
-      ),
-    );
+  void _onPopoverBuilder() {
+    keepEditorFocusNotifier.increase();
+    blockComponentState.alwaysShowActions = true;
   }
 
-  void _onSelectAction(BuildContext context, OptionAction action) {
-    final node = widget.blockComponentContext.node;
-    final transaction = widget.editorState.transaction;
-    switch (action) {
-      case OptionAction.delete:
-        transaction.deleteNode(node);
-        break;
-      case OptionAction.duplicate:
-        _duplicateBlock(context, transaction, node);
-        break;
-      case OptionAction.turnInto:
-        break;
-      case OptionAction.moveUp:
-        transaction.moveNode(node.path.previous, node);
-        break;
-      case OptionAction.moveDown:
-        transaction.moveNode(node.path.next.next, node);
-        break;
-      case OptionAction.align:
-      case OptionAction.color:
-      case OptionAction.divider:
-      case OptionAction.depth:
-        throw UnimplementedError();
-    }
-    widget.editorState.apply(transaction);
+  void _onPopoverClosed(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      editorState.selectionType = null;
+      editorState.selection = null;
+      blockComponentState.alwaysShowActions = false;
+    });
   }
 
-  void _duplicateBlock(
+  void _onActionSelected(
     BuildContext context,
-    Transaction transaction,
-    Node node,
+    PopoverAction action,
+    PopoverController controller,
   ) {
-    // 1. verify the node integrity
-    final type = node.type;
-    final builder = widget.editorState.renderer.blockComponentBuilder(type);
-
-    if (builder == null) {
-      Log.error('Block type $type is not supported');
+    if (action is! OptionActionWrapper) {
       return;
     }
 
-    final valid = builder.validate(node);
-    if (!valid) {
-      Log.error('Block type $type is not valid');
-    }
-
-    // 2. duplicate the node
-    //  the _copyBlock will fix the table block
-    final newNode = _copyBlock(context, node);
-
-    // 3. insert the node to the next of the current node
-    transaction.insertNode(
-      node.path.next,
-      newNode,
-    );
-  }
-
-  Node _copyBlock(BuildContext context, Node node) {
-    Node copiedNode = node.copyWith();
-
-    final type = node.type;
-    final builder = widget.editorState.renderer.blockComponentBuilder(type);
-
-    if (builder == null) {
-      Log.error('Block type $type is not supported');
-    } else {
-      final valid = builder.validate(node);
-      if (!valid) {
-        Log.error('Block type $type is not valid');
-        if (node.type == TableBlockKeys.type) {
-          copiedNode = _fixTableBlock(node);
-        }
-      }
-    }
-
-    return copiedNode;
-  }
-
-  Node _fixTableBlock(Node node) {
-    if (node.type != TableBlockKeys.type) {
-      return node;
-    }
-
-    // the table node should contains colsLen and rowsLen
-    final colsLen = node.attributes[TableBlockKeys.colsLen];
-    final rowsLen = node.attributes[TableBlockKeys.rowsLen];
-    if (colsLen == null || rowsLen == null) {
-      return node;
-    }
-
-    final newChildren = <Node>[];
-    final children = node.children;
-
-    // based on the colsLen and rowsLen, iterate the children and fix the data
-    for (var i = 0; i < rowsLen; i++) {
-      for (var j = 0; j < colsLen; j++) {
-        final cell = children
-            .where(
-              (n) =>
-                  n.attributes[TableCellBlockKeys.rowPosition] == i &&
-                  n.attributes[TableCellBlockKeys.colPosition] == j,
-            )
-            .firstOrNull;
-        if (cell != null) {
-          newChildren.add(cell.copyWith());
-        } else {
-          newChildren.add(
-            tableCellNode('', i, j),
-          );
-        }
-      }
-    }
-
-    return node.copyWith(
-      children: newChildren,
-      attributes: {
-        ...node.attributes,
-        TableBlockKeys.colsLen: colsLen,
-        TableBlockKeys.rowsLen: rowsLen,
-      },
-    );
+    context.read<BlockActionOptionCubit>().handleAction(
+          action.inner,
+          blockComponentContext.node,
+        );
+    controller.close();
   }
 }

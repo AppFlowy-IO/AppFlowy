@@ -1,14 +1,13 @@
 import 'dart:collection';
 
-// TODO(RS): remove dependency on presentation code
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'field/field_info.dart';
+import 'field/sort_entities.dart';
 import 'row/row_cache.dart';
 import 'row/row_service.dart';
 
@@ -16,10 +15,10 @@ part 'defines.freezed.dart';
 
 typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldInfo>);
 typedef OnFiltersChanged = void Function(List<DatabaseFilter>);
-typedef OnSortsChanged = void Function(List<SortInfo>);
+typedef OnSortsChanged = void Function(List<DatabaseSort>);
 typedef OnDatabaseChanged = void Function(DatabasePB);
 
-typedef OnRowsCreated = void Function(List<RowId> rowIds);
+typedef OnRowsCreated = void Function(List<InsertedRowPB> rows);
 typedef OnRowsUpdated = void Function(
   List<RowId> rowIds,
   ChangedReason reason,
@@ -29,6 +28,9 @@ typedef OnNumOfRowsChanged = void Function(
   UnmodifiableListView<RowInfo> rows,
   UnmodifiableMapView<RowId, RowInfo> rowById,
   ChangedReason reason,
+);
+typedef OnRowsVisibilityChanged = void Function(
+  List<(RowId, bool)> rowVisibilityChanges,
 );
 
 @freezed

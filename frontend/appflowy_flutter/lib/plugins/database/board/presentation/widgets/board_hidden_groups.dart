@@ -279,14 +279,14 @@ class HiddenGroupButtonContent extends StatelessWidget {
                                 index: index,
                               ),
                               const HSpace(4),
-                              FlowyText.medium(
+                              FlowyText(
                                 group
                                     .generateGroupName(bloc.databaseController),
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const HSpace(6),
                               Expanded(
-                                child: FlowyText.medium(
+                                child: FlowyText(
                                   group.rows.length.toString(),
                                   overflow: TextOverflow.ellipsis,
                                   color: Theme.of(context).hintColor,
@@ -387,7 +387,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
             final cells = <Widget>[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: FlowyText.medium(
+                child: FlowyText(
                   group.generateGroupName(bloc.databaseController),
                   fontSize: 10,
                   color: Theme.of(context).hintColor,
@@ -471,7 +471,7 @@ class HiddenGroupPopupItem extends StatelessWidget {
         text: cellBuilder.build(
           cellContext: cellContext,
           styleMap: {FieldType.RichText: _titleCellStyle(context)},
-          hasNotes: !rowMeta.isDocumentEmpty,
+          hasNotes: false,
         ),
         onTap: onPressed,
       ),

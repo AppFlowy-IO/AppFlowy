@@ -1,3 +1,6 @@
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -11,7 +14,6 @@ import 'package:appflowy/plugins/database/calendar/application/unschedule_event_
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -31,6 +33,8 @@ import 'layout/sizes.dart';
 import 'toolbar/calendar_setting_bar.dart';
 
 class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
+  final _toggleExtension = ToggleExtensionNotifier();
+
   @override
   Widget content(
     BuildContext context,
@@ -52,6 +56,7 @@ class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     return CalendarSettingBar(
       key: _makeValueKey(controller),
       databaseController: controller,
+      toggleExtension: _toggleExtension,
     );
   }
 
@@ -60,7 +65,18 @@ class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     BuildContext context,
     DatabaseController controller,
   ) {
-    return SizedBox.fromSize();
+    return DatabaseViewSettingExtension(
+      key: _makeValueKey(controller),
+      viewId: controller.viewId,
+      databaseController: controller,
+      toggleExtension: _toggleExtension,
+    );
+  }
+
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+    super.dispose();
   }
 
   ValueKey _makeValueKey(DatabaseController controller) {
@@ -149,6 +165,19 @@ class _CalendarPageState extends State<CalendarPage> {
                         state.updateEvent!.event!.eventId,
                   );
                   _eventController.add(state.updateEvent!);
+                }
+              },
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.openRow != c.openRow,
+              listener: (context, state) {
+                if (state.openRow != null) {
+                  showEventDetails(
+                    context: context,
+                    databaseController: _calendarBloc.databaseController,
+                    rowMeta: state.openRow!,
+                  );
+                  _calendarBloc.add(const CalendarEvent.resetOpenRowDetail());
                 }
               },
             ),
@@ -351,10 +380,10 @@ class _CalendarPageState extends State<CalendarPage> {
 void showEventDetails({
   required BuildContext context,
   required DatabaseController databaseController,
-  required CalendarEventPB event,
+  required RowMetaPB rowMeta,
 }) {
   final rowController = RowController(
-    rowMeta: event.rowMeta,
+    rowMeta: rowMeta,
     viewId: databaseController.viewId,
     rowCache: databaseController.rowCache,
   );
@@ -453,7 +482,7 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
         builder: (_) {
           return Column(
             children: [
-              FlowyText.medium(
+              FlowyText(
                 LocaleKeys.calendar_settings_unscheduledEventsTitle.tr(),
               ),
               UnscheduleEventsList(
@@ -482,7 +511,7 @@ class UnscheduleEventsList extends StatelessWidget {
       if (!UniversalPlatform.isMobile)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: FlowyText.medium(
+          child: FlowyText(
             LocaleKeys.calendar_settings_clickToAdd.tr(),
             fontSize: 10,
             color: Theme.of(context).hintColor,
@@ -505,7 +534,7 @@ class UnscheduleEventsList extends StatelessWidget {
             } else {
               showEventDetails(
                 context: context,
-                event: event,
+                rowMeta: event.rowMeta,
                 databaseController: databaseController,
               );
               PopoverContainer.of(context).close();
@@ -565,7 +594,7 @@ class DesktopUnscheduledEventTile extends StatelessWidget {
       height: 26,
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        text: FlowyText.medium(
+        text: FlowyText(
           event.title.isEmpty
               ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
               : event.title,

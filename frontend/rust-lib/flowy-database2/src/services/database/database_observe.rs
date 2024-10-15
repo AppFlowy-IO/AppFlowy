@@ -131,13 +131,14 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
             DatabaseViewChange::DidDeleteView { .. } => {},
             DatabaseViewChange::LayoutSettingChanged { .. } => {},
             DatabaseViewChange::DidUpdateRowOrders {
-              database_view_id: _,
+              database_view_id,
               is_local_change,
               insert_row_orders,
               delete_row_indexes,
             } => {
               handle_did_update_row_orders(
                 database_editor,
+                &database_view_id,
                 is_local_change,
                 insert_row_orders,
                 delete_row_indexes,
@@ -161,6 +162,7 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
 
 async fn handle_did_update_row_orders(
   database_editor: Arc<DatabaseEditor>,
+  view_id: &str,
   is_local_change: bool,
   insert_row_orders: Vec<(RowOrder, u32)>,
   delete_row_indexes: Vec<u32>,
@@ -200,7 +202,11 @@ async fn handle_did_update_row_orders(
       },
     };
 
-    for database_view in database_editor.database_views.editors().await {
+    if let Some(view_editor) = database_editor
+      .database_views
+      .get_view_editor(view_id)
+      .await
+    {
       trace!(
         "[RowOrder]: insert row:{} at index:{}, is_local:{}",
         row_order.id,
@@ -209,13 +215,11 @@ async fn handle_did_update_row_orders(
       );
 
       // insert row order in database view cache
-      database_view
-        .insert_row(row.clone(), index, &row_order)
-        .await;
+      view_editor.insert_row(row.clone(), index, &row_order).await;
 
-      let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
-      if let Some((index, row_detail)) = database_view.v_get_row(&row_order.id).await {
-        database_view
+      let is_move_row = is_move_row(&view_editor, &row_order, &delete_row_indexes).await;
+      if let Some((index, row_detail)) = view_editor.v_get_row(&row_order.id).await {
+        view_editor
           .v_did_create_row(
             &row_detail,
             index as u32,
@@ -231,19 +235,21 @@ async fn handle_did_update_row_orders(
   // handle delete row orders
   for index in delete_row_indexes {
     let index = index as usize;
-    for database_view in database_editor.database_views.editors().await {
-      let mut view_row_orders = database_view.row_orders.write().await;
+    if let Some(view_editor) = database_editor
+      .database_views
+      .get_view_editor(view_id)
+      .await
+    {
+      let mut view_row_orders = view_editor.row_orders.write().await;
       if view_row_orders.len() > index {
         let lazy_row = view_row_orders.remove(index);
         // Update changeset in RowsChangePB
         let row_id = lazy_row.id.to_string();
-        let mut row_change = row_changes
-          .entry(database_view.view_id.clone())
-          .or_default();
+        let mut row_change = row_changes.entry(view_editor.view_id.clone()).or_default();
         row_change.deleted_rows.push(row_id);
 
         // notify the view
-        if let Some(row) = database_view.row_by_row_id.get(lazy_row.id.as_str()) {
+        if let Some(row) = view_editor.row_by_row_id.get(lazy_row.id.as_str()) {
           trace!(
             "[RowOrder]: delete row:{} at index:{}, is_move_row: {}, is_local:{}",
             row.id,
@@ -251,7 +257,7 @@ async fn handle_did_update_row_orders(
             row_change.is_move_row,
             is_local_change
           );
-          database_view
+          view_editor
             .v_did_delete_row(&row, row_change.is_move_row, is_local_change)
             .await;
         } else {

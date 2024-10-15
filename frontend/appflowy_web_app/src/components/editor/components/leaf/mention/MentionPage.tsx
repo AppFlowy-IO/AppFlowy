@@ -43,9 +43,10 @@ function MentionPage ({ pageId }: { pageId: string }) {
       }}
       className={`mention-inline px-1 underline`}
       contentEditable={false}
+      data-mention-id={pageId}
     >
       {unPublished ? (
-        <span className={'mention-unpublished cursor-text font-semibold text-text-caption'}>No Access</span>
+        <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
           <span className={`mention-icon ${isFlag ? 'icon' : ''}`}>

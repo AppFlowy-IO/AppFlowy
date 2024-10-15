@@ -382,11 +382,6 @@
       "cloudServerType": "servidor en la nube",
       "cloudServerTypeTip": "Tenga en cuenta que es posible que se cierre la sesión de su cuenta actual después de cambiar el servidor en la nube.",
       "cloudLocal": "Local",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "URL de la base de datos",
-      "cloudSupabaseUrlCanNotBeEmpty": "La URL de supabase no puede estar vacía.",
-      "cloudSupabaseAnonKey": "Supabase clave anon",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "La clave anon no puede estar vacía si la URL de supabase no está vacía",
       "cloudAppFlowy": "Nube @:appName",
       "cloudAppFlowySelfHost": "@:appName Cloud autohospedado",
       "appFlowyCloudUrlCanNotBeEmpty": "La URL de la nube no puede estar vacía",
@@ -415,8 +410,7 @@
       "importAppFlowyDataDescription": "Copia los datos de una carpeta de datos externa de @:appName e impórtalos a la carpeta de datos actual de @:appName",
       "importSuccess": "Importó exitosamente la carpeta de datos de @:appName",
       "importFailed": "Error al importar la carpeta de datos de @:appName",
-      "importGuide": "Para obtener más detalles, consulte el documento de referencia.",
-      "supabaseSetting": "Ajuste de base superior"
+      "importGuide": "Para obtener más detalles, consulte el documento de referencia."
     },
     "notifications": {
       "enableNotifications": {

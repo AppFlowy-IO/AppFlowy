@@ -13,7 +13,7 @@ use collab_database::template::csv::CSVTemplate;
 use collab_database::views::DatabaseLayout;
 use collab_database::workspace_database::{
   CollabPersistenceImpl, DatabaseCollabPersistenceService, DatabaseCollabService, DatabaseMeta,
-  EncodeCollabByOid, WorkspaceDatabase,
+  EncodeCollabByOid, WorkspaceDatabaseManager,
 };
 use collab_entity::{CollabObject, CollabType, EncodedCollab};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -53,7 +53,7 @@ pub trait DatabaseUser: Send + Sync {
 pub(crate) type DatabaseEditorMap = HashMap<String, Arc<DatabaseEditor>>;
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
-  workspace_database: ArcSwapOption<RwLock<WorkspaceDatabase>>,
+  workspace_database_manager: ArcSwapOption<RwLock<WorkspaceDatabaseManager>>,
   task_scheduler: Arc<TokioRwLock<TaskDispatcher>>,
   pub(crate) editors: Mutex<DatabaseEditorMap>,
   removing_editor: Arc<Mutex<HashMap<String, Arc<DatabaseEditor>>>>,
@@ -72,7 +72,7 @@ impl DatabaseManager {
   ) -> Self {
     Self {
       user: database_user,
-      workspace_database: Default::default(),
+      workspace_database_manager: Default::default(),
       task_scheduler,
       editors: Default::default(),
       removing_editor: Default::default(),
@@ -93,7 +93,7 @@ impl DatabaseManager {
     self.editors.lock().await.clear();
     self.removing_editor.lock().await.clear();
     // 3. Clear the workspace database
-    if let Some(old_workspace_database) = self.workspace_database.swap(None) {
+    if let Some(old_workspace_database) = self.workspace_database_manager.swap(None) {
       info!("Close the old workspace database");
       let wdb = old_workspace_database.read().await;
       wdb.close();
@@ -117,7 +117,7 @@ impl DatabaseManager {
       .await?;
     let collab_object = collab_service
       .build_collab_object(&workspace_database_object_id, CollabType::WorkspaceDatabase)?;
-    let workspace_database = self.collab_builder.create_workspace_database(
+    let workspace_database = self.collab_builder.create_workspace_database_manager(
       collab_object,
       workspace_database_collab,
       collab_db,
@@ -125,7 +125,9 @@ impl DatabaseManager {
       collab_service,
     )?;
 
-    self.workspace_database.store(Some(workspace_database));
+    self
+      .workspace_database_manager
+      .store(Some(workspace_database));
     Ok(())
   }
 
@@ -155,7 +157,7 @@ impl DatabaseManager {
 
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
-    if let Some(lock) = self.workspace_database.load_full() {
+    if let Some(lock) = self.workspace_database_manager.load_full() {
       let wdb = lock.read().await;
       items = wdb.get_all_database_meta()
     }
@@ -443,7 +445,7 @@ impl DatabaseManager {
         let mut csv_template = CSVTemplate::try_from_reader(content.as_bytes(), true, None)?;
         csv_template.reset_view_id(view_id.clone());
 
-        let database_template = csv_template.try_into_database_template().await?;
+        let database_template = csv_template.try_into_database_template(None).await?;
         database_template.into_params()
       },
       CSVFormat::META => tokio::task::spawn_blocking(move || {
@@ -515,9 +517,9 @@ impl DatabaseManager {
     Ok(snapshots)
   }
 
-  fn workspace_database(&self) -> FlowyResult<Arc<RwLock<WorkspaceDatabase>>> {
+  fn workspace_database(&self) -> FlowyResult<Arc<RwLock<WorkspaceDatabaseManager>>> {
     self
-      .workspace_database
+      .workspace_database_manager
       .load_full()
       .ok_or_else(|| FlowyError::internal().with_context("Workspace database not initialized"))
   }
@@ -1053,7 +1055,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
   }
 }
 async fn open_database_with_retry(
-  workspace_database: Arc<RwLock<WorkspaceDatabase>>,
+  workspace_database_manager: Arc<RwLock<WorkspaceDatabaseManager>>,
   database_id: &str,
 ) -> Result<Arc<RwLock<Database>>, DatabaseError> {
   let max_retries = 3;
@@ -1065,7 +1067,7 @@ async fn open_database_with_retry(
       database_id
     );
 
-    let result = workspace_database
+    let result = workspace_database_manager
       .try_read()
       .map_err(|err| DatabaseError::Internal(anyhow!("workspace database lock fail: {}", err)))?
       .get_or_init_database(database_id)

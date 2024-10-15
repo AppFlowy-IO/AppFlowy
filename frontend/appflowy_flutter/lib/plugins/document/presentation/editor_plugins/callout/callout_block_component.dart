@@ -92,12 +92,9 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
     );
   }
 
-  // validate the data of the node, if the result is false, the node will be rendered as a placeholder
   @override
-  bool validate(Node node) =>
-      node.delta != null &&
-      node.children.isEmpty &&
-      node.attributes[CalloutBlockKeys.icon] is String;
+  BlockComponentValidate get validate =>
+      (node) => node.delta != null && node.children.isEmpty;
 }
 
 // the main widget for rendering the callout block
@@ -200,6 +197,7 @@ class _CalloutBlockComponentWidgetState
             title: '',
             emoji: emoji,
             emojiSize: 15.0,
+            showBorder: false,
             onSubmitted: (emoji, controller) {
               setEmoji(emoji);
               controller?.close();

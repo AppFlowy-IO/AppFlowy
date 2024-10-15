@@ -1,4 +1,5 @@
-import { useEffect, useState, createContext } from 'react';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
+import { useEffect, useState, createContext, useCallback } from 'react';
 
 export const ThemeModeContext = createContext<
   | {
@@ -23,6 +24,24 @@ export function useAppThemeMode () {
 
     return darkMode === 'true';
   });
+
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    switch (true) {
+      case createHotkey(HOT_KEY_NAME.TOGGLE_THEME)(e):
+        e.preventDefault();
+        setIsDark(prev => !prev);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onKeyDown]);
 
   useEffect(() => {
     if (fixedTheme) return;

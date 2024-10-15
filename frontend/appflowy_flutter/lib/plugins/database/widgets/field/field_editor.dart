@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -10,13 +8,18 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'field_type_list.dart';
@@ -50,6 +53,7 @@ class FieldEditor extends StatefulWidget {
 }
 
 class _FieldEditorState extends State<FieldEditor> {
+  final PopoverMutex popoverMutex = PopoverMutex();
   late FieldEditorPage _currentPage;
   late final TextEditingController textController =
       TextEditingController(text: widget.fieldInfo.name);
@@ -62,6 +66,7 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   void dispose() {
+    popoverMutex.dispose();
     textController.dispose();
     super.dispose();
   }
@@ -89,9 +94,10 @@ class _FieldEditorState extends State<FieldEditor> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          FieldNameTextField(
+          _NameAndIcon(
+            popoverMutex: popoverMutex,
+            textController: textController,
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            textEditingController: textController,
           ),
           VSpace(GridSize.typeOptionSeparatorHeight),
           _EditFieldButton(
@@ -162,7 +168,7 @@ class _EditFieldButton extends StatelessWidget {
       padding: padding,
       child: FlowyButton(
         leftIcon: const FlowySvg(FlowySvgs.edit_s),
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           LocaleKeys.grid_field_editProperty.tr(),
         ),
@@ -198,7 +204,7 @@ class FieldActionCell extends StatelessWidget {
     return FlowyButton(
       resetHoverOnRebuild: false,
       disable: !enable,
-      text: FlowyText.medium(
+      text: FlowyText(
         action.title(fieldInfo),
         lineHeight: 1.0,
         color: enable ? null : Theme.of(context).disabledColor,
@@ -390,10 +396,10 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
-      FieldNameTextField(
+      _NameAndIcon(
         popoverMutex: popoverMutex,
+        textController: widget.textEditingController,
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-        textEditingController: widget.textEditingController,
       ),
       const VSpace(8.0),
       SwitchFieldButton(popoverMutex: popoverMutex),
@@ -512,68 +518,160 @@ class FieldTypeOptionEditor extends StatelessWidget {
   }
 }
 
+class _NameAndIcon extends StatelessWidget {
+  const _NameAndIcon({
+    required this.textController,
+    this.padding = EdgeInsets.zero,
+    this.popoverMutex,
+  });
+
+  final TextEditingController textController;
+  final PopoverMutex? popoverMutex;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: Row(
+        children: [
+          FieldEditIconButton(
+            popoverMutex: popoverMutex,
+          ),
+          const HSpace(6),
+          Expanded(
+            child: FieldNameTextField(
+              textController: textController,
+              popoverMutex: popoverMutex,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FieldEditIconButton extends StatefulWidget {
+  const FieldEditIconButton({
+    super.key,
+    this.popoverMutex,
+  });
+
+  final PopoverMutex? popoverMutex;
+
+  @override
+  State<FieldEditIconButton> createState() => _FieldEditIconButtonState();
+}
+
+class _FieldEditIconButtonState extends State<FieldEditIconButton> {
+  final PopoverController popoverController = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      offset: const Offset(0, 4),
+      constraints: BoxConstraints.loose(const Size(360, 432)),
+      margin: EdgeInsets.zero,
+      direction: PopoverDirection.bottomWithLeftAligned,
+      controller: popoverController,
+      mutex: widget.popoverMutex,
+      child: FlowyIconButton(
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+          borderRadius: Corners.s8Border,
+        ),
+        icon: BlocBuilder<FieldEditorBloc, FieldEditorState>(
+          builder: (context, state) {
+            return FieldIcon(fieldInfo: state.field);
+          },
+        ),
+        width: 32,
+        onPressed: () => popoverController.show(),
+      ),
+      popupBuilder: (popoverContext) {
+        return FlowyIconEmojiPicker(
+          enableBackgroundColorSelection: false,
+          tabs: const [PickerTabType.icon],
+          onSelectedIcon: (group, icon, _) {
+            String newIcon = "";
+            if (group != null && icon != null) {
+              newIcon = '${group.name}/${icon.name}';
+            }
+
+            context
+                .read<FieldEditorBloc>()
+                .add(FieldEditorEvent.updateIcon(newIcon));
+
+            PopoverContainer.of(popoverContext).close();
+          },
+        );
+      },
+    );
+  }
+}
+
 class FieldNameTextField extends StatefulWidget {
   const FieldNameTextField({
     super.key,
-    required this.textEditingController,
+    required this.textController,
     this.popoverMutex,
-    this.padding = EdgeInsets.zero,
   });
 
-  final TextEditingController textEditingController;
+  final TextEditingController textController;
   final PopoverMutex? popoverMutex;
-  final EdgeInsets padding;
 
   @override
   State<FieldNameTextField> createState() => _FieldNameTextFieldState();
 }
 
 class _FieldNameTextFieldState extends State<FieldNameTextField> {
-  FocusNode focusNode = FocusNode();
+  final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    focusNode.addListener(() {
-      if (focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
-
-    widget.popoverMutex?.listenOnPopoverChanged(() {
-      if (focusNode.hasFocus) {
-        focusNode.unfocus();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: widget.padding,
-      child: FlowyTextField(
-        focusNode: focusNode,
-        controller: widget.textEditingController,
-        onSubmitted: (_) => PopoverContainer.of(context).close(),
-        onChanged: (newName) {
-          context
-              .read<FieldEditorBloc>()
-              .add(FieldEditorEvent.renameField(newName));
-        },
-      ),
-    );
+    focusNode.addListener(_onFocusChanged);
+    widget.popoverMutex?.addPopoverListener(_onPopoverChanged);
   }
 
   @override
   void dispose() {
-    focusNode.removeListener(() {
-      if (focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
+    widget.popoverMutex?.removePopoverListener(_onPopoverChanged);
+    focusNode.removeListener(_onFocusChanged);
     focusNode.dispose();
+
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyTextField(
+      focusNode: focusNode,
+      controller: widget.textController,
+      onSubmitted: (_) => PopoverContainer.of(context).close(),
+      onChanged: (newName) {
+        context
+            .read<FieldEditorBloc>()
+            .add(FieldEditorEvent.renameField(newName));
+      },
+    );
+  }
+
+  void _onFocusChanged() {
+    if (focusNode.hasFocus) {
+      widget.popoverMutex?.close();
+    }
+  }
+
+  void _onPopoverChanged() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
   }
 }
 
@@ -596,12 +694,37 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        final bool isPrimary = state.field.isPrimary;
+        if (state.field.isPrimary) {
+          return SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FlowyTooltip(
+                message: LocaleKeys.grid_field_switchPrimaryFieldTooltip.tr(),
+                child: FlowyButton(
+                  text: FlowyText(
+                    state.field.fieldType.i18n,
+                    lineHeight: 1.0,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  leftIcon: FlowySvg(
+                    state.field.fieldType.svgData,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  rightIcon: FlowySvg(
+                    FlowySvgs.more_s,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(460, 540)),
-            triggerActions: isPrimary ? 0 : PopoverTriggerFlags.hover,
+            triggerActions: PopoverTriggerFlags.hover,
             mutex: widget.popoverMutex,
             controller: _popoverController,
             offset: const Offset(8, 0),
@@ -618,23 +741,16 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: FlowyButton(
-                onTap: () {
-                  if (!isPrimary) {
-                    _popoverController.show();
-                  }
-                },
-                text: FlowyText.medium(
+                onTap: () => _popoverController.show(),
+                text: FlowyText(
                   state.field.fieldType.i18n,
                   lineHeight: 1.0,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
                 leftIcon: FlowySvg(
                   state.field.fieldType.svgData,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
-                rightIcon: FlowySvg(
+                rightIcon: const FlowySvg(
                   FlowySvgs.more_s,
-                  color: isPrimary ? Theme.of(context).disabledColor : null,
                 ),
               ),
             ),

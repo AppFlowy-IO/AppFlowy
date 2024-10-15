@@ -1,10 +1,9 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -132,9 +131,9 @@ class _FieldButton extends StatelessWidget {
     return FlowyOptionTile.checkbox(
       text: field.name,
       isSelected: isSelected,
-      leftIcon: FlowySvg(
-        field.fieldType.svgData,
-        size: const Size.square(20),
+      leftIcon: FieldIcon(
+        fieldInfo: field,
+        dimension: 20,
       ),
       showTopBorder: showTopBorder,
       onTap: () => onSelect(field.id),

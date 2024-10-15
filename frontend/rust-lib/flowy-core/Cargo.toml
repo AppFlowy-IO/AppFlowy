@@ -27,6 +27,7 @@ flowy-search = { workspace = true }
 flowy-search-pub = { workspace = true }
 collab-entity = { workspace = true }
 collab-plugins = { workspace = true }
+collab-folder = { workspace = true }
 
 collab = { workspace = true }
 #collab = { workspace = true, features = ["verbose_log"] }
@@ -66,28 +67,28 @@ profiling = ["console-subscriber", "tokio/tracing"]
 http_sync = []
 native_sync = []
 dart = [
-    "flowy-user/dart",
-    "flowy-date/dart",
-    "flowy-search/dart",
-    "flowy-folder/dart",
-    "flowy-database2/dart",
-    "flowy-ai/dart",
-    "flowy-storage/dart",
+  "flowy-user/dart",
+  "flowy-date/dart",
+  "flowy-search/dart",
+  "flowy-folder/dart",
+  "flowy-database2/dart",
+  "flowy-ai/dart",
+  "flowy-storage/dart",
 ]
 ts = [
-    "flowy-user/tauri_ts",
-    "flowy-folder/tauri_ts",
-    "flowy-search/tauri_ts",
-    "flowy-database2/ts",
-    "flowy-config/tauri_ts",
-    "flowy-ai/tauri_ts",
-    "flowy-storage/tauri_ts",
+  "flowy-user/tauri_ts",
+  "flowy-folder/tauri_ts",
+  "flowy-search/tauri_ts",
+  "flowy-database2/ts",
+  "flowy-config/tauri_ts",
+  "flowy-ai/tauri_ts",
+  "flowy-storage/tauri_ts",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 
 # Enable/Disable AppFlowy Verbose Log Configuration
 verbose_log = [
-    "flowy-document/verbose_log",
-    "flowy-database2/verbose_log",
-    "client-api/sync_verbose_log"
+  "flowy-document/verbose_log",
+  "flowy-database2/verbose_log",
+  "client-api/sync_verbose_log"
 ]

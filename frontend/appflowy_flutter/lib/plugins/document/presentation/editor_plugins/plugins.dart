@@ -1,5 +1,5 @@
 export 'actions/block_action_list.dart';
-export 'actions/option_action.dart';
+export 'actions/option/option_actions.dart';
 export 'align_toolbar_item/align_toolbar_item.dart';
 export 'base/backtick_character_command.dart';
 export 'base/cover_title_command.dart';
@@ -55,6 +55,8 @@ export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
 export 'parsers/markdown_parsers.dart';
 export 'quote/quote_block_shortcuts.dart';
+export 'shortcuts/character_shortcuts.dart';
+export 'shortcuts/command_shortcuts.dart';
 export 'slash_menu/slash_menu_items.dart';
 export 'table/table_menu.dart';
 export 'table/table_option_action.dart';

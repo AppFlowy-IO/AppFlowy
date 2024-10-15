@@ -72,9 +72,12 @@
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
+    "defaultName": "My Workspace",
     "create": "Create workspace",
+    "importFromNotion": "Import From Notion",
     "reset": "Reset workspace",
     "renameWorkspace": "Rename workspace",
+    "workspaceNameCannotBeEmpty": "Workspace name cannot be empty",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found",
@@ -119,7 +122,11 @@
     "exportAsTab": "Export as",
     "publishTab": "Publish",
     "shareTab": "Share",
-    "publishOnAppFlowy": "Publish on AppFlowy"
+    "publishOnAppFlowy": "Publish on AppFlowy",
+    "shareTabTitle": "Invite to collaborate",
+    "shareTabDescription": "For easy collaboration with anyone",
+    "copyLinkToBlockSuccess": "Copied block link to clipboard",
+    "copyLinkToBlockFailed": "Failed to copy block link to clipboard"
   },
   "moreAction": {
     "small": "small",
@@ -138,6 +145,7 @@
     "textAndMarkdown": "Text & Markdown",
     "documentFromV010": "Document from v0.1.0",
     "databaseFromV010": "Database from v0.1.0",
+    "notionZip": "Notion Exported Zip File",
     "csv": "CSV",
     "database": "Database"
   },
@@ -189,6 +197,7 @@
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
+    "restore": "Restore",
     "deleteAll": "Delete All",
     "pageHeader": {
       "fileName": "File name",
@@ -196,12 +205,16 @@
       "created": "Created"
     },
     "confirmDeleteAll": {
-      "title": "Are you sure to delete all pages in Trash?",
-      "caption": "This action cannot be undone."
+      "title": "All pages in trash",
+      "caption": "Are you sure you want to delete everything in Trash? This action cannot be undone."
     },
     "confirmRestoreAll": {
-      "title": "Are you sure to restore all pages in Trash?",
+      "title": "Restore all pages in trash",
       "caption": "This action cannot be undone."
+    },
+    "restorePage": {
+      "title": "Restore: {}",
+      "caption": "Are you sure you want to restore this page?"
     },
     "mobile": {
       "actions": "Trash Actions",
@@ -215,7 +228,8 @@
   "deletePagePrompt": {
     "text": "This page is in Trash",
     "restore": "Restore page",
-    "deletePermanent": "Delete permanently"
+    "deletePermanent": "Delete permanently",
+    "deletePermanentDescription": "Are you sure you want to delete this page permanently? This is irreversible."
   },
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
@@ -383,7 +397,10 @@
     "previous": "Previous",
     "submit": "Submit",
     "download": "Download",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "viewing": "Viewing",
+    "editing": "Editing",
+    "gotIt": "Got it"
   },
   "label": {
     "welcome": "Welcome!",
@@ -506,7 +523,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Leave workspace",
-        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it.",
+        "success": "You have left the workspace successfully.",
+        "fail": "Failed to leave the workspace."
       },
       "manageWorkspace": {
         "title": "Manage workspace",
@@ -860,7 +879,7 @@
         "itemThree": "5 GB",
         "itemFour": "yes",
         "itemFive": "yes",
-        "itemSix": "100 lifetime",
+        "itemSix": "20 lifetime",
         "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
@@ -922,6 +941,8 @@
       }
     },
     "common": {
+      "uploadingFile": "File is uploading. Please do not quit the app",
+      "uploadNotionSuccess": "Your Notion zip file has been uploaded successfully. Once the import is complete, you will receive a confirmation email",
       "reset": "Reset"
     },
     "menu": {
@@ -943,11 +964,6 @@
       "cloudServerType": "Cloud server",
       "cloudServerTypeTip": "Please note that it might log out your current account after switching the cloud server",
       "cloudLocal": "Local",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
-      "cloudSupabaseAnonKey": "Supabase anon key",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
       "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
@@ -1327,6 +1343,7 @@
       "delete": "Delete",
       "wrapCellContent": "Wrap text",
       "clear": "Clear cells",
+      "switchPrimaryFieldTooltip": "Cannot change field type of primary field",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
@@ -1561,6 +1578,16 @@
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
         "file": "File"
+      },
+      "subPage": {
+        "name": "Insert page",
+        "keyword1": "sub page",
+        "keyword2": "page",
+        "keyword3": "child page",
+        "keyword4": "insert page",
+        "keyword5": "embed page",
+        "keyword6": "new page",
+        "keyword7": "create page"
       }
     },
     "selectionMenu": {
@@ -1648,7 +1675,8 @@
         "center": "Center",
         "right": "Right",
         "defaultColor": "Default",
-        "depth": "Depth"
+        "depth": "Depth",
+        "copyLinkToBlock": "Copy link to block"
       },
       "image": {
         "addAnImage": "Add images",
@@ -1739,6 +1767,16 @@
         "uploadedAt": "Uploaded on {}",
         "linkedAt": "Link added on {}",
         "failedToOpenMsg": "Failed to open, file not found"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (handling paste)",
+        "errors": {
+          "failedDeletePage": "Failed to delete page",
+          "failedCreatePage": "Failed to create page",
+          "failedMovePage": "Failed to move page to this document",
+          "failedDuplicatePage": "Failed to duplicate page",
+          "failedDuplicateFindView": "Failed to duplicate page - original view not found"
+        }
       },
       "cannotMoveToItsChildren": "Cannot move to its children"
     },
@@ -2467,7 +2505,12 @@
       "uploadedAt": "Uploaded on {time}",
       "linkedAt": "Link added on {time}",
       "empty": "Upload or embed a file"
-    }
+    },
+    "importNotion": "Import from Notion",
+    "import": "Import",
+    "importSuccess": "Uploaded successfully",
+    "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
+    "importFailed": "Import failed, please check the file format"
   },
   "globalComment": {
     "comments": "Comments",
@@ -2623,6 +2666,46 @@
     "requestAccess": "Request access",
     "backToHome": "Back to home",
     "tip": "You're currently logged in as <link/>.",
-    "mightBe": "You might need to <login/> with a different account."
+    "mightBe": "You might need to <login/> with a different account.",
+    "successful": "Request sent successfully",
+    "successfulMessage": "You will be notified once the owner approves your request.",
+    "requestError": "Failed to request access",
+    "repeatRequestError": "You've already requested access to this page"
+  },
+  "approveAccess": {
+    "title": "Approve Workspace Join Request",
+    "requestSummary": "<user/> requests to join <workspace/> and access <page/>",
+    "upgrade": "upgrade",
+    "downloadApp": "Download AppFlowy",
+    "approveButton": "Approve",
+    "approveSuccess": "Approved successfully",
+    "approveError": "Failed to approve, ensure the workspace plan limit is not exceeded",
+    "getRequestInfoError": "Failed to get request info",
+    "memberCount": {
+      "zero": "No members",
+      "one": "1 member",
+      "many": "{count} members",
+      "other": "{count} members"
+    },
+    "alreadyProTitle": "You've reached the workspace plan limit",
+    "alreadyProMessage": "Ask them to contact <email/> to unlock more members",
+    "repeatApproveError": "You've already approved this request",
+    "ensurePlanLimit": "Ensure the workspace plan limit is not exceeded. If the limit is exceeded, consider <upgrade/> the workspace plan or <download/>.",
+    "requestToJoin": "requested to join",
+    "asMember": "as a member"
+  },
+  "upgradePlanModal": {
+    "title": "Upgrade to Pro",
+    "message": "{name} has reached the free member limit. Upgrade to the Pro Plan to invite more members.",
+    "upgradeSteps": "How to upgrade your plan on AppFlowy:",
+    "step1": "1. Go to Settings",
+    "step2": "2. Click on 'Plan'",
+    "step3": "3. Select 'Change Plan'",
+    "appNote": "Note: ",
+    "actionButton": "Upgrade",
+    "downloadLink": "Download App",
+    "laterButton": "Later",
+    "refreshNote": "After successful upgrade, click <refresh/> to activate your new features.",
+    "refresh": "here"
   }
 }

@@ -1,18 +1,18 @@
 use crate::entities::parser::empty_str::NotEmptyStr;
 use crate::entities::ViewLayoutPB;
 use crate::share::{ImportParams, ImportType, ImportValue};
-use collab_entity::CollabType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use lib_infra::validator_fn::{required_not_empty_str, required_valid_path};
+use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
 
 #[derive(Clone, Debug, ProtoBuf_Enum)]
 pub enum ImportTypePB {
   HistoryDocument = 0,
   HistoryDatabase = 1,
-  RawDatabase = 2,
-  CSV = 3,
+  Markdown = 2,
+  AFDatabase = 3,
+  CSV = 4,
 }
 
 impl From<ImportTypePB> for ImportType {
@@ -20,26 +20,16 @@ impl From<ImportTypePB> for ImportType {
     match pb {
       ImportTypePB::HistoryDocument => ImportType::HistoryDocument,
       ImportTypePB::HistoryDatabase => ImportType::HistoryDatabase,
-      ImportTypePB::RawDatabase => ImportType::RawDatabase,
+      ImportTypePB::Markdown => ImportType::Markdown,
+      ImportTypePB::AFDatabase => ImportType::AFDatabase,
       ImportTypePB::CSV => ImportType::CSV,
-    }
-  }
-}
-
-impl From<ImportType> for CollabType {
-  fn from(import_type: ImportType) -> Self {
-    match import_type {
-      ImportType::HistoryDocument => CollabType::Document,
-      ImportType::HistoryDatabase => CollabType::Database,
-      ImportType::RawDatabase => CollabType::Database,
-      ImportType::CSV => CollabType::Database,
     }
   }
 }
 
 impl Default for ImportTypePB {
   fn default() -> Self {
-    Self::HistoryDocument
+    Self::Markdown
   }
 }
 
@@ -71,22 +61,11 @@ pub struct ImportValuePayloadPB {
 #[derive(Clone, Debug, Validate, ProtoBuf, Default)]
 pub struct ImportPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub parent_view_id: String,
 
   #[pb(index = 2)]
   pub values: Vec<ImportValuePayloadPB>,
-}
-
-#[derive(Clone, Debug, Validate, ProtoBuf, Default)]
-pub struct ImportZipPB {
-  #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
-  pub parent_view_id: String,
-
-  #[pb(index = 2)]
-  #[validate(custom = "required_valid_path")]
-  pub file_path: String,
 }
 
 impl TryInto<ImportParams> for ImportPayloadPB {
@@ -131,4 +110,11 @@ impl TryInto<ImportParams> for ImportPayloadPB {
       values,
     })
   }
+}
+
+#[derive(Clone, Debug, Validate, ProtoBuf, Default)]
+pub struct ImportZipPB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub file_path: String,
 }

@@ -817,7 +817,7 @@
         "itemThree": "5 GB",
         "itemFour": "evet",
         "itemFive": "evet",
-        "itemSix": "100 ömür boyu",
+        "itemSix": "20 ömür boyu",
         "itemSeven": " "
       },
       "proLabels": {
@@ -898,11 +898,6 @@
       "cloudServerType": "Bulut sunucusu",
       "cloudServerTypeTip": "Lütfen bulut sunucusunu değiştirdikten sonra geçerli hesabınızdan çıkış yapabileceğinizi unutmayın",
       "cloudLocal": "Yerel",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL'si",
-      "cloudSupabaseUrlCanNotBeEmpty": "Supabase URL'si boş bırakılamaz",
-      "cloudSupabaseAnonKey": "Supabase anonim anahtarı",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anonim anahtar boş bırakılamaz",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud Kendi Sunucunuzda",
       "appFlowyCloudUrlCanNotBeEmpty": "Bulut URL'si boş bırakılamaz",

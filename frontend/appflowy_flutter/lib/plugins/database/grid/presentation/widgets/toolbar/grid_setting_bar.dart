@@ -49,9 +49,9 @@ class GridSettingBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 FilterButton(toggleExtension: toggleExtension),
-                const HSpace(2),
+                const HSpace(6),
                 SortButton(toggleExtension: toggleExtension),
-                const HSpace(2),
+                const HSpace(6),
                 SettingButton(
                   databaseController: controller,
                 ),

@@ -6,7 +6,7 @@ import {
   UserWorkspaceInfo,
   Workspace,
   YDoc,
-  View, DatabaseRelations,
+  View, DatabaseRelations, GetRequestAccessInfoResponse, Subscriptions, SubscriptionPlan,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { AFService } from '@/application/services/services.type';
@@ -234,4 +234,35 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
+  approveRequestAccess (_requestId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getRequestAccessInfo (_requestId: string): Promise<GetRequestAccessInfoResponse> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getSubscriptionLink (_workspaceId: string, _plan: string, _interval: string): Promise<string> {
+    return Promise.reject('Method not implemented');
+  }
+
+  sendRequestAccess (_workspaceId: string, _viewId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getSubscriptions (): Promise<Subscriptions> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getActiveSubscription (_workspaceId: string): Promise<SubscriptionPlan[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  registerDocUpdate (_doc: YDoc, _workspaceId: string, _objectId: string): void {
+    throw new Error('Method not implemented.');
+  }
+
+  importFile (_file: File, _onProgress: (progress: number) => void) {
+    return Promise.reject('Method not implemented');
+  }
 }

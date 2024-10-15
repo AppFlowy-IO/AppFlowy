@@ -2,7 +2,7 @@ import { UIVariant } from '@/application/types';
 import { OutlineDrawer } from '@/components/_shared/outline';
 import Outline from '@/components/_shared/outline/Outline';
 import { AppContext, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
-import React, { Suspense, useContext, lazy } from 'react';
+import React, { useContext, lazy } from 'react';
 import { Favorite } from '@/components/app/favorite';
 import { Workspaces } from '@/components/app/workspaces';
 
@@ -25,7 +25,6 @@ function SideBar ({
 
   const viewId = useAppViewId();
   const navigateToView = useContext(AppContext)?.toView;
-  const rendered = useContext(AppContext)?.rendered;
 
   return (
     <OutlineDrawer
@@ -44,7 +43,7 @@ function SideBar ({
           width={drawerWidth}
           outline={outline}
         />
-        {rendered && <Suspense><SideBarBottom /></Suspense>}
+        <SideBarBottom />
 
       </div>
     </OutlineDrawer>

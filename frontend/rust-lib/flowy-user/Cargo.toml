@@ -49,6 +49,7 @@ base64 = "^0.21"
 tokio-stream = "0.1.14"
 semver = "1.0.22"
 validator = { workspace = true, features = ["derive"] }
+rayon = "1.10.0"
 
 [dev-dependencies]
 nanoid = "0.4.0"

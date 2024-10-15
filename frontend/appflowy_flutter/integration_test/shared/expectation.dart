@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
@@ -25,9 +26,15 @@ const String gettingStarted = 'Getting started';
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
   Future<void> expectToSeeHomePageWithGetStartedPage() async {
-    final finder = find.byType(HomeStack);
-    await pumpUntilFound(finder);
-    expect(finder, findsOneWidget);
+    if (UniversalPlatform.isDesktopOrWeb) {
+      final finder = find.byType(HomeStack);
+      await pumpUntilFound(finder);
+      expect(finder, findsOneWidget);
+    } else if (UniversalPlatform.isMobile) {
+      final finder = find.byType(MobileHomePage);
+      await pumpUntilFound(finder);
+      expect(finder, findsOneWidget);
+    }
 
     final docFinder = find.textContaining(gettingStarted);
     await pumpUntilFound(docFinder);

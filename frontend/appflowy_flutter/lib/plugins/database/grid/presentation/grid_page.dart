@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
@@ -17,6 +19,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,18 +145,7 @@ class _GridPageState extends State<GridPage> {
           }
         },
         child: BlocConsumer<GridBloc, GridState>(
-          listener: (context, state) => state.loadingState.whenOrNull(
-            // If initial row id is defined, open row details overlay
-            finish: (_) {
-              if (widget.initialRowId != null && !_didOpenInitialRow) {
-                _didOpenInitialRow = true;
-
-                _openRow(context, widget.initialRowId!);
-              }
-
-              return;
-            },
-          ),
+          listener: listener,
           builder: (context, state) => state.loadingState.map(
             loading: (_) => const Center(
               child: CircularProgressIndicator.adaptive(),
@@ -184,7 +176,7 @@ class _GridPageState extends State<GridPage> {
   ) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final gridBloc = context.read<GridBloc>();
-      final rowCache = gridBloc.getRowCache(rowId);
+      final rowCache = gridBloc.rowCache;
       final rowMeta = rowCache.getRow(rowId)?.rowMeta;
       if (rowMeta == null) {
         return;
@@ -208,6 +200,48 @@ class _GridPageState extends State<GridPage> {
         ),
       );
     });
+  }
+
+  void listener(BuildContext context, GridState state) {
+    state.loadingState.whenOrNull(
+      // If initial row id is defined, open row details overlay
+      finish: (_) async {
+        if (widget.initialRowId != null && !_didOpenInitialRow) {
+          _didOpenInitialRow = true;
+
+          _openRow(context, widget.initialRowId!);
+          return;
+        }
+
+        final bloc = context.read<DatabaseTabBarBloc>();
+        final isCurrentView =
+            bloc.state.tabBars[bloc.state.selectedIndex].viewId ==
+                widget.view.id;
+
+        if (state.openRowDetail && state.createdRow != null && isCurrentView) {
+          final rowController = RowController(
+            viewId: widget.view.id,
+            rowMeta: state.createdRow!,
+            rowCache: context.read<GridBloc>().rowCache,
+          );
+          unawaited(
+            FlowyOverlay.show(
+              context: context,
+              builder: (_) => BlocProvider.value(
+                value: context.read<ViewBloc>(),
+                child: RowDetailPage(
+                  databaseController:
+                      context.read<GridBloc>().databaseController,
+                  rowController: rowController,
+                  userProfile: context.read<GridBloc>().userProfile,
+                ),
+              ),
+            ),
+          );
+          context.read<GridBloc>().add(const GridEvent.resetCreatedRow());
+        }
+      },
+    );
   }
 }
 
@@ -291,21 +325,41 @@ class _GridRows extends StatefulWidget {
 
 class _GridRowsState extends State<_GridRows> {
   bool showFloatingCalculations = false;
+  bool isAtBottom = false;
 
   @override
   void initState() {
     super.initState();
     _evaluateFloatingCalculations();
+    widget.scrollController.verticalController.addListener(_onScrollChanged);
+  }
+
+  void _onScrollChanged() {
+    final controller = widget.scrollController.verticalController;
+    final isAtBottom = controller.position.atEdge && controller.offset > 0 ||
+        controller.offset >= controller.position.maxScrollExtent - 1;
+    if (isAtBottom != this.isAtBottom) {
+      setState(() => this.isAtBottom = isAtBottom);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.verticalController.removeListener(_onScrollChanged);
+    super.dispose();
   }
 
   void _evaluateFloatingCalculations() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
+          final verticalController = widget.scrollController.verticalController;
           // maxScrollExtent is 0.0 if scrolling is not possible
-          showFloatingCalculations = widget.scrollController.verticalController
-                  .position.maxScrollExtent >
-              0;
+          showFloatingCalculations =
+              verticalController.position.maxScrollExtent > 0;
+
+          isAtBottom = verticalController.position.atEdge &&
+              verticalController.offset > 0;
         });
       }
     });
@@ -321,7 +375,12 @@ class _GridRowsState extends State<_GridRows> {
             builder: (BuildContext context, BoxConstraints layoutConstraits) {
               return _WrapScrollView(
                 scrollController: widget.scrollController,
-                contentWidth: GridLayout.headerWidth(state.fields),
+                contentWidth: GridLayout.headerWidth(
+                  context
+                      .read<DatabasePluginWidgetBuilderSize>()
+                      .horizontalPadding,
+                  state.fields,
+                ),
                 child: BlocConsumer<GridBloc, GridState>(
                   listenWhen: (previous, current) =>
                       previous.rowCount != current.rowCount,
@@ -350,11 +409,11 @@ class _GridRowsState extends State<_GridRows> {
   ) {
     // 1. GridRowBottomBar
     // 2. GridCalculationsRow
-    // 3. Footer Padding
-    final itemCount = state.rowInfos.length + 3;
-    return Stack(
+    final itemCount =
+        state.rowInfos.length + (showFloatingCalculations ? 1 : 2);
+    return Column(
       children: [
-        Positioned.fill(
+        Expanded(
           child: ReorderableListView.builder(
             ///  This is a workaround related to
             ///  https://github.com/flutter/flutter/issues/25652
@@ -402,38 +461,31 @@ class _GridRowsState extends State<_GridRows> {
             },
             itemCount: itemCount,
             itemBuilder: (context, index) {
-              if (index < state.rowInfos.length) {
-                return _renderRow(
-                  context,
-                  state.rowInfos[index].rowId,
-                  index: index,
-                );
-              }
-
               if (index == state.rowInfos.length) {
                 return const GridRowBottomBar(key: Key('grid_footer'));
               }
 
-              if (index == state.rowInfos.length + 1) {
-                if (showFloatingCalculations) {
-                  return const SizedBox(
-                    key: Key('calculations_bottom_padding'),
-                    height: 36,
-                  );
-                } else {
-                  return GridCalculationsRow(
-                    key: const Key('grid_calculations'),
-                    viewId: widget.viewId,
-                  );
-                }
+              if (index == state.rowInfos.length + 1 &&
+                  !showFloatingCalculations) {
+                return GridCalculationsRow(
+                  key: const Key('grid_calculations'),
+                  viewId: widget.viewId,
+                );
               }
 
-              return const SizedBox(key: Key('footer_padding'), height: 10);
+              return _renderRow(
+                context,
+                state.rowInfos[index].rowId,
+                index: index,
+              );
             },
           ),
         ),
         if (showFloatingCalculations) ...[
-          _PositionedCalculationsRow(viewId: widget.viewId),
+          _PositionedCalculationsRow(
+            viewId: widget.viewId,
+            isAtBottom: isAtBottom,
+          ),
         ],
       ],
     );
@@ -456,7 +508,7 @@ class _GridRowsState extends State<_GridRows> {
     }
 
     final child = GridRow(
-      key: ValueKey(rowId),
+      key: ValueKey("grid_row_$rowId"),
       fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
@@ -536,9 +588,15 @@ class _WrapScrollView extends StatelessWidget {
 class _PositionedCalculationsRow extends StatefulWidget {
   const _PositionedCalculationsRow({
     required this.viewId,
+    this.isAtBottom = false,
   });
 
   final String viewId;
+
+  /// We don't need to show the top border if the scroll offset
+  /// is at the bottom of the ScrollView.
+  ///
+  final bool isAtBottom;
 
   @override
   State<_PositionedCalculationsRow> createState() =>
@@ -549,30 +607,28 @@ class _PositionedCalculationsRowState
     extends State<_PositionedCalculationsRow> {
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        margin: EdgeInsets.only(
-          left:
-              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
-        ),
-        padding: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
-          border: Border(
-            top: BorderSide(color: Theme.of(context).dividerColor),
-          ),
-        ),
-        child: SizedBox(
-          height: 36,
-          width: double.infinity,
-          child: GridCalculationsRow(
-            key: const Key('floating_grid_calculations'),
-            viewId: widget.viewId,
-            includeDefaultInsets: false,
-          ),
+    return Container(
+      margin: EdgeInsets.only(
+        left: context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+      ),
+      padding: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        border: widget.isAtBottom
+            ? null
+            : Border(
+                top: BorderSide(
+                  color: AFThemeExtension.of(context).borderColor,
+                ),
+              ),
+      ),
+      child: SizedBox(
+        height: 36,
+        width: double.infinity,
+        child: GridCalculationsRow(
+          key: const Key('floating_grid_calculations'),
+          viewId: widget.viewId,
+          includeDefaultInsets: false,
         ),
       ),
     );

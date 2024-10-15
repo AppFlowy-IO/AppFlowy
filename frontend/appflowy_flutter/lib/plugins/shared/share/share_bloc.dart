@@ -13,9 +13,9 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'share_bloc.freezed.dart';
+import 'constants.dart';
 
-const _url = 'https://appflowy.com';
+part 'share_bloc.freezed.dart';
 
 class ShareBloc extends Bloc<ShareEvent, ShareState> {
   ShareBloc({
@@ -27,7 +27,7 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
           viewListener = ViewListener(viewId: view.id)
             ..start(
               onViewUpdated: (value) {
-                add(ShareEvent.updateViewName(value.name));
+                add(ShareEvent.updateViewName(value.name, value.id));
               },
               onViewMoveToTrash: (p0) {
                 add(const ShareEvent.setPublishStatus(false));
@@ -70,7 +70,10 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                 isPublished: true,
                 publishResult: FlowySuccess(null),
                 unpublishResult: null,
-                url: '$_url/${result.namespace}/$publishName',
+                url: ShareConstants.buildPublishUrl(
+                  nameSpace: result.namespace,
+                  publishName: publishName,
+                ),
               ),
             );
 
@@ -113,8 +116,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             ),
           );
         },
-        updateViewName: (viewName) async {
-          emit(state.copyWith(viewName: viewName));
+        updateViewName: (viewName, viewId) async {
+          emit(state.copyWith(viewName: viewName, viewId: viewId));
         },
         setPublishStatus: (isPublished) {
           emit(
@@ -131,13 +134,23 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
             (p) => false,
           );
+          String workspaceId = state.workspaceId;
+          if (workspaceId.isEmpty) {
+            workspaceId = await UserBackendService.getCurrentWorkspace()
+                .fold((s) => s.id, (f) => '');
+          }
           publishInfo.fold((s) {
             emit(
               state.copyWith(
                 isPublished: true,
-                url: '$_url/${s.namespace}/${s.publishName}',
+                url: ShareConstants.buildPublishUrl(
+                  nameSpace: s.namespace,
+                  publishName: s.publishName,
+                ),
                 viewName: view.name,
                 enablePublish: enablePublish,
+                workspaceId: workspaceId,
+                viewId: view.id,
               ),
             );
           }, (f) {
@@ -147,6 +160,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
                 url: '',
                 viewName: view.name,
                 enablePublish: enablePublish,
+                workspaceId: workspaceId,
+                viewId: view.id,
               ),
             );
           });
@@ -261,7 +276,8 @@ class ShareEvent with _$ShareEvent {
     List<String> selectedViewIds,
   ) = _Publish;
   const factory ShareEvent.unPublish() = _UnPublish;
-  const factory ShareEvent.updateViewName(String name) = _UpdateViewName;
+  const factory ShareEvent.updateViewName(String name, String viewId) =
+      _UpdateViewName;
   const factory ShareEvent.updatePublishStatus() = _UpdatePublishStatus;
   const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
@@ -278,6 +294,8 @@ class ShareState with _$ShareState {
     FlowyResult<ShareType, FlowyError>? exportResult,
     FlowyResult<void, FlowyError>? publishResult,
     FlowyResult<void, FlowyError>? unpublishResult,
+    required String viewId,
+    required String workspaceId,
   }) = _ShareState;
 
   factory ShareState.initial() => const ShareState(
@@ -286,5 +304,7 @@ class ShareState with _$ShareState {
         enablePublish: true,
         url: '',
         viewName: '',
+        viewId: '',
+        workspaceId: '',
       );
 }

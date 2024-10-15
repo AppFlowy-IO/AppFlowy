@@ -11,12 +11,18 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '_sidebar_import_notion.dart';
+
 @visibleForTesting
 const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
+
+@visibleForTesting
+const importNotionButtonKey = ValueKey('importNotinoButton');
 
 class WorkspacesMenu extends StatelessWidget {
   const WorkspacesMenu({
@@ -60,17 +66,29 @@ class WorkspacesMenu extends StatelessWidget {
           child: Divider(height: 1.0),
         ),
         // workspace list
-        for (final workspace in workspaces) ...[
-          WorkspaceMenuItem(
-            key: ValueKey(workspace.workspaceId),
-            workspace: workspace,
-            userProfile: userProfile,
-            isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final workspace in workspaces) ...[
+                  WorkspaceMenuItem(
+                    key: ValueKey(workspace.workspaceId),
+                    workspace: workspace,
+                    userProfile: userProfile,
+                    isSelected:
+                        workspace.workspaceId == currentWorkspace.workspaceId,
+                  ),
+                  const VSpace(6.0),
+                ],
+              ],
+            ),
           ),
-          const VSpace(6.0),
-        ],
+        ),
         // add new workspace
         const _CreateWorkspaceButton(),
+        const VSpace(6.0),
+        const _ImportNotionButton(),
         const VSpace(6.0),
       ],
     );
@@ -153,31 +171,22 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
   }
 
   Widget _buildLeftIcon(BuildContext context) {
-    return Container(
-      width: 32.0,
-      height: 32.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: const Color(0x01717171).withOpacity(0.12),
-          width: 0.8,
-        ),
-      ),
-      child: FlowyTooltip(
-        message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
-        child: WorkspaceIcon(
-          workspace: widget.workspace,
-          iconSize: 22,
-          fontSize: 16,
-          figmaLineHeight: 32.0,
-          enableEdit: true,
-          onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                UserWorkspaceEvent.updateWorkspaceIcon(
-                  widget.workspace.workspaceId,
-                  result.emoji,
-                ),
+    return FlowyTooltip(
+      message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
+      child: WorkspaceIcon(
+        workspace: widget.workspace,
+        iconSize: 36,
+        emojiSize: 24.0,
+        fontSize: 18.0,
+        figmaLineHeight: 26.0,
+        borderRadius: 12.0,
+        enableEdit: true,
+        onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.updateWorkspaceIcon(
+                widget.workspace.workspaceId,
+                result.emoji,
               ),
-        ),
+            ),
       ),
     );
   }
@@ -321,8 +330,10 @@ class _CreateWorkspaceButton extends StatelessWidget {
         text: Row(
           children: [
             _buildLeftIcon(context),
-            const HSpace(10.0),
-            FlowyText.regular(LocaleKeys.workspace_create.tr()),
+            const HSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys.workspace_create.tr(),
+            ),
           ],
         ),
       ),
@@ -331,11 +342,11 @@ class _CreateWorkspaceButton extends StatelessWidget {
 
   Widget _buildLeftIcon(BuildContext context) {
     return Container(
-      width: 32.0,
-      height: 32.0,
+      width: 36.0,
+      height: 36.0,
       padding: const EdgeInsets.all(7.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: const Color(0x01717171).withOpacity(0.12),
           width: 0.8,
@@ -353,6 +364,78 @@ class _CreateWorkspaceButton extends StatelessWidget {
           workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
         },
       ).show(context);
+    }
+  }
+}
+
+class _ImportNotionButton extends StatelessWidget {
+  const _ImportNotionButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: FlowyButton(
+        key: importNotionButtonKey,
+        onTap: () {
+          _showImportNotinoDialog(context);
+        },
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        text: Row(
+          children: [
+            _buildLeftIcon(context),
+            const HSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys.workspace_importFromNotion.tr(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeftIcon(BuildContext context) {
+    return Container(
+      width: 36.0,
+      height: 36.0,
+      padding: const EdgeInsets.all(7.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0x01717171).withOpacity(0.12),
+          width: 0.8,
+        ),
+      ),
+      child: const FlowySvg(FlowySvgs.add_workspace_s),
+    );
+  }
+
+  Future<void> _showImportNotinoDialog(BuildContext context) async {
+    final result = await getIt<FilePickerService>().pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final path = result.files.first.path;
+    if (path == null) {
+      return;
+    }
+
+    if (context.mounted) {
+      PopoverContainer.of(context).closeAll();
+      await NavigatorCustomDialog(
+        hideCancelButton: true,
+        confirm: () {},
+        child: NotionImporter(
+          filePath: path,
+        ),
+      ).show(context);
+    } else {
+      Log.error('context is not mounted when showing import notion dialog');
     }
   }
 }

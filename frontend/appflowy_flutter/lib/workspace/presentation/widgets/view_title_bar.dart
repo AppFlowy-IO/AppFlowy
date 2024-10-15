@@ -1,17 +1,23 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// workspace name > ... > view_title
+// space name > ... > view_title
 class ViewTitleBar extends StatelessWidget {
   const ViewTitleBar({
     super.key,
@@ -20,7 +26,6 @@ class ViewTitleBar extends StatelessWidget {
 
   final ViewPB view;
 
-  // late Future<List<ViewPB>> ancestors;
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -37,7 +42,11 @@ class ViewTitleBar extends StatelessWidget {
             child: SizedBox(
               height: 24,
               child: Row(
-                children: _buildViewTitles(context, ancestors),
+                children: _buildViewTitles(
+                  context,
+                  ancestors,
+                  state.isDeleted,
+                ),
               ),
             ),
           );
@@ -46,7 +55,15 @@ class ViewTitleBar extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildViewTitles(BuildContext context, List<ViewPB> views) {
+  List<Widget> _buildViewTitles(
+    BuildContext context,
+    List<ViewPB> views,
+    bool isDeleted,
+  ) {
+    if (isDeleted) {
+      return _buildDeletedTitle(context, views.last);
+    }
+
     // if the level is too deep, only show the last two view, the first one view and the root view
     // for example:
     // if the views are [root, view1, view2, view3, view4, view5], only show [root, view1, ..., view4, view5]
@@ -100,6 +117,55 @@ class ViewTitleBar extends StatelessWidget {
       }
     }
     return children;
+  }
+
+  List<Widget> _buildDeletedTitle(BuildContext context, ViewPB view) {
+    return [
+      const TrashBreadcrumb(),
+      const FlowySvg(FlowySvgs.title_bar_divider_s),
+      FlowyTooltip(
+        key: ValueKey(view.id),
+        message: view.name,
+        child: ViewTitle(
+          view: view,
+          onUpdated: () => context
+              .read<ViewTitleBarBloc>()
+              .add(const ViewTitleBarEvent.reload()),
+        ),
+      ),
+    ];
+  }
+}
+
+class TrashBreadcrumb extends StatelessWidget {
+  const TrashBreadcrumb({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 32,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        onTap: () {
+          getIt<MenuSharedState>().latestOpenView = null;
+          getIt<TabsBloc>().add(
+            TabsEvent.openPlugin(
+              plugin: makePlugin(pluginType: PluginType.trash),
+            ),
+          );
+        },
+        text: Row(
+          children: [
+            const FlowySvg(FlowySvgs.trash_s),
+            const HSpace(4.0),
+            FlowyText.regular(LocaleKeys.trash_text.tr()),
+            const HSpace(4.0),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -258,7 +324,9 @@ class _ViewTitleState extends State<ViewTitle> {
           Opacity(
             opacity: isEditable ? 1.0 : 0.5,
             child: FlowyText.regular(
-              state.name,
+              state.name.isEmpty
+                  ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                  : state.name,
               fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
               figmaLineHeight: 18.0,

@@ -930,11 +930,6 @@
       "cloudServerType": "Serveur cloud",
       "cloudServerTypeTip": "Veuillez noter qu'il est possible que votre compte actuel soit déconnecté après avoir changé de serveur cloud.",
       "cloudLocal": "Local",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "URL de Supabase",
-      "cloudSupabaseUrlCanNotBeEmpty": "L'URL Supabase ne peut pas être vide",
-      "cloudSupabaseAnonKey": "Clé anonyme Supabase",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "La clé anonyme ne peut pas être vide si l'URL de Supabase n'est pas vide",
       "cloudAppFlowy": "@:appName Cloud Bêta",
       "cloudAppFlowySelfHost": "@:appName Cloud auto-hébergé",
       "appFlowyCloudUrlCanNotBeEmpty": "L'URL cloud ne peut pas être vide",
@@ -963,8 +958,7 @@
       "importAppFlowyDataDescription": "Copiez les données d'un dossier de données @:appName externe et importez-les dans le dossier de données @:appName actuel",
       "importSuccess": "Importation réussie du dossier de données @:appName",
       "importFailed": "L'importation du dossier de données @:appName a échoué",
-      "importGuide": "Pour plus de détails, veuillez consulter le document référencé",
-      "supabaseSetting": "Paramètre Supabase"
+      "importGuide": "Pour plus de détails, veuillez consulter le document référencé"
     },
     "notifications": {
       "enableNotifications": {

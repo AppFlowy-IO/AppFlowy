@@ -161,7 +161,7 @@ class _CellTrailing extends StatelessWidget {
       margin: EdgeInsets.only(right: GridSize.scrollBarSize + Insets.m),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
+          bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
         ),
       ),
       child: CreateFieldButton(
@@ -205,8 +205,8 @@ class CreateFieldButton extends StatelessWidget {
         );
       },
       leftIcon: const FlowySvg(
-        FlowySvgs.add_s,
-        size: Size.square(18),
+        FlowySvgs.add_less_padding_s,
+        size: Size.square(16),
       ),
     );
   }

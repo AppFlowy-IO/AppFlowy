@@ -107,11 +107,15 @@ export const DatabaseBlock = memo(
       <>
         <div
           {...attributes}
+          contentEditable={false}
           className={`relative w-full cursor-pointer py-2`}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
-          <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
+          <div
+            ref={ref}
+            className={'absolute left-0 top-0 h-full w-full caret-transparent'}
+          >
             {children}
           </div>
           <div
@@ -137,7 +141,10 @@ export const DatabaseBlock = memo(
                 />
                 {isHovering && (
                   <div className={'absolute right-4 top-1'}>
-                    <Tooltip placement={'bottom'} title={t('tooltip.openAsPage')}>
+                    <Tooltip
+                      placement={'bottom'}
+                      title={t('tooltip.openAsPage')}
+                    >
                       <button
                         color={'primary'}
                         className={'rounded border border-line-divider bg-bg-body p-1 hover:bg-fill-list-hover'}

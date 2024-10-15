@@ -292,6 +292,14 @@ class _BoardContentState extends State<_BoardContent> {
               ready: (value) {
                 widget.onEditStateChanged?.call();
               },
+              openRowDetail: (value) {
+                _openCard(
+                  context: context,
+                  databaseController:
+                      context.read<BoardBloc>().databaseController,
+                  rowMeta: value.rowMeta,
+                );
+              },
               orElse: () {},
             );
           },
@@ -521,7 +529,7 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
               FlowySvgs.add_s,
               color: Theme.of(context).hintColor,
             ),
-            text: FlowyText.medium(
+            text: FlowyText(
               LocaleKeys.board_column_createNewCard.tr(),
               color: Theme.of(context).hintColor,
             ),

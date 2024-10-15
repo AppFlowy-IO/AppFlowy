@@ -4,7 +4,7 @@ import RightTopActionsToolbar from '@/components/editor/components/block-actions
 import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
 import { ReactComponent as MathSvg } from '@/assets/math.svg';
-import React, { forwardRef, memo, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, Suspense, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const MathEquation = memo(
@@ -41,7 +41,9 @@ export const MathEquation = memo(
             className={newClassName}
           >
             {formula ? (
-              <KatexMath latex={formula} />
+              <Suspense fallback={formula}>
+                <KatexMath latex={formula} />
+              </Suspense>
             ) : (
               <div
                 className={

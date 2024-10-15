@@ -28,7 +28,15 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
               controller: textEditingController,
               focusNode: focusNode,
               maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: context
+                            .read<TextCellBloc>()
+                            .cellController
+                            .fieldInfo
+                            .isPrimary
+                        ? FontWeight.w500
+                        : null,
+                  ),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.only(top: 4),
                 border: InputBorder.none,

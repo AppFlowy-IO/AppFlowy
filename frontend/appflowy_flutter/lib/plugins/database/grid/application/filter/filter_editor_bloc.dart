@@ -222,7 +222,7 @@ class FilterEditorState with _$FilterEditorState {
 List<FieldInfo> _getCreatableFilter(List<FieldInfo> fieldInfos) {
   final List<FieldInfo> creatableFields = List.from(fieldInfos);
   creatableFields.retainWhere(
-    (field) => field.fieldType.canCreateFilter,
+    (field) => field.fieldType.canCreateFilter && !field.isGroupField,
   );
   return creatableFields;
 }

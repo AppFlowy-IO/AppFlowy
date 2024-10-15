@@ -2,13 +2,14 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::future::BoxResultFuture;
 use crate::priority_task::queue::TaskQueue;
 use crate::priority_task::store::TaskStore;
 use crate::priority_task::{Task, TaskContent, TaskId, TaskState};
 use anyhow::Error;
+use async_trait::async_trait;
 use tokio::sync::{watch, RwLock};
 use tokio::time::interval;
+use tracing::trace;
 
 pub struct TaskDispatcher {
   queue: TaskQueue,
@@ -105,6 +106,11 @@ impl TaskDispatcher {
       return;
     }
 
+    trace!(
+      "Add task: handler:{}, task:{:?}",
+      task.handler_id,
+      task.content
+    );
     self.queue.push(&task);
     self.store.insert_task(task);
     self.notify();
@@ -160,6 +166,7 @@ impl TaskRunner {
   }
 }
 
+#[async_trait]
 pub trait TaskHandler: Send + Sync + 'static {
   fn handler_id(&self) -> &str;
 
@@ -167,9 +174,10 @@ pub trait TaskHandler: Send + Sync + 'static {
     ""
   }
 
-  fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error>;
+  async fn run(&self, content: TaskContent) -> Result<(), Error>;
 }
 
+#[async_trait]
 impl<T> TaskHandler for Box<T>
 where
   T: TaskHandler,
@@ -182,11 +190,12 @@ where
     (**self).handler_name()
   }
 
-  fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
-    (**self).run(content)
+  async fn run(&self, content: TaskContent) -> Result<(), Error> {
+    (**self).run(content).await
   }
 }
 
+#[async_trait]
 impl<T> TaskHandler for Arc<T>
 where
   T: TaskHandler,
@@ -199,7 +208,7 @@ where
     (**self).handler_name()
   }
 
-  fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
-    (**self).run(content)
+  async fn run(&self, content: TaskContent) -> Result<(), Error> {
+    (**self).run(content).await
   }
 }

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -63,7 +64,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
             node,
             selection.startIndex,
             selection.length,
-            '\$',
+            MentionBlockKeys.mentionChar,
             attributes: {
               InlineMathEquationKeys.formula: text,
             },

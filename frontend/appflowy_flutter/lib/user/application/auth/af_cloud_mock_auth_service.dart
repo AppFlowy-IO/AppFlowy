@@ -68,7 +68,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
           value.fold(
             (l) => null,
             (err) {
-              debugPrint("Error: $err");
+              debugPrint("mock auth service Error: $err");
               Log.error(err);
             },
           );
@@ -76,7 +76,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
         });
       },
       (r) {
-        debugPrint("Error: $r");
+        debugPrint("mock auth service error: $r");
         return FlowyResult.failure(r);
       },
     );

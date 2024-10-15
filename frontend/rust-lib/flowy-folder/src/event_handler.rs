@@ -268,11 +268,12 @@ pub(crate) async fn move_nested_view_handler(
 pub(crate) async fn duplicate_view_handler(
   data: AFPluginData<DuplicateViewPayloadPB>,
   folder: AFPluginState<Weak<FolderManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: DuplicateViewParams = data.into_inner().try_into()?;
-  folder.duplicate_view(params).await?;
-  Ok(())
+
+  let view_pb = folder.duplicate_view(params).await?;
+  data_result_ok(view_pb)
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
@@ -386,13 +387,11 @@ pub(crate) async fn import_data_handler(
 pub(crate) async fn import_zip_file_handler(
   data: AFPluginData<ImportZipPB>,
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<RepeatedViewPB, FlowyError> {
+) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let data = data.try_into_inner()?;
-  folder
-    .import_zip_file(&data.parent_view_id, &data.file_path)
-    .await?;
-  todo!()
+  folder.import_zip_file(&data.file_path).await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]

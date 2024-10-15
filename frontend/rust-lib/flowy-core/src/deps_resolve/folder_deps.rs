@@ -1,6 +1,7 @@
 use bytes::Bytes;
 
 use collab_entity::{CollabType, EncodedCollab};
+use collab_folder::hierarchy_builder::NestedViewBuilder;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
@@ -20,7 +21,6 @@ use flowy_folder::view_operation::{
   FolderOperationHandlers, ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
-use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
@@ -138,7 +138,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
         let json_str = include_str!("../../assets/read_me.json");
         let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
         manager
-          .create_document(uid, &view.parent_view.id, Some(document_pb.into()))
+          .create_document(uid, &view.view.id, Some(document_pb.into()))
           .await
           .unwrap();
         view
@@ -355,6 +355,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
       let database_row_encoded_collabs =
         load_collab_by_object_ids(uid, &collab_read_txn, &row_oids)
+          .0
           .into_iter()
           .map(|(oid, collab)| {
             collab
@@ -380,6 +381,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
       let database_row_document_encoded_collabs =
         load_collab_by_object_ids(uid, &collab_read_txn, &row_document_ids)
+          .0
           .into_iter()
           .map(|(oid, collab)| {
             collab
@@ -495,8 +497,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   ) -> Result<Vec<ImportedData>, FlowyError> {
     let format = match import_type {
       ImportType::CSV => CSVFormat::Original,
-      ImportType::HistoryDatabase => CSVFormat::META,
-      ImportType::RawDatabase => CSVFormat::META,
+      ImportType::AFDatabase => CSVFormat::META,
       _ => CSVFormat::Original,
     };
     let content = tokio::task::spawn_blocking(move || {

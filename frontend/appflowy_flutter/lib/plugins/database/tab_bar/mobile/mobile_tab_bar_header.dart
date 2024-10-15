@@ -44,7 +44,9 @@ class MobileTabBarHeader extends StatelessWidget {
                 controller: state
                     .tabBarControllerByViewId[currentView.viewId]!.controller,
                 features: switch (currentView.layout) {
-                  ViewLayoutPB.Board => [MobileDatabaseControlFeatures.filter],
+                  ViewLayoutPB.Board || ViewLayoutPB.Calendar => [
+                      MobileDatabaseControlFeatures.filter,
+                    ],
                   ViewLayoutPB.Grid => [
                       MobileDatabaseControlFeatures.sort,
                       MobileDatabaseControlFeatures.filter,
@@ -104,7 +106,7 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
               Flexible(
                 child: FlowyText.medium(
                   tabBar.view.name,
-                  fontSize: 13,
+                  fontSize: 14,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

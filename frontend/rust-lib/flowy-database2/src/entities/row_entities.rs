@@ -345,6 +345,9 @@ pub struct InsertedRowPB {
 
   #[pb(index = 3)]
   pub is_new: bool,
+
+  #[pb(index = 4)]
+  pub is_hidden_in_view: bool,
 }
 
 impl InsertedRowPB {
@@ -353,6 +356,7 @@ impl InsertedRowPB {
       row_meta,
       index: None,
       is_new: false,
+      is_hidden_in_view: false,
     }
   }
 
@@ -368,6 +372,7 @@ impl std::convert::From<RowMetaPB> for InsertedRowPB {
       row_meta,
       index: None,
       is_new: false,
+      is_hidden_in_view: false,
     }
   }
 }
@@ -378,6 +383,7 @@ impl From<InsertedRow> for InsertedRowPB {
       row_meta: data.row_detail.into(),
       index: data.index,
       is_new: data.is_new,
+      is_hidden_in_view: false,
     }
   }
 }
@@ -460,14 +466,14 @@ pub struct RepeatedRowIdPB {
 #[derive(ProtoBuf, Default, Validate)]
 pub struct CreateRowPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
   pub row_position: OrderObjectPositionPB,
 
   #[pb(index = 3, one_of)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub group_id: Option<String>,
 
   #[pb(index = 4)]
@@ -494,14 +500,14 @@ pub struct SummaryRowPB {
 #[derive(Debug, Default, Clone, ProtoBuf, Validate)]
 pub struct TranslateRowPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub row_id: String,
 
   #[pb(index = 3)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 }

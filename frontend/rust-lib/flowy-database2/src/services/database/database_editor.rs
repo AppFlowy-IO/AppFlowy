@@ -384,10 +384,12 @@ impl DatabaseEditor {
     database.get_fields_in_view(view_id, Some(field_ids))
   }
 
-  pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
+  pub async fn update_field(&self, params: FieldChangesetPB) -> FlowyResult<()> {
     let mut database = self.database.write().await;
     database.update_field(&params.field_id, |update| {
-      update.set_name_if_not_none(params.name);
+      update
+        .set_name_if_not_none(params.name)
+        .set_icon_if_not_none(params.icon);
     });
     notify_did_update_database_field(&database, &params.field_id)?;
     Ok(())
@@ -481,48 +483,49 @@ impl DatabaseEditor {
     field_name: Option<String>,
   ) -> FlowyResult<()> {
     let mut database = self.database.write().await;
-    let field = database.get_field(field_id);
-    match field {
-      None => {},
-      Some(field) => {
-        if field.is_primary {
-          return Err(FlowyError::new(
-            ErrorCode::Internal,
-            "Can not update primary field's field type",
-          ));
-        }
+    if let Some(field) = database.get_field(field_id) {
+      if field.is_primary {
+        return Err(FlowyError::new(
+          ErrorCode::Internal,
+          "Can not update primary field's field type",
+        ));
+      }
 
-        let old_field_type = FieldType::from(field.field_type);
-        let old_type_option_data = field.get_any_type_option(old_field_type);
-        let new_type_option_data = field
-          .get_any_type_option(new_field_type)
-          .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
+      let old_field_type = FieldType::from(field.field_type);
+      let old_type_option_data = field.get_any_type_option(old_field_type);
+      let new_type_option_data = field
+        .get_any_type_option(new_field_type)
+        .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
-        let transformed_type_option = transform_type_option(
-          view_id,
-          field_id,
-          old_field_type,
-          new_field_type,
-          old_type_option_data,
-          new_type_option_data,
-          &mut database,
-        )
-        .await;
+      let transformed_type_option = transform_type_option(
+        view_id,
+        field_id,
+        old_field_type,
+        new_field_type,
+        old_type_option_data,
+        new_type_option_data,
+        &mut database,
+      )
+      .await;
 
-        database.update_field(field_id, |update| {
-          update
-            .set_field_type(new_field_type.into())
-            .set_name_if_not_none(field_name)
-            .set_type_option(new_field_type.into(), Some(transformed_type_option));
-        });
+      database.update_field(field_id, |update| {
+        update
+          .set_field_type(new_field_type.into())
+          .set_name_if_not_none(field_name)
+          .set_type_option(new_field_type.into(), Some(transformed_type_option));
+      });
 
-        for view in self.database_views.editors().await {
-          view.v_did_update_field_type(field_id, new_field_type).await;
-        }
-      },
+      drop(database);
+
+      for view in self.database_views.editors().await {
+        view.v_did_update_field_type(field_id, new_field_type).await;
+      }
+
+      let database = self.database.read().await;
+
+      notify_did_update_database_field(&database, field_id)?;
     }
 
-    notify_did_update_database_field(&database, field_id)?;
     Ok(())
   }
 
@@ -1667,10 +1670,17 @@ impl DatabaseEditor {
         loaded_rows.len(),
         blocking_read
       );
-      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor).await;
+      let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor.clone()).await;
+
+      // Update calculation values
+      let calculate_rows = loaded_rows.clone();
+
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);
       }
+      tokio::spawn(async move {
+        let _ = view_editor.v_calculate_rows(calculate_rows).await;
+      });
     });
   }
 
@@ -1973,14 +1983,12 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self.database.write().await.remove_row(row_id).await
   }
 
-  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>> {
-    let cells = self
-      .database
-      .read()
-      .await
-      .get_cells_for_field(view_id, field_id)
-      .await;
-    cells.into_iter().map(Arc::new).collect()
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
+    let editor = self.editor_by_view_id.read().await.get(view_id).cloned();
+    match editor {
+      None => vec![],
+      Some(editor) => editor.v_get_cells_for_field(field_id).await,
+    }
   }
 
   async fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Arc<RowCell> {

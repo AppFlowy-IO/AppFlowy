@@ -13,6 +13,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
+import 'cypress-real-events';
 
 // Import commands.js using ES2015 syntax:
 import '@cypress/code-coverage/support';
@@ -40,6 +41,9 @@ declare global {
       mockDocument: (id: string) => void;
       clickOutside: () => void;
       getTestingSelector: (testId: string) => Chainable<JQuery<HTMLElement>>;
+      selectText: (text: string) => void;
+
+      selectMultipleText: (texts: string[]) => void;
     }
   }
 }
@@ -68,6 +72,111 @@ Cypress.Commands.add('clickOutside', () => {
     doc.elementFromPoint(x, y)?.dispatchEvent(evt);
   });
 });
+
+function mergeRanges (ranges: Range[]): Range | null {
+  if (ranges.length === 0) return null;
+
+  const mergedRange = ranges[0].cloneRange();
+
+  for (let i = 1; i < ranges.length; i++) {
+    if (ranges[i].compareBoundaryPoints(Range.START_TO_START, mergedRange) < 0) {
+      mergedRange.setStart(ranges[i].startContainer, ranges[i].startOffset);
+    }
+
+    if (ranges[i].compareBoundaryPoints(Range.END_TO_END, mergedRange) > 0) {
+      mergedRange.setEnd(ranges[i].endContainer, ranges[i].endOffset);
+    }
+  }
+
+  return mergedRange;
+}
+
+Cypress.Commands.add('selectMultipleText', (texts: string[]) => {
+  const ranges: Range[] = [];
+
+  cy.window().then((win) => {
+    const promises = texts.map((text) => {
+      return new Cypress.Promise((resolve) => {
+        cy.contains(text).then(($el) => {
+          if (!$el) {
+            throw new Error(`The text "${text}" was not found in the document`);
+          }
+
+          const el = $el[0] as HTMLElement;
+          const document = el.ownerDocument;
+          const range = document.createRange();
+
+          const fullText = el.textContent || '';
+          const startIndex = fullText.indexOf(text);
+          const endIndex = startIndex + text.length;
+
+          if (startIndex !== -1 && endIndex !== -1) {
+            range.setStart(el.firstChild as Node, startIndex);
+            range.setEnd(el.firstChild as Node, endIndex);
+            ranges.push(range);
+          } else {
+            throw new Error(`The text "${text}" was not found in the element`);
+          }
+
+          resolve();
+        });
+      });
+    });
+
+    void Cypress.Promise.all(promises).then(() => {
+      const selection = win.getSelection();
+
+      if (selection) {
+        const mergedRange = mergeRanges(ranges);
+
+        selection.removeAllRanges();
+        if (mergedRange) {
+          selection.addRange(mergedRange);
+
+        }
+      }
+
+      cy.document().trigger('mouseup');
+      cy.document().trigger('selectionchange');
+    });
+  });
+});
+Cypress.Commands.add('selectText', (text: string) => {
+  cy.contains(text).then(($el) => {
+    if (!$el) {
+      throw new Error(`The text "${text}" was not found in the document`);
+    }
+
+    const el = $el[0] as HTMLElement;
+    const document = el.ownerDocument;
+
+    const range = document.createRange();
+
+    range.selectNodeContents(el);
+
+    const fullText = el.textContent || '';
+    const startIndex = fullText.indexOf(text);
+    const endIndex = startIndex + text.length;
+
+    if (startIndex !== -1 && endIndex !== -1) {
+      range.setStart(el.firstChild as HTMLElement, startIndex);
+      range.setEnd(el.firstChild as HTMLElement, endIndex);
+
+      const selection = document.getSelection() as Selection;
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      $el.trigger('mouseup');
+      cy.document().trigger('selectionchange');
+    } else {
+      throw new Error(`The text "${text}" was not found in the element`);
+    }
+  });
+});
+
 // Example use:
 // cy.mount(<MyComponent />)
 

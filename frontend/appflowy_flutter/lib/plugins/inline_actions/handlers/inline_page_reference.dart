@@ -211,7 +211,7 @@ class InlinePageReferenceService extends InlineActionsDelegate {
         node,
         replace.$1,
         replace.$2,
-        '\$',
+        MentionBlockKeys.mentionChar,
         attributes: {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.page.name,

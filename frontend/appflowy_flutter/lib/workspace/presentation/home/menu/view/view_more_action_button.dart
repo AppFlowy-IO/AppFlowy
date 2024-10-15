@@ -137,7 +137,11 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   final Offset? moveActionOffset;
 
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     if (inner == ViewMoreActionType.divider) {
       return _buildDivider();
     } else if (inner == ViewMoreActionType.lastModified) {

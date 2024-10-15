@@ -854,7 +854,7 @@
         "itemThree": "5 GB",
         "itemFour": "Đúng",
         "itemFive": "Đúng",
-        "itemSix": "100 trọn đời",
+        "itemSix": "20 trọn đời",
         "intelligentSearch": "Tìm kiếm thông minh"
       },
       "proLabels": {
@@ -935,11 +935,6 @@
       "cloudServerType": "Máy chủ đám mây",
       "cloudServerTypeTip": "Xin lưu ý rằng có thể bạn sẽ bị đăng xuất sau khi chuyển máy chủ đám mây",
       "cloudLocal": "Cục bộ",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "Url supabase không được để trống",
-      "cloudSupabaseAnonKey": "Khoá Supabase anon",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anon key không được để trống nếu url supabase không trống",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud Tự lưu trữ",
       "appFlowyCloudUrlCanNotBeEmpty": "URL đám mây không được để trống",

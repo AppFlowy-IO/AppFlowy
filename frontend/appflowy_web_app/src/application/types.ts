@@ -640,12 +640,11 @@ export enum Types {
 }
 
 export enum CollabOrigin {
-  // from local changes and never sync to remote. used for read-only mode
+  // from local changes
   Local = 'local',
   // from remote changes and never sync to remote.
   Remote = 'remote',
-  // from local changes and sync to remote. used for collaborative mode
-  LocalSync = 'local_sync',
+  
 }
 
 export const layoutMap = {
@@ -716,6 +715,7 @@ export interface Workspace {
     name: string;
   };
   databaseStorageId: string;
+  createdAt: string;
 }
 
 export interface UserWorkspaceInfo {
@@ -822,3 +822,45 @@ export enum UIVariant {
   Recent = 'recent',
   Favorite = 'favorite',
 }
+
+export interface AFWebUser {
+  uuid: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+export enum RequestAccessInfoStatus {
+  Pending = 0,
+  Accepted = 1,
+  Rejected = 2,
+}
+
+export interface GetRequestAccessInfoResponse {
+  request_id: string;
+  workspace: Workspace;
+  requester: AFWebUser & {
+    email: string;
+  };
+  view: View;
+  status: RequestAccessInfoStatus;
+}
+
+export enum SubscriptionPlan {
+  Free = 'free',
+  Pro = 'pro',
+  Team = 'team',
+}
+
+export enum SubscriptionInterval {
+  Month = 'month',
+  Year = 'year',
+}
+
+export interface Subscription {
+  currency: string;
+  plan: SubscriptionPlan;
+  price_cents: number;
+  recurring_interval: SubscriptionInterval;
+}
+
+export type Subscriptions = Subscription[];

@@ -15,6 +15,9 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 pub struct UserTable {
   pub(crate) id: String,
   pub(crate) name: String,
+  #[deprecated(
+    note = "The workspace_id is deprecated, please use the [Session::UserWorkspace] instead"
+  )]
   pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
@@ -27,13 +30,7 @@ pub struct UserTable {
   pub(crate) ai_model: String,
 }
 
-impl UserTable {
-  pub fn set_workspace(mut self, workspace: String) -> Self {
-    self.workspace = workspace;
-    self
-  }
-}
-
+#[allow(deprecated)]
 impl From<(UserProfile, Authenticator)> for UserTable {
   fn from(value: (UserProfile, Authenticator)) -> Self {
     let (user_profile, auth_type) = value;
@@ -41,7 +38,8 @@ impl From<(UserProfile, Authenticator)> for UserTable {
     UserTable {
       id: user_profile.uid.to_string(),
       name: user_profile.name,
-      workspace: user_profile.workspace_id,
+      #[allow(deprecated)]
+      workspace: "".to_string(),
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
       token: user_profile.token,
@@ -64,7 +62,6 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
-      workspace_id: table.workspace,
       authenticator: Authenticator::from(table.auth_type),
       encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
       stability_ai_key: table.stability_ai_key,

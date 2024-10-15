@@ -74,7 +74,13 @@ class MainFlutterWindow: NSWindow {
     self.titleVisibility = .hidden
     self.styleMask.insert(StyleMask.fullSizeContentView)
     self.isMovableByWindowBackground = true
-    self.isMovable = false
+
+    // For the macOS version 15 or higher, set it to true to enable the window tiling
+    if #available(macOS 15.0, *) {
+      self.isMovable = true
+    } else {
+      self.isMovable = false
+    }
 
     self.layoutTrafficLights()
 

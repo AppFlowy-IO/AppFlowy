@@ -18,7 +18,7 @@ md5 = "0.7.0"
 anyhow.workspace = true
 walkdir = "2.4.0"
 tempfile = "3.8.1"
-validator = { version = "0.16.1", features = ["derive"] }
+validator = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 atomic_refcell = "0.1"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"], optional = true }

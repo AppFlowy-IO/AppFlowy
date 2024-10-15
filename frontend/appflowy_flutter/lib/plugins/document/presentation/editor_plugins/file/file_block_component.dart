@@ -64,6 +64,11 @@ class FileBlockKeys {
   /// The value is a String, in form of user id.
   ///
   static const String uploadedBy = 'uploaded_by';
+
+  /// The GlobalKey of the FileBlockComponentState.
+  ///
+  /// **Note: This value is used in extraInfos of the Node, not in the attributes.**
+  static const String globalKey = 'global_key';
 }
 
 enum FileUrlType {
@@ -118,8 +123,11 @@ class FileBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
+    final extraInfos = node.extraInfos;
+    final key = extraInfos?[FileBlockKeys.globalKey] as GlobalKey?;
+
     return FileBlockComponent(
-      key: node.key,
+      key: key ?? node.key,
       node: node,
       showActions: showActions(node),
       configuration: configuration,
@@ -128,7 +136,7 @@ class FileBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => node.delta == null && node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.children.isEmpty;
 }
 
 class FileBlockComponent extends BlockComponentStatefulWidget {

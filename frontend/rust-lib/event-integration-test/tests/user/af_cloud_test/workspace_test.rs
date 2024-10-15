@@ -2,7 +2,7 @@ use collab::core::collab::DataSource::DocStateV1;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::Folder;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use std::time::Duration;
 use tokio::task::LocalSet;
@@ -12,7 +12,7 @@ use crate::user::af_cloud_test::util::get_synced_workspaces;
 
 #[tokio::test]
 async fn af_cloud_workspace_delete() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let user_profile_pb = test.af_cloud_sign_up().await;
   let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
@@ -33,7 +33,7 @@ async fn af_cloud_workspace_delete() {
 
 #[tokio::test]
 async fn af_cloud_workspace_change_name_and_icon() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let user_profile_pb = test.af_cloud_sign_up().await;
   let workspaces = test.get_all_workspaces().await;
@@ -58,7 +58,7 @@ async fn af_cloud_workspace_change_name_and_icon() {
 
 #[tokio::test]
 async fn af_cloud_create_workspace_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let user_profile_pb = test.af_cloud_sign_up().await;
 
@@ -98,7 +98,7 @@ async fn af_cloud_create_workspace_test() {
 
 #[tokio::test]
 async fn af_cloud_open_workspace_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let _ = test.af_cloud_sign_up().await;
   let default_document_name = "General";
@@ -160,7 +160,7 @@ async fn af_cloud_open_workspace_test() {
 
 #[tokio::test]
 async fn af_cloud_different_open_same_workspace_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
 
   // Set up the primary client and sign them up to the cloud.
   let test_runner = EventIntegrationTest::new().await;

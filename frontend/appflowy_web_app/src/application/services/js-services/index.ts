@@ -17,6 +17,7 @@ import {
   fetchViewInfo,
 } from '@/application/services/js-services/fetch';
 import { APIService } from '@/application/services/js-services/http';
+import { SyncManager } from '@/application/services/js-services/sync';
 
 import { AFService, AFServiceConfig } from '@/application/services/services.type';
 import { emit, EventType } from '@/application/session';
@@ -27,7 +28,13 @@ import {
   TemplateCreatorFormValues,
   UploadTemplatePayload,
 } from '@/application/template.type';
-import { DatabaseRelations, DuplicatePublishView, Types, YjsEditorKey } from '@/application/types';
+import {
+  DatabaseRelations,
+  DuplicatePublishView,
+  SubscriptionInterval, SubscriptionPlan,
+  Types,
+  YjsEditorKey,
+} from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
@@ -428,4 +435,44 @@ export class AFClientService implements AFService {
     return APIService.acceptInvitation(invitationId);
   }
 
+  approveRequestAccess (requestId: string): Promise<void> {
+    return APIService.approveRequestAccess(requestId);
+  }
+
+  getRequestAccessInfo (requestId: string) {
+    return APIService.getRequestAccessInfo(requestId);
+  }
+
+  sendRequestAccess (workspaceId: string, viewId: string): Promise<void> {
+    return APIService.sendRequestAccess(workspaceId, viewId);
+  }
+
+  getSubscriptionLink (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) {
+    return APIService.getSubscriptionLink(workspaceId, plan, interval);
+  }
+
+  getSubscriptions () {
+    return APIService.getSubscriptions();
+  }
+
+  getActiveSubscription (workspaceId: string) {
+    return APIService.getActiveSubscription(workspaceId);
+  }
+
+  registerDocUpdate (doc: Y.Doc, workspaceId: string, objectId: string) {
+    const token = getTokenParsed();
+    const userId = token?.user.id;
+
+    if (!userId) {
+      throw new Error('User not found');
+    }
+
+    const sync = new SyncManager(doc, userId, workspaceId, objectId);
+
+    sync.initialize();
+  }
+
+  importFile (file: File, onProgress: (progress: number) => void) {
+    return APIService.importFile(file, onProgress);
+  }
 }

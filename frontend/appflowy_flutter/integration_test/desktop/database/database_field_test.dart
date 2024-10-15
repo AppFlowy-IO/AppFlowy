@@ -1,11 +1,12 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/select/select_option.dart';
 import 'package:appflowy/util/field_type_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -15,7 +16,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid field editor:', () {
+  group('grid edit field test:', () {
     testWidgets('rename existing field', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -24,12 +25,37 @@ void main() {
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Name');
-      await tester.tapEditFieldButton();
 
       await tester.renameField('hello world');
       await tester.dismissFieldEditor();
 
       await tester.tapGridFieldWithName('hello world');
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('edit field icon', (tester) async {
+      const icon = 'artificial_intelligence/ai-upscale-spark';
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      tester.assertFieldSvg('Name', FieldType.RichText);
+
+      // choose specific icon
+      await tester.tapGridFieldWithName('Name');
+      await tester.changeFieldIcon(icon);
+      await tester.dismissFieldEditor();
+
+      tester.assertFieldCustomSvg('Name', icon);
+
+      // remove icon
+      await tester.tapGridFieldWithName('Name');
+      await tester.changeFieldIcon('');
+      await tester.dismissFieldEditor();
+
+      tester.assertFieldSvg('Name', FieldType.RichText);
+
       await tester.pumpAndSettle();
     });
 
@@ -245,7 +271,6 @@ void main() {
         matching: find.byType(TextField),
       );
       await tester.enterText(inputField, text);
-      await tester.pumpAndSettle();
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
@@ -290,6 +315,30 @@ void main() {
         fieldType: FieldType.DateTime,
         content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
+    });
+
+    testWidgets('text in viewport while typing', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      await tester.changeCalculateAtIndex(0, CalculationType.Count);
+
+      // add very large text with 200 lines
+      final largeText = List.generate(
+        200,
+        (index) => 'Line ${index + 1}',
+      ).join('\n');
+
+      await tester.editCell(
+        rowIndex: 2,
+        fieldType: FieldType.RichText,
+        input: largeText,
+      );
+
+      // checks if last line is in view port
+      tester.expectToSeeText('Line 200');
     });
 
     // Disable this test because it fails on CI randomly
@@ -357,5 +406,189 @@ void main() {
     //     content: DateFormat('dd/MM/y hh:mm a').format(modified),
     //   );
     // });
+
+    testWidgets('select option transform', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Grid,
+      );
+
+      // invoke the field editor of existing Single-Select field Type
+      await tester.tapGridFieldWithName('Type');
+      await tester.tapEditFieldButton();
+
+      // add some select options
+      await tester.tapAddSelectOptionButton();
+      for (final optionName in ['A', 'B', 'C']) {
+        final inputField = find.descendant(
+          of: find.byType(CreateOptionTextField),
+          matching: find.byType(TextField),
+        );
+        await tester.enterText(inputField, optionName);
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+      }
+      await tester.dismissFieldEditor();
+
+      // select A in first row's cell under the Type field
+      await tester.tapCellInGrid(
+        rowIndex: 0,
+        fieldType: FieldType.SingleSelect,
+      );
+      await tester.selectOption(name: 'A');
+      await tester.dismissCellEditor();
+      tester.findSelectOptionWithNameInGrid(name: 'A', rowIndex: 0);
+
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.RichText);
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        content: "A",
+        cellIndex: 1,
+      );
+
+      // add some random text in the second row
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: "random",
+        cellIndex: 1,
+      );
+      tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        content: "random",
+        cellIndex: 1,
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Type',
+        FieldType.SingleSelect,
+      );
+      tester.findSelectOptionWithNameInGrid(name: 'A', rowIndex: 0);
+      tester.assertNumberOfSelectedOptionsInGrid(
+        rowIndex: 1,
+        matcher: findsNothing,
+      );
+
+      // create a new field for testing
+      await tester.createField(FieldType.RichText, name: 'Test');
+
+      // edit the first 2 rows
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        input: "E,F",
+        cellIndex: 1,
+      );
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: "G",
+        cellIndex: 1,
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Test',
+        FieldType.MultiSelect,
+      );
+      tester.assertMultiSelectOption(contents: ['E', 'F'], rowIndex: 0);
+      tester.assertMultiSelectOption(contents: ['G'], rowIndex: 1);
+
+      await tester.tapCellInGrid(
+        rowIndex: 2,
+        fieldType: FieldType.MultiSelect,
+      );
+      await tester.selectOption(name: 'G');
+      await tester.createOption(name: 'H');
+      await tester.dismissCellEditor();
+      tester.findSelectOptionWithNameInGrid(name: 'A', rowIndex: 0);
+      tester.assertMultiSelectOption(contents: ['G', 'H'], rowIndex: 2);
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Test',
+        FieldType.RichText,
+      );
+      tester.assertCellContent(
+        rowIndex: 2,
+        fieldType: FieldType.RichText,
+        content: "G,H",
+        cellIndex: 1,
+      );
+      await tester.changeFieldTypeOfFieldWithName(
+        'Test',
+        FieldType.MultiSelect,
+      );
+
+      tester.assertMultiSelectOption(contents: ['E', 'F'], rowIndex: 0);
+      tester.assertMultiSelectOption(contents: ['G'], rowIndex: 1);
+      tester.assertMultiSelectOption(contents: ['G', 'H'], rowIndex: 2);
+    });
+
+    testWidgets('date time transform', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+      await tester.scrollToRight(find.byType(GridPage));
+
+      // create a date field
+      await tester.createField(FieldType.DateTime);
+
+      // edit the first date cell
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
+      await tester.toggleIncludeTime();
+      final now = DateTime.now();
+      await tester.selectDay(content: now.day);
+
+      await tester.dismissCellEditor();
+
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.DateTime,
+        content: DateFormat('MMM dd, y HH:mm').format(now),
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Date',
+        FieldType.RichText,
+      );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        content: DateFormat('MMM dd, y HH:mm').format(now),
+        cellIndex: 1,
+      );
+
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        input: "Oct 5, 2024",
+        cellIndex: 1,
+      );
+      tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: FieldType.RichText,
+        content: "Oct 5, 2024",
+        cellIndex: 1,
+      );
+
+      await tester.changeFieldTypeOfFieldWithName(
+        'Date',
+        FieldType.DateTime,
+      );
+      tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.DateTime,
+        content: DateFormat('MMM dd, y').format(now),
+        // content: DateFormat('MMM dd, y HH:mm').format(now),
+      );
+      tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: FieldType.DateTime,
+        content: "Oct 05, 2024",
+      );
+    });
   });
 }

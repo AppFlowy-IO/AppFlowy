@@ -11,9 +11,12 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
@@ -237,6 +240,10 @@ extension CommonOperations on WidgetTester {
     await tapOKButton();
   }
 
+  Future<void> tapTrashButton() async {
+    await tap(find.byType(SidebarTrashButton));
+  }
+
   Future<void> tapOKButton() async {
     final okButton = find.byWidgetPredicate(
       (widget) =>
@@ -253,7 +260,10 @@ extension CommonOperations on WidgetTester {
   }) async {
     final page = findPageName(pageName, layout: layout);
     await hoverOnWidget(page);
-    final expandButton = find.byType(ViewItemDefaultLeftIcon);
+    final expandButton = find.descendant(
+      of: page,
+      matching: find.byType(ViewItemDefaultLeftIcon),
+    );
     await tapButton(expandButton.first);
   }
 
@@ -269,12 +279,14 @@ extension CommonOperations on WidgetTester {
 
   /// Tap the delete permanently button.
   ///
-  /// the restore button will show after the current page is deleted.
+  /// the delete permanently button will show after the current page is deleted.
   Future<void> tapDeletePermanentlyButton() async {
-    final restoreButton = find.textContaining(
+    final deleteButton = find.textContaining(
       LocaleKeys.deletePagePrompt_deletePermanent.tr(),
     );
-    await tapButton(restoreButton);
+    await tapButton(deleteButton);
+    await tap(find.text(LocaleKeys.button_delete.tr()));
+    await pumpAndSettle();
   }
 
   /// Tap the share button above the document page.
@@ -314,14 +326,10 @@ extension CommonOperations on WidgetTester {
     }
     await pumpAndSettle();
 
-    final defaultPageName = layout == ViewLayoutPB.Document
-        ? '' // the document name is empty by default
-        : LocaleKeys.menuAppHeader_defaultNewPageName.tr();
-
     // hover on it and change it's name
     if (name != null) {
       await hoverOnPageName(
-        defaultPageName,
+        layout.defaultName,
         layout: layout,
         onHover: () async {
           await renamePage(name);
@@ -335,7 +343,7 @@ extension CommonOperations on WidgetTester {
     if (openAfterCreated) {
       await openPage(
         // if the name is null, use the default name
-        name ?? defaultPageName,
+        name ?? layout.defaultName,
         layout: layout,
       );
       await pumpAndSettle();
@@ -400,6 +408,19 @@ extension CommonOperations on WidgetTester {
       matching: find.byType(ViewAddButton),
     );
     await tapButton(addPageButton);
+  }
+
+  /// Click the + button in the space header
+  Future<void> clickSpaceHeader() async {
+    await tapButton(find.byType(SidebarSpaceHeader));
+  }
+
+  Future<void> openSpace(String spaceName) async {
+    final space = find.descendant(
+      of: find.byType(SidebarSpaceMenuItem),
+      matching: find.text(spaceName),
+    );
+    await tapButton(space);
   }
 
   /// Create a new page on the top level
