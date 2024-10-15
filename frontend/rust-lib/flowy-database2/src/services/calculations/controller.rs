@@ -252,7 +252,7 @@ impl CalculationsController {
 
     // In case there are calculations where empty cells are counted
     // as a contribution to the value.
-    if cells.len() == 0 {
+    if cells.is_empty() {
       let calculations = self.delegate.get_all_calculations(&self.view_id).await;
       for calculation in calculations.into_iter() {
         let cells = self
@@ -336,7 +336,7 @@ impl CalculationsController {
   ) -> Option<Calculation> {
     let value = self
       .calculations_service
-      .calculate(&field, calculation.calculation_type, cells);
+      .calculate(field, calculation.calculation_type, cells);
 
     if value != calculation.value {
       return Some(calculation.with_value(value));

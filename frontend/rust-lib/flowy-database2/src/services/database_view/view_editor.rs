@@ -707,7 +707,7 @@ impl DatabaseViewEditor {
   ) -> FlowyResult<()> {
     let calculation_id = params
       .calculation_id
-      .unwrap_or_else(|| gen_database_calculation_id());
+      .unwrap_or_else(gen_database_calculation_id);
     let calculation = Calculation::none(
       calculation_id,
       params.field_id,
