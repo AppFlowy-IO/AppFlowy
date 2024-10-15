@@ -238,7 +238,7 @@ void main() {
 
       // Dismiss edit cell
       await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Expect count to be 3
       expect(
