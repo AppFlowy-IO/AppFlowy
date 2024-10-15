@@ -125,7 +125,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         // copy link
         _divider(),
         MobileQuickActionButton(
-          text: 'Copy share link',
+          text: LocaleKeys.shareAction_copyShareLink.tr(),
           icon: FlowySvgs.m_toolbar_link_m,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.copyShareLink,

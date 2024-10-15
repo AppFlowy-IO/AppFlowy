@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -116,7 +117,6 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
       context,
       message: LocaleKeys.publish_unpublishSuccessfully.tr(),
     );
-    context.pop();
   }
 
   void _copyPublishLink(BuildContext context) {
@@ -147,7 +147,12 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   }
 
   void _copyShareLink(BuildContext context) {
-    final url = context.read<ShareBloc>().state.url;
+    final workspaceId = context.read<ShareBloc>().state.workspaceId;
+    final viewId = context.read<ShareBloc>().state.viewId;
+    final url = ShareConstants.buildShareUrl(
+      workspaceId: workspaceId,
+      viewId: viewId,
+    );
     if (url.isNotEmpty) {
       unawaited(
         getIt<ClipboardService>().setData(
