@@ -43,7 +43,8 @@ use futures::future;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
-use tracing::{error, info, instrument};
+use tokio::sync::RwLockWriteGuard;
+use tracing::{error, info, instrument, warn};
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -380,6 +381,7 @@ impl FolderManager {
   /// it will be used to set the `parent_view_id` for all child views. If not, the latest
   /// view (by `last_edited_time`) from the workspace will be used as the parent view.
   ///
+  #[instrument(level = "info", skip_all, err)]
   pub async fn insert_views_with_parent(
     &self,
     mut views: Vec<ParentChildViews>,
@@ -393,7 +395,7 @@ impl FolderManager {
 
     // Obtain a write lock on the folder.
     let mut folder = lock.write().await;
-
+    let parent_view_id = parent_view_id.as_deref().filter(|id| !id.is_empty());
     // Set the parent view ID for the child views.
     if let Some(parent_view_id) = parent_view_id {
       // If a valid parent_view_id is provided, set it for each child view.
@@ -403,39 +405,54 @@ impl FolderManager {
           parent_view_id
         );
         views.iter_mut().for_each(|child_view| {
-          child_view.view.parent_view_id = parent_view_id.clone();
+          child_view.view.parent_view_id = parent_view_id.to_string();
         });
+      } else {
+        error!(
+          "[AppFlowyData]: The provided parent_view_id: {} is not found in the folder",
+          parent_view_id
+        );
+        Self::insert_into_latest_view(&mut views, &mut folder)?;
       }
     } else {
       // If no parent_view_id is provided, find the latest view in the workspace.
-      let workspace_id = folder
-        .get_workspace_id()
-        .ok_or_else(|| FlowyError::internal().with_context("Cannot find the workspace ID"))?;
-
-      // Get the latest view based on the last_edited_time in the workspace.
-      match folder
-        .get_views_belong_to(&workspace_id)
-        .iter()
-        .max_by_key(|view| view.last_edited_time)
-      {
-        None => info!("[AppFlowyData]: No views found in the workspace"),
-        Some(latest_view) => {
-          info!(
-            "[AppFlowyData]: Attach parent-child views with the latest view: {}:{}, is_space: {:?}",
-            latest_view.id,
-            latest_view.name,
-            latest_view.space_info(),
-          );
-          views.iter_mut().for_each(|child_view| {
-            child_view.view.parent_view_id = latest_view.id.clone();
-          });
-        },
-      }
+      Self::insert_into_latest_view(&mut views, &mut folder)?;
     }
 
     // Insert the views into the folder.
     let all_views = views.into_iter().chain(orphan_views.into_iter()).collect();
     folder.insert_nested_views(all_views);
+    Ok(())
+  }
+
+  #[instrument(level = "info", skip_all, err)]
+  fn insert_into_latest_view(
+    views: &mut Vec<ParentChildViews>,
+    folder: &mut RwLockWriteGuard<Folder>,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = folder
+      .get_workspace_id()
+      .ok_or_else(|| FlowyError::internal().with_context("Cannot find the workspace ID"))?;
+
+    // Get the latest view based on the last_edited_time in the workspace.
+    match folder
+      .get_views_belong_to(&workspace_id)
+      .iter()
+      .max_by_key(|view| view.last_edited_time)
+    {
+      None => info!("[AppFlowyData]: No views found in the workspace"),
+      Some(latest_view) => {
+        info!(
+          "[AppFlowyData]: Attach parent-child views with the latest view: {}:{}, is_space: {:?}",
+          latest_view.id,
+          latest_view.name,
+          latest_view.space_info(),
+        );
+        views.iter_mut().for_each(|child_view| {
+          child_view.view.parent_view_id = latest_view.id.clone();
+        });
+      },
+    }
     Ok(())
   }
 
