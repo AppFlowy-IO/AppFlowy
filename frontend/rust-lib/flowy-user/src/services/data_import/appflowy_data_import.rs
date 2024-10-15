@@ -1317,7 +1317,7 @@ fn replace_document_ref_ids(
         }
 
         if let Some(parent_id) = data.get("parent_id").and_then(|v| v.as_str()) {
-          if let Some(new_parent_id) = ids_map.get_exchanged_id(&parent_id) {
+          if let Some(new_parent_id) = ids_map.get_exchanged_id(parent_id) {
             data.insert("parent_id".to_string(), json!(new_parent_id));
             updated = true;
           }
