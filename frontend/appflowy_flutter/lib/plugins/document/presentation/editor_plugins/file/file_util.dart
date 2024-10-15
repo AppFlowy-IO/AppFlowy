@@ -25,7 +25,6 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
-import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 Future<String?> saveFileToLocalStorage(String localFilePath) async {
