@@ -98,6 +98,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         MobileQuickActionButton(
           text: LocaleKeys.button_rename.tr(),
           icon: FlowySvgs.view_item_rename_s,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.rename,
           ),
@@ -108,6 +109,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
               ? LocaleKeys.button_removeFromFavorites.tr()
               : LocaleKeys.button_addToFavorites.tr(),
           icon: isFavorite ? FlowySvgs.unfavorite_s : FlowySvgs.favorite_s,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             isFavorite
                 ? MobileViewBottomSheetBodyAction.removeFromFavorites
@@ -118,6 +120,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         MobileQuickActionButton(
           text: LocaleKeys.button_duplicate.tr(),
           icon: FlowySvgs.duplicate_s,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.duplicate,
           ),
@@ -125,8 +128,9 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         // copy link
         _divider(),
         MobileQuickActionButton(
-          text: LocaleKeys.shareAction_copyShareLink.tr(),
-          icon: FlowySvgs.m_toolbar_link_m,
+          text: LocaleKeys.shareAction_copyLink.tr(),
+          icon: FlowySvgs.m_copy_link_s,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.copyShareLink,
           ),
@@ -139,6 +143,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           textColor: Theme.of(context).colorScheme.error,
           icon: FlowySvgs.trash_s,
           iconColor: Theme.of(context).colorScheme.error,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.delete,
           ),
@@ -161,8 +166,8 @@ class MobileViewBottomSheetBody extends StatelessWidget {
       return [
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_visitSite.tr(),
-          icon: FlowySvgs.share_s,
-          iconSize: const Size.square(21),
+          icon: FlowySvgs.m_visit_site_s,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.visitSite,
           ),
@@ -171,6 +176,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_unPublish.tr(),
           icon: FlowySvgs.m_unpublish_s,
+          iconSize: const Size.square(18),
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.unpublish,
           ),
