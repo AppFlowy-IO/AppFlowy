@@ -1,3 +1,4 @@
+use collab_database::rows::RowId;
 use tokio::sync::broadcast::Receiver;
 
 use flowy_database2::entities::UpdateCalculationChangesetPB;
@@ -44,6 +45,14 @@ impl DatabaseCalculationTest {
     let calculations = self.editor.get_all_calculations(&self.view_id()).await;
     let calculation = calculations.items.first().unwrap();
     assert_eq!(calculation.value, expected);
+  }
+
+  pub async fn duplicate_row(&self, row_id: &RowId) {
+    self
+      .editor
+      .duplicate_row(&self.view_id, row_id)
+      .await
+      .unwrap();
   }
 }
 

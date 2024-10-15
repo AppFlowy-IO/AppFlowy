@@ -164,3 +164,32 @@ async fn calculations_non_empty_test() {
   tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
   test.assert_calculation_value("7").await;
 }
+
+#[tokio::test]
+async fn calculations_count_test() {
+  let mut test = DatabaseCalculationTest::new().await;
+
+  let view_id = &test.view_id();
+  let text_fields = test
+    .fields
+    .clone()
+    .into_iter()
+    .filter(|field| field.field_type == FieldType::RichText as i64)
+    .collect::<Vec<Arc<Field>>>();
+  let field_id = &text_fields.first().unwrap().id.clone();
+  let calculation_id = "calc_id".to_owned();
+
+  test
+    .insert_calculation(UpdateCalculationChangesetPB {
+      view_id: view_id.clone(),
+      field_id: field_id.clone(),
+      calculation_id: Some(calculation_id.clone()),
+      calculation_type: CalculationType::Count,
+    })
+    .await;
+  test.assert_calculation_value("7").await;
+  test.duplicate_row(&test.rows[1].id).await;
+
+  tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+  test.assert_calculation_value("8").await;
+}
