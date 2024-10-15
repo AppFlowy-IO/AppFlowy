@@ -52,9 +52,15 @@ describe('<Paragraph />', () => {
 
     cy.get('[role="textbox"]').should('exist');
 
-    cy.get('[role="textbox"]').type('{movetostart}').type('{rightarrow}'.repeat(10))
-      .type(` New text at the 'world' middle `);
-    cy.get('[role="textbox"]').type('{movetoend}').type('{leftarrow}'.repeat(6)).type('{backspace}'.repeat(4));
+    moveCursor(0, 10);
+
+    cy.get('[role="textbox"]').type(` New text at the 'world' middle `);
+
+    cy.get('[role="textbox"]').selectMultipleText(['bold']);
+
+    cy.wait(50);
+    
+    cy.get('[role="textbox"]').type('{backspace}');
 
     const expectJSON = [{
       type: 'paragraph',

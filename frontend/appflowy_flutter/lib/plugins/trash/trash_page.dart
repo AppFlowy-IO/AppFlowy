@@ -169,8 +169,11 @@ class _TrashPageState extends State<TrashPage> {
               ),
               onDelete: () => showConfirmDeletionDialog(
                 context: context,
-                name: object.name,
-                description: LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                name: object.name.trim().isEmpty
+                    ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                    : object.name,
+                description:
+                    LocaleKeys.deletePagePrompt_deletePermanentDescription.tr(),
                 onConfirm: () =>
                     context.read<TrashBloc>().add(TrashEvent.delete(object)),
               ),

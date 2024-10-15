@@ -124,9 +124,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     // check if currentShortcut is a codeblock shortcut.
     final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
 
-    for (final e in state.commandShortcutEvents) {
-      if (e.command == command && e.isCodeBlockCommand == isCodeBlockCommand) {
-        return e;
+    for (final shortcut in state.commandShortcutEvents) {
+      final keybindings = shortcut.command.split(',');
+      if (keybindings.contains(command) &&
+          shortcut.isCodeBlockCommand == isCodeBlockCommand) {
+        return shortcut;
       }
     }
 

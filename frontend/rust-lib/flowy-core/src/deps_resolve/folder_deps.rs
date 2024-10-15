@@ -497,8 +497,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   ) -> Result<Vec<ImportedData>, FlowyError> {
     let format = match import_type {
       ImportType::CSV => CSVFormat::Original,
-      ImportType::HistoryDatabase => CSVFormat::META,
-      ImportType::RawDatabase => CSVFormat::META,
+      ImportType::AFDatabase => CSVFormat::META,
       _ => CSVFormat::Original,
     };
     let content = tokio::task::spawn_blocking(move || {

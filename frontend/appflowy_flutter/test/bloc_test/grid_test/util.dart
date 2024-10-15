@@ -25,6 +25,8 @@ class GridTestContext {
   final ViewPB view;
   final DatabaseController databaseController;
 
+  String get viewId => view.id;
+
   List<RowInfo> get rowInfos {
     return databaseController.rowCache.rowInfos;
   }
@@ -123,7 +125,7 @@ class AppFlowyGridTest {
           ..name = fileName
           ..data = utf8.encode(data)
           ..viewLayout = ViewLayoutPB.Grid
-          ..importType = ImportTypePB.RawDatabase,
+          ..importType = ImportTypePB.AFDatabase,
       ],
     ).fold(
       (views) async {

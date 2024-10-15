@@ -41,12 +41,14 @@ function MoreActions () {
     navigate('/login?redirectTo=' + encodeURIComponent(window.location.href));
   }, [navigate]);
   const actions = useMemo(() => {
-    return [
+    const items = [
+
       {
         Icon: LoginIcon,
         label: isAuthenticated ? t('button.logout') : t('web.login'),
         onClick: handleLogin,
       },
+
       isDark
         ? {
           Icon: SunIcon,
@@ -77,7 +79,9 @@ function MoreActions () {
         },
       },
     ];
-  }, [isAuthenticated, t, handleLogin, isDark, setDark]);
+
+    return items;
+  }, [t, isAuthenticated, handleLogin, isDark, setDark]);
 
   return (
     <>
@@ -111,7 +115,7 @@ function MoreActions () {
                   'flex items-center gap-2 rounded-[8px] p-1.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
                 }
               >
-                <action.Icon />
+                <action.Icon className={'w-4 h-4'} />
                 <span>{action.label}</span>
               </button>
             ))}
@@ -119,7 +123,10 @@ function MoreActions () {
           </div>
         </Popover>
       )}
-      <CacheClearingDialog open={openConfirm} onClose={() => setOpenConfirm(false)} />
+      <CacheClearingDialog
+        open={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+      />
     </>
   );
 }

@@ -19,6 +19,10 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     this.offset = Offset.zero,
     this.animationDuration = const Duration(),
     this.slideDistance = 20,
+    this.beginScaleFactor = 0.9,
+    this.endScaleFactor = 1.0,
+    this.beginOpacity = 0.0,
+    this.endOpacity = 1.0,
     this.constraints = const BoxConstraints(
       minWidth: 120,
       maxWidth: 460,
@@ -39,6 +43,10 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final BoxConstraints constraints;
   final Duration animationDuration;
   final double slideDistance;
+  final double beginScaleFactor;
+  final double endScaleFactor;
+  final double beginOpacity;
+  final double endOpacity;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -61,6 +69,10 @@ class _PopoverActionListState<T extends PopoverAction>
       asBarrier: widget.asBarrier,
       animationDuration: widget.animationDuration,
       slideDistance: widget.slideDistance,
+      beginScaleFactor: widget.beginScaleFactor,
+      endScaleFactor: widget.endScaleFactor,
+      beginOpacity: widget.beginOpacity,
+      endOpacity: widget.endOpacity,
       controller: popoverController,
       constraints: widget.constraints,
       direction: widget.direction,
@@ -88,7 +100,11 @@ class _PopoverActionListState<T extends PopoverAction>
             );
           } else {
             final custom = action as CustomActionCell;
-            return custom.buildWithContext(context, popoverController);
+            return custom.buildWithContext(
+              context,
+              popoverController,
+              widget.popoverMutex,
+            );
           }
         }).toList();
 
@@ -129,7 +145,11 @@ abstract class PopoverActionCell extends PopoverAction {
 }
 
 abstract class CustomActionCell extends PopoverAction {
-  Widget buildWithContext(BuildContext context, PopoverController controller);
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  );
 }
 
 abstract class PopoverAction {}

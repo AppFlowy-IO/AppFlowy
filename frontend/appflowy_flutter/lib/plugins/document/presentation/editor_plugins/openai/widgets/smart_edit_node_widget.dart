@@ -63,7 +63,7 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) =>
+  BlockComponentValidate get validate => (node) =>
       node.attributes[SmartEditBlockKeys.action] is int &&
       node.attributes[SmartEditBlockKeys.content] is String;
 }

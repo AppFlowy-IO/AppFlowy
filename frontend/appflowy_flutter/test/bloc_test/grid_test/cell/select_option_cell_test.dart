@@ -20,7 +20,7 @@ void main() {
 
     setUp(() async {
       context = await cellTest.makeDefaultTestGrid();
-      await RowBackendService.createRow(viewId: context.view.id);
+      await RowBackendService.createRow(viewId: context.viewId);
       final fieldIndex = context.fieldController.fieldInfos
           .indexWhere((field) => field.fieldType == FieldType.SingleSelect);
       cellController = context.makeGridCellController(fieldIndex, 0).as();

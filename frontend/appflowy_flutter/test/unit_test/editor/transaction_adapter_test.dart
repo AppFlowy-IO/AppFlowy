@@ -222,5 +222,73 @@ void main() {
       );
       await completer.future;
     });
+
+    test('use delta from prev attributes if current delta is null', () async {
+      final node = todoListNode(
+        checked: false,
+        delta: Delta()..insert('AppFlowy'),
+      );
+      final document = Document(
+        root: pageNode(
+          children: [
+            node,
+          ],
+        ),
+      );
+      final transactionAdapter = TransactionAdapter(
+        documentId: '',
+        documentService: DocumentService(),
+      );
+
+      final editorState = EditorState(
+        document: document,
+      );
+
+      final completer = Completer();
+      editorState.transactionStream.listen((event) {
+        final time = event.$1;
+        if (time == TransactionTime.before) {
+          final actions = transactionAdapter.transactionToBlockActions(
+            event.$2,
+            editorState,
+          );
+          final textActions =
+              transactionAdapter.filterTextDeltaActions(actions);
+          final blockActions = transactionAdapter.filterBlockActions(actions);
+          expect(textActions.length, 1);
+          expect(blockActions.length, 1);
+
+          // check text operation
+          final textAction = textActions.first;
+          final textId = textAction.textDeltaPayloadPB?.textId;
+          {
+            expect(textAction.textDeltaType, TextDeltaType.create);
+
+            expect(textId, isNotEmpty);
+            final delta = textAction.textDeltaPayloadPB?.delta;
+            expect(delta, equals('[{"insert":"AppFlowy"}]'));
+          }
+
+          // check block operation
+          {
+            final blockAction = blockActions.first;
+            expect(blockAction.action, BlockActionTypePB.Update);
+            expect(blockAction.payload.block.id, node.id);
+            expect(
+              blockAction.payload.block.externalId,
+              textId,
+            );
+            expect(blockAction.payload.block.externalType, 'text');
+          }
+        } else if (time == TransactionTime.after) {
+          completer.complete();
+        }
+      });
+
+      final transaction = editorState.transaction;
+      transaction.updateNode(node, {TodoListBlockKeys.checked: true});
+      await editorState.apply(transaction);
+      await completer.future;
+    });
   });
 }

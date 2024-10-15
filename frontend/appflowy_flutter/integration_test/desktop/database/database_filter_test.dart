@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
-import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -154,12 +154,10 @@ void main() {
       tester.assertNumberOfRowsInGridPage(0);
 
       await tester.tapFilterButtonInGrid('date');
-      await tester.tapDateFilterButtonInGrid();
-      await tester.tapDateFilterCondition(DateTimeFilterCondition.before);
+      await tester.changeDateFilterCondition(DateTimeFilterCondition.before);
       tester.assertNumberOfRowsInGridPage(7);
 
-      await tester.tapDateFilterButtonInGrid();
-      await tester.tapDateFilterCondition(DateTimeFilterCondition.isEmpty);
+      await tester.changeDateFilterCondition(DateTimeFilterCondition.isEmpty);
       tester.assertNumberOfRowsInGridPage(3);
 
       await tester.pumpAndSettle();
@@ -170,8 +168,6 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-
-      await tester.scrollToRight(find.byType(GridPage));
 
       await tester.createField(
         FieldType.CreatedTime,
@@ -189,9 +185,38 @@ void main() {
       tester.assertNumberOfRowsInGridPage(3);
 
       await tester.tapFilterButtonInGrid('Created at');
-      await tester.tapDateFilterButtonInGrid();
-      await tester.tapDateFilterCondition(DateTimeFilterCondition.before);
+      await tester.changeDateFilterCondition(DateTimeFilterCondition.before);
       tester.assertNumberOfRowsInGridPage(0);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('create new row when filters don\'t autofill', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      // create a filter
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(
+        FieldType.RichText,
+        'Name',
+      );
+      tester.assertNumberOfRowsInGridPage(3);
+
+      await tester.tapCreateRowButtonInGrid();
+      tester.assertNumberOfRowsInGridPage(4);
+
+      await tester.tapFilterButtonInGrid('Name');
+      await tester
+          .changeTextFilterCondition(TextFilterConditionPB.TextIsNotEmpty);
+      await tester.dismissCellEditor();
+      tester.assertNumberOfRowsInGridPage(0);
+
+      await tester.tapCreateRowButtonInGrid();
+      tester.assertNumberOfRowsInGridPage(0);
+      expect(find.byType(RowDetailPage), findsOneWidget);
 
       await tester.pumpAndSettle();
     });

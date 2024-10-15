@@ -40,6 +40,8 @@ describe('Markdown editing', () => {
     // Test 1: heading
     cy.get('@editor').type('##');
     cy.get('@editor').realPress('Space');
+    cy.wait(50);
+    
     cy.get('@editor').type('Heading 2');
     expectedJson = [...expectedJson, {
       type: 'heading',
