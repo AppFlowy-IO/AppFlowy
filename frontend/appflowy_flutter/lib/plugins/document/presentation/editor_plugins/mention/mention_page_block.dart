@@ -7,7 +7,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -122,8 +123,17 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         await context.pushView(view);
       }
     } else {
-      getIt<TabsBloc>().add(
-        TabsEvent.openPlugin(plugin: view.plugin(), view: view),
+      final action = NavigationAction(
+        objectId: view.id,
+        arguments: {
+          ActionArgumentKeys.view: view,
+          ActionArgumentKeys.blockId: widget.blockId,
+        },
+      );
+      getIt<ActionNavigationBloc>().add(
+        ActionNavigationEvent.performAction(
+          action: action,
+        ),
       );
     }
   }
@@ -225,12 +235,15 @@ class _MentionPageBlockContent extends StatelessWidget {
                 ),
         ],
         const HSpace(2),
-        FlowyText(
-          text,
-          decoration: TextDecoration.underline,
-          fontSize: textStyle?.fontSize,
-          fontWeight: textStyle?.fontWeight,
-          lineHeight: textStyle?.height,
+        Flexible(
+          child: FlowyText(
+            text,
+            decoration: TextDecoration.underline,
+            fontSize: textStyle?.fontSize,
+            fontWeight: textStyle?.fontWeight,
+            lineHeight: textStyle?.height,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const HSpace(4),
       ],
