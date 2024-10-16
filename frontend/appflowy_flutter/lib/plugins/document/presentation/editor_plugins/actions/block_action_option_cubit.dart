@@ -209,44 +209,60 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     Node node, {
     int? level,
   }) async {
-    final toType = type;
-
-    Log.info(
-      'Turn into block: from ${node.type} to $type',
-    );
-
-    if (type == node.type && type != HeadingBlockKeys.type) {
-      Log.info('Block type is the same');
+    final selection = editorState.selection;
+    if (selection == null) {
       return false;
     }
 
-    Node afterNode = node.copyWith(
-      type: type,
-      attributes: {
-        if (toType == HeadingBlockKeys.type) HeadingBlockKeys.level: level,
-        if (toType == TodoListBlockKeys.type) TodoListBlockKeys.checked: false,
-        blockComponentBackgroundColor:
-            node.attributes[blockComponentBackgroundColor],
-        blockComponentTextDirection:
-            node.attributes[blockComponentTextDirection],
-        blockComponentDelta: (node.delta ?? Delta()).toJson(),
-      },
-    );
-    final insertedNode = [];
-    // heading block and callout block should not have children
-    if ([HeadingBlockKeys.type, CalloutBlockKeys.type].contains(toType)) {
-      afterNode = afterNode.copyWith(
-        children: [],
+    final toType = type;
+
+    // only handle the node in the same depth
+    final selectedNodes = editorState
+        .getNodesInSelection(selection.normalized)
+        .where((e) => e.path.length == node.path.length)
+        .toList();
+    Log.info('turnIntoBlock selectedNodes $selectedNodes');
+
+    final insertedNode = <Node>[];
+
+    for (final node in selectedNodes) {
+      Log.info(
+        'Turn into block: from ${node.type} to $type',
       );
-      insertedNode.addAll(node.children.map((e) => e.copyWith()));
+
+      Node afterNode = node.copyWith(
+        type: type,
+        attributes: {
+          if (toType == HeadingBlockKeys.type) HeadingBlockKeys.level: level,
+          if (toType == TodoListBlockKeys.type)
+            TodoListBlockKeys.checked: false,
+          blockComponentBackgroundColor:
+              node.attributes[blockComponentBackgroundColor],
+          blockComponentTextDirection:
+              node.attributes[blockComponentTextDirection],
+          blockComponentDelta: (node.delta ?? Delta()).toJson(),
+        },
+      );
+
+      // heading block and callout block should not have children
+      if ([HeadingBlockKeys.type, CalloutBlockKeys.type, QuoteBlockKeys.type]
+          .contains(toType)) {
+        afterNode = afterNode.copyWith(
+          children: [],
+        );
+        insertedNode.add(afterNode);
+        insertedNode.addAll(node.children.map((e) => e.copyWith()));
+      } else {
+        insertedNode.add(afterNode);
+      }
     }
 
     final transaction = editorState.transaction;
-    transaction.insertNodes(node.path, [
-      afterNode,
-      ...insertedNode,
-    ]);
-    transaction.deleteNode(node);
+    transaction.insertNodes(
+      node.path,
+      insertedNode,
+    );
+    transaction.deleteNodes(selectedNodes);
     await editorState.apply(transaction);
 
     return true;

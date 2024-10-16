@@ -132,6 +132,11 @@ void _customBlockOptionActions(
     if (UniversalPlatform.isDesktop) {
       builder.showActions =
           (node) => node.parent?.type != TableCellBlockKeys.type;
+      builder.configuration = builder.configuration.copyWith(
+        blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
+          vertical: 1,
+        ),
+      );
 
       builder.actionBuilder = (context, state) {
         final top = builder.configuration.padding(context.node).top;
