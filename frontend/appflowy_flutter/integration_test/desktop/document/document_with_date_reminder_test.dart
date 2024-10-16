@@ -10,7 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../../shared/util.dart';
-import '../board/board_hide_groups_test.dart';
 
 void main() {
   setUp(() {

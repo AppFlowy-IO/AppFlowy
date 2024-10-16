@@ -69,10 +69,11 @@ class AppFlowyDatePicker extends StatefulWidget {
   final List<OptionGroup> options;
 
   @override
-  State<AppFlowyDatePicker> createState() => _AppFlowyDatePickerState();
+  State<AppFlowyDatePicker> createState() => AppFlowyDatePickerState();
 }
 
-class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
+@visibleForTesting
+class AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
   // store date values in the state and refresh the ui upon any changes made, instead of only updating them after receiving update from backend.
   late DateTime? dateTime;
   late DateTime? startDateTime;
@@ -144,6 +145,7 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
           mainAxisSize: MainAxisSize.min,
           children: [
             DateTimeTextField(
+              key: const ValueKey('date_time_text_field'),
               includeTime: includeTime,
               dateTime: isRange ? startDateTime : dateTime,
               dateFormat: widget.dateFormat,
@@ -156,6 +158,7 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
             if (isRange) ...[
               const VSpace(8),
               DateTimeTextField(
+                key: const ValueKey('end_date_time_text_field'),
                 includeTime: includeTime,
                 dateTime: endDateTime,
                 dateFormat: widget.dateFormat,
