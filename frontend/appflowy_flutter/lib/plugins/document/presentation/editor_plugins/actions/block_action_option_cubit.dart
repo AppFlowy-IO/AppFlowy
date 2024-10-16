@@ -216,7 +216,11 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
     final toType = type;
 
-    final selectedNodes = editorState.getNodesInSelection(selection.normalized);
+    // only handle the node in the same depth
+    final selectedNodes = editorState
+        .getNodesInSelection(selection.normalized)
+        .where((e) => e.path.length == node.path.length)
+        .toList();
     Log.info('turnIntoBlock selectedNodes $selectedNodes');
 
     final insertedNode = <Node>[];
@@ -240,14 +244,16 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         },
       );
 
-      insertedNode.add(afterNode);
-
       // heading block and callout block should not have children
-      if ([HeadingBlockKeys.type, CalloutBlockKeys.type].contains(toType)) {
+      if ([HeadingBlockKeys.type, CalloutBlockKeys.type, QuoteBlockKeys.type]
+          .contains(toType)) {
         afterNode = afterNode.copyWith(
           children: [],
         );
+        insertedNode.add(afterNode);
         insertedNode.addAll(node.children.map((e) => e.copyWith()));
+      } else {
+        insertedNode.add(afterNode);
       }
     }
 
