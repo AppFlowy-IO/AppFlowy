@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -10,9 +11,11 @@ import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart'
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/child_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -281,77 +284,166 @@ class _DocumentPageState extends State<DocumentPage>
     return false;
   }
 
-  List<Node> collectMatchingNodes(Node node, String type) {
+  List<Node> collectMatchingNodes(
+    Node node,
+    String type, [
+    List<String> additionalTypes = const [],
+  ]) {
     final List<Node> matchingNodes = [];
-    if (node.type == type) {
+    if (node.type == type || additionalTypes.contains(node.type)) {
       matchingNodes.add(node);
     }
 
     for (final child in node.children) {
-      matchingNodes.addAll(collectMatchingNodes(child, type));
+      matchingNodes.addAll(collectMatchingNodes(child, type, additionalTypes));
     }
 
     return matchingNodes;
   }
 
+  // TODO(Mathias): Move logic to a separate class/Widget to keep the document page clean
   void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (editorState == null || event.$1 == TransactionTime.before) {
+    if (editorState == null || event.$1 == TransactionTime.after) {
       return;
     }
 
-    final Map<String, List<Node>> addedNodes = {
-      for (final handler in SharedEditorContext.transactionHandlers)
-        handler.blockType: [],
+    final transactionHandlers = SharedEditorContext.transactionHandlers;
+    final Map<String, dynamic> added = {
+      for (final handler in transactionHandlers)
+        handler.type: handler.isParagraphSubType ? <MentionBlockData>[] : [],
     };
-    final Map<String, List<Node>> removedNodes = {
-      for (final handler in SharedEditorContext.transactionHandlers)
-        handler.blockType: [],
+    final Map<String, dynamic> removed = {
+      for (final handler in transactionHandlers)
+        handler.type: handler.isParagraphSubType ? <MentionBlockData>[] : [],
     };
 
-    final transactionHandlerTypes = SharedEditorContext.transactionHandlers
-        .map((h) => h.blockType)
-        .toList();
-
-    // Collect all matching nodes in a performant way for each handler type.
     for (final op in event.$2.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
-          for (final handlerType in transactionHandlerTypes) {
-            if (n.type == handlerType) {
-              addedNodes[handlerType]!
-                  .addAll(collectMatchingNodes(n, handlerType));
+          for (final handler in transactionHandlers) {
+            if (handler.isParagraphSubType) {
+              final nodesWithDelta = collectMatchingNodes(
+                n,
+                ParagraphBlockKeys.type,
+                nodeTypesContainingMentions,
+              );
+              for (final paragraphNode in nodesWithDelta) {
+                final deltas = paragraphNode.attributes['delta'];
+                if (deltas == null || deltas is! List || deltas.isEmpty) {
+                  continue;
+                }
+
+                for (final (index, delta) in deltas.indexed) {
+                  if (delta['attributes'] != null &&
+                      delta['attributes'][handler.type] != null) {
+                    added[handler.type]!.add(
+                      (paragraphNode, delta['attributes'][handler.type], index),
+                    );
+                  }
+                }
+              }
+            } else {
+              added[handler.type]!
+                  .addAll(collectMatchingNodes(n, handler.type));
             }
           }
         }
       } else if (op is DeleteOperation) {
         for (final n in op.nodes) {
-          for (final handlerType in transactionHandlerTypes) {
-            if (n.type == handlerType) {
-              removedNodes[handlerType]!
-                  .addAll(collectMatchingNodes(n, handlerType));
+          for (final handler in transactionHandlers) {
+            if (handler.isParagraphSubType) {
+              final nodesWithDelta = collectMatchingNodes(
+                n,
+                ParagraphBlockKeys.type,
+                nodeTypesContainingMentions,
+              );
+              for (final paragraphNode in nodesWithDelta) {
+                final List deltas = paragraphNode.attributes['delta'];
+                for (final (index, delta) in deltas.indexed) {
+                  if (delta['attributes'] != null &&
+                      delta['attributes'][handler.type] != null) {
+                    removed[handler.type]!.add(
+                      (paragraphNode, delta['attributes'][handler.type], index),
+                    );
+                  }
+                }
+              }
+            } else {
+              removed[handler.type]!
+                  .addAll(collectMatchingNodes(n, handler.type));
             }
+          }
+        }
+      } else if (op is UpdateOperation) {
+        final node = editorState!.getNodeAtPath(op.path);
+        if (node == null) {
+          continue;
+        }
+
+        if (op.attributes['delta'] is! List ||
+            op.oldAttributes['delta'] is! List) {
+          continue;
+        }
+
+        final deltaBefore = Delta.fromJson(op.oldAttributes['delta']);
+        final deltaAfter = Delta.fromJson(op.attributes['delta']);
+
+        final diff = deltaBefore.diff(deltaAfter);
+        final inverted = diff.invert(deltaBefore);
+        final del = inverted.whereType<TextInsert>();
+        final add = diff.whereType<TextInsert>();
+
+        for (final handler in transactionHandlers) {
+          if (!handler.isParagraphSubType) {
+            continue;
+          }
+
+          if (add.isNotEmpty) {
+            added[handler.type]!.addAll(
+              add.where((ti) => ti.attributes?[handler.type] != null).map((ti) {
+                final index = deltaAfter.toList().indexOf(ti);
+                return (
+                  node,
+                  ti.attributes![handler.type] as Map<String, dynamic>,
+                  index,
+                );
+              }).toList(),
+            );
+          }
+
+          if (del.isNotEmpty) {
+            removed[handler.type]!.addAll(
+              del.where((ti) => ti.attributes?[handler.type] != null).map((ti) {
+                return (
+                  node,
+                  ti.attributes![handler.type] as Map<String, dynamic>,
+                  -1,
+                );
+              }).toList(),
+            );
           }
         }
       }
     }
 
-    if (removedNodes.isEmpty && addedNodes.isEmpty) {
+    if (removed.isEmpty && added.isEmpty) {
       return;
     }
 
-    for (final handler in SharedEditorContext.transactionHandlers) {
-      final added = addedNodes[handler.blockType] ?? [];
-      final removed = removedNodes[handler.blockType] ?? [];
+    for (final handler in transactionHandlers) {
+      final a = added[handler.type] ?? [];
+      final r = removed[handler.type] ?? [];
 
-      if (added.isEmpty && removed.isEmpty) {
+      if (a.isEmpty && r.isEmpty) {
         continue;
       }
 
       handler.onTransaction(
         context,
         editorState!,
-        added,
-        removed,
+        a,
+        r,
+        isCut: context.read<ClipboardState>().isCut,
         isUndoRedo: isUndoRedo,
         isPaste: isPaste,
         isDraggingNode: isDraggingNode,

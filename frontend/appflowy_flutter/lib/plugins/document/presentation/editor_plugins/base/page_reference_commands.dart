@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -87,6 +88,7 @@ Future<bool> inlinePageReferenceCommandHandler(
   final service = InlineActionsService(
     context: context,
     handlers: [
+      InlineChildPageService(currentViewId: currentViewId),
       InlinePageReferenceService(
         currentViewId: currentViewId,
         limitResults: 10,

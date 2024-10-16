@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_sub_page_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
     show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -66,19 +68,10 @@ class MentionPageBlock extends StatefulWidget {
 }
 
 class _MentionPageBlockState extends State<MentionPageBlock> {
-  late final EditorState editorState;
-
-  @override
-  void initState() {
-    super.initState();
-
-    editorState = context.read<EditorState>();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MentionPageBloc(
+      create: (_) => MentionPageBloc(
         pageId: widget.pageId,
         blockId: widget.blockId,
       )..add(const MentionPageEvent.initial()),
@@ -99,64 +92,26 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
             return _MobileMentionPageBlock(
               view: view,
               textStyle: widget.textStyle,
-              handleTap: () => handleTap(view),
-              handleDoubleTap: handleDoubleTap,
+              handleTap: () => _handleTap(context, view),
+              handleDoubleTap: () => _handleDoubleTap(
+                context,
+                widget.editorState,
+                view.id,
+                widget.node,
+                widget.index,
+              ),
             );
           } else {
             return _DesktopMentionPageBlock(
               view: view,
               content: state.blockContent,
               textStyle: widget.textStyle,
-              handleTap: () => handleTap(view),
+              handleTap: () => _handleTap(context, view),
             );
           }
         },
       ),
     );
-  }
-
-  Future<void> handleTap(ViewPB view) async {
-    if (UniversalPlatform.isMobile) {
-      final currentViewId = context.read<DocumentBloc>().documentId;
-      if (mounted && currentViewId != widget.pageId) {
-        await context.pushView(view);
-      }
-    } else {
-      getIt<TabsBloc>().add(
-        TabsEvent.openPlugin(plugin: view.plugin(), view: view),
-      );
-    }
-  }
-
-  Future<void> handleDoubleTap() async {
-    if (!UniversalPlatform.isMobile) {
-      return;
-    }
-
-    final currentViewId = context.read<DocumentBloc>().documentId;
-    final viewId = await showPageSelectorSheet(
-      context,
-      currentViewId: currentViewId,
-      selectedViewId: widget.pageId,
-    );
-
-    if (viewId != null) {
-      // Update this nodes pageId
-      final transaction = widget.editorState.transaction
-        ..formatText(
-          widget.node,
-          widget.index,
-          1,
-          {
-            MentionBlockKeys.mention: {
-              MentionBlockKeys.type: MentionType.page.name,
-              MentionBlockKeys.pageId: viewId,
-            },
-          },
-        );
-
-      await widget.editorState.apply(transaction, withUpdateSelection: false);
-    }
   }
 
   Future<ViewPB?> fetchView(String pageId) async {
@@ -182,11 +137,154 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   void updateSelection() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.updateSelectionWithReason(
-        editorState.selection,
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection),
+    );
+  }
+}
+
+class MentionSubPageBlock extends StatefulWidget {
+  const MentionSubPageBlock({
+    super.key,
+    required this.editorState,
+    required this.pageId,
+    required this.node,
+    required this.textStyle,
+    required this.index,
+  });
+
+  final EditorState editorState;
+  final String pageId;
+  final Node node;
+  final TextStyle? textStyle;
+
+  // Used to update the block
+  final int index;
+
+  @override
+  State<MentionSubPageBlock> createState() => _MentionSubPageBlockState();
+}
+
+class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => MentionSubPageBloc(pageId: widget.pageId)
+        ..add(const MentionSubPageEvent.initial()),
+      child: BlocBuilder<MentionSubPageBloc, MentionSubPageState>(
+        builder: (context, state) {
+          final view = state.view;
+          if (state.isLoading) {
+            return const SizedBox.shrink();
+          }
+
+          if (state.isDeleted || view == null) {
+            return _DeletedPageBlock(textStyle: widget.textStyle);
+          }
+
+          if (UniversalPlatform.isMobile) {
+            return _MobileMentionPageBlock(
+              view: view,
+              showTrashHint: state.isInTrash,
+              textStyle: widget.textStyle,
+              handleTap: () => _handleTap(context, view),
+              handleDoubleTap: () => _handleDoubleTap(
+                context,
+                widget.editorState,
+                view.id,
+                widget.node,
+                widget.index,
+              ),
+            );
+          } else {
+            return _DesktopMentionPageBlock(
+              view: view,
+              showTrashHint: state.isInTrash,
+              content: null,
+              textStyle: widget.textStyle,
+              handleTap: () => _handleTap(context, view),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Future<ViewPB?> fetchView(String pageId) async {
+    final view = await ViewBackendService.getView(pageId).then(
+      (value) => value.toNullable(),
+    );
+
+    if (view == null) {
+      // try to fetch from trash
+      final trashViews = await TrashService().readTrash();
+      final trash = trashViews.fold(
+        (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
+        (r) => null,
       );
-    });
+      if (trash != null) {
+        return ViewPB()
+          ..id = trash.id
+          ..name = trash.name;
+      }
+    }
+
+    return view;
+  }
+
+  void updateSelection() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection),
+    );
+  }
+}
+
+Future<void> _handleTap(BuildContext context, ViewPB view) async {
+  if (UniversalPlatform.isMobile && context.mounted) {
+    await context.pushView(view);
+  } else {
+    getIt<TabsBloc>().add(
+      TabsEvent.openPlugin(plugin: view.plugin(), view: view),
+    );
+  }
+}
+
+Future<void> _handleDoubleTap(
+  BuildContext context,
+  EditorState editorState,
+  String viewId,
+  Node node,
+  int index,
+) async {
+  if (!UniversalPlatform.isMobile) {
+    return;
+  }
+
+  final currentViewId = context.read<DocumentBloc>().documentId;
+  final newViewId = await showPageSelectorSheet(
+    context,
+    currentViewId: currentViewId,
+    selectedViewId: viewId,
+  );
+
+  if (newViewId != null) {
+    // Update this nodes pageId
+    final transaction = editorState.transaction
+      ..formatText(
+        node,
+        index,
+        1,
+        {
+          MentionBlockKeys.mention: {
+            MentionBlockKeys.type: MentionType.page.name,
+            MentionBlockKeys.pageId: newViewId,
+          },
+        },
+      );
+
+    await editorState.apply(transaction, withUpdateSelection: false);
   }
 }
 
@@ -195,11 +293,13 @@ class _MentionPageBlockContent extends StatelessWidget {
     required this.view,
     required this.textStyle,
     this.content,
+    this.showTrashHint = false,
   });
 
   final ViewPB view;
   final TextStyle? textStyle;
   final String? content;
+  final bool showTrashHint;
 
   @override
   Widget build(BuildContext context) {
@@ -225,13 +325,24 @@ class _MentionPageBlockContent extends StatelessWidget {
                 ),
         ],
         const HSpace(2),
-        FlowyText(
-          text,
-          decoration: TextDecoration.underline,
-          fontSize: textStyle?.fontSize,
-          fontWeight: textStyle?.fontWeight,
-          lineHeight: textStyle?.height,
+        Flexible(
+          child: FlowyText(
+            text,
+            decoration: TextDecoration.underline,
+            fontSize: textStyle?.fontSize,
+            fontWeight: textStyle?.fontWeight,
+            lineHeight: textStyle?.height,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
+        if (showTrashHint) ...[
+          FlowyText(
+            LocaleKeys.document_mention_trashHint.tr(),
+            color: Theme.of(context).disabledColor,
+            decoration: TextDecoration.underline,
+            decorationColor: AFThemeExtension.of(context).textColor,
+          ),
+        ],
         const HSpace(4),
       ],
     );
@@ -282,9 +393,7 @@ class _MentionPageBlockContent extends StatelessWidget {
 }
 
 class _NoAccessMentionPageBlock extends StatelessWidget {
-  const _NoAccessMentionPageBlock({
-    required this.textStyle,
-  });
+  const _NoAccessMentionPageBlock({required this.textStyle});
 
   final TextStyle? textStyle;
 
@@ -305,18 +414,42 @@ class _NoAccessMentionPageBlock extends StatelessWidget {
   }
 }
 
+class _DeletedPageBlock extends StatelessWidget {
+  const _DeletedPageBlock({required this.textStyle});
+
+  final TextStyle? textStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyHover(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: FlowyText(
+          LocaleKeys.document_mention_deletedPage.tr(),
+          color: Theme.of(context).disabledColor,
+          decoration: TextDecoration.underline,
+          fontSize: textStyle?.fontSize,
+          fontWeight: textStyle?.fontWeight,
+        ),
+      ),
+    );
+  }
+}
+
 class _MobileMentionPageBlock extends StatelessWidget {
   const _MobileMentionPageBlock({
     required this.view,
     required this.textStyle,
     required this.handleTap,
     required this.handleDoubleTap,
+    this.showTrashHint = false,
   });
 
   final TextStyle? textStyle;
   final ViewPB view;
   final VoidCallback handleTap;
   final VoidCallback handleDoubleTap;
+  final bool showTrashHint;
 
   @override
   Widget build(BuildContext context) {
@@ -327,6 +460,7 @@ class _MobileMentionPageBlock extends StatelessWidget {
       child: _MentionPageBlockContent(
         view: view,
         textStyle: textStyle,
+        showTrashHint: showTrashHint,
       ),
     );
   }
@@ -338,12 +472,14 @@ class _DesktopMentionPageBlock extends StatelessWidget {
     required this.textStyle,
     required this.handleTap,
     required this.content,
+    this.showTrashHint = false,
   });
 
   final TextStyle? textStyle;
   final ViewPB view;
   final String? content;
   final VoidCallback handleTap;
+  final bool showTrashHint;
 
   @override
   Widget build(BuildContext context) {
@@ -358,6 +494,7 @@ class _DesktopMentionPageBlock extends StatelessWidget {
             view: view,
             content: content,
             textStyle: textStyle,
+            showTrashHint: showTrashHint,
           ),
         ),
       ),

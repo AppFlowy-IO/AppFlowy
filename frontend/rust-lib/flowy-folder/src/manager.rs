@@ -44,7 +44,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLockWriteGuard;
-use tracing::{error, info, instrument, warn};
+use tracing::{error, info, instrument};
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;

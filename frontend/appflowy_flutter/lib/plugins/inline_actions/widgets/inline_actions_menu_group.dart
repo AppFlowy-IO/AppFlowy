@@ -41,8 +41,10 @@ class InlineActionsGroup extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FlowyText.medium(result.title, color: style.groupTextColor),
-          const SizedBox(height: 4),
+          if (result.title != null) ...[
+            FlowyText.medium(result.title!, color: style.groupTextColor),
+            const SizedBox(height: 4),
+          ],
           ...result.results.mapIndexed(
             (index, item) => InlineActionsWidget(
               item: item,
@@ -101,6 +103,7 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
           text: FlowyText.regular(
             widget.item.label,
             figmaLineHeight: 18,
+            overflow: TextOverflow.ellipsis,
           ),
           onTap: _onPressed,
         ),
