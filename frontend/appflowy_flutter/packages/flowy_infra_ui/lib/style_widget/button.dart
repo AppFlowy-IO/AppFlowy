@@ -424,14 +424,14 @@ class FlowyTextButton extends StatelessWidget {
             ),
           ),
           textStyle: WidgetStateProperty.all(
-            TextStyle(
-              fontWeight: fontWeight ?? FontWeight.w500,
-              fontSize: fontSize,
-              color: fontColor ?? Theme.of(context).colorScheme.onPrimary,
-              decoration: decoration,
-              fontFamily: fontFamily,
-              height: lineHeight ?? 1.1,
-            ),
+            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: fontWeight ?? FontWeight.w500,
+                  fontSize: fontSize,
+                  color: fontColor ?? Theme.of(context).colorScheme.onPrimary,
+                  decoration: decoration,
+                  fontFamily: fontFamily,
+                  height: lineHeight ?? 1.1,
+                ),
           ),
           backgroundColor: WidgetStateProperty.resolveWith(
             (states) {
