@@ -33,6 +33,11 @@ void main() {
           continue;
         }
 
+        editorState.selectionType = SelectionType.block;
+        editorState.selection = Selection.collapsed(
+          Position(path: [0]),
+        );
+
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, originalType);
         final result = await cubit.turnIntoBlock(
@@ -49,6 +54,10 @@ void main() {
         );
 
         // turn it back the originalType for the next test
+        editorState.selectionType = SelectionType.block;
+        editorState.selection = Selection.collapsed(
+          Position(path: [0]),
+        );
         await cubit.turnIntoBlock(
           originalType,
           newNode,
