@@ -1,3 +1,4 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -15,6 +16,7 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '_sidebar_import_notion.dart';
 
@@ -88,8 +90,11 @@ class WorkspacesMenu extends StatelessWidget {
         // add new workspace
         const _CreateWorkspaceButton(),
         const VSpace(6.0),
-        const _ImportNotionButton(),
-        const VSpace(6.0),
+
+        if (UniversalPlatform.isDesktop) ...[
+          const _ImportNotionButton(),
+          const VSpace(6.0),
+        ],
       ],
     );
   }
@@ -375,21 +380,40 @@ class _ImportNotionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40,
-      child: FlowyButton(
-        key: importNotionButtonKey,
-        onTap: () {
-          _showImportNotinoDialog(context);
-        },
-        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-        text: Row(
-          children: [
-            _buildLeftIcon(context),
-            const HSpace(8.0),
-            FlowyText.regular(
-              LocaleKeys.workspace_importFromNotion.tr(),
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          FlowyButton(
+            key: importNotionButtonKey,
+            onTap: () {
+              _showImportNotinoDialog(context);
+            },
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            text: Row(
+              children: [
+                _buildLeftIcon(context),
+                const HSpace(8.0),
+                FlowyText.regular(
+                  LocaleKeys.workspace_importFromNotion.tr(),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          FlowyTooltip(
+            message: LocaleKeys.workspace_learnMore.tr(),
+            preferBelow: true,
+            child: FlowyIconButton(
+              icon: const FlowySvg(
+                FlowySvgs.information_s,
+              ),
+              onPressed: () {
+                afLaunchUrlString(
+                  'https://docs.appflowy.io/docs/guides/import-from-notion',
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
