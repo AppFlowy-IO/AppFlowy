@@ -52,12 +52,12 @@ class _DateCellEditor extends State<DateCellEditor> {
             includeTime: state.includeTime,
             rebuildOnDaySelected: false,
             onIncludeTimeChanged: (value) =>
-                dateCellBloc.add(DateCellEditorEvent.setIncludeTime(!value)),
+                dateCellBloc.add(DateCellEditorEvent.setIncludeTime(value)),
             isRange: state.isRange,
             startDay: state.isRange ? state.startDay : null,
             endDay: state.isRange ? state.endDay : null,
             onIsRangeChanged: (value) =>
-                dateCellBloc.add(DateCellEditorEvent.setIsRange(!value)),
+                dateCellBloc.add(DateCellEditorEvent.setIsRange(value)),
             dateFormat: state.dateTypeOptionPB.dateFormat,
             timeFormat: state.dateTypeOptionPB.timeFormat,
             selectedDay: state.dateTime,

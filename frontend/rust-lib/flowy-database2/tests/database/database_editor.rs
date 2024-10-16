@@ -195,7 +195,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn update_cell(
-    &mut self,
+    &self,
     field_id: &str,
     row_id: RowId,
     cell_changeset: BoxAny,

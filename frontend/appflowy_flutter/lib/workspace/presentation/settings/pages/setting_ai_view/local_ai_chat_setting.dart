@@ -155,7 +155,7 @@ class LocalAIChatSettingHeader extends StatelessWidget {
                 const Spacer(),
                 Toggle(
                   value: isEnabled,
-                  onChanged: (value) {
+                  onChanged: (_) {
                     context
                         .read<LocalAIChatToggleBloc>()
                         .add(const LocalAIChatToggleEvent.toggle());

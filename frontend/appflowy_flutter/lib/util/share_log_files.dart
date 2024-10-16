@@ -9,7 +9,6 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:toastification/toastification.dart';
 
 Future<void> shareLogFiles(BuildContext? context) async {
   final dir = await getApplicationSupportDirectory();

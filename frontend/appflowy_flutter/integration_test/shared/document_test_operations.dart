@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
@@ -407,5 +409,24 @@ class EditorOperations {
         },
       ),
     );
+  }
+
+  /// open the more action menu on mobile
+  Future<void> openMoreActionMenuOnMobile() async {
+    final moreActionButton = find.byType(MobileViewPageMoreButton);
+    await tester.tapButton(moreActionButton);
+    await tester.pumpAndSettle();
+  }
+
+  /// click the more action item on mobile
+  ///
+  /// rename, add collaborator, publish, delete, etc.
+  Future<void> clickMoreActionItemOnMobile(String name) async {
+    final moreActionItem = find.descendant(
+      of: find.byType(MobileQuickActionButton),
+      matching: find.findTextInFlowyText(name),
+    );
+    await tester.tapButton(moreActionItem);
+    await tester.pumpAndSettle();
   }
 }
