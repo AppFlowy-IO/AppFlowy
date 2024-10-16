@@ -325,9 +325,6 @@ class _OptionButtonState extends State<_OptionButton> {
             ],
           ),
           onTap: () {
-            debugPrint(
-              '_updateBlockSelection onTap - selection ${widget.editorState.selection}',
-            );
             if (widget.editorState.selection != null) {
               beforeSelection = widget.editorState.selection;
             }
@@ -348,13 +345,11 @@ class _OptionButtonState extends State<_OptionButton> {
       final selection = Selection.collapsed(
         Position(path: path),
       );
-      debugPrint('_updateBlockSelection: selection $selection');
       widget.editorState.updateSelectionWithReason(
         selection,
         customSelectionType: SelectionType.block,
       );
     } else {
-      debugPrint('_updateBlockSelection: beforeSelection $beforeSelection');
       widget.editorState.updateSelectionWithReason(
         beforeSelection!,
         customSelectionType: SelectionType.block,
@@ -371,9 +366,7 @@ class _OptionButtonState extends State<_OptionButton> {
     final result = renderBox!.paintBounds.contains(localPosition);
     if (result) {
       beforeSelection = widget.editorState.selection;
-      debugPrint('_updateBlockSelection update_selection $beforeSelection');
     } else {
-      debugPrint('_updateBlockSelection clear selection');
       beforeSelection = null;
     }
     return result;
