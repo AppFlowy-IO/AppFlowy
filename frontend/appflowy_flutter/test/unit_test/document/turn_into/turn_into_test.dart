@@ -16,6 +16,7 @@ void main() {
       Document document,
       String originalType,
       String originalText, {
+      Selection? selection,
       String? toType,
       void Function(EditorState editorState, Node node)? afterTurnInto,
     }) async {
@@ -34,9 +35,10 @@ void main() {
         }
 
         editorState.selectionType = SelectionType.block;
-        editorState.selection = Selection.collapsed(
-          Position(path: [0]),
-        );
+        editorState.selection = selection ??
+            Selection.collapsed(
+              Position(path: [0]),
+            );
 
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, originalType);
@@ -55,9 +57,10 @@ void main() {
 
         // turn it back the originalType for the next test
         editorState.selectionType = SelectionType.block;
-        editorState.selection = Selection.collapsed(
-          Position(path: [0]),
-        );
+        editorState.selection = selection ??
+            Selection.collapsed(
+              Position(path: [0]),
+            );
         await cubit.turnIntoBlock(
           originalType,
           newNode,
@@ -301,6 +304,194 @@ void main() {
               editorState.document.root.children[3].delta!.toPlainText(),
               nestedText3,
             );
+          },
+        );
+      });
+    }
+
+    for (final type in [
+      HeadingBlockKeys.type,
+      QuoteBlockKeys.type,
+      CalloutBlockKeys.type,
+    ]) {
+      // numbered list, bulleted list, todo list
+      // before
+      // - numbered list 1
+      //   - nested list 1
+      // - bulleted list 2
+      //   - nested list 2
+      // - todo list 3
+      //   - nested list 3
+      // after
+      // - heading 1
+      // - nested list 1
+      // - heading 2
+      // - nested list 2
+      // - heading 3
+      // - nested list 3
+      test('from nested mixed list to $type', () async {
+        const text1 = 'numbered list 1';
+        const text2 = 'bulleted list 2';
+        const text3 = 'todo list 3';
+        const nestedText1 = 'nested list 1';
+        const nestedText2 = 'nested list 2';
+        const nestedText3 = 'nested list 3';
+        final document = createDocument([
+          numberedListNode(
+            delta: Delta()..insert(text1),
+            children: [
+              numberedListNode(
+                delta: Delta()..insert(nestedText1),
+              ),
+            ],
+          ),
+          bulletedListNode(
+            delta: Delta()..insert(text2),
+            children: [
+              bulletedListNode(
+                delta: Delta()..insert(nestedText2),
+              ),
+            ],
+          ),
+          todoListNode(
+            checked: false,
+            text: text3,
+            children: [
+              todoListNode(
+                checked: false,
+                text: nestedText3,
+              ),
+            ],
+          ),
+        ]);
+        await checkTurnInto(
+          document,
+          NumberedListBlockKeys.type,
+          text1,
+          toType: type,
+          selection: Selection(
+            start: Position(path: [0]),
+            end: Position(path: [2]),
+          ),
+          afterTurnInto: (editorState, node) {
+            final nodes = editorState.document.root.children;
+            expect(nodes.length, 6);
+            final texts = [
+              text1,
+              nestedText1,
+              text2,
+              nestedText2,
+              text3,
+              nestedText3,
+            ];
+            final types = [
+              type,
+              NumberedListBlockKeys.type,
+              type,
+              BulletedListBlockKeys.type,
+              type,
+              TodoListBlockKeys.type,
+            ];
+            for (var i = 0; i < 6; i++) {
+              expect(nodes[i].type, types[i]);
+              expect(nodes[i].children.length, 0);
+              expect(nodes[i].delta!.toPlainText(), texts[i]);
+            }
+          },
+        );
+      });
+    }
+
+    for (final type in [
+      ParagraphBlockKeys.type,
+      BulletedListBlockKeys.type,
+      NumberedListBlockKeys.type,
+      TodoListBlockKeys.type,
+    ]) {
+      // numbered list, bulleted list, todo list
+      // before
+      // - numbered list 1
+      //   - nested list 1
+      // - bulleted list 2
+      //   - nested list 2
+      // - todo list 3
+      //   - nested list 3
+      // after
+      // - new_list_type
+      //  - nested list 1
+      // - new_list_type
+      //  - nested list 2
+      // - new_list_type
+      //  - nested list 3
+      test('from nested mixed list to $type', () async {
+        const text1 = 'numbered list 1';
+        const text2 = 'bulleted list 2';
+        const text3 = 'todo list 3';
+        const nestedText1 = 'nested list 1';
+        const nestedText2 = 'nested list 2';
+        const nestedText3 = 'nested list 3';
+        final document = createDocument([
+          numberedListNode(
+            delta: Delta()..insert(text1),
+            children: [
+              numberedListNode(
+                delta: Delta()..insert(nestedText1),
+              ),
+            ],
+          ),
+          bulletedListNode(
+            delta: Delta()..insert(text2),
+            children: [
+              bulletedListNode(
+                delta: Delta()..insert(nestedText2),
+              ),
+            ],
+          ),
+          todoListNode(
+            checked: false,
+            text: text3,
+            children: [
+              todoListNode(
+                checked: false,
+                text: nestedText3,
+              ),
+            ],
+          ),
+        ]);
+        await checkTurnInto(
+          document,
+          NumberedListBlockKeys.type,
+          text1,
+          toType: type,
+          selection: Selection(
+            start: Position(path: [0]),
+            end: Position(path: [2]),
+          ),
+          afterTurnInto: (editorState, node) {
+            final nodes = editorState.document.root.children;
+            expect(nodes.length, 3);
+            final texts = [
+              text1,
+              text2,
+              text3,
+            ];
+            final nestedTexts = [
+              nestedText1,
+              nestedText2,
+              nestedText3,
+            ];
+            final types = [
+              NumberedListBlockKeys.type,
+              BulletedListBlockKeys.type,
+              TodoListBlockKeys.type,
+            ];
+            for (var i = 0; i < 3; i++) {
+              expect(nodes[i].type, type);
+              expect(nodes[i].children.length, 1);
+              expect(nodes[i].delta!.toPlainText(), texts[i]);
+              expect(nodes[i].children[0].type, types[i]);
+              expect(nodes[i].children[0].delta!.toPlainText(), nestedTexts[i]);
+            }
           },
         );
       });
