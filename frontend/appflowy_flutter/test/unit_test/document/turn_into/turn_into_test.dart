@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -496,5 +497,41 @@ void main() {
         );
       });
     }
+
+    test('undo, redo', () async {
+      const text1 = 'numbered list 1';
+      const nestedText1 = 'nested list 1';
+      final document = createDocument([
+        numberedListNode(
+          delta: Delta()..insert(text1),
+          children: [
+            numberedListNode(
+              delta: Delta()..insert(nestedText1),
+            ),
+          ],
+        ),
+      ]);
+      await checkTurnInto(
+        document,
+        NumberedListBlockKeys.type,
+        text1,
+        toType: HeadingBlockKeys.type,
+        afterTurnInto: (editorState, node) {
+          expect(editorState.document.root.children.length, 2);
+          editorState.selection = Selection.collapsed(
+            Position(path: [0]),
+          );
+          KeyEventResult result = undoCommand.execute(editorState);
+          expect(result, KeyEventResult.handled);
+          expect(editorState.document.root.children.length, 1);
+          editorState.selection = Selection.collapsed(
+            Position(path: [0]),
+          );
+          result = redoCommand.execute(editorState);
+          expect(result, KeyEventResult.handled);
+          expect(editorState.document.root.children.length, 2);
+        },
+      );
+    });
   });
 }
