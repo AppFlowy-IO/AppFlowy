@@ -28,6 +28,11 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: self-hosted
     steps:
+      - name: Set timezone for action
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "US/Pacific"
+
       - name: Checkout source code
         uses: actions/checkout@v4
 
@@ -94,6 +99,11 @@ jobs:
     if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
+      - name: Set timezone for action
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "US/Pacific"
+
       - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
