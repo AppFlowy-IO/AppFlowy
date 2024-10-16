@@ -108,6 +108,7 @@ void main() {
 
       await tester.editor.tapLineOfEditorAt(0);
       await tester.ime.insertText('turn into 1');
+      await tester.ime.insertCharacter('\n');
       await tester.ime.insertText('turn into 2');
 
       // click the block option button to convert it to another blocks
