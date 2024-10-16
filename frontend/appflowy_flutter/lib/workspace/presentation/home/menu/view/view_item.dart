@@ -566,28 +566,24 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    Widget child = SizedBox(
-      height: widget.height,
-      child: Padding(
-        padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-        child: Row(children: children),
-      ),
-    );
-
-    if (widget.enableRightClickContext) {
-      child = _buildViewMoreActionButton(
-        context,
-        showAtCursor: true,
-        (_) => child,
-      );
-    }
-
-    child = GestureDetector(
+    final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(context, widget.view),
       onTertiaryTapDown: (_) =>
           widget.onTertiarySelected?.call(context, widget.view),
-      child: child,
+      child: SizedBox(
+        height: widget.height,
+        child: Padding(
+          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+          child: widget.enableRightClickContext
+              ? _buildViewMoreActionButton(
+                  context,
+                  showAtCursor: true,
+                  (_) => Row(children: children),
+                )
+              : Row(children: children),
+        ),
+      ),
     );
 
     if (isSelected) {
