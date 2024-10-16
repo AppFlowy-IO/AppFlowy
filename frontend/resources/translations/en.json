@@ -74,6 +74,8 @@
     "chooseWorkspace": "Choose your workspace",
     "defaultName": "My Workspace",
     "create": "Create workspace",
+    "importFromNotion": "Import From Notion",
+    "learnMore": "Learn more",
     "reset": "Reset workspace",
     "renameWorkspace": "Rename workspace",
     "workspaceNameCannotBeEmpty": "Workspace name cannot be empty",
@@ -124,6 +126,9 @@
     "publishOnAppFlowy": "Publish on AppFlowy",
     "shareTabTitle": "Invite to collaborate",
     "shareTabDescription": "For easy collaboration with anyone",
+    "copyLinkSuccess": "Copied link to clipboard",
+    "copyShareLink": "Copy share link",
+    "copyLinkFailed": "Failed to copy link to clipboard",
     "copyLinkToBlockSuccess": "Copied block link to clipboard",
     "copyLinkToBlockFailed": "Failed to copy block link to clipboard"
   },
@@ -144,6 +149,7 @@
     "textAndMarkdown": "Text & Markdown",
     "documentFromV010": "Document from v0.1.0",
     "databaseFromV010": "Database from v0.1.0",
+    "notionZip": "Notion Exported Zip File",
     "csv": "CSV",
     "database": "Database"
   },
@@ -939,6 +945,8 @@
       }
     },
     "common": {
+      "uploadingFile": "File is uploading. Please do not quit the app",
+      "uploadNotionSuccess": "Your Notion zip file has been uploaded successfully. Once the import is complete, you will receive a confirmation email",
       "reset": "Reset"
     },
     "menu": {
@@ -2506,7 +2514,8 @@
     "import": "Import",
     "importSuccess": "Uploaded successfully",
     "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
-    "importFailed": "Import failed, please check the file format"
+    "importFailed": "Import failed, please check the file format",
+    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse"
   },
   "globalComment": {
     "comments": "Comments",

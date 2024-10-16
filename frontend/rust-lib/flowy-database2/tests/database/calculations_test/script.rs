@@ -1,18 +1,10 @@
+use collab_database::rows::RowId;
 use tokio::sync::broadcast::Receiver;
 
 use flowy_database2::entities::UpdateCalculationChangesetPB;
 use flowy_database2::services::database_view::DatabaseViewChanged;
 
 use crate::database::database_editor::DatabaseEditorTest;
-
-pub enum CalculationScript {
-  InsertCalculation {
-    payload: UpdateCalculationChangesetPB,
-  },
-  AssertCalculationValue {
-    expected: f64,
-  },
-}
 
 pub struct DatabaseCalculationTest {
   inner: DatabaseEditorTest,
@@ -32,30 +24,35 @@ impl DatabaseCalculationTest {
     self.view_id.clone()
   }
 
-  pub async fn run_scripts(&mut self, scripts: Vec<CalculationScript>) {
-    for script in scripts {
-      self.run_script(script).await;
-    }
+  pub async fn insert_calculation(&mut self, payload: UpdateCalculationChangesetPB) {
+    self.recv = Some(
+      self
+        .editor
+        .subscribe_view_changed(&self.view_id())
+        .await
+        .unwrap(),
+    );
+    self.editor.update_calculation(payload).await.unwrap();
   }
 
-  pub async fn run_script(&mut self, script: CalculationScript) {
-    match script {
-      CalculationScript::InsertCalculation { payload } => {
-        self.recv = Some(
-          self
-            .editor
-            .subscribe_view_changed(&self.view_id())
-            .await
-            .unwrap(),
-        );
-        self.editor.update_calculation(payload).await.unwrap();
-      },
-      CalculationScript::AssertCalculationValue { expected } => {
-        let calculations = self.editor.get_all_calculations(&self.view_id()).await;
-        let calculation = calculations.items.first().unwrap();
-        assert_eq!(calculation.value, format!("{:.5}", expected));
-      },
-    }
+  pub async fn assert_calculation_float_value(&mut self, expected: f64) {
+    let calculations = self.editor.get_all_calculations(&self.view_id()).await;
+    let calculation = calculations.items.first().unwrap();
+    assert_eq!(calculation.value, format!("{:.5}", expected));
+  }
+
+  pub async fn assert_calculation_value(&mut self, expected: &str) {
+    let calculations = self.editor.get_all_calculations(&self.view_id()).await;
+    let calculation = calculations.items.first().unwrap();
+    assert_eq!(calculation.value, expected);
+  }
+
+  pub async fn duplicate_row(&self, row_id: &RowId) {
+    self
+      .editor
+      .duplicate_row(&self.view_id, row_id)
+      .await
+      .unwrap();
   }
 }
 

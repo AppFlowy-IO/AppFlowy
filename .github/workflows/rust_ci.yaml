@@ -20,6 +20,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CLOUD_VERSION: 0.6.34-amd64
   RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
@@ -27,6 +28,11 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: self-hosted
     steps:
+      - name: Set timezone for action
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "US/Pacific"
+
       - name: Checkout source code
         uses: actions/checkout@v4
 
@@ -46,9 +52,9 @@ jobs:
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
-          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
-          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
@@ -93,6 +99,11 @@ jobs:
     if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
+      - name: Set timezone for action
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "US/Pacific"
+
       - name: Maximize build space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -135,9 +146,9 @@ jobs:
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.29-amd64
-          APPFLOWY_HISTORY_VERSION: 0.6.29-amd64
-          APPFLOWY_WORKER_VERSION: 0.6.29-amd64
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then

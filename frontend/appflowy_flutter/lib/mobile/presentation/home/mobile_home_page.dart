@@ -26,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry/sentry.dart';
-import 'package:toastification/toastification.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});

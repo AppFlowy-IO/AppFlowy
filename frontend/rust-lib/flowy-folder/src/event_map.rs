@@ -32,7 +32,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RecoverAllTrashItems, restore_all_trash_handler)
     .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_my_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
-    // .event(FolderEvent::ImportZipFile, import_zip_file_handler)
+    .event(FolderEvent::ImportZipFile, import_zip_file_handler)
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
@@ -201,7 +201,7 @@ pub enum FolderEvent {
   #[event(input = "UnpublishViewsPayloadPB")]
   UnpublishViews = 47,
 
-  #[event(input = "ImportZipPB", output = "RepeatedViewPB")]
+  #[event(input = "ImportZipPB")]
   ImportZipFile = 48,
 
   #[event(output = "RepeatedPublishInfoResponsePB")]

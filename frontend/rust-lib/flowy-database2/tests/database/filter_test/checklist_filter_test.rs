@@ -1,9 +1,7 @@
+use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
 use flowy_database2::entities::{ChecklistFilterConditionPB, ChecklistFilterPB, FieldType};
 use flowy_database2::services::field::checklist_type_option::ChecklistCellData;
 use lib_infra::box_any::BoxAny;
-
-use crate::database::filter_test::script::FilterScript::*;
-use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
 
 #[tokio::test]
 async fn grid_filter_checklist_is_incomplete_test() {
@@ -12,25 +10,28 @@ async fn grid_filter_checklist_is_incomplete_test() {
   let row_count = test.rows.len();
   let option_ids = get_checklist_cell_options(&test).await;
 
-  let scripts = vec![
-    UpdateChecklistCell {
-      row_id: test.rows[0].id.clone(),
-      selected_option_ids: option_ids,
-    },
-    CreateDataFilter {
-      parent_filter_id: None,
-      field_type: FieldType::Checklist,
-      data: BoxAny::new(ChecklistFilterPB {
+  // Update checklist cell with selected option IDs
+  test
+    .update_checklist_cell(test.rows[0].id.clone(), option_ids)
+    .await;
+
+  // Create Checklist "Is Incomplete" filter
+  test
+    .create_data_filter(
+      None,
+      FieldType::Checklist,
+      BoxAny::new(ChecklistFilterPB {
         condition: ChecklistFilterConditionPB::IsIncomplete,
       }),
-      changed: Some(FilterRowChanged {
+      Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - expected,
       }),
-    },
-    AssertNumberOfVisibleRows { expected },
-  ];
-  test.run_scripts(scripts).await;
+    )
+    .await;
+
+  // Assert the number of visible rows
+  test.assert_number_of_visible_rows(expected).await;
 }
 
 #[tokio::test]
@@ -39,25 +40,29 @@ async fn grid_filter_checklist_is_complete_test() {
   let expected = 2;
   let row_count = test.rows.len();
   let option_ids = get_checklist_cell_options(&test).await;
-  let scripts = vec![
-    UpdateChecklistCell {
-      row_id: test.rows[0].id.clone(),
-      selected_option_ids: option_ids,
-    },
-    CreateDataFilter {
-      parent_filter_id: None,
-      field_type: FieldType::Checklist,
-      data: BoxAny::new(ChecklistFilterPB {
+
+  // Update checklist cell with selected option IDs
+  test
+    .update_checklist_cell(test.rows[0].id.clone(), option_ids)
+    .await;
+
+  // Create Checklist "Is Complete" filter
+  test
+    .create_data_filter(
+      None,
+      FieldType::Checklist,
+      BoxAny::new(ChecklistFilterPB {
         condition: ChecklistFilterConditionPB::IsComplete,
       }),
-      changed: Some(FilterRowChanged {
+      Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - expected,
       }),
-    },
-    AssertNumberOfVisibleRows { expected },
-  ];
-  test.run_scripts(scripts).await;
+    )
+    .await;
+
+  // Assert the number of visible rows
+  test.assert_number_of_visible_rows(expected).await;
 }
 
 async fn get_checklist_cell_options(test: &DatabaseFilterTest) -> Vec<String> {

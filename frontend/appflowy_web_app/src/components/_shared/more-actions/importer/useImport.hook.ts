@@ -2,7 +2,7 @@ import { AFConfigContext } from '@/components/main/app.hooks';
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-export function useImport () {
+export function useImport (force?: boolean) {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated || false;
   const [search, setSearch] = useSearchParams();
   const [loginOpen, setLoginOpen] = React.useState(false);
@@ -14,10 +14,9 @@ export function useImport () {
     const isImport = search.get('action') === 'import';
 
     if (!isImport) return;
-
     setLoginOpen(!isAuthenticated);
     setOpen(isAuthenticated);
-  }, [isAuthenticated, search, setSearch]);
+  }, [force, isAuthenticated, search, setSearch]);
 
   const handleLoginClose = useCallback(() => {
     setLoginOpen(false);

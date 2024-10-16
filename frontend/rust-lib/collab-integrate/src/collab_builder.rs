@@ -10,7 +10,7 @@ use collab::core::collab_plugin::CollabPersistence;
 use collab::entity::EncodedCollab;
 use collab::error::CollabError;
 use collab::preclude::{Collab, CollabBuilder};
-use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabase};
+use collab_database::workspace_database::{DatabaseCollabService, WorkspaceDatabaseManager};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::{CollabObject, CollabType};
@@ -249,17 +249,17 @@ impl AppFlowyCollabBuilder {
 
   #[allow(clippy::too_many_arguments)]
   #[instrument(level = "trace", skip_all)]
-  pub fn create_workspace_database(
+  pub fn create_workspace_database_manager(
     &self,
     object: CollabObject,
     collab: Collab,
     _collab_db: Weak<CollabKVDB>,
     builder_config: CollabBuilderConfig,
     collab_service: impl DatabaseCollabService,
-  ) -> Result<Arc<RwLock<WorkspaceDatabase>>, Error> {
+  ) -> Result<Arc<RwLock<WorkspaceDatabaseManager>>, Error> {
     let expected_collab_type = CollabType::WorkspaceDatabase;
     assert_eq!(object.collab_type, expected_collab_type);
-    let workspace = WorkspaceDatabase::open(&object.object_id, collab, collab_service)?;
+    let workspace = WorkspaceDatabaseManager::open(&object.object_id, collab, collab_service)?;
     let workspace = Arc::new(RwLock::new(workspace));
     self.finalize(object, builder_config, workspace)
   }

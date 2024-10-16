@@ -34,7 +34,7 @@ class ErrorBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => true;
+  BlockComponentValidate get validate => (_) => true;
 }
 
 class ErrorBlockComponentWidget extends BlockComponentStatefulWidget {

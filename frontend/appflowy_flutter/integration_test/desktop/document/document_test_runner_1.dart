@@ -47,6 +47,5 @@ void main() {
   document_more_actions_test.main();
   document_with_file_test.main();
   document_shortcuts_test.main();
-
   // Don't add new tests here. Add them to document_test_runner_2.dart
 }

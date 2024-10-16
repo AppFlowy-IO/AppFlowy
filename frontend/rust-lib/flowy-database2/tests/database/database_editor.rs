@@ -111,6 +111,7 @@ impl DatabaseEditorTest {
     self.editor.open_database_view(view_id, None).await.unwrap()
   }
 
+  #[allow(dead_code)]
   pub async fn database_filters(&self) -> Vec<FilterPB> {
     self.editor.get_all_filters(&self.view_id).await.items
   }
@@ -194,7 +195,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn update_cell(
-    &mut self,
+    &self,
     field_id: &str,
     row_id: RowId,
     cell_changeset: BoxAny,
