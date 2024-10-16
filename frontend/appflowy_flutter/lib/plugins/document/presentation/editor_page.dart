@@ -272,10 +272,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
     );
 
+    final isViewDeleted = context.read<DocumentBloc>().state.isDeleted;
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(
         editorState: widget.editorState,
+        editable: !isViewDeleted,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,
@@ -312,6 +314,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         ),
       ),
     );
+
+    if (isViewDeleted) {
+      return editor;
+    }
 
     final editorState = widget.editorState;
 
