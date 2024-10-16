@@ -9,6 +9,7 @@ interface FileDropzoneProps {
   accept?: string;
   multiple?: boolean;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 function FileDropzone ({
@@ -16,6 +17,7 @@ function FileDropzone ({
   accept,
   multiple,
   disabled,
+  placeholder,
 }: FileDropzoneProps) {
   const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
@@ -70,7 +72,7 @@ function FileDropzone ({
 
   return (
     <div
-      className={'w-full cursor-pointer hover:border-fill-active hover:border-2 hover:bg-bg-body h-[160px] rounded-xl border border-dashed border-line-border flex flex-col bg-bg-base'}
+      className={'w-full cursor-pointer hover:border-fill-active px-4 hover:bg-bg-body h-[160px] rounded-xl border border-dashed border-line-border flex flex-col bg-bg-base'}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -82,10 +84,10 @@ function FileDropzone ({
         cursor: disabled ? 'not-allowed' : undefined,
       }}
     >
-      <div className={'flex flex-col items-center justify-center gap-4 h-full'}>
+      <div className={'flex flex-col items-center w-full overflow-hidden justify-center gap-4 h-full'}>
         <Inbox className={'w-12 h-12 text-fill-default'} />
-        <div className={'text-base text-text-title'}>
-          {t('fileDropzone.dropFile')}
+        <div className={'text-base text-center text-text-title break-words whitespace-pre-wrap'}>
+          {placeholder || t('fileDropzone.dropFile')}
         </div>
       </div>
       <input

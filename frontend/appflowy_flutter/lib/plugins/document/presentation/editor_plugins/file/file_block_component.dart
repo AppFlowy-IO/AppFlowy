@@ -23,7 +23,6 @@ import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'file_block_menu.dart';
