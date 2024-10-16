@@ -322,7 +322,7 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
               value: state.setting.enableSync,
               onChanged: (value) => context
                   .read<AppFlowyCloudSettingBloc>()
-                  .add(AppFlowyCloudSettingEvent.enableSync(!value)),
+                  .add(AppFlowyCloudSettingEvent.enableSync(value)),
             ),
           ],
         );
