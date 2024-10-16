@@ -43,7 +43,7 @@ dependencies:
 
   # Desktop Drop uses Cross File (XFile) data type
   desktop_drop: ^0.4.4
-  device_info_plus: ^10.1.0
+  device_info_plus:
   dotted_border: ^2.0.0+3
   easy_localization: ^3.0.2
   envied: ^0.5.2
@@ -161,6 +161,7 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
+  device_info_plus: ^10.1.0
 
   url_protocol:
     git:
@@ -168,9 +169,10 @@ dependency_overrides:
       commit: 737681d
 
   appflowy_editor:
-    git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "a0b3c72"
+    # git:
+    #   url: https://github.com/AppFlowy-IO/appflowy-editor.git
+    #   ref: "a0b3c72"
+    path: /Users/lucas.xu/Desktop/appflowy-editor
 
   appflowy_editor_plugins:
     git:

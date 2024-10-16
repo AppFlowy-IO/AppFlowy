@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
@@ -16,6 +14,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
@@ -248,7 +247,7 @@ class _OptionButtonFeedbackState extends State<_OptionButtonFeedback> {
   }
 }
 
-class _OptionButton extends StatelessWidget {
+class _OptionButton extends StatefulWidget {
   const _OptionButton({
     required this.controller,
     required this.editorState,
@@ -262,9 +261,44 @@ class _OptionButton extends StatelessWidget {
   final ValueNotifier<bool> isDragging;
 
   @override
+  State<_OptionButton> createState() => _OptionButtonState();
+}
+
+const _interceptorKey = 'document_option_button_interceptor';
+
+class _OptionButtonState extends State<_OptionButton> {
+  late final gestureInterceptor = SelectionGestureInterceptor(
+    key: _interceptorKey,
+    canTap: (details) => !_isTapInBounds(details.globalPosition),
+  );
+
+  // the selection will be cleared when tap the option button
+  // so we need to restore the selection after tap the option button
+  Selection? beforeSelection;
+  RenderBox? get renderBox => context.findRenderObject() as RenderBox?;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.editorState.service.selectionService.registerGestureInterceptor(
+      gestureInterceptor,
+    );
+  }
+
+  @override
+  void dispose() {
+    widget.editorState.service.selectionService.unregisterGestureInterceptor(
+      _interceptorKey,
+    );
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: isDragging,
+      valueListenable: widget.isDragging,
       builder: (context, isDragging, child) {
         return BlockActionButton(
           svg: FlowySvgs.drag_element_s,
@@ -291,7 +325,8 @@ class _OptionButton extends StatelessWidget {
             ],
           ),
           onTap: () {
-            controller.show();
+            debugPrint('onTap - selection ${widget.editorState.selection}');
+            widget.controller.show();
 
             // update selection
             _updateBlockSelection();
@@ -302,23 +337,33 @@ class _OptionButton extends StatelessWidget {
   }
 
   void _updateBlockSelection() {
-    final startNode = blockComponentContext.node;
-    var endNode = startNode;
-    while (endNode.children.isNotEmpty) {
-      endNode = endNode.children.last;
+    if (beforeSelection == null) {
+      final path = widget.blockComponentContext.node.path;
+      final selection = Selection.collapsed(
+        Position(path: path),
+      );
+      widget.editorState.updateSelectionWithReason(
+        selection,
+        customSelectionType: SelectionType.block,
+      );
+    } else {
+      widget.editorState.updateSelectionWithReason(
+        beforeSelection!,
+        customSelectionType: SelectionType.block,
+      );
+    }
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    if (renderBox == null) {
+      return false;
     }
 
-    final start = Position(path: startNode.path);
-    final end = endNode.selectable?.end() ??
-        Position(
-          path: endNode.path,
-          offset: endNode.delta?.length ?? 0,
-        );
-
-    editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection(
-      start: start,
-      end: end,
-    );
+    final localPosition = renderBox!.globalToLocal(offset);
+    final result = renderBox!.paintBounds.contains(localPosition);
+    if (result) {
+      beforeSelection = widget.editorState.selection;
+    }
+    return result;
   }
 }
