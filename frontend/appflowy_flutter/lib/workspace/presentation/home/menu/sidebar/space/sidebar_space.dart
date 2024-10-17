@@ -32,31 +32,29 @@ class SidebarSpace extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
-      builder: (context, value, child) {
-        return Provider.value(
-          value: userProfile,
-          child: Column(
-            children: [
-              const VSpace(4.0),
-              // favorite
-              BlocBuilder<FavoriteBloc, FavoriteState>(
-                builder: (context, state) {
-                  if (state.views.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return FavoriteFolder(
-                    views: state.views.map((e) => e.item).toList(),
-                  );
-                },
-              ),
-              const VSpace(16.0),
-              // spaces
-              const _Space(),
-              const VSpace(200),
-            ],
-          ),
-        );
-      },
+      builder: (_, __, ___) => Provider.value(
+        value: userProfile,
+        child: Column(
+          children: [
+            const VSpace(4.0),
+            // favorite
+            BlocBuilder<FavoriteBloc, FavoriteState>(
+              builder: (context, state) {
+                if (state.views.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return FavoriteFolder(
+                  views: state.views.map((e) => e.item).toList(),
+                );
+              },
+            ),
+            const VSpace(16.0),
+            // spaces
+            const _Space(),
+            const VSpace(200),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -69,9 +67,8 @@ class _Space extends StatefulWidget {
 }
 
 class _SpaceState extends State<_Space> {
-  final ValueNotifier<bool> isHovered = ValueNotifier(false);
-  final PropertyValueNotifier<bool> isExpandedNotifier =
-      PropertyValueNotifier(false);
+  final isHovered = ValueNotifier(false);
+  final isExpandedNotifier = PropertyValueNotifier(false);
 
   @override
   void initState() {
@@ -82,6 +79,8 @@ class _SpaceState extends State<_Space> {
   @override
   void dispose() {
     switchToTheNextSpace.removeListener(_switchToNextSpace);
+    isHovered.dispose();
+    isExpandedNotifier.dispose();
     super.dispose();
   }
 
@@ -144,17 +143,15 @@ class _SpaceState extends State<_Space> {
     final spaceBloc = context.read<SpaceBloc>();
     showDialog(
       context: context,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: BlocProvider.value(
-            value: spaceBloc,
-            child: const CreateSpacePopup(),
-          ),
-        );
-      },
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: BlocProvider.value(
+          value: spaceBloc,
+          child: const CreateSpacePopup(),
+        ),
+      ),
     );
   }
 
@@ -163,13 +160,9 @@ class _SpaceState extends State<_Space> {
     ViewPB space,
     ViewLayoutPB layout,
   ) {
-    context.read<SpaceBloc>().add(
-          SpaceEvent.createPage(
-            name: '',
-            layout: layout,
-            index: 0,
-          ),
-        );
+    context
+        .read<SpaceBloc>()
+        .add(SpaceEvent.createPage(name: '', layout: layout, index: 0));
 
     context.read<SpaceBloc>().add(SpaceEvent.expand(space, true));
   }

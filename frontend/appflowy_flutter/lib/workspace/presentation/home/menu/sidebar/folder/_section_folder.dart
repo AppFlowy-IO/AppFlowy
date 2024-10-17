@@ -37,7 +37,7 @@ class SectionFolder extends StatefulWidget {
 }
 
 class _SectionFolderState extends State<SectionFolder> {
-  final ValueNotifier<bool> isHovered = ValueNotifier(false);
+  final isHovered = ValueNotifier(false);
 
   @override
   void dispose() {
@@ -51,23 +51,19 @@ class _SectionFolderState extends State<SectionFolder> {
       onEnter: (_) => isHovered.value = true,
       onExit: (_) => isHovered.value = false,
       child: BlocProvider<FolderBloc>(
-        create: (context) => FolderBloc(type: widget.spaceType)
-          ..add(
-            const FolderEvent.initial(),
-          ),
+        create: (_) => FolderBloc(type: widget.spaceType)
+          ..add(const FolderEvent.initial()),
         child: BlocBuilder<FolderBloc, FolderState>(
-          builder: (context, state) {
-            return Column(
-              children: [
-                _buildHeader(context),
-                // Pages
-                const VSpace(4.0),
-                ..._buildViews(context, state, isHovered),
-                // Add a placeholder if there are no views
-                _buildDraggablePlaceholder(context),
-              ],
-            );
-          },
+          builder: (context, state) => Column(
+            children: [
+              _buildHeader(context),
+              // Pages
+              const VSpace(4.0),
+              ..._buildViews(context, state, isHovered),
+              // Add a placeholder if there are no views
+              _buildDraggablePlaceholder(context),
+            ],
+          ),
         ),
       ),
     );
@@ -94,11 +90,9 @@ class _SectionFolderState extends State<SectionFolder> {
                   ),
                 );
 
-            context.read<FolderBloc>().add(
-                  const FolderEvent.expandOrUnExpand(
-                    isExpanded: true,
-                  ),
-                );
+            context
+                .read<FolderBloc>()
+                .add(const FolderEvent.expandOrUnExpand(isExpanded: true));
           },
         );
       },
@@ -124,6 +118,7 @@ class _SectionFolderState extends State<SectionFolder> {
         leftPadding: HomeSpaceViewSizes.leftPadding,
         isFeedback: false,
         isHovered: isHovered,
+        enableRightClickContext: true,
         onSelected: (viewContext, view) {
           if (HardwareKeyboard.instance.isControlPressed) {
             context.read<TabsBloc>().openTab(view);
@@ -142,21 +137,15 @@ class _SectionFolderState extends State<SectionFolder> {
     if (widget.views.isNotEmpty) {
       return const SizedBox.shrink();
     }
+    final parentViewId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId;
     return ViewItem(
       spaceType: widget.spaceType,
-      view: ViewPB(
-        parentViewId: context
-                .read<UserWorkspaceBloc>()
-                .state
-                .currentWorkspace
-                ?.workspaceId ??
-            '',
-      ),
+      view: ViewPB(parentViewId: parentViewId ?? ''),
       level: 0,
       leftPadding: HomeSpaceViewSizes.leftPadding,
       isFeedback: false,
       onSelected: (_, __) {},
-      onTertiarySelected: (_, __) {},
       isHoverEnabled: widget.isHoverEnabled,
       isPlaceholder: true,
     );
