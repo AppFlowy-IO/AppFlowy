@@ -177,7 +177,6 @@ class _CalendarPageState extends State<CalendarPage> {
                     databaseController: _calendarBloc.databaseController,
                     rowMeta: state.openRow!,
                   );
-                  _calendarBloc.add(const CalendarEvent.resetOpenRowDetail());
                 }
               },
             ),

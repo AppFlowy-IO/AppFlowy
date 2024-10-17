@@ -122,6 +122,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                 deleteEventIds: deletedRowIds,
               ),
             );
+            emit(state.copyWith(deleteEventIds: const []));
           },
           didReceiveEvent: (CalendarEventData<CalendarDayEvent> event) {
             emit(
@@ -130,20 +131,11 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                 newEvent: event,
               ),
             );
+            emit(state.copyWith(newEvent: null));
           },
           openRowDetail: (row) {
-            emit(
-              state.copyWith(
-                openRow: row,
-              ),
-            );
-          },
-          resetOpenRowDetail: () {
-            emit(
-              state.copyWith(
-                openRow: null,
-              ),
-            );
+            emit(state.copyWith(openRow: row));
+            emit(state.copyWith(openRow: null));
           },
         );
       },
@@ -483,8 +475,6 @@ class CalendarEvent with _$CalendarEvent {
       _DeleteEvent;
 
   const factory CalendarEvent.openRowDetail(RowMetaPB row) = _OpenRowDetail;
-
-  const factory CalendarEvent.resetOpenRowDetail() = _ResetRowDetail;
 }
 
 @freezed

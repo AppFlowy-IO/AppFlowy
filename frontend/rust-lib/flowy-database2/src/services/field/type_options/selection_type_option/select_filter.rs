@@ -55,16 +55,14 @@ impl SelectOptionFilterStrategy {
           return false;
         }
 
-        selected_option_ids.len() == option_ids.len()
-          && selected_option_ids.iter().all(|id| option_ids.contains(id))
+        selected_option_ids.iter().all(|id| option_ids.contains(id))
       },
       SelectOptionFilterStrategy::IsNot(option_ids) => {
         if selected_option_ids.is_empty() {
           return true;
         }
 
-        selected_option_ids.len() != option_ids.len()
-          || !selected_option_ids.iter().all(|id| option_ids.contains(id))
+        !selected_option_ids.iter().all(|id| option_ids.contains(id))
       },
       SelectOptionFilterStrategy::Contains(option_ids) => {
         if selected_option_ids.is_empty() {
@@ -127,6 +125,7 @@ impl PreFillCellsWithFilter for SelectOptionFilterPB {
     option_ids.map(|ids| insert_select_option_cell(ids, field))
   }
 }
+
 #[cfg(test)]
 mod tests {
   use crate::entities::{SelectOptionFilterConditionPB, SelectOptionFilterPB};

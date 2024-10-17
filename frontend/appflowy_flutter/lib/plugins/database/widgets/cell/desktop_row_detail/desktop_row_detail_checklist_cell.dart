@@ -178,6 +178,7 @@ class _ChecklistItems extends StatelessWidget {
           final children = _makeChildren(context, state);
           return ReorderableListView.builder(
             shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             proxyDecorator: (child, index, _) => Material(
               color: Colors.transparent,
               child: Stack(

@@ -282,10 +282,13 @@ impl FilterInner {
       },
       FieldType::SingleSelect => {
         let filter =
-          SelectOptionFilterPB::parse(condition as u8, content).remove_extra_option_ids();
+          SelectOptionFilterPB::parse(condition as u8, content).to_single_select_filter();
         BoxAny::new(filter)
       },
-      FieldType::MultiSelect => BoxAny::new(SelectOptionFilterPB::parse(condition as u8, content)),
+      FieldType::MultiSelect => {
+        let filter = SelectOptionFilterPB::parse(condition as u8, content).to_multi_select_filter();
+        BoxAny::new(filter)
+      },
       FieldType::Checklist => BoxAny::new(ChecklistFilterPB::parse(condition as u8, content)),
       FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::parse(condition as u8, content)),
       FieldType::Relation => BoxAny::new(RelationFilterPB::parse(condition as u8, content)),
