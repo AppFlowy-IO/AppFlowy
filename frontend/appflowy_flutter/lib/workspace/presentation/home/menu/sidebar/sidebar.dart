@@ -219,6 +219,11 @@ class HomeSideBar extends StatelessWidget {
           );
         }
 
+        final blockId = action.arguments?[ActionArgumentKeys.blockId];
+        if (blockId != null) {
+          arguments[PluginArgumentKeys.blockId] = blockId;
+        }
+
         final rowId = action.arguments?[ActionArgumentKeys.rowId];
         if (rowId != null) {
           arguments[PluginArgumentKeys.rowId] = rowId;
