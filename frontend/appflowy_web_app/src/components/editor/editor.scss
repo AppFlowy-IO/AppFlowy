@@ -10,6 +10,12 @@
   margin-left: 24px;
 }
 
+.block-element[data-block-type="quote"] {
+  .block-element {
+    margin-left: 0 !important;
+  }
+}
+
 .block-element[data-block-type="table/cell"] {
   margin-left: 0 !important;
 
@@ -24,12 +30,20 @@
     text-align: left;
     justify-content: flex-start;
   }
+
+  .quote-block {
+    @apply items-start;
+  }
 }
 
 .block-element.block-align-right {
   > div > .text-element {
     text-align: right;
     justify-content: flex-end;
+  }
+
+  .quote-block {
+    @apply items-end;
   }
 }
 
@@ -39,6 +53,9 @@
     justify-content: center;
   }
 
+  .quote-block {
+    @apply items-center;
+  }
 }
 
 
@@ -256,7 +273,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   .mention-icon {
     @apply absolute top-1/2 transform -translate-y-1/2;
-    font-size: 1.25em;
+    font-size: 1em;
   }
 
   .mention-content {
@@ -299,4 +316,35 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 .table-block {
   @include mixin.scrollbar-style;
+}
+
+
+.cursor-before::before,
+.cursor-after::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  background-color: var(--text-title);
+  animation: blink 1s step-end infinite;
+}
+
+.cursor-before::before {
+  left: -1px;
+}
+
+.cursor-after::after {
+  right: -1px;
+}
+
+@keyframes blink {
+  from, to {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }

@@ -43,7 +43,15 @@ class EditorStyleCustomizer {
 
   static EdgeInsets get documentPadding => UniversalPlatform.isMobile
       ? const EdgeInsets.symmetric(horizontal: 24)
-      : const EdgeInsets.only(left: 40, right: 40 + 44);
+      : EdgeInsets.only(
+          left: 40,
+          right: 40 + EditorStyleCustomizer.optionMenuWidth,
+        );
+
+  static EdgeInsets get documentPaddingWithOptionMenu =>
+      documentPadding + EdgeInsets.only(left: optionMenuWidth);
+
+  static double get optionMenuWidth => UniversalPlatform.isMobile ? 0 : 44;
 
   EditorStyle style() {
     if (UniversalPlatform.isDesktopOrWeb) {

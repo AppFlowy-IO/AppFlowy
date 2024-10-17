@@ -158,23 +158,18 @@ extension AppFlowyTestBase on WidgetTester {
 
   Future<void> tapButton(
     Finder finder, {
-    int? pointer,
     int buttons = kPrimaryButton,
     bool warnIfMissed = false,
     int milliseconds = 500,
     bool pumpAndSettle = true,
   }) async {
-    await tap(
-      finder,
-      buttons: buttons,
-      warnIfMissed: warnIfMissed,
-    );
+    await tap(finder, buttons: buttons, warnIfMissed: warnIfMissed);
 
     if (pumpAndSettle) {
       await this.pumpAndSettle(
         Duration(milliseconds: milliseconds),
         EnginePhase.sendSemanticsUpdate,
-        const Duration(seconds: 5),
+        const Duration(seconds: 15),
       );
     }
   }

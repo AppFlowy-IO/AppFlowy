@@ -1,7 +1,6 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/import.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 class ImportPayload {
@@ -17,7 +16,7 @@ class ImportPayload {
 }
 
 class ImportBackendService {
-  static Future<FlowyResult<void, FlowyError>> importPages(
+  static Future<FlowyResult<RepeatedViewPB, FlowyError>> importPages(
     String parentViewId,
     List<ImportValuePayloadPB> values,
   ) async {
@@ -27,5 +26,17 @@ class ImportBackendService {
     );
 
     return FolderEventImportData(request).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> importZipFiles(
+    List<ImportZipPB> values,
+  ) async {
+    for (final value in values) {
+      final result = await FolderEventImportZipFile(value).send();
+      if (result.isFailure) {
+        return result;
+      }
+    }
+    return FlowyResult.success(null);
   }
 }

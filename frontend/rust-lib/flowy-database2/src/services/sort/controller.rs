@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
+
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;

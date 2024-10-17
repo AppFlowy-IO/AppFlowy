@@ -167,7 +167,6 @@ pub struct UserProfile {
   pub icon_url: String,
   pub openai_key: String,
   pub stability_ai_key: String,
-  pub workspace_id: String,
   pub authenticator: Authenticator,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
@@ -246,7 +245,6 @@ where
       token: value.user_token().unwrap_or_default(),
       icon_url,
       openai_key,
-      workspace_id: value.latest_workspace().id.to_owned(),
       authenticator: auth_type.clone(),
       encryption_type: value.encryption_type(),
       stability_ai_key,

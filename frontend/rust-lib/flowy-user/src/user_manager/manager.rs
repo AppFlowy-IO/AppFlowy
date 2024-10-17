@@ -554,7 +554,7 @@ impl UserManager {
     self
       .authenticate_user
       .database
-      .backup_or_restore(session.user_id, &session.user_workspace.id);
+      .backup(session.user_id, &session.user_workspace.id);
   }
 
   /// Fetches the user profile for the given user ID.
@@ -873,7 +873,7 @@ pub(crate) fn run_collab_data_migration(
   sqlite_pool: Arc<ConnectionPool>,
   version: Option<Version>,
 ) {
-  trace!("Run collab data migration: {:?}", version);
+  trace!("[AppflowyData]:Run collab data migration: {:?}", version);
   let migrations = collab_migration_list();
   match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(
     migrations,
@@ -882,10 +882,13 @@ pub(crate) fn run_collab_data_migration(
   ) {
     Ok(applied_migrations) => {
       if !applied_migrations.is_empty() {
-        info!("Did apply migrations: {:?}", applied_migrations);
+        info!(
+          "[AppflowyData]:Did apply migrations: {:?}",
+          applied_migrations
+        );
       }
     },
-    Err(e) => error!("User data migration failed: {:?}", e),
+    Err(e) => error!("[AppflowyData]:User data migration failed: {:?}", e),
   }
 }
 

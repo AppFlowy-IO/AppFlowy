@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +26,7 @@ class FavoriteMoreActions extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
-      child: ViewMoreActionButton(
+      child: ViewMoreActionPopover(
         view: view,
         spaceType: FolderSpaceType.favorite,
         isExpanded: false,
@@ -63,6 +65,13 @@ class FavoriteMoreActions extends StatelessWidget {
               throw UnsupportedError('$action is not supported');
           }
         },
+        buildChild: (popover) => FlowyIconButton(
+          width: 24,
+          icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+          onPressed: () {
+            popover.show();
+          },
+        ),
       ),
     );
   }

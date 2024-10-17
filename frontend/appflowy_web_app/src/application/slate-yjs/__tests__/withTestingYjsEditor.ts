@@ -20,6 +20,7 @@ export function generateId () {
 export function withTestingYjsEditor (editor: Editor, doc: Y.Doc) {
   const yjdEditor = withYjs(editor, doc, {
     localOrigin: CollabOrigin.Local,
+    readOnly: true,
   });
 
   return yjdEditor;

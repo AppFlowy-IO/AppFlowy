@@ -112,4 +112,10 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
       "Local server doesn't support get publish namespace"
     ))
   }
+
+  async fn import_zip(&self, _file_path: &str) -> Result<(), Error> {
+    Err(anyhow!(
+      "Local server doesn't support get publish namespace"
+    ))
+  }
 }

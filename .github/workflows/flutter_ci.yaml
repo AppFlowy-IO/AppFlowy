@@ -28,6 +28,7 @@ env:
   FLUTTER_VERSION: "3.22.2"
   RUST_TOOLCHAIN: "1.80.1"
   CARGO_MAKE_VERSION: "0.37.18"
+  CLOUD_VERSION: 0.6.34-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -39,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -73,7 +74,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-2019]
+        os: [ windows-2019 ]
         include:
           - os: windows-2019
             flutter_profile: development-windows-x86
@@ -100,7 +101,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-latest]
+        os: [ macos-latest ]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -122,12 +123,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -173,7 +174,7 @@ jobs:
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
           fi
         shell: bash
 
@@ -216,11 +217,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -241,12 +242,15 @@ jobs:
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         env:
-          APPFLOWY_CLOUD_VERSION: 0.6.4-amd64
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
         run: |
           container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           if [ -z "$container_id" ]; then
@@ -289,7 +293,7 @@ jobs:
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
           sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev mpv
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
         shell: bash
 
       - name: Enable Flutter Desktop
@@ -322,12 +326,12 @@ jobs:
 
   # split the integration tests into different machines to minimize the time
   integration_test_1:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -335,12 +339,6 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      - name: Install video dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install libmpv-dev mpv
-        shell: bash
 
       - name: Flutter Integration Test 1
         uses: ./.github/actions/flutter_integration_test
@@ -352,12 +350,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_2:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -365,12 +363,6 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      - name: Install video dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install libmpv-dev mpv
-        shell: bash
 
       - name: Flutter Integration Test 2
         uses: ./.github/actions/flutter_integration_test
@@ -382,12 +374,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_3:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -396,16 +388,34 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install video dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install libmpv-dev mpv
-        shell: bash
-
       - name: Flutter Integration Test 3
         uses: ./.github/actions/flutter_integration_test
         with:
           test_path: integration_test/desktop_runner_3.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
+
+  integration_test_4:
+    needs: [ prepare-linux ]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        include:
+          - os: ubuntu-latest
+            target: "x86_64-unknown-linux-gnu"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Flutter Integration Test 4
+        uses: ./.github/actions/flutter_integration_test
+        with:
+          test_path: integration_test/desktop_runner_4.dart
           flutter_version: ${{ env.FLUTTER_VERSION }}
           rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}

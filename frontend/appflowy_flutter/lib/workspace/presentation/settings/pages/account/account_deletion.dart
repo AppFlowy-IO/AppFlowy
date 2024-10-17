@@ -12,7 +12,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 const _confirmText = 'DELETE MY ACCOUNT';
@@ -79,10 +78,8 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
               radius: Corners.s8Border,
               hoverColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
               fontColor: Theme.of(context).colorScheme.error,
-              fontHoverColor: Colors.white,
               fontSize: 12,
               isDangerous: true,
-              lineHeight: 18.0 / 12.0,
               onPressed: () {
                 isCheckedNotifier.value = false;
                 textEditingController.clear();

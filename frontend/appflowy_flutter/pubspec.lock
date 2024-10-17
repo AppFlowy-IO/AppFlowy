@@ -53,17 +53,17 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "98356fa"
-      resolved-ref: "98356fac4cbac7abefcc8641eb8481a9e527611f"
+      ref: "4509123"
+      resolved-ref: "450912305a2cdf98776b09ad4dbdb11498bdf9ce"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "3.3.0"
+    version: "4.0.0"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
       path: "packages/appflowy_editor_plugins"
-      ref: b228456
-      resolved-ref: b228456d59fcfa08752353ccd665a9ecc7304f94
+      ref: "2d3d4fb"
+      resolved-ref: "2d3d4fb536f32cbcdf9fcd52dfe3033429666285"
       url: "https://github.com/AppFlowy-IO/AppFlowy-plugins.git"
     source: git
     version: "0.0.6"
@@ -1535,10 +1535,10 @@ packages:
     dependency: transitive
     description:
       name: platform
-      sha256: "9b71283fc13df574056616011fb138fd3b793ea47cc509c189a6c3fa5f8a1a65"
+      sha256: "12220bb4b65720483f8fa9450b4332347737cf8213dd2840d8b2c823e47243ec"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.5"
+    version: "3.1.4"
   plugin_platform_interface:
     dependency: "direct dev"
     description:
@@ -1933,10 +1933,10 @@ packages:
     dependency: transitive
     description:
       name: string_scanner
-      sha256: "688af5ed3402a4bde5b3a6c15fd768dbf2621a614950b17f04626c431ab3c4c3"
+      sha256: "556692adab6cfa87322a115640c11f13cb77b3f076ddcc5d6ae3c20242bedcde"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.2.0"
   string_validator:
     dependency: "direct main"
     description:
@@ -2238,10 +2238,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "5c5f338a667b4c644744b661f309fb8080bb94b18a7e91ef1dbd343bed00ed6d"
+      sha256: "3923c89304b715fb1eb6423f017651664a03bf5f4b29983627c4da791f74a4ec"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.5"
+    version: "14.2.1"
   watcher:
     dependency: transitive
     description:

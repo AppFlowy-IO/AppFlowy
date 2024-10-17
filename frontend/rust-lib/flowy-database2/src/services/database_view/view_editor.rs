@@ -11,14 +11,14 @@ use crate::entities::{
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
+use crate::services::calculations::{
+  Calculation, CalculationChangeset, CalculationEvent, CalculationsController,
+};
 use crate::services::cell::{CellBuilder, CellCache};
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_calculations::make_calculations_controller;
 use crate::services::database_view::view_filter::make_filter_controller;
-use crate::services::database_view::view_group::{
-  get_cell_for_row, get_cells_for_field, new_group_controller,
-};
+use crate::services::database_view::view_group::{get_cell_for_row, new_group_controller};
 use crate::services::database_view::view_operation::DatabaseViewOperation;
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
@@ -36,10 +36,11 @@ use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::priority_task::QualityOfService;
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
 use tracing::{instrument, trace, warn};
@@ -214,11 +215,15 @@ impl DatabaseViewEditor {
   }
 
   pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
-    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
-    let changeset = RowsChangePB::from_update(update_row.into());
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
-      .payload(changeset)
-      .send();
+    let rows = vec![Arc::new(row_detail.row.clone())];
+    let mut rows = self.v_filter_rows(rows).await;
+    if rows.pop().is_some() {
+      let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
+      let changeset = RowsChangePB::from_update(update_row.into());
+      send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
+        .payload(changeset)
+        .send();
+    }
   }
 
   pub async fn v_did_create_row(
@@ -226,7 +231,7 @@ impl DatabaseViewEditor {
     row_detail: &RowDetail,
     index: u32,
     is_move_row: bool,
-    _is_local_change: bool,
+    is_local_change: bool,
     row_changes: &DashMap<String, RowsChangePB>,
   ) {
     // Send the group notification if the current view has groups
@@ -241,23 +246,27 @@ impl DatabaseViewEditor {
       }
     }
 
-    if let Some(index) = self
+    let index = self
       .sort_controller
       .write()
       .await
       .did_create_row(&row_detail.row)
-      .await
-    {
-      row_changes
-        .entry(self.view_id.clone())
-        .or_insert_with(|| {
-          let mut change = RowsChangePB::new();
-          change.is_move_row = is_move_row;
-          change
-        })
-        .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32));
-    };
+      .await;
+
+    row_changes
+      .entry(self.view_id.clone())
+      .or_insert_with(|| {
+        let mut change = RowsChangePB::new();
+        change.is_move_row = is_move_row;
+        change
+      })
+      .inserted_rows
+      .push(InsertedRowPB {
+        row_meta: RowMetaPB::from(row_detail),
+        index: index.map(|index| index as i32),
+        is_new: true,
+        is_hidden_in_view: is_local_change && index.is_none(),
+      });
 
     self
       .gen_did_create_row_view_tasks(row_detail.row.clone())
@@ -322,12 +331,10 @@ impl DatabaseViewEditor {
           } else {
             (None, None, vec![])
           }
+        } else if let Ok(result) = controller.did_delete_row(row) {
+          (None, result.deleted_group, result.row_changesets)
         } else {
-          if let Ok(result) = controller.did_delete_row(&row) {
-            (None, result.deleted_group, result.row_changesets)
-          } else {
-            (None, None, vec![])
-          }
+          (None, None, vec![])
         };
 
         if let Some(inserted_group) = inserted_group {
@@ -386,6 +393,27 @@ impl DatabaseViewEditor {
     let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
     let mut rows = self.v_filter_rows(rows).await;
     self.v_sort_rows(&mut rows).await;
+    rows
+  }
+
+  pub async fn v_get_cells_for_field(&self, field_id: &str) -> Vec<RowCell> {
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    let rows = self.v_filter_rows(rows).await;
+    let rows = rows
+      .into_iter()
+      .filter_map(|row| {
+        row
+          .cells
+          .get(field_id)
+          .map(|cell| RowCell::new(row.id.clone(), Some(cell.clone())))
+      })
+      .collect::<Vec<_>>();
+    trace!(
+      "[Database]: get cells for field: {}, total rows:{}",
+      field_id,
+      rows.len()
+    );
     rows
   }
 
@@ -652,6 +680,18 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_calculate_rows(&self, rows: Vec<Arc<Row>>) -> FlowyResult<()> {
+    self
+      .calculations_controller
+      .gen_task(
+        CalculationEvent::InitialRows(rows),
+        QualityOfService::UserInteractive,
+      )
+      .await;
+
+    Ok(())
+  }
+
   pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
     let all_sorts = self.v_get_all_sorts().await;
     self.sort_controller.write().await.delete_all_sorts().await;
@@ -671,11 +711,9 @@ impl DatabaseViewEditor {
     &self,
     params: UpdateCalculationChangesetPB,
   ) -> FlowyResult<()> {
-    let calculation_id = match params.calculation_id {
-      None => gen_database_calculation_id(),
-      Some(calculation_id) => calculation_id,
-    };
-
+    let calculation_id = params
+      .calculation_id
+      .unwrap_or_else(gen_database_calculation_id);
     let calculation = Calculation::none(
       calculation_id,
       params.field_id,
@@ -750,6 +788,9 @@ impl DatabaseViewEditor {
       self.v_group_by_field(&field_id).await?;
     }
 
+    let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
+    let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
+    self.v_calculate_rows(rows).await?;
     Ok(())
   }
 
@@ -994,16 +1035,15 @@ impl DatabaseViewEditor {
     let timestamp = date_cell
       .into_date_field_cell_data()
       .unwrap_or_default()
-      .timestamp
-      .unwrap_or_default();
+      .timestamp;
 
     let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
+
     Some(CalendarEventPB {
       row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
-      is_scheduled: timestamp != 0,
     })
   }
 
@@ -1021,55 +1061,37 @@ impl DatabaseViewEditor {
       Some(calendar_setting) => calendar_setting,
     };
 
-    // Text
     let primary_field = self.delegate.get_primary_field().await?;
-    let text_cells =
-      get_cells_for_field(self.delegate.clone(), &self.view_id, &primary_field.id).await;
-
-    // Date
-    let timestamp_by_row_id = get_cells_for_field(
-      self.delegate.clone(),
-      &self.view_id,
-      &calendar_setting.field_id,
-    )
-    .await
-    .into_iter()
-    .map(|date_cell| {
-      let row_id = date_cell.row_id.clone();
-
-      // timestamp
-      let timestamp = date_cell
-        .into_date_field_cell_data()
-        .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
-        .unwrap_or_default();
-
-      (row_id, timestamp)
-    })
-    .collect::<HashMap<RowId, i64>>();
 
     let mut events: Vec<CalendarEventPB> = vec![];
-    for text_cell in text_cells {
-      let row_id = text_cell.row_id.clone();
-      let timestamp = timestamp_by_row_id
-        .get(&row_id)
-        .cloned()
+
+    let rows = self.v_get_all_rows().await;
+
+    for row in rows {
+      let primary_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, &row.id).await;
+      let timestamp_cell =
+        get_cell_for_row(self.delegate.clone(), &calendar_setting.field_id, &row.id).await;
+
+      let timestamp = timestamp_cell
+        .and_then(|cell| cell.into_date_field_cell_data())
+        .and_then(|cell_data| cell_data.timestamp);
+
+      let title = primary_cell
+        .and_then(|cell| cell.into_text_field_cell_data())
+        .map(|cell_data| cell_data.into())
         .unwrap_or_default();
 
-      let title = text_cell
-        .into_text_field_cell_data()
-        .unwrap_or_default()
-        .into();
-
-      let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row_id).await?;
+      let (_, row_detail) = self.delegate.get_row_detail(&self.view_id, &row.id).await?;
       let event = CalendarEventPB {
         row_meta: RowMetaPB::from(row_detail.as_ref().clone()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,
-        is_scheduled: timestamp != 0,
       };
+
       events.push(event);
     }
+
     Some(events)
   }
 

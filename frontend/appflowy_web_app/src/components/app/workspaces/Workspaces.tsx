@@ -59,19 +59,6 @@ export function Workspaces () {
     setChangeLoading(null);
   }, [handleSelectedWorkspace]);
 
-  if (!userWorkspaceInfo || !selectedWorkspace) return <div
-    className={'flex p-4 cursor-pointer items-center gap-1 text-text-title'}
-    onClick={async () => {
-      const selectedId = userWorkspaceInfo?.selectedWorkspace?.id || userWorkspaceInfo?.workspaces[0]?.id;
-
-      if (!selectedId) return;
-
-      void handleChange(selectedId);
-    }}
-  >
-    <AppFlowyLogo className={'w-[88px]'} />
-  </div>;
-
   return <>
     <Button
       ref={ref}
@@ -81,16 +68,36 @@ export function Workspaces () {
       className={'flex px-1 w-full cursor-pointer justify-start py-1 items-center gap-1 mx-2 text-text-title'}
     >
       <div className={'flex items-center gap-1.5 text-text-title overflow-hidden'}>
-        <Avatar
-          variant={'rounded'}
-          className={`w-6 h-6 border border-line-divider rounded-[8px] p-1 ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}
-          {...getAvatarProps(selectedWorkspace)}
-        />
-        <div className={'text-text-title flex-1 truncate font-semibold'}>{selectedWorkspace.name}</div>
+        {!userWorkspaceInfo || !selectedWorkspace ?
+          <div
+            className={'flex p-2 cursor-pointer items-center gap-1 text-text-title'}
+            onClick={async () => {
+              const selectedId = userWorkspaceInfo?.selectedWorkspace?.id || userWorkspaceInfo?.workspaces[0]?.id;
+
+              if (!selectedId) return;
+
+              void handleChange(selectedId);
+            }}
+          >
+            <AppFlowyLogo className={'w-[88px]'} />
+          </div> : <>
+            <Avatar
+              variant={'rounded'}
+              className={`w-6 h-6 border border-line-divider rounded-[8px] p-1 ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}
+              {...getAvatarProps(selectedWorkspace)}
+            />
+            <div className={'text-text-title flex-1 truncate font-semibold'}>{selectedWorkspace.name}</div>
+          </>
+        }
+
         {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'} />}
       </div>
     </Button>
-    <Popover open={open} anchorEl={ref.current} onClose={() => setOpen(false)}>
+    <Popover
+      open={open}
+      anchorEl={ref.current}
+      onClose={() => setOpen(false)}
+    >
       <div
         className={'flex min-w-[260px] flex-col gap-1 p-2 w-full max-h-[560px] overflow-y-auto overflow-x-hidden appflowy-scroller'}
       >
@@ -101,14 +108,19 @@ export function Workspaces () {
             content={
               <div className={'p-2 w-[160px]'}>
                 <Button
-                  color={'inherit'} size={'small'} className={'w-full justify-start'} onClick={handleLogin}
+                  color={'inherit'}
+                  size={'small'}
+                  className={'w-full justify-start'}
+                  onClick={handleLogin}
                   startIcon={<LoginIcon />}
                 >
                   {t('button.logout')}
                 </Button>
               </div>
 
-            } open={moreOpen} onClose={() => setMoreOpen(false)}
+            }
+            open={moreOpen}
+            onClose={() => setMoreOpen(false)}
           >
             <IconButton onClick={() => setMoreOpen(prev => !prev)}>
               <MoreSvg className={'w-4 h-4'} />
@@ -117,7 +129,7 @@ export function Workspaces () {
 
         </div>
         <Divider className={'w-full mt-1'} />
-        {userWorkspaceInfo.workspaces.map((workspace) => (
+        {userWorkspaceInfo?.workspaces.map((workspace) => (
           <Button
             key={workspace.id}
             onClick={() => {
@@ -129,10 +141,14 @@ export function Workspaces () {
               variant={'rounded'}
               className={'rounded-[8px] w-7 h-7 border border-line-divider'} {...getAvatarProps(workspace)} />
 
-            <Tooltip title={workspace.name} enterDelay={1000} enterNextDelay={1000}>
+            <Tooltip
+              title={workspace.name}
+              enterDelay={1000}
+              enterNextDelay={1000}
+            >
               <div className={'text-text-title font-medium truncate flex-1 text-left'}>{workspace.name}</div>
             </Tooltip>
-            {changeLoading === workspace.id ? <CircularProgress size={16} /> : workspace.id === selectedWorkspace.id &&
+            {changeLoading === workspace.id ? <CircularProgress size={16} /> : workspace.id === selectedWorkspace?.id &&
               <SelectedSvg className={'w-4 text-function-success h-4'} />}
           </Button>
         ))}

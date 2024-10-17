@@ -3,7 +3,7 @@ use crate::services::cell::insert_date_cell;
 use crate::services::field::TimestampCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
-use chrono::{Duration, NaiveDate};
+use chrono::{Duration, Local, NaiveDate, TimeZone};
 use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
@@ -18,7 +18,7 @@ impl DateFilterPB {
     let timestamp = if self.condition.is_filter_on_start_timestamp() {
       cell_data.timestamp
     } else {
-      cell_data.end_timestamp.or_else(|| cell_data.timestamp)
+      cell_data.end_timestamp.or(cell_data.timestamp)
     };
 
     Some(strategy.filter(timestamp))
@@ -67,7 +67,10 @@ impl DateFilterPB {
 
 #[inline]
 fn naive_date_from_timestamp(timestamp: i64) -> Option<NaiveDate> {
-  chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc().date())
+  Local
+    .timestamp_opt(timestamp, 0)
+    .single()
+    .map(|date_time| date_time.date_naive())
 }
 
 enum DateFilterStrategy {
@@ -128,7 +131,7 @@ impl DateFilterStrategy {
 }
 
 impl PreFillCellsWithFilter for DateFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let start_timestamp = match self.condition {
       DateFilterConditionPB::DateStartsOn
       | DateFilterConditionPB::DateStartsOnOrBefore
@@ -139,20 +142,32 @@ impl PreFillCellsWithFilter for DateFilterPB {
       DateFilterConditionPB::DateStartsBefore | DateFilterConditionPB::DateEndsBefore => self
         .timestamp
         .and_then(|timestamp| {
-          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+          Local
+            .timestamp_opt(timestamp, 0)
+            .single()
+            .map(|date| date.naive_local())
         })
-        .map(|date_time| {
+        .and_then(|date_time| {
           let answer = date_time - Duration::days(1);
-          answer.and_utc().timestamp()
+          Local
+            .from_local_datetime(&answer)
+            .single()
+            .map(|date_time| date_time.timestamp())
         }),
       DateFilterConditionPB::DateStartsAfter | DateFilterConditionPB::DateEndsAfter => self
         .timestamp
         .and_then(|timestamp| {
-          chrono::DateTime::from_timestamp(timestamp, 0).map(|date| date.naive_utc())
+          Local
+            .timestamp_opt(timestamp, 0)
+            .single()
+            .map(|date| date.naive_local())
         })
-        .map(|date_time| {
+        .and_then(|date_time| {
           let answer = date_time + Duration::days(1);
-          answer.and_utc().timestamp()
+          Local
+            .from_local_datetime(&answer)
+            .single()
+            .map(|date_time| date_time.timestamp())
         }),
       DateFilterConditionPB::DateStartsBetween | DateFilterConditionPB::DateEndsBetween => {
         self.start
@@ -160,18 +175,7 @@ impl PreFillCellsWithFilter for DateFilterPB {
       _ => None,
     };
 
-    let end_timestamp = if self.condition.is_filter_on_start_timestamp() {
-      start_timestamp
-    } else {
-      None
-    };
-
-    let cell = start_timestamp
-      .map(|timestamp| insert_date_cell(timestamp, None, end_timestamp, None, field));
-
-    let open_after_create = matches!(self.condition, DateFilterConditionPB::DateStartIsNotEmpty);
-
-    (cell, open_after_create)
+    start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, None, field))
   }
 }
 
@@ -384,6 +388,187 @@ mod tests {
       (Some(1668272685), Some(1668359085), true, "11/14"),
       (Some(1668272685), Some(1668704685), true, "11/18"),
       (None, None, true, "empty"),
+    ] {
+      assert_eq!(
+        filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),
+        is_visible,
+        "{msg}"
+      );
+    }
+  }
+
+  #[test]
+  fn timezoned_filter_test() {
+    let filter = DateFilterPB {
+      condition: DateFilterConditionPB::DateStartsOn,
+      timestamp: Some(1728975660), // Oct 15, 2024 00:00 PDT
+      end: None,
+      start: None,
+    };
+
+    for (start, end, is_visible, msg) in [
+      (
+        Some(1728889200),
+        None,
+        false,
+        "10/14/2024 00:00 PDT, 10/14/2024 07:00 GMT",
+      ),
+      (
+        Some(1728889260),
+        None,
+        false,
+        "10/14/2024 00:01 PDT, 10/14/2024 07:01 GMT",
+      ),
+      (
+        Some(1728900000),
+        None,
+        false,
+        "10/14/2024 03:00 PDT, 10/14/2024 10:00 GMT",
+      ),
+      (
+        Some(1728921600),
+        None,
+        false,
+        "10/14/2024 09:00 PDT, 10/14/2024 16:00 GMT",
+      ),
+      (
+        Some(1728932400),
+        None,
+        false,
+        "10/14/2024 12:00 PDT, 10/14/2024 19:00 GMT",
+      ),
+      (
+        Some(1728943200),
+        None,
+        false,
+        "10/14/2024 15:00 PDT, 10/14/2024 22:00 GMT",
+      ),
+      (
+        Some(1728954000),
+        None,
+        false,
+        "10/14/2024 18:00 PDT, 10/15/2024 01:00 GMT",
+      ),
+      (
+        Some(1728964800),
+        None,
+        false,
+        "10/14/2024 21:00 PDT, 10/15/2024 04:00 GMT",
+      ),
+      (
+        Some(1728975540),
+        None,
+        false,
+        "10/14/2024 23:59 PDT, 10/15/2024 06:59 GMT",
+      ),
+      (
+        Some(1728975600),
+        None,
+        true,
+        "10/15/2024 00:00 PDT, 10/15/2024 07:00 GMT",
+      ),
+      (
+        Some(1728975660),
+        None,
+        true,
+        "10/15/2024 00:01 PDT, 10/15/2024 07:01 GMT",
+      ),
+      (
+        Some(1728986400),
+        None,
+        true,
+        "10/15/2024 03:00 PDT, 10/15/2024 10:00 GMT",
+      ),
+      (
+        Some(1729008000),
+        None,
+        true,
+        "10/15/2024 09:00 PDT, 10/15/2024 16:00 GMT",
+      ),
+      (
+        Some(1729018800),
+        None,
+        true,
+        "10/15/2024 12:00 PDT, 10/15/2024 19:00 GMT",
+      ),
+      (
+        Some(1729029600),
+        None,
+        true,
+        "10/15/2024 15:00 PDT, 10/15/2024 22:00 GMT",
+      ),
+      (
+        Some(1729040400),
+        None,
+        true,
+        "10/15/2024 18:00 PDT, 10/16/2024 01:00 GMT",
+      ),
+      (
+        Some(1729051200),
+        None,
+        true,
+        "10/15/2024 21:00 PDT, 10/16/2024 04:00 GMT",
+      ),
+      (
+        Some(1729061940),
+        None,
+        true,
+        "10/15/2024 23:59 PDT, 10/16/2024 06:59 GMT",
+      ),
+      (
+        Some(1729062000),
+        None,
+        false,
+        "10/16/2024 00:00 PDT, 10/16/2024 07:00 GMT",
+      ),
+      (
+        Some(1729062060),
+        None,
+        false,
+        "10/16/2024 00:01 PDT, 10/16/2024 07:01 GMT",
+      ),
+      (
+        Some(1729072800),
+        None,
+        false,
+        "10/16/2024 03:00 PDT, 10/16/2024 10:00 GMT",
+      ),
+      (
+        Some(1729094400),
+        None,
+        false,
+        "10/16/2024 09:00 PDT, 10/16/2024 16:00 GMT",
+      ),
+      (
+        Some(1729105200),
+        None,
+        false,
+        "10/16/2024 12:00 PDT, 10/16/2024 19:00 GMT",
+      ),
+      (
+        Some(1729116000),
+        None,
+        false,
+        "10/16/2024 15:00 PDT, 10/16/2024 22:00 GMT",
+      ),
+      (
+        Some(1729126800),
+        None,
+        false,
+        "10/16/2024 18:00 PDT, 10/17/2024 01:00 GMT",
+      ),
+      (
+        Some(1729137600),
+        None,
+        false,
+        "10/16/2024 21:00 PDT, 10/17/2024 04:00 GMT",
+      ),
+      (
+        Some(1729148340),
+        None,
+        false,
+        "10/16/2024 23:59 PDT, 10/17/2024 06:59 GMT",
+      ),
     ] {
       assert_eq!(
         filter.is_visible(&to_cell_data(start, end)).unwrap_or(true),

@@ -75,11 +75,10 @@ class AutoCompletionBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) {
-    return node.children.isEmpty &&
-        node.attributes[AutoCompletionBlockKeys.prompt] is String &&
-        node.attributes[AutoCompletionBlockKeys.startSelection] is Map;
-  }
+  BlockComponentValidate get validate => (node) =>
+      node.children.isEmpty &&
+      node.attributes[AutoCompletionBlockKeys.prompt] is String &&
+      node.attributes[AutoCompletionBlockKeys.startSelection] is Map;
 }
 
 class AutoCompletionBlockComponent extends BlockComponentStatefulWidget {

@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,34 +12,19 @@ class MobileFilterEditorCubit extends Cubit<MobileFilterEditorState> {
 
   final PageController pageController;
 
-  void returnToOverview() {
+  void returnToOverview({bool scrollToBottom = false}) {
     _animateToPage(0);
-    emit(MobileFilterEditorState.overview());
+    emit(MobileFilterEditorState.overview(scrollToBottom: scrollToBottom));
   }
 
   void startCreatingFilter() {
     _animateToPage(1);
-    emit(MobileFilterEditorState.create(filterField: null));
+    emit(MobileFilterEditorState.create());
   }
 
   void startEditingFilterField(String filterId) {
     _animateToPage(1);
-    emit(MobileFilterEditorState.editField(filterId: filterId, newField: null));
-  }
-
-  void changeField(FieldInfo field) {
-    emit(
-      state.maybeWhen(
-        create: (_) => MobileFilterEditorState.create(
-          filterField: field,
-        ),
-        editField: (filterId, _) => MobileFilterEditorState.editField(
-          filterId: filterId,
-          newField: field,
-        ),
-        orElse: () => state,
-      ),
-    );
+    emit(MobileFilterEditorState.editField(filterId: filterId));
   }
 
   void updateFilter(DatabaseFilter filter) {
@@ -97,15 +81,14 @@ class MobileFilterEditorCubit extends Cubit<MobileFilterEditorState> {
 
 @freezed
 class MobileFilterEditorState with _$MobileFilterEditorState {
-  factory MobileFilterEditorState.overview() = _OverviewState;
+  factory MobileFilterEditorState.overview({
+    @Default(false) bool scrollToBottom,
+  }) = _OverviewState;
 
-  factory MobileFilterEditorState.create({
-    required FieldInfo? filterField,
-  }) = _CreateState;
+  factory MobileFilterEditorState.create() = _CreateState;
 
   factory MobileFilterEditorState.editField({
     required String filterId,
-    required FieldInfo? newField,
   }) = _EditFieldState;
 
   factory MobileFilterEditorState.editCondition({

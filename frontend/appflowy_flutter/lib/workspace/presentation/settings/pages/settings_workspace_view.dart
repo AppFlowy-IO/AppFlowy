@@ -437,7 +437,7 @@ class EnableRTLItemsSwitcher extends StatelessWidget {
               .enableRtlToolbarItems,
           onChanged: (value) => context
               .read<AppearanceSettingsCubit>()
-              .setEnableRTLToolbarItems(!value),
+              .setEnableRTLToolbarItems(value),
         ),
       ],
     );
@@ -582,8 +582,8 @@ class _TimeFormatSwitcher extends StatelessWidget {
           onChanged: (value) =>
               context.read<AppearanceSettingsCubit>().setTimeFormat(
                     value
-                        ? UserTimeFormatPB.TwelveHour
-                        : UserTimeFormatPB.TwentyFourHour,
+                        ? UserTimeFormatPB.TwentyFourHour
+                        : UserTimeFormatPB.TwelveHour,
                   ),
         ),
       ],

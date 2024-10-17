@@ -186,8 +186,8 @@ class _AnimatedDatePickerState extends State<_AnimatedDatePicker> {
         child: AppFlowyDatePicker(
           includeTime: _includeTime,
           onIncludeTimeChanged: (includeTime) {
-            widget.options.onIncludeTimeChanged.call(!includeTime);
-            setState(() => _includeTime = !includeTime);
+            widget.options.onIncludeTimeChanged.call(includeTime);
+            setState(() => _includeTime = includeTime);
           },
           enableRanges: widget.options.enableRanges,
           isRange: widget.options.isRange,

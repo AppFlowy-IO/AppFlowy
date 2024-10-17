@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_limit_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -60,7 +62,7 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) =>
+  BlockComponentValidate get validate => (node) =>
       node.attributes[SmartEditBlockKeys.action] is int &&
       node.attributes[SmartEditBlockKeys.content] is String;
 }
@@ -123,41 +125,44 @@ class _SmartEditBlockComponentWidgetState
 
     return BlocProvider.value(
       value: smartEditBloc,
-      child: AppFlowyPopover(
-        controller: popoverController,
-        direction: PopoverDirection.bottomWithLeftAligned,
-        triggerActions: PopoverTriggerFlags.none,
-        margin: EdgeInsets.zero,
-        offset: const Offset(40, 0), // align the editor block
-        windowPadding: EdgeInsets.zero,
-        constraints: BoxConstraints(maxWidth: width),
-        canClose: () async {
-          final completer = Completer<bool>();
-          final state = smartEditBloc.state;
-          if (state.result.isEmpty) {
-            completer.complete(true);
-          } else {
-            await showCancelAndConfirmDialog(
-              context: context,
-              title: LocaleKeys.document_plugins_discardResponse.tr(),
-              description: '',
-              confirmLabel: LocaleKeys.button_discard.tr(),
-              onConfirm: () => completer.complete(true),
-              onCancel: () => completer.complete(false),
+      child: BlocListener<SmartEditBloc, SmartEditState>(
+        listener: _onListen,
+        child: AppFlowyPopover(
+          controller: popoverController,
+          direction: PopoverDirection.bottomWithLeftAligned,
+          triggerActions: PopoverTriggerFlags.none,
+          margin: EdgeInsets.zero,
+          offset: const Offset(40, 0), // align the editor block
+          windowPadding: EdgeInsets.zero,
+          constraints: BoxConstraints(maxWidth: width),
+          canClose: () async {
+            final completer = Completer<bool>();
+            final state = smartEditBloc.state;
+            if (state.result.isEmpty) {
+              completer.complete(true);
+            } else {
+              await showCancelAndConfirmDialog(
+                context: context,
+                title: LocaleKeys.document_plugins_discardResponse.tr(),
+                description: '',
+                confirmLabel: LocaleKeys.button_discard.tr(),
+                onConfirm: () => completer.complete(true),
+                onCancel: () => completer.complete(false),
+              );
+            }
+            return completer.future;
+          },
+          onClose: _removeNode,
+          popupBuilder: (BuildContext popoverContext) {
+            return BlocProvider.value(
+              // request the result when opening the popover
+              value: smartEditBloc..add(const SmartEditEvent.started()),
+              child: const SmartEditInputContent(),
             );
-          }
-          return completer.future;
-        },
-        onClose: _removeNode,
-        popupBuilder: (BuildContext popoverContext) {
-          return BlocProvider.value(
-            // request the result when opening the popover
-            value: smartEditBloc..add(const SmartEditEvent.started()),
-            child: const SmartEditInputContent(),
-          );
-        },
-        child: const SizedBox(
-          width: double.infinity,
+          },
+          child: const SizedBox(
+            width: double.infinity,
+          ),
         ),
       ),
     );
@@ -178,6 +183,21 @@ class _SmartEditBlockComponentWidgetState
   void _removeNode() {
     final transaction = editorState.transaction..deleteNode(widget.node);
     editorState.apply(transaction);
+  }
+
+  void _onListen(BuildContext context, SmartEditState state) {
+    final error = state.requestError;
+    if (error != null) {
+      if (error.isLimitExceeded) {
+        showAILimitDialog(context, error.message);
+      } else {
+        showToastNotification(
+          context,
+          message: error.message,
+          type: ToastificationType.error,
+        );
+      }
+    }
   }
 }
 

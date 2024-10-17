@@ -11,10 +11,8 @@ import ChangeAccount from '@/components/_shared/modal/ChangeAccount';
 import { notify } from '@/components/_shared/notify';
 import { getAvatar } from '@/components/_shared/view-icon/utils';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
-import { downloadPage } from '@/utils/url';
-import { ReactComponent as ArrowCircleRightOutlined } from '@/assets/arrow_circle_right.svg';
 
-import { Avatar, Button, Divider, Paper, Typography } from '@mui/material';
+import { Avatar, Button } from '@mui/material';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -33,7 +31,7 @@ function ApproveRequestPage () {
   const service = useService();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [upgradeModalOpen, setUpgradeModalOpen] = React.useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = React.useState(true);
   const [errorModalOpen, setErrorModalOpen] = React.useState(false);
   const [alreadyProModalOpen, setAlreadyProModalOpen] = React.useState(false);
   const [clicked, setClicked] = React.useState(false);
@@ -106,14 +104,6 @@ function ApproveRequestPage () {
     }
   }, [requestInfo, service, isPro]);
 
-  const workspaceAvatar = useMemo(() => {
-    if (!requestInfo) return null;
-    return getAvatar({
-      name: requestInfo.workspace.name,
-      icon: requestInfo.workspace.icon,
-    });
-  }, [requestInfo]);
-
   const requesterAvatar = useMemo(() => {
     if (!requestInfo) return null;
     return getAvatar({
@@ -127,57 +117,35 @@ function ApproveRequestPage () {
   }, [loadRequestInfo]);
 
   return (
-    <div className={'m-0 flex h-screen w-screen items-center justify-center bg-bg-body p-0'}>
-      <div className={'flex flex-col px-6 items-center gap-3 text-center max-w-[660px] mb-10'}>
-        <Typography
-          variant="h3" className={'mb-[27px] flex items-center gap-4 text-text-title'} gutterBottom
+    <div
+      className={'text-text-title px-6 max-md:gap-4 flex flex-col gap-12 h-screen appflowy-scroller w-screen overflow-x-hidden overflow-y-auto items-center bg-bg-body'}
+    >
+      <div
+        onClick={() => {
+          navigate('/app');
+        }}
+        className={'flex w-full cursor-pointer max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}
+      >
+        <AppflowyLogo className={'w-32 h-12 max-md:w-52'} />
+      </div>
+      <div className={'flex w-full flex-1 max-w-[560px] justify-center flex-col items-center gap-6 text-center'}>
+        <Avatar
+          className={'h-20 w-20 text-[40px] border border-text-title rounded-[16px]'} {...requesterAvatar}
+          variant="rounded"
+        />
+        <div
+          className={'text-[40px] max-sm:text-[24px] px-4 whitespace-pre-wrap break-words leading-[127%] text-center'}
         >
-          <>
-            <AppflowyLogo className={'w-48'} />
-          </>
-        </Typography>
-
-        <div className={'mb-[16px] max-md:text-[24px] text-[52px] font-semibold leading-[128%] text-text-title'}>
-          {t('approveAccess.title')}
-        </div>
-        <div className={'flex max-md:flex-col gap-6 items-center justify-center'}>
-          <Paper
-            onClick={() => {
-              window.open(`mailto:${requestInfo?.requester.email}`, '_blank');
-            }}
-            className={'border transform transition-all border-line-divider hover:scale-110 flex w-[250px] max-md:w-full hover:bg-fill-list-hover cursor-pointer overflow-hidden items-center flex-1 gap-4 p-6'}
-          >
-            <Avatar className={'border-2 border-text-title w-12 h-12'} {...requesterAvatar} />
-            <div className={'flex flex-col flex-1 overflow-hidden items-start gap-2'}>
-              <div
-                className={'text-fill-default text-left w-full truncate font-semibold text-sm'}
-              >@{requestInfo?.requester.name}</div>
-              <div
-                className={'text-text-caption text-left truncate w-full text-xs'}
-              >{requestInfo?.requester.email}</div>
-            </div>
-          </Paper>
-          <ArrowCircleRightOutlined className={'w-12 max-md:rotate-90 max-md:transform h-12 text-text-title'} />
-          <Paper
-            onClick={() => {
-              window.open(`${window.origin}/app/${requestInfo?.workspace?.id}/${requestInfo?.view?.view_id}`, '_blank');
-            }}
-            className={'border border-line-divider transform transition-all hover:scale-110 flex overflow-hidden flex-1 cursor-pointer hover:bg-fill-list-hover items-center gap-4 p-6'}
-          >
-            <Avatar variant={'rounded'} className={'border-2 border-text-title w-12 h-12'} {...workspaceAvatar} />
-            <div className={'flex flex-col flex-1 overflow-hidden items-start gap-2'}>
-              <div
-                className={'text-text-title text-left w-full truncate font-semibold text-sm'}
-              >{requestInfo?.workspace.name}</div>
-              <div className={'text-text-caption text-left w-full truncate text-xs'}>{t('approveAccess.memberCount', {
-                count: requestInfo?.workspace.memberCount || 0,
-              })}</div>
-            </div>
-          </Paper>
-
+          <span className={'font-semibold'}>{requestInfo?.requester?.email}</span>
+          {' '}
+          {t('approveAccess.requestToJoin')}
+          {' '}
+          <span className={'whitespace-nowrap font-semibold'}>{requestInfo?.workspace?.name}</span>
+          {' '}
+          {t('approveAccess.asMember')}
         </div>
 
-        <div className={'flex items-center mt-4 w-full gap-4 justify-between'}>
+        <div className={'flex mb-52 items-center mt-4 w-full gap-4 justify-between'}>
           <Button
             onClick={() => {
               void handleApprove();
@@ -185,7 +153,8 @@ function ApproveRequestPage () {
             }}
             disabled={clicked || !requestInfo}
             className={'flex-1 py-2 px-4 rounded-[8px] text-[20px] font-medium max-md:text-base max-sm:text-[14px] max-md:py-2'}
-            variant={'contained'} color={'primary'}
+            variant={'contained'}
+            color={'primary'}
           >
             {t('approveAccess.approveButton')}
           </Button>
@@ -194,68 +163,37 @@ function ApproveRequestPage () {
               navigate('/');
             }}
             className={'flex-1 py-2 px-4 rounded-[8px] max-sm:text-[14px] max-md:text-base text-[20px] font-medium max-md:py-2'}
-            variant={'outlined'} color={'inherit'}
+            variant={'outlined'}
+            color={'inherit'}
           >
             {t('requestAccess.backToHome')}
           </Button>
         </div>
-        <Divider className={'w-full mb-3 mt-4'} />
-        <div className={'max-w-[400px] flex flex-col text-text-caption'}>
-          <span>
-            <Trans
-              i18nKey="approveAccess.ensurePlanLimit"
-              components={{
-                upgrade: <span
-                  onClick={() => setUpgradeModalOpen(true)} className={'underline text-fill-default cursor-pointer'}
-                >{t('approveAccess.upgrade')}</span>,
-                download: <span
-                  onClick={() => window.open(downloadPage, '_blank')}
-                  className={'underline text-fill-default cursor-pointer'}
-                >{t('approveAccess.downloadApp')}</span>,
-              }}
-            />
-           </span>
-        </div>
+
       </div>
       <NormalModal
         keepMounted={false}
         title={
-          <div className={'text-left font-semibold'}>🎉{t('upgradePlanModal.title')}</div>
-        } okText={t('upgradePlanModal.actionButton')} cancelText={t('upgradePlanModal.laterButton')}
+          <div className={'text-left font-semibold'}>{t('upgradePlanModal.title')}</div>
+        }
+        okText={t('upgradePlanModal.actionButton')}
+        cancelText={t('upgradePlanModal.laterButton')}
         open={upgradeModalOpen}
         onClose={() => setUpgradeModalOpen(false)}
         onOk={handleUpgrade}
       >
-        <div className="mt-2 py-3">
-          <p className="text-sm text-text-caption">
-            😄
-            {t('upgradePlanModal.message')}
+        <div className="py-3">
+          <p className="text-base text-text-caption">
+            {t('upgradePlanModal.message', {
+              name: requestInfo?.workspace.name,
+            })}
           </p>
         </div>
-        <div className="mt-4 bg-gray-50 rounded-md p-4">
-          <p className="text-sm font-medium text-text-caption">
-            {t('upgradePlanModal.upgradeSteps')}
-          </p>
-          <ul className="mt-2 flex flex-col gap-1.5 list-disc list-inside text-sm text-text-caption">
-            <li>{t('upgradePlanModal.step1')}</li>
-            <li>{t('upgradePlanModal.step2')}</li>
-            <li>{t('upgradePlanModal.step3')}</li>
-          </ul>
-        </div>
-        <p className="mt-4 text-xs text-text-caption flex items-center gap-1">
-          <WarningIcon className={'w-4 h-4 text-function-info'} />
-          {t('upgradePlanModal.appNote')}{' '}
-          <Trans
-            i18nKey={'upgradePlanModal.refreshNote'} components={{
-            refresh: <span
-              className={'underline cursor-pointer text-fill-default'} onClick={() => window.location.reload()}
-            >{t('upgradePlanModal.refresh')}</span>,
-          }}
-          />
-        </p>
-
       </NormalModal>
-      <ChangeAccount setModalOpened={setErrorModalOpen} modalOpened={errorModalOpen} />
+      <ChangeAccount
+        setModalOpened={setErrorModalOpen}
+        modalOpened={errorModalOpen}
+      />
       <NormalModal
         onOk={() => setAlreadyProModalOpen(false)}
         keepMounted={false}
@@ -271,12 +209,13 @@ function ApproveRequestPage () {
         <div className={'flex flex-col'}>
           <span>
             <Trans
-              i18nKey={'approveAccess.alreadyProMessage'} components={{
-              email: <span
-                onClick={() => window.open(`mailto:support@appflowy.io`, '_blank')}
-                className={'underline text-fill-default cursor-pointer'}
-              >support@appflowy.io</span>,
-            }}
+              i18nKey={'approveAccess.alreadyProMessage'}
+              components={{
+                email: <span
+                  onClick={() => window.open(`mailto:support@appflowy.io`, '_blank')}
+                  className={'underline text-fill-default cursor-pointer'}
+                >support@appflowy.io</span>,
+              }}
             />
           </span>
         </div>

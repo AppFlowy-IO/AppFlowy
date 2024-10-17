@@ -1,5 +1,5 @@
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,7 +92,7 @@ void main() {
       );
       expect(finder, findsOneWidget);
       await tester.tapButton(finder);
-      expect(find.byType(AppFlowyErrorPage), findsOneWidget);
+      expect(find.byType(GridPage), findsOneWidget);
     });
   });
 }

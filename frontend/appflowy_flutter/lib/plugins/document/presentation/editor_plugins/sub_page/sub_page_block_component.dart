@@ -1,19 +1,21 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 Node subPageNode({String? viewId}) {
@@ -57,7 +59,7 @@ class SubPageBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => node.delta == null && node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.children.isEmpty;
 }
 
 class SubPageBlockComponent extends BlockComponentStatefulWidget {
@@ -86,14 +88,15 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   final subPageKey = GlobalKey();
 
   ViewListener? viewListener;
+  TrashListener? trashListener;
   Future<ViewPB?>? viewFuture;
 
   bool isHovering = false;
   bool isHandlingPaste = false;
 
-  bool isInTrash = false;
-
   EditorState get editorState => context.read<EditorState>();
+
+  String? parentId;
 
   @override
   void initState() {
@@ -102,13 +105,8 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
     if (viewId != null) {
       viewFuture = fetchView(viewId);
       viewListener = ViewListener(viewId: viewId)
-        ..start(
-          onViewUpdated: (view) {
-            pageMemorizer[view.id] = view;
-            viewFuture = fetchView(viewId);
-            editorState.reload();
-          },
-        );
+        ..start(onViewUpdated: onViewUpdated);
+      trashListener = TrashListener()..start(trashUpdated: didUpdateTrash);
     }
   }
 
@@ -121,15 +119,49 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
       viewFuture = fetchView(viewId);
       viewListener?.stop();
       viewListener = ViewListener(viewId: viewId)
-        ..start(
-          onViewUpdated: (view) {
-            pageMemorizer[view.id] = view;
-            viewFuture = fetchView(viewId);
-            editorState.reload();
-          },
-        );
+        ..start(onViewUpdated: onViewUpdated);
     }
     super.didUpdateWidget(oldWidget);
+  }
+
+  void didUpdateTrash(FlowyResult<List<TrashPB>, FlowyError> trashOrFailed) {
+    final trashList = trashOrFailed.toNullable();
+    if (trashList == null) {
+      return;
+    }
+
+    final viewId = node.attributes[SubPageBlockKeys.viewId];
+    if (trashList.any((t) => t.id == viewId)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final transaction = editorState.transaction..deleteNode(node);
+          editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
+        }
+      });
+    }
+  }
+
+  void onViewUpdated(ViewPB view) {
+    pageMemorizer[view.id] = view;
+    viewFuture = Future<ViewPB>.value(view);
+    editorState.reload();
+
+    if (parentId != view.parentViewId && parentId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final transaction = editorState.transaction..deleteNode(node);
+          editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -150,21 +182,22 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
 
         final view = snapshot.data;
         if (view == null) {
-          // Delete this node if the view is not found
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            final transaction = editorState.transaction..deleteNode(node);
-            editorState.apply(
-              transaction,
-              withUpdateSelection: false,
-              options: const ApplyOptions(recordUndo: false),
-            );
+            if (mounted) {
+              final transaction = editorState.transaction..deleteNode(node);
+              editorState.apply(
+                transaction,
+                withUpdateSelection: false,
+                options: const ApplyOptions(recordUndo: false),
+              );
+            }
           });
 
           return const SizedBox.shrink();
         }
 
         Widget child = Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 2),
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
             onEnter: (_) => setState(() => isHovering = true),
@@ -202,13 +235,11 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                     decoration: BoxDecoration(
                       color: isHovering
                           ? Theme.of(context).colorScheme.secondary
-                          : Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
+                          : null,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: SizedBox(
-                      height: 36,
+                      height: 32,
                       child: Row(
                         children: [
                           const HSpace(10),
@@ -223,32 +254,38 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                                   child: view.defaultIcon(),
                                 ),
                           const HSpace(10),
-                          FlowyText(
-                            view.name,
-                            fontSize: textStyle.fontSize,
-                            fontWeight: textStyle.fontWeight,
-                            lineHeight: textStyle.height,
-                          ),
-                          if (isInTrash) ...[
-                            const HSpace(4),
-                            FlowyText(
-                              LocaleKeys.document_plugins_subPage_inTrashHint.tr(),
+                          Flexible(
+                            child: FlowyText(
+                              view.name.trim().isEmpty
+                                  ? LocaleKeys.menuAppHeader_defaultNewPageName
+                                      .tr()
+                                  : view.name,
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
                               lineHeight: textStyle.height,
-                              color: Theme.of(context).hintColor,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ] else if (isHandlingPaste) ...[
+                          ),
+                          if (isHandlingPaste) ...[
                             FlowyText(
-                              LocaleKeys.document_plugins_subPage_handlingPasteHint.tr(),
+                              LocaleKeys
+                                  .document_plugins_subPage_handlingPasteHint
+                                  .tr(),
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
                               lineHeight: textStyle.height,
                               color: Theme.of(context).hintColor,
                             ),
                             const HSpace(10),
-                            const CircularProgressIndicator(),
+                            const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                              ),
+                            ),
                           ],
+                          const HSpace(10),
                         ],
                       ),
                     ),
@@ -278,20 +315,19 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
     );
 
     if (view == null) {
-      // try to fetch from trash
-      final trashViews = await TrashService().readTrash();
-      final trash = trashViews.fold(
-        (l) => l.items.firstWhereOrNull((trash) => trash.id == pageId),
-        (r) => null,
-      );
-      if (trash != null) {
-        isInTrash = true;
-        return ViewPB()
-          ..id = trash.id
-          ..name = trash.name;
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final transaction = editorState.transaction..deleteNode(node);
+          editorState.apply(
+            transaction,
+            withUpdateSelection: false,
+            options: const ApplyOptions(recordUndo: false),
+          );
+        }
+      });
     }
 
+    parentId = view?.parentViewId;
     return view;
   }
 

@@ -33,7 +33,7 @@ export default defineConfig({
               name: 'prefixIds',
               params: {
                 prefix: (node, { path }) => {
-                  const fileName = path?.split('/').pop()?.split('.')[0];
+                  const fileName = path?.split('/')?.pop()?.split('.')?.[0];
                   return `${fileName}-`;
                 },
               },

@@ -1,37 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
+import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
-  final Widget child;
-  final PopoverController? controller;
-  final Widget Function(BuildContext context) popupBuilder;
-  final PopoverDirection direction;
-  final int triggerActions;
-  final BoxConstraints constraints;
-  final VoidCallback? onOpen;
-  final VoidCallback? onClose;
-  final Future<bool> Function()? canClose;
-  final PopoverMutex? mutex;
-  final Offset? offset;
-  final bool asBarrier;
-  final EdgeInsets margin;
-  final EdgeInsets windowPadding;
-  final Color? decorationColor;
-  final BorderRadius? borderRadius;
-
-  /// The widget that will be used to trigger the popover.
-  ///
-  /// Why do we need this?
-  /// Because if the parent widget of the popover is GestureDetector,
-  ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
-  final PopoverClickHandler clickHandler;
-
-  /// If true the popover will not participate in focus traversal.
-  ///
-  final bool skipTraversal;
-
   const AppFlowyPopover({
     super.key,
     required this.child,
@@ -52,12 +23,61 @@ class AppFlowyPopover extends StatelessWidget {
     this.skipTraversal = false,
     this.decorationColor,
     this.borderRadius,
+    this.animationDuration = const Duration(),
+    this.slideDistance = 5.0,
+    this.beginScaleFactor = 0.9,
+    this.endScaleFactor = 1.0,
+    this.beginOpacity = 0.0,
+    this.endOpacity = 1.0,
+    this.showAtCursor = false,
   });
+
+  final Widget child;
+  final PopoverController? controller;
+  final Widget Function(BuildContext context) popupBuilder;
+  final PopoverDirection direction;
+  final int triggerActions;
+  final BoxConstraints constraints;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
+  final Future<bool> Function()? canClose;
+  final PopoverMutex? mutex;
+  final Offset? offset;
+  final bool asBarrier;
+  final EdgeInsets margin;
+  final EdgeInsets windowPadding;
+  final Color? decorationColor;
+  final BorderRadius? borderRadius;
+  final Duration animationDuration;
+  final double slideDistance;
+  final double beginScaleFactor;
+  final double endScaleFactor;
+  final double beginOpacity;
+  final double endOpacity;
+
+  /// The widget that will be used to trigger the popover.
+  ///
+  /// Why do we need this?
+  /// Because if the parent widget of the popover is GestureDetector,
+  ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
+  final PopoverClickHandler clickHandler;
+
+  /// If true the popover will not participate in focus traversal.
+  ///
+  final bool skipTraversal;
+
+  final bool showAtCursor;
 
   @override
   Widget build(BuildContext context) {
     return Popover(
       controller: controller,
+      animationDuration: animationDuration,
+      slideDistance: slideDistance,
+      beginScaleFactor: beginScaleFactor,
+      endScaleFactor: endScaleFactor,
+      beginOpacity: beginOpacity,
+      endOpacity: endOpacity,
       onOpen: onOpen,
       onClose: onClose,
       canClose: canClose,
@@ -69,15 +89,14 @@ class AppFlowyPopover extends StatelessWidget {
       offset: offset,
       clickHandler: clickHandler,
       skipTraversal: skipTraversal,
-      popupBuilder: (context) {
-        return _PopoverContainer(
-          constraints: constraints,
-          margin: margin,
-          decorationColor: decorationColor,
-          borderRadius: borderRadius,
-          child: popupBuilder(context),
-        );
-      },
+      showAtCursor: showAtCursor,
+      popupBuilder: (context) => _PopoverContainer(
+        constraints: constraints,
+        margin: margin,
+        decorationColor: decorationColor,
+        borderRadius: borderRadius,
+        child: popupBuilder(context),
+      ),
       child: child,
     );
   }

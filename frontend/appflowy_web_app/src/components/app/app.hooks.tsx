@@ -7,7 +7,7 @@ import {
   LoadViewMeta,
   UserWorkspaceInfo,
   View,
-  ViewLayout,
+  ViewLayout, YjsDatabaseKey, YjsEditorKey, YSharedRoot,
 } from '@/application/types';
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
@@ -80,7 +80,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
   const logout = useCallback(() => {
     invalidToken();
-    navigate(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
+    navigate(`/login?redirectTo=${encodeURIComponent(window.location.href)}`);
   }, [navigate]);
 
   // If the user is not authenticated, log out the user
@@ -186,6 +186,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('View not found');
       }
 
+      const sharedRoot = res.get(YjsEditorKey.data_section) as YSharedRoot;
+      let objectId = id;
+
+      if (sharedRoot.has(YjsEditorKey.database)) {
+        const database = sharedRoot.get(YjsEditorKey.database);
+
+        objectId = database?.get(YjsDatabaseKey.id);
+      }
+
+      service.registerDocUpdate(res, currentWorkspaceId, objectId);
+
       return res;
       // eslint-disable-next-line
     } catch (e: any) {
@@ -197,12 +208,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const createRowDoc = useCallback(
     async (rowKey: string) => {
+      if (!currentWorkspaceId || !service) {
+        throw new Error('Failed to create row doc');
+      }
+
       try {
-        const doc = await service?.createRowDoc(rowKey);
+        const doc = await service.createRowDoc(rowKey);
 
         if (!doc) {
           throw new Error('Failed to create row doc');
         }
+
+        service.registerDocUpdate(doc, currentWorkspaceId, rowKey);
 
         createdRowKeys.current.push(rowKey);
         return doc;
@@ -210,7 +227,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         return Promise.reject(e);
       }
     },
-    [service],
+    [currentWorkspaceId, service],
   );
 
   const loadUserWorkspaceInfo = useCallback(async () => {
@@ -246,11 +263,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setOutline(res);
+
+      const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
+
+      if (!firstView) {
+        setRendered(true);
+      }
+
       try {
 
         await service.openWorkspace(workspaceId);
         const wId = window.location.pathname.split('/')[2];
         const pageId = window.location.pathname.split('/')[3];
+        const search = window.location.search;
 
         // skip /app/trash and /app/*other-pages
         if (wId && !uuidValidate(wId)) {
@@ -265,14 +290,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const lastViewId = localStorage.getItem('last_view_id');
 
         if (lastViewId && findView(res, lastViewId)) {
-          navigate(`/app/${workspaceId}/${lastViewId}`);
+          navigate(`/app/${workspaceId}/${lastViewId}${search}`);
 
-        } else {
-          const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
-
-          if (firstView) {
-            navigate(`/app/${workspaceId}/${firstView.view_id}`);
-          }
+        } else if (firstView) {
+          navigate(`/app/${workspaceId}/${firstView.view_id}${search}`);
         }
 
       } catch (e) {

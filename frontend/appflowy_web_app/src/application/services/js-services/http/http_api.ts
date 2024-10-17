@@ -28,6 +28,7 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
+import { calculateMd5 } from '@/utils/md5';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 
@@ -286,6 +287,24 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   });
 
   return blobToBytes(response?.data);
+}
+
+export async function updateCollab (workspaceId: string, objectId: string, docState: Uint8Array, context: {
+  version_vector: number;
+}) {
+  const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}/web-update`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    doc_state: Array.from(docState),
+  });
+
+  if (response?.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  return context;
 }
 
 export async function getCollab (workspaceId: string, objectId: string, collabType: Types) {
@@ -1151,6 +1170,52 @@ export async function getActiveSubscription (workspaceId: string) {
 
   if (response?.data.code === 0) {
     return response?.data.data;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function importFile (file: File, onProgress: (progress: number) => void) {
+  const url = `/api/import`;
+
+  const fileName = file.name.split('.').slice(0, -1).join('.') || crypto.randomUUID();
+
+  const fileSize = file.size;
+
+  const mimeType = file.type || 'application/octet-stream';
+  const md5Base64 = await calculateMd5(file);
+
+  const validZipTypes = [
+    'application/zip',
+    'application/x-zip',
+    'application/x-zip-compressed',
+    'application/octet-stream',
+  ];
+
+  if (!validZipTypes.includes(mimeType) && !file.name.toLowerCase().endsWith('.zip')) {
+    throw new Error('Please select a valid ZIP file.');
+  }
+
+  const formData = new FormData();
+
+  formData.append(fileName, file, file.name);
+
+  const response = await axiosInstance?.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'X-Content-Length': fileSize.toString(),
+      'X-Content-MD5': md5Base64,
+    },
+    onUploadProgress: (progressEvent) => {
+      const { progress = 0 } = progressEvent;
+
+      console.log(`Upload progress: ${progress * 100}%`);
+      onProgress(progress);
+    },
+  });
+
+  if (response?.data.code === 0) {
+    return;
   }
 
   return Promise.reject(response?.data);

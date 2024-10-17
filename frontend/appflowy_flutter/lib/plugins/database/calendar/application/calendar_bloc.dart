@@ -131,6 +131,20 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
               ),
             );
           },
+          openRowDetail: (row) {
+            emit(
+              state.copyWith(
+                openRow: row,
+              ),
+            );
+          },
+          resetOpenRowDetail: () {
+            emit(
+              state.copyWith(
+                openRow: null,
+              ),
+            );
+          },
         );
       },
     );
@@ -231,15 +245,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
     final payload = DatabaseViewRowIdPB(viewId: viewId, rowId: rowId);
-    return DatabaseEventGetCalendarEvent(payload).send().then((result) {
-      return result.fold(
-        (eventPB) => _calendarEventDataFromEventPB(eventPB),
-        (r) {
-          Log.error(r);
-          return null;
-        },
-      );
-    });
+    return DatabaseEventGetCalendarEvent(payload).send().fold(
+      (eventPB) => _calendarEventDataFromEventPB(eventPB),
+      (r) {
+        Log.error(r);
+        return null;
+      },
+    );
   }
 
   void _loadAllEvents() async {
@@ -308,14 +320,18 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           for (final fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo,
         };
       },
-      onRowsCreated: (rowIds) async {
+      onRowsCreated: (rows) async {
         if (isClosed) {
           return;
         }
-        for (final id in rowIds) {
-          final event = await _loadEvent(id);
-          if (event != null && !isClosed) {
-            add(CalendarEvent.didReceiveEvent(event));
+        for (final row in rows) {
+          if (row.isHiddenInView) {
+            add(CalendarEvent.openRowDetail(row.rowMeta));
+          } else {
+            final event = await _loadEvent(row.rowMeta.id);
+            if (event != null) {
+              add(CalendarEvent.didReceiveEvent(event));
+            }
           }
         }
       },
@@ -340,6 +356,30 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             }
           }
         }
+      },
+      onNumOfRowsChanged: (rows, rowById, reason) {
+        reason.maybeWhen(
+          updateRowsVisibility: (changeset) async {
+            if (isClosed) {
+              return;
+            }
+            for (final id in changeset.invisibleRows) {
+              if (_containsEvent(id)) {
+                add(CalendarEvent.didDeleteEvents([id]));
+              }
+            }
+            for (final row in changeset.visibleRows) {
+              final id = row.rowMeta.id;
+              if (!_containsEvent(id)) {
+                final event = await _loadEvent(id);
+                if (event != null) {
+                  add(CalendarEvent.didReceiveEvent(event));
+                }
+              }
+            }
+          },
+          orElse: () {},
+        );
       },
     );
 
@@ -370,6 +410,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       return false;
     }
     return state.allEvents[index].date.day != event.date.day;
+  }
+
+  bool _containsEvent(String rowId) {
+    return state.allEvents.any((element) => element.event!.eventId == rowId);
   }
 
   Int64 _eventTimestamp(CalendarDayEvent event, DateTime date) {
@@ -437,6 +481,10 @@ class CalendarEvent with _$CalendarEvent {
 
   const factory CalendarEvent.deleteEvent(String viewId, String rowId) =
       _DeleteEvent;
+
+  const factory CalendarEvent.openRowDetail(RowMetaPB row) = _OpenRowDetail;
+
+  const factory CalendarEvent.resetOpenRowDetail() = _ResetRowDetail;
 }
 
 @freezed
@@ -451,6 +499,7 @@ class CalendarState with _$CalendarState {
     CalendarEventData<CalendarDayEvent>? updateEvent,
     required List<String> deleteEventIds,
     required CalendarLayoutSettingPB? settings,
+    required RowMetaPB? openRow,
     required LoadingState loadingState,
     required FlowyError? noneOrError,
   }) = _CalendarState;
@@ -461,6 +510,7 @@ class CalendarState with _$CalendarState {
         initialEvents: [],
         deleteEventIds: [],
         settings: null,
+        openRow: null,
         noneOrError: null,
         loadingState: LoadingState.loading(),
       );

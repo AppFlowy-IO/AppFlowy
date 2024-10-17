@@ -68,38 +68,6 @@ void main() {
       expect(afterMoveBlock.delta, beforeMoveBlock.delta);
     });
 
-    // Copy link to block feature is disable temporarily, enable this test when the feature is ready.
-    // testWidgets('copy block link', (tester) async {
-    //   await tester.initializeAppFlowy(
-    //     cloudType: AuthenticatorType.appflowyCloudSelfHost,
-    //   );
-    //   await tester.tapGoogleLoginInButton();
-    //   await tester.expectToSeeHomePageWithGetStartedPage();
-
-    //   // open getting started page
-    //   await tester.openPage(Constants.gettingStartedPageName);
-
-    //   // hover and click on the option menu button beside the block component.
-    //   await tester.editor.hoverAndClickOptionMenuButton([0]);
-
-    //   // click the copy link to block option
-    //   await tester.tap(
-    //     find.findTextInFlowyText(
-    //       LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr(),
-    //     ),
-    //   );
-    //   await tester.pumpAndSettle(Durations.short1);
-
-    //   // check the clipboard
-    //   final content = await Clipboard.getData(Clipboard.kTextPlain);
-    //   expect(
-    //     content?.text,
-    //     matches(
-    //       r'^https:\/\/appflowy\.com\/app\/[a-f0-9-]{36}\/[a-f0-9-]{36}\?blockId=[A-Za-z0-9_-]+$',
-    //     ),
-    //   );
-    // });
-
     testWidgets('hover on the block and delete it', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,

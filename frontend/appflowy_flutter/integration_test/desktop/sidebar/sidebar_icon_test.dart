@@ -11,7 +11,7 @@ void main() {
 
   const emoji = '😁';
 
-  group('Icon', () {
+  group('Icon:', () {
     testWidgets('Update page icon in sidebar', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -52,6 +52,7 @@ void main() {
         if (value == ViewLayoutPB.Chat) {
           continue;
         }
+
         await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,

@@ -35,3 +35,7 @@ final camelCaseRegex = RegExp(_camelCasePattern);
 
 const _macOSVolumesPattern = '^/Volumes/[^/]+';
 final macOSVolumesRegex = RegExp(_macOSVolumesPattern);
+
+const appflowySharePageLinkPattern =
+    r'^https://appflowy\.com/app/([^/]+)/([^?]+)(?:\?blockId=(.+))?$';
+final appflowySharePageLinkRegex = RegExp(appflowySharePageLinkPattern);

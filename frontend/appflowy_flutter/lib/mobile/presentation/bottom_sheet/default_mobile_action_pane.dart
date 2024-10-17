@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -93,7 +94,7 @@ enum MobilePaneActionType {
                     Navigator.of(sheetContext).pop();
                     viewBloc.add(
                       ViewEvent.createView(
-                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                        layout.defaultName,
                         layout,
                         section: spaceType!.toViewSectionPB,
                       ),

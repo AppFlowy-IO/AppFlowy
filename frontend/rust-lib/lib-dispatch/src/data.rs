@@ -2,7 +2,7 @@ use std::fmt::{Debug, Formatter};
 use std::ops;
 
 use bytes::Bytes;
-use validator::ValidationErrors;
+use validator::{Validate, ValidationErrors};
 
 use crate::{
   byte_trait::*,
@@ -28,7 +28,7 @@ impl<T> AFPluginData<T> {
 
 impl<T> AFPluginData<T>
 where
-  T: validator::Validate,
+  T: Validate,
 {
   pub fn try_into_inner(self) -> Result<T, ValidationErrors> {
     self.0.validate()?;

@@ -508,7 +508,7 @@ pub enum InputType {
 #[derive(Default, ProtoBuf, Debug, Validate)]
 pub struct ConvertDataToJsonPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub data: String,
 
   #[pb(index = 2)]
