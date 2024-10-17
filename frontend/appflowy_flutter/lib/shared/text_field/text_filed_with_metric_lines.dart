@@ -9,6 +9,7 @@ class TextFieldWithMetricLines extends StatefulWidget {
     this.style,
     this.decoration,
     this.onLineCountChange,
+    this.enabled = true,
   });
 
   final TextEditingController? controller;
@@ -17,6 +18,7 @@ class TextFieldWithMetricLines extends StatefulWidget {
   final TextStyle? style;
   final InputDecoration? decoration;
   final void Function(int count)? onLineCountChange;
+  final bool enabled;
 
   @override
   State<TextFieldWithMetricLines> createState() =>
@@ -49,6 +51,7 @@ class _TextFieldWithMetricLinesState extends State<TextFieldWithMetricLines> {
   Widget build(BuildContext context) {
     return TextField(
       key: key,
+      enabled: widget.enabled,
       controller: widget.controller,
       focusNode: widget.focusNode,
       maxLines: widget.maxLines,
