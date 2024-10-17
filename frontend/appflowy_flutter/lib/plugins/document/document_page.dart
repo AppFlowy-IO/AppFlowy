@@ -1,6 +1,4 @@
-import 'dart:async';
-
-import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -8,14 +6,11 @@ import 'package:appflowy/plugins/document/application/document_appearance_cubit.
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
-import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/child_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -52,25 +47,16 @@ class _DocumentPageState extends State<DocumentPage>
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
 
-  StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
-
-  bool isUndoRedo = false;
-  bool isPaste = false;
-  bool isDraggingNode = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    EditorNotification.addListener(onEditorNotification);
   }
 
   @override
   void dispose() {
-    EditorNotification.removeListener(onEditorNotification);
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
-    transactionSubscription?.cancel();
     super.dispose();
   }
 
@@ -110,8 +96,6 @@ class _DocumentPageState extends State<DocumentPage>
             widget.onDeleted();
             return const SizedBox.shrink();
           }
-
-          editorState.transactionStream.listen(onEditorTransaction);
 
           return BlocListener<ActionNavigationBloc, ActionNavigationState>(
             listenWhen: (_, curr) => curr.action != null,
@@ -167,11 +151,15 @@ class _DocumentPageState extends State<DocumentPage>
 
     return Provider(
       create: (_) => SharedEditorContext(),
-      child: Column(
-        children: [
-          if (state.isDeleted) buildBanner(context),
-          Expanded(child: child),
-        ],
+      child: EditorTransactionService(
+        viewId: widget.view.id,
+        editorState: state.editorState!,
+        child: Column(
+          children: [
+            if (state.isDeleted) buildBanner(context),
+            Expanded(child: child),
+          ],
+        ),
       ),
     );
   }
@@ -212,33 +200,6 @@ class _DocumentPageState extends State<DocumentPage>
         viewIcon: icon,
       ),
     );
-  }
-
-  void onEditorNotification(EditorNotificationType type) {
-    final editorState = this.editorState;
-    if (editorState == null) {
-      return;
-    }
-
-    if ([EditorNotificationType.undo, EditorNotificationType.redo]
-        .contains(type)) {
-      isUndoRedo = true;
-    } else if (type == EditorNotificationType.paste) {
-      isPaste = true;
-    } else if (type == EditorNotificationType.dragStart) {
-      isDraggingNode = true;
-    } else if (type == EditorNotificationType.dragEnd) {
-      isDraggingNode = false;
-    }
-
-    if (type == EditorNotificationType.undo) {
-      undoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.redo) {
-      redoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.exitEditing &&
-        editorState.selection != null) {
-      editorState.selection = null;
-    }
   }
 
   void onNotificationAction(
@@ -282,176 +243,5 @@ class _DocumentPageState extends State<DocumentPage>
     }
 
     return false;
-  }
-
-  List<Node> collectMatchingNodes(
-    Node node,
-    String type, [
-    List<String> additionalTypes = const [],
-  ]) {
-    final List<Node> matchingNodes = [];
-    if (node.type == type || additionalTypes.contains(node.type)) {
-      matchingNodes.add(node);
-    }
-
-    for (final child in node.children) {
-      matchingNodes.addAll(collectMatchingNodes(child, type, additionalTypes));
-    }
-
-    return matchingNodes;
-  }
-
-  // TODO(Mathias): Move logic to a separate class/Widget to keep the document page clean
-  void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (editorState == null || event.$1 == TransactionTime.before) {
-      return;
-    }
-
-    final transactionHandlers = SharedEditorContext.transactionHandlers;
-    final Map<String, dynamic> added = {
-      for (final handler in transactionHandlers)
-        handler.type: handler.isParagraphSubType ? <MentionBlockData>[] : [],
-    };
-    final Map<String, dynamic> removed = {
-      for (final handler in transactionHandlers)
-        handler.type: handler.isParagraphSubType ? <MentionBlockData>[] : [],
-    };
-
-    for (final op in event.$2.operations) {
-      if (op is InsertOperation) {
-        for (final n in op.nodes) {
-          for (final handler in transactionHandlers) {
-            if (handler.isParagraphSubType) {
-              final nodesWithDelta = collectMatchingNodes(
-                n,
-                ParagraphBlockKeys.type,
-                nodeTypesContainingMentions,
-              );
-              for (final paragraphNode in nodesWithDelta) {
-                final deltas = paragraphNode.attributes['delta'];
-                if (deltas == null || deltas is! List || deltas.isEmpty) {
-                  continue;
-                }
-
-                for (final (index, delta) in deltas.indexed) {
-                  if (delta['attributes'] != null &&
-                      delta['attributes'][handler.type] != null) {
-                    added[handler.type]!.add(
-                      (paragraphNode, delta['attributes'][handler.type], index),
-                    );
-                  }
-                }
-              }
-            } else {
-              added[handler.type]!
-                  .addAll(collectMatchingNodes(n, handler.type));
-            }
-          }
-        }
-      } else if (op is DeleteOperation) {
-        for (final n in op.nodes) {
-          for (final handler in transactionHandlers) {
-            if (handler.isParagraphSubType) {
-              final nodesWithDelta = collectMatchingNodes(
-                n,
-                ParagraphBlockKeys.type,
-                nodeTypesContainingMentions,
-              );
-              for (final paragraphNode in nodesWithDelta) {
-                final List deltas = paragraphNode.attributes['delta'];
-                for (final (index, delta) in deltas.indexed) {
-                  if (delta['attributes'] != null &&
-                      delta['attributes'][handler.type] != null) {
-                    removed[handler.type]!.add(
-                      (paragraphNode, delta['attributes'][handler.type], index),
-                    );
-                  }
-                }
-              }
-            } else {
-              removed[handler.type]!
-                  .addAll(collectMatchingNodes(n, handler.type));
-            }
-          }
-        }
-      } else if (op is UpdateOperation) {
-        final node = editorState!.getNodeAtPath(op.path);
-        if (node == null) {
-          continue;
-        }
-
-        if (op.attributes['delta'] is! List ||
-            op.oldAttributes['delta'] is! List) {
-          continue;
-        }
-
-        final deltaBefore = Delta.fromJson(op.oldAttributes['delta']);
-        final deltaAfter = Delta.fromJson(op.attributes['delta']);
-
-        final diff = deltaBefore.diff(deltaAfter);
-        final inverted = diff.invert(deltaBefore);
-        final del = inverted.whereType<TextInsert>();
-        final add = diff.whereType<TextInsert>();
-
-        for (final handler in transactionHandlers) {
-          if (!handler.isParagraphSubType) {
-            continue;
-          }
-
-          if (add.isNotEmpty) {
-            added[handler.type]!.addAll(
-              add.where((ti) => ti.attributes?[handler.type] != null).map((ti) {
-                final index = deltaAfter.toList().indexOf(ti);
-                return (
-                  node,
-                  ti.attributes![handler.type] as Map<String, dynamic>,
-                  index,
-                );
-              }).toList(),
-            );
-          }
-
-          if (del.isNotEmpty) {
-            removed[handler.type]!.addAll(
-              del.where((ti) => ti.attributes?[handler.type] != null).map((ti) {
-                return (
-                  node,
-                  ti.attributes![handler.type] as Map<String, dynamic>,
-                  -1,
-                );
-              }).toList(),
-            );
-          }
-        }
-      }
-    }
-
-    if (removed.isEmpty && added.isEmpty) {
-      return;
-    }
-
-    for (final handler in transactionHandlers) {
-      final a = added[handler.type] ?? [];
-      final r = removed[handler.type] ?? [];
-
-      if (a.isEmpty && r.isEmpty) {
-        continue;
-      }
-
-      handler.onTransaction(
-        context,
-        editorState!,
-        a,
-        r,
-        isCut: context.read<ClipboardState>().isCut,
-        isUndoRedo: isUndoRedo,
-        isPaste: isPaste,
-        isDraggingNode: isDraggingNode,
-        parentViewId: widget.view.id,
-      );
-    }
-
-    isUndoRedo = false;
-    isPaste = false;
   }
 }

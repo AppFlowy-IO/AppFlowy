@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -61,9 +63,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     // paste as link preview
     if (await _pasteAsLinkPreview(editorState, plainText)) {
       Log.info('Pasted as link preview');
-      if (context != null && context.mounted) {
-        context.read<ClipboardState>().didPaste();
-      }
+      _handleDidPaste(context);
 
       return;
     }
@@ -78,9 +78,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     if (inAppJson != null && inAppJson.isNotEmpty) {
       if (await editorState.pasteInAppJson(inAppJson)) {
         Log.info('Pasted in app json');
-        if (context != null && context.mounted) {
-          context.read<ClipboardState>().didPaste();
-        }
+        _handleDidPaste(context);
 
         return;
       }
@@ -105,9 +103,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
       );
       if (result) {
         Log.info('Pasted image');
-        if (context != null && context.mounted) {
-          context.read<ClipboardState>().didPaste();
-        }
+        _handleDidPaste(context);
 
         return;
       }
@@ -117,9 +113,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
       await editorState.deleteSelectionIfNeeded();
       if (await editorState.pasteHtml(html)) {
         Log.info('Pasted html');
-        if (context != null && context.mounted) {
-          context.read<ClipboardState>().didPaste();
-        }
+        _handleDidPaste(context);
 
         return;
       }
@@ -128,9 +122,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     if (plainText != null && plainText.isNotEmpty) {
       Log.info('Pasted plain text');
       await editorState.pastePlainText(plainText);
-      if (context != null && context.mounted) {
-        context.read<ClipboardState>().didPaste();
-      }
+      _handleDidPaste(context);
 
       return;
     }
@@ -140,6 +132,12 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
 
   return KeyEventResult.handled;
 };
+
+void _handleDidPaste(BuildContext? context) {
+  if (context != null && context.mounted) {
+    context.read<ClipboardState>().didPaste();
+  }
+}
 
 Future<bool> _pasteAsLinkPreview(
   EditorState editorState,

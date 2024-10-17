@@ -10,6 +10,9 @@ const List<String> nodeTypesContainingMentions = [
   BulletedListBlockKeys.type,
   CalloutBlockKeys.type,
   ToggleListBlockKeys.type,
+  HeadingBlockKeys.type,
+  QuoteBlockKeys.type,
+  TableCellBlockKeys.type,
 ];
 
 /// A handler for transactions that involve a Block Component.

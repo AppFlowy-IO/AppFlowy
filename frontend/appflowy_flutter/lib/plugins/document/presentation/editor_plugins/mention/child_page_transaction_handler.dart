@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -120,95 +119,93 @@ class ChildPageTransactionHandler
     }
 
     final viewId = data.$2[MentionBlockKeys.pageId];
-    if (isPaste) {
-      if (isCut) {
-        // Attempt to restore from Trash just in case
-        await TrashService.putback(viewId);
-
-        final view = (await ViewBackendService.getView(viewId)).toNullable();
-        if (view == null) {
-          return Log.error('View not found: $viewId');
-        }
-
-        if (view.parentViewId == parentViewId) {
-          return;
-        }
-
-        await ViewBackendService.moveViewV2(
-          viewId: viewId,
-          newParentId: parentViewId,
-          prevViewId: null,
-        );
-      } else {
-        final view = (await ViewBackendService.getView(viewId)).toNullable();
-        if (view == null) {
-          return Log.error('View not found: $viewId');
-        }
-
-        final duplicatedViewOrFailure = await ViewBackendService.duplicate(
-          view: view,
-          openAfterDuplicate: false,
-          includeChildren: true,
-          syncAfterDuplicate: true,
-          parentViewId: parentViewId,
-        );
-
-        await duplicatedViewOrFailure.fold(
-          (newView) async {
-            final node = data.$1;
-            final deltaAttr = node.attributes['delta'] as List;
-
-            final index = data.$3;
-            final delta = deltaAttr[index];
-            delta['attributes'][MentionBlockKeys.mention] = {
-              MentionBlockKeys.type: MentionType.childPage.name,
-              MentionBlockKeys.pageId: newView.id,
-            };
-            deltaAttr[index] = delta;
-
-            // Replace the mention block with the new view id
-            final transaction = editorState.transaction
-              ..updateNode(
-                node,
-                {'delta': deltaAttr, ...node.attributes},
-              );
-
-            await editorState.apply(
-              transaction,
-              options: const ApplyOptions(recordUndo: false),
-            );
-          },
-          (error) {
-            Log.error(error);
-            if (context.mounted) {
-              showSnapBar(
-                context,
-                LocaleKeys.document_plugins_subPage_errors_failedDuplicatePage
-                    .tr(),
-              );
-            }
-          },
-        );
-      }
-    } else {
-      // Try to restore from trash, and move to parent view
-      await TrashService.putback(viewId);
-
-      final view = pageMemorizer[viewId] ??
-          (await ViewBackendService.getView(viewId)).toNullable();
-      if (view == null) {
-        return Log.error('View not found: $viewId');
-      }
-
-      if (view.parentViewId == parentViewId) {
-        return;
-      }
-
-      await ViewBackendService.moveViewV2(
-        viewId: viewId,
-        newParentId: parentViewId,
-        prevViewId: null,
+    if (isPaste && !isCut) {
+      _handlePasteFromCopy(
+        context,
+        editorState,
+        data.$1,
+        data.$3,
+        viewId,
+        parentViewId,
       );
+    } else {
+      _handlePasteFromCut(viewId, parentViewId);
     }
+  }
+
+  void _handlePasteFromCut(String viewId, String parentViewId) async {
+    // Attempt to restore from Trash just in case
+    await TrashService.putback(viewId);
+
+    final view = (await ViewBackendService.getView(viewId)).toNullable();
+    if (view == null) {
+      return Log.error('View not found: $viewId');
+    }
+
+    if (view.parentViewId == parentViewId) {
+      return;
+    }
+
+    await ViewBackendService.moveViewV2(
+      viewId: viewId,
+      newParentId: parentViewId,
+      prevViewId: null,
+    );
+  }
+
+  void _handlePasteFromCopy(
+    BuildContext context,
+    EditorState editorState,
+    Node node,
+    int index,
+    String viewId,
+    String parentViewId,
+  ) async {
+    final view = (await ViewBackendService.getView(viewId)).toNullable();
+    if (view == null) {
+      return Log.error('View not found: $viewId');
+    }
+
+    final duplicatedViewOrFailure = await ViewBackendService.duplicate(
+      view: view,
+      openAfterDuplicate: false,
+      includeChildren: true,
+      syncAfterDuplicate: true,
+      parentViewId: parentViewId,
+    );
+
+    await duplicatedViewOrFailure.fold(
+      (newView) async {
+        final deltaAttr = node.attributes['delta'] as List;
+
+        final delta = deltaAttr[index];
+        delta['attributes'][MentionBlockKeys.mention] = {
+          MentionBlockKeys.type: MentionType.childPage.name,
+          MentionBlockKeys.pageId: newView.id,
+        };
+        deltaAttr[index] = delta;
+
+        // Replace the mention block with the new view id
+        final transaction = editorState.transaction
+          ..updateNode(
+            node,
+            {'delta': deltaAttr, ...node.attributes},
+          );
+
+        await editorState.apply(
+          transaction,
+          options: const ApplyOptions(recordUndo: false),
+        );
+      },
+      (error) {
+        Log.error(error);
+        if (context.mounted) {
+          showSnapBar(
+            context,
+            LocaleKeys.document_plugins_subPage_errors_failedDuplicatePage.tr(),
+          );
+        }
+      },
+    );
   }
 }
