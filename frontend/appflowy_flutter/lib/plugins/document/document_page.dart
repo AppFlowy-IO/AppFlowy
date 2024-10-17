@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -175,7 +176,7 @@ class _DocumentPageState extends State<DocumentPage>
 
   Widget buildBanner(BuildContext context) {
     return DocumentBanner(
-      viewName: widget.view.name,
+      viewName: widget.view.nameOrDefault,
       onRestore: () =>
           context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
       onDelete: () => context

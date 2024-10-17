@@ -256,10 +256,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                           const HSpace(10),
                           Flexible(
                             child: FlowyText(
-                              view.name.trim().isEmpty
-                                  ? LocaleKeys.menuAppHeader_defaultNewPageName
-                                      .tr()
-                                  : view.name,
+                              view.nameOrDefault,
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
                               lineHeight: textStyle.height,
