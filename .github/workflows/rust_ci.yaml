@@ -31,7 +31,7 @@ jobs:
       - name: Set timezone for action
         uses: szenius/set-timezone@v2.0
         with:
-          timezoneLinux: "US/Pacific"
+          timezoneMacos: "US/Pacific"
 
       - name: Checkout source code
         uses: actions/checkout@v4
