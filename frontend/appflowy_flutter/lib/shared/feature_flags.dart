@@ -38,6 +38,9 @@ enum FeatureFlag {
   // used for space design
   spaceDesign,
 
+  // used for the inline sub-page mention
+  inlineSubPageMention,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -119,6 +122,7 @@ enum FeatureFlag {
         return true;
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
+      case FeatureFlag.inlineSubPageMention:
       case FeatureFlag.unknown:
         return false;
     }
@@ -140,6 +144,8 @@ enum FeatureFlag {
         return 'if it\'s on, plan and billing pages will be available in Settings';
       case FeatureFlag.spaceDesign:
         return 'if it\'s on, the space design feature will be available';
+      case FeatureFlag.inlineSubPageMention:
+        return 'if it\'s on, the inline sub-page mention feature will be available';
       case FeatureFlag.unknown:
         return '';
     }

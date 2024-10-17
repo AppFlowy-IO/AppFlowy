@@ -5,13 +5,16 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/ch
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final _transactionHandlers = <EditorTransactionHandler>[
-  SubPageTransactionHandler(),
-  ChildPageTransactionHandler(),
+  if (FeatureFlag.inlineSubPageMention.isOn) ...[
+    SubPageTransactionHandler(),
+    ChildPageTransactionHandler(),
+  ],
 ];
 
 /// Handles delegating transactions to appropriate handlers.
