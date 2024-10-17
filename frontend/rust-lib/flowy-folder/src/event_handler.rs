@@ -481,7 +481,7 @@ pub(crate) async fn get_publish_namespace_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn list_published_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<RepeatedPublishInfoResponsePB, FlowyError> {
+) -> DataResult<RepeatedPublishInfoViewPB, FlowyError> {
   todo!()
 }
 

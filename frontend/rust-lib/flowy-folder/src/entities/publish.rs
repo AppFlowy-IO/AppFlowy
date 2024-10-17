@@ -1,7 +1,7 @@
 use flowy_derive::ProtoBuf;
 use flowy_folder_pub::entities::PublishInfoResponse;
 
-use super::RepeatedViewIdPB;
+use super::{RepeatedViewIdPB, ViewIconPB, ViewLayoutPB};
 
 #[derive(Default, ProtoBuf)]
 pub struct PublishViewParamsPB {
@@ -19,6 +19,26 @@ pub struct PublishViewParamsPB {
 pub struct UnpublishViewsPayloadPB {
   #[pb(index = 1)]
   pub view_ids: Vec<String>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct PublishInfoViewPB {
+  #[pb(index = 1)]
+  pub view: String,
+  #[pb(index = 2)]
+  pub info: PublishInfoResponsePB,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct FolderViewMinimalPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+  #[pb(index = 2)]
+  pub name: String,
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ViewIconPB>,
+  #[pb(index = 4)]
+  pub layout: ViewLayoutPB,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -48,9 +68,9 @@ impl From<PublishInfoResponse> for PublishInfoResponsePB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct RepeatedPublishInfoResponsePB {
+pub struct RepeatedPublishInfoViewPB {
   #[pb(index = 1)]
-  pub items: Vec<PublishInfoResponsePB>,
+  pub items: Vec<PublishInfoViewPB>,
 }
 
 #[derive(Default, ProtoBuf)]
