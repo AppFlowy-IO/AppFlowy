@@ -138,7 +138,9 @@ impl AppFlowyServer for AppFlowyCloudServer {
           match token_state {
             TokenState::Refresh => match client.get_token() {
               Ok(token) => {
-                let _ = watch_tx.send(UserTokenState::Refresh { token });
+                if let Err(err) = watch_tx.send(UserTokenState::Refresh { token }) {
+                  error!("Failed to send token after token state changed: {}", err);
+                }
               },
               Err(err) => {
                 error!("Failed to get token after token state changed: {}", err);
