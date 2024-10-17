@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 class PluginArgumentKeys {
   static String selection = "selection";
   static String rowId = "row_id";
+  static String blockId = "block_id";
 }
 
 class ViewExtKeys {
@@ -93,11 +94,13 @@ extension ViewExtension on ViewPB {
       case ViewLayoutPB.Document:
         final Selection? initialSelection =
             arguments[PluginArgumentKeys.selection];
+        final String? initialBlockId = arguments[PluginArgumentKeys.blockId];
 
         return DocumentPlugin(
           view: this,
           pluginType: pluginType,
           initialSelection: initialSelection,
+          initialBlockId: initialBlockId,
         );
       case ViewLayoutPB.Chat:
         return AIChatPagePlugin(view: this);

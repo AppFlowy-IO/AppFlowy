@@ -177,8 +177,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       focusManager = AFFocusManager.maybeOf(context);
       focusManager?.loseFocusNotifier.addListener(_loseFocus);
 
-      if (widget.initialSelection != null) {
-        widget.editorState.updateSelectionWithReason(widget.initialSelection);
+      final initialSelection = widget.initialSelection;
+      final path = initialSelection?.start.path;
+      if (initialSelection != null && path != null && path.isNotEmpty) {
+        editorScrollController.itemScrollController.jumpTo(
+          index: path.first,
+          alignment: 0.5,
+        );
+        widget.editorState.updateSelectionWithReason(initialSelection);
       }
 
       widget.editorState.service.keyboardService?.registerInterceptor(

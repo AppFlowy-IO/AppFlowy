@@ -324,6 +324,11 @@ class _OptionButtonState extends State<_OptionButton> {
               ),
             ],
           ),
+          onPointerDown: () {
+            if (widget.editorState.selection != null) {
+              beforeSelection = widget.editorState.selection;
+            }
+          },
           onTap: () {
             if (widget.editorState.selection != null) {
               beforeSelection = widget.editorState.selection;
@@ -369,6 +374,7 @@ class _OptionButtonState extends State<_OptionButton> {
     } else {
       beforeSelection = null;
     }
+
     return result;
   }
 }

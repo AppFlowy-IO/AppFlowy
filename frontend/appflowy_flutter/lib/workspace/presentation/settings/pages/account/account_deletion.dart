@@ -78,10 +78,8 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
               radius: Corners.s8Border,
               hoverColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
               fontColor: Theme.of(context).colorScheme.error,
-              fontHoverColor: Colors.white,
               fontSize: 12,
               isDangerous: true,
-              lineHeight: 18.0 / 12.0,
               onPressed: () {
                 isCheckedNotifier.value = false;
                 textEditingController.clear();
