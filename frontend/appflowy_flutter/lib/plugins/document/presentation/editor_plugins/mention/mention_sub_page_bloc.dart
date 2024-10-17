@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/foundation.dart';
@@ -31,11 +32,20 @@ class MentionSubPageBloc
             _startListeningView();
           }
         },
-        didUpdateViewStatus: (view, isInTrash, isDeleted) {
+        didUpdateViewStatus: (view, isInTrash, isDeleted) async {
+          bool inTrash = isInTrash ?? state.isInTrash;
+          if (isDeleted == null && isInTrash == null) {
+            final trashOrFailure = await TrashService().readTrash();
+            final trash = trashOrFailure.toNullable();
+            if (trash != null) {
+              inTrash = trash.items.any((t) => t.id == pageId);
+            }
+          }
+
           emit(
             state.copyWith(
               view: view,
-              isInTrash: isInTrash ?? state.isInTrash,
+              isInTrash: inTrash,
               isDeleted: isDeleted ?? state.isDeleted,
             ),
           );

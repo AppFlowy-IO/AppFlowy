@@ -182,10 +182,21 @@ class ChildPageTransactionHandler
           },
         };
 
+        // The index is the index of the delta, to get the index of the mention character
+        // in all the text, we need to calculate it based on the deltas before the current delta.
+        int mentionIndex = 0;
+        for (final (i, delta) in node.delta!.indexed) {
+          if (i >= index) {
+            break;
+          }
+
+          mentionIndex += delta.length;
+        }
+
         final transaction = editorState.transaction;
         transaction.formatText(
           node,
-          index,
+          mentionIndex,
           MentionBlockKeys.mentionChar.length,
           newMentionAttributes,
         );

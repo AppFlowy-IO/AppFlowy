@@ -341,6 +341,9 @@ class _MentionPageBlockContent extends StatelessWidget {
         if (showTrashHint) ...[
           FlowyText(
             LocaleKeys.document_mention_trashHint.tr(),
+            fontSize: textStyle?.fontSize,
+            fontWeight: textStyle?.fontWeight,
+            lineHeight: textStyle?.height,
             color: Theme.of(context).disabledColor,
             decoration: TextDecoration.underline,
             decorationColor: AFThemeExtension.of(context).textColor,
