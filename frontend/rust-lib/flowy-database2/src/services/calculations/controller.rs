@@ -9,7 +9,7 @@ use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;
-use tracing::instrument;
+use tracing::{error, instrument, trace};
 
 use crate::entities::{
   CalculationChangesetNotificationPB, CalculationPB, CalculationType, FieldType,
@@ -101,6 +101,10 @@ impl CalculationsController {
   )]
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = CalculationEvent::from_str(predicate).unwrap();
+    trace!(
+      "[Database Calculate] Processing calculation event: {:?}",
+      event_type
+    );
     match event_type {
       CalculationEvent::RowChanged(row) => self.handle_row_changed(&row).await,
       CalculationEvent::CellUpdated(field_id) => self.handle_cell_changed(field_id).await,
@@ -226,11 +230,14 @@ impl CalculationsController {
             vec![CalculationPB::from(&update)],
           );
 
-          let _ = self
+          if let Err(err) = self
             .notifier
             .send(DatabaseViewChanged::CalculationValueNotification(
               notification,
-            ));
+            ))
+          {
+            error!("Failed to send calculation notification: {:?}", err);
+          }
         }
       }
     }
@@ -277,11 +284,14 @@ impl CalculationsController {
 
     if !updates.is_empty() {
       let notification = CalculationChangesetNotificationPB::from_update(&self.view_id, updates);
-      let _ = self
+      if let Err(err) = self
         .notifier
         .send(DatabaseViewChanged::CalculationValueNotification(
           notification,
-        ));
+        ))
+      {
+        error!("Failed to send calculation notification: {:?}", err);
+      }
     }
   }
 
