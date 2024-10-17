@@ -105,6 +105,7 @@ enum FeatureFlag {
       // release this feature in version 0.5.4
       FeatureFlag.syncDatabase,
       FeatureFlag.syncDocument,
+      FeatureFlag.inlineSubPageMention,
     ].contains(this)) {
       return true;
     }
@@ -119,10 +120,10 @@ enum FeatureFlag {
       case FeatureFlag.syncDocument:
       case FeatureFlag.syncDatabase:
       case FeatureFlag.spaceDesign:
+      case FeatureFlag.inlineSubPageMention:
         return true;
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
-      case FeatureFlag.inlineSubPageMention:
       case FeatureFlag.unknown:
         return false;
     }
