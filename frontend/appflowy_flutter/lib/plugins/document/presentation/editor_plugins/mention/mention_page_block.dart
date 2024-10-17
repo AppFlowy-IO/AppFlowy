@@ -13,7 +13,18 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
+    show
+        Delta,
+        EditorState,
+        Node,
+        TextInsert,
+        TextTransaction,
+        paragraphNode,
+        NodeIterator,
+        Path,
+        Selection,
+        Position,
+        SelectionType;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -117,8 +128,22 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   Future<void> handleTap(ViewPB view) async {
+    final blockId = widget.blockId;
+    final currentViewId = context.read<DocumentBloc>().documentId;
+    if (currentViewId == widget.pageId && blockId != null) {
+      // same page
+      final path = _findNodePathByBlockId(editorState, blockId);
+      if (path != null) {
+        editorState.scrollService?.jumpTo(path.first);
+        await editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: path)),
+          customSelectionType: SelectionType.block,
+        );
+      }
+      return;
+    }
+
     if (UniversalPlatform.isMobile) {
-      final currentViewId = context.read<DocumentBloc>().documentId;
       if (mounted && currentViewId != widget.pageId) {
         await context.pushView(view);
       }
@@ -127,7 +152,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         objectId: view.id,
         arguments: {
           ActionArgumentKeys.view: view,
-          ActionArgumentKeys.blockId: widget.blockId,
+          ActionArgumentKeys.blockId: blockId,
         },
       );
       getIt<ActionNavigationBloc>().add(
@@ -197,6 +222,27 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         editorState.selection,
       );
     });
+  }
+
+  Path? _findNodePathByBlockId(EditorState editorState, String blockId) {
+    final document = editorState.document;
+    final startNode = document.root.children.firstOrNull;
+    if (startNode == null) {
+      return null;
+    }
+
+    final nodeIterator = NodeIterator(
+      document: document,
+      startNode: startNode,
+    );
+    while (nodeIterator.moveNext()) {
+      final node = nodeIterator.current;
+      if (node.id == blockId) {
+        return node.path;
+      }
+    }
+
+    return null;
   }
 }
 
