@@ -72,7 +72,7 @@ class DatabaseGroupList extends StatelessWidget {
                       Toggle(
                         value: !state.layoutSettings.hideUngroupedColumn,
                         onChanged: (value) =>
-                            _updateLayoutSettings(state.layoutSettings, value),
+                            _updateLayoutSettings(state.layoutSettings, !value),
                         padding: EdgeInsets.zero,
                       ),
                     ],

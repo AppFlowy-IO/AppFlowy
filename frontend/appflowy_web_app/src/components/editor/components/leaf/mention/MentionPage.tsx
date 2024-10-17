@@ -8,19 +8,19 @@ import { useTranslation } from 'react-i18next';
 function MentionPage ({ pageId }: { pageId: string }) {
   const context = useEditorContext();
   const { navigateToView, loadViewMeta } = context;
-  const [unPublished, setUnPublished] = useState(false);
+  const [noAccess, setNoAccess] = useState(false);
   const [meta, setMeta] = useState<View | null>(null);
 
   useEffect(() => {
     void (async () => {
       if (loadViewMeta) {
-        setUnPublished(false);
+        setNoAccess(false);
         try {
           const meta = await loadViewMeta(pageId, setMeta);
 
           setMeta(meta);
         } catch (e) {
-          setUnPublished(true);
+          setNoAccess(true);
         }
       }
     })();
@@ -41,16 +41,19 @@ function MentionPage ({ pageId }: { pageId: string }) {
       onClick={() => {
         void navigateToView?.(pageId);
       }}
-      className={`mention-inline px-1 underline`}
+      className={`mention-inline cursor-pointer px-1 underline`}
       contentEditable={false}
       data-mention-id={pageId}
     >
-      {unPublished ? (
+      {noAccess ? (
         <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
       ) : (
         <>
           <span className={`mention-icon ${isFlag ? 'icon' : ''}`}>
-            {icon?.value || <ViewIcon layout={meta?.layout || ViewLayout.Document} size={'small'} />}
+            {icon?.value || <ViewIcon
+              layout={meta?.layout || ViewLayout.Document}
+              size={'unset'}
+            />}
           </span>
 
           <span className={'mention-content'}>{meta?.name || t('menuAppHeader.defaultNewPageName')}</span>

@@ -6,7 +6,10 @@ import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
 import { ReactComponent as GridSvg } from '@/assets/grid.svg';
 import { ReactComponent as ChatSvg } from '@/assets/chat_ai.svg';
 
-export function ViewIcon ({ layout, size }: { layout: ViewLayout; size: number | 'small' | 'medium' | 'large' }) {
+export function ViewIcon ({ layout, size }: {
+  layout: ViewLayout;
+  size: number | 'small' | 'medium' | 'large' | 'unset'
+}) {
   const iconSize = useMemo(() => {
     if (size === 'small') {
       return 'h-4 w-4';
@@ -18,6 +21,10 @@ export function ViewIcon ({ layout, size }: { layout: ViewLayout; size: number |
 
     if (size === 'large') {
       return 'h-8 w-8';
+    }
+
+    if (size === 'unset') {
+      return '';
     }
 
     return `h-${size} w-${size}`;

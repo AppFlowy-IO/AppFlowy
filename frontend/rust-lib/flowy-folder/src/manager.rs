@@ -399,7 +399,7 @@ impl FolderManager {
     // Set the parent view ID for the child views.
     if let Some(parent_view_id) = parent_view_id {
       // If a valid parent_view_id is provided, set it for each child view.
-      if folder.get_view(&parent_view_id).is_some() {
+      if folder.get_view(parent_view_id).is_some() {
         info!(
           "[AppFlowyData]: Attach parent-child views with the latest view: {:?}",
           parent_view_id
@@ -427,7 +427,7 @@ impl FolderManager {
 
   #[instrument(level = "info", skip_all, err)]
   fn insert_into_latest_view(
-    views: &mut Vec<ParentChildViews>,
+    views: &mut [ParentChildViews],
     folder: &mut RwLockWriteGuard<Folder>,
   ) -> Result<(), FlowyError> {
     let workspace_id = folder

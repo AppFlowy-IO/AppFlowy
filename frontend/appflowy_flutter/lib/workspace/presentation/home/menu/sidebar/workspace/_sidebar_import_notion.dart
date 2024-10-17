@@ -15,7 +15,7 @@ class NotionImporter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 40, maxHeight: 200),
+      constraints: const BoxConstraints(minHeight: 30, maxHeight: 200),
       child: FutureBuilder(
         future: _uploadFile(),
         builder: (context, snapshots) {
@@ -23,11 +23,15 @@ class NotionImporter extends StatelessWidget {
             return const _Uploading();
           }
 
-          if (snapshots.hasError) {
-            return _UploadError(error: snapshots.error as FlowyError);
+          final result = snapshots.data;
+          if (result == null) {
+            return const _UploadSuccess();
+          } else {
+            return result.fold(
+              (_) => const _UploadSuccess(),
+              (err) => _UploadError(error: err),
+            );
           }
-
-          return const _UploadSuccess();
         },
       ),
     );
@@ -85,6 +89,6 @@ class _UploadError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return FlowyText(error.msg);
   }
 }

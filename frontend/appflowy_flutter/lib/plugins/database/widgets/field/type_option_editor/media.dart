@@ -41,7 +41,7 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
           value: typeOption.hideFileNames,
           onChanged: (value) {
             onTypeOptionUpdated(
-              _toggleHideFiles(typeOption, !value).writeToBuffer(),
+              _toggleHideFiles(typeOption, value).writeToBuffer(),
             );
           },
           padding: EdgeInsets.zero,

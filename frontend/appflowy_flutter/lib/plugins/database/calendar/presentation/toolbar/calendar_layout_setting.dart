@@ -335,7 +335,7 @@ Widget _toggleItem({
           const Spacer(),
           Toggle(
             value: value,
-            onChanged: (value) => onToggle(!value),
+            onChanged: (value) => onToggle(value),
             padding: EdgeInsets.zero,
           ),
         ],

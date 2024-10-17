@@ -28,6 +28,7 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
+import { calculateMd5 } from '@/utils/md5';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 
@@ -1182,6 +1183,7 @@ export async function importFile (file: File, onProgress: (progress: number) => 
   const fileSize = file.size;
 
   const mimeType = file.type || 'application/octet-stream';
+  const md5Base64 = await calculateMd5(file);
 
   const validZipTypes = [
     'application/zip',
@@ -1202,6 +1204,7 @@ export async function importFile (file: File, onProgress: (progress: number) => 
     headers: {
       'Content-Type': 'multipart/form-data',
       'X-Content-Length': fileSize.toString(),
+      'X-Content-MD5': md5Base64,
     },
     onUploadProgress: (progressEvent) => {
       const { progress = 0 } = progressEvent;

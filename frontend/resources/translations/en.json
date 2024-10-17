@@ -75,6 +75,7 @@
     "defaultName": "My Workspace",
     "create": "Create workspace",
     "importFromNotion": "Import From Notion",
+    "learnMore": "Learn more",
     "reset": "Reset workspace",
     "renameWorkspace": "Rename workspace",
     "workspaceNameCannotBeEmpty": "Workspace name cannot be empty",
