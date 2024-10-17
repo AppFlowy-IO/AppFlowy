@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -58,46 +59,50 @@ class _OptionButtonState extends State<OptionButton> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: widget.isDragging,
-      builder: (context, isDragging, child) {
-        return BlockActionButton(
-          svg: FlowySvgs.drag_element_s,
-          showTooltip: !isDragging,
-          richMessage: TextSpan(
-            children: [
-              TextSpan(
-                text: LocaleKeys.document_plugins_optionAction_drag.tr(),
-                style: context.tooltipTextStyle(),
-              ),
-              TextSpan(
-                text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
-                style: context.tooltipTextStyle(),
-              ),
-              const TextSpan(text: '\n'),
-              TextSpan(
-                text: LocaleKeys.document_plugins_optionAction_click.tr(),
-                style: context.tooltipTextStyle(),
-              ),
-              TextSpan(
-                text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
-                style: context.tooltipTextStyle(),
-              ),
-            ],
-          ),
-          onTap: () {
-            final selection = widget.editorState.selection;
-            if (selection != null) {
-              beforeSelection = selection.normalized;
-            }
+    return Container(
+      color: Colors.red,
+      child: ValueListenableBuilder(
+        valueListenable: widget.isDragging,
+        builder: (context, isDragging, child) {
+          return BlockActionButton(
+            svg: FlowySvgs.drag_element_s,
+            showTooltip: !isDragging,
+            richMessage: TextSpan(
+              children: [
+                TextSpan(
+                  text: LocaleKeys.document_plugins_optionAction_drag.tr(),
+                  style: context.tooltipTextStyle(),
+                ),
+                TextSpan(
+                  text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
+                  style: context.tooltipTextStyle(),
+                ),
+                const TextSpan(text: '\n'),
+                TextSpan(
+                  text: LocaleKeys.document_plugins_optionAction_click.tr(),
+                  style: context.tooltipTextStyle(),
+                ),
+                TextSpan(
+                  text:
+                      LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
+                  style: context.tooltipTextStyle(),
+                ),
+              ],
+            ),
+            onTap: () {
+              final selection = widget.editorState.selection;
+              if (selection != null) {
+                beforeSelection = selection.normalized;
+              }
 
-            widget.controller.show();
+              widget.controller.show();
 
-            // update selection
-            _updateBlockSelection();
-          },
-        );
-      },
+              // update selection
+              _updateBlockSelection();
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -106,6 +111,9 @@ class _OptionButtonState extends State<OptionButton> {
     final path = widget.blockComponentContext.node.path;
     final selection = Selection.collapsed(
       Position(path: path),
+    );
+    Log.info(
+      'update block selection, beforeSelection: $beforeSelection, path: $path',
     );
     // if the previous selection is null or the start path is not equal to the current block path,
     // then update the selection with the current block path
