@@ -482,7 +482,13 @@ pub(crate) async fn get_publish_namespace_handler(
 pub(crate) async fn list_published_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedPublishInfoViewPB, FlowyError> {
-  todo!()
+  let folder = upgrade_folder(folder)?;
+  let published_views = folder.list_published_views().await?;
+  let items: Vec<PublishInfoViewPB> = published_views
+    .into_iter()
+    .map(|view| view.into())
+    .collect();
+  data_result_ok(RepeatedPublishInfoViewPB { items })
 }
 
 #[tracing::instrument(level = "debug", skip(folder))]

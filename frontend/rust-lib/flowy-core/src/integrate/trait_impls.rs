@@ -2,7 +2,8 @@ use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::search_dto::SearchDocumentResponseItem;
-use client_api::entity::ChatMessageType;
+use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::{ChatMessageType, PublishInfo};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
@@ -34,7 +35,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
+use flowy_folder_pub::entities::PublishPayload;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
@@ -323,7 +324,7 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, Error> {
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, Error> {
     let server = self.get_server()?;
     server.folder_service().get_publish_info(view_id).await
   }
@@ -345,6 +346,15 @@ impl FolderCloudService for ServerProvider {
     server
       .folder_service()
       .get_publish_namespace(workspace_id)
+      .await
+  }
+
+  /// List all published views of the current workspace.
+  async fn list_published_views(&self, workspace_id: &str) -> Result<Vec<PublishInfoView>, Error> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .list_published_views(workspace_id)
       .await
   }
 
