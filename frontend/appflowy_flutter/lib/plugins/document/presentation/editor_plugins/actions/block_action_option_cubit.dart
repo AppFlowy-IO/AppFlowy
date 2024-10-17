@@ -252,6 +252,10 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         );
         insertedNode.add(afterNode);
         insertedNode.addAll(node.children.map((e) => e.copyWith()));
+      } else if (!EditorOptionActionType.turnInto.supportTypes
+          .contains(node.type)) {
+        afterNode = node.copyWith();
+        insertedNode.add(afterNode);
       } else {
         insertedNode.add(afterNode);
       }
