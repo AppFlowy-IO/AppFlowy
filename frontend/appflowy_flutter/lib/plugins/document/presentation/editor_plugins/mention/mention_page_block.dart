@@ -192,6 +192,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               showTrashHint: state.isInTrash,
               textStyle: widget.textStyle,
               handleTap: () => _handleTap(context, view),
+              isChildPage: true,
               handleDoubleTap: () => _handleDoubleTap(
                 context,
                 widget.editorState,
@@ -206,6 +207,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               showTrashHint: state.isInTrash,
               content: null,
               textStyle: widget.textStyle,
+              isChildPage: true,
               handleTap: () => _handleTap(context, view),
             );
           }
@@ -297,12 +299,14 @@ class _MentionPageBlockContent extends StatelessWidget {
     required this.textStyle,
     this.content,
     this.showTrashHint = false,
+    this.isChildPage = false,
   });
 
   final ViewPB view;
   final TextStyle? textStyle;
   final String? content;
   final bool showTrashHint;
+  final bool isChildPage;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +327,7 @@ class _MentionPageBlockContent extends StatelessWidget {
                   optimizeEmojiAlign: true,
                 )
               : FlowySvg(
-                  view.layout.icon,
+                  view.layout.mentionIcon(isChildPage: isChildPage),
                   size: Size.square(iconSize + 2.0),
                 ),
         ],
@@ -449,6 +453,7 @@ class _MobileMentionPageBlock extends StatelessWidget {
     required this.handleTap,
     required this.handleDoubleTap,
     this.showTrashHint = false,
+    this.isChildPage = false,
   });
 
   final TextStyle? textStyle;
@@ -456,6 +461,7 @@ class _MobileMentionPageBlock extends StatelessWidget {
   final VoidCallback handleTap;
   final VoidCallback handleDoubleTap;
   final bool showTrashHint;
+  final bool isChildPage;
 
   @override
   Widget build(BuildContext context) {
@@ -467,6 +473,7 @@ class _MobileMentionPageBlock extends StatelessWidget {
         view: view,
         textStyle: textStyle,
         showTrashHint: showTrashHint,
+        isChildPage: isChildPage,
       ),
     );
   }
@@ -479,6 +486,7 @@ class _DesktopMentionPageBlock extends StatelessWidget {
     required this.handleTap,
     required this.content,
     this.showTrashHint = false,
+    this.isChildPage = false,
   });
 
   final TextStyle? textStyle;
@@ -486,6 +494,7 @@ class _DesktopMentionPageBlock extends StatelessWidget {
   final String? content;
   final VoidCallback handleTap;
   final bool showTrashHint;
+  final bool isChildPage;
 
   @override
   Widget build(BuildContext context) {
@@ -501,6 +510,7 @@ class _DesktopMentionPageBlock extends StatelessWidget {
             content: content,
             textStyle: textStyle,
             showTrashHint: showTrashHint,
+            isChildPage: isChildPage,
           ),
         ),
       ),
