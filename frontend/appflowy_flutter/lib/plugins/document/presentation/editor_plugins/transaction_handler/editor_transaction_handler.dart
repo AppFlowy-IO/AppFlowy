@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -9,6 +9,7 @@ const List<String> nodeTypesContainingMentions = [
   TodoListBlockKeys.type,
   BulletedListBlockKeys.type,
   CalloutBlockKeys.type,
+  ToggleListBlockKeys.type,
 ];
 
 /// A handler for transactions that involve a Block Component.
@@ -43,18 +44,4 @@ abstract class EditorTransactionHandler<T> {
     bool isDraggingNode = false,
     String? parentViewId,
   });
-
-  void onUndo(
-    BuildContext context,
-    EditorState editorState,
-    List<T> before,
-    List<T> after,
-  );
-
-  void onRedo(
-    BuildContext context,
-    EditorState editorState,
-    List<T> before,
-    List<T> after,
-  );
 }

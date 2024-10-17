@@ -303,7 +303,7 @@ class _DocumentPageState extends State<DocumentPage>
 
   // TODO(Mathias): Move logic to a separate class/Widget to keep the document page clean
   void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (editorState == null || event.$1 == TransactionTime.after) {
+    if (editorState == null || event.$1 == TransactionTime.before) {
       return;
     }
 
@@ -449,9 +449,9 @@ class _DocumentPageState extends State<DocumentPage>
         isDraggingNode: isDraggingNode,
         parentViewId: widget.view.id,
       );
-
-      isUndoRedo = false;
-      isPaste = false;
     }
+
+    isUndoRedo = false;
+    isPaste = false;
   }
 }

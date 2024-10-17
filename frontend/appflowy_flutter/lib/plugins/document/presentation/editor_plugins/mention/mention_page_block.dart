@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_sub_page_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -167,6 +168,8 @@ class MentionSubPageBlock extends StatefulWidget {
 }
 
 class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
+  late bool isHandlingPaste = context.read<ClipboardState>().isHandlingPaste;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -175,7 +178,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
       child: BlocBuilder<MentionSubPageBloc, MentionSubPageState>(
         builder: (context, state) {
           final view = state.view;
-          if (state.isLoading) {
+          if (state.isLoading || isHandlingPaste) {
             return const SizedBox.shrink();
           }
 

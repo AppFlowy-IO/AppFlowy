@@ -208,6 +208,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
             _setSystemOverlayStyle(state);
             return Provider(
               create: (_) => ClipboardState(),
+              dispose: (_, state) => state.dispose(),
               child: ToastificationWrapper(
                 child: MaterialApp.router(
                   builder: (context, child) => MediaQuery(

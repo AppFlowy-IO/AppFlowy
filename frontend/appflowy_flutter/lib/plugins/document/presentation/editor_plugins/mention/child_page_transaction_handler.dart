@@ -1,3 +1,4 @@
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:provider/provider.dart';
 
 /// The data used to handle transactions for mentions.
 ///
@@ -19,18 +21,12 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 ///
 typedef MentionBlockData = (Node, Map<String, dynamic>, int);
 
+const _pasteIdentifier = 'child_page_transaction';
+
 class ChildPageTransactionHandler
     extends EditorTransactionHandler<MentionBlockData> {
   ChildPageTransactionHandler()
       : super(type: MentionBlockKeys.mention, isParagraphSubType: true);
-
-  @override
-  void onRedo(
-    BuildContext context,
-    EditorState editorState,
-    List<MentionBlockData> before,
-    List<MentionBlockData> after,
-  ) {}
 
   @override
   Future<void> onTransaction(
@@ -61,6 +57,10 @@ class ChildPageTransactionHandler
     }
 
     if (isPaste || isUndoRedo) {
+      if (context.mounted) {
+        context.read<ClipboardState>().startHandlingPaste(_pasteIdentifier);
+      }
+
       for (final mention in added) {
         if (!context.mounted) {
           return;
@@ -79,16 +79,12 @@ class ChildPageTransactionHandler
           isCut,
         );
       }
+
+      if (context.mounted) {
+        context.read<ClipboardState>().endHandlingPaste(_pasteIdentifier);
+      }
     }
   }
-
-  @override
-  void onUndo(
-    BuildContext context,
-    EditorState editorState,
-    List<MentionBlockData> before,
-    List<MentionBlockData> after,
-  ) {}
 
   Future<void> _handleDeletion(
     BuildContext context,
@@ -173,17 +169,13 @@ class ChildPageTransactionHandler
             // Replace the mention block with the new view id
             final transaction = editorState.transaction
               ..updateNode(
-                node.copyWith(),
-                {
-                  'delta': deltaAttr,
-                  ...node.attributes,
-                },
+                node,
+                {'delta': deltaAttr, ...node.attributes},
               );
 
             await editorState.apply(
               transaction,
               options: const ApplyOptions(recordUndo: false),
-              skipHistoryDebounce: true,
             );
           },
           (error) {

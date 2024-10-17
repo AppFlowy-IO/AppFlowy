@@ -17,46 +17,6 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
   final List<String> _beingCreated = [];
 
   @override
-  void onRedo(
-    BuildContext context,
-    EditorState editorState,
-    List<Node> before,
-    List<Node> after,
-  ) {
-    _handleUndoRedo(context, editorState, before, after);
-  }
-
-  @override
-  void onUndo(
-    BuildContext context,
-    EditorState editorState,
-    List<Node> before,
-    List<Node> after,
-  ) {
-    _handleUndoRedo(context, editorState, before, after);
-  }
-
-  void _handleUndoRedo(
-    BuildContext context,
-    EditorState editorState,
-    List<Node> before,
-    List<Node> after,
-  ) {
-    final additions = after.where((e) => !before.contains(e)).toList();
-    final removals = before.where((e) => !after.contains(e)).toList();
-
-    // Removals goes to trash
-    for (final node in removals) {
-      _subPageDeleted(context, node);
-    }
-
-    // Additions are moved to this view
-    for (final node in additions) {
-      _subPageAdded(context, editorState, node);
-    }
-  }
-
-  @override
   Future<void> onTransaction(
     BuildContext context,
     EditorState editorState,
