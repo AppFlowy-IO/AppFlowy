@@ -42,6 +42,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../desktop/board/board_hide_groups_test.dart';
 import 'emoji.dart';
 import 'util.dart';
 
@@ -199,8 +200,11 @@ extension CommonOperations on WidgetTester {
   ///
   /// Must call [hoverOnPageName] first.
   Future<void> tapPageOptionButton() async {
-    final optionButton = find.byType(ViewMoreActionButton);
-    await tapButton(optionButton);
+    final optionButton = find.descendant(
+      of: find.byType(ViewMoreActionPopover),
+      matching: find.byFlowySvg(FlowySvgs.workspace_three_dots_s),
+    );
+    await tapButton(optionButton, warnIfMissed: true);
   }
 
   /// Tap the delete page button.

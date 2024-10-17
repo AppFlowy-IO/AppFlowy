@@ -9,12 +9,24 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mo
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
+    show
+        Delta,
+        EditorState,
+        Node,
+        TextInsert,
+        TextTransaction,
+        paragraphNode,
+        NodeIterator,
+        Path,
+        Selection,
+        Position,
+        SelectionType;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -93,7 +105,12 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
             return _MobileMentionPageBlock(
               view: view,
               textStyle: widget.textStyle,
-              handleTap: () => _handleTap(context, view),
+              handleTap: () => _handleTap(
+                context,
+                widget.editorState,
+                view,
+                blockId: widget.blockId,
+              ),
               handleDoubleTap: () => _handleDoubleTap(
                 context,
                 widget.editorState,
@@ -107,7 +124,12 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
               view: view,
               content: state.blockContent,
               textStyle: widget.textStyle,
-              handleTap: () => _handleTap(context, view),
+              handleTap: () => _handleTap(
+                context,
+                widget.editorState,
+                view,
+                blockId: widget.blockId,
+              ),
             );
           }
         },
@@ -199,7 +221,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               view: view,
               showTrashHint: state.isInTrash,
               textStyle: widget.textStyle,
-              handleTap: () => _handleTap(context, view),
+              handleTap: () => _handleTap(context, widget.editorState, view),
               isChildPage: true,
               handleDoubleTap: () => _handleDoubleTap(
                 context,
@@ -216,7 +238,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               content: null,
               textStyle: widget.textStyle,
               isChildPage: true,
-              handleTap: () => _handleTap(context, view),
+              handleTap: () => _handleTap(context, widget.editorState, view),
             );
           }
         },
@@ -271,12 +293,63 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
   }
 }
 
-Future<void> _handleTap(BuildContext context, ViewPB view) async {
-  if (UniversalPlatform.isMobile && context.mounted) {
-    await context.pushView(view);
+Path? _findNodePathByBlockId(EditorState editorState, String blockId) {
+  final document = editorState.document;
+  final startNode = document.root.children.firstOrNull;
+  if (startNode == null) {
+    return null;
+  }
+
+  final nodeIterator = NodeIterator(
+    document: document,
+    startNode: startNode,
+  );
+  while (nodeIterator.moveNext()) {
+    final node = nodeIterator.current;
+    if (node.id == blockId) {
+      return node.path;
+    }
+  }
+
+  return null;
+}
+
+Future<void> _handleTap(
+  BuildContext context,
+  EditorState editorState,
+  ViewPB view, {
+  String? blockId,
+}) async {
+  final currentViewId = context.read<DocumentBloc>().documentId;
+  if (currentViewId == view.id && blockId != null) {
+    // same page
+    final path = _findNodePathByBlockId(editorState, blockId);
+    if (path != null) {
+      editorState.scrollService?.jumpTo(path.first);
+      await editorState.updateSelectionWithReason(
+        Selection.collapsed(Position(path: path)),
+        customSelectionType: SelectionType.block,
+      );
+    }
+    return;
+  }
+
+  if (UniversalPlatform.isMobile) {
+    if (context.mounted && currentViewId != view.id) {
+      await context.pushView(view);
+    }
   } else {
-    getIt<TabsBloc>().add(
-      TabsEvent.openPlugin(plugin: view.plugin(), view: view),
+    final action = NavigationAction(
+      objectId: view.id,
+      arguments: {
+        ActionArgumentKeys.view: view,
+        ActionArgumentKeys.blockId: blockId,
+      },
+    );
+    getIt<ActionNavigationBloc>().add(
+      ActionNavigationEvent.performAction(
+        action: action,
+      ),
     );
   }
 }
