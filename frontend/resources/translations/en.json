@@ -2085,7 +2085,8 @@
     "reminder": {
       "groupTitle": "Reminder",
       "shortKeyword": "remind"
-    }
+    },
+    "createPage": "Create \"{}\" sub-page"
   },
   "datePicker": {
     "dateTimeFormatTooltip": "Change the date and time format in settings",
