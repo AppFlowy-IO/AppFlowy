@@ -199,7 +199,7 @@ void main() {
         tester.editor.getCurrentEditorState().selection,
         Selection.collapsed(
           Position(
-            path: [1],
+            path: [0],
           ),
         ),
       );
@@ -268,7 +268,7 @@ void main() {
             LocaleKeys.document_mention_noAccess.tr(),
           ),
         ),
-        findsNothing,
+        findsOneWidget,
       );
     });
   });

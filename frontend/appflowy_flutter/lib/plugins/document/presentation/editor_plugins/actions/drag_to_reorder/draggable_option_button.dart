@@ -374,7 +374,7 @@ class _OptionButtonState extends State<_OptionButton> {
     } else {
       beforeSelection = null;
     }
-    debugPrint('isTapInBounds: $result, ${widget.editorState.selection}');
+
     return result;
   }
 }
