@@ -17,6 +17,7 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
+      - ".github/workflows/rust_ci.yaml"
 
 env:
   CARGO_TERM_COLOR: always
