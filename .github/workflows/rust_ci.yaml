@@ -32,7 +32,7 @@ jobs:
       - name: Set timezone for action
         uses: szenius/set-timezone@v2.0
         with:
-          timezoneMacos: "US/Pacific"
+          timezoneMacos: "America/Los_Angeles"
 
       - name: Checkout source code
         uses: actions/checkout@v4
