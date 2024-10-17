@@ -1,15 +1,14 @@
-import 'package:appflowy/shared/clipboard_state.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 /// The data used to handle transactions for mentions.
@@ -176,22 +175,20 @@ class ChildPageTransactionHandler
 
     await duplicatedViewOrFailure.fold(
       (newView) async {
-        final deltaAttr = node.attributes['delta'] as List;
-
-        final delta = deltaAttr[index];
-        delta['attributes'][MentionBlockKeys.mention] = {
-          MentionBlockKeys.type: MentionType.childPage.name,
-          MentionBlockKeys.pageId: newView.id,
+        final newMentionAttributes = {
+          MentionBlockKeys.mention: {
+            MentionBlockKeys.type: MentionType.childPage.name,
+            MentionBlockKeys.pageId: newView.id,
+          },
         };
-        deltaAttr[index] = delta;
 
-        // Replace the mention block with the new view id
-        final transaction = editorState.transaction
-          ..updateNode(
-            node,
-            {'delta': deltaAttr, ...node.attributes},
-          );
-
+        final transaction = editorState.transaction;
+        transaction.formatText(
+          node,
+          index,
+          MentionBlockKeys.mentionChar.length,
+          newMentionAttributes,
+        );
         await editorState.apply(
           transaction,
           options: const ApplyOptions(recordUndo: false),
