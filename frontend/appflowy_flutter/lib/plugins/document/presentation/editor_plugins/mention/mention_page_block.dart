@@ -175,7 +175,15 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
     return BlocProvider(
       create: (_) => MentionSubPageBloc(pageId: widget.pageId)
         ..add(const MentionSubPageEvent.initial()),
-      child: BlocBuilder<MentionSubPageBloc, MentionSubPageState>(
+      child: BlocConsumer<MentionSubPageBloc, MentionSubPageState>(
+        listener: (context, state) {
+          if (state.view != null) {
+            final currentViewId = context.read<DocumentBloc>().documentId;
+            if (state.view!.parentViewId != currentViewId) {
+              turnIntoPageRef();
+            }
+          }
+        },
         builder: (context, state) {
           final view = state.view;
           if (state.isLoading || isHandlingPaste) {
@@ -243,6 +251,23 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
       (_) => widget.editorState
           .updateSelectionWithReason(widget.editorState.selection),
     );
+  }
+
+  void turnIntoPageRef() {
+    final transaction = widget.editorState.transaction
+      ..formatText(
+        widget.node,
+        widget.index,
+        MentionBlockKeys.mentionChar.length,
+        {
+          MentionBlockKeys.mention: {
+            MentionBlockKeys.type: MentionType.page.name,
+            MentionBlockKeys.pageId: widget.pageId,
+          },
+        },
+      );
+
+    widget.editorState.apply(transaction, withUpdateSelection: false);
   }
 }
 
