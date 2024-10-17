@@ -36,6 +36,7 @@
     "loginButtonText": "Giriş Yap",
     "loginStartWithAnonymous": "Anonim oturumla devam et",
     "continueAnonymousUser": "Anonim oturumla devam et",
+    "anonymous": "Anonim",
     "buttonText": "Giriş Yap",
     "signingInText": "Giriş yapılıyor...",
     "forgotPassword": "Parolanızı mı unuttunuz?",
@@ -50,6 +51,7 @@
     "signInWithGoogle": "Google ile Giriş Yap",
     "signInWithGithub": "Github ile Giriş Yap",
     "signInWithDiscord": "Discord ile Giriş Yap",
+    "signInWithApple": "Apple ile devam et",
     "signUpWithGoogle": "Google ile Kaydol",
     "signUpWithGithub": "Github ile Kaydol",
     "signUpWithDiscord": "Discord ile Kaydol",
@@ -69,9 +71,13 @@
   },
   "workspace": {
     "chooseWorkspace": "Çalışma alanınızı seçin",
+    "defaultName": "Çalışma Alanım",
     "create": "Çalışma Alanı Oluştur",
+    "importFromNotion": "Notion'dan İçe Aktar",
+    "learnMore": "Daha fazla bilgi edin",
     "reset": "Çalışma Alanını Sıfırla",
     "renameWorkspace": "Çalışma Alanını Yeniden Adlandır",
+    "workspaceNameCannotBeEmpty": "Çalışma alanı adı boş olamaz",
     "resetWorkspacePrompt": "Çalışma alanını sıfırlamak, içindeki tüm sayfaları ve verileri silecektir. Çalışma alanını sıfırlamak istediğinizden emin misiniz? Alternatif olarak, çalışma alanını geri yüklemek için destek ekibiyle iletişime geçebilirsiniz",
     "hint": "çalışma alanı",
     "notFoundError": "Çalışma alanı bulunamadı",
@@ -115,7 +121,10 @@
     "visitSite": "Siteyi ziyaret et",
     "exportAsTab": "Şu şekilde dışa aktar",
     "publishTab": "Yayınla",
-    "shareTab": "Paylaş"
+    "shareTab": "Paylaş",
+    "publishOnAppFlowy": "AppFlowy'de yayınla",
+    "copyLinkSuccess": "Bağlantı panoya kopyalandı",
+    "copyLinkFailed": "Bağlantı panoya kopyalanamadı"
   },
   "moreAction": {
     "small": "küçük",
@@ -177,6 +186,7 @@
   "trash": {
     "text": "Çöp Kutusu",
     "restoreAll": "Tümünü Geri Yükle",
+    "restore": "Geri Yükle",
     "deleteAll": "Tümünü Sil",
     "pageHeader": {
       "fileName": "Dosya adı",
@@ -191,6 +201,10 @@
       "title": "Çöp Kutusu'ndaki tüm sayfaları geri yüklemek istediğinizden emin misiniz?",
       "caption": "Bu işlem geri alınamaz."
     },
+    "restorePage": {
+      "title": "Geri Yükle: {}",
+      "caption": "Bu sayfayı geri yüklemek istediğinizden emin misiniz?"
+    },
     "mobile": {
       "actions": "Çöp Kutusu İşlemleri",
       "empty": "Çöp Kutusu Boş",
@@ -203,7 +217,8 @@
   "deletePagePrompt": {
     "text": "Bu sayfa Çöp Kutusu'nda",
     "restore": "Sayfayı geri yükle",
-    "deletePermanent": "Kalıcı olarak sil"
+    "deletePermanent": "Kalıcı olarak sil",
+    "deletePermanentDescription": "Bu sayfayı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
   },
   "dialogCreatePageNameHint": "Sayfa adı",
   "questionBubble": {
@@ -337,6 +352,9 @@
     "removeFromFavorites": "Favorilerden çıkar",
     "removeFromRecent": "Son Kullanılanlar'dan kaldır",
     "addToFavorites": "Favorilere ekle",
+    "favoriteSuccessfully": "Favorilere eklendi",
+    "unfavoriteSuccessfully": "Favorilerden çıkarıldı",
+    "duplicateSuccessfully": "Başarıyla kopyalandı",
     "rename": "Yeniden Adlandır",
     "helpCenter": "Yardım Merkezi",
     "add": "Ekle",
@@ -359,7 +377,10 @@
     "close": "Kapat",
     "next": "Sonraki",
     "previous": "Önceki",
-    "submit": "Gönder"
+    "submit": "Gönder",
+    "download": "İndir",
+    "backToHome": "Anasayfaya dön",
+    "gotIt": "Anladım"
   },
   "label": {
     "welcome": "Hoş Geldiniz!",
@@ -383,6 +404,11 @@
   },
   "settings": {
     "title": "Ayarlar",
+    "popupMenuItem": {
+      "settings": "Ayarlar",
+      "trash": "Çöp Kutusu",
+      "helpAndSupport": "Yardım ve Destek"
+    },
     "accountPage": {
       "menuLabel": "Hesabım",
       "title": "Hesabım",
@@ -473,7 +499,8 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Çalışma alanından çık",
-        "content": "Bu çalışma alanından çıkmak istediğinizden emin misiniz? İçindeki tüm sayfalara ve verilere erişiminizi kaybedeceksiniz."
+        "content": "Bu çalışma alanından çıkmak istediğinizden emin misiniz? İçindeki tüm sayfalara ve verilere erişiminizi kaybedeceksiniz.",
+        "success": "Çalışma alanından başarıyla ayrıldınız."
       },
       "manageWorkspace": {
         "title": "Çalışma alanını yönet",
@@ -662,6 +689,9 @@
         "failToLoadLocalAI": "Yerel Yapay Zeka başlatılamadı",
         "restartLocalAI": "Yerel Yapay Zeka'yı Yeniden Başlat",
         "localAIToggleTitle": "Yerel Yapay Zeka'yı etkinleştirmek veya devre dışı bırakmak için değiştirin",
+        "offlineAIDownload2": "indir",
+        "activeOfflineAI": "Aktif",
+        "downloadOfflineAI": "İndir",
         "openModelDirectory": "Klasörü aç",
         "disableLocalAIDialog": "Yerel Yapay Zeka'yı devre dışı bırakmak istiyor musunuz?",
         "fetchLocalModel": "Yerel model yapılandırmasını getir"
@@ -818,6 +848,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "20 ömür boyu",
+        "itemFileUpload": "7 MB'a kadar",
         "itemSeven": " "
       },
       "proLabels": {
@@ -827,6 +858,7 @@
         "itemFour": "evet",
         "itemFive": "evet",
         "itemSix": "sınırsız",
+        "itemFileUpload": "Sınırsız",
         "itemSeven": " "
       },
       "paymentSuccess": {
@@ -877,6 +909,7 @@
       }
     },
     "common": {
+      "uploadingFile": "Dosya yükleniyor. Lütfen uygulamadan ayrılmayın",
       "reset": "Sıfırla"
     },
     "menu": {
@@ -905,6 +938,7 @@
       "selfHostStart": "Bir sunucunuz yoksa, kendi sunucunuzu nasıl kuracağınız konusunda rehberlik için",
       "selfHostContent": "belgeye",
       "selfHostEnd": "başvurabilirsiniz",
+      "pleaseInputValidURL": "Lütfen geçerli bir URL girin",
       "cloudURLHint": "Sunucunuzun temel URL'sini girin",
       "cloudWSURL": "Websocket URL'si",
       "cloudWSURLHint": "Sunucunuzun websocket adresini girin",
@@ -936,6 +970,33 @@
       "showNotificationsIcon": {
         "label": "Bildirimler simgesini göster",
         "hint": "Kenar çubuğundaki bildirim simgesini gizlemek için kapatın."
+      },
+      "archiveNotifications": {
+        "allSuccess": "Tüm bildirimler başarıyla arşivlendi",
+        "success": "Bildirim başarıyla arşivlendi"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "Tümü okundu olarak işaretlendi",
+        "success": "Okundu olarak işaretlendi"
+      },
+      "action": {
+        "markAsRead": "Okundu olarak işaretle",
+        "archive": "Arşiv"
+      },
+      "settings": {
+        "settings": "Ayarlar",
+        "markAllAsRead": "Tümünü okundu olarak işaretle",
+        "archiveAll": "Tümünü arşivle"
+      },
+      "tabs": {
+        "inbox": "Gelen kutusu",
+        "unread": "Okunmamış",
+        "archived": "Arşivlendi"
+      },
+      "refreshSuccess": "Bildirimler başarıyla yenilendi",
+      "titles": {
+        "notifications": "Bildirimler",
+        "reminder": "Hatırlatıcı"
       }
     },
     "appearance": {
@@ -1041,7 +1102,8 @@
         "removeMember": "Üyeyi Kaldır",
         "areYouSureToRemoveMember": "Bu üyeyi kaldırmak istediğinizden emin misiniz?",
         "inviteMemberSuccess": "Davetiye başarıyla gönderildi",
-        "failedToInviteMember": "Üye davet edilemedi"
+        "failedToInviteMember": "Üye davet edilemedi",
+        "workspaceMembersError": "Oops, bir şeyler ters gitti"
       }
     },
     "files": {
@@ -1142,6 +1204,9 @@
       "duplicateView": "Görünümü kopyala",
       "deleteView": "Görünümü sil",
       "numberOfVisibleFields": "{} gösteriliyor"
+    },
+    "filter": {
+      "addFilter": "Filtre ekle"
     },
     "textFilter": {
       "contains": "İçerir",
@@ -1370,6 +1435,15 @@
       "countEmptyShort": "BOŞ",
       "countNonEmpty": "Dolu sayısı",
       "countNonEmptyShort": "DOLU"
+    },
+    "media": {
+      "rename": "Yeniden adlandır",
+      "download": "İndir",
+      "delete": "Sil",
+      "addFileOrImage": "Bir dosya, resim veya bağlantı ekleyin",
+      "addFileMobile": "Dosya ekle",
+      "hideFileNames": "Dosya adlarını gizle",
+      "downloadSuccess": "Dosya başarıyla kaydedildi"
     }
   },
   "document": {
