@@ -192,6 +192,17 @@ void main() {
         ),
         findsNWidgets(2),
       );
+
+      // tap the mention block
+      await tester.tapButton(find.byType(MentionPageBlock));
+      expect(
+        tester.editor.getCurrentEditorState().selection,
+        Selection.collapsed(
+          Position(
+            path: [1],
+          ),
+        ),
+      );
     });
 
     testWidgets('''1. copy link to block from another page
