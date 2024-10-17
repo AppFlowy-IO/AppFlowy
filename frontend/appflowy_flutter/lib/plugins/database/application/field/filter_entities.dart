@@ -354,8 +354,7 @@ final class SelectOptionFilter extends DatabaseFilter {
   }) {
     if (canAttachContent) {
       if (fieldType == FieldType.SingleSelect &&
-          (condition == SelectOptionFilterConditionPB.OptionIs ||
-              condition == SelectOptionFilterConditionPB.OptionIsNot) &&
+          (condition == SelectOptionFilterConditionPB.OptionIs) &&
           optionIds.isNotEmpty) {
         this.optionIds.add(optionIds.first);
       } else {
@@ -438,8 +437,7 @@ final class SelectOptionFilter extends DatabaseFilter {
   }) {
     final options = optionIds ?? this.optionIds;
     if (fieldType == FieldType.SingleSelect &&
-        (condition == SelectOptionFilterConditionPB.OptionIs ||
-            condition == SelectOptionFilterConditionPB.OptionIsNot) &&
+        (condition == SelectOptionFilterConditionPB.OptionIs) &&
         options.length > 1) {
       options.removeRange(1, options.length);
     }

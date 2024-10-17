@@ -60,8 +60,30 @@ impl ParseFilterData for SelectOptionFilterPB {
 }
 
 impl SelectOptionFilterPB {
-  pub fn remove_extra_option_ids(mut self) -> Self {
-    self.option_ids.truncate(1);
+  pub fn to_single_select_filter(mut self) -> Self {
+    match self.condition {
+      SelectOptionFilterConditionPB::OptionContains
+      | SelectOptionFilterConditionPB::OptionDoesNotContain => {
+        self.condition = SelectOptionFilterConditionPB::OptionIs;
+        self.option_ids.truncate(1);
+      },
+      SelectOptionFilterConditionPB::OptionIs => {
+        self.option_ids.truncate(1);
+      },
+      _ => {},
+    }
+
+    self
+  }
+
+  pub fn to_multi_select_filter(mut self) -> Self {
+    match self.condition {
+      SelectOptionFilterConditionPB::OptionIs | SelectOptionFilterConditionPB::OptionIsNot => {
+        self.condition = SelectOptionFilterConditionPB::OptionContains;
+      },
+      _ => {},
+    }
+
     self
   }
 }
