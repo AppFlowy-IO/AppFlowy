@@ -42,8 +42,17 @@ class ChildPageTransactionHandler
       return;
     }
 
+    // Remove the mentions that were both added and removed in the same transaction.
+    // These were just moved around.
+    final moved = <MentionBlockData>[];
+    for (final mention in added) {
+      if (removed.any((r) => r.$2 == mention.$2)) {
+        moved.add(mention);
+      }
+    }
+
     for (final mention in removed) {
-      if (!context.mounted) {
+      if (!context.mounted || moved.any((m) => m.$2 == mention.$2)) {
         return;
       }
 
@@ -60,7 +69,7 @@ class ChildPageTransactionHandler
       }
 
       for (final mention in added) {
-        if (!context.mounted) {
+        if (!context.mounted || moved.any((m) => m.$2 == mention.$2)) {
           return;
         }
 

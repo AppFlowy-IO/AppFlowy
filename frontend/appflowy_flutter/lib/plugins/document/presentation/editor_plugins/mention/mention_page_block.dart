@@ -201,7 +201,12 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
         listener: (context, state) {
           if (state.view != null) {
             final currentViewId = context.read<DocumentBloc>().documentId;
-            if (state.view!.parentViewId != currentViewId) {
+            final view = pageMemorizer[currentViewId];
+            if (view == null) {
+              return;
+            }
+
+            if (state.view!.parentViewId != view.parentViewId) {
               turnIntoPageRef();
             }
           }
