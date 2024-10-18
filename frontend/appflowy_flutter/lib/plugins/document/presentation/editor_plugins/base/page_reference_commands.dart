@@ -1,7 +1,9 @@
+import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -87,6 +89,8 @@ Future<bool> inlinePageReferenceCommandHandler(
   final service = InlineActionsService(
     context: context,
     handlers: [
+      if (FeatureFlag.inlineSubPageMention.isOn)
+        InlineChildPageService(currentViewId: currentViewId),
       InlinePageReferenceService(
         currentViewId: currentViewId,
         limitResults: 10,

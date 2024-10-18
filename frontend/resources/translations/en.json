@@ -1884,7 +1884,9 @@
       },
       "deleted": "Deleted",
       "deletedContent": "This content does not exist or has been deleted",
-      "noAccess": "No Access"
+      "noAccess": "No Access",
+      "deletedPage": "Deleted page",
+      "trashHint": " - in trash"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
@@ -2083,7 +2085,8 @@
     "reminder": {
       "groupTitle": "Reminder",
       "shortKeyword": "remind"
-    }
+    },
+    "createPage": "Create \"{}\" sub-page"
   },
   "datePicker": {
     "dateTimeFormatTooltip": "Change the date and time format in settings",

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:provider/provider.dart';
 
 /// cut.
 ///
@@ -23,6 +25,13 @@ CommandShortcutEventHandler _cutCommandHandler = (editorState) {
   if (selection == null) {
     return KeyEventResult.ignored;
   }
+
+  final context = editorState.document.root.context;
+  if (context == null || !context.mounted) {
+    return KeyEventResult.ignored;
+  }
+
+  context.read<ClipboardState>().didCut();
 
   handleCopyCommand(editorState, isCut: true);
 
