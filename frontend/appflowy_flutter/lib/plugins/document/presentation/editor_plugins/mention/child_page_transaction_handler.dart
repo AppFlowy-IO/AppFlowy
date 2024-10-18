@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/transactio
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -24,7 +25,7 @@ const _pasteIdentifier = 'child_page_transaction';
 class ChildPageTransactionHandler
     extends EditorTransactionHandler<MentionBlockData> {
   ChildPageTransactionHandler()
-      : super(type: MentionBlockKeys.mention, isParagraphSubType: true);
+      : super(type: MentionBlockKeys.mention, livesInDelta: true);
 
   @override
   Future<void> onTransaction(
@@ -105,9 +106,10 @@ class ChildPageTransactionHandler
       (error) {
         Log.error(error);
         if (context.mounted) {
-          showSnapBar(
+          showToastNotification(
             context,
-            LocaleKeys.document_plugins_subPage_errors_failedDeletePage.tr(),
+            message: LocaleKeys.document_plugins_subPage_errors_failedDeletePage
+                .tr(),
           );
         }
       },

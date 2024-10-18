@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_sub_page_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
@@ -13,20 +12,22 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
+        ApplyOptions,
         Delta,
         EditorState,
         Node,
-        TextInsert,
-        TextTransaction,
-        paragraphNode,
         NodeIterator,
         Path,
-        Selection,
         Position,
-        SelectionType;
+        Selection,
+        SelectionType,
+        TextInsert,
+        TextTransaction,
+        paragraphNode;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -65,6 +66,7 @@ class MentionPageBlock extends StatefulWidget {
     required this.node,
     required this.textStyle,
     required this.index,
+    required this.isSubPage,
   });
 
   final EditorState editorState;
@@ -72,6 +74,7 @@ class MentionPageBlock extends StatefulWidget {
   final String? blockId;
   final Node node;
   final TextStyle? textStyle;
+  final bool isSubPage;
 
   // Used to update the block
   final int index;
@@ -86,7 +89,8 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
     return BlocProvider(
       create: (_) => MentionPageBloc(
         pageId: widget.pageId,
-        blockId: widget.blockId,
+        blockId: widget.isSubPage ? null : widget.blockId,
+        isSubPage: widget.isSubPage,
       )..add(const MentionPageEvent.initial()),
       child: BlocBuilder<MentionPageBloc, MentionPageState>(
         builder: (context, state) {
@@ -124,6 +128,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
               view: view,
               content: state.blockContent,
               textStyle: widget.textStyle,
+              showTrashHint: state.isInTrash,
               handleTap: () => _handleTap(
                 context,
                 widget.editorState,
@@ -135,28 +140,6 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         },
       ),
     );
-  }
-
-  Future<ViewPB?> fetchView(String pageId) async {
-    final view = await ViewBackendService.getView(pageId).then(
-      (value) => value.toNullable(),
-    );
-
-    if (view == null) {
-      // try to fetch from trash
-      final trashViews = await TrashService().readTrash();
-      final trash = trashViews.fold(
-        (l) => l.items.firstWhereOrNull((element) => element.id == pageId),
-        (r) => null,
-      );
-      if (trash != null) {
-        return ViewPB()
-          ..id = trash.id
-          ..name = trash.name;
-      }
-    }
-
-    return view;
   }
 
   void updateSelection() {
@@ -195,18 +178,17 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => MentionSubPageBloc(pageId: widget.pageId)
-        ..add(const MentionSubPageEvent.initial()),
-      child: BlocConsumer<MentionSubPageBloc, MentionSubPageState>(
-        listener: (context, state) {
+      create: (_) => MentionPageBloc(pageId: widget.pageId, isSubPage: true)
+        ..add(const MentionPageEvent.initial()),
+      child: BlocConsumer<MentionPageBloc, MentionPageState>(
+        listener: (context, state) async {
           if (state.view != null) {
-            final currentViewId = context.read<DocumentBloc>().documentId;
-            final view = pageMemorizer[currentViewId];
-            if (view == null) {
+            final currentViewId = getIt<MenuSharedState>().latestOpenView?.id;
+            if (currentViewId == null) {
               return;
             }
 
-            if (state.view!.parentViewId != view.parentViewId) {
+            if (state.view!.parentViewId != currentViewId) {
               turnIntoPageRef();
             }
           }
@@ -294,7 +276,13 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
         },
       );
 
-    widget.editorState.apply(transaction, withUpdateSelection: false);
+    widget.editorState.apply(
+      transaction,
+      withUpdateSelection: false,
+      options: const ApplyOptions(
+        recordUndo: false,
+      ),
+    );
   }
 }
 

@@ -91,16 +91,34 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
   ///
   List<Node> collectMatchingNodes(
     Node node,
-    String type, [
-    List<String> additionalTypes = const [],
-  ]) {
+    String type, {
+    bool livesInDelta = false,
+  }) {
     final List<Node> matchingNodes = [];
-    if (node.type == type || additionalTypes.contains(node.type)) {
+    if (node.type == type) {
       matchingNodes.add(node);
     }
 
+    if (livesInDelta && node.attributes[blockComponentDelta] != null) {
+      final deltas = node.attributes[blockComponentDelta];
+      if (deltas is List) {
+        for (final delta in deltas) {
+          if (delta['attributes'] != null &&
+              delta['attributes'][type] != null) {
+            matchingNodes.add(node);
+          }
+        }
+      }
+    }
+
     for (final child in node.children) {
-      matchingNodes.addAll(collectMatchingNodes(child, type, additionalTypes));
+      matchingNodes.addAll(
+        collectMatchingNodes(
+          child,
+          type,
+          livesInDelta: livesInDelta,
+        ),
+      );
     }
 
     return matchingNodes;
@@ -113,18 +131,18 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
     final Map<String, dynamic> added = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.isParagraphSubType ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
     };
     final Map<String, dynamic> removed = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.isParagraphSubType ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
     };
 
     for (final op in event.$2.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
           for (final handler in _transactionHandlers) {
-            if (handler.isParagraphSubType) {
+            if (handler.livesInDelta) {
               added[handler.type]!
                   .addAll(extractMentionsForType(n, handler.type));
             } else {
@@ -136,13 +154,9 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       } else if (op is DeleteOperation) {
         for (final n in op.nodes) {
           for (final handler in _transactionHandlers) {
-            if (handler.isParagraphSubType) {
+            if (handler.livesInDelta) {
               removed[handler.type]!.addAll(
-                extractMentionsForType(
-                  n,
-                  handler.type,
-                  false,
-                ),
+                extractMentionsForType(n, handler.type, false),
               );
             } else {
               removed[handler.type]!
@@ -156,44 +170,37 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
           continue;
         }
 
-        if (op.attributes['delta'] is! List ||
-            op.oldAttributes['delta'] is! List) {
+        if (op.attributes[blockComponentDelta] is! List ||
+            op.oldAttributes[blockComponentDelta] is! List) {
           continue;
         }
 
-        final deltaBefore = Delta.fromJson(op.oldAttributes['delta']);
-        final deltaAfter = Delta.fromJson(op.attributes['delta']);
+        final deltaBefore =
+            Delta.fromJson(op.oldAttributes[blockComponentDelta]);
+        final deltaAfter = Delta.fromJson(op.attributes[blockComponentDelta]);
 
         final (add, del) = diffDeltas(deltaBefore, deltaAfter);
 
         for (final handler in _transactionHandlers) {
-          if (!handler.isParagraphSubType) {
+          if (!handler.livesInDelta) {
             continue;
           }
 
           if (add.isNotEmpty) {
-            added[handler.type]!.addAll(
-              add.where((ti) => ti.attributes?[handler.type] != null).map((ti) {
-                final index = deltaAfter.toList().indexOf(ti);
-                return (
-                  node,
-                  ti.attributes![handler.type] as Map<String, dynamic>,
-                  index,
-                );
-              }).toList(),
-            );
+            final mentionBlockDatas =
+                getMentionBlockData(handler.type, node, add);
+
+            added[handler.type]!.addAll(mentionBlockDatas);
           }
 
           if (del.isNotEmpty) {
-            removed[handler.type]!.addAll(
-              del.where((ti) => ti.attributes?[handler.type] != null).map((ti) {
-                return (
-                  node,
-                  ti.attributes![handler.type] as Map<String, dynamic>,
-                  -1,
-                );
-              }).toList(),
+            final mentionBlockDatas = getMentionBlockData(
+              handler.type,
+              node,
+              del,
             );
+
+            removed[handler.type]!.addAll(mentionBlockDatas);
           }
         }
       }
@@ -224,6 +231,31 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
     isPaste = false;
   }
 
+  /// Takes an iterable of [TextInsert] and returns a list of [MentionBlockData].
+  /// This is used to extract mentions from a list of text inserts, of a certain type.
+  List<MentionBlockData> getMentionBlockData(
+    String type,
+    Node node,
+    Iterable<TextInsert> textInserts,
+  ) {
+    // Additions contain all the text inserts that were added in this
+    // transaction, we only care about the ones that fit the handlers type.
+
+    // Filter out the text inserts where the attribute for the handler type is present.
+    final relevantTextInserts =
+        textInserts.where((ti) => ti.attributes?[type] != null);
+
+    // Map it to a list of MentionBlockData.
+    final mentionBlockDatas = relevantTextInserts.map<MentionBlockData>((ti) {
+      // For some text inserts (mostly additions), we might need to modify them after the transaction,
+      // so we pass the index of the delta to the handler.
+      final index = node.delta?.toList().indexOf(ti) ?? -1;
+      return (node, ti.attributes![type], index);
+    }).toList();
+
+    return mentionBlockDatas;
+  }
+
   List<MentionBlockData> extractMentionsForType(
     Node node,
     String mentionType, [
@@ -233,23 +265,23 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
     final nodesWithDelta = collectMatchingNodes(
       node,
-      ParagraphBlockKeys.type,
-      nodeTypesContainingMentions,
+      mentionType,
+      livesInDelta: true,
     );
 
     for (final paragraphNode in nodesWithDelta) {
-      final deltas = paragraphNode.attributes['delta'];
-      if (deltas == null || deltas is! List || deltas.isEmpty) {
+      final textInserts = paragraphNode.attributes[blockComponentDelta];
+      if (textInserts == null || textInserts is! List || textInserts.isEmpty) {
         continue;
       }
 
-      for (final (index, delta) in deltas.indexed) {
-        if (delta['attributes'] != null &&
-            delta['attributes'][mentionType] != null) {
+      for (final (index, textInsert) in textInserts.indexed) {
+        if (textInsert['attributes'] != null &&
+            textInsert['attributes'][mentionType] != null) {
           changes.add(
             (
               paragraphNode,
-              delta['attributes'][mentionType],
+              textInsert['attributes'][mentionType],
               includeIndex ? index : -1,
             ),
           );

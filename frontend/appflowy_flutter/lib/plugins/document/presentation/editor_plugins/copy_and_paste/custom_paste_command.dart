@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -32,111 +30,95 @@ final CommandShortcutEvent customPasteCommand = CommandShortcutEvent(
 );
 
 CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
-  final selection = editorState.selection;
-  if (selection == null) {
-    return KeyEventResult.ignored;
-  }
-
-  // because the event handler is not async, so we need to use wrap the async function here
-  () async {
-    EditorNotification.paste().post();
-
-    // dispatch the paste event
-    final data = await getIt<ClipboardService>().getData();
-    final inAppJson = data.inAppJson;
-    final html = data.html;
-    final plainText = data.plainText;
-    final image = data.image;
-
-    // dump the length of the data here, don't log the data itself for privacy concerns
-    Log.info('paste command: inAppJson: ${inAppJson?.length}');
-    Log.info('paste command: html: ${html?.length}');
-    Log.info('paste command: plainText: ${plainText?.length}');
-    Log.info('paste command: image: ${image?.$2?.length}');
-
-    if (await editorState.pasteAppFlowySharePageLink(plainText)) {
-      return Log.info('Pasted block link');
-    }
-
+  doPaste(editorState).then((_) {
     final context = editorState.document.root.context;
-
-    // paste as link preview
-    if (await _pasteAsLinkPreview(editorState, plainText)) {
-      Log.info('Pasted as link preview');
-      _handleDidPaste(context);
-
-      return;
+    if (context != null && context.mounted) {
+      context.read<ClipboardState>().didPaste();
     }
-
-    // Order:
-    // 1. in app json format
-    // 2. html
-    // 3. image
-    // 4. plain text
-
-    // try to paste the content in order, if any of them is failed, then try the next one
-    if (inAppJson != null && inAppJson.isNotEmpty) {
-      if (await editorState.pasteInAppJson(inAppJson)) {
-        Log.info('Pasted in app json');
-        _handleDidPaste(context);
-
-        return;
-      }
-    }
-
-    // if the image data is not null, we should handle it first
-    // because the image URL in the HTML may not be reachable due to permission issues
-    // For example, when pasting an image from Slack, the image URL provided is not public.
-    if (image != null && image.$2?.isNotEmpty == true) {
-      final documentBloc =
-          editorState.document.root.context?.read<DocumentBloc>();
-      final documentId = documentBloc?.documentId;
-      if (documentId == null || documentId.isEmpty) {
-        return;
-      }
-      await editorState.deleteSelectionIfNeeded();
-      final result = await editorState.pasteImage(
-        image.$1,
-        image.$2!,
-        documentId,
-        selection: selection,
-      );
-      if (result) {
-        Log.info('Pasted image');
-        _handleDidPaste(context);
-
-        return;
-      }
-    }
-
-    if (html != null && html.isNotEmpty) {
-      await editorState.deleteSelectionIfNeeded();
-      if (await editorState.pasteHtml(html)) {
-        Log.info('Pasted html');
-        _handleDidPaste(context);
-
-        return;
-      }
-    }
-
-    if (plainText != null && plainText.isNotEmpty) {
-      Log.info('Pasted plain text');
-      await editorState.pastePlainText(plainText);
-      _handleDidPaste(context);
-
-      return;
-    }
-
-    Log.info('unable to parse the clipboard content');
-  }();
+  });
 
   return KeyEventResult.handled;
 };
 
-void _handleDidPaste(BuildContext? context) {
-  if (context != null && context.mounted) {
-    context.read<ClipboardState>().didPaste();
+Future<void> doPaste(EditorState editorState) async {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return;
   }
+
+  EditorNotification.paste().post();
+
+  // dispatch the paste event
+  final data = await getIt<ClipboardService>().getData();
+  final inAppJson = data.inAppJson;
+  final html = data.html;
+  final plainText = data.plainText;
+  final image = data.image;
+
+  // dump the length of the data here, don't log the data itself for privacy concerns
+  Log.info('paste command: inAppJson: ${inAppJson?.length}');
+  Log.info('paste command: html: ${html?.length}');
+  Log.info('paste command: plainText: ${plainText?.length}');
+  Log.info('paste command: image: ${image?.$2?.length}');
+
+  if (await editorState.pasteAppFlowySharePageLink(plainText)) {
+    return Log.info('Pasted block link');
+  }
+
+  // paste as link preview
+  if (await _pasteAsLinkPreview(editorState, plainText)) {
+    return Log.info('Pasted as link preview');
+  }
+
+  // Order:
+  // 1. in app json format
+  // 2. html
+  // 3. image
+  // 4. plain text
+
+  // try to paste the content in order, if any of them is failed, then try the next one
+  if (inAppJson != null && inAppJson.isNotEmpty) {
+    if (await editorState.pasteInAppJson(inAppJson)) {
+      return Log.info('Pasted in app json');
+    }
+  }
+
+  // if the image data is not null, we should handle it first
+  // because the image URL in the HTML may not be reachable due to permission issues
+  // For example, when pasting an image from Slack, the image URL provided is not public.
+  if (image != null && image.$2?.isNotEmpty == true) {
+    final documentBloc =
+        editorState.document.root.context?.read<DocumentBloc>();
+    final documentId = documentBloc?.documentId;
+    if (documentId == null || documentId.isEmpty) {
+      return;
+    }
+
+    await editorState.deleteSelectionIfNeeded();
+    final result = await editorState.pasteImage(
+      image.$1,
+      image.$2!,
+      documentId,
+      selection: selection,
+    );
+    if (result) {
+      return Log.info('Pasted image');
+    }
+  }
+
+  if (html != null && html.isNotEmpty) {
+    await editorState.deleteSelectionIfNeeded();
+    if (await editorState.pasteHtml(html)) {
+      return Log.info('Pasted html');
+    }
+  }
+
+  if (plainText != null && plainText.isNotEmpty) {
+    await editorState.pastePlainText(plainText);
+    return Log.info('Pasted plain text');
+  }
+
+  return Log.info('unable to parse the clipboard content');
 }
 
 Future<bool> _pasteAsLinkPreview(

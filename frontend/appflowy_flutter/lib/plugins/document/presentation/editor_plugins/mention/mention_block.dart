@@ -77,7 +77,7 @@ class MentionBlock extends StatelessWidget {
     final editorState = context.read<EditorState>();
 
     switch (type) {
-      case MentionType.page:
+      case MentionType.page || MentionType.childPage:
         final String? pageId = mention[MentionBlockKeys.pageId] as String?;
         if (pageId == null) {
           return const SizedBox.shrink();
@@ -92,19 +92,7 @@ class MentionBlock extends StatelessWidget {
           node: node,
           textStyle: textStyle,
           index: index,
-        );
-      case MentionType.childPage:
-        final String? pageId = mention[MentionBlockKeys.pageId] as String?;
-        if (pageId == null) {
-          return const SizedBox.shrink();
-        }
-        return MentionSubPageBlock(
-          key: ValueKey(pageId),
-          editorState: editorState,
-          pageId: pageId,
-          node: node,
-          textStyle: textStyle,
-          index: index,
+          isSubPage: type == MentionType.childPage
         );
       case MentionType.date:
         final String date = mention[MentionBlockKeys.date];

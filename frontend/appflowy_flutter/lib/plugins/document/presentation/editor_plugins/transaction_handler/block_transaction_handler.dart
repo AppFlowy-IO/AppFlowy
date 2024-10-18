@@ -8,8 +8,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 /// a [Node], and doesn't care about text deltas.
 ///
 abstract class BlockTransactionHandler extends EditorTransactionHandler<Node> {
-  const BlockTransactionHandler({
-    required super.type,
-    super.isParagraphSubType = false,
-  });
+  const BlockTransactionHandler({required super.type})
+      : super(livesInDelta: false);
 }
