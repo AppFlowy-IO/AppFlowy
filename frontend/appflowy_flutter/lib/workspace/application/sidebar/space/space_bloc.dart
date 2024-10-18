@@ -94,7 +94,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
 
             if (shouldShowUpgradeDialog && !integrationMode().isTest) {
-              add(const SpaceEvent.migrate());
+              if (!isClosed) {
+                add(const SpaceEvent.migrate());
+              }
             }
 
             if (openFirstPage) {

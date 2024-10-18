@@ -57,10 +57,11 @@ void main() {
           .single
           .widget as AppFlowyEditorPage;
       return editorPage.styleCustomizer
-          .style()
-          .textStyleConfiguration
-          .text
-          .height!;
+              .style()
+              .textStyleConfiguration
+              .text
+              .height ??
+          PageStyleLineHeightLayout.normal.lineHeight;
     }
 
     testWidgets('change font size in page style settings', (tester) async {
@@ -125,7 +126,6 @@ void main() {
       await tester.tap(firstBuiltInImage);
 
       // click done button to exit the page style settings
-      await tester.tapButton(find.byType(BottomSheetDoneButton).first);
       await tester.tapButton(find.byType(BottomSheetDoneButton).first);
 
       // check the cover

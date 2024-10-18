@@ -22,6 +22,7 @@ on:
 env:
   FLUTTER_VERSION: "3.22.0"
   RUST_TOOLCHAIN: "1.80.1"
+  CLOUD_VERSION: 0.6.34-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -48,13 +49,13 @@ jobs:
           model: "iPhone 15"
           shutdown_after_job: false
 
-  build-macos:
+  integration-tests:
     if: github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -96,11 +97,11 @@ jobs:
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
           cargo make --profile development-ios-arm64-sim code_generation
 
-      - uses: futureware-tech/simulator-action@v3
-        id: simulator-action
-        with:
-          model: "iPhone 15"
-          shutdown_after_job: false
+      # - uses: futureware-tech/simulator-action@v3
+      #   id: simulator-action
+      #   with:
+      #     model: "iPhone 15"
+      #     shutdown_after_job: false
 
       # - name: Run AppFlowy on simulator
       #   working-directory: frontend/appflowy_flutter
@@ -111,7 +112,6 @@ jobs:
       #     kill $pid
       #   continue-on-error: true
 
-      # enable it again if the 12 mins timeout is fixed
       # - name: Run integration tests
       #   working-directory: frontend/appflowy_flutter
       #   run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}

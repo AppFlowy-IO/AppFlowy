@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -93,6 +94,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
               ),
               BlocProvider.value(
                 value: getIt<ReminderBloc>(),
+              ),
+              BlocProvider(
+                create: (_) =>
+                    ShareBloc(view: view)..add(const ShareEvent.initial()),
               ),
               if (view.layout.isDocumentView)
                 BlocProvider(
