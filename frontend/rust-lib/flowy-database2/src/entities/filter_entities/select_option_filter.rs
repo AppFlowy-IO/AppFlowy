@@ -65,10 +65,6 @@ impl SelectOptionFilterPB {
       SelectOptionFilterConditionPB::OptionContains
       | SelectOptionFilterConditionPB::OptionDoesNotContain => {
         self.condition = SelectOptionFilterConditionPB::OptionIs;
-        self.option_ids.truncate(1);
-      },
-      SelectOptionFilterConditionPB::OptionIs => {
-        self.option_ids.truncate(1);
       },
       _ => {},
     }

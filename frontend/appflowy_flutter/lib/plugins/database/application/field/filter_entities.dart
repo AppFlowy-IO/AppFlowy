@@ -353,13 +353,7 @@ final class SelectOptionFilter extends DatabaseFilter {
     required List<String> optionIds,
   }) {
     if (canAttachContent) {
-      if (fieldType == FieldType.SingleSelect &&
-          (condition == SelectOptionFilterConditionPB.OptionIs) &&
-          optionIds.isNotEmpty) {
-        this.optionIds.add(optionIds.first);
-      } else {
-        this.optionIds.addAll(optionIds);
-      }
+      this.optionIds.addAll(optionIds);
     }
   }
 
@@ -376,7 +370,7 @@ final class SelectOptionFilter extends DatabaseFilter {
 
   @override
   String getContentDescription(FieldInfo field) {
-    if (!canAttachContent) {
+    if (!canAttachContent || optionIds.isEmpty) {
       return condition.i18n;
     }
 
@@ -435,12 +429,6 @@ final class SelectOptionFilter extends DatabaseFilter {
     SelectOptionFilterConditionPB? condition,
     List<String>? optionIds,
   }) {
-    final options = optionIds ?? this.optionIds;
-    if (fieldType == FieldType.SingleSelect &&
-        (condition == SelectOptionFilterConditionPB.OptionIs) &&
-        options.length > 1) {
-      options.removeRange(1, options.length);
-    }
     return SelectOptionFilter(
       filterId: filterId,
       fieldId: fieldId,

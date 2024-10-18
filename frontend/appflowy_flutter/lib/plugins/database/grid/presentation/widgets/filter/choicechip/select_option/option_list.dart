@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/filter/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
@@ -17,14 +16,12 @@ class SelectOptionFilterList extends StatelessWidget {
     super.key,
     required this.filter,
     required this.field,
-    required this.delegate,
     required this.options,
     required this.onTap,
   });
 
   final SelectOptionFilter filter;
   final FieldInfo field;
-  final SelectOptionFilterDelegate delegate;
   final List<SelectOptionPB> options;
   final VoidCallback onTap;
 
@@ -53,20 +50,13 @@ class SelectOptionFilterList extends StatelessWidget {
     SelectOptionPB option,
     bool isSelected,
   ) {
+    final selectedOptionIds = Set<String>.from(filter.optionIds);
     if (isSelected) {
-      final selectedOptionIds = Set<String>.from(filter.optionIds)
-        ..remove(option.id);
-
-      _updateSelectOptions(context, filter, selectedOptionIds);
+      selectedOptionIds.remove(option.id);
     } else {
-      final selectedOptionIds = delegate.selectOption(
-        filter.optionIds,
-        option.id,
-        filter.condition,
-      );
-
-      _updateSelectOptions(context, filter, selectedOptionIds);
+      selectedOptionIds.add(option.id);
     }
+    _updateSelectOptions(context, filter, selectedOptionIds);
     onTap();
   }
 
