@@ -57,10 +57,11 @@ void main() {
           .single
           .widget as AppFlowyEditorPage;
       return editorPage.styleCustomizer
-          .style()
-          .textStyleConfiguration
-          .text
-          .height!;
+              .style()
+              .textStyleConfiguration
+              .text
+              .height ??
+          PageStyleLineHeightLayout.normal.lineHeight;
     }
 
     testWidgets('change font size in page style settings', (tester) async {
