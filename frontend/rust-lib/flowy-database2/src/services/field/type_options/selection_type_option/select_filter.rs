@@ -98,10 +98,7 @@ impl PreFillCellsWithFilter for SelectOptionFilterPB {
   fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let option_ids = match self.condition {
       SelectOptionFilterConditionPB::OptionIs | SelectOptionFilterConditionPB::OptionContains => {
-        self
-          .option_ids
-          .first()
-          .and_then(|id| Some(vec![id.clone()]))
+        self.option_ids.first().map(|id| vec![id.clone()])
       },
       SelectOptionFilterConditionPB::OptionIsNotEmpty => select_type_option_from_field(field)
         .ok()
