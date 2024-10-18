@@ -96,18 +96,12 @@ impl SelectOptionFilterStrategy {
 
 impl PreFillCellsWithFilter for SelectOptionFilterPB {
   fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
-    let get_non_empty_expected_options = || {
-      if !self.option_ids.is_empty() {
-        Some(self.option_ids.clone())
-      } else {
-        None
-      }
-    };
-
     let option_ids = match self.condition {
-      SelectOptionFilterConditionPB::OptionIs => get_non_empty_expected_options(),
-      SelectOptionFilterConditionPB::OptionContains => {
-        get_non_empty_expected_options().map(|mut options| vec![options.swap_remove(0)])
+      SelectOptionFilterConditionPB::OptionIs | SelectOptionFilterConditionPB::OptionContains => {
+        self
+          .option_ids
+          .first()
+          .and_then(|id| Some(vec![id.clone()]))
       },
       SelectOptionFilterConditionPB::OptionIsNotEmpty => select_type_option_from_field(field)
         .ok()
