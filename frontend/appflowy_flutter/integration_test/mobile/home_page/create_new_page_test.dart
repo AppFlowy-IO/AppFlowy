@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/editor/mobile_editor_screen.dart';
 import 'package:appflowy/mobile/presentation/home/home.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
@@ -34,13 +34,10 @@ void main() {
         cloudType: AuthenticatorType.local,
       );
 
-      // click the anonymousSignInButton
-      final anonymousSignInButton = find.byType(SignInAnonymousButtonV2);
-      expect(anonymousSignInButton, findsOneWidget);
-      await tester.tapButton(anonymousSignInButton);
-
       // tap the create page button
-      final createPageButton = find.byKey(mobileCreateNewPageButtonKey);
+      final createPageButton = find.byKey(
+        BottomNavigationBarItemType.home.valueKey,
+      );
       await tester.tapButton(createPageButton);
       expect(find.byType(MobileDocumentScreen), findsOneWidget);
     });
