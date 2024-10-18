@@ -59,50 +59,46 @@ class _OptionButtonState extends State<OptionButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.red,
-      child: ValueListenableBuilder(
-        valueListenable: widget.isDragging,
-        builder: (context, isDragging, child) {
-          return BlockActionButton(
-            svg: FlowySvgs.drag_element_s,
-            showTooltip: !isDragging,
-            richMessage: TextSpan(
-              children: [
-                TextSpan(
-                  text: LocaleKeys.document_plugins_optionAction_drag.tr(),
-                  style: context.tooltipTextStyle(),
-                ),
-                TextSpan(
-                  text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
-                  style: context.tooltipTextStyle(),
-                ),
-                const TextSpan(text: '\n'),
-                TextSpan(
-                  text: LocaleKeys.document_plugins_optionAction_click.tr(),
-                  style: context.tooltipTextStyle(),
-                ),
-                TextSpan(
-                  text:
-                      LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
-                  style: context.tooltipTextStyle(),
-                ),
-              ],
-            ),
-            onTap: () {
-              final selection = widget.editorState.selection;
-              if (selection != null) {
-                beforeSelection = selection.normalized;
-              }
+    return ValueListenableBuilder(
+      valueListenable: widget.isDragging,
+      builder: (context, isDragging, child) {
+        return BlockActionButton(
+          svg: FlowySvgs.drag_element_s,
+          showTooltip: !isDragging,
+          richMessage: TextSpan(
+            children: [
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_drag.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_toMove.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+              const TextSpan(text: '\n'),
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_click.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+              TextSpan(
+                text: LocaleKeys.document_plugins_optionAction_toOpenMenu.tr(),
+                style: context.tooltipTextStyle(),
+              ),
+            ],
+          ),
+          onTap: () {
+            final selection = widget.editorState.selection;
+            if (selection != null) {
+              beforeSelection = selection.normalized;
+            }
 
-              widget.controller.show();
+            widget.controller.show();
 
-              // update selection
-              _updateBlockSelection();
-            },
-          );
-        },
-      ),
+            // update selection
+            _updateBlockSelection();
+          },
+        );
+      },
     );
   }
 
@@ -115,7 +111,7 @@ class _OptionButtonState extends State<OptionButton> {
     Log.info(
       'update block selection, beforeSelection: $beforeSelection, path: $path',
     );
-    // if the previous selection is null or the start path is not equal to the current block path,
+    // if the previous selection is null or the start path is not in the same level as the current block path,
     // then update the selection with the current block path
     // for example,'|' means the selection,
     // case 1: collapsed selection
@@ -127,7 +123,10 @@ class _OptionButtonState extends State<OptionButton> {
     // - bulleted |item 2
     // - bulleted |item 3
     // when clicking the bulleted item 1, the bulleted item 1 path should be selected
-    if (beforeSelection == null || !beforeSelection.start.path.equals(path)) {
+
+    if (beforeSelection == null ||
+        beforeSelection.start.path.length != path.length ||
+        !path.inSelection(beforeSelection)) {
       widget.editorState.updateSelectionWithReason(
         selection,
         customSelectionType: SelectionType.block,
