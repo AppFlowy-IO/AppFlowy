@@ -169,6 +169,7 @@ void main() {
         final selection = Selection.collapsed(
           Position(path: [0, 0], offset: 1),
         );
+        editorState.selection = selection;
         await tester.pumpAndSettle();
         expect(editorState.selection, selection);
         await tester.editor.hoverAndClickOptionMenuButton([0]);
