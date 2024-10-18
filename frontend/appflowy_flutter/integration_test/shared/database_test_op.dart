@@ -539,14 +539,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> deleteChecklistTask({required int index}) async {
     final task = find.byType(ChecklistItem).at(index);
 
-    await startGesture(getCenter(task), kind: PointerDeviceKind.mouse);
-    await pumpAndSettle();
-
-    final button = find.byWidgetPredicate(
-      (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+    await hoverOnWidget(
+      task,
+      onHover: () async {
+        final button = find.byWidgetPredicate(
+          (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+        );
+        await tapButton(button);
+      },
     );
-
-    await tapButton(button);
   }
 
   void assertPhantomChecklistItemAtIndex({required int index}) {
