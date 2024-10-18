@@ -1,12 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 const _interceptorKey = 'document_option_button_interceptor';
 
@@ -95,48 +97,24 @@ class _OptionButtonState extends State<OptionButton> {
             widget.controller.show();
 
             // update selection
-            _updateBlockSelection();
+            _updateBlockSelection(context);
           },
         );
       },
     );
   }
 
-  void _updateBlockSelection() {
-    final beforeSelection = this.beforeSelection;
-    final path = widget.blockComponentContext.node.path;
-    final selection = Selection.collapsed(
-      Position(path: path),
+  void _updateBlockSelection(BuildContext context) {
+    final cubit = context.read<BlockActionOptionCubit>();
+    final selection = cubit.calculateTurnIntoSelection(
+      widget.blockComponentContext.node,
+      beforeSelection,
     );
     Log.info(
-      'update block selection, beforeSelection: $beforeSelection, path: $path',
+      'update block selection, beforeSelection: $beforeSelection, afterSelection: $selection',
     );
-    // if the previous selection is null or the start path is not in the same level as the current block path,
-    // then update the selection with the current block path
-    // for example,'|' means the selection,
-    // case 1: collapsed selection
-    // - bulleted item 1
-    // - bulleted |item 2
-    // when clicking the bulleted item 1, the bulleted item 1 path should be selected
-    // case 2: not collapsed selection
-    // - bulleted item 1
-    // - bulleted |item 2
-    // - bulleted |item 3
-    // when clicking the bulleted item 1, the bulleted item 1 path should be selected
-
-    if (beforeSelection == null ||
-        beforeSelection.start.path.length != path.length ||
-        !path.inSelection(beforeSelection)) {
-      widget.editorState.updateSelectionWithReason(
-        selection,
-        customSelectionType: SelectionType.block,
-      );
-      return;
-    }
-    // if the beforeSelection start with the current block,
-    //  then updating the selection with the beforeSelection that may contains multiple blocks
     widget.editorState.updateSelectionWithReason(
-      beforeSelection,
+      selection,
       customSelectionType: SelectionType.block,
     );
   }

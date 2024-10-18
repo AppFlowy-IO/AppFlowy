@@ -271,4 +271,35 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
     return true;
   }
+
+  Selection? calculateTurnIntoSelection(
+    Node selectedNode,
+    Selection? beforeSelection,
+  ) {
+    final path = selectedNode.path;
+    final selection = Selection.collapsed(
+      Position(path: path),
+    );
+
+    // if the previous selection is null or the start path is not in the same level as the current block path,
+    // then update the selection with the current block path
+    // for example,'|' means the selection,
+    // case 1: collapsed selection
+    // - bulleted item 1
+    // - bulleted |item 2
+    // when clicking the bulleted item 1, the bulleted item 1 path should be selected
+    // case 2: not collapsed selection
+    // - bulleted item 1
+    // - bulleted |item 2
+    // - bulleted |item 3
+    // when clicking the bulleted item 1, the bulleted item 1 path should be selected
+    if (beforeSelection == null ||
+        beforeSelection.start.path.length != path.length ||
+        !path.inSelection(beforeSelection)) {
+      return selection;
+    }
+    // if the beforeSelection start with the current block,
+    //  then updating the selection with the beforeSelection that may contains multiple blocks
+    return beforeSelection;
+  }
 }
