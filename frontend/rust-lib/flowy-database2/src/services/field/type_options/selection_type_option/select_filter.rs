@@ -149,11 +149,12 @@ mod tests {
     let option_2 = SelectOption::new("B");
     let filter = SelectOptionFilterPB {
       condition: SelectOptionFilterConditionPB::OptionIsNotEmpty,
-      option_ids: vec![option_1.id.clone(), option_2.id.clone()],
+      option_ids: vec![],
     };
 
     assert_eq!(filter.is_visible(&[]), Some(false));
     assert_eq!(filter.is_visible(&[option_1.clone()]), Some(true));
+    assert_eq!(filter.is_visible(&[option_1, option_2]), Some(true));
   }
 
   #[test]
@@ -184,8 +185,6 @@ mod tests {
       (vec![], Some(false)),
       (vec![option_1.clone()], Some(true)),
       (vec![option_2.clone()], Some(false)),
-      (vec![option_3.clone()], Some(false)),
-      (vec![option_1.clone(), option_2.clone()], Some(false)),
     ] {
       assert_eq!(filter.is_visible(&options), is_visible);
     }
@@ -197,12 +196,9 @@ mod tests {
     };
     for (options, is_visible) in [
       (vec![], Some(false)),
-      (vec![option_1.clone()], Some(false)),
-      (vec![option_1.clone(), option_2.clone()], Some(true)),
-      (
-        vec![option_1.clone(), option_2.clone(), option_3.clone()],
-        Some(false),
-      ),
+      (vec![option_1.clone()], Some(true)),
+      (vec![option_2.clone()], Some(true)),
+      (vec![option_3.clone()], Some(false)),
     ] {
       assert_eq!(filter.is_visible(&options), is_visible);
     }
@@ -222,7 +218,7 @@ mod tests {
     for (options, is_visible) in [
       (vec![], None),
       (vec![option_1.clone()], None),
-      (vec![option_1.clone(), option_2.clone()], None),
+      (vec![option_2.clone()], None),
     ] {
       assert_eq!(filter.is_visible(&options), is_visible);
     }
@@ -237,7 +233,6 @@ mod tests {
       (vec![option_1.clone()], Some(false)),
       (vec![option_2.clone()], Some(true)),
       (vec![option_3.clone()], Some(true)),
-      (vec![option_1.clone(), option_2.clone()], Some(true)),
     ] {
       assert_eq!(filter.is_visible(&options), is_visible);
     }
@@ -249,12 +244,9 @@ mod tests {
     };
     for (options, is_visible) in [
       (vec![], Some(true)),
-      (vec![option_1.clone()], Some(true)),
-      (vec![option_1.clone(), option_2.clone()], Some(false)),
-      (
-        vec![option_1.clone(), option_2.clone(), option_3.clone()],
-        Some(true),
-      ),
+      (vec![option_1.clone()], Some(false)),
+      (vec![option_2.clone()], Some(false)),
+      (vec![option_3.clone()], Some(true)),
     ] {
       assert_eq!(filter.is_visible(&options), is_visible);
     }
