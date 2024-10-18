@@ -56,7 +56,7 @@ class NotificationReminderBloc
               emit(
                 NotificationReminderState(
                   createdAt: createdAt,
-                  pageTitle: view.name,
+                  pageTitle: view.nameOrDefault,
                   view: view,
                   reminderContent: node.delta?.toPlainText() ?? '',
                   nodes: [node],
@@ -68,7 +68,7 @@ class NotificationReminderBloc
             emit(
               NotificationReminderState(
                 createdAt: createdAt,
-                pageTitle: view.name,
+                pageTitle: view.nameOrDefault,
                 view: view,
                 reminderContent: reminder.message,
                 status: NotificationReminderStatus.loaded,
