@@ -117,3 +117,7 @@ Future<List<ImageBlockData>> extractAndUploadImages(
 
   return images;
 }
+
+Future<void> deleteImageFromLocalStorage(String localImagePath) async {
+  await File(localImagePath).delete();
+}
