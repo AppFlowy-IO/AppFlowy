@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -143,5 +144,36 @@ void main() {
         );
       }
     });
+
+    testWidgets(
+      'selecting the parent should deselect all the child nodes as well',
+      (tester) async {
+        await tester.initializeAppFlowy();
+        await tester.tapAnonymousSignInButton();
+
+        const name = 'Test Document';
+        await tester.createNewPageWithNameUnderParent(name: name);
+        await tester.openPage(name);
+
+        // create a nested list
+        // Item 1
+        //  Nested Item 1
+        await tester.editor.tapLineOfEditorAt(0);
+        await tester.ime.insertText('Item 1');
+        await tester.ime.insertCharacter('\n');
+        await tester.simulateKeyEvent(LogicalKeyboardKey.tab);
+        await tester.ime.insertText('Nested Item 1');
+
+        // select the 'Nested Item 1' and then tap the option button of the 'Item 1'
+        final editorState = tester.editor.getCurrentEditorState();
+        final selection = Selection.collapsed(
+          Position(path: [0, 0], offset: 1),
+        );
+        await tester.pumpAndSettle();
+        expect(editorState.selection, selection);
+        await tester.editor.hoverAndClickOptionMenuButton([0]);
+        expect(editorState.selection, Selection.collapsed(Position(path: [0])));
+      },
+    );
   });
 }
