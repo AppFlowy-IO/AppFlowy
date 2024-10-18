@@ -22,6 +22,7 @@ on:
 env:
   FLUTTER_VERSION: "3.22.0"
   RUST_TOOLCHAIN: "1.80.1"
+  CLOUD_VERSION: 0.6.34-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -48,13 +49,13 @@ jobs:
           model: "iPhone 15"
           shutdown_after_job: false
 
-  build-macos:
+  integration-tests:
     if: github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -102,16 +103,131 @@ jobs:
           model: "iPhone 15"
           shutdown_after_job: false
 
-      # - name: Run AppFlowy on simulator
-      #   working-directory: frontend/appflowy_flutter
-      #   run: |
-      #     flutter run -d ${{ steps.simulator-action.outputs.udid }} &
-      #     pid=$!
-      #     sleep 500
-      #     kill $pid
-      #   continue-on-error: true
+      - name: Run AppFlowy on simulator
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter run -d ${{ steps.simulator-action.outputs.udid }} &
+          pid=$!
+          sleep 500
+          kill $pid
+        continue-on-error: true
 
-      # enable it again if the 12 mins timeout is fixed
-      # - name: Run integration tests
-      #   working-directory: frontend/appflowy_flutter
-      #   run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+      - name: Run integration tests
+        working-directory: frontend/appflowy_flutter
+        run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+
+  cloud-tests:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: macos-13
+
+    steps:
+      - uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 12
+
+      - name: Setup Docker on macOS
+        uses: douglascamata/setup-docker-macos-action@v1-alpha
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          # log level
+          cp deploy.env .env
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i '' 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
+        run: |
+          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
+          if [ -z "$container_id" ]; then
+            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
+            docker compose pull
+            docker compose up -d
+            echo "Waiting for the container to be ready..."
+            sleep 10
+          else
+            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
+            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
+              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
+              docker compose pull
+              docker compose up -d
+              echo "Waiting for the container to be ready..."
+              sleep 10
+            else
+              echo "AppFlowy-Cloud is running with the correct version."
+            fi
+          fi
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: aarch64-apple-ios-sim
+          override: true
+          profile: minimal
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: macos-latest
+          workspaces: |
+            frontend/rust-lib
+
+      - uses: davidB/rust-cargo-make@v1
+        with:
+          version: "0.37.15"
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          rustup target install aarch64-apple-ios-sim
+          cargo install --force duckscript_cli
+          cargo install cargo-lipo
+          cargo make appflowy-flutter-deps-tools
+        shell: bash
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - uses: futureware-tech/simulator-action@v3
+        id: simulator-action
+        with:
+          model: "iPhone 15"
+          shutdown_after_job: false
+
+      - name: Run AppFlowy on simulator
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter run -d ${{ steps.simulator-action.outputs.udid }} &
+          pid=$!
+          sleep 500
+          kill $pid
+        continue-on-error: true
+
+      - name: Run integration tests
+        working-directory: frontend/appflowy_flutter
+        run: flutter test integration_test/mobile/cloud/cloud_runner.dart -d ${{ steps.simulator-action.outputs.udid }}
