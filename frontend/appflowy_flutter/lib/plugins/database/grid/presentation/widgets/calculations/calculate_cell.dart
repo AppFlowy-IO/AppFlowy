@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
@@ -13,7 +15,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dar
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalculateCell extends StatefulWidget {
@@ -86,35 +87,11 @@ class _CalculateCellState extends State<CalculateCell> {
             }
           });
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                if (widget.calculation != null)
-                  RemoveCalculationButton(
-                    onTap: () => context.read<CalculationsBloc>().add(
-                          CalculationsEvent.removeCalculation(
-                            widget.fieldInfo.id,
-                            widget.calculation!.id,
-                          ),
-                        ),
-                  ),
-                ...widget.fieldInfo.fieldType.calculationsForFieldType().map(
-                      (type) => CalculationTypeItem(
-                        type: type,
-                        onTap: () {
-                          if (type != widget.calculation?.calculationType) {
-                            context.read<CalculationsBloc>().add(
-                                  CalculationsEvent.updateCalculationType(
-                                    widget.fieldInfo.id,
-                                    type,
-                                    calculationId: widget.calculation?.id,
-                                  ),
-                                );
-                          }
-                        },
-                      ),
-                    ),
-              ],
+          return BlocProvider.value(
+            value: context.read<CalculationsBloc>(),
+            child: CalculateSelector(
+              fieldInfo: widget.fieldInfo,
+              calculation: widget.calculation,
             ),
           );
         },
@@ -126,7 +103,7 @@ class _CalculateCellState extends State<CalculateCell> {
   }
 
   Widget _showCalculateValue(BuildContext context, String? prefix) {
-    prefix = prefix != null ? '$prefix ' : '';
+    prefix = prefix != null && prefix.isNotEmpty ? '$prefix ' : '';
     final calculateValue =
         '$prefix${_withoutTrailingZeros(widget.calculation!.value)}';
 
@@ -208,4 +185,50 @@ class _CalculateCellState extends State<CalculateCell> {
               .iconSymbol(false),
         _ => null,
       };
+}
+
+class CalculateSelector extends StatelessWidget {
+  const CalculateSelector({
+    super.key,
+    required this.fieldInfo,
+    this.calculation,
+  });
+
+  final FieldInfo fieldInfo;
+  final CalculationPB? calculation;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          if (calculation != null)
+            RemoveCalculationButton(
+              onTap: () => context.read<CalculationsBloc>().add(
+                    CalculationsEvent.removeCalculation(
+                      fieldInfo.id,
+                      calculation!.id,
+                    ),
+                  ),
+            ),
+          ...fieldInfo.fieldType.calculationsForFieldType().map(
+                (type) => CalculationTypeItem(
+                  type: type,
+                  onTap: () {
+                    if (type != calculation?.calculationType) {
+                      context.read<CalculationsBloc>().add(
+                            CalculationsEvent.updateCalculationType(
+                              fieldInfo.id,
+                              type,
+                              calculationId: calculation?.id,
+                            ),
+                          );
+                    }
+                  },
+                ),
+              ),
+        ],
+      ),
+    );
+  }
 }
