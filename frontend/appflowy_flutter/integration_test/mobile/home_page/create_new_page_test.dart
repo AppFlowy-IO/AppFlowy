@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/home.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
@@ -35,8 +36,10 @@ void main() {
       );
 
       // tap the create page button
-      final createPageButton = find.byKey(
-        BottomNavigationBarItemType.home.valueKey,
+      final createPageButton = find.byWidgetPredicate(
+        (widget) =>
+            widget is FlowySvg &&
+            widget.svg.path == FlowySvgs.m_home_unselected_m.path,
       );
       await tester.tapButton(createPageButton);
       expect(find.byType(MobileDocumentScreen), findsOneWidget);

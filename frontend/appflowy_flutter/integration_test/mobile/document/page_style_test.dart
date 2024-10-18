@@ -126,7 +126,6 @@ void main() {
 
       // click done button to exit the page style settings
       await tester.tapButton(find.byType(BottomSheetDoneButton).first);
-      await tester.tapButton(find.byType(BottomSheetDoneButton).first);
 
       // check the cover
       final builtInCover = find.descendant(
