@@ -1290,6 +1290,26 @@ impl FolderManager {
     Ok(published_views)
   }
 
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_default_published_view_info(&self) -> FlowyResult<PublishInfo> {
+    let workspace_id = self.user.workspace_id()?;
+    let default_published_view_info = self
+      .cloud_service
+      .get_default_published_view_info(&workspace_id)
+      .await?;
+    Ok(default_published_view_info)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn set_default_published_view(&self, view_id: uuid::Uuid) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_default_published_view(&workspace_id, view_id)
+      .await?;
+    Ok(())
+  }
+
   /// Retrieves the publishing payload for a specified view and optionally its child views.
   ///
   /// # Arguments

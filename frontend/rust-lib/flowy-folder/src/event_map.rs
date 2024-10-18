@@ -50,7 +50,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::GetPublishNamespace, get_publish_namespace_handler)
     .event(FolderEvent::ListPublishedViews, list_published_views_handler)
     .event(FolderEvent::GetDefaultPublishInfo, get_default_publish_info_handler)
-    .event(FolderEvent::SetDefaultPublishInfo, set_default_publish_info_handler)
+    .event(FolderEvent::SetDefaultPublishInfo, set_default_publish_view_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

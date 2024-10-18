@@ -495,13 +495,21 @@ pub(crate) async fn list_published_views_handler(
 pub(crate) async fn get_default_publish_info_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<PublishInfoResponsePB, FlowyError> {
-  todo!()
+  let folder = upgrade_folder(folder)?;
+  let default_published_view = folder.get_default_published_view_info().await?;
+  data_result_ok(default_published_view.into())
 }
 
 #[tracing::instrument(level = "debug", skip(folder))]
-pub(crate) async fn set_default_publish_info_handler(
+pub(crate) async fn set_default_publish_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> Result<(), FlowyError> {
-  todo!()
+  let folder = upgrade_folder(folder)?;
+  let view_id: uuid::Uuid = data.into_inner().value.parse().map_err(|err| {
+    tracing::error!("Failed to parse view id: {}", err);
+    FlowyError::invalid_data()
+  })?;
+  folder.set_default_published_view(view_id).await?;
+  Ok(())
 }

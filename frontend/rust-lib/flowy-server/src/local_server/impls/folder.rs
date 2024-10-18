@@ -119,6 +119,21 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(anyhow!("Local server doesn't support list published views"))
   }
 
+  async fn get_default_published_view_info(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<PublishInfo, Error> {
+    Err(anyhow!("Local server doesn't support list published views"))
+  }
+
+  async fn set_default_published_view(
+    &self,
+    _workspace_id: &str,
+    _view_id: uuid::Uuid,
+  ) -> Result<(), Error> {
+    Err(anyhow!("Local server doesn't support list published views"))
+  }
+
   async fn import_zip(&self, _file_path: &str) -> Result<(), Error> {
     Err(anyhow!(
       "Local server doesn't support get publish namespace"

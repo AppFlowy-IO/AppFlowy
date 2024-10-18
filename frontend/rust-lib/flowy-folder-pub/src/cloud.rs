@@ -65,6 +65,15 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   async fn list_published_views(&self, workspace_id: &str) -> Result<Vec<PublishInfoView>, Error>;
 
+  async fn get_default_published_view_info(&self, workspace_id: &str)
+    -> Result<PublishInfo, Error>;
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), Error>;
+
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), Error>;

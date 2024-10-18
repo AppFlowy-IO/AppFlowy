@@ -349,6 +349,29 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
+  async fn get_default_published_view_info(
+    &self,
+    workspace_id: &str,
+  ) -> Result<PublishInfo, Error> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .get_default_published_view_info(workspace_id)
+      .await
+  }
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), Error> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .set_default_published_view(workspace_id, view_id)
+      .await
+  }
+
   /// List all published views of the current workspace.
   async fn list_published_views(&self, workspace_id: &str) -> Result<Vec<PublishInfoView>, Error> {
     let server = self.get_server()?;

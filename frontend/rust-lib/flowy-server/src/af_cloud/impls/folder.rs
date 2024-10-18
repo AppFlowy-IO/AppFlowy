@@ -279,6 +279,33 @@ where
     Ok(published_views)
   }
 
+  async fn get_default_published_view_info(
+    &self,
+    workspace_id: &str,
+  ) -> Result<PublishInfo, Error> {
+    let default_published_view_info = self
+      .inner
+      .try_get_client()?
+      .get_default_publish_view_info(workspace_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(default_published_view_info)
+  }
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), Error> {
+    self
+      .inner
+      .try_get_client()?
+      .set_default_publish_view(workspace_id, view_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
+  }
+
   async fn import_zip(&self, file_path: &str) -> Result<(), Error> {
     let file_path = PathBuf::from(file_path);
     self.inner.try_get_client()?.import_file(&file_path).await?;
