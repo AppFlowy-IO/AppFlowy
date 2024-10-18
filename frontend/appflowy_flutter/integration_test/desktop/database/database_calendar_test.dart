@@ -299,6 +299,7 @@ void main() {
       await tester.tapButton(finderForFieldType(FieldType.MultiSelect));
       await tester.createOption(name: "asdf");
       await tester.createOption(name: "qwer");
+      await tester.selectOption(name: "asdf");
       await tester.dismissCellEditor();
 
       await tester.tapDatabaseFilterButton();
@@ -308,19 +309,31 @@ void main() {
       await tester.tapOptionFilterWithName('asdf');
       await tester.dismissCellEditor();
 
+      tester.assertNumberOfEventsInCalendar(0);
+
+      await tester.tapFilterButtonInGrid('Tags');
+      await tester.tapOptionFilterWithName('asdf');
+      await tester.dismissCellEditor();
+
       tester.assertNumberOfEventsInCalendar(1);
+
+      await tester.tapFilterButtonInGrid('Tags');
+      await tester.tapOptionFilterWithName('asdf');
+      await tester.dismissCellEditor();
+
+      tester.assertNumberOfEventsInCalendar(0);
 
       final secondOfThisMonth = DateTime(today.year, today.month, 2);
       await tester.doubleClickCalendarCell(secondOfThisMonth);
       await tester.dismissEventEditor();
-      tester.assertNumberOfEventsInCalendar(2);
+      tester.assertNumberOfEventsInCalendar(1);
 
       await tester.openCalendarEvent(index: 0, date: secondOfThisMonth);
       await tester.tapButton(finderForFieldType(FieldType.MultiSelect));
       await tester.selectOption(name: "asdf");
       await tester.dismissCellEditor();
 
-      tester.assertNumberOfEventsInCalendar(1);
+      tester.assertNumberOfEventsInCalendar(0);
 
       await tester.tapFilterButtonInGrid('Tags');
       await tester.changeSelectFilterCondition(

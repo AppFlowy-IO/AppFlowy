@@ -108,6 +108,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
           if (UniversalPlatform.isMobile) {
             return _MobileMentionPageBlock(
               view: view,
+              content: state.blockContent,
               textStyle: widget.textStyle,
               handleTap: () => _handleTap(
                 context,
@@ -540,6 +541,7 @@ class _DeletedPageBlock extends StatelessWidget {
 class _MobileMentionPageBlock extends StatelessWidget {
   const _MobileMentionPageBlock({
     required this.view,
+    required this.content,
     required this.textStyle,
     required this.handleTap,
     required this.handleDoubleTap,
@@ -549,6 +551,7 @@ class _MobileMentionPageBlock extends StatelessWidget {
 
   final TextStyle? textStyle;
   final ViewPB view;
+  final String content;
   final VoidCallback handleTap;
   final VoidCallback handleDoubleTap;
   final bool showTrashHint;
@@ -562,6 +565,7 @@ class _MobileMentionPageBlock extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: _MentionPageBlockContent(
         view: view,
+        content: content,
         textStyle: textStyle,
         showTrashHint: showTrashHint,
         isChildPage: isChildPage,

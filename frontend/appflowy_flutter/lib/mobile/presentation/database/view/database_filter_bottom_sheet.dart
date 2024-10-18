@@ -1003,7 +1003,7 @@ class _SelectOptionFilterContentEditorState
                     isSelected,
                   );
                 },
-                indicator: _getIndicator(),
+                indicator: MobileSelectedOptionIndicator.multi,
                 showMoreOptionsButton: false,
               );
             },
@@ -1027,35 +1027,19 @@ class _SelectOptionFilterContentEditorState
     }
   }
 
-  MobileSelectedOptionIndicator _getIndicator() {
-    return (widget.filter.condition == SelectOptionFilterConditionPB.OptionIs ||
-                widget.filter.condition ==
-                    SelectOptionFilterConditionPB.OptionIsNot) &&
-            widget.field.fieldType == FieldType.SingleSelect
-        ? MobileSelectedOptionIndicator.single
-        : MobileSelectedOptionIndicator.multi;
-  }
-
   void _onTapHandler(
     BuildContext context,
     List<SelectOptionPB> options,
     SelectOptionPB option,
     bool isSelected,
   ) {
+    final selectedOptionIds = Set<String>.from(widget.filter.optionIds);
     if (isSelected) {
-      final selectedOptionIds = Set<String>.from(widget.filter.optionIds)
-        ..remove(option.id);
-
-      _updateSelectOptions(context, options, selectedOptionIds);
+      selectedOptionIds.remove(option.id);
     } else {
-      final selectedOptionIds = widget.delegate.selectOption(
-        widget.filter.optionIds,
-        option.id,
-        widget.filter.condition,
-      );
-
-      _updateSelectOptions(context, options, selectedOptionIds);
+      selectedOptionIds.add(option.id);
     }
+    _updateSelectOptions(context, options, selectedOptionIds);
   }
 
   void _updateSelectOptions(
