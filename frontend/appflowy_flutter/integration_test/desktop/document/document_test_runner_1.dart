@@ -8,7 +8,6 @@ import 'document_create_and_delete_test.dart'
 import 'document_inline_page_reference_test.dart'
     as document_inline_page_reference_test;
 import 'document_more_actions_test.dart' as document_more_actions_test;
-import 'document_option_action_test.dart' as document_option_action_test;
 import 'document_shortcuts_test.dart' as document_shortcuts_test;
 import 'document_text_direction_test.dart' as document_text_direction_test;
 import 'document_with_cover_image_test.dart' as document_with_cover_image_test;
@@ -40,7 +39,6 @@ void main() {
   document_codeblock_paste_test.main();
   document_alignment_test.main();
   document_text_direction_test.main();
-  document_option_action_test.main();
   document_with_image_block_test.main();
   document_with_multi_image_block_test.main();
   document_inline_page_reference_test.main();
