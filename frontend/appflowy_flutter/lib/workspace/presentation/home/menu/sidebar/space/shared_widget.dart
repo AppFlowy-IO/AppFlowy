@@ -563,18 +563,14 @@ class SpacePages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ViewBloc(view: space)..add(const ViewEvent.initial()),
+      create: (_) => ViewBloc(view: space)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
           // filter the child views that should be ignored
-          var childViews = state.view.childViews;
+          List<ViewPB> childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where(
-                  (childView) =>
-                      shouldIgnoreView!(childView) != IgnoreViewType.hide,
-                )
+                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
                 .toList();
           }
           return Column(
@@ -593,6 +589,7 @@ class SpacePages extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,
+                    enableRightClickContext: !disableSelectedStatus,
                     disableSelectedStatus: disableSelectedStatus,
                     isExpandedNotifier: isExpandedNotifier,
                     rightIconsBuilder: rightIconsBuilder,

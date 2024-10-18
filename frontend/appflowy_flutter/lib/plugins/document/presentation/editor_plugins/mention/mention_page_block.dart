@@ -7,12 +7,24 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Delta, EditorState, Node, TextInsert, TextTransaction, paragraphNode;
+    show
+        Delta,
+        EditorState,
+        Node,
+        TextInsert,
+        TextTransaction,
+        paragraphNode,
+        NodeIterator,
+        Path,
+        Selection,
+        Position,
+        SelectionType;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -116,14 +128,37 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   Future<void> handleTap(ViewPB view) async {
+    final blockId = widget.blockId;
+    final currentViewId = context.read<DocumentBloc>().documentId;
+    if (currentViewId == widget.pageId && blockId != null) {
+      // same page
+      final path = _findNodePathByBlockId(editorState, blockId);
+      if (path != null) {
+        editorState.scrollService?.jumpTo(path.first);
+        await editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: path)),
+          customSelectionType: SelectionType.block,
+        );
+      }
+      return;
+    }
+
     if (UniversalPlatform.isMobile) {
-      final currentViewId = context.read<DocumentBloc>().documentId;
       if (mounted && currentViewId != widget.pageId) {
         await context.pushView(view);
       }
     } else {
-      getIt<TabsBloc>().add(
-        TabsEvent.openPlugin(plugin: view.plugin(), view: view),
+      final action = NavigationAction(
+        objectId: view.id,
+        arguments: {
+          ActionArgumentKeys.view: view,
+          ActionArgumentKeys.blockId: blockId,
+        },
+      );
+      getIt<ActionNavigationBloc>().add(
+        ActionNavigationEvent.performAction(
+          action: action,
+        ),
       );
     }
   }
@@ -188,6 +223,27 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       );
     });
   }
+
+  Path? _findNodePathByBlockId(EditorState editorState, String blockId) {
+    final document = editorState.document;
+    final startNode = document.root.children.firstOrNull;
+    if (startNode == null) {
+      return null;
+    }
+
+    final nodeIterator = NodeIterator(
+      document: document,
+      startNode: startNode,
+    );
+    while (nodeIterator.moveNext()) {
+      final node = nodeIterator.current;
+      if (node.id == blockId) {
+        return node.path;
+      }
+    }
+
+    return null;
+  }
 }
 
 class _MentionPageBlockContent extends StatelessWidget {
@@ -225,12 +281,15 @@ class _MentionPageBlockContent extends StatelessWidget {
                 ),
         ],
         const HSpace(2),
-        FlowyText(
-          text,
-          decoration: TextDecoration.underline,
-          fontSize: textStyle?.fontSize,
-          fontWeight: textStyle?.fontWeight,
-          lineHeight: textStyle?.height,
+        Flexible(
+          child: FlowyText(
+            text,
+            decoration: TextDecoration.underline,
+            fontSize: textStyle?.fontSize,
+            fontWeight: textStyle?.fontWeight,
+            lineHeight: textStyle?.height,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const HSpace(4),
       ],
