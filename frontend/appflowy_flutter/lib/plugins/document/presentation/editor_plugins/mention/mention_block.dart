@@ -92,7 +92,7 @@ class MentionBlock extends StatelessWidget {
           node: node,
           textStyle: textStyle,
           index: index,
-          isSubPage: type == MentionType.childPage
+          isSubPage: type == MentionType.childPage,
         );
       case MentionType.date:
         final String date = mention[MentionBlockKeys.date];
