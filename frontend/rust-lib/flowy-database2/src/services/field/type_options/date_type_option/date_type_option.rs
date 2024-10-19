@@ -160,20 +160,32 @@ impl CellDataChangeset for DateTypeOption {
     }
 
     // old date cell data
-    let DateCellData {
-      timestamp,
-      end_timestamp,
-      include_time,
-      is_range,
-      reminder_id,
-    } = match cell {
+    let cell_data = match cell {
       Some(cell) => DateCellData::from(&cell),
       None => DateCellData::default(),
     };
 
-    // update include_time and is_range if necessary
+    let is_range = changeset.is_range.unwrap_or(cell_data.is_range);
+
+    let has_timestamp = changeset.timestamp.is_some();
+    let has_end_timestamp = changeset.end_timestamp.is_some();
+    let unexpected_end_changeset = !is_range && has_end_timestamp;
+    let missing_timestamp = is_range && has_timestamp != has_end_timestamp;
+
+    if unexpected_end_changeset || missing_timestamp {
+      return Ok((Cell::from(&cell_data), cell_data));
+    }
+
+    let DateCellData {
+      timestamp,
+      end_timestamp,
+      include_time,
+      is_range: _,
+      reminder_id,
+    } = cell_data;
+
+    // update include_time and reminder_id if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
-    let is_range = changeset.is_range.unwrap_or(is_range);
     let reminder_id = changeset.reminder_id.unwrap_or(reminder_id);
 
     let timestamp = changeset.timestamp.or(timestamp);
@@ -182,6 +194,7 @@ impl CellDataChangeset for DateTypeOption {
     } else {
       None
     };
+
     let cell_data = DateCellData {
       timestamp,
       end_timestamp,
