@@ -155,7 +155,7 @@ void main() {
   AppFlowyDatePickerState getAfState(WidgetTester tester) =>
       tester.state<AppFlowyDatePickerState>(find.byType(AppFlowyDatePicker));
 
-  group('AppFlowy date picker: ', () {
+  group('AppFlowy date picker:', () {
     testWidgets('default state', (tester) async {
       await tester.pumpWidget(
         const WidgetTestApp(

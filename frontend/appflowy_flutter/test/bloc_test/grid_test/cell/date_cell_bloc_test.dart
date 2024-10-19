@@ -85,6 +85,10 @@ void main() {
       );
       await gridResponseFuture();
 
+      expect(bloc.state.isRange, false);
+      expect(bloc.state.dateTime, null);
+      expect(bloc.state.endDateTime, null);
+
       final now = DateTime.now();
       final expected = DateTime(now.year, now.month, now.day);
       bloc.add(const DateCellEditorEvent.setIsRange(true));
@@ -95,6 +99,7 @@ void main() {
       expect(bloc.state.endDateTime!.isAtSameMinuteAs(expected), true);
 
       bloc.add(const DateCellEditorEvent.setIsRange(false));
+      await gridResponseFuture();
       await gridResponseFuture();
 
       expect(bloc.state.isRange, false);

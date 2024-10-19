@@ -199,7 +199,7 @@ impl CellDataChangeset for DateTypeOption {
       timestamp,
       end_timestamp,
       include_time,
-      is_range,
+      is_range: is_range,
       reminder_id,
     };
 

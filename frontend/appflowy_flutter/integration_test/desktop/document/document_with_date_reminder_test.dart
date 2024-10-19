@@ -62,7 +62,7 @@ void main() {
             widget is TextField && widget.controller!.text == currentTime,
       );
       await tester.enterText(textField, "11:12");
-      await tester.editor.tapLineOfEditorAt(0);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
       // we will get field with current date and 11:12 as time

@@ -51,8 +51,7 @@ abstract class DatePickerService {
 }
 
 const double _datePickerWidth = 260;
-const double _datePickerHeight = 370;
-const double _includeTimeHeight = 32;
+const double _datePickerHeight = 404;
 const double _ySpacing = 15;
 
 class DatePickerMenu extends DatePickerService {
@@ -145,9 +144,7 @@ class _AnimatedDatePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double dy = offset.dy - _includeTimeHeight;
-
-    dy += (showBelow ? _ySpacing : -_ySpacing);
+    final dy = offset.dy + (showBelow ? _ySpacing : -_ySpacing);
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 200),

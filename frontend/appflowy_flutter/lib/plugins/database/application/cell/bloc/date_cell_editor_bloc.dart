@@ -210,7 +210,7 @@ class DateCellEditorBloc
   }
 
   Future<void> _updateIsRange(bool isRange) async {
-    final dateTime = state.dateTime ?? DateTime.now().withoutTime;
+    final dateTime = state.dateTime == null ? DateTime.now().withoutTime : null;
     final endDateTime = dateTime;
 
     final result = await _dateCellBackendService.update(
