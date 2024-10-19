@@ -100,7 +100,6 @@ void main() {
 
       bloc.add(const DateCellEditorEvent.setIsRange(false));
       await gridResponseFuture();
-      await gridResponseFuture();
 
       expect(bloc.state.isRange, false);
       expect(bloc.state.dateTime!.isAtSameMinuteAs(expected), true);
