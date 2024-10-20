@@ -91,14 +91,11 @@ class _GalleryCardState extends State<GalleryCard> {
               rowId: bloc.rowController.rowId,
             ),
             child: RowCardContainer(
-              buildAccessoryWhen: () =>
-                  !context.watch<CardBloc>().state.isEditing,
               accessories: accessories ?? [],
-              openAccessory: (_) {
-                popoverController.show();
-              },
+              openAccessory: (_) => popoverController.show(),
               onTap: (_) => widget.onTap(context),
               child: Container(
+                clipBehavior: Clip.antiAlias,
                 constraints: const BoxConstraints(maxWidth: 200),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
@@ -126,7 +123,17 @@ class _GalleryCardState extends State<GalleryCard> {
                           userProfile: widget.userProfile,
                           showDefaultCover: true,
                         ),
-                        ..._makeCells(context, state.rowMeta, state.cells),
+                        Padding(
+                          padding: widget.styleConfiguration.cardPadding,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: _makeCells(
+                              context,
+                              state.rowMeta,
+                              state.cells,
+                            ),
+                          ),
+                        ),
                       ],
                     );
                   },
@@ -146,15 +153,12 @@ class _GalleryCardState extends State<GalleryCard> {
   ) {
     return cells
         .mapIndexed(
-          (int index, CellMeta cellMeta) => Padding(
-            padding: widget.styleConfiguration.cardPadding,
-            child: CardContentCell(
-              cellBuilder: widget.cellBuilder,
-              cellMeta: cellMeta,
-              rowMeta: rowMeta,
-              isTitle: index == 0,
-              styleMap: widget.styleConfiguration.cellStyleMap,
-            ),
+          (int index, CellMeta cellMeta) => CardContentCell(
+            cellBuilder: widget.cellBuilder,
+            cellMeta: cellMeta,
+            rowMeta: rowMeta,
+            isTitle: index == 0,
+            styleMap: widget.styleConfiguration.cellStyleMap,
           ),
         )
         .toList();

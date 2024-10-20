@@ -156,7 +156,7 @@ class _GalleryContentState extends State<GalleryContent> {
                   itemCount < maxItemsPerRow ? itemCount : maxItemsPerRow;
 
               // Calculate the width of each item in the current row configuration
-              // TODO: Refine behavior, without the 0.0...1 buffer, resizing can cause odd behavior
+              // Without the 0.0...1 buffer, resizing can cause odd behavior
               final totalSpacing = (itemsPerRow - 1) * spacing + 0.000001;
               double itemWidth = (maxWidth - totalSpacing) / itemsPerRow;
               itemWidth = itemWidth.isFinite ? itemWidth : double.infinity;
@@ -195,7 +195,6 @@ class _GalleryContentState extends State<GalleryContent> {
                       viewId: widget.viewId,
                       rowCache: widget.controller.rowCache,
                       styleConfiguration: RowCardStyleConfiguration(
-                        cardPadding: const EdgeInsets.all(4),
                         cellStyleMap: desktopBoardCardCellStyleMap(context),
                       ),
                       onTap: (_) => _openCard(
