@@ -211,6 +211,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               textStyle: widget.textStyle,
               handleTap: () => _handleTap(context, widget.editorState, view),
               isChildPage: true,
+              content: '',
               handleDoubleTap: () => _handleDoubleTap(
                 context,
                 widget.editorState,
