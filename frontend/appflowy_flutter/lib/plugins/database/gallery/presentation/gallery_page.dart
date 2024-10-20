@@ -176,6 +176,7 @@ class _GalleryContentState extends State<GalleryContent> {
                   type: MaterialType.transparency,
                   child: Opacity(opacity: 0.8, child: child),
                 ),
+                footer: _AddCard(itemWidth: itemWidth),
                 children: state.rowInfos.map<Widget>((rowInfo) {
                   return SizedBox(
                     key: ValueKey(rowInfo.rowId),
@@ -198,8 +199,7 @@ class _GalleryContentState extends State<GalleryContent> {
                       ),
                     ),
                   );
-                }).toList()
-                  ..add(_AddCard(itemWidth: itemWidth)),
+                }).toList(),
               );
             },
           ),
@@ -258,8 +258,6 @@ class _AddCard extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: () =>
           context.read<GalleryBloc>().add(const GalleryEvent.createRow()),
-      // This disables the long press behavior of dragging the card
-      onLongPress: () {},
       child: FlowyHover(
         resetHoverOnRebuild: false,
         builder: (context, isHovering) => SizedBox(
