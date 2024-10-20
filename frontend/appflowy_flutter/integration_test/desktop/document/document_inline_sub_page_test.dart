@@ -254,7 +254,7 @@ void main() {
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsNWidgets(2));
       expect(find.byFlowySvg(FlowySvgs.child_page_s), findsNWidgets(2));
-      expect(find.text('$_createdPageName (copy)'), findsOneWidget);
+      expect(find.text('$_createdPageName (copy)'), findsNWidgets(2));
     });
 
     testWidgets('Turn into w/ sub page mentions', (tester) async {
