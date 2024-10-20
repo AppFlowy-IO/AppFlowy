@@ -335,6 +335,9 @@ class _CardContentCellState extends State<CardContentCell> {
   }
 }
 
+const _defaultCoverColorDark = "0xFFABABAB";
+const _defaultCoverColorLight = "0xFFE0E0E0";
+
 class CardCover extends StatelessWidget {
   const CardCover({
     super.key,
@@ -369,7 +372,9 @@ class CardCover extends StatelessWidget {
             context,
             RowCoverPB(
               coverType: CoverTypePB.ColorCover,
-              data: "0xFFEFEFEF",
+              data: Theme.of(context).brightness == Brightness.dark
+                  ? _defaultCoverColorDark
+                  : _defaultCoverColorLight,
             ),
           ),
         );

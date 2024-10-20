@@ -22,6 +22,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
 
+const double _minItemWidth = 200;
+const double _maxItemWidth = 350;
+
 class GalleryPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
 
@@ -141,16 +144,10 @@ class _GalleryContentState extends State<GalleryContent> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final maxWidth = constraints.maxWidth;
-              const double minItemWidth = 200;
-              const double maxItemWidth = 350;
+
               const double spacing = 8;
 
-              final maxItemsPerRow = calculateItemsPerRow(
-                maxWidth,
-                minItemWidth,
-                maxItemWidth,
-                spacing,
-              );
+              final maxItemsPerRow = calculateItemsPerRow(maxWidth, spacing);
 
               final itemCount = state.rowCount + 1;
               final itemsPerRow =
@@ -180,7 +177,8 @@ class _GalleryContentState extends State<GalleryContent> {
                 children: state.rowInfos.map<Widget>((rowInfo) {
                   return SizedBox(
                     key: ValueKey(rowInfo.rowId),
-                    width: itemWidth,
+                    width:
+                        itemWidth > _maxItemWidth ? _maxItemWidth : itemWidth,
                     child: GalleryCard(
                       controller: widget.controller.fieldController,
                       userProfile: context.read<GalleryBloc>().userProfile,
@@ -231,15 +229,13 @@ class _GalleryContentState extends State<GalleryContent> {
 
   int calculateItemsPerRow(
     double maxWidth,
-    double minItemWidth,
-    double maxItemWidth,
     double spacing,
   ) {
-    int itemsPerRow = (maxWidth / (minItemWidth + spacing)).floor();
+    int itemsPerRow = (maxWidth / (_minItemWidth + spacing)).floor();
 
     while (itemsPerRow > 1 &&
         ((maxWidth - (itemsPerRow - 1) * spacing) / itemsPerRow) >
-            maxItemWidth) {
+            _maxItemWidth) {
       itemsPerRow--;
     }
 
@@ -261,7 +257,7 @@ class _AddCard extends StatelessWidget {
       child: FlowyHover(
         resetHoverOnRebuild: false,
         builder: (context, isHovering) => SizedBox(
-          width: itemWidth == double.infinity ? 175 : itemWidth,
+          width: itemWidth > _maxItemWidth ? _maxItemWidth : itemWidth,
           height: itemWidth == double.infinity ? 175 : 140,
           child: DottedBorder(
             dashPattern: const [3, 3],
@@ -272,7 +268,7 @@ class _AddCard extends StatelessWidget {
             ),
             borderType: BorderType.RRect,
             color: isHovering
-                ? Theme.of(context).primaryColor
+                ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).hintColor,
             child: Center(
               child: FlowyText(

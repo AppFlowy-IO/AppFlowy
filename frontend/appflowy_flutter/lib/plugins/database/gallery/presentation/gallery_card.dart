@@ -1,12 +1,17 @@
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/card/container/accessory.dart';
+import 'package:appflowy/plugins/database/widgets/card/container/card_container.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,12 +47,13 @@ class GalleryCard extends StatefulWidget {
 }
 
 class _GalleryCardState extends State<GalleryCard> {
-  late final CardBloc _bloc;
+  final popoverController = PopoverController();
+  late final CardBloc bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc = CardBloc(
+    bloc = CardBloc(
       viewId: widget.viewId,
       fieldController: widget.controller,
       rowController: RowController(
@@ -60,50 +66,75 @@ class _GalleryCardState extends State<GalleryCard> {
 
   @override
   void dispose() {
-    _bloc.close();
+    bloc.close();
+    popoverController.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final accessories = widget.styleConfiguration.showAccessory
+        ? const <CardAccessory>[MoreCardOptionsAccessory()]
+        : null;
+
     return BlocProvider.value(
-      value: _bloc..add(const CardEvent.initial()),
-      child: GestureDetector(
-        onTap: () => widget.onTap(context),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 200),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            border: Border.all(color: Theme.of(context).dividerColor),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 4,
-                color: const Color(0xFF1F2329).withOpacity(0.02),
+      value: bloc..add(const CardEvent.initial()),
+      child: Builder(
+        builder: (context) {
+          return AppFlowyPopover(
+            controller: popoverController,
+            triggerActions: PopoverTriggerFlags.none,
+            constraints: BoxConstraints.loose(const Size(140, 200)),
+            offset: const Offset(5, 0),
+            popupBuilder: (_) => RowActionMenu.gallery(
+              viewId: widget.viewId,
+              rowId: bloc.rowController.rowId,
+            ),
+            child: RowCardContainer(
+              buildAccessoryWhen: () =>
+                  !context.watch<CardBloc>().state.isEditing,
+              accessories: accessories ?? [],
+              openAccessory: (_) {
+                popoverController.show();
+              },
+              onTap: (_) => widget.onTap(context),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 200),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 4,
+                      color: const Color(0xFF1F2329).withOpacity(0.02),
+                    ),
+                    BoxShadow(
+                      blurRadius: 4,
+                      spreadRadius: -2,
+                      color: const Color(0xFF1F2329).withOpacity(0.02),
+                    ),
+                  ],
+                ),
+                child: BlocBuilder<CardBloc, CardState>(
+                  builder: (context, state) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CardCover(
+                          cover: state.rowMeta.cover,
+                          userProfile: widget.userProfile,
+                          showDefaultCover: true,
+                        ),
+                        ..._makeCells(context, state.rowMeta, state.cells),
+                      ],
+                    );
+                  },
+                ),
               ),
-              BoxShadow(
-                blurRadius: 4,
-                spreadRadius: -2,
-                color: const Color(0xFF1F2329).withOpacity(0.02),
-              ),
-            ],
-          ),
-          child: BlocBuilder<CardBloc, CardState>(
-            builder: (context, state) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CardCover(
-                    cover: state.rowMeta.cover,
-                    userProfile: widget.userProfile,
-                    showDefaultCover: true,
-                  ),
-                  ..._makeCells(context, state.rowMeta, state.cells),
-                ],
-              );
-            },
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
