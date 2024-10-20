@@ -404,31 +404,17 @@ class _MentionPageBlockContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = _getDisplayText(context, view, content);
-    final emojiSize = textStyle?.fontSize ?? 12.0;
-    final iconSize = textStyle?.fontSize ?? 16.0;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (_shouldDisplayViewName(context, view.id, content)) ...[
-          const HSpace(4),
-          view.icon.value.isNotEmpty
-              ? FlowyText.emoji(
-                  view.icon.value,
-                  fontSize: emojiSize,
-                  lineHeight: textStyle?.height,
-                  optimizeEmojiAlign: true,
-                )
-              : FlowySvg(
-                  view.layout.mentionIcon(isChildPage: isChildPage),
-                  size: Size.square(iconSize + 2.0),
-                ),
-        ],
+        ..._buildPrefixIcons(context, view, content),
         const HSpace(2),
         Flexible(
           child: FlowyText(
             text,
             decoration: TextDecoration.underline,
+            decorationThickness: 0.5,
             fontSize: textStyle?.fontSize,
             fontWeight: textStyle?.fontWeight,
             lineHeight: textStyle?.height,
@@ -449,6 +435,51 @@ class _MentionPageBlockContent extends StatelessWidget {
         const HSpace(4),
       ],
     );
+  }
+
+  List<Widget> _buildPrefixIcons(
+    BuildContext context,
+    ViewPB view,
+    String? content,
+  ) {
+    final isSameDocument = _isSameDocument(context, view.id);
+    final shouldDisplayViewName = _shouldDisplayViewName(
+      context,
+      view.id,
+      content,
+    );
+
+    // if the block is from the same doc, display the paragraph mark icon '¶'
+    if (isSameDocument) {
+      return [
+        const HSpace(2),
+        FlowySvg(
+          FlowySvgs.paragraph_mark_s,
+          size: const Size.square(14.0),
+          color: Theme.of(context).hintColor,
+        ),
+      ];
+    } else if (shouldDisplayViewName) {
+      final emojiSize = textStyle?.fontSize ?? 12.0;
+      final iconSize = textStyle?.fontSize ?? 16.0;
+
+      return [
+        const HSpace(4),
+        view.icon.value.isNotEmpty
+            ? FlowyText.emoji(
+                view.icon.value,
+                fontSize: emojiSize,
+                lineHeight: textStyle?.height,
+                optimizeEmojiAlign: true,
+              )
+            : FlowySvg(
+                view.layout.icon,
+                size: Size.square(iconSize + 2.0),
+              ),
+      ];
+    }
+
+    return [];
   }
 
   String _getDisplayText(
@@ -597,17 +628,13 @@ class _DesktopMentionPageBlock extends StatelessWidget {
     return GestureDetector(
       onTap: handleTap,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: FlowyHover(
-          cursor: SystemMouseCursors.click,
-          child: _MentionPageBlockContent(
-            view: view,
-            content: content,
-            textStyle: textStyle,
-            showTrashHint: showTrashHint,
-            isChildPage: isChildPage,
-          ),
+      child: FlowyHover(
+        cursor: SystemMouseCursors.click,
+        child: _MentionPageBlockContent(
+          view: view,
+          content: content,
+          textStyle: textStyle,
+          showTrashHint: showTrashHint,
         ),
       ),
     );

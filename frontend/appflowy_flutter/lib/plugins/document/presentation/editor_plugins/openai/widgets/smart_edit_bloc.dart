@@ -46,7 +46,7 @@ class SmartEditBloc extends Bloc<SmartEditEvent, SmartEditState> {
           isCanceled = true;
           await _exit();
         },
-        update: (result, isLoading, aiError) async {
+        update: (result, isLoading, aiError) {
           emit(
             state.copyWith(
               result: result,

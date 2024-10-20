@@ -14,6 +14,7 @@ class FlowyText extends StatelessWidget {
   final Color? color;
   final TextDecoration? decoration;
   final Color? decorationColor;
+  final double? decorationThickness;
   final bool selectable;
   final String? fontFamily;
   final List<String>? fallbackFontFamily;
@@ -50,6 +51,7 @@ class FlowyText extends StatelessWidget {
     this.isEmoji = false,
     this.strutStyle,
     this.optimizeEmojiAlign = false,
+    this.decorationThickness,
   });
 
   FlowyText.small(
@@ -70,6 +72,7 @@ class FlowyText extends StatelessWidget {
     this.strutStyle,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
+    this.decorationThickness,
   })  : fontWeight = FontWeight.w400,
         fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
 
@@ -92,6 +95,7 @@ class FlowyText extends StatelessWidget {
     this.strutStyle,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
+    this.decorationThickness,
   }) : fontWeight = FontWeight.w400;
 
   const FlowyText.medium(
@@ -113,6 +117,7 @@ class FlowyText extends StatelessWidget {
     this.strutStyle,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
+    this.decorationThickness,
   }) : fontWeight = FontWeight.w500;
 
   const FlowyText.semibold(
@@ -134,6 +139,7 @@ class FlowyText extends StatelessWidget {
     this.strutStyle,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
+    this.decorationThickness,
   }) : fontWeight = FontWeight.w600;
 
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
@@ -155,6 +161,7 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
+    this.decorationThickness,
   })  : fontWeight = FontWeight.w400,
         fallbackFontFamily = null;
 
@@ -195,6 +202,7 @@ class FlowyText extends StatelessWidget {
           color: color,
           decoration: decoration,
           decorationColor: decorationColor,
+          decorationThickness: decorationThickness,
           fontFamily: fontFamily,
           fontFamilyFallback: fallbackFontFamily,
           height: lineHeight,
