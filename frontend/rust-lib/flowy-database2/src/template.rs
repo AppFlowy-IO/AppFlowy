@@ -214,7 +214,7 @@ pub fn make_default_gallery(view_id: &str, name: &str) -> CreateDatabaseParams {
     database_id: database_id.clone(),
     inline_view_id: view_id.to_string(),
     views: vec![CreateViewParams {
-      database_id,
+      database_id: database_id.clone(),
       view_id: view_id.to_string(),
       name: name.to_string(),
       layout: DatabaseLayout::Gallery,
@@ -227,7 +227,11 @@ pub fn make_default_gallery(view_id: &str, name: &str) -> CreateDatabaseParams {
       modified_at: timestamp,
       ..Default::default()
     }],
-    rows: vec![],
+    rows: vec![
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id),
+    ],
     fields,
   }
 }
