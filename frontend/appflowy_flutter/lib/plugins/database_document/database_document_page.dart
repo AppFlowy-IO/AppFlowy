@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/database/application/row/related_row_detail_bloc.dart';
@@ -105,15 +106,20 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
   }
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
-    final appflowyEditorPage = AppFlowyEditorPage(
+    final appflowyEditorPage = EditorDropHandler(
+      viewId: widget.view.id,
       editorState: state.editorState!,
-      styleCustomizer: EditorStyleCustomizer(
-        context: context,
-        padding: EditorStyleCustomizer.documentPadding,
+      isLocalMode: context.read<DocumentBloc>().isLocalMode,
+      child: AppFlowyEditorPage(
+        editorState: state.editorState!,
+        styleCustomizer: EditorStyleCustomizer(
+          context: context,
+          padding: EditorStyleCustomizer.documentPadding,
+        ),
+        header: _buildDatabaseDataContent(context, state.editorState!),
+        initialSelection: widget.initialSelection,
+        useViewInfoBloc: false,
       ),
-      header: _buildDatabaseDataContent(context, state.editorState!),
-      initialSelection: widget.initialSelection,
-      useViewInfoBloc: false,
     );
 
     return Column(
