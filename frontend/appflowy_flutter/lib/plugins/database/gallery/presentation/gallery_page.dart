@@ -158,7 +158,8 @@ class _GalleryContentState extends State<GalleryContent> {
               // Calculate the width of each item in the current row configuration
               // TODO: Refine behavior, without the 0.0...1 buffer, resizing can cause odd behavior
               final totalSpacing = (itemsPerRow - 1) * spacing + 0.000001;
-              final itemWidth = (maxWidth - totalSpacing) / itemsPerRow;
+              double itemWidth = (maxWidth - totalSpacing) / itemsPerRow;
+              itemWidth = itemWidth.isFinite ? itemWidth : double.infinity;
 
               return ReorderableWrap(
                 enableReorder: state.sorts.isEmpty,
@@ -185,8 +186,7 @@ class _GalleryContentState extends State<GalleryContent> {
                 children: state.rowInfos.map<Widget>((rowInfo) {
                   return SizedBox(
                     key: ValueKey(rowInfo.rowId),
-                    width:
-                        itemWidth > _maxItemWidth ? _maxItemWidth : itemWidth,
+                    width: itemWidth,
                     child: GalleryCard(
                       controller: widget.controller.fieldController,
                       userProfile: context.read<GalleryBloc>().userProfile,
@@ -270,7 +270,7 @@ class _AddCard extends StatelessWidget {
         resetHoverOnRebuild: false,
         buildWhenOnHover: () => !disableHover,
         builder: (context, isHovering) => SizedBox(
-          width: itemWidth > _maxItemWidth ? _maxItemWidth : itemWidth,
+          width: itemWidth,
           height: itemWidth == double.infinity ? 175 : 140,
           child: DottedBorder(
             dashPattern: const [3, 3],
