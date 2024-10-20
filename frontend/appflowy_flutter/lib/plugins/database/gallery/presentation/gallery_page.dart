@@ -130,6 +130,8 @@ class GalleryContent extends StatefulWidget {
 }
 
 class _GalleryContentState extends State<GalleryContent> {
+  bool isReordering = false;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GalleryBloc, GalleryState>(
@@ -168,12 +170,18 @@ class _GalleryContentState extends State<GalleryContent> {
                         .read<GalleryBloc>()
                         .add(GalleryEvent.moveRow(oldIndex, newIndex));
                   }
+                  setState(() => isReordering = false);
                 },
+                onReorderStarted: (_) => setState(() => isReordering = true),
+                onNoReorder: (_) => setState(() => isReordering = false),
                 buildDraggableFeedback: (_, __, child) => Material(
                   type: MaterialType.transparency,
                   child: Opacity(opacity: 0.8, child: child),
                 ),
-                footer: _AddCard(itemWidth: itemWidth),
+                footer: _AddCard(
+                  itemWidth: itemWidth,
+                  disableHover: isReordering,
+                ),
                 children: state.rowInfos.map<Widget>((rowInfo) {
                   return SizedBox(
                     key: ValueKey(rowInfo.rowId),
@@ -244,9 +252,13 @@ class _GalleryContentState extends State<GalleryContent> {
 }
 
 class _AddCard extends StatelessWidget {
-  const _AddCard({required this.itemWidth});
+  const _AddCard({
+    required this.itemWidth,
+    this.disableHover = false,
+  });
 
   final double itemWidth;
+  final bool disableHover;
 
   @override
   Widget build(BuildContext context) {
@@ -256,6 +268,7 @@ class _AddCard extends StatelessWidget {
           context.read<GalleryBloc>().add(const GalleryEvent.createRow()),
       child: FlowyHover(
         resetHoverOnRebuild: false,
+        buildWhenOnHover: () => !disableHover,
         builder: (context, isHovering) => SizedBox(
           width: itemWidth > _maxItemWidth ? _maxItemWidth : itemWidth,
           height: itemWidth == double.infinity ? 175 : 140,
@@ -267,7 +280,7 @@ class _AddCard extends StatelessWidget {
               vertical: 32,
             ),
             borderType: BorderType.RRect,
-            color: isHovering
+            color: isHovering && !disableHover
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).hintColor,
             child: Center(
