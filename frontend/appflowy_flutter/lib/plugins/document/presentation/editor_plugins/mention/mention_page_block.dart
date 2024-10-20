@@ -11,7 +11,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -66,7 +65,6 @@ class MentionPageBlock extends StatefulWidget {
     required this.node,
     required this.textStyle,
     required this.index,
-    required this.isSubPage,
   });
 
   final EditorState editorState;
@@ -74,7 +72,6 @@ class MentionPageBlock extends StatefulWidget {
   final String? blockId;
   final Node node;
   final TextStyle? textStyle;
-  final bool isSubPage;
 
   // Used to update the block
   final int index;
@@ -89,8 +86,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
     return BlocProvider(
       create: (_) => MentionPageBloc(
         pageId: widget.pageId,
-        blockId: widget.isSubPage ? null : widget.blockId,
-        isSubPage: widget.isSubPage,
+        blockId: widget.blockId,
       )..add(const MentionPageEvent.initial()),
       child: BlocBuilder<MentionPageBloc, MentionPageState>(
         builder: (context, state) {
@@ -408,7 +404,7 @@ class _MentionPageBlockContent extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ..._buildPrefixIcons(context, view, content),
+        ..._buildPrefixIcons(context, view, content, isChildPage),
         const HSpace(2),
         Flexible(
           child: FlowyText(
@@ -441,6 +437,7 @@ class _MentionPageBlockContent extends StatelessWidget {
     BuildContext context,
     ViewPB view,
     String? content,
+    bool isChildPage,
   ) {
     final isSameDocument = _isSameDocument(context, view.id);
     final shouldDisplayViewName = _shouldDisplayViewName(
@@ -473,7 +470,7 @@ class _MentionPageBlockContent extends StatelessWidget {
                 optimizeEmojiAlign: true,
               )
             : FlowySvg(
-                view.layout.icon,
+                isChildPage ? FlowySvgs.child_page_s : FlowySvgs.link_to_page_s,
                 size: Size.square(iconSize + 2.0),
               ),
       ];
@@ -635,6 +632,7 @@ class _DesktopMentionPageBlock extends StatelessWidget {
           content: content,
           textStyle: textStyle,
           showTrashHint: showTrashHint,
+          isChildPage: isChildPage,
         ),
       ),
     );

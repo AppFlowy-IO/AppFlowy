@@ -187,6 +187,16 @@ extension CommonOperations on WidgetTester {
     }
   }
 
+  /// Right click on the page name.
+  Future<void> rightClickOnPageName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+  }) async {
+    final page = findPageName(name, layout: layout);
+    await tap(page, buttons: kSecondaryMouseButton);
+    await pumpAndSettle();
+  }
+
   /// open the page with given name.
   Future<void> openPage(
     String name, {
