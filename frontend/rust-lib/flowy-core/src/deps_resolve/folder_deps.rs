@@ -7,7 +7,9 @@ use collab_integrate::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
-use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
+use flowy_database2::template::{
+  make_default_board, make_default_calendar, make_default_gallery, make_default_grid,
+};
 use flowy_database2::DatabaseManager;
 use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
@@ -79,7 +81,8 @@ pub fn folder_operation_handlers(
   let chat_folder_operation = Arc::new(ChatFolderOperation(chat_manager));
   map.insert(ViewLayout::Board, database_folder_operation.clone());
   map.insert(ViewLayout::Grid, database_folder_operation.clone());
-  map.insert(ViewLayout::Calendar, database_folder_operation);
+  map.insert(ViewLayout::Calendar, database_folder_operation.clone());
+  map.insert(ViewLayout::Gallery, database_folder_operation);
   map.insert(ViewLayout::Chat, chat_folder_operation);
   Arc::new(map)
 }
@@ -430,6 +433,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           ViewLayoutPB::Board => DatabaseLayoutPB::Board,
           ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
           ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
+          ViewLayoutPB::Gallery => DatabaseLayoutPB::Gallery,
           ViewLayoutPB::Document | ViewLayoutPB::Chat => {
             return Err(FlowyError::not_support());
           },
@@ -468,6 +472,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       ViewLayout::Grid => make_default_grid(view_id, &name),
       ViewLayout::Board => make_default_board(view_id, &name),
       ViewLayout::Calendar => make_default_calendar(view_id, &name),
+      ViewLayout::Gallery => make_default_gallery(view_id, &name),
       ViewLayout::Document | ViewLayout::Chat => {
         return Err(
           FlowyError::internal().with_context(format!("Can't handle {:?} layout type", layout)),
@@ -541,6 +546,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       ViewLayout::Grid => DatabaseLayoutPB::Grid,
       ViewLayout::Board => DatabaseLayoutPB::Board,
       ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
+      ViewLayout::Gallery => DatabaseLayoutPB::Gallery,
     };
 
     if old.layout != new.layout {

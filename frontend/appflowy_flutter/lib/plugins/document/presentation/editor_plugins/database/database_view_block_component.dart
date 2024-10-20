@@ -10,15 +10,14 @@ class DatabaseBlockKeys {
   static const String gridType = 'grid';
   static const String boardType = 'board';
   static const String calendarType = 'calendar';
+  static const String galleryType = 'gallery';
 
   static const String parentID = 'parent_id';
   static const String viewID = 'view_id';
 }
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
-  DatabaseViewBlockComponentBuilder({
-    super.configuration,
-  });
+  DatabaseViewBlockComponentBuilder({super.configuration});
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -28,10 +27,7 @@ class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
       node: node,
       configuration: configuration,
       showActions: showActions(node),
-      actionBuilder: (context, state) => actionBuilder(
-        blockComponentContext,
-        state,
-      ),
+      actionBuilder: (_, state) => actionBuilder(blockComponentContext, state),
     );
   }
 
@@ -71,12 +67,7 @@ class _DatabaseBlockComponentWidgetState
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
-      builder: (viewPB) {
-        return DatabaseViewWidget(
-          key: ValueKey(viewPB.id),
-          view: viewPB,
-        );
-      },
+      builder: (view) => DatabaseViewWidget(key: ValueKey(view.id), view: view),
     );
 
     child = Padding(

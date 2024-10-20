@@ -131,6 +131,8 @@ extension InsertDatabase on EditorState {
         return LocaleKeys.board_referencedBoardPrefix.tr();
       case ViewLayoutPB.Calendar:
         return LocaleKeys.calendar_referencedCalendarPrefix.tr();
+      case ViewLayoutPB.Gallery:
+        return LocaleKeys.databaseGallery_referencedGalleryPrefix.tr();
       default:
         throw UnimplementedError();
     }
@@ -144,6 +146,8 @@ extension InsertDatabase on EditorState {
         return DatabaseBlockKeys.boardType;
       case ViewLayoutPB.Calendar:
         return DatabaseBlockKeys.calendarType;
+      case ViewLayoutPB.Gallery:
+        return DatabaseBlockKeys.galleryType;
       default:
         throw Exception('Unknown layout type');
     }

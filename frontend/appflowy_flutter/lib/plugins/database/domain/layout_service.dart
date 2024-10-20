@@ -9,6 +9,8 @@ ViewLayoutPB viewLayoutFromDatabaseLayout(DatabaseLayoutPB databaseLayout) {
       return ViewLayoutPB.Calendar;
     case DatabaseLayoutPB.Grid:
       return ViewLayoutPB.Grid;
+    case DatabaseLayoutPB.Gallery:
+      return ViewLayoutPB.Gallery;
     default:
       throw UnimplementedError;
   }
@@ -22,6 +24,8 @@ DatabaseLayoutPB databaseLayoutFromViewLayout(ViewLayoutPB viewLayout) {
       return DatabaseLayoutPB.Calendar;
     case ViewLayoutPB.Grid:
       return DatabaseLayoutPB.Grid;
+    case ViewLayoutPB.Gallery:
+      return DatabaseLayoutPB.Gallery;
     default:
       throw UnimplementedError;
   }

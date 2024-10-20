@@ -171,6 +171,7 @@
   "newDocumentText": "New document",
   "newGridText": "New grid",
   "newCalendarText": "New calendar",
+  "newGalleryText": "New gallery",
   "newBoardText": "New board",
   "chat": {
     "newChat": "AI Chat",
@@ -2630,6 +2631,11 @@
     "uploadSuccessDescription": "The file has been uploaded successfully",
     "uploadFailedDescription": "The file upload failed",
     "uploadingDescription": "The file is being uploaded"
+  },
+  "databaseGallery": {
+    "menuName": "Gallery",
+    "referencedGalleryPrefix": "View of",
+    "addCard": "+ New card"
   },
   "gallery": {
     "preview": "Open in full screen",

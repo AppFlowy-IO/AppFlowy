@@ -149,6 +149,7 @@ impl From<ViewLayoutPB> for ViewLayout {
       ViewLayoutPB::Board => ViewLayout::Board,
       ViewLayoutPB::Calendar => ViewLayout::Calendar,
       ViewLayoutPB::Chat => ViewLayout::Chat,
+      ViewLayoutPB::Gallery => ViewLayout::Gallery,
     }
   }
 }

@@ -831,6 +831,7 @@ impl DatabaseViewEditor {
           }
         }
       },
+      DatabaseLayout::Gallery => {},
     }
 
     layout_setting
