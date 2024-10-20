@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
@@ -352,6 +353,32 @@ extension CommonOperations on WidgetTester {
       );
       await pumpAndSettle();
     }
+  }
+
+  Future<void> createOpenRenameDocumentUnderParent({
+    required String name,
+    String? parentName,
+  }) async {
+    // create a new page
+    await tapAddViewButton(name: parentName ?? gettingStarted);
+    await tapButtonWithName(ViewLayoutPB.Document.menuName);
+    final settingsOrFailure = await getIt<KeyValueStorage>().getWithFormat(
+      KVKeys.showRenameDialogWhenCreatingNewFile,
+      (value) => bool.parse(value),
+    );
+    final showRenameDialog = settingsOrFailure ?? false;
+    if (showRenameDialog) {
+      await tapOKButton();
+    }
+    await pumpAndSettle();
+
+    // open the page after created
+    await openPage(ViewLayoutPB.Document.defaultName);
+    await pumpAndSettle();
+
+    // Enter new name in the document title
+    await enterText(find.byType(TextFieldWithMetricLines), name);
+    await pumpAndSettle();
   }
 
   /// Create a new page in the space

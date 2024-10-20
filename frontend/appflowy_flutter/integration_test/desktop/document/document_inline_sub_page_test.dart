@@ -21,12 +21,12 @@ const _createdPageName = "hi world";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Document Inline Sub Page Mention tests', () {
+  group('document inline sub-page mention tests:', () {
     testWidgets('Insert (and delete) a sub page mention from action menu (+)',
         (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
-      await tester.createNewPageWithNameUnderParent(name: _firstDocName);
+      await tester.createOpenRenameDocumentUnderParent(name: _firstDocName);
 
       await tester.insertInlineSubPageFromPlusMenu();
 
