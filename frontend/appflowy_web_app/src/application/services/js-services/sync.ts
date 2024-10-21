@@ -1,5 +1,5 @@
 import { updateCollab } from '@/application/services/js-services/http/http_api';
-import { CollabOrigin } from '@/application/types';
+import { CollabOrigin, Types } from '@/application/types';
 import { debounce } from 'lodash-es';
 import * as Y from 'yjs';
 
@@ -17,7 +17,9 @@ export class SyncManager {
 
   private isSending = false;
 
-  constructor (private doc: Y.Doc, private uuid: string, private workspaceId: string, private objectId: string) {
+  constructor (private doc: Y.Doc, private context: {
+    userId: string, workspaceId: string, objectId: string, collabType: Types
+  }) {
     this.versionVector = this.loadVersionVector();
     this.hasUnsyncedChanges = this.loadUnsyncedFlag();
     this.lastSyncedAt = this.loadLastSyncedAt();
@@ -33,7 +35,7 @@ export class SyncManager {
   }
 
   private getStorageKey (baseKey: string): string {
-    return `${this.uuid}_${baseKey}_${this.workspaceId}_${this.objectId}`;
+    return `${this.context.userId}_${baseKey}_${this.context.workspaceId}_${this.context.objectId}`;
   }
 
   private loadVersionVector (): number {
@@ -81,7 +83,7 @@ export class SyncManager {
       const update = Y.encodeStateAsUpdate(this.doc);
       const context = { version_vector: this.versionVector };
 
-      const response = await updateCollab(this.workspaceId, this.objectId, update, context);
+      const response = await updateCollab(this.context.workspaceId, this.context.objectId, this.context.collabType, update, context);
 
       if (response) {
         console.log(`Update sent successfully. Server version: ${response.version_vector}`);

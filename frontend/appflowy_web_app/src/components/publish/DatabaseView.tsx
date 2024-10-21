@@ -24,7 +24,7 @@ export interface DatabaseProps {
   doc: YDoc;
   createRowDoc?: CreateRowDoc;
   loadView?: LoadView;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   viewMeta: ViewMetaProps;
   appendBreadcrumb?: AppendBreadcrumb;

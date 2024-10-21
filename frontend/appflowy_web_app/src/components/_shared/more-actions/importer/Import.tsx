@@ -10,7 +10,7 @@ function Import ({
   disableClose,
   onSuccessfulImport,
 }: {
-  disableClose: boolean;
+  disableClose?: boolean;
   onSuccessfulImport?: () => void;
 }) {
   const {

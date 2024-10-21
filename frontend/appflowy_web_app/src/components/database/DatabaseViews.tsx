@@ -65,11 +65,20 @@ function DatabaseViews ({
   const skeleton = useMemo(() => {
     switch (layout) {
       case DatabaseViewLayout.Grid:
-        return <GridSkeleton includeTitle={false} includeTabs={false} />;
+        return <GridSkeleton
+          includeTitle={false}
+          includeTabs={false}
+        />;
       case DatabaseViewLayout.Board:
-        return <KanbanSkeleton includeTitle={false} includeTabs={false} />;
+        return <KanbanSkeleton
+          includeTitle={false}
+          includeTabs={false}
+        />;
       case DatabaseViewLayout.Calendar:
-        return <CalendarSkeleton includeTitle={false} includeTabs={false} />;
+        return <CalendarSkeleton
+          includeTitle={false}
+          includeTabs={false}
+        />;
       default:
         return null;
     }

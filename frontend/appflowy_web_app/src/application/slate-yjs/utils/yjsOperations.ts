@@ -1176,6 +1176,11 @@ export function getBlocks (sharedRoot: YSharedRoot) {
 
 export function getPageId (sharedRoot: YSharedRoot) {
   const document = getDocument(sharedRoot);
+
+  if (!document) {
+    throw new Error('Document not found');
+  }
+
   const pageId = document.get(YjsEditorKey.page_id) as string;
 
   return pageId;

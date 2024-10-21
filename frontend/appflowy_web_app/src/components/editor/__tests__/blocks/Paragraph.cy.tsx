@@ -12,7 +12,7 @@ describe('<Paragraph />', () => {
       const documentTest = new DocumentTest();
 
       documentTest.fromJSON(data);
-      mountEditor({ readOnly: true, doc: documentTest.doc });
+      mountEditor({ readOnly: true, doc: documentTest.doc, viewId: '' });
     }).as('render');
     cy.get('[role="textbox"]').should('exist');
     cy.get('[data-block-type="paragraph"]').should('have.length', 7);
@@ -59,7 +59,7 @@ describe('<Paragraph />', () => {
     cy.get('[role="textbox"]').selectMultipleText(['bold']);
 
     cy.wait(50);
-    
+
     cy.get('[role="textbox"]').type('{backspace}');
 
     const expectJSON = [{
