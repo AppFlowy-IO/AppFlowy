@@ -1,3 +1,5 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -111,6 +113,9 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
             options: const ApplyOptions(recordUndo: false),
           );
           editorState.reload();
+
+          // Open view
+          getIt<TabsBloc>().openPlugin(view);
         },
         (error) async {
           Log.error(error);
