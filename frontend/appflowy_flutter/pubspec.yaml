@@ -17,7 +17,7 @@ dependencies:
   appflowy_board:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 8a6434ae3d02624b614a010af80f775db11bf22e
+      ref: 5517c8704c0dbeaeda5601e9baadb4cc2b29990d
   appflowy_editor:
   appflowy_editor_plugins:
   appflowy_popover:
@@ -171,7 +171,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "4509123"
+      ref: "e7d9560"
 
   appflowy_editor_plugins:
     git:

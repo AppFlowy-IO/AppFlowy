@@ -93,8 +93,6 @@ final class SingleSelectOptionFilterCondition
     return [
       SelectOptionFilterConditionPB.OptionIs,
       SelectOptionFilterConditionPB.OptionIsNot,
-      SelectOptionFilterConditionPB.OptionContains,
-      SelectOptionFilterConditionPB.OptionDoesNotContain,
       SelectOptionFilterConditionPB.OptionIsEmpty,
       SelectOptionFilterConditionPB.OptionIsNotEmpty,
     ].map((e) => (e, e.i18n)).toList();
@@ -109,8 +107,6 @@ final class MultiSelectOptionFilterCondition
     return [
       SelectOptionFilterConditionPB.OptionContains,
       SelectOptionFilterConditionPB.OptionDoesNotContain,
-      SelectOptionFilterConditionPB.OptionIs,
-      SelectOptionFilterConditionPB.OptionIsNot,
       SelectOptionFilterConditionPB.OptionIsEmpty,
       SelectOptionFilterConditionPB.OptionIsNotEmpty,
     ].map((e) => (e, e.i18n)).toList();

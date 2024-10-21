@@ -235,9 +235,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
 
   @override
   Widget build(BuildContext context) {
-    final isFocusedOrHovered =
-        isHovered || isFocused || textFieldFocusNode.hasFocus;
-    final color = isFocusedOrHovered
+    final isFocusedOrHovered = isHovered || isFocused;
+    final color = isFocusedOrHovered || textFieldFocusNode.hasFocus
         ? AFThemeExtension.of(context).lightGreyHover
         : Colors.transparent;
     return FocusableActionDetector(
@@ -259,14 +258,15 @@ class _ChecklistItemState extends State<ChecklistItem> {
           borderRadius: Corners.s6Border,
         ),
         child: _buildChild(
-          isFocusedOrHovered,
+          isFocusedOrHovered && !textFieldFocusNode.hasFocus,
         ),
       ),
     );
   }
 
-  Widget _buildChild(bool isFocusedOrHovered) {
+  Widget _buildChild(bool showTrash) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ReorderableDragStartListener(
           index: widget.index,
@@ -313,7 +313,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
             },
           ),
         ),
-        if (isFocusedOrHovered)
+        if (showTrash)
           ChecklistCellDeleteButton(
             onPressed: () => context.read<ChecklistCellBloc>().add(
                   ChecklistCellEvent.deleteTask(widget.task.data.id),
