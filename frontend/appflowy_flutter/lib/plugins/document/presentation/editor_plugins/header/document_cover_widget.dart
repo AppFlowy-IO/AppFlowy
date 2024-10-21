@@ -763,27 +763,30 @@ class DocumentCoverState extends State<DocumentCover> {
   }
 
   Future<void> onCoverChanged(CoverType type, String? details) async {
-    bool isFileType(CoverType type, String? details) =>
-        type == CoverType.file && details != null && !isURL(details);
-
-    if (isFileType(type, details)) {
+    await deletePreviousImageIfNecessary();
+    if (type == CoverType.file && details != null && !isURL(details)) {
       if (_isLocalMode()) {
-        final previousType =
-            widget.node.attributes[DocumentHeaderBlockKeys.coverType];
-        final previousDetails =
-            widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
-
-        if (isFileType(previousType, previousDetails)) {
-          await deleteImageFromLocalStorage(previousDetails);
-        }
-
-        details = await saveImageToLocalStorage(details!);
+        details = await saveImageToLocalStorage(details);
       } else {
         // else we should save the image to cloud storage
-        (details, _) = await saveImageToCloudStorage(details!, widget.view.id);
+        (details, _) = await saveImageToCloudStorage(details, widget.view.id);
       }
     }
     widget.onChangeCover(type, details);
+  }
+
+  Future<void> deletePreviousImageIfNecessary() async {
+    final previousType = CoverType.fromString(
+        widget.node.attributes[DocumentHeaderBlockKeys.coverType]);
+    final previousDetails =
+        widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
+
+    bool isFileType(CoverType type, String? details) =>
+        type == CoverType.file && details != null && !isURL(details);
+
+    if (isFileType(previousType, previousDetails) && _isLocalMode()) {
+      await deleteImageFromLocalStorage(previousDetails);
+    }
   }
 
   void setOverlayButtonsHidden(bool value) {
