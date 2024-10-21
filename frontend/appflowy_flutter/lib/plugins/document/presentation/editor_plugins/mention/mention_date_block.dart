@@ -10,17 +10,14 @@ import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -40,7 +37,7 @@ class MentionDateBlock extends StatefulWidget {
     required this.node,
     this.textStyle,
     this.reminderId,
-    this.reminderOption,
+    this.reminderOption = ReminderOption.none,
     this.includeTime = false,
   });
 
@@ -53,7 +50,7 @@ class MentionDateBlock extends StatefulWidget {
   /// null or empty
   final String? reminderId;
 
-  final ReminderOption? reminderOption;
+  final ReminderOption reminderOption;
 
   final bool includeTime;
 
@@ -81,177 +78,118 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
       return const SizedBox.shrink();
     }
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<ReminderBloc>.value(value: context.read<ReminderBloc>()),
-        BlocProvider<AppearanceSettingsCubit>.value(
-          value: context.read<AppearanceSettingsCubit>(),
-        ),
-      ],
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        buildWhen: (previous, current) =>
-            previous.dateFormat != current.dateFormat ||
-            previous.timeFormat != current.timeFormat,
-        builder: (context, appearance) =>
-            BlocBuilder<ReminderBloc, ReminderState>(
-          builder: (context, state) {
-            final reminder = state.reminders
-                .firstWhereOrNull((r) => r.id == widget.reminderId);
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      buildWhen: (previous, current) =>
+          previous.dateFormat != current.dateFormat ||
+          previous.timeFormat != current.timeFormat,
+      builder: (context, appearance) =>
+          BlocBuilder<ReminderBloc, ReminderState>(
+        builder: (context, state) {
+          final reminder = state.reminders
+              .firstWhereOrNull((r) => r.id == widget.reminderId);
 
-            final formattedDate = appearance.dateFormat
-                .formatDate(parsedDate!, _includeTime, appearance.timeFormat);
+          final formattedDate = appearance.dateFormat
+              .formatDate(parsedDate!, _includeTime, appearance.timeFormat);
 
-            final timeStr = parsedDate != null
-                ? _timeFromDate(parsedDate!, appearance.timeFormat)
-                : null;
+          final options = DatePickerOptions(
+            focusedDay: parsedDate,
+            popoverMutex: mutex,
+            selectedDay: parsedDate,
+            includeTime: _includeTime,
+            dateFormat: appearance.dateFormat,
+            timeFormat: appearance.timeFormat,
+            selectedReminderOption: widget.reminderOption,
+            onIncludeTimeChanged: (includeTime) {
+              _includeTime = includeTime;
 
-            final options = DatePickerOptions(
-              focusedDay: parsedDate,
-              popoverMutex: mutex,
-              selectedDay: parsedDate,
-              timeStr: timeStr,
-              includeTime: _includeTime,
-              dateFormat: appearance.dateFormat,
-              timeFormat: appearance.timeFormat,
-              selectedReminderOption: widget.reminderOption,
-              onIncludeTimeChanged: (includeTime) {
-                _includeTime = includeTime;
-
-                if (![null, ReminderOption.none]
-                    .contains(widget.reminderOption)) {
-                  _updateReminder(
-                    widget.reminderOption!,
-                    reminder,
-                    includeTime,
-                  );
-                } else {
-                  _updateBlock(
-                    parsedDate!,
-                    includeTime: includeTime,
-                  );
-                }
-              },
-              onStartTimeChanged: (time) {
-                final parsed = _parseTime(time, appearance.timeFormat);
-                parsedDate = parsedDate!.withoutTime
-                    .add(Duration(hours: parsed.hour, minutes: parsed.minute));
-
-                if (![null, ReminderOption.none]
-                    .contains(widget.reminderOption)) {
-                  _updateReminder(
-                    widget.reminderOption!,
-                    reminder,
-                    _includeTime,
-                  );
-                } else {
-                  _updateBlock(parsedDate!, includeTime: _includeTime);
-                }
-              },
-              onDaySelected: (selectedDay, focusedDay) {
-                parsedDate = selectedDay;
-
-                if (![null, ReminderOption.none]
-                    .contains(widget.reminderOption)) {
-                  _updateReminder(
-                    widget.reminderOption!,
-                    reminder,
-                    _includeTime,
-                  );
-                } else {
-                  _updateBlock(selectedDay, includeTime: _includeTime);
-                }
-              },
-              onReminderSelected: (reminderOption) =>
-                  _updateReminder(reminderOption, reminder),
-            );
-
-            Color? color;
-            if (reminder != null) {
-              if (reminder.type == ReminderType.today) {
-                color = Theme.of(context).isLightMode
-                    ? const Color(0xFFFE0299)
-                    : Theme.of(context).colorScheme.error;
-              }
-            }
-            final textStyle = widget.textStyle?.copyWith(
-              color: color,
-              leadingDistribution: TextLeadingDistribution.even,
-            );
-
-            // when font size equals 14, the icon size is 16.0.
-            // scale the icon size based on the font size.
-            final iconSize = (widget.textStyle?.fontSize ?? 14.0) / 14.0 * 16.0;
-
-            return GestureDetector(
-              onTapDown: (details) {
-                _showDatePicker(
-                  context: context,
-                  offset: details.globalPosition,
-                  reminder: reminder,
-                  timeStr: timeStr,
-                  options: options,
+              if (widget.reminderOption != ReminderOption.none) {
+                _updateReminder(
+                  widget.reminderOption,
+                  reminder,
+                  includeTime,
                 );
-              },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '@$formattedDate',
-                      style: textStyle,
-                      strutStyle: textStyle != null
-                          ? StrutStyle.fromTextStyle(textStyle)
-                          : null,
-                    ),
-                    const HSpace(4),
-                    FlowySvg(
-                      widget.reminderId != null
-                          ? FlowySvgs.reminder_clock_s
-                          : FlowySvgs.date_s,
-                      size: Size.square(iconSize),
-                      color: textStyle?.color,
-                    ),
-                  ],
-                ),
+              } else {
+                _updateBlock(
+                  parsedDate!,
+                  includeTime: includeTime,
+                );
+              }
+            },
+            onDaySelected: (selectedDay) {
+              parsedDate = selectedDay;
+
+              if (widget.reminderOption != ReminderOption.none) {
+                _updateReminder(
+                  widget.reminderOption,
+                  reminder,
+                  _includeTime,
+                );
+              } else {
+                _updateBlock(selectedDay, includeTime: _includeTime);
+              }
+            },
+            onReminderSelected: (reminderOption) =>
+                _updateReminder(reminderOption, reminder),
+          );
+
+          Color? color;
+          if (reminder != null) {
+            if (reminder.type == ReminderType.today) {
+              color = Theme.of(context).isLightMode
+                  ? const Color(0xFFFE0299)
+                  : Theme.of(context).colorScheme.error;
+            }
+          }
+          final textStyle = widget.textStyle?.copyWith(
+            color: color,
+            leadingDistribution: TextLeadingDistribution.even,
+          );
+
+          // when font size equals 14, the icon size is 16.0.
+          // scale the icon size based on the font size.
+          final iconSize = (widget.textStyle?.fontSize ?? 14.0) / 14.0 * 16.0;
+
+          return GestureDetector(
+            onTapDown: (details) {
+              _showDatePicker(
+                context: context,
+                offset: details.globalPosition,
+                reminder: reminder,
+                options: options,
+              );
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '@$formattedDate',
+                    style: textStyle,
+                    strutStyle: textStyle != null
+                        ? StrutStyle.fromTextStyle(textStyle)
+                        : null,
+                  ),
+                  const HSpace(4),
+                  FlowySvg(
+                    widget.reminderId != null
+                        ? FlowySvgs.reminder_clock_s
+                        : FlowySvgs.date_s,
+                    size: Size.square(iconSize),
+                    color: textStyle?.color,
+                  ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  DateTime _parseTime(String timeStr, UserTimeFormatPB timeFormat) {
-    final twelveHourFormat = DateFormat('hh:mm a');
-    final twentyFourHourFormat = DateFormat('HH:mm');
-
-    try {
-      if (timeFormat == UserTimeFormatPB.TwelveHour) {
-        return twelveHourFormat.parseStrict(timeStr);
-      }
-
-      return twentyFourHourFormat.parseStrict(timeStr);
-    } on FormatException {
-      Log.error("failed to parse time string ($timeStr)");
-      return DateTime.now();
-    }
-  }
-
-  String _timeFromDate(DateTime date, UserTimeFormatPB timeFormat) {
-    final twelveHourFormat = DateFormat('HH:mm a');
-    final twentyFourHourFormat = DateFormat('HH:mm');
-
-    if (timeFormat == TimeFormatPB.TwelveHour) {
-      return twelveHourFormat.format(date);
-    }
-
-    return twentyFourHourFormat.format(date);
-  }
-
   void _updateBlock(
     DateTime date, {
-    bool includeTime = false,
+    required bool includeTime,
     String? reminderId,
     ReminderOption? reminderOption,
   }) {
@@ -266,14 +204,14 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
           MentionBlockKeys.reminderId: rId,
           MentionBlockKeys.includeTime: includeTime,
           MentionBlockKeys.reminderOption:
-              reminderOption?.name ?? widget.reminderOption?.name,
+              reminderOption?.name ?? widget.reminderOption.name,
         },
       });
 
     widget.editorState.apply(transaction, withUpdateSelection: false);
 
     // Length of rendered block changes, this synchronizes
-    //  the cursor with the new block render
+    // the cursor with the new block render
     widget.editorState.updateSelectionWithReason(
       widget.editorState.selection,
     );
@@ -308,7 +246,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             ReminderEvent.update(
               ReminderUpdate(
                 id: widget.reminderId!,
-                scheduledAt: reminderOption.fromDate(parsedDate!),
+                scheduledAt:
+                    reminderOption.getNotificationDateTime(parsedDate!),
                 date: parsedDate!,
               ),
             ),
@@ -349,7 +288,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     required BuildContext context,
     required DatePickerOptions options,
     required Offset offset,
-    String? timeStr,
     ReminderPB? reminder,
   }) {
     if (!widget.editorState.editable) {
@@ -369,7 +307,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
           builder: (_, controller) => _DatePickerBottomSheet(
             controller: controller,
             parsedDate: parsedDate,
-            timeStr: timeStr,
             options: options,
             includeTime: _includeTime,
             reminderOption: widget.reminderOption,
@@ -393,25 +330,21 @@ class _DatePickerBottomSheet extends StatelessWidget {
   const _DatePickerBottomSheet({
     required this.controller,
     required this.parsedDate,
-    required this.timeStr,
     required this.options,
     required this.includeTime,
-    this.reminderOption,
+    required this.reminderOption,
     required this.onReminderSelected,
   });
 
   final ScrollController controller;
   final DateTime? parsedDate;
-  final String? timeStr;
   final DatePickerOptions options;
   final bool includeTime;
-  final ReminderOption? reminderOption;
+  final ReminderOption reminderOption;
   final void Function(ReminderOption) onReminderSelected;
 
   @override
   Widget build(BuildContext context) {
-    final appearance = context.read<AppearanceSettingsCubit>().state;
-
     return Material(
       color: Theme.of(context).colorScheme.secondaryContainer,
       child: ListView(
@@ -423,26 +356,13 @@ class _DatePickerBottomSheet extends StatelessWidget {
           ),
           const MobileDateHeader(),
           MobileAppFlowyDatePicker(
-            selectedDay: parsedDate,
-            timeStr: timeStr,
-            dateStr: parsedDate != null
-                ? options.dateFormat.formatDate(parsedDate!, includeTime)
-                : null,
-            includeTime: options.includeTime,
-            use24hFormat: options.timeFormat == UserTimeFormatPB.TwentyFourHour,
-            rebuildOnDaySelected: true,
-            rebuildOnTimeChanged: true,
+            dateTime: parsedDate,
+            includeTime: includeTime,
+            dateFormat: options.dateFormat.simplified,
             timeFormat: options.timeFormat.simplified,
-            selectedReminderOption: reminderOption,
+            reminderOption: reminderOption,
             onDaySelected: options.onDaySelected,
-            onStartTimeChanged: (time) =>
-                options.onStartTimeChanged?.call(time ?? ""),
             onIncludeTimeChanged: options.onIncludeTimeChanged,
-            liveDateFormatter: (selected) => appearance.dateFormat.formatDate(
-              selected,
-              false,
-              appearance.timeFormat,
-            ),
             onReminderSelected: onReminderSelected,
           ),
         ],

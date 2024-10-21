@@ -10,7 +10,7 @@ final class DateCellBackendService {
     required String viewId,
     required String fieldId,
     required String rowId,
-  }) : cellId = CellIdPB.create()
+  }) : cellId = CellIdPB()
           ..viewId = viewId
           ..fieldId = fieldId
           ..rowId = rowId;
@@ -18,32 +18,27 @@ final class DateCellBackendService {
   final CellIdPB cellId;
 
   Future<FlowyResult<void, FlowyError>> update({
-    required bool includeTime,
-    required bool isRange,
+    bool? includeTime,
+    bool? isRange,
     DateTime? date,
-    String? time,
     DateTime? endDate,
-    String? endTime,
     String? reminderId,
   }) {
-    final payload = DateCellChangesetPB.create()
-      ..cellId = cellId
-      ..includeTime = includeTime
-      ..isRange = isRange;
+    final payload = DateCellChangesetPB()..cellId = cellId;
 
+    if (includeTime != null) {
+      payload.includeTime = includeTime;
+    }
+    if (isRange != null) {
+      payload.isRange = isRange;
+    }
     if (date != null) {
       final dateTimestamp = date.millisecondsSinceEpoch ~/ 1000;
-      payload.date = Int64(dateTimestamp);
-    }
-    if (time != null) {
-      payload.time = time;
+      payload.timestamp = Int64(dateTimestamp);
     }
     if (endDate != null) {
       final dateTimestamp = endDate.millisecondsSinceEpoch ~/ 1000;
-      payload.endDate = Int64(dateTimestamp);
-    }
-    if (endTime != null) {
-      payload.endTime = endTime;
+      payload.endTimestamp = Int64(dateTimestamp);
     }
     if (reminderId != null) {
       payload.reminderId = reminderId;
@@ -53,7 +48,7 @@ final class DateCellBackendService {
   }
 
   Future<FlowyResult<void, FlowyError>> clear() {
-    final payload = DateCellChangesetPB.create()
+    final payload = DateCellChangesetPB()
       ..cellId = cellId
       ..clearFlag = true;
 

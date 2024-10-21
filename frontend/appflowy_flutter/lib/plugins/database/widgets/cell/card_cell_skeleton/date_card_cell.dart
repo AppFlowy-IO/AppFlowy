@@ -7,6 +7,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../editable_cell_skeleton/date.dart';
 import 'card_cell.dart';
 
 class DateCardCellStyle extends CardCellStyle {
@@ -46,11 +47,13 @@ class _DateCellState extends State<DateCardCell> {
         );
       },
       child: BlocBuilder<DateCellBloc, DateCellState>(
-        buildWhen: (previous, current) =>
-            previous.dateStr != current.dateStr ||
-            previous.data != current.data,
         builder: (context, state) {
-          if (state.dateStr.isEmpty) {
+          final dateStr = getDateCellStrFromCellData(
+            state.fieldInfo,
+            state.cellData,
+          );
+
+          if (dateStr.isEmpty) {
             return const SizedBox.shrink();
           }
 
@@ -61,12 +64,12 @@ class _DateCellState extends State<DateCardCell> {
               children: [
                 Flexible(
                   child: Text(
-                    state.dateStr,
+                    dateStr,
                     style: widget.style.textStyle,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (state.data?.reminderId.isNotEmpty ?? false) ...[
+                if (state.cellData.reminderId.isNotEmpty) ...[
                   const HSpace(4),
                   const FlowySvg(FlowySvgs.clock_alarm_s),
                 ],

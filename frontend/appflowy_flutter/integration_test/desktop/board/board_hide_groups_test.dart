@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/board/presentation/widgets/board_colum
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_hidden_groups.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -120,23 +119,4 @@ void main() {
       expect(tester.widgetList(find.byType(BoardColumnHeader)).length, 3);
     });
   });
-}
-
-extension FlowySvgFinder on CommonFinders {
-  Finder byFlowySvg(FlowySvgData svg) => _FlowySvgFinder(svg);
-}
-
-class _FlowySvgFinder extends MatchFinder {
-  _FlowySvgFinder(this.svg);
-
-  final FlowySvgData svg;
-
-  @override
-  String get description => 'flowy_svg "$svg"';
-
-  @override
-  bool matches(Element candidate) {
-    final Widget widget = candidate.widget;
-    return widget is FlowySvg && widget.svg == svg;
-  }
 }

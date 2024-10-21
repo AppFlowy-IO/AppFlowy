@@ -51,7 +51,7 @@ class ReminderSelector extends StatelessWidget {
         return SizedBox(
           height: DatePickerSize.itemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(label),
+            text: FlowyText(label),
             rightIcon:
                 o == selectedOption ? const FlowySvg(FlowySvgs.check_s) : null,
             onTap: () {
@@ -87,7 +87,7 @@ class ReminderSelector extends StatelessWidget {
         child: SizedBox(
           height: DatePickerSize.itemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(LocaleKeys.datePicker_reminderLabel.tr()),
+            text: FlowyText(LocaleKeys.datePicker_reminderLabel.tr()),
             rightIcon: Row(
               children: [
                 FlowyText.regular(selectedOption.label),
@@ -191,7 +191,7 @@ enum ReminderOption {
         _ => ReminderOption.custom,
       };
 
-  DateTime fromDate(DateTime date) => switch (withoutTime) {
+  DateTime getNotificationDateTime(DateTime date) => switch (withoutTime) {
         true => requiresNoTime
             ? date.withoutTime.add(time)
             : date.withoutTime.subtract(time),

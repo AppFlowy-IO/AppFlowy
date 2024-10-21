@@ -240,11 +240,11 @@ class IncludeTimeButton extends StatelessWidget {
   const IncludeTimeButton({
     super.key,
     required this.onChanged,
-    required this.value,
+    required this.includeTime,
   });
 
   final Function(bool value) onChanged;
-  final bool value;
+  final bool includeTime;
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +262,7 @@ class IncludeTimeButton extends StatelessWidget {
             FlowyText(LocaleKeys.grid_field_includeTime.tr()),
             const Spacer(),
             Toggle(
-              value: value,
+              value: includeTime,
               onChanged: onChanged,
               padding: EdgeInsets.zero,
             ),

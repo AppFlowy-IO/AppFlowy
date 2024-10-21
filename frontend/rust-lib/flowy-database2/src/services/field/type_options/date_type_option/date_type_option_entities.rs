@@ -10,10 +10,8 @@ use crate::services::field::TypeOptionCellData;
 
 #[derive(Clone, Debug, Default)]
 pub struct DateCellChangeset {
-  pub date: Option<i64>,
-  pub time: Option<String>,
-  pub end_date: Option<i64>,
-  pub end_time: Option<String>,
+  pub timestamp: Option<i64>,
+  pub end_timestamp: Option<i64>,
   pub include_time: Option<bool>,
   pub is_range: Option<bool>,
   pub clear_flag: Option<bool>,

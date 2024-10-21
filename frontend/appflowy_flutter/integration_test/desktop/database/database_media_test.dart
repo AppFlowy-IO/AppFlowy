@@ -21,7 +21,6 @@ import 'package:path_provider/path_provider.dart';
 import '../../shared/database_test_op.dart';
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
-import '../board/board_hide_groups_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

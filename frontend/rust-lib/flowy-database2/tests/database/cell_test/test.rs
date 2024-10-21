@@ -27,7 +27,7 @@ async fn grid_cell_update() {
         FieldType::RichText => BoxAny::new("".to_string()),
         FieldType::Number => BoxAny::new("123".to_string()),
         FieldType::DateTime => BoxAny::new(DateCellChangeset {
-          date: Some(123),
+          timestamp: Some(123),
           ..Default::default()
         }),
         FieldType::SingleSelect => {

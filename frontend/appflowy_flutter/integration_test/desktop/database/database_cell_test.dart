@@ -212,6 +212,7 @@ void main() {
 
       // Select a date
       final now = DateTime.now();
+      final expected = DateTime(now.year, now.month, now.day);
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();
@@ -219,7 +220,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y').format(now),
+        content: DateFormat('MMM dd, y').format(expected),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -233,7 +234,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y HH:mm').format(now),
+        content: DateFormat('MMM dd, y HH:mm').format(expected),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -248,7 +249,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y HH:mm').format(now),
+        content: DateFormat('dd/MM/y HH:mm').format(expected),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -263,7 +264,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y hh:mm a').format(now),
+        content: DateFormat('dd/MM/y hh:mm a').format(expected),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);

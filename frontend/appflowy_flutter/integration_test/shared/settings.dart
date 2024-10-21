@@ -11,7 +11,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../desktop/board/board_hide_groups_test.dart';
 import 'base.dart';
 import 'common_operations.dart';
 

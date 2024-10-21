@@ -175,7 +175,7 @@ impl PreFillCellsWithFilter for DateFilterPB {
       _ => None,
     };
 
-    start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, None, field))
+    start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, field))
   }
 }
 

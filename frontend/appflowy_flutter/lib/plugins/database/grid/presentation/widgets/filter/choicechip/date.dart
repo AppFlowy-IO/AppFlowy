@@ -201,15 +201,12 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
             builder: (context, filter, field) {
               return AppFlowyDatePicker(
                 isRange: isRange,
-                timeHintText: LocaleKeys.grid_field_selectTime.tr(),
                 includeTime: false,
                 dateFormat: DateFormatPB.Friendly,
                 timeFormat: TimeFormatPB.TwentyFourHour,
-                selectedDay: isRange ? filter.start : filter.timestamp,
-                startDay: isRange ? filter.start : null,
-                endDay: isRange ? filter.end : null,
-                enableReminder: false,
-                onDaySelected: (selectedDay, _) {
+                dateTime: isRange ? filter.start : filter.timestamp,
+                endDateTime: isRange ? filter.end : null,
+                onDaySelected: (selectedDay) {
                   final newFilter = isRange
                       ? filter.copyWithRange(start: selectedDay, end: null)
                       : filter.copyWithTimestamp(timestamp: selectedDay);
@@ -220,7 +217,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                     popooverController.close();
                   }
                 },
-                onRangeSelected: (start, end, _) {
+                onRangeSelected: (start, end) {
                   final newFilter = filter.copyWithRange(
                     start: start,
                     end: end,

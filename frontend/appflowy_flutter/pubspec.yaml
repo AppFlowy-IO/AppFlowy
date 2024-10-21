@@ -11,6 +11,7 @@ environment:
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
+  any_date: ^1.0.4
   app_links: ^3.5.0
   appflowy_backend:
     path: packages/appflowy_backend
