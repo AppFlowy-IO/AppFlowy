@@ -53,6 +53,9 @@ class ViewExtKeys {
 }
 
 extension ViewExtension on ViewPB {
+  String get nameOrDefault =>
+      name.isEmpty ? LocaleKeys.menuAppHeader_defaultNewPageName.tr() : name;
+
   Widget defaultIcon({Size? size}) => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.icon_board_s,

@@ -125,7 +125,15 @@ class InlinePageReferenceService extends InlineActionsDelegate {
 
       items = allViews
           .where(
-            (view) => view.name.toLowerCase().contains(search.toLowerCase()),
+            (view) =>
+                view.id != currentViewId &&
+                    view.name.toLowerCase().contains(search.toLowerCase()) ||
+                (view.name.isEmpty && search.isEmpty) ||
+                (view.name.isEmpty &&
+                    LocaleKeys.menuAppHeader_defaultNewPageName
+                        .tr()
+                        .toLowerCase()
+                        .contains(search.toLowerCase())),
           )
           .take(limitResults)
           .map((view) => _fromView(view))
@@ -224,8 +232,8 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   }
 
   InlineActionsMenuItem _fromView(ViewPB view) => InlineActionsMenuItem(
-        keywords: [view.name.toLowerCase()],
-        label: view.name,
+        keywords: [view.nameOrDefault.toLowerCase()],
+        label: view.nameOrDefault,
         icon: (onSelected) => view.icon.value.isNotEmpty
             ? FlowyText.emoji(
                 view.icon.value,
