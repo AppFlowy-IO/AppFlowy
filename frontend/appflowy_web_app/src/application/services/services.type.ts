@@ -6,7 +6,7 @@ import {
   UserWorkspaceInfo,
   View,
   Workspace,
-  YDoc, DatabaseRelations, GetRequestAccessInfoResponse, Subscriptions, SubscriptionPlan, SubscriptionInterval,
+  YDoc, DatabaseRelations, GetRequestAccessInfoResponse, Subscriptions, SubscriptionPlan, SubscriptionInterval, Types,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -64,7 +64,9 @@ export interface AppService {
   getSubscriptionLink: (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) => Promise<string>;
   getSubscriptions: () => Promise<Subscriptions>;
   getActiveSubscription: (workspaceId: string) => Promise<SubscriptionPlan[]>;
-  registerDocUpdate: (doc: YDoc, workspaceId: string, objectId: string) => void;
+  registerDocUpdate: (doc: YDoc, context: {
+    workspaceId: string, objectId: string, collabType: Types
+  }) => void;
   uploadFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
   importFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
 }

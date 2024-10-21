@@ -20,6 +20,7 @@ import { useEditorContext } from '@/components/editor/EditorContext';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
 import { ErrorBoundary } from 'react-error-boundary';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
+import SubPage from 'src/components/editor/components/blocks/sub-page/SubPage';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
 import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
@@ -42,6 +43,7 @@ export const Element = ({
   } = useEditorContext();
 
   const editor = useSlateStatic();
+  const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (!jumpBlockId) return;
@@ -57,10 +59,23 @@ export const Element = ({
         behavior: 'smooth',
         scrollMode: 'if-needed',
       });
+      element.className += ' highlight-block';
+      highlightTimeoutRef.current = setTimeout(() => {
+        element.className = element.className.replace('highlight-block', '');
+      }, 5000);
+
       onJumpedBlockId?.();
     })();
 
   }, [editor, jumpBlockId, node, onJumpedBlockId]);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
   const Component = useMemo(() => {
     switch (node.type) {
       case BlockType.HeadingBlock:
@@ -105,6 +120,8 @@ export const Element = ({
         return FileBlock;
       case BlockType.GalleryBlock:
         return GalleryBlock;
+      case BlockType.SubpageBlock:
+        return SubPage;
       default:
         return UnSupportedBlock;
     }
@@ -114,7 +131,7 @@ export const Element = ({
     const data = (node.data as BlockData) || {};
     const align = data.align;
 
-    return `block-element relative flex rounded ${align ? `block-align-${align}` : ''}`;
+    return `block-element relative flex rounded-[8px] ${align ? `block-align-${align}` : ''}`;
   }, [node.data]);
 
   const style = useMemo(() => {
@@ -136,8 +153,14 @@ export const Element = ({
 
   return (
     <ErrorBoundary fallbackRender={ElementFallbackRender}>
-      <div {...attributes} data-block-type={node.type} className={className}>
-        <Component style={style} className={`flex w-full flex-col`} node={node}>
+      <div {...attributes} data-block-type={node.type}
+           className={className}
+      >
+        <Component
+          style={style}
+          className={`flex w-full flex-col`}
+          node={node}
+        >
           {children}
         </Component>
       </div>

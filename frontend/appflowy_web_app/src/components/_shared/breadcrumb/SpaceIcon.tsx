@@ -1,5 +1,6 @@
+import { ThemeModeContext } from '@/components/main/useAppThemeMode';
 import { getIconSvgEncodedContent } from '@/utils/emoji';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ReactComponent as SpaceIcon1 } from '@/assets/space_icon/space_icon_1.svg';
 import { ReactComponent as SpaceIcon2 } from '@/assets/space_icon/space_icon_2.svg';
 import { ReactComponent as SpaceIcon3 } from '@/assets/space_icon/space_icon_3.svg';
@@ -58,14 +59,15 @@ export const getIconComponent = (icon: string) => {
 function SpaceIcon ({ value, char }: { value: string, char?: string }) {
   const IconComponent = getIconComponent(value);
   const [iconEncodeContent, setIconEncodeContent] = useState<string | null>(null);
+  const isDark = useContext(ThemeModeContext)?.isDark || false;
 
   useEffect(() => {
     if (!char && value && !IconComponent) {
-      void getIconSvgEncodedContent(value, 'white').then((res) => {
+      void getIconSvgEncodedContent(value, isDark ? 'black' : 'white').then((res) => {
         setIconEncodeContent(res);
       });
     }
-  }, [IconComponent, value, char]);
+  }, [isDark, IconComponent, value, char]);
 
   const customIcon = useMemo(() => {
     if (!iconEncodeContent) {
@@ -75,7 +77,11 @@ function SpaceIcon ({ value, char }: { value: string, char?: string }) {
     /**
      * value eg: 'artificial_intelligence/ai-cloud-spark';
      */
-    return <img src={iconEncodeContent} className={'h-full w-full p-1 text-white'} alt={value} />;
+    return <img
+      src={iconEncodeContent}
+      className={'h-full w-full p-1 text-white'}
+      alt={value}
+    />;
   }, [iconEncodeContent, value]);
 
   if (char) {

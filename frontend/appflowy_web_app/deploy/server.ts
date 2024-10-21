@@ -43,7 +43,13 @@ const logRequestTimer = (req: Request) => {
   };
 };
 
-const fetchMetaData = async (url: string) => {
+const fetchMetaData = async (namespace: string, publishName?: string) => {
+  let url = `${baseURL}/api/workspace/published/${namespace}`;
+
+  if (publishName) {
+    url += `/${publishName}`;
+  }
+
   logger.info(`Fetching meta data from ${url}`);
   try {
     const response = await fetch(url, {
@@ -108,7 +114,7 @@ const createServer = async (req: Request) => {
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
 
   if (req.method === 'GET') {
-    if (namespace === '' || !publishName) {
+    if (namespace === '') {
       timer();
       return new Response(null, {
         status: 302,
@@ -121,7 +127,27 @@ const createServer = async (req: Request) => {
     let metaData;
 
     try {
-      metaData = await fetchMetaData(`${baseURL}/api/workspace/published/${namespace}/${publishName}`);
+      const data = await fetchMetaData(namespace, publishName);
+
+      if (publishName) {
+        metaData = data;
+      } else {
+
+        const publishInfo = data?.data?.info;
+
+        if (publishInfo) {
+          const newURL = `/${publishInfo.namespace}/${publishInfo.publish_name}`;
+
+          logger.info('Redirecting to default page: ', newURL);
+          timer();
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: newURL,
+            },
+          });
+        }
+      }
     } catch (error) {
       logger.error(`Error fetching meta data: ${error}`);
     }

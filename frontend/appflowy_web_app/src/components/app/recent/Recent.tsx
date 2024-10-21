@@ -1,10 +1,11 @@
 import { UIVariant } from '@/application/types';
 import OutlineItem from '@/components/_shared/outline/OutlineItem';
 import RecentListSkeleton from '@/components/_shared/skeleton/RecentListSkeleton';
-import { useAppHandlers, useAppRecent } from '@/components/app/app.hooks';
+import { useAppHandlers } from '@/components/app/app.hooks';
+import { useRecent } from '@/components/app/recent/useRecent';
 import dayjs from 'dayjs';
 import { groupBy, sortBy } from 'lodash-es';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 enum RecentGroup {
@@ -15,19 +16,15 @@ enum RecentGroup {
 
 export function Recent () {
   const {
-    recentViews,
-    loadRecentViews,
-  } = useAppRecent();
+    views: recentViews,
+  } = useRecent();
+
   const navigateToView = useAppHandlers().toView;
   const { t } = useTranslation();
 
-  useEffect(() => {
-    void loadRecentViews?.();
-  }, [loadRecentViews]);
-
   const groupByViewsWithDay = useMemo(() => {
     return groupBy(recentViews, (view) => {
-      const date = dayjs(view.last_edited_time);
+      const date = dayjs(view.last_viewed_at);
       const today = date.isSame(dayjs(), 'day');
       const thisWeek = date.isSame(dayjs(), 'week');
 
@@ -38,6 +35,12 @@ export function Recent () {
   }, [recentViews]);
 
   const groupByViews = useMemo(() => {
+    if (!recentViews?.length) {
+      return <div className={'text-text-caption w-full text-center text-sm font-medium'}>
+        {t('findAndReplace.noResult')}
+      </div>;
+    }
+
     return sortBy(Object.entries(groupByViewsWithDay), ([key]) => {
       return key === RecentGroup.today ? 0 : key === RecentGroup.thisWeek ? 1 : 2;
     }).map(([key, value]) => {
@@ -47,7 +50,10 @@ export function Recent () {
         [RecentGroup.Others]: t('sideBar.earlier'),
       };
 
-      return <div className={'flex flex-col gap-2'} key={key}>
+      return <div
+        className={'flex flex-col gap-2'}
+        key={key}
+      >
         <div className={'text-xs text-text-caption py-1 px-1'}>{timeLabel[key]}</div>
         <div className={'px-1'}>
           {value.map((view) =>
@@ -62,7 +68,7 @@ export function Recent () {
 
       </div>;
     });
-  }, [groupByViewsWithDay, navigateToView, t]);
+  }, [groupByViewsWithDay, navigateToView, recentViews?.length, t]);
 
   return (
     <div className={'flex w-[268px] flex-col gap-1 py-[10px] px-[10px]'}>
@@ -76,9 +82,7 @@ export function Recent () {
         </div>
       </div>
 
-      {recentViews && recentViews.length > 0 ?
-        groupByViews : <RecentListSkeleton />
-      }
+      {recentViews ? groupByViews : <RecentListSkeleton />}
 
     </div>
   );
