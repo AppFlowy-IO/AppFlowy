@@ -445,9 +445,10 @@ class _MentionPageBlockContent extends StatelessWidget {
       view.id,
       content,
     );
+    final isBlockContentEmpty = content == null || content.isEmpty;
 
     // if the block is from the same doc, display the paragraph mark icon '¶'
-    if (isSameDocument) {
+    if (isSameDocument && !isBlockContentEmpty) {
       return [
         const HSpace(2),
         FlowySvg(
