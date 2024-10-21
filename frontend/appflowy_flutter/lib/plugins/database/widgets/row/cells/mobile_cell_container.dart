@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../accessory/cell_shortcuts.dart';
 import '../../cell/editable_cell_builder.dart';
 import 'cell_container.dart';
 
@@ -24,7 +23,7 @@ class MobileCellContainer extends StatelessWidget {
       child: Selector<CellContainerNotifier, bool>(
         selector: (context, notifier) => notifier.isFocus,
         builder: (providerContext, isFocus, _) {
-          Widget container = Center(child: GridCellShortcuts(child: child));
+          Widget container = Center(child: child);
 
           if (isPrimary) {
             container = IgnorePointer(child: container);

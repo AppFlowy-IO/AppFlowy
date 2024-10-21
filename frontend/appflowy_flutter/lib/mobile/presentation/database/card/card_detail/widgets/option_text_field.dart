@@ -11,12 +11,14 @@ class OptionTextField extends StatelessWidget {
   const OptionTextField({
     super.key,
     required this.controller,
+    required this.isPrimary,
     required this.fieldType,
     required this.onTextChanged,
     required this.onFieldTypeChanged,
   });
 
   final TextEditingController controller;
+  final bool isPrimary;
   final FieldType fieldType;
   final void Function(String value) onTextChanged;
   final void Function(FieldType value) onFieldTypeChanged;
@@ -29,6 +31,9 @@ class OptionTextField extends StatelessWidget {
       onTextChanged: onTextChanged,
       leftIcon: GestureDetector(
         onTap: () async {
+          if (isPrimary) {
+            return;
+          }
           final fieldType = await showFieldTypeGridBottomSheet(
             context,
             title: LocaleKeys.grid_field_editProperty.tr(),

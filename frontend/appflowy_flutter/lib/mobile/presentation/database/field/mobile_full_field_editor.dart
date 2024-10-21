@@ -225,6 +225,7 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
             OptionTextField(
               controller: controller,
               fieldType: values.type,
+              isPrimary: widget.isPrimary,
               onTextChanged: (value) {
                 isFieldNameChanged = true;
                 _updateOptionValues(name: value);
