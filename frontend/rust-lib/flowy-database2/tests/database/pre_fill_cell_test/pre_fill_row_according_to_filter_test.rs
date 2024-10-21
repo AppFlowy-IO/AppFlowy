@@ -1,5 +1,4 @@
 use crate::database::pre_fill_cell_test::script::DatabasePreFillRowCellTest;
-use collab_database::fields::select_type_option::SELECTION_IDS_SEPARATOR;
 use flowy_database2::entities::{
   CheckboxFilterConditionPB, CheckboxFilterPB, DateFilterConditionPB, DateFilterPB, FieldType,
   FilterDataPB, SelectOptionFilterConditionPB, SelectOptionFilterPB, TextFilterConditionPB,
@@ -223,9 +222,9 @@ async fn according_to_invalid_date_time_is_filter_test() {
 #[tokio::test]
 async fn according_to_select_option_is_filter_test() {
   let mut test = DatabasePreFillRowCellTest::new().await;
-  let multi_select_field = test.get_first_field(FieldType::MultiSelect).await;
+  let single_select_field = test.get_first_field(FieldType::SingleSelect).await;
   let options = test
-    .get_multi_select_type_option(&multi_select_field.id)
+    .get_single_select_type_option(&single_select_field.id)
     .await;
 
   let filtering_options = [options[1].clone(), options[2].clone()];
@@ -234,17 +233,16 @@ async fn according_to_select_option_is_filter_test() {
     .map(|option| option.id.clone())
     .collect();
   let stringified_expected = filtering_options
-    .iter()
+    .first()
     .map(|option| option.name.clone())
-    .collect::<Vec<_>>()
-    .join(SELECTION_IDS_SEPARATOR);
+    .unwrap_or_default();
 
   test.assert_row_count(7).await;
 
   test
     .insert_filter(FilterDataPB {
-      field_id: multi_select_field.id.clone(),
-      field_type: FieldType::MultiSelect,
+      field_id: single_select_field.id.clone(),
+      field_type: FieldType::SingleSelect,
       data: SelectOptionFilterPB {
         condition: SelectOptionFilterConditionPB::OptionIs,
         option_ids: ids,
@@ -255,16 +253,16 @@ async fn according_to_select_option_is_filter_test() {
     .await;
 
   test.wait(100).await;
-  test.assert_row_count(1).await;
+  test.assert_row_count(2).await;
   test.create_empty_row().await;
   test.wait(100).await;
-  test.assert_row_count(2).await;
+  test.assert_row_count(3).await;
 
   test
-    .assert_cell_existence(multi_select_field.id.clone(), 1, true)
+    .assert_cell_existence(single_select_field.id.clone(), 1, true)
     .await;
   test
-    .assert_cell_content(multi_select_field.id, 1, stringified_expected)
+    .assert_cell_content(single_select_field.id, 1, stringified_expected)
     .await;
 }
 

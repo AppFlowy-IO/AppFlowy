@@ -533,5 +533,155 @@ void main() {
         },
       );
     });
+
+    test('calculate selection when turn into', () {
+      // Example:
+      // - bulleted list item 1
+      //   - bulleted list item 1-1
+      //   - bulleted list item 1-2
+      // - bulleted list item 2
+      //   - bulleted list item 2-1
+      //   - bulleted list item 2-2
+      // - bulleted list item 3
+      //   - bulleted list item 3-1
+      //   - bulleted list item 3-2
+      const text = 'bulleted list';
+      const nestedText = 'nested bulleted list';
+      final document = createDocument([
+        bulletedListNode(
+          text: '$text 1',
+          children: [
+            bulletedListNode(text: '$nestedText 1-1'),
+            bulletedListNode(text: '$nestedText 1-2'),
+          ],
+        ),
+        bulletedListNode(
+          text: '$text 2',
+          children: [
+            bulletedListNode(text: '$nestedText 2-1'),
+            bulletedListNode(text: '$nestedText 2-2'),
+          ],
+        ),
+        bulletedListNode(
+          text: '$text 3',
+          children: [
+            bulletedListNode(text: '$nestedText 3-1'),
+            bulletedListNode(text: '$nestedText 3-2'),
+          ],
+        ),
+      ]);
+      final editorState = EditorState(document: document);
+      final cubit = BlockActionOptionCubit(
+        editorState: editorState,
+        blockComponentBuilder: {},
+      );
+
+      // case 1: collapsed selection and the selection is in the top level
+      // and tap the turn into button at the [0]
+      final selection1 = Selection.collapsed(
+        Position(path: [0], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([0])!,
+          selection1,
+        ),
+        selection1,
+      );
+
+      // case 2: collapsed selection and the selection is in the nested level
+      // and tap the turn into button at the [0]
+      final selection2 = Selection.collapsed(
+        Position(path: [0, 0], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([0])!,
+          selection2,
+        ),
+        Selection.collapsed(Position(path: [0])),
+      );
+
+      // case 3, collapsed selection and the selection is in the nested level
+      // and tap the turn into button at the [0, 0]
+      final selection3 = Selection.collapsed(
+        Position(path: [0, 0], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([0, 0])!,
+          selection3,
+        ),
+        selection3,
+      );
+
+      // case 4, not collapsed selection and the selection is in the top level
+      // and tap the turn into button at the [0]
+      final selection4 = Selection(
+        start: Position(path: [0], offset: 1),
+        end: Position(path: [1], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([0])!,
+          selection4,
+        ),
+        selection4,
+      );
+
+      // case 5, not collapsed selection and the selection is in the nested level
+      // and tap the turn into button at the [0]
+      final selection5 = Selection(
+        start: Position(path: [0, 0], offset: 1),
+        end: Position(path: [0, 1], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([0])!,
+          selection5,
+        ),
+        Selection.collapsed(Position(path: [0])),
+      );
+
+      // case 6, not collapsed selection and the selection is in the nested level
+      // and tap the turn into button at the [0, 0]
+      final selection6 = Selection(
+        start: Position(path: [0, 0], offset: 1),
+        end: Position(path: [0, 1], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([0])!,
+          selection6,
+        ),
+        Selection.collapsed(Position(path: [0])),
+      );
+
+      // case 7, multiple blocks selection, and tap the turn into button of one of the selected nodes
+      final selection7 = Selection(
+        start: Position(path: [0], offset: 1),
+        end: Position(path: [2], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([1])!,
+          selection7,
+        ),
+        selection7,
+      );
+
+      // case 8, multiple blocks selection, and tap the turn into button of one of the non-selected nodes
+      final selection8 = Selection(
+        start: Position(path: [0], offset: 1),
+        end: Position(path: [1], offset: 1),
+      );
+      expect(
+        cubit.calculateTurnIntoSelection(
+          editorState.getNodeAtPath([2])!,
+          selection8,
+        ),
+        Selection.collapsed(Position(path: [2])),
+      );
+    });
   });
 }

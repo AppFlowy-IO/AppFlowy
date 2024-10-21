@@ -124,6 +124,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
             ),
             child: TextFieldWithMetricLines(
               controller: titleTextController,
+              enabled: editorState.editable,
               focusNode: titleFocusNode,
               style: fontStyle,
               onLineCountChange: (count) => lineCount = count,
