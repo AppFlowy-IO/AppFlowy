@@ -360,12 +360,8 @@ class _BoardContentState extends State<_BoardContent> {
               ),
               footerBuilder: (_, groupData) => MultiBlocProvider(
                 providers: [
-                  BlocProvider.value(
-                    value: context.read<BoardBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<BoardActionsCubit>(),
-                  ),
+                  BlocProvider.value(value: context.read<BoardBloc>()),
+                  BlocProvider.value(value: context.read<BoardActionsCubit>()),
                 ],
                 child: BoardColumnFooter(
                   columnData: groupData,

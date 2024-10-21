@@ -137,13 +137,14 @@ pub enum ViewLayoutPB {
   Board = 2,
   Calendar = 3,
   Chat = 4,
+  Gallery = 5,
 }
 
 impl ViewLayoutPB {
   pub fn is_database(&self) -> bool {
     matches!(
       self,
-      ViewLayoutPB::Grid | ViewLayoutPB::Board | ViewLayoutPB::Calendar
+      ViewLayoutPB::Grid | ViewLayoutPB::Board | ViewLayoutPB::Calendar | ViewLayoutPB::Gallery
     )
   }
 }
@@ -156,6 +157,7 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
       ViewLayout::Document => ViewLayoutPB::Document,
       ViewLayout::Calendar => ViewLayoutPB::Calendar,
       ViewLayout::Chat => ViewLayoutPB::Chat,
+      ViewLayout::Gallery => ViewLayoutPB::Gallery,
     }
   }
 }

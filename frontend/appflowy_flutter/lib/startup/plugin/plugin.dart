@@ -19,6 +19,7 @@ enum PluginType {
   calendar,
   databaseDocument,
   chat,
+  gallery,
 }
 
 typedef PluginId = String;

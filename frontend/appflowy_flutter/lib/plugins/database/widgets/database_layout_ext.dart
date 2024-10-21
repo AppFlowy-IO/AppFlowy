@@ -10,6 +10,7 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
       DatabaseLayoutPB.Board => LocaleKeys.board_menuName.tr(),
       DatabaseLayoutPB.Calendar => LocaleKeys.calendar_menuName.tr(),
       DatabaseLayoutPB.Grid => LocaleKeys.grid_menuName.tr(),
+      DatabaseLayoutPB.Gallery => LocaleKeys.databaseGallery_menuName.tr(),
       _ => "",
     };
   }
@@ -19,6 +20,7 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
       DatabaseLayoutPB.Board => ViewLayoutPB.Board,
       DatabaseLayoutPB.Calendar => ViewLayoutPB.Calendar,
       DatabaseLayoutPB.Grid => ViewLayoutPB.Grid,
+      DatabaseLayoutPB.Gallery => ViewLayoutPB.Gallery,
       _ => throw UnimplementedError(),
     };
   }
@@ -28,6 +30,7 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
       DatabaseLayoutPB.Board => FlowySvgs.board_s,
       DatabaseLayoutPB.Calendar => FlowySvgs.calendar_s,
       DatabaseLayoutPB.Grid => FlowySvgs.grid_s,
+      DatabaseLayoutPB.Gallery => FlowySvgs.gallery_s,
       _ => throw UnimplementedError(),
     };
   }
