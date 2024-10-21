@@ -131,10 +131,7 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
 
       _beingCreated.remove(node.id);
     } else if (isPaste) {
-      // final wasCut = node.attributes[SubPageBlockKeys.wasCut];
-
       if (isCut && parentViewId != null) {
-        // Just in case, we try to put back from trash before moving
         await TrashService.putback(viewId);
 
         final viewOrResult = await ViewBackendService.moveViewV2(
