@@ -317,6 +317,15 @@ pub enum ErrorCode {
 
   #[error("Group name is empty")]
   GroupNameIsEmpty = 109,
+
+  #[error("Not available for current workspace plan")]
+  LimitedByWorkspacePlan = 110,
+
+  #[error("Invalid namespace")]
+  InvalidNamespace = 111,
+
+  #[error("Invalid publish name")]
+  InvalidPublishName = 112,
 }
 
 impl ErrorCode {
