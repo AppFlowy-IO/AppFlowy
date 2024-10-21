@@ -98,9 +98,9 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
 
       // This is a new Node, we need to create the view
       final viewOrResult = await ViewBackendService.createView(
+        name: '',
         layoutType: ViewLayoutPB.Document,
         parentViewId: parentViewId,
-        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       );
 
       await viewOrResult.fold(
