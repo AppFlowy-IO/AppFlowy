@@ -4,11 +4,11 @@ use std::sync::Arc;
 
 use super::notify_did_update_calculation;
 use crate::entities::{
-  CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
-  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
-  GroupChangesPB, GroupPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams,
-  RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
-  SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
+  CalendarEventPB, CreateRowPayloadPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB,
+  DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType, GroupChangesPB, GroupPB, InsertedRowPB,
+  LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB,
+  RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
+  UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::{
@@ -36,7 +36,7 @@ use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
+use collab_database::rows::{Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
@@ -177,17 +177,14 @@ impl DatabaseViewEditor {
     let timestamp = timestamp();
     trace!("[Database]: will create row at: {:?}", params.row_position);
     let mut result = CreateRowParams {
-      collab_params: collab_database::rows::CreateRowParams {
-        id: gen_row_id(),
-        database_id: self.database_id.clone(),
-        cells: Cells::new(),
-        height: 60,
-        visibility: true,
-        row_position: params.row_position.try_into()?,
-        created_at: timestamp,
-        modified_at: timestamp,
-      },
-      open_after_create: false,
+      id: gen_row_id(),
+      database_id: self.database_id.clone(),
+      cells: Cells::new(),
+      height: 60,
+      visibility: true,
+      row_position: params.row_position.try_into()?,
+      created_at: timestamp,
+      modified_at: timestamp,
     };
 
     // fill in cells from the frontend
@@ -210,7 +207,7 @@ impl DatabaseViewEditor {
     let filter_controller = self.filter_controller.clone();
     filter_controller.fill_cells(&mut cells).await;
 
-    result.collab_params.cells = cells;
+    result.cells = cells;
     Ok(result)
   }
 
