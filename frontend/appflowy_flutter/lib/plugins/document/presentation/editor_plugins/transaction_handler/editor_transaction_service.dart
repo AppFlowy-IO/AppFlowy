@@ -131,11 +131,11 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
     final Map<String, dynamic> added = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
     final Map<String, dynamic> removed = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
 
     for (final op in event.$2.operations) {

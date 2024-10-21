@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -73,10 +74,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -99,10 +97,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionAddButton([0], false);
@@ -155,10 +150,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionAddButton([0], false);
@@ -216,10 +208,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor
@@ -260,10 +249,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor
@@ -313,10 +299,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -354,10 +337,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       // Delete
@@ -405,10 +385,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
 
@@ -432,10 +409,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -497,5 +471,17 @@ extension _SubPageTestHelper on WidgetTester {
     await pumpAndSettle();
 
     await pumpUntilFound(find.byType(SubPageBlockComponent));
+  }
+
+  Future<void> renamePageWithSecondary(
+    String currentName,
+    String newName,
+  ) async {
+    await hoverOnPageName(currentName);
+    await rightClickOnPageName(currentName);
+    await tapButtonWithName(ViewMoreActionType.rename.name);
+    await enterText(find.byType(TextFormField), newName);
+    await tapOKButton();
+    await pumpAndSettle();
   }
 }
