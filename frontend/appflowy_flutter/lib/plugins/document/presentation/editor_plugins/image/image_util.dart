@@ -119,5 +119,9 @@ Future<List<ImageBlockData>> extractAndUploadImages(
 }
 
 Future<void> deleteImageFromLocalStorage(String localImagePath) async {
-  await File(localImagePath).delete();
+  try {
+    await File(localImagePath).delete();
+  } catch (e) {
+    Log.error('cannot delete image file', e);
+  }
 }
