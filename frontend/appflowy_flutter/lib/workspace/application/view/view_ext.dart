@@ -53,6 +53,9 @@ class ViewExtKeys {
 }
 
 extension ViewExtension on ViewPB {
+  String get nameOrDefault =>
+      name.isEmpty ? LocaleKeys.menuAppHeader_defaultNewPageName.tr() : name;
+
   Widget defaultIcon({Size? size}) => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.icon_board_s,
@@ -282,6 +285,12 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Document => FlowySvgs.document_s,
         ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
         _ => throw Exception('Unknown layout type'),
+      };
+
+  FlowySvgData mentionIcon({bool isChildPage = false}) => switch (this) {
+        ViewLayoutPB.Document =>
+          isChildPage ? FlowySvgs.child_page_s : FlowySvgs.link_to_page_s,
+        _ => icon,
       };
 
   bool get isDocumentView => switch (this) {

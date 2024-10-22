@@ -173,6 +173,7 @@ class _CalloutBlockComponentWidgetState
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
+    final (emojiSize, emojiButtonSize) = calculateEmojiSize();
 
     Widget child = Container(
       decoration: BoxDecoration(
@@ -190,14 +191,14 @@ class _CalloutBlockComponentWidgetState
           if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
           // the emoji picker button for the note
           EmojiPickerButton(
-            key: ValueKey(
-              emoji.toString(),
-            ), // force to refresh the popover state
+            // force to refresh the popover state
+            key: ValueKey(widget.node.id + emoji),
             enable: editorState.editable,
             title: '',
             emoji: emoji,
-            emojiSize: 15.0,
+            emojiSize: emojiSize,
             showBorder: false,
+            buttonSize: emojiButtonSize,
             onSubmitted: (emoji, controller) {
               setEmoji(emoji);
               controller?.close();
@@ -276,5 +277,16 @@ class _CalloutBlockComponentWidgetState
         Position(path: node.path, offset: node.delta?.length ?? 0),
       );
     await editorState.apply(transaction);
+  }
+
+  (double, Size) calculateEmojiSize() {
+    const double defaultEmojiSize = 16.0;
+    const Size defaultEmojiButtonSize = Size(30.0, 30.0);
+    final double emojiSize =
+        editorState.editorStyle.textStyleConfiguration.text.fontSize ??
+            defaultEmojiSize;
+    final emojiButtonSize =
+        defaultEmojiButtonSize * emojiSize / defaultEmojiSize;
+    return (emojiSize, emojiButtonSize);
   }
 }

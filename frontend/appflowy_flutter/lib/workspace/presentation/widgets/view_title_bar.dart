@@ -138,9 +138,7 @@ class ViewTitleBar extends StatelessWidget {
 }
 
 class TrashBreadcrumb extends StatelessWidget {
-  const TrashBreadcrumb({
-    super.key,
-  });
+  const TrashBreadcrumb({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +146,7 @@ class TrashBreadcrumb extends StatelessWidget {
       height: 32,
       child: FlowyButton(
         useIntrinsicWidth: true,
+        margin: const EdgeInsets.symmetric(horizontal: 6.0),
         onTap: () {
           getIt<MenuSharedState>().latestOpenView = null;
           getIt<TabsBloc>().add(
@@ -158,10 +157,14 @@ class TrashBreadcrumb extends StatelessWidget {
         },
         text: Row(
           children: [
-            const FlowySvg(FlowySvgs.trash_s),
+            const FlowySvg(FlowySvgs.trash_s, size: Size.square(14)),
             const HSpace(4.0),
-            FlowyText.regular(LocaleKeys.trash_text.tr()),
-            const HSpace(4.0),
+            FlowyText.regular(
+              LocaleKeys.trash_text.tr(),
+              fontSize: 14.0,
+              overflow: TextOverflow.ellipsis,
+              figmaLineHeight: 18.0,
+            ),
           ],
         ),
       ),
