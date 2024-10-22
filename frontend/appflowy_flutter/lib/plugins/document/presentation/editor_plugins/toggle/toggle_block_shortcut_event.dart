@@ -19,11 +19,29 @@ CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,
-    (_, node, delta) => [
-      toggleListBlockNode(
-        delta: delta.compose(Delta()..delete(_greater.length)),
-      ),
-    ],
+    (_, node, delta) {
+      final type = node.type;
+      int? level;
+      if (type == ToggleListBlockKeys.type) {
+        level = node.attributes[ToggleListBlockKeys.level] as int?;
+      } else if (type == HeadingBlockKeys.type) {
+        level = node.attributes[HeadingBlockKeys.level] as int?;
+      }
+      // if the previous block is heading block, convert it to toggle heading block
+      if (type == HeadingBlockKeys.type && level != null) {
+        return [
+          toggleHeadingNode(
+            level: level,
+            delta: delta.compose(Delta()..delete(_greater.length)),
+          ),
+        ];
+      }
+      return [
+        toggleListBlockNode(
+          delta: delta.compose(Delta()..delete(_greater.length)),
+        ),
+      ];
+    },
   ),
 );
 
