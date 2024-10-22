@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" id="Paperclip--Streamline-Lucide.svg" height="16" width="16"><desc>Paperclip Streamline Icon: https://streamlinehq.com</desc><path d="m13.4 6.90625 -5.7437499999999995 5.7437499999999995a3.75 3.75 0 0 1 -5.30625 -5.30625l5.35625 -5.35625A2.5 2.5 0 1 1 11.25 5.525l-5.36875 5.35625a1.25 1.25 0 0 1 -1.76875 -1.76875l5.30625 -5.300000000000001" stroke-width="1"></path></svg>
+<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3230_37362)">
+<path d="M6.56021 11.9134L10.6066 8.04018C11.0924 7.57518 11.0924 6.8212 10.6066 6.3562C10.1208 5.8912 9.33315 5.89115 8.84734 6.3562L4.83025 10.2014C3.90723 11.0849 3.90723 12.5174 4.83025 13.401C5.75331 14.2846 7.24984 14.2846 8.1729 13.401L12.2486 9.49968C13.6089 8.19759 13.6089 6.08653 12.2486 4.78443C10.8883 3.48234 8.68286 3.48234 7.32259 4.78443L4.03857 7.92792" stroke="#333333" stroke-linecap="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3230_37362">
+<rect width="12" height="12" fill="white" transform="translate(2.65381 2.93579)"/>
+</clipPath>
+</defs>
+</svg>

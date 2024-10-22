@@ -25,36 +25,46 @@ class EditorDropHandler extends StatelessWidget {
     required this.editorState,
     required this.isLocalMode,
     required this.child,
+    this.dropManagerState,
   });
 
   final String viewId;
   final EditorState editorState;
   final bool isLocalMode;
   final Widget child;
+  final EditorDropManagerState? dropManagerState;
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      // Due to how DropTarget works, there is no way to differentiate if an overlay is
-      // blocking the target visibly, so when we have an overlay with a drop target,
-      // we should disable the drop target for the Editor, until it is closed.
-      //
-      // See FileBlockComponent for sample use.
-      //
-      // Relates to:
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/2
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/331
-      //
-      create: (_) => EditorDropManagerState(),
-      child: Consumer<EditorDropManagerState>(
-        builder: (context, dropState, _) => DropTarget(
-          enable: dropState.isDropEnabled,
-          onDragExited: (_) => editorState.selectionService.removeDropTarget(),
-          onDragUpdated: _onDragUpdated,
-          onDragDone: _onDragDone,
-          child: child,
-        ),
+    final childWidget = Consumer<EditorDropManagerState>(
+      builder: (context, dropState, _) => DropTarget(
+        enable: dropState.isDropEnabled,
+        onDragExited: (_) => editorState.selectionService.removeDropTarget(),
+        onDragUpdated: _onDragUpdated,
+        onDragDone: _onDragDone,
+        child: child,
       ),
+    );
+
+    // Due to how DropTarget works, there is no way to differentiate if an overlay is
+    // blocking the target visibly, so when we have an overlay with a drop target,
+    // we should disable the drop target for the Editor, until it is closed.
+    //
+    // See FileBlockComponent for sample use.
+    //
+    // Relates to:
+    // - https://github.com/MixinNetwork/flutter-plugins/issues/2
+    // - https://github.com/MixinNetwork/flutter-plugins/issues/331
+    if (dropManagerState != null) {
+      return ChangeNotifierProvider.value(
+        value: dropManagerState!,
+        child: childWidget,
+      );
+    }
+
+    return ChangeNotifierProvider(
+      create: (_) => EditorDropManagerState(),
+      child: childWidget,
     );
   }
 

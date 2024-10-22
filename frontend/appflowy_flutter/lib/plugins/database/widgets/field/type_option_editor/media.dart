@@ -39,11 +39,9 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
         onHover: (_) => popoverMutex.close(),
         rightIcon: Toggle(
           value: typeOption.hideFileNames,
-          onChanged: (value) {
-            onTypeOptionUpdated(
-              _toggleHideFiles(typeOption, value).writeToBuffer(),
-            );
-          },
+          onChanged: (val) => onTypeOptionUpdated(
+            _toggleHideFiles(typeOption, val).writeToBuffer(),
+          ),
           padding: EdgeInsets.zero,
         ),
       ),
@@ -59,7 +57,6 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
     bool hideFileNames,
   ) {
     typeOption.freeze();
-    return typeOption
-        .rebuild((typeOption) => typeOption.hideFileNames = hideFileNames);
+    return typeOption.rebuild((to) => to.hideFileNames = hideFileNames);
   }
 }

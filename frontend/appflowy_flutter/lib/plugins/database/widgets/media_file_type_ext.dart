@@ -17,12 +17,13 @@ extension FileTypeDisplay on MediaFileTypePB {
 
   Color get color => switch (this) {
         MediaFileTypePB.Image => const Color(0xFF5465A1),
-        MediaFileTypePB.Link => const Color(0xFFA35F94),
-        MediaFileTypePB.Document => const Color(0xFFBAAC74),
-        MediaFileTypePB.Archive => const Color(0xFF40AAB8),
-        MediaFileTypePB.Video => const Color(0xFF5465A1),
-        MediaFileTypePB.Audio => const Color(0xFF5465A1),
-        MediaFileTypePB.Text => const Color(0xFF87B3A8),
+        MediaFileTypePB.Link => const Color(0xFFEBE4FF),
+        MediaFileTypePB.Audio => const Color(0xFFE4FFDE),
+        MediaFileTypePB.Video => const Color(0xFFE0F8FF),
+        MediaFileTypePB.Text ||
+        MediaFileTypePB.Archive ||
+        MediaFileTypePB.Document =>
+          const Color(0xFFFFE7EE),
         _ => const Color(0xFF87B3A8),
       };
 }

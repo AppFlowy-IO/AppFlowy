@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -13,7 +14,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/af_image.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/util/xfile_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
@@ -29,7 +29,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-const _defaultFilesToDisplay = 5;
+const _defaultFilesToDisplay = 10;
+const _dropFileKey = 'files_media';
 
 class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
   final mutex = PopoverMutex();
@@ -94,8 +95,8 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
 
                   final size = constraints.maxWidth / 2 - 6;
                   return Wrap(
-                    runSpacing: 12,
-                    spacing: 12,
+                    runSpacing: 8,
+                    spacing: 8,
                     children: [
                       ...filesToDisplay.mapIndexed(
                         (index, file) => _FilePreviewRender(
@@ -175,66 +176,75 @@ class _AddFileButton extends StatelessWidget {
       offset: const Offset(0, 10),
       direction: direction,
       constraints: const BoxConstraints(maxWidth: 350),
-      popupBuilder: (_) => FileUploadMenu(
-        allowMultipleFiles: true,
-        onInsertLocalFile: (files) => insertLocalFiles(
-          context,
-          files,
-          userProfile: context.read<MediaCellBloc>().state.userProfile,
-          documentId: context.read<MediaCellBloc>().rowId,
-          onUploadSuccess: (file, path, isLocalMode) {
-            final mediaCellBloc = context.read<MediaCellBloc>();
-            if (mediaCellBloc.isClosed) {
-              return;
-            }
+      margin: EdgeInsets.zero,
+      onClose: () =>
+          context.read<EditorDropManagerState>().remove(_dropFileKey),
+      popupBuilder: (_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.read<EditorDropManagerState>().add(_dropFileKey);
+        });
 
-            mediaCellBloc.add(
-              MediaCellEvent.addFile(
-                url: path,
-                name: file.name,
-                uploadType: isLocalMode
-                    ? FileUploadTypePB.LocalFile
-                    : FileUploadTypePB.CloudFile,
-                fileType: file.fileType.toMediaFileTypePB(),
-              ),
-            );
+        return FileUploadMenu(
+          allowMultipleFiles: true,
+          onInsertLocalFile: (files) => insertLocalFiles(
+            context,
+            files,
+            userProfile: context.read<MediaCellBloc>().state.userProfile,
+            documentId: context.read<MediaCellBloc>().rowId,
+            onUploadSuccess: (file, path, isLocalMode) {
+              final mediaCellBloc = context.read<MediaCellBloc>();
+              if (mediaCellBloc.isClosed) {
+                return;
+              }
 
-            controller.close();
-          },
-        ),
-        onInsertNetworkFile: (url) {
-          if (url.isEmpty) return;
-          final uri = Uri.tryParse(url);
-          if (uri == null) {
-            return;
-          }
-
-          final fakeFile = XFile(uri.path);
-          MediaFileTypePB fileType = fakeFile.fileType.toMediaFileTypePB();
-          fileType = fileType == MediaFileTypePB.Other
-              ? MediaFileTypePB.Link
-              : fileType;
-
-          String name =
-              uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "";
-          if (name.isEmpty && uri.pathSegments.length > 1) {
-            name = uri.pathSegments[uri.pathSegments.length - 2];
-          } else if (name.isEmpty) {
-            name = uri.host;
-          }
-
-          context.read<MediaCellBloc>().add(
+              mediaCellBloc.add(
                 MediaCellEvent.addFile(
-                  url: url,
-                  name: name,
-                  uploadType: FileUploadTypePB.NetworkFile,
-                  fileType: fileType,
+                  url: path,
+                  name: file.name,
+                  uploadType: isLocalMode
+                      ? FileUploadTypePB.LocalFile
+                      : FileUploadTypePB.CloudFile,
+                  fileType: file.fileType.toMediaFileTypePB(),
                 ),
               );
 
-          controller.close();
-        },
-      ),
+              controller.close();
+            },
+          ),
+          onInsertNetworkFile: (url) {
+            if (url.isEmpty) return;
+            final uri = Uri.tryParse(url);
+            if (uri == null) {
+              return;
+            }
+
+            final fakeFile = XFile(uri.path);
+            MediaFileTypePB fileType = fakeFile.fileType.toMediaFileTypePB();
+            fileType = fileType == MediaFileTypePB.Other
+                ? MediaFileTypePB.Link
+                : fileType;
+
+            String name =
+                uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "";
+            if (name.isEmpty && uri.pathSegments.length > 1) {
+              name = uri.pathSegments[uri.pathSegments.length - 2];
+            } else if (name.isEmpty) {
+              name = uri.host;
+            }
+
+            context.read<MediaCellBloc>().add(
+                  MediaCellEvent.addFile(
+                    url: url,
+                    name: name,
+                    uploadType: FileUploadTypePB.NetworkFile,
+                    fileType: fileType,
+                  ),
+                );
+
+            controller.close();
+          },
+        );
+      },
       child: child,
     );
   }
@@ -304,13 +314,9 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
       child = DecoratedBox(
         decoration: BoxDecoration(color: file.fileType.color),
         child: Center(
-          child: Container(
+          child: Padding(
             padding: const EdgeInsets.all(8),
-            child: FlowySvg(
-              file.fileType.icon,
-              color: AFThemeExtension.of(context).strongText,
-              size: const Size.square(32),
-            ),
+            child: FlowySvg(file.fileType.icon, color: Colors.black),
           ),
         ),
       );
@@ -490,65 +496,29 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
           onHover: (hovering) => setState(() => isHovering = hovering),
           child: Stack(
             children: [
-              DecoratedBox(
+              Container(
+                width: 93,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Corners.s6Radius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 2,
-                    ),
-                  ],
+                  border: Border.all(color: const Color(0xFFF2F2F2)),
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      height: widget.size,
-                      width: widget.size,
-                      constraints: BoxConstraints(
-                        maxHeight: widget.size < 150 ? 100 : 195,
-                        minHeight: widget.size < 150 ? 100 : 195,
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: AFThemeExtension.of(context).greyHover,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Corners.s6Radius,
-                          topRight: Corners.s6Radius,
-                          bottomLeft: widget.hideFileNames
-                              ? Corners.s6Radius
-                              : Radius.zero,
-                          bottomRight: widget.hideFileNames
-                              ? Corners.s6Radius
-                              : Radius.zero,
-                        ),
-                      ),
+                    SizedBox(
+                      height: 68,
                       child: child,
                     ),
                     if (!widget.hideFileNames)
-                      Container(
-                        height: 28,
-                        width: widget.size,
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).isLightMode
-                              ? Theme.of(context).cardColor
-                              : AFThemeExtension.of(context).greyHover,
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Corners.s6Radius,
-                            bottomRight: Corners.s6Radius,
-                          ),
-                        ),
+                      SizedBox(
+                        height: 22,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Center(
-                            child: FlowyText(
-                              file.name,
-                              overflow: TextOverflow.ellipsis,
-                              fontSize: 12,
-                              color: AFThemeExtension.of(context)
-                                  .secondaryTextColor,
-                            ),
+                          padding: const EdgeInsets.all(4),
+                          child: FlowyText(
+                            file.name,
+                            fontSize: 10,
+                            figmaLineHeight: 12,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
