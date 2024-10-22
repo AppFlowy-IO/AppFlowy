@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -57,7 +58,7 @@ class ViewAction extends StatelessWidget {
         if (containPublishedPage && context.mounted) {
           await showConfirmDeletionDialog(
             context: context,
-            name: view.name,
+            name: view.nameOrDefault,
             description: LocaleKeys.publish_containsPublishedPage.tr(),
             onConfirm: () {
               context.read<ViewBloc>().add(const ViewEvent.delete());
