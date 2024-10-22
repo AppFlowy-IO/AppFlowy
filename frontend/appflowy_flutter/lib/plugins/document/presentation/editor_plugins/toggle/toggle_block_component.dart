@@ -20,6 +20,11 @@ class ToggleListBlockKeys {
 
   /// The value is a bool.
   static const String collapsed = 'collapsed';
+
+  /// The value is a int.
+  ///
+  /// If this value is not null, the block represent a toggle heading.
+  static const String level = 'level';
 }
 
 Node toggleListBlockNode({
@@ -30,17 +35,41 @@ Node toggleListBlockNode({
   Attributes? attributes,
   Iterable<Node>? children,
 }) {
+  delta ??= (Delta()..insert(text ?? ''));
   return Node(
     type: ToggleListBlockKeys.type,
+    children: children ?? [],
     attributes: {
-      ToggleListBlockKeys.collapsed: collapsed,
-      ToggleListBlockKeys.delta:
-          (delta ?? (Delta()..insert(text ?? ''))).toJson(),
       if (attributes != null) ...attributes,
       if (textDirection != null)
         ToggleListBlockKeys.textDirection: textDirection,
+      ToggleListBlockKeys.collapsed: collapsed,
+      ToggleListBlockKeys.delta: delta.toJson(),
     },
-    children: children ?? [],
+  );
+}
+
+Node toggleHeadingNode({
+  int level = 1,
+  String? text,
+  Delta? delta,
+  bool collapsed = false,
+  String? textDirection,
+  Attributes? attributes,
+  Iterable<Node>? children,
+}) {
+  // only support level 1 - 6
+  level = level.clamp(1, 6);
+  return toggleListBlockNode(
+    text: text,
+    delta: delta,
+    collapsed: collapsed,
+    textDirection: textDirection,
+    children: children,
+    attributes: {
+      if (attributes != null) ...attributes,
+      ToggleListBlockKeys.level: level,
+    },
   );
 }
 
@@ -57,9 +86,13 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
     super.configuration,
     this.padding = const EdgeInsets.all(0),
+    this.textStyleBuilder,
   });
 
   final EdgeInsets padding;
+
+  /// The text style of the toggle heading block.
+  final TextStyle Function(int level)? textStyleBuilder;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -69,6 +102,7 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
       node: node,
       configuration: configuration,
       padding: padding,
+      textStyleBuilder: textStyleBuilder,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
         blockComponentContext,
@@ -89,9 +123,11 @@ class ToggleListBlockComponentWidget extends BlockComponentStatefulWidget {
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.all(0),
+    this.textStyleBuilder,
   });
 
   final EdgeInsets padding;
+  final TextStyle Function(int level)? textStyleBuilder;
 
   @override
   State<ToggleListBlockComponentWidget> createState() =>
@@ -135,6 +171,7 @@ class _ToggleListBlockComponentWidgetState
       );
 
   bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
+  int? get level => node.attributes[ToggleListBlockKeys.level] as int?;
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +188,6 @@ class _ToggleListBlockComponentWidgetState
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
-
     Widget child = Container(
       color: backgroundColor,
       width: double.infinity,
@@ -161,44 +197,9 @@ class _ToggleListBlockComponentWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         textDirection: textDirection,
         children: [
-          // the emoji picker button for the note
-          Container(
-            constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
-            padding: const EdgeInsets.only(right: 4.0),
-            child: AnimatedRotation(
-              turns: collapsed ? 0.0 : 0.25,
-              duration: const Duration(milliseconds: 200),
-              child: FlowyIconButton(
-                width: 18.0,
-                icon: const Icon(
-                  Icons.arrow_right,
-                  size: 18.0,
-                ),
-                onPressed: onCollapsed,
-              ),
-            ),
-          ),
-
+          _buildExpandIcon(),
           Flexible(
-            child: AppFlowyRichText(
-              key: forwardKey,
-              delegate: this,
-              node: widget.node,
-              editorState: editorState,
-              placeholderText: placeholderText,
-              lineHeight: 1.5,
-              textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-                textStyle,
-              ),
-              placeholderTextSpanDecorator: (textSpan) =>
-                  textSpan.updateTextStyle(
-                placeholderTextStyle,
-              ),
-              textDirection: textDirection,
-              textAlign: alignment?.toTextAlign,
-              cursorColor: editorState.editorStyle.cursorColor,
-              selectionColor: editorState.editorStyle.selectionColor,
-            ),
+            child: _buildRichText(),
           ),
         ],
       ),
@@ -230,6 +231,64 @@ class _ToggleListBlockComponentWidgetState
     }
 
     return child;
+  }
+
+  Widget _buildRichText() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+    final level = node.attributes[ToggleListBlockKeys.level];
+    return AppFlowyRichText(
+      key: forwardKey,
+      delegate: this,
+      node: widget.node,
+      editorState: editorState,
+      placeholderText: placeholderText,
+      lineHeight: 1.5,
+      textSpanDecorator: (textSpan) {
+        var result = textSpan.updateTextStyle(textStyle);
+        if (level != null) {
+          result = result.updateTextStyle(
+            widget.textStyleBuilder?.call(level),
+          );
+        }
+        return result;
+      },
+      placeholderTextSpanDecorator: (textSpan) {
+        var result = textSpan.updateTextStyle(textStyle);
+        if (level != null && widget.textStyleBuilder != null) {
+          result = result.updateTextStyle(
+            widget.textStyleBuilder?.call(level),
+          );
+        }
+        return result.updateTextStyle(placeholderTextStyle);
+      },
+      textDirection: textDirection,
+      textAlign: alignment?.toTextAlign,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
+    );
+  }
+
+  Widget _buildExpandIcon() {
+    final level = node.attributes[ToggleListBlockKeys.level];
+    final topPadding = level == null ? 0.0 : configuration.padding(node).top;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
+      padding: EdgeInsets.only(top: topPadding, right: 4.0),
+      child: AnimatedRotation(
+        turns: collapsed ? 0.0 : 0.25,
+        duration: const Duration(milliseconds: 200),
+        child: FlowyIconButton(
+          width: 20.0,
+          icon: const Icon(
+            Icons.arrow_right,
+            size: 18.0,
+          ),
+          onPressed: onCollapsed,
+        ),
+      ),
+    );
   }
 
   Future<void> onCollapsed() async {

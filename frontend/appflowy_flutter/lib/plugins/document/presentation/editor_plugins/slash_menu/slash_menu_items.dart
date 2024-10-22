@@ -75,6 +75,62 @@ final heading3SlashMenuItem = SelectionMenuItem(
   },
 );
 
+// toggle heading 1 menu item
+// heading 1 - 3 menu items
+final toggleHeading1SlashMenuItem = SelectionMenuItem(
+  // todo: i18n
+  getName: () => 'Toggle Heading 1',
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_h1_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 1', 'toggle h1', 'toggle heading1'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(),
+    );
+  },
+);
+
+final toggleHeading2SlashMenuItem = SelectionMenuItem(
+  // todo: i18n
+  getName: () => 'Toggle Heading 2',
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_h2_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 2', 'toggle h2', 'toggle heading2'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(level: 2),
+    );
+  },
+);
+
+final toggleHeading3SlashMenuItem = SelectionMenuItem(
+  // todo: i18n
+  getName: () => 'Toggle Heading 3',
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_h3_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 3', 'toggle h3', 'toggle heading3'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(level: 3),
+    );
+  },
+);
+
 // image menu item
 final imageSlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_image.tr(),
