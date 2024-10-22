@@ -164,3 +164,57 @@ CommandShortcutEventHandler _toggleToggleListCommandHandler = (editorState) {
   editorState.apply(transaction);
   return KeyEventResult.handled;
 };
+
+/// Press the backspace at the first position of first line to go to the title
+///
+/// - support
+///   - desktop
+///   - web
+///
+final CommandShortcutEvent removeToggleHeadingStyle = CommandShortcutEvent(
+  key: 'remove toggle heading style',
+  command: 'backspace',
+  getDescription: () => 'remove toggle heading style',
+  handler: (editorState) => _removeToggleHeadingStyle(
+    editorState: editorState,
+  ),
+);
+
+// convert the toggle heading block to heading block
+KeyEventResult _removeToggleHeadingStyle({
+  required EditorState editorState,
+}) {
+  final selection = editorState.selection;
+  if (selection == null ||
+      !selection.isCollapsed ||
+      selection.start.offset != 0) {
+    return KeyEventResult.ignored;
+  }
+
+  final node = editorState.getNodeAtPath(selection.start.path);
+  if (node == null || node.type != ToggleListBlockKeys.type) {
+    return KeyEventResult.ignored;
+  }
+
+  final level = node.attributes[ToggleListBlockKeys.level] as int?;
+  if (level == null) {
+    return KeyEventResult.ignored;
+  }
+
+  final transaction = editorState.transaction;
+  transaction.updateNode(node, {
+    ToggleListBlockKeys.level: null,
+  });
+  final children = node.children;
+  if (children.isEmpty) {
+    transaction.deleteNode(node);
+    transaction.insertNodes(
+      selection.start.path.next,
+      children.map((e) => e.copyWith()).toList(growable: false),
+    );
+  }
+  transaction.afterSelection = selection;
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+}
