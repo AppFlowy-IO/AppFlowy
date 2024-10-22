@@ -271,11 +271,25 @@ class _ToggleListBlockComponentWidgetState
   }
 
   Widget _buildExpandIcon() {
-    final level = node.attributes[ToggleListBlockKeys.level];
-    final topPadding = level == null ? 0.0 : configuration.padding(node).top;
+    const buttonHeight = 22.0;
+    double top = 0.0;
+
+    if (level != null) {
+      // top padding * 2 + button height = height of the heading text
+      final textStyle = widget.textStyleBuilder?.call(level ?? 1);
+      final fontSize = textStyle?.fontSize;
+      final lineHeight = textStyle?.height ?? 1.5;
+      if (fontSize != null) {
+        top = (fontSize * lineHeight - buttonHeight) / 2;
+      }
+    }
+
     return Container(
-      constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
-      padding: EdgeInsets.only(top: topPadding, right: 4.0),
+      constraints: const BoxConstraints(
+        minWidth: 26,
+        minHeight: buttonHeight,
+      ),
+      padding: EdgeInsets.only(top: top, right: 4.0),
       child: AnimatedRotation(
         turns: collapsed ? 0.0 : 0.25,
         duration: const Duration(milliseconds: 200),
