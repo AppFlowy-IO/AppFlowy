@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/command_shortcuts.dart';
 
 import 'publish_tab.dart';
 
@@ -55,26 +56,40 @@ class _ShareMenuState extends State<ShareMenu>
       return const SizedBox.shrink();
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const VSpace(10),
-        Container(
-          alignment: Alignment.centerLeft,
-          height: 30,
-          child: _buildTabBar(context),
+    return FocusableActionDetector(
+      shortcuts: {
+        customCopyToClipboardCommand.command: const ActivateIntent(),
+      },
+      actions: {
+        ActivateIntent: CallbackAction<Intent>(
+          onInvoke: (intent) {
+            // Call the existing 'Copy to clipboard' functionality
+            // This is a placeholder implementation
+            return null;
+          },
         ),
-        Divider(
-          color: Theme.of(context).dividerColor,
-          height: 1,
-          thickness: 1,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0),
-          child: _buildTab(context),
-        ),
-        const VSpace(20),
-      ],
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const VSpace(10),
+          Container(
+            alignment: Alignment.centerLeft,
+            height: 30,
+            child: _buildTabBar(context),
+          ),
+          Divider(
+            color: Theme.of(context).dividerColor,
+            height: 1,
+            thickness: 1,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+            child: _buildTab(context),
+          ),
+          const VSpace(20),
+        ],
+      ),
     );
   }
 

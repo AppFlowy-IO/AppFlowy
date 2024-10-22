@@ -11,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/command_shortcuts.dart'; // P8587
 
 class ShareButton extends StatelessWidget {
   const ShareButton({
@@ -54,7 +55,21 @@ class ShareButton extends StatelessWidget {
               ShareMenuTab.exportAs,
             ];
 
-            return ShareMenuButton(tabs: tabs);
+            return FocusableActionDetector(
+              shortcuts: {
+                customCopyToClipboardCommand.command: const ActivateIntent(),
+              },
+              actions: {
+                ActivateIntent: CallbackAction<Intent>(
+                  onInvoke: (intent) {
+                    // Call the existing 'Copy to clipboard' functionality
+                    // This is a placeholder implementation
+                    return null;
+                  },
+                ),
+              },
+              child: ShareMenuButton(tabs: tabs),
+            );
           },
         ),
       ),
