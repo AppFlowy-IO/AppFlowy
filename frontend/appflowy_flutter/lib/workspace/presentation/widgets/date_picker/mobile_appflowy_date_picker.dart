@@ -496,6 +496,7 @@ class _TimePicker extends StatelessWidget {
     final timeStr = getTimeStr(dateTime);
     final endDateStr = getDateStr(endDateTime);
     final endTimeStr = getTimeStr(endDateTime);
+
     if (dateStr.isEmpty) {
       return const Divider(height: 1);
     }
@@ -553,17 +554,41 @@ class _TimePicker extends StatelessWidget {
 
     if (!includeTime) {
       children.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: FlowyText(dateStr),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: GestureDetector(
+              onTap: () async {
+                final result = await _showDateTimePicker(
+                  context,
+                  isStartDay ? dateTime : endDateTime,
+                  use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
+                  mode: CupertinoDatePickerMode.date,
+                );
+                handleDateTimePickerResult(result, isStartDay);
+              },
+              child: FlowyText(dateStr),
+            ),
+          ),
         ),
       );
     } else {
       children.addAll([
         Expanded(
-          child: FlowyText(
-            dateStr,
-            textAlign: TextAlign.center,
+          child: GestureDetector(
+            onTap: () async {
+              final result = await _showDateTimePicker(
+                context,
+                isStartDay ? dateTime : endDateTime,
+                use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
+                mode: CupertinoDatePickerMode.date,
+              );
+              handleDateTimePickerResult(result, isStartDay);
+            },
+            child: FlowyText(
+              dateStr,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
         Container(
@@ -574,19 +599,13 @@ class _TimePicker extends StatelessWidget {
         Expanded(
           child: GestureDetector(
             onTap: () async {
-              final result = await _showTimePicker(
+              final result = await _showDateTimePicker(
                 context,
                 isStartDay ? dateTime : endDateTime,
                 use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
-                isStartDay: isStartDay,
+                mode: CupertinoDatePickerMode.time,
               );
-              if (result == null) {
-                return;
-              } else if (isStartDay) {
-                onStartTimeChanged(result);
-              } else {
-                onEndTimeChanged?.call(result);
-              }
+              handleDateTimePickerResult(result, isStartDay);
             },
             child: FlowyText(
               timeStr!,
@@ -610,11 +629,11 @@ class _TimePicker extends StatelessWidget {
     );
   }
 
-  Future<DateTime?> _showTimePicker(
+  Future<DateTime?> _showDateTimePicker(
     BuildContext context,
     DateTime? dateTime, {
+    required CupertinoDatePickerMode mode,
     required bool use24hFormat,
-    required bool isStartDay,
   }) async {
     DateTime? result;
 
@@ -626,7 +645,7 @@ class _TimePicker extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 300),
             child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.time,
+              mode: mode,
               initialDateTime: dateTime,
               use24hFormat: use24hFormat,
               onDateTimeChanged: (dateTime) {
@@ -651,6 +670,16 @@ class _TimePicker extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void handleDateTimePickerResult(DateTime? result, bool isStartDay) {
+    if (result == null) {
+      return;
+    } else if (isStartDay) {
+      onStartTimeChanged(result);
+    } else {
+      onEndTimeChanged?.call(result);
+    }
   }
 
   String getDateStr(DateTime? dateTime) {
