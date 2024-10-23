@@ -51,14 +51,16 @@ jobs:
           APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
           APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
         run: |
-          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
+          docker rm -f $(docker ps -aq)
+          docker volume rm $(docker volume ls -q)
           docker compose pull
-          docker compose up -d --force-recreate
+          docker compose up -d
           echo "Waiting for the container to be ready..."
           sleep 10
           docker ps -a
           docker compose logs
 
+          # container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
           # if [ -z "$container_id" ]; then
           #   echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
           # else
