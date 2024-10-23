@@ -13,6 +13,7 @@ class FlowyText extends StatelessWidget {
   final int? maxLines;
   final Color? color;
   final TextDecoration? decoration;
+  final Color? decorationColor;
   final double? decorationThickness;
   final bool selectable;
   final String? fontFamily;
@@ -39,6 +40,7 @@ class FlowyText extends StatelessWidget {
     this.color,
     this.maxLines = 1,
     this.decoration,
+    this.decorationColor,
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
@@ -60,6 +62,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.decorationColor,
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
@@ -82,6 +85,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.decorationColor,
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
@@ -103,6 +107,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.decorationColor,
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
@@ -124,6 +129,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.decorationColor,
     this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
@@ -146,6 +152,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign = TextAlign.center,
     this.maxLines = 1,
     this.decoration,
+    this.decorationColor,
     this.selectable = false,
     this.lineHeight,
     this.withTooltip = false,
@@ -194,6 +201,7 @@ class FlowyText extends StatelessWidget {
           fontWeight: fontWeight,
           color: color,
           decoration: decoration,
+          decorationColor: decorationColor,
           decorationThickness: decorationThickness,
           fontFamily: fontFamily,
           fontFamilyFallback: fallbackFontFamily,

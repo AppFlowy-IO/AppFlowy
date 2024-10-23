@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +15,7 @@ class DatePicker extends StatefulWidget {
     this.startDay,
     this.endDay,
     this.selectedDay,
-    this.firstDay,
-    this.lastDay,
+    required this.focusedDay,
     this.onDaySelected,
     this.onRangeSelected,
     this.onCalendarCreated,
@@ -31,20 +29,14 @@ class DatePicker extends StatefulWidget {
   final DateTime? endDay;
   final DateTime? selectedDay;
 
-  /// If not provided, defaults to 1st January 1970
-  ///
-  final DateTime? firstDay;
+  final DateTime focusedDay;
 
-  /// If not provided, defaults to 1st January 2100
-  ///
-  final DateTime? lastDay;
-
-  final Function(
+  final void Function(
     DateTime selectedDay,
     DateTime focusedDay,
   )? onDaySelected;
 
-  final Function(
+  final void Function(
     DateTime? start,
     DateTime? end,
     DateTime focusedDay,
@@ -59,7 +51,6 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-  late DateTime _focusedDay = widget.selectedDay ?? DateTime.now();
   late CalendarFormat _calendarFormat = widget.calendarFormat;
 
   @override
@@ -78,8 +69,6 @@ class _DatePickerState extends State<DatePicker> {
             ),
           )
         : _CalendarStyle.desktop(
-            textStyle: textStyle,
-            iconColor: Theme.of(context).iconTheme.color,
             dowTextStyle: AFThemeExtension.of(context).caption,
             selectedColor: Theme.of(context).colorScheme.primary,
           );
@@ -87,9 +76,9 @@ class _DatePickerState extends State<DatePicker> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TableCalendar(
-        firstDay: widget.firstDay ?? kFirstDay,
-        lastDay: widget.lastDay ?? kLastDay,
-        focusedDay: _focusedDay,
+        firstDay: kFirstDay,
+        lastDay: kLastDay,
+        focusedDay: widget.focusedDay,
         rowHeight: calendarStyle.rowHeight,
         calendarFormat: _calendarFormat,
         daysOfWeekHeight: calendarStyle.dowHeight,
@@ -156,7 +145,6 @@ class _DatePickerState extends State<DatePicker> {
             setState(() => _calendarFormat = calendarFormat),
         onPageChanged: (focusedDay) {
           widget.onPageChanged?.call(focusedDay);
-          setState(() => _focusedDay = focusedDay);
         },
         onDaySelected: widget.onDaySelected,
         onRangeSelected: widget.onRangeSelected,
@@ -167,26 +155,13 @@ class _DatePickerState extends State<DatePicker> {
 
 class _CalendarStyle {
   _CalendarStyle.desktop({
-    required TextStyle textStyle,
     required this.selectedColor,
     required this.dowTextStyle,
-    Color? iconColor,
   })  : rowHeight = 33,
         dowHeight = 35,
-        headerVisible = true,
-        headerStyle = HeaderStyle(
-          formatButtonVisible: false,
-          titleCentered: true,
-          titleTextStyle: textStyle,
-          leftChevronMargin: EdgeInsets.zero,
-          leftChevronPadding: EdgeInsets.zero,
-          leftChevronIcon: FlowySvg(FlowySvgs.arrow_left_s, color: iconColor),
-          rightChevronPadding: EdgeInsets.zero,
-          rightChevronMargin: EdgeInsets.zero,
-          rightChevronIcon: FlowySvg(FlowySvgs.arrow_right_s, color: iconColor),
-          headerPadding: const EdgeInsets.only(bottom: 8.0),
-        ),
-        availableGestures = AvailableGestures.all;
+        headerVisible = false,
+        headerStyle = const HeaderStyle(),
+        availableGestures = AvailableGestures.horizontalSwipe;
 
   _CalendarStyle.mobile({required this.dowTextStyle})
       : rowHeight = 48,

@@ -590,15 +590,14 @@ impl<'a> TestRowBuilder<'a> {
 
   pub fn insert_date_cell(
     &mut self,
-    date: i64,
-    time: Option<String>,
+    timestamp: i64,
     include_time: Option<bool>,
     field_type: &FieldType,
   ) -> String {
     let date_field = self.field_with_type(field_type);
     self
       .cell_build
-      .insert_date_cell(&date_field.id, date, time, include_time);
+      .insert_date_cell(&date_field.id, timestamp, include_time);
     date_field.id.clone()
   }
 

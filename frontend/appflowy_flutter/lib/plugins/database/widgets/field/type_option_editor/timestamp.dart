@@ -38,7 +38,7 @@ class TimestampTypeOptionEditorFactory implements TypeOptionEditorFactory {
               );
               onTypeOptionUpdated(newTypeOption.writeToBuffer());
             },
-            value: typeOption.includeTime,
+            includeTime: typeOption.includeTime,
           ),
         ),
       ],

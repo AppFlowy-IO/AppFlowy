@@ -292,6 +292,7 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
       await tester.toggleIncludeTime();
       final now = DateTime.now();
+      final expected = DateTime(now.year, now.month, now.day);
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();
@@ -299,7 +300,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y HH:mm').format(now),
+        content: DateFormat('MMM dd, y HH:mm').format(expected),
       );
 
       // open editor and change date & time format
@@ -313,7 +314,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y hh:mm a').format(now),
+        content: DateFormat('dd/MM/y hh:mm a').format(expected),
       );
     });
 
@@ -540,6 +541,7 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
       await tester.toggleIncludeTime();
       final now = DateTime.now();
+      final expected = DateTime(now.year, now.month, now.day);
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();
@@ -547,7 +549,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y HH:mm').format(now),
+        content: DateFormat('MMM dd, y HH:mm').format(expected),
       );
 
       await tester.changeFieldTypeOfFieldWithName(
@@ -557,7 +559,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
-        content: DateFormat('MMM dd, y HH:mm').format(now),
+        content: DateFormat('MMM dd, y HH:mm').format(expected),
         cellIndex: 1,
       );
 
@@ -581,8 +583,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y').format(now),
-        // content: DateFormat('MMM dd, y HH:mm').format(now),
+        content: DateFormat('MMM dd, y').format(expected),
       );
       tester.assertCellContent(
         rowIndex: 1,

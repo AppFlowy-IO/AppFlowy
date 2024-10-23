@@ -18,8 +18,8 @@ String formatTimestampWithContext(
   final difference = now.difference(dateTime);
   final String date;
 
-  final dateFormate = context.read<AppearanceSettingsCubit>().state.dateFormat;
-  final timeFormate = context.read<AppearanceSettingsCubit>().state.timeFormat;
+  final dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
+  final timeFormat = context.read<AppearanceSettingsCubit>().state.timeFormat;
 
   if (difference.inMinutes < 1) {
     date = LocaleKeys.sideBar_justNow.tr();
@@ -29,9 +29,9 @@ String formatTimestampWithContext(
         .tr(namedArgs: {'count': difference.inMinutes.toString()});
   } else if (difference.inHours >= 1 && dateTime.isToday) {
     // in same day
-    date = timeFormate.formatTime(dateTime);
+    date = timeFormat.formatTime(dateTime);
   } else {
-    date = dateFormate.formatDate(dateTime, false);
+    date = dateFormat.formatDate(dateTime, false);
   }
 
   if (difference.inHours >= 1 && prefix != null) {

@@ -18,63 +18,39 @@ import 'package:go_router/go_router.dart';
 class MobileAppFlowyDatePicker extends StatefulWidget {
   const MobileAppFlowyDatePicker({
     super.key,
-    this.selectedDay,
-    this.startDay,
-    this.endDay,
-    this.dateStr,
-    this.endDateStr,
-    this.timeStr,
-    this.endTimeStr,
-    this.enableRanges = false,
-    this.isRange = false,
-    this.rebuildOnDaySelected = false,
-    this.rebuildOnTimeChanged = false,
-    required this.includeTime,
-    required this.use24hFormat,
+    this.dateTime,
+    this.endDateTime,
+    required this.dateFormat,
     required this.timeFormat,
-    this.selectedReminderOption,
-    required this.onStartTimeChanged,
-    this.onEndTimeChanged,
+    this.reminderOption = ReminderOption.none,
+    required this.includeTime,
     required this.onIncludeTimeChanged,
-    this.onRangeChanged,
+    this.isRange = false,
+    this.onIsRangeChanged,
     this.onDaySelected,
     this.onRangeSelected,
     this.onClearDate,
-    this.liveDateFormatter,
     this.onReminderSelected,
   });
 
-  final DateTime? selectedDay;
-  final DateTime? startDay;
-  final DateTime? endDay;
+  final DateTime? dateTime;
+  final DateTime? endDateTime;
 
-  final String? dateStr;
-  final String? endDateStr;
-  final String? timeStr;
-  final String? endTimeStr;
-
-  final bool enableRanges;
   final bool isRange;
   final bool includeTime;
-  final bool rebuildOnDaySelected;
-  final bool rebuildOnTimeChanged;
-  final bool use24hFormat;
 
   final TimeFormatPB timeFormat;
+  final DateFormatPB dateFormat;
 
-  final ReminderOption? selectedReminderOption;
+  final ReminderOption reminderOption;
 
-  final Function(String? time) onStartTimeChanged;
-  final Function(String? time)? onEndTimeChanged;
-  final Function(bool) onIncludeTimeChanged;
-  final Function(bool)? onRangeChanged;
+  final Function(bool)? onIncludeTimeChanged;
+  final Function(bool)? onIsRangeChanged;
 
   final DaySelectedCallback? onDaySelected;
   final RangeSelectedCallback? onRangeSelected;
   final VoidCallback? onClearDate;
   final OnReminderSelected? onReminderSelected;
-
-  final String Function(DateTime)? liveDateFormatter;
 
   @override
   State<MobileAppFlowyDatePicker> createState() =>
@@ -82,10 +58,51 @@ class MobileAppFlowyDatePicker extends StatefulWidget {
 }
 
 class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
-  late bool _includeTime = widget.includeTime;
-  late String? _dateStr = widget.dateStr;
-  late ReminderOption _reminderOption =
-      widget.selectedReminderOption ?? ReminderOption.none;
+  // store date values in the state and refresh the ui upon any changes made, instead of only updating them after receiving update from backend.
+  late DateTime? dateTime;
+  late DateTime? startDateTime;
+  late DateTime? endDateTime;
+  late bool includeTime;
+  late bool isRange;
+  late ReminderOption reminderOption;
+
+  late DateTime focusedDateTime;
+  PageController? pageController;
+
+  bool justChangedIsRange = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    dateTime = widget.dateTime;
+    startDateTime = widget.isRange ? widget.dateTime : null;
+    endDateTime = widget.isRange ? widget.endDateTime : null;
+    includeTime = widget.includeTime;
+    isRange = widget.isRange;
+    reminderOption = widget.reminderOption;
+
+    focusedDateTime = widget.dateTime ?? DateTime.now();
+  }
+
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    setState(() {
+      dateTime = widget.dateTime;
+      if (widget.isRange) {
+        startDateTime = widget.dateTime;
+        endDateTime = widget.endDateTime;
+      } else {
+        startDateTime = endDateTime = null;
+      }
+      includeTime = widget.includeTime;
+      isRange = widget.isRange;
+      if (oldWidget.reminderOption != widget.reminderOption) {
+        reminderOption = widget.reminderOption;
+      }
+    });
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,58 +110,64 @@ class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
       children: [
         FlowyOptionDecorateBox(
           showTopBorder: false,
-          child: _IncludeTimePicker(
-            dateStr:
-                widget.liveDateFormatter != null ? _dateStr : widget.dateStr,
-            endDateStr: widget.endDateStr,
-            timeStr: widget.timeStr,
-            endTimeStr: widget.endTimeStr,
-            includeTime: _includeTime,
-            use24hFormat: widget.use24hFormat,
-            onStartTimeChanged: widget.onStartTimeChanged,
-            onEndTimeChanged: widget.onEndTimeChanged,
-            rebuildOnTimeChanged: widget.rebuildOnTimeChanged,
+          child: _TimePicker(
+            dateTime: isRange ? startDateTime : dateTime,
+            endDateTime: endDateTime,
+            includeTime: includeTime,
+            isRange: isRange,
+            dateFormat: widget.dateFormat,
+            timeFormat: widget.timeFormat,
+            onStartTimeChanged: onStartTimeChanged,
+            onEndTimeChanged: onEndTimeChanged,
           ),
         ),
         const _Divider(),
         FlowyOptionDecorateBox(
           child: MobileDatePicker(
-            isRange: widget.isRange,
-            selectedDay: widget.selectedDay,
-            startDay: widget.startDay,
-            endDay: widget.endDay,
-            onDaySelected: (selected, focused) {
-              widget.onDaySelected?.call(selected, focused);
-
-              if (widget.liveDateFormatter != null) {
-                setState(() => _dateStr = widget.liveDateFormatter!(selected));
-              }
+            isRange: isRange,
+            selectedDay: dateTime,
+            startDay: isRange ? startDateTime : null,
+            endDay: isRange ? endDateTime : null,
+            focusedDay: focusedDateTime,
+            onDaySelected: (selectedDay) {
+              onDateSelectedFromDatePicker(selectedDay, null);
             },
-            onRangeSelected: widget.onRangeSelected,
-            rebuildOnDaySelected: widget.rebuildOnDaySelected,
+            onRangeSelected: (start, end) {
+              onDateSelectedFromDatePicker(start, end);
+            },
+            onPageChanged: (focusedDay) {
+              setState(() => focusedDateTime = focusedDay);
+            },
           ),
         ),
         const _Divider(),
-        if (widget.enableRanges && widget.onRangeChanged != null)
-          _EndDateSwitch(
+        if (widget.onIsRangeChanged != null)
+          _IsRangeSwitch(
             isRange: widget.isRange,
-            onRangeChanged: widget.onRangeChanged!,
+            onRangeChanged: (value) {
+              if (!isRange) {
+                justChangedIsRange = true;
+              }
+              widget.onIsRangeChanged!.call(value);
+              setState(() => isRange = value);
+            },
           ),
-        _IncludeTimeSwitch(
-          showTopBorder: !widget.enableRanges || widget.onRangeChanged == null,
-          includeTime: _includeTime,
-          onIncludeTimeChanged: (includeTime) {
-            widget.onIncludeTimeChanged(includeTime);
-            setState(() => _includeTime = includeTime);
-          },
-        ),
+        if (widget.onIncludeTimeChanged != null)
+          _IncludeTimeSwitch(
+            showTopBorder: widget.onIsRangeChanged == null,
+            includeTime: includeTime,
+            onIncludeTimeChanged: (includeTime) {
+              widget.onIncludeTimeChanged?.call(includeTime);
+              setState(() => this.includeTime = includeTime);
+            },
+          ),
         if (widget.onReminderSelected != null) ...[
           const _Divider(),
           _ReminderSelector(
-            selectedReminderOption: _reminderOption,
+            selectedReminderOption: reminderOption,
             onReminderSelected: (option) {
               widget.onReminderSelected!.call(option);
-              setState(() => _reminderOption = option);
+              setState(() => reminderOption = option);
             },
             timeFormat: widget.timeFormat,
             hasTime: widget.includeTime,
@@ -152,11 +175,159 @@ class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
         ],
         if (widget.onClearDate != null) ...[
           const _Divider(),
-          _ClearDateButton(onClearDate: widget.onClearDate!),
+          _ClearDateButton(
+            onClearDate: () {
+              widget.onClearDate!.call();
+              Navigator.of(context).pop();
+            },
+          ),
         ],
         const _Divider(),
       ],
     );
+  }
+
+  void onDateSelectedFromDatePicker(
+    DateTime? newStartDateTime,
+    DateTime? newEndDateTime,
+  ) {
+    if (newStartDateTime == null) {
+      return;
+    }
+    if (isRange) {
+      if (newEndDateTime == null) {
+        if (justChangedIsRange && dateTime != null) {
+          justChangedIsRange = false;
+          DateTime start = dateTime!;
+          DateTime end = DateTime(
+            newStartDateTime.year,
+            newStartDateTime.month,
+            newStartDateTime.day,
+          );
+          if (end.isBefore(start)) {
+            (start, end) = (end, start);
+          }
+          widget.onRangeSelected?.call(start, end);
+          setState(() {
+            // hAcK: Resetting these state variables to null to reset the click counter of the table calendar widget, which doesn't expose a controller for us to do so otherwise. The parent widget needs to provide the data again so that it can be shown.
+            dateTime = startDateTime = endDateTime = null;
+            focusedDateTime = getNewFocusedDay(newStartDateTime);
+          });
+        } else {
+          final combined = combineDateTimes(newStartDateTime, dateTime);
+          setState(() {
+            dateTime = combined;
+            startDateTime = combined;
+            endDateTime = null;
+            focusedDateTime = getNewFocusedDay(combined);
+          });
+        }
+      } else {
+        bool switched = false;
+        DateTime combinedDateTime =
+            combineDateTimes(newStartDateTime, dateTime);
+        DateTime combinedEndDateTime =
+            combineDateTimes(newEndDateTime, widget.endDateTime);
+
+        if (combinedEndDateTime.isBefore(combinedDateTime)) {
+          (combinedDateTime, combinedEndDateTime) =
+              (combinedEndDateTime, combinedDateTime);
+          switched = true;
+        }
+
+        widget.onRangeSelected?.call(combinedDateTime, combinedEndDateTime);
+
+        setState(() {
+          dateTime = switched ? combinedDateTime : combinedEndDateTime;
+          startDateTime = combinedDateTime;
+          endDateTime = combinedEndDateTime;
+          focusedDateTime = getNewFocusedDay(newEndDateTime);
+        });
+      }
+    } else {
+      final combinedDateTime = combineDateTimes(newStartDateTime, dateTime);
+      widget.onDaySelected?.call(combinedDateTime);
+
+      setState(() {
+        dateTime = combinedDateTime;
+        focusedDateTime = getNewFocusedDay(combinedDateTime);
+      });
+    }
+  }
+
+  DateTime combineDateTimes(DateTime date, DateTime? time) {
+    final timeComponent = time == null
+        ? Duration.zero
+        : Duration(hours: time.hour, minutes: time.minute);
+
+    return DateTime(date.year, date.month, date.day).add(timeComponent);
+  }
+
+  void onStartTimeChanged(DateTime value) {
+    if (isRange) {
+      DateTime end = endDateTime ?? value;
+      if (end.isBefore(value)) {
+        (value, end) = (end, value);
+      }
+
+      widget.onRangeSelected?.call(value, end);
+
+      setState(() {
+        dateTime = value;
+        startDateTime = value;
+        endDateTime = end;
+        focusedDateTime = getNewFocusedDay(value);
+      });
+    } else {
+      widget.onDaySelected?.call(value);
+
+      setState(() {
+        dateTime = value;
+        focusedDateTime = getNewFocusedDay(value);
+      });
+    }
+  }
+
+  void onEndTimeChanged(DateTime value) {
+    if (isRange) {
+      DateTime start = startDateTime ?? value;
+      if (value.isBefore(start)) {
+        (start, value) = (value, start);
+      }
+
+      widget.onRangeSelected?.call(start, value);
+
+      if (endDateTime == null) {
+        // hAcK: Resetting these state variables to null to reset the click counter of the table calendar widget, which doesn't expose a controller for us to do so otherwise. The parent widget needs to provide the data again so that it can be shown.
+        setState(() {
+          dateTime = startDateTime = endDateTime = null;
+          focusedDateTime = getNewFocusedDay(value);
+        });
+      } else {
+        setState(() {
+          dateTime = start;
+          startDateTime = start;
+          endDateTime = value;
+          focusedDateTime = getNewFocusedDay(value);
+        });
+      }
+    } else {
+      widget.onDaySelected?.call(value);
+
+      setState(() {
+        dateTime = value;
+        focusedDateTime = getNewFocusedDay(value);
+      });
+    }
+  }
+
+  DateTime getNewFocusedDay(DateTime dateTime) {
+    if (focusedDateTime.year != dateTime.year ||
+        focusedDateTime.month != dateTime.month) {
+      return DateTime(dateTime.year, dateTime.month);
+    } else {
+      return focusedDateTime;
+    }
   }
 }
 
@@ -295,46 +466,52 @@ class _ReminderSelectHeader extends StatelessWidget {
   }
 }
 
-class _IncludeTimePicker extends StatefulWidget {
-  const _IncludeTimePicker({
+class _TimePicker extends StatelessWidget {
+  const _TimePicker({
+    required this.dateTime,
+    required this.endDateTime,
+    required this.dateFormat,
+    required this.timeFormat,
     required this.includeTime,
-    this.dateStr,
-    this.endDateStr,
-    this.timeStr,
-    this.endTimeStr,
-    this.rebuildOnTimeChanged = false,
-    required this.use24hFormat,
+    required this.isRange,
     required this.onStartTimeChanged,
-    required this.onEndTimeChanged,
+    this.onEndTimeChanged,
   });
 
+  final DateTime? dateTime;
+  final DateTime? endDateTime;
+
   final bool includeTime;
+  final bool isRange;
 
-  final String? dateStr;
-  final String? endDateStr;
+  final DateFormatPB dateFormat;
+  final TimeFormatPB timeFormat;
 
-  final String? timeStr;
-  final String? endTimeStr;
-
-  final bool rebuildOnTimeChanged;
-
-  final bool use24hFormat;
-
-  final Function(String? time) onStartTimeChanged;
-  final Function(String? time)? onEndTimeChanged;
-
-  @override
-  State<_IncludeTimePicker> createState() => _IncludeTimePickerState();
-}
-
-class _IncludeTimePickerState extends State<_IncludeTimePicker> {
-  late String? _timeStr = widget.timeStr;
-  late String? _endTimeStr = widget.endTimeStr;
+  final void Function(DateTime time) onStartTimeChanged;
+  final void Function(DateTime time)? onEndTimeChanged;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.dateStr == null || widget.dateStr!.isEmpty) {
+    final dateStr = getDateStr(dateTime);
+    final timeStr = getTimeStr(dateTime);
+    final endDateStr = getDateStr(endDateTime);
+    final endTimeStr = getTimeStr(endDateTime);
+
+    if (dateStr.isEmpty) {
       return const Divider(height: 1);
+    }
+
+    if (endDateStr.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: _buildTime(
+          context,
+          dateStr,
+          timeStr,
+          includeTime,
+          false,
+        ),
+      );
     }
 
     return Padding(
@@ -344,20 +521,18 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
         children: [
           _buildTime(
             context,
-            widget.includeTime,
-            widget.use24hFormat,
+            dateStr,
+            timeStr,
+            includeTime,
             true,
-            widget.dateStr,
-            widget.rebuildOnTimeChanged ? _timeStr : widget.timeStr,
           ),
           VSpace(8.0, color: Theme.of(context).colorScheme.surface),
           _buildTime(
             context,
-            widget.includeTime,
-            widget.use24hFormat,
+            endDateStr,
+            endTimeStr,
+            includeTime,
             false,
-            widget.endDateStr,
-            widget.rebuildOnTimeChanged ? _endTimeStr : widget.endTimeStr,
           ),
         ],
       ),
@@ -366,11 +541,10 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
 
   Widget _buildTime(
     BuildContext context,
-    bool isIncludeTime,
-    bool use24hFormat,
-    bool isStartDay,
     String? dateStr,
     String? timeStr,
+    bool includeTime,
+    bool isStartDay,
   ) {
     if (dateStr == null) {
       return const SizedBox.shrink();
@@ -378,23 +552,65 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
 
     final List<Widget> children = [];
 
-    if (!isIncludeTime) {
-      children.addAll([
-        const HSpace(12.0),
-        FlowyText(dateStr),
-      ]);
+    if (!includeTime) {
+      children.add(
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: GestureDetector(
+              onTap: () async {
+                final result = await _showDateTimePicker(
+                  context,
+                  isStartDay ? dateTime : endDateTime,
+                  use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
+                  mode: CupertinoDatePickerMode.date,
+                );
+                handleDateTimePickerResult(result, isStartDay);
+              },
+              child: FlowyText(dateStr),
+            ),
+          ),
+        ),
+      );
     } else {
       children.addAll([
-        Expanded(child: FlowyText(dateStr, textAlign: TextAlign.center)),
-        Container(width: 1, height: 16, color: Colors.grey),
         Expanded(
           child: GestureDetector(
-            onTap: () => _showTimePicker(
-              context,
-              use24hFormat: use24hFormat,
-              isStartDay: isStartDay,
+            onTap: () async {
+              final result = await _showDateTimePicker(
+                context,
+                isStartDay ? dateTime : endDateTime,
+                use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
+                mode: CupertinoDatePickerMode.date,
+              );
+              handleDateTimePickerResult(result, isStartDay);
+            },
+            child: FlowyText(
+              dateStr,
+              textAlign: TextAlign.center,
             ),
-            child: FlowyText(timeStr ?? '', textAlign: TextAlign.center),
+          ),
+        ),
+        Container(
+          width: 1,
+          height: 16,
+          color: Theme.of(context).colorScheme.outline,
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () async {
+              final result = await _showDateTimePicker(
+                context,
+                isStartDay ? dateTime : endDateTime,
+                use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
+                mode: CupertinoDatePickerMode.time,
+              );
+              handleDateTimePickerResult(result, isStartDay);
+            },
+            child: FlowyText(
+              timeStr!,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ]);
@@ -413,15 +629,13 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
     );
   }
 
-  Future<void> _showTimePicker(
-    BuildContext context, {
+  Future<DateTime?> _showDateTimePicker(
+    BuildContext context,
+    DateTime? dateTime, {
+    required CupertinoDatePickerMode mode,
     required bool use24hFormat,
-    required bool isStartDay,
   }) async {
-    String? selectedTime = isStartDay ? _timeStr : _endTimeStr;
-    final initialDateTime = selectedTime != null
-        ? _convertTimeStringToDateTime(selectedTime)
-        : null;
+    DateTime? result;
 
     return showMobileBottomSheet(
       context,
@@ -431,13 +645,11 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 300),
             child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.time,
-              initialDateTime: initialDateTime,
+              mode: mode,
+              initialDateTime: dateTime,
               use24hFormat: use24hFormat,
               onDateTimeChanged: (dateTime) {
-                selectedTime = use24hFormat
-                    ? DateFormat('HH:mm').format(dateTime)
-                    : DateFormat('hh:mm a').format(dateTime);
+                result = dateTime;
               },
             ),
           ),
@@ -450,21 +662,7 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
               fontColor: Theme.of(context).colorScheme.onPrimary,
               fillColor: Theme.of(context).primaryColor,
               onPressed: () {
-                if (isStartDay) {
-                  widget.onStartTimeChanged(selectedTime);
-
-                  if (widget.rebuildOnTimeChanged && mounted) {
-                    setState(() => _timeStr = selectedTime);
-                  }
-                } else {
-                  widget.onEndTimeChanged?.call(selectedTime);
-
-                  if (widget.rebuildOnTimeChanged && mounted) {
-                    setState(() => _endTimeStr = selectedTime);
-                  }
-                }
-
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(result);
               },
             ),
           ),
@@ -474,24 +672,48 @@ class _IncludeTimePickerState extends State<_IncludeTimePicker> {
     );
   }
 
-  DateTime _convertTimeStringToDateTime(String timeString) {
-    final DateTime now = DateTime.now();
-
-    final List<String> timeParts = timeString.split(':');
-
-    if (timeParts.length != 2) {
-      return now;
+  void handleDateTimePickerResult(DateTime? result, bool isStartDay) {
+    if (result == null) {
+      return;
+    } else if (isStartDay) {
+      onStartTimeChanged(result);
+    } else {
+      onEndTimeChanged?.call(result);
     }
+  }
 
-    final int hour = int.parse(timeParts[0]);
-    final int minute = int.parse(timeParts[1]);
+  String getDateStr(DateTime? dateTime) {
+    if (dateTime == null) {
+      return "";
+    }
+    final format = DateFormat(
+      switch (dateFormat) {
+        DateFormatPB.Local => 'MM/dd/y',
+        DateFormatPB.US => 'y/MM/dd',
+        DateFormatPB.ISO => 'y-MM-dd',
+        DateFormatPB.Friendly => 'MMM dd, y',
+        DateFormatPB.DayMonthYear => 'dd/MM/y',
+        _ => 'MMM dd, y',
+      },
+    );
 
-    return DateTime(now.year, now.month, now.day, hour, minute);
+    return format.format(dateTime);
+  }
+
+  String getTimeStr(DateTime? dateTime) {
+    if (dateTime == null || !includeTime) {
+      return "";
+    }
+    final format = timeFormat == TimeFormatPB.TwelveHour
+        ? DateFormat.jm()
+        : DateFormat.Hm();
+
+    return format.format(dateTime);
   }
 }
 
-class _EndDateSwitch extends StatelessWidget {
-  const _EndDateSwitch({
+class _IsRangeSwitch extends StatelessWidget {
+  const _IsRangeSwitch({
     required this.isRange,
     required this.onRangeChanged,
   });
