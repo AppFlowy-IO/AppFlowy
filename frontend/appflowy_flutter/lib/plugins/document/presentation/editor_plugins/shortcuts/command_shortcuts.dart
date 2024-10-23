@@ -17,6 +17,7 @@ final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
 List<CommandShortcutEvent> commandShortcutEvents = [
   customExitEditingCommand,
   backspaceToTitle,
+  removeToggleHeadingStyle,
 
   arrowUpToTitle,
   arrowLeftToTitle,

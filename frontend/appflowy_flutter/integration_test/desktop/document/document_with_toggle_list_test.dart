@@ -214,5 +214,54 @@ void main() {
 
       expectToggleListOpened();
     });
+
+    Future<void> prepareToggleHeadingBlock(
+      WidgetTester tester,
+      String text,
+    ) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText(text);
+    }
+
+    testWidgets('> + # to toggle heading 1 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '> # Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 1);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('> + ### to toggle heading 3 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '> ### Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 3);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('# + > to toggle heading 1 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '# > Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 1);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('### + > to toggle heading 3 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '### > Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 3);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
   });
 }
