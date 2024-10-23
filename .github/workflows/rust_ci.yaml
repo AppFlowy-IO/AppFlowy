@@ -55,7 +55,7 @@ jobs:
           if [ -z "$container_id" ]; then
             echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
             docker compose pull
-            docker compose up -d
+            docker compose up -d --force-recreate
             echo "Waiting for the container to be ready..."
             sleep 10
           else
