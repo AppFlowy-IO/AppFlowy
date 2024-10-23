@@ -58,7 +58,7 @@ collab-importer = { version = "0.1" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d3e4a6870d10b04e4aedac4addb17915a7acdde2" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "30ff066ba7b2c201428b3e4d738d9ba7dc6ad6a7" }
 
 [dependencies]
 serde_json.workspace = true
