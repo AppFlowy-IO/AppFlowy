@@ -25,10 +25,9 @@ CharacterShortcutEvent customFormatSignToHeading = CharacterShortcutEvent(
     (text, node, delta) {
       final numberOfSign = text.split('').length;
       final type = node.type;
-      final level = node.attributes[ToggleListBlockKeys.level] as int?;
 
-      // if current node is toggle heading block, if so, keep the toggle heading block type.
-      if (type == ToggleListBlockKeys.type && level != null) {
+      // if current node is toggle block, try to convert it to toggle heading block.
+      if (type == ToggleListBlockKeys.type) {
         final collapsed =
             node.attributes[ToggleListBlockKeys.collapsed] as bool?;
         return [
