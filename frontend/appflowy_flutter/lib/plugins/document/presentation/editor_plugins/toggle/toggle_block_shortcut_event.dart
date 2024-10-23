@@ -70,7 +70,7 @@ Future<void> _formatGreaterToToggleHeading(
       ),
     )
     ..deleteNode(node);
-  editorState.apply(transaction);
+  await editorState.apply(transaction);
 }
 
 /// Press enter key to insert child node inside the toggle list
