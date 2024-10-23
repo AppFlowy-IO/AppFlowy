@@ -50,8 +50,6 @@ void main() {
       await tester.ime.insertText('# > $_heading1\n');
       await tester.ime.insertText('## > $_heading2\n');
       await tester.ime.insertText('### > $_heading3\n');
-      await tester.pumpAndSettle();
-
       await tester.ime.insertText('> # $_heading1\n');
       await tester.ime.insertText('> ## $_heading2\n');
       await tester.ime.insertText('> ### $_heading3\n');

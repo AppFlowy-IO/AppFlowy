@@ -215,7 +215,7 @@ extension CommonOperations on WidgetTester {
       of: find.byType(ViewMoreActionPopover),
       matching: find.byFlowySvg(FlowySvgs.workspace_three_dots_s),
     );
-    await tapButton(optionButton, warnIfMissed: true);
+    await tapButton(optionButton);
   }
 
   /// Tap the delete page button.

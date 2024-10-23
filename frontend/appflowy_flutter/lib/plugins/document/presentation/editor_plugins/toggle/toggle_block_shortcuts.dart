@@ -70,6 +70,7 @@ Future<void> _formatGreaterToToggleHeading(
       ),
     )
     ..deleteNode(node);
+  transaction.afterSelection = afterSelection;
   await editorState.apply(transaction);
 }
 
