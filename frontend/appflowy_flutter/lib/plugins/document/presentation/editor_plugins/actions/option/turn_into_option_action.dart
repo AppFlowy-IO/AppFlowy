@@ -200,6 +200,13 @@ class _TurnInfoButton extends StatelessWidget {
       }
     }
 
+    if (node.type == ToggleListBlockKeys.type) {
+      final nodeLevel = node.attributes[ToggleListBlockKeys.level];
+      if (level != nodeLevel) {
+        return null;
+      }
+    }
+
     return const FlowySvg(
       FlowySvgs.workspace_selected_s,
       blendMode: null,

@@ -304,6 +304,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       type: type,
       attributes: {
         ToggleListBlockKeys.level: level,
+        ToggleListBlockKeys.collapsed:
+            node.attributes[ToggleListBlockKeys.collapsed] ?? false,
         blockComponentBackgroundColor:
             node.attributes[blockComponentBackgroundColor],
         blockComponentTextDirection:

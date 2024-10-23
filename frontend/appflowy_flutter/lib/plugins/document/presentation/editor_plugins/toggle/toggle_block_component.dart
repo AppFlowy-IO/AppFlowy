@@ -189,7 +189,7 @@ class _ToggleListBlockComponentWidgetState
       layoutDirection: Directionality.maybeOf(context),
     );
     Widget child = Container(
-      color: backgroundColor,
+      color: withBackgroundColor || collapsed ? backgroundColor : null,
       width: double.infinity,
       alignment: alignment,
       child: Row(
