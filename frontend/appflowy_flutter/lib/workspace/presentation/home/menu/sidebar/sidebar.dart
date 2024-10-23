@@ -108,22 +108,12 @@ class HomeSideBar extends StatelessWidget {
             BlocProvider.value(value: getIt<ActionNavigationBloc>()),
             BlocProvider(
               create: (_) => SidebarSectionsBloc()
-                ..add(
-                  SidebarSectionsEvent.initial(
-                    userProfile,
-                    workspaceId,
-                  ),
-                ),
+                ..add(SidebarSectionsEvent.initial(userProfile, workspaceId)),
             ),
             BlocProvider(
-              create: (_) => SpaceBloc(
-                userProfile: userProfile,
-                workspaceId: workspaceId,
-              )..add(
-                  const SpaceEvent.initial(
-                    openFirstPage: false,
-                  ),
-                ),
+              create: (_) =>
+                  SpaceBloc(userProfile: userProfile, workspaceId: workspaceId)
+                    ..add(const SpaceEvent.initial(openFirstPage: false)),
             ),
             BlocProvider(
               create: (_) => SidebarPlanBloc()
@@ -149,11 +139,9 @@ class HomeSideBar extends StatelessWidget {
                   final page = state.lastCreatedPage;
                   if (page == null || page.id.isEmpty) {
                     // open the blank page
-                    context.read<TabsBloc>().add(
-                          TabsEvent.openPlugin(
-                            plugin: BlankPagePlugin(),
-                          ),
-                        );
+                    context
+                        .read<TabsBloc>()
+                        .add(TabsEvent.openPlugin(plugin: BlankPagePlugin()));
                   } else {
                     context.read<TabsBloc>().add(
                           TabsEvent.openPlugin(
@@ -231,6 +219,11 @@ class HomeSideBar extends StatelessWidget {
           );
         }
 
+        final blockId = action.arguments?[ActionArgumentKeys.blockId];
+        if (blockId != null) {
+          arguments[PluginArgumentKeys.blockId] = blockId;
+        }
+
         final rowId = action.arguments?[ActionArgumentKeys.rowId];
         if (rowId != null) {
           arguments[PluginArgumentKeys.rowId] = rowId;
@@ -299,18 +292,14 @@ class _SidebarState extends State<_Sidebar> {
             ),
             // user or workspace, setting
             BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-              builder: (context, state) {
-                return Container(
-                  height: HomeSizes.workspaceSectionHeight,
-                  padding:
-                      menuHorizontalInset - const EdgeInsets.only(right: 6),
-                  child:
-                      // if the workspaces are empty, show the user profile instead
-                      state.isCollabWorkspaceOn && state.workspaces.isNotEmpty
-                          ? SidebarWorkspace(userProfile: widget.userProfile)
-                          : SidebarUser(userProfile: widget.userProfile),
-                );
-              },
+              builder: (context, state) => Container(
+                height: HomeSizes.workspaceSectionHeight,
+                padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+                // if the workspaces are empty, show the user profile instead
+                child: state.isCollabWorkspaceOn && state.workspaces.isNotEmpty
+                    ? SidebarWorkspace(userProfile: widget.userProfile)
+                    : SidebarUser(userProfile: widget.userProfile),
+              ),
             ),
             if (FeatureFlag.search.isOn) ...[
               const VSpace(6),
@@ -329,12 +318,10 @@ class _SidebarState extends State<_Sidebar> {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: ValueListenableBuilder(
                 valueListenable: _scrollOffset,
-                builder: (_, offset, child) {
-                  return Opacity(
-                    opacity: offset > 0 ? 1 : 0,
-                    child: child,
-                  );
-                },
+                builder: (_, offset, child) => Opacity(
+                  opacity: offset > 0 ? 1 : 0,
+                  child: child,
+                ),
                 child: const FlowyDivider(),
               ),
             ),

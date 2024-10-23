@@ -18,6 +18,7 @@ import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -91,6 +92,14 @@ void main() {
         );
         await tester.pumpAndSettle();
       }
+
+      // Attempt right-click on the page name and expect not to see
+      await tester.tap(gettingStarted.last, buttons: kSecondaryButton);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(LocaleKeys.disclosureAction_moveTo.tr()),
+        findsOneWidget,
+      );
 
       // move the current page to Getting started
       await tester.tapButton(

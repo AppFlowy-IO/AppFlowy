@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
@@ -185,6 +186,16 @@ extension CommonOperations on WidgetTester {
     }
   }
 
+  /// Right click on the page name.
+  Future<void> rightClickOnPageName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+  }) async {
+    final page = findPageName(name, layout: layout);
+    await tap(page, buttons: kSecondaryMouseButton);
+    await pumpAndSettle();
+  }
+
   /// open the page with given name.
   Future<void> openPage(
     String name, {
@@ -199,8 +210,11 @@ extension CommonOperations on WidgetTester {
   ///
   /// Must call [hoverOnPageName] first.
   Future<void> tapPageOptionButton() async {
-    final optionButton = find.byType(ViewMoreActionButton);
-    await tapButton(optionButton);
+    final optionButton = find.descendant(
+      of: find.byType(ViewMoreActionPopover),
+      matching: find.byFlowySvg(FlowySvgs.workspace_three_dots_s),
+    );
+    await tapButton(optionButton, warnIfMissed: true);
   }
 
   /// Tap the delete page button.
@@ -348,6 +362,32 @@ extension CommonOperations on WidgetTester {
       );
       await pumpAndSettle();
     }
+  }
+
+  Future<void> createOpenRenameDocumentUnderParent({
+    required String name,
+    String? parentName,
+  }) async {
+    // create a new page
+    await tapAddViewButton(name: parentName ?? gettingStarted);
+    await tapButtonWithName(ViewLayoutPB.Document.menuName);
+    final settingsOrFailure = await getIt<KeyValueStorage>().getWithFormat(
+      KVKeys.showRenameDialogWhenCreatingNewFile,
+      (value) => bool.parse(value),
+    );
+    final showRenameDialog = settingsOrFailure ?? false;
+    if (showRenameDialog) {
+      await tapOKButton();
+    }
+    await pumpAndSettle();
+
+    // open the page after created
+    await openPage(ViewLayoutPB.Document.defaultName);
+    await pumpAndSettle();
+
+    // Enter new name in the document title
+    await enterText(find.byType(TextFieldWithMetricLines), name);
+    await pumpAndSettle();
   }
 
   /// Create a new page in the space
@@ -747,6 +787,25 @@ extension SettingsFinder on CommonFinders {
         matching: find.byType(Scrollable),
       )
       .first;
+}
+
+extension FlowySvgFinder on CommonFinders {
+  Finder byFlowySvg(FlowySvgData svg) => _FlowySvgFinder(svg);
+}
+
+class _FlowySvgFinder extends MatchFinder {
+  _FlowySvgFinder(this.svg);
+
+  final FlowySvgData svg;
+
+  @override
+  String get description => 'flowy_svg "$svg"';
+
+  @override
+  bool matches(Element candidate) {
+    final Widget widget = candidate.widget;
+    return widget is FlowySvg && widget.svg == svg;
+  }
 }
 
 extension ViewLayoutPBTest on ViewLayoutPB {

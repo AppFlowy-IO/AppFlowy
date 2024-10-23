@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class FlowyTestContext {
   FlowyTestContext({required this.applicationDataDirectory});
@@ -105,7 +106,7 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> waitUntilSignInPageShow() async {
-    if (isAuthEnabled) {
+    if (isAuthEnabled || UniversalPlatform.isMobile) {
       final finder = find.byType(SignInAnonymousButtonV2);
       await pumpUntilFound(finder, timeout: const Duration(seconds: 30));
       expect(finder, findsOneWidget);
@@ -158,17 +159,12 @@ extension AppFlowyTestBase on WidgetTester {
 
   Future<void> tapButton(
     Finder finder, {
-    int? pointer,
     int buttons = kPrimaryButton,
     bool warnIfMissed = false,
     int milliseconds = 500,
     bool pumpAndSettle = true,
   }) async {
-    await tap(
-      finder,
-      buttons: buttons,
-      warnIfMissed: warnIfMissed,
-    );
+    await tap(finder, buttons: buttons, warnIfMissed: warnIfMissed);
 
     if (pumpAndSettle) {
       await this.pumpAndSettle(

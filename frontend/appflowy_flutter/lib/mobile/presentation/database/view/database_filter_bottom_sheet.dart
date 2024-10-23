@@ -1003,7 +1003,7 @@ class _SelectOptionFilterContentEditorState
                     isSelected,
                   );
                 },
-                indicator: _getIndicator(),
+                indicator: MobileSelectedOptionIndicator.multi,
                 showMoreOptionsButton: false,
               );
             },
@@ -1027,35 +1027,19 @@ class _SelectOptionFilterContentEditorState
     }
   }
 
-  MobileSelectedOptionIndicator _getIndicator() {
-    return (widget.filter.condition == SelectOptionFilterConditionPB.OptionIs ||
-                widget.filter.condition ==
-                    SelectOptionFilterConditionPB.OptionIsNot) &&
-            widget.field.fieldType == FieldType.SingleSelect
-        ? MobileSelectedOptionIndicator.single
-        : MobileSelectedOptionIndicator.multi;
-  }
-
   void _onTapHandler(
     BuildContext context,
     List<SelectOptionPB> options,
     SelectOptionPB option,
     bool isSelected,
   ) {
+    final selectedOptionIds = Set<String>.from(widget.filter.optionIds);
     if (isSelected) {
-      final selectedOptionIds = Set<String>.from(widget.filter.optionIds)
-        ..remove(option.id);
-
-      _updateSelectOptions(context, options, selectedOptionIds);
+      selectedOptionIds.remove(option.id);
     } else {
-      final selectedOptionIds = widget.delegate.selectOption(
-        widget.filter.optionIds,
-        option.id,
-        widget.filter.condition,
-      );
-
-      _updateSelectOptions(context, options, selectedOptionIds);
+      selectedOptionIds.add(option.id);
     }
+    _updateSelectOptions(context, options, selectedOptionIds);
   }
 
   void _updateSelectOptions(
@@ -1070,7 +1054,7 @@ class _SelectOptionFilterContentEditorState
   }
 }
 
-class _DateTimeFilterContentEditor extends StatelessWidget {
+class _DateTimeFilterContentEditor extends StatefulWidget {
   const _DateTimeFilterContentEditor({
     required this.filter,
   });
@@ -1078,25 +1062,46 @@ class _DateTimeFilterContentEditor extends StatelessWidget {
   final DateTimeFilter filter;
 
   @override
+  State<_DateTimeFilterContentEditor> createState() =>
+      _DateTimeFilterContentEditorState();
+}
+
+class _DateTimeFilterContentEditorState
+    extends State<_DateTimeFilterContentEditor> {
+  late DateTime focusedDay;
+
+  bool get isRange => widget.filter.condition.isRange;
+
+  @override
+  void initState() {
+    super.initState();
+    focusedDay = (isRange ? widget.filter.start : widget.filter.timestamp) ??
+        DateTime.now();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isRange = filter.condition.isRange;
     return MobileDatePicker(
       isRange: isRange,
-      selectedDay: isRange ? filter.start : filter.timestamp,
-      startDay: isRange ? filter.start : null,
-      endDay: isRange ? filter.end : null,
-      onDaySelected: (selectedDay, _) {
+      selectedDay: isRange ? widget.filter.start : widget.filter.timestamp,
+      startDay: isRange ? widget.filter.start : null,
+      endDay: isRange ? widget.filter.end : null,
+      focusedDay: focusedDay,
+      onDaySelected: (selectedDay) {
         final newFilter = isRange
-            ? filter.copyWithRange(start: selectedDay, end: null)
-            : filter.copyWithTimestamp(timestamp: selectedDay);
+            ? widget.filter.copyWithRange(start: selectedDay, end: null)
+            : widget.filter.copyWithTimestamp(timestamp: selectedDay);
         context.read<MobileFilterEditorCubit>().updateFilter(newFilter);
       },
-      onRangeSelected: (start, end, _) {
-        final newFilter = filter.copyWithRange(
+      onRangeSelected: (start, end) {
+        final newFilter = widget.filter.copyWithRange(
           start: start,
           end: end,
         );
         context.read<MobileFilterEditorCubit>().updateFilter(newFilter);
+      },
+      onPageChanged: (focusedDay) {
+        setState(() => this.focusedDay = focusedDay);
       },
     );
   }

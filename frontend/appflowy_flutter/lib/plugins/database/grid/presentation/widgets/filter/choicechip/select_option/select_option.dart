@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_editor_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -76,11 +75,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
           SliverToBoxAdapter(child: _buildFilterPanel(filter, field)),
         ];
 
-        if (![
-          SelectOptionFilterConditionPB.OptionIsEmpty,
-          SelectOptionFilterConditionPB.OptionIsNotEmpty,
-        ].contains(filter.condition)) {
-          final delegate = filter.makeDelegate(field);
+        if (filter.canAttachContent) {
           slivers
             ..add(const SliverToBoxAdapter(child: VSpace(4)))
             ..add(
@@ -88,8 +83,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
                 child: SelectOptionFilterList(
                   filter: filter,
                   field: field,
-                  delegate: delegate,
-                  options: delegate.getOptions(field),
+                  options: filter.makeDelegate(field).getOptions(field),
                   onTap: () => popoverMutex.close(),
                 ),
               ),

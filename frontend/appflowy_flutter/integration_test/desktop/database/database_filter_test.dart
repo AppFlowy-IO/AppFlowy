@@ -108,7 +108,7 @@ void main() {
       await tester.tapOptionFilterWithName('s4');
 
       // The row with 's4' should be shown.
-      tester.assertNumberOfRowsInGridPage(1);
+      tester.assertNumberOfRowsInGridPage(2);
 
       await tester.pumpAndSettle();
     });

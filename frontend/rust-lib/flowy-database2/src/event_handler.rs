@@ -711,10 +711,8 @@ pub(crate) async fn update_date_cell_handler(
   let data = data.into_inner();
   let cell_id: CellIdParams = data.cell_id.try_into()?;
   let cell_changeset = DateCellChangeset {
-    date: data.date,
-    time: data.time,
-    end_date: data.end_date,
-    end_time: data.end_time,
+    timestamp: data.timestamp,
+    end_timestamp: data.end_timestamp,
     include_time: data.include_time,
     is_range: data.is_range,
     clear_flag: data.clear_flag,
@@ -992,7 +990,7 @@ pub(crate) async fn move_calendar_event_handler(
   let data = data.into_inner();
   let cell_id: CellIdParams = data.cell_path.try_into()?;
   let cell_changeset = DateCellChangeset {
-    date: Some(data.timestamp),
+    timestamp: Some(data.timestamp),
     ..Default::default()
   };
   let database_editor = manager

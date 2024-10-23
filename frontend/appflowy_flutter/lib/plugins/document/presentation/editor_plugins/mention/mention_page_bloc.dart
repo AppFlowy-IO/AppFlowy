@@ -5,11 +5,13 @@ import 'package:appflowy/plugins/document/application/document_data_pb_extension
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/delta/text_delta_extension.dart';
+import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -17,74 +19,83 @@ part 'mention_page_bloc.freezed.dart';
 
 typedef MentionPageStatus = (ViewPB? view, bool isInTrash, bool isDeleted);
 
-/// Observer the mentioned page status
-/// Including:
-/// - if view is changed, title, icon
-/// - if view is in trash
-/// - if view is deleted
-/// if the block id is not null
-/// - if block content is changed
-/// - if the block is deleted
 class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
   MentionPageBloc({
     required this.pageId,
     this.blockId,
-  }) : super(MentionPageState.initial()) {
-    on<MentionPageEvent>((event, emit) async {
-      await event.when(
-        initial: () async {
-          final (view, isInTrash, isDeleted) =
-              await ViewBackendService.getMentionPageStatus(
-            pageId,
-          );
-          final blockContent = await _getBlockContent();
-          emit(
-            state.copyWith(
-              view: view,
-              blockContent: blockContent ?? '',
-              isLoading: false,
-              isInTrash: isInTrash,
-              isDeleted: isDeleted,
-            ),
-          );
+    bool isSubPage = false,
+  })  : _isSubPage = isSubPage,
+        super(MentionPageState.initial()) {
+    on<MentionPageEvent>(
+      (event, emit) async {
+        await event.when(
+          initial: () async {
+            final (view, isInTrash, isDeleted) =
+                await ViewBackendService.getMentionPageStatus(pageId);
 
-          if (view != null) {
-            _startListeningView();
-            _startListeningDocument();
-          }
-        },
-        didUpdateBlockContent: (content) {
-          emit(
-            state.copyWith(
-              blockContent: content,
-            ),
-          );
-        },
-        didUpdateViewStatus: (mentionPageStatus) {
-          emit(
-            state.copyWith(
-              view: mentionPageStatus.$1,
-              isInTrash: mentionPageStatus.$2,
-              isDeleted: mentionPageStatus.$3,
-            ),
-          );
-        },
-      );
-    });
+            String? blockContent;
+            if (!_isSubPage) {
+              blockContent = await _getBlockContent();
+            }
+
+            emit(
+              state.copyWith(
+                view: view,
+                isLoading: false,
+                isInTrash: isInTrash,
+                isDeleted: isDeleted,
+                blockContent: blockContent ?? '',
+              ),
+            );
+
+            if (view != null) {
+              _startListeningView();
+              _startListeningTrash();
+
+              if (!_isSubPage) {
+                _startListeningDocument();
+              }
+            }
+          },
+          didUpdateViewStatus: (view, isDeleted) async {
+            emit(
+              state.copyWith(
+                view: view,
+                isDeleted: isDeleted ?? state.isDeleted,
+              ),
+            );
+          },
+          didUpdateTrashStatus: (isInTrash) async =>
+              emit(state.copyWith(isInTrash: isInTrash)),
+          didUpdateBlockContent: (content) {
+            emit(
+              state.copyWith(
+                blockContent: content,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Future<void> close() {
     _viewListener?.stop();
+    _trashListener?.close();
     _documentListener?.stop();
     return super.close();
   }
 
+  final _documentService = DocumentService();
+
   final String pageId;
   final String? blockId;
+  final bool _isSubPage;
 
-  final _documentService = DocumentService();
   ViewListener? _viewListener;
+  TrashListener? _trashListener;
+
   DocumentListener? _documentListener;
   BlockPB? _block;
   String? _blockTextId;
@@ -93,28 +104,45 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
   void _startListeningView() {
     _viewListener = ViewListener(viewId: pageId)
       ..start(
-        onViewUpdated: (view) {
-          add(
-            MentionPageEvent.didUpdateViewStatus(
-              (view, false, false),
-            ),
-          );
-        },
-        onViewMoveToTrash: (view) {
-          add(
-            MentionPageEvent.didUpdateViewStatus(
-              (state.view, true, false),
-            ),
-          );
-        },
-        onViewDeleted: (view) {
-          add(
-            MentionPageEvent.didUpdateViewStatus(
-              (state.view, false, true),
-            ),
-          );
+        onViewUpdated: (view) => add(
+          MentionPageEvent.didUpdateViewStatus(view: view, isDeleted: false),
+        ),
+        onViewDeleted: (_) =>
+            add(const MentionPageEvent.didUpdateViewStatus(isDeleted: true)),
+      );
+  }
+
+  void _startListeningTrash() {
+    _trashListener = TrashListener()
+      ..start(
+        trashUpdated: (trashOrFailed) {
+          final trash = trashOrFailed.toNullable();
+          if (trash != null) {
+            final isInTrash = trash.any((t) => t.id == pageId);
+            add(MentionPageEvent.didUpdateTrashStatus(isInTrash: isInTrash));
+          }
         },
       );
+  }
+
+  Future<String> _convertDeltaToText(Delta? delta) async {
+    if (delta == null) {
+      return _initialDelta?.toPlainText() ?? '';
+    }
+
+    return delta.toText(
+      getMentionPageName: (mentionedPageId) async {
+        if (mentionedPageId == pageId) {
+          // if the mention page is the current page, return the view name
+          return state.view?.name ?? '';
+        } else {
+          // if the mention page is not the current page, return the mention page name
+          final viewResult = await ViewBackendService.getView(mentionedPageId);
+          final name = viewResult.fold((l) => l.name, (f) => '');
+          return name;
+        }
+      },
+    );
   }
 
   Future<String?> _getBlockContent() async {
@@ -186,36 +214,21 @@ class MentionPageBloc extends Bloc<MentionPageEvent, MentionPageState> {
       Log.error('failed to update block content: $e');
     }
   }
-
-  Future<String> _convertDeltaToText(Delta? delta) async {
-    if (delta == null) {
-      return _initialDelta?.toPlainText() ?? '';
-    }
-
-    return delta.toText(
-      getMentionPageName: (mentionedPageId) async {
-        if (mentionedPageId == pageId) {
-          // if the mention page is the current page, return the view name
-          return state.view?.name ?? '';
-        } else {
-          // if the mention page is not the current page, return the mention page name
-          final viewResult = await ViewBackendService.getView(mentionedPageId);
-          final name = viewResult.fold((l) => l.name, (f) => '');
-          return name;
-        }
-      },
-    );
-  }
 }
 
 @freezed
 class MentionPageEvent with _$MentionPageEvent {
   const factory MentionPageEvent.initial() = _Initial;
+  const factory MentionPageEvent.didUpdateViewStatus({
+    @Default(null) ViewPB? view,
+    @Default(null) bool? isDeleted,
+  }) = _DidUpdateViewStatus;
+  const factory MentionPageEvent.didUpdateTrashStatus({
+    required bool isInTrash,
+  }) = _DidUpdateTrashStatus;
   const factory MentionPageEvent.didUpdateBlockContent(
     String content,
   ) = _DidUpdateBlockContent;
-  const factory MentionPageEvent.didUpdateViewStatus(MentionPageStatus status) =
-      _DidUpdateViewStatus;
 }
 
 @freezed
@@ -233,13 +246,13 @@ class MentionPageState with _$MentionPageState {
     // the plain text content of the block
     // it doesn't contain any formatting
     required String blockContent,
-  }) = _MentionPageState;
+  }) = _MentionSubPageState;
 
   factory MentionPageState.initial() => const MentionPageState(
         isLoading: true,
         isInTrash: false,
         isDeleted: false,
-        blockContent: '',
         view: null,
+        blockContent: '',
       );
 }

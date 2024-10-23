@@ -6,10 +6,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/background
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -64,6 +66,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   late final InlineActionsService inlineActionsService = InlineActionsService(
     context: context,
     handlers: [
+      if (FeatureFlag.inlineSubPageMention.isOn)
+        InlineChildPageService(currentViewId: documentBloc.documentId),
       InlinePageReferenceService(currentViewId: documentBloc.documentId),
       DateReferenceService(context),
       ReminderReferenceService(context),
@@ -177,8 +181,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       focusManager = AFFocusManager.maybeOf(context);
       focusManager?.loseFocusNotifier.addListener(_loseFocus);
 
-      if (widget.initialSelection != null) {
-        widget.editorState.updateSelectionWithReason(widget.initialSelection);
+      final initialSelection = widget.initialSelection;
+      final path = initialSelection?.start.path;
+      if (initialSelection != null && path != null && path.isNotEmpty) {
+        editorScrollController.itemScrollController.jumpTo(
+          index: path.first,
+          alignment: 0.5,
+        );
+        widget.editorState.updateSelectionWithReason(initialSelection);
       }
 
       widget.editorState.service.keyboardService?.registerInterceptor(
@@ -270,10 +280,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
     );
 
+    final isViewDeleted = context.read<DocumentBloc>().state.isDeleted;
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(
         editorState: widget.editorState,
+        editable: !isViewDeleted,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,
@@ -310,6 +322,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         ),
       ),
     );
+
+    if (isViewDeleted) {
+      return editor;
+    }
 
     final editorState = widget.editorState;
 

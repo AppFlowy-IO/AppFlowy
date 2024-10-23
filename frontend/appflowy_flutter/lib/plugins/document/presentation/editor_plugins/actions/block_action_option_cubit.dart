@@ -1,10 +1,9 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -29,6 +28,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         break;
       case OptionAction.duplicate:
         await _duplicateBlock(transaction, node);
+        EditorNotification.paste().post();
+
         break;
       case OptionAction.moveUp:
         transaction.moveNode(node.path.previous, node);
@@ -64,18 +65,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       Log.error('Block type $type is not valid');
     }
 
-    Node newNode = _copyBlock(node);
-
-    if (node.type == SubPageBlockKeys.type) {
-      final viewId = await _handleDuplicateSubPage(node);
-      if (viewId == null) {
-        return;
-      }
-
-      newNode = newNode.copyWith(attributes: {SubPageBlockKeys.viewId: viewId});
-    }
-
-    transaction.insertNode(node.path.next, newNode);
+    transaction.insertNode(node.path.next, _copyBlock(node));
   }
 
   Node _copyBlock(Node node) {
@@ -175,35 +165,6 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     emit(BlockActionOptionState()); // Emit a new state to trigger UI update
   }
 
-  Future<String?> _handleDuplicateSubPage(Node node) async {
-    final viewId = node.attributes[SubPageBlockKeys.viewId];
-    if (viewId == null) {
-      return null;
-    }
-
-    final view = (await ViewBackendService.getView(viewId)).toNullable();
-    if (view == null) {
-      return null;
-    }
-
-    final result = await ViewBackendService.duplicate(
-      view: view,
-      openAfterDuplicate: false,
-      includeChildren: true,
-      parentViewId: view.parentViewId,
-      syncAfterDuplicate: true,
-    );
-
-    return result.fold(
-      (view) => view.id,
-      (error) {
-        Log.error(error);
-        emit(BlockActionOptionState()); // Emit a new state to trigger UI update
-        return null;
-      },
-    );
-  }
-
   Future<bool> turnIntoBlock(
     String type,
     Node node, {
@@ -252,6 +213,10 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         );
         insertedNode.add(afterNode);
         insertedNode.addAll(node.children.map((e) => e.copyWith()));
+      } else if (!EditorOptionActionType.turnInto.supportTypes
+          .contains(node.type)) {
+        afterNode = node.copyWith();
+        insertedNode.add(afterNode);
       } else {
         insertedNode.add(afterNode);
       }
@@ -266,5 +231,36 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     await editorState.apply(transaction);
 
     return true;
+  }
+
+  Selection? calculateTurnIntoSelection(
+    Node selectedNode,
+    Selection? beforeSelection,
+  ) {
+    final path = selectedNode.path;
+    final selection = Selection.collapsed(
+      Position(path: path),
+    );
+
+    // if the previous selection is null or the start path is not in the same level as the current block path,
+    // then update the selection with the current block path
+    // for example,'|' means the selection,
+    // case 1: collapsed selection
+    // - bulleted item 1
+    // - bulleted |item 2
+    // when clicking the bulleted item 1, the bulleted item 1 path should be selected
+    // case 2: not collapsed selection
+    // - bulleted item 1
+    // - bulleted |item 2
+    // - bulleted |item 3
+    // when clicking the bulleted item 1, the bulleted item 1 path should be selected
+    if (beforeSelection == null ||
+        beforeSelection.start.path.length != path.length ||
+        !path.inSelection(beforeSelection)) {
+      return selection;
+    }
+    // if the beforeSelection start with the current block,
+    //  then updating the selection with the beforeSelection that may contains multiple blocks
+    return beforeSelection;
   }
 }
