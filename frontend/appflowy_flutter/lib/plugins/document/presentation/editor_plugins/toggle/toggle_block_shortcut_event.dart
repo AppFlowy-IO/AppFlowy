@@ -13,7 +13,7 @@ const _greater = '>';
 ///   - web
 ///
 CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
-  key: 'format greater to quote',
+  key: 'format greater to toggle list',
   character: ' ',
   handler: (editorState) async => formatMarkdownSymbol(
     editorState,
@@ -27,18 +27,19 @@ CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
       } else if (type == HeadingBlockKeys.type) {
         level = node.attributes[HeadingBlockKeys.level] as int?;
       }
+      delta = delta.compose(Delta()..delete(_greater.length));
       // if the previous block is heading block, convert it to toggle heading block
       if (type == HeadingBlockKeys.type && level != null) {
         return [
           toggleHeadingNode(
             level: level,
-            delta: delta.compose(Delta()..delete(_greater.length)),
+            delta: delta,
           ),
         ];
       }
       return [
         toggleListBlockNode(
-          delta: delta.compose(Delta()..delete(_greater.length)),
+          delta: delta,
         ),
       ];
     },

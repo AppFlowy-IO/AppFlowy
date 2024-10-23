@@ -19,6 +19,7 @@ void main() {
       String originalText, {
       Selection? selection,
       String? toType,
+      int? level,
       void Function(EditorState editorState, Node node)? afterTurnInto,
     }) async {
       final editorState = EditorState(document: document);
@@ -46,6 +47,7 @@ void main() {
         final result = await cubit.turnIntoBlock(
           type,
           node,
+          level: level,
         );
         expect(result, true);
         final newNode = editorState.getNodeAtPath([0])!;
@@ -682,6 +684,62 @@ void main() {
         ),
         Selection.collapsed(Position(path: [2])),
       );
+    });
+
+    group('turn into toggle list', () {
+      const heading1 = 'heading 1';
+      const paragraph1 = 'paragraph 1';
+      const paragraph2 = 'paragraph 2';
+      const paragraph3 = 'paragraph 3';
+
+      test('turn heading block to toggle heading block', () async {
+        // before
+        // # Heading 1
+        // paragraph 1
+        // paragraph 2
+        // paragraph 3
+
+        // after
+        // > # Heading 1
+        //   paragraph 1
+        //   paragraph 2
+        //   paragraph 3
+        final document = createDocument([
+          headingNode(level: 1, text: heading1),
+          paragraphNode(text: paragraph1),
+          paragraphNode(text: paragraph2),
+          paragraphNode(text: paragraph3),
+        ]);
+
+        await checkTurnInto(
+          document,
+          HeadingBlockKeys.type,
+          heading1,
+          selection: Selection.collapsed(
+            Position(path: [0]),
+          ),
+          toType: ToggleListBlockKeys.type,
+          level: 1,
+          afterTurnInto: (editorState, node) {
+            expect(editorState.document.root.children.length, 1);
+            expect(node.type, ToggleListBlockKeys.type);
+            expect(node.attributes[ToggleListBlockKeys.level], 1);
+            expect(node.children.length, 3);
+            for (var i = 0; i < 3; i++) {
+              expect(node.children[i].type, ParagraphBlockKeys.type);
+              expect(
+                node.children[i].delta!.toPlainText(),
+                [paragraph1, paragraph2, paragraph3][i],
+              );
+            }
+
+            // test undo together
+            final result = undoCommand.execute(editorState);
+            expect(result, KeyEventResult.handled);
+            expect(editorState.document.root.children.length, 4);
+          },
+        );
+      });
     });
   });
 }

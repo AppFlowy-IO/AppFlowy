@@ -35,16 +35,16 @@ Node toggleListBlockNode({
   Attributes? attributes,
   Iterable<Node>? children,
 }) {
-  delta ??= (Delta()..insert(text ?? ''));
+  delta ??= Delta()..insert(text ?? '');
   return Node(
     type: ToggleListBlockKeys.type,
     children: children ?? [],
     attributes: {
-      if (attributes != null) ...attributes,
       if (textDirection != null)
         ToggleListBlockKeys.textDirection: textDirection,
       ToggleListBlockKeys.collapsed: collapsed,
       ToggleListBlockKeys.delta: delta.toJson(),
+      if (attributes != null) ...attributes,
     },
   );
 }
