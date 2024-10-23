@@ -204,7 +204,7 @@ pub enum FolderEvent {
   #[event(input = "ImportZipPB")]
   ImportZipFile = 48,
 
-  #[event(output = "RepeatedPublishInfoResponsePB")]
+  #[event(output = "RepeatedPublishInfoViewPB")]
   ListPublishedViews = 49,
 
   #[event(output = "PublishInfoResponsePB")]
