@@ -188,8 +188,11 @@ class _ToggleListBlockComponentWidgetState
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
+
     Widget child = Container(
-      color: withBackgroundColor || collapsed ? backgroundColor : null,
+      color: withBackgroundColor || backgroundColor != Colors.transparent
+          ? backgroundColor
+          : null,
       width: double.infinity,
       alignment: alignment,
       child: Row(
