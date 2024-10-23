@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -10,39 +9,32 @@ class MobileDatePicker extends StatefulWidget {
   const MobileDatePicker({
     super.key,
     this.selectedDay,
-    required this.isRange,
-    this.onDaySelected,
-    this.rebuildOnDaySelected = false,
-    this.onRangeSelected,
-    this.firstDay,
-    this.lastDay,
     this.startDay,
     this.endDay,
+    required this.focusedDay,
+    required this.isRange,
+    this.onDaySelected,
+    this.onRangeSelected,
+    this.onPageChanged,
   });
 
   final DateTime? selectedDay;
+  final DateTime? startDay;
+  final DateTime? endDay;
+  final DateTime focusedDay;
 
   final bool isRange;
 
-  final DaySelectedCallback? onDaySelected;
-
-  final bool rebuildOnDaySelected;
-  final RangeSelectedCallback? onRangeSelected;
-
-  final DateTime? firstDay;
-  final DateTime? lastDay;
-  final DateTime? startDay;
-  final DateTime? endDay;
+  final void Function(DateTime)? onDaySelected;
+  final void Function(DateTime?, DateTime?)? onRangeSelected;
+  final void Function(DateTime)? onPageChanged;
 
   @override
   State<MobileDatePicker> createState() => _MobileDatePickerState();
 }
 
 class _MobileDatePickerState extends State<MobileDatePicker> {
-  PageController? _pageController;
-
-  late DateTime _focusedDay = widget.selectedDay ?? DateTime.now();
-  late DateTime? _selectedDay = widget.selectedDay;
+  PageController? pageController;
 
   @override
   Widget build(BuildContext context) {
@@ -60,60 +52,64 @@ class _MobileDatePickerState extends State<MobileDatePicker> {
   Widget _buildCalendar(BuildContext context) {
     return DatePicker(
       isRange: widget.isRange,
-      onDaySelected: (selectedDay, focusedDay) {
-        widget.onDaySelected?.call(selectedDay, focusedDay);
-
-        if (widget.rebuildOnDaySelected) {
-          setState(() => _selectedDay = selectedDay);
-        }
+      onDaySelected: (selectedDay, _) {
+        widget.onDaySelected?.call(selectedDay);
       },
-      onRangeSelected: widget.onRangeSelected,
-      selectedDay:
-          widget.rebuildOnDaySelected ? _selectedDay : widget.selectedDay,
-      firstDay: widget.firstDay,
-      lastDay: widget.lastDay,
+      focusedDay: widget.focusedDay,
+      onRangeSelected: (start, end, focusedDay) {
+        widget.onRangeSelected?.call(start, end);
+      },
+      selectedDay: widget.selectedDay,
       startDay: widget.startDay,
       endDay: widget.endDay,
-      onCalendarCreated: (pageController) => _pageController = pageController,
-      onPageChanged: (focusedDay) => setState(() => _focusedDay = focusedDay),
+      onCalendarCreated: (pageController) {
+        this.pageController = pageController;
+      },
+      onPageChanged: widget.onPageChanged,
     );
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        const HSpace(16.0),
-        FlowyText(
-          DateFormat.yMMMM().format(_focusedDay),
-        ),
-        const Spacer(),
-        FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowySvg(
-            FlowySvgs.arrow_left_s,
-            color: Theme.of(context).iconTheme.color,
-            size: const Size.square(24.0),
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: FlowyText(
+              DateFormat.yMMMM().format(widget.focusedDay),
+            ),
           ),
-          onTap: () => _pageController?.previousPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
+          FlowyButton(
+            useIntrinsicWidth: true,
+            text: FlowySvg(
+              FlowySvgs.arrow_left_s,
+              color: Theme.of(context).iconTheme.color,
+              size: const Size.square(24.0),
+            ),
+            onTap: () {
+              pageController?.previousPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
           ),
-        ),
-        const HSpace(24.0),
-        FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowySvg(
-            FlowySvgs.arrow_right_s,
-            color: Theme.of(context).iconTheme.color,
-            size: const Size.square(24.0),
+          const HSpace(24.0),
+          FlowyButton(
+            useIntrinsicWidth: true,
+            text: FlowySvg(
+              FlowySvgs.arrow_right_s,
+              color: Theme.of(context).iconTheme.color,
+              size: const Size.square(24.0),
+            ),
+            onTap: () {
+              pageController?.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
           ),
-          onTap: () => _pageController?.nextPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          ),
-        ),
-        const HSpace(8.0),
-      ],
+        ],
+      ),
     );
   }
 }
