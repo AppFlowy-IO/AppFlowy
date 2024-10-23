@@ -20,7 +20,7 @@ CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,
-    (text, node, delta, afterSelection) => _formatGreaterToToggleHeading(
+    (text, node, delta, afterSelection) async => _formatGreaterToToggleHeading(
       editorState,
       text,
       node,
@@ -30,13 +30,13 @@ CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
   ),
 );
 
-void _formatGreaterToToggleHeading(
+Future<void> _formatGreaterToToggleHeading(
   EditorState editorState,
   String text,
   Node node,
   Delta delta,
   Selection afterSelection,
-) {
+) async {
   final type = node.type;
   int? level;
   if (type == ToggleListBlockKeys.type) {
@@ -51,7 +51,7 @@ void _formatGreaterToToggleHeading(
       editorState: editorState,
       blockComponentBuilder: {},
     );
-    cubit.turnIntoSingleToggleHeading(
+    await cubit.turnIntoSingleToggleHeading(
       type: ToggleListBlockKeys.type,
       selectedNodes: [node],
       level: level,
@@ -260,7 +260,7 @@ Future<bool> _formatGreaterSymbol(
     String text,
     Selection selection,
   ) predicate,
-  void Function(
+  Future<void> Function(
     String text,
     Node node,
     Delta delta,
@@ -298,7 +298,7 @@ Future<bool> _formatGreaterSymbol(
     ),
   );
 
-  onFormat(text, node, delta, afterSelection);
+  await onFormat(text, node, delta, afterSelection);
 
   return true;
 }
