@@ -87,20 +87,18 @@ class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
 
   @override
   void didUpdateWidget(covariant oldWidget) {
-    setState(() {
-      dateTime = widget.dateTime;
-      if (widget.isRange) {
-        startDateTime = widget.dateTime;
-        endDateTime = widget.endDateTime;
-      } else {
-        startDateTime = endDateTime = null;
-      }
-      includeTime = widget.includeTime;
-      isRange = widget.isRange;
-      if (oldWidget.reminderOption != widget.reminderOption) {
-        reminderOption = widget.reminderOption;
-      }
-    });
+    dateTime = widget.dateTime;
+    if (widget.isRange) {
+      startDateTime = widget.dateTime;
+      endDateTime = widget.endDateTime;
+    } else {
+      startDateTime = endDateTime = null;
+    }
+    includeTime = widget.includeTime;
+    isRange = widget.isRange;
+    if (oldWidget.reminderOption != widget.reminderOption) {
+      reminderOption = widget.reminderOption;
+    }
     super.didUpdateWidget(oldWidget);
   }
 
