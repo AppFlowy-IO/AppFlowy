@@ -206,7 +206,7 @@ class DateCellEditorBloc
       endDate: endDate,
       reminderId: reminderId,
     );
-    result.fold((_) {}, (err) => Log.error(err));
+    result.onFailure(Log.error);
   }
 
   Future<void> _updateIsRange(bool isRange) async {
@@ -218,7 +218,7 @@ class DateCellEditorBloc
       endDate: endDateTime,
       isRange: isRange,
     );
-    result.fold((_) {}, (err) => Log.error(err));
+    result.onFailure(Log.error);
   }
 
   Future<void> _updateIncludeTime(bool includeTime) async {
@@ -229,12 +229,12 @@ class DateCellEditorBloc
       endDate: endDateTime,
       includeTime: includeTime,
     );
-    result.fold((_) {}, (err) => Log.error(err));
+    result.onFailure(Log.error);
   }
 
   Future<void> _clearDate() async {
     final result = await _dateCellBackendService.clear();
-    result.fold((_) {}, (err) => Log.error(err));
+    result.onFailure(Log.error);
   }
 
   String timeFormatPrompt(FlowyError error) {
