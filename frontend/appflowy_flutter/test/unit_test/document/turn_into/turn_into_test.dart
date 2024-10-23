@@ -740,6 +740,67 @@ void main() {
           },
         );
       });
+
+      test('turn toggle heading block to heading block', () async {
+        // before
+        // > # Heading 1
+        //   paragraph 1
+        //   paragraph 2
+        //   paragraph 3
+
+        // after
+        // # Heading 1
+        // paragraph 1
+        // paragraph 2
+        // paragraph 3
+        final document = createDocument([
+          toggleHeadingNode(
+            text: heading1,
+            children: [
+              paragraphNode(text: paragraph1),
+              paragraphNode(text: paragraph2),
+              paragraphNode(text: paragraph3),
+            ],
+          ),
+        ]);
+
+        await checkTurnInto(
+          document,
+          ToggleListBlockKeys.type,
+          heading1,
+          selection: Selection.collapsed(
+            Position(path: [0]),
+          ),
+          toType: HeadingBlockKeys.type,
+          level: 1,
+          afterTurnInto: (editorState, node) {
+            expect(editorState.document.root.children.length, 4);
+            expect(node.type, HeadingBlockKeys.type);
+            expect(node.attributes[HeadingBlockKeys.level], 1);
+            expect(node.children.length, 0);
+            for (var i = 1; i <= 3; i++) {
+              final node = editorState.getNodeAtPath([i])!;
+              expect(node.type, ParagraphBlockKeys.type);
+              expect(
+                node.delta!.toPlainText(),
+                [paragraph1, paragraph2, paragraph3][i - 1],
+              );
+            }
+
+            // test undo together
+            editorState.selection = Selection.collapsed(
+              Position(path: [0]),
+            );
+            final result = undoCommand.execute(editorState);
+            expect(result, KeyEventResult.handled);
+            expect(editorState.document.root.children.length, 1);
+            final afterNode = editorState.getNodeAtPath([0])!;
+            expect(afterNode.type, ToggleListBlockKeys.type);
+            expect(afterNode.attributes[ToggleListBlockKeys.level], 1);
+            expect(afterNode.children.length, 3);
+          },
+        );
+      });
     });
   });
 }
