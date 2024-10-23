@@ -14,7 +14,6 @@ import 'package:integration_test/integration_test.dart';
 
 import '../../shared/keyboard.dart';
 import '../../shared/util.dart';
-import '../board/board_hide_groups_test.dart';
 
 const _firstDocName = "Inline Sub Page Mention";
 const _createdPageName = "hi world";

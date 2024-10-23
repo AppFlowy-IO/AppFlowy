@@ -122,7 +122,7 @@ class MentionBlock extends StatelessWidget {
           textStyle: textStyle,
           index: index,
           reminderId: mention[MentionBlockKeys.reminderId],
-          reminderOption: reminderOption,
+          reminderOption: reminderOption ?? ReminderOption.none,
           includeTime: mention[MentionBlockKeys.includeTime] ?? false,
         );
       default:
