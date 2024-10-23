@@ -39,7 +39,6 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 validator.workspace = true
 async-trait.workspace = true
-client-api = { workspace = true }
 regex = "1.9.5"
 futures = "0.3.30"
 
