@@ -262,6 +262,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     required String type,
     required List<Node> selectedNodes,
     int? level,
+    Delta? delta,
+    Selection? afterSelection,
   }) async {
     // only support turn a single node into toggle heading block
     if (type != ToggleListBlockKeys.type ||
@@ -310,7 +312,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
             node.attributes[blockComponentBackgroundColor],
         blockComponentTextDirection:
             node.attributes[blockComponentTextDirection],
-        blockComponentDelta: (node.delta ?? Delta()).toJson(),
+        blockComponentDelta: (delta ?? node.delta ?? Delta()).toJson(),
       },
       children: [
         ...node.children,
@@ -327,6 +329,9 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       node,
       ...insertedNodes,
     ]);
+    if (afterSelection != null) {
+      transaction.afterSelection = afterSelection;
+    }
     await editorState.apply(transaction);
 
     return true;

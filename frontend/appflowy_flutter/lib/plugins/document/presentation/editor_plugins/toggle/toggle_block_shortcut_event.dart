@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -15,36 +16,62 @@ const _greater = '>';
 CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
   key: 'format greater to toggle list',
   character: ' ',
-  handler: (editorState) async => formatMarkdownSymbol(
+  handler: (editorState) async => _formatGreaterSymbol(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,
-    (_, node, delta) {
-      final type = node.type;
-      int? level;
-      if (type == ToggleListBlockKeys.type) {
-        level = node.attributes[ToggleListBlockKeys.level] as int?;
-      } else if (type == HeadingBlockKeys.type) {
-        level = node.attributes[HeadingBlockKeys.level] as int?;
-      }
-      delta = delta.compose(Delta()..delete(_greater.length));
-      // if the previous block is heading block, convert it to toggle heading block
-      if (type == HeadingBlockKeys.type && level != null) {
-        return [
-          toggleHeadingNode(
-            level: level,
-            delta: delta,
-          ),
-        ];
-      }
-      return [
-        toggleListBlockNode(
-          delta: delta,
-        ),
-      ];
-    },
+    (text, node, delta, afterSelection) => _formatGreaterToToggleHeading(
+      editorState,
+      text,
+      node,
+      delta,
+      afterSelection,
+    ),
   ),
 );
+
+void _formatGreaterToToggleHeading(
+  EditorState editorState,
+  String text,
+  Node node,
+  Delta delta,
+  Selection afterSelection,
+) {
+  final type = node.type;
+  int? level;
+  if (type == ToggleListBlockKeys.type) {
+    level = node.attributes[ToggleListBlockKeys.level] as int?;
+  } else if (type == HeadingBlockKeys.type) {
+    level = node.attributes[HeadingBlockKeys.level] as int?;
+  }
+  delta = delta.compose(Delta()..delete(_greater.length));
+  // if the previous block is heading block, convert it to toggle heading block
+  if (type == HeadingBlockKeys.type && level != null) {
+    final cubit = BlockActionOptionCubit(
+      editorState: editorState,
+      blockComponentBuilder: {},
+    );
+    cubit.turnIntoSingleToggleHeading(
+      type: ToggleListBlockKeys.type,
+      selectedNodes: [node],
+      level: level,
+      delta: delta,
+      afterSelection: afterSelection,
+    );
+    return;
+  }
+
+  final transaction = editorState.transaction;
+  transaction
+    ..insertNode(
+      node.path,
+      toggleListBlockNode(
+        delta: delta,
+      ),
+    )
+    ..deleteNode(node);
+  editorState.apply(transaction);
+}
 
 /// Press enter key to insert child node inside the toggle list
 ///
@@ -210,4 +237,68 @@ KeyEventResult _removeToggleHeadingStyle({
   editorState.apply(transaction);
 
   return KeyEventResult.handled;
+}
+
+/// Formats the current node to specified markdown style.
+///
+/// For example,
+///   bulleted list: '- '
+///   numbered list: '1. '
+///   quote: '" '
+///   ...
+///
+/// The [nodeBuilder] can return a list of nodes, which will be inserted
+///   into the document.
+/// For example, when converting a bulleted list to a heading and the heading is
+///  not allowed to contain children, then the [nodeBuilder] should return a list
+///  of nodes, which contains the heading node and the children nodes.
+Future<bool> _formatGreaterSymbol(
+  EditorState editorState,
+  bool Function(Node node) shouldFormat,
+  bool Function(
+    Node node,
+    String text,
+    Selection selection,
+  ) predicate,
+  void Function(
+    String text,
+    Node node,
+    Delta delta,
+    Selection afterSelection,
+  ) onFormat,
+) async {
+  final selection = editorState.selection;
+  if (selection == null || !selection.isCollapsed) {
+    return false;
+  }
+
+  final position = selection.end;
+  final node = editorState.getNodeAtPath(position.path);
+
+  if (node == null || !shouldFormat(node)) {
+    return false;
+  }
+
+  // Get the text from the start of the document until the selection.
+  final delta = node.delta;
+  if (delta == null) {
+    return false;
+  }
+  final text = delta.toPlainText().substring(0, selection.end.offset);
+
+  // If the text doesn't match the predicate, then we don't want to
+  // format it.
+  if (!predicate(node, text, selection)) {
+    return false;
+  }
+
+  final afterSelection = Selection.collapsed(
+    Position(
+      path: node.path,
+    ),
+  );
+
+  onFormat(text, node, delta, afterSelection);
+
+  return true;
 }
