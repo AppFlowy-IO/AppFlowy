@@ -227,7 +227,7 @@ Future<void> createInlineDatabase(
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
     layout.slashMenuName,
-    offset: 20,
+    offset: 100,
   );
   await tester.pumpAndSettle();
 
