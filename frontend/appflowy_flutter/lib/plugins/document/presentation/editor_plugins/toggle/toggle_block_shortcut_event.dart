@@ -205,14 +205,6 @@ KeyEventResult _removeToggleHeadingStyle({
   transaction.updateNode(node, {
     ToggleListBlockKeys.level: null,
   });
-  final children = node.children;
-  if (children.isEmpty) {
-    transaction.deleteNode(node);
-    transaction.insertNodes(
-      selection.start.path.next,
-      children.map((e) => e.copyWith()).toList(growable: false),
-    );
-  }
   transaction.afterSelection = selection;
   editorState.apply(transaction);
 
