@@ -12,8 +12,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class PublishedViewItem extends StatelessWidget {
-  const PublishedViewItem({
+class PublishedPageItem extends StatelessWidget {
+  const PublishedPageItem({
     super.key,
     required this.publishInfoView,
   });
@@ -27,23 +27,20 @@ class PublishedViewItem extends StatelessWidget {
         publishInfoView.info.publishTimestampSec.toInt() * 1000,
       ),
     );
-    final flexes = SettingsPageSitesConstants.publishedViewItemFlexes;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         // Published page name
         Expanded(
-          flex: flexes[0],
           child: _PublishedViewItem(
             publishInfoView: publishInfoView,
           ),
         ),
         // Published Name
         Expanded(
-          flex: flexes[1],
           child: Padding(
-            padding: const EdgeInsets.only(right: 48.0),
+            padding: const EdgeInsets.only(right: 12.0),
             child: FlowyText(
               publishInfoView.info.publishName,
               fontSize: 14.0,
@@ -54,15 +51,12 @@ class PublishedViewItem extends StatelessWidget {
 
         // Published at
         Expanded(
-          flex: flexes[2],
           child: FlowyText(
             formattedDate,
             fontSize: 14.0,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-
-        // More actions
         PublishedViewMoreAction(
           publishInfoView: publishInfoView,
         ),

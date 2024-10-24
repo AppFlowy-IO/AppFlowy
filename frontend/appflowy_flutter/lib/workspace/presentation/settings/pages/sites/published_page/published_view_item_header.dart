@@ -2,19 +2,28 @@ import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.d
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class PublishPageHeader extends StatelessWidget {
-  const PublishPageHeader({
+class PublishViewItemHeader extends StatelessWidget {
+  const PublishViewItemHeader({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final items = List.generate(
+      SettingsPageSitesConstants.publishedViewHeaderTitles.length,
+      (index) => (
+        title: SettingsPageSitesConstants.publishedViewHeaderTitles[index],
+        flex: SettingsPageSitesConstants.publishedViewItemFlexes[index],
+      ),
+    );
+
     return Row(
       children: [
-        ...SettingsPageSitesConstants.publishPageHeaderTitles.map(
-          (title) => Expanded(
+        ...items.map(
+          (item) => Expanded(
+            flex: item.flex,
             child: FlowyText.medium(
-              title,
+              item.title,
               fontSize: 14.0,
               textAlign: TextAlign.left,
             ),

@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -34,15 +35,16 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       ),
     );
 
-    final result = await FolderEventListPublishedViews().send();
+    // final result = await FolderEventListPublishedViews().send();
 
     emit(
       state.copyWith(
-        publishedViews: result.fold((s) => s.items, (_) => []),
-        actionResult: SettingsSitesActionResult(
+        // publishedViews: result.fold((s) => s.items, (_) => []),
+        publishedViews: SettingsPageSitesConstants.fakeData,
+        actionResult: const SettingsSitesActionResult(
           actionType: SettingsSitesActionType.fetchPublishedViews,
           isLoading: false,
-          result: result,
+          result: null,
         ),
       ),
     );

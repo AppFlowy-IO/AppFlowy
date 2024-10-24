@@ -42,12 +42,7 @@ class _SettingsSitesPageView extends StatelessWidget {
                     separatorBuilder: () => const FlowyDivider(
                       padding: EdgeInsets.symmetric(vertical: 12.0),
                     ),
-                    children: [
-                      const PublishViewItemHeader(),
-                      ...state.publishedViews.map(
-                        (view) => PublishedViewItem(publishInfoView: view),
-                      ),
-                    ],
+                    children: _buildPublishedViewsResult(context, state),
                   );
                 },
               ),
@@ -56,5 +51,45 @@ class _SettingsSitesPageView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildPublishedViewsResult(
+    BuildContext context,
+    SettingsSitesState state,
+  ) {
+    final result = state.actionResult;
+    if (result != null &&
+        result.actionType == SettingsSitesActionType.fetchPublishedViews) {
+      if (result.isLoading) {
+        return [const CircularProgressIndicator()];
+      } else if (result.result?.isFailure == true) {
+        final error = result.result?.getFailure();
+        // remove the error message.
+        return [
+          FlowyText.regular(
+            'Failed to fetch published pages(${error?.msg})',
+            color: Theme.of(context).colorScheme.error,
+          ),
+        ];
+      }
+    }
+
+    final publishedViews = state.publishedViews;
+
+    if (publishedViews.isEmpty) {
+      return [
+        FlowyText.regular(
+          'No published pages',
+          color: Theme.of(context).hintColor,
+        ),
+      ];
+    }
+
+    return [
+      const PublishViewItemHeader(),
+      ...publishedViews.map(
+        (view) => PublishedViewItem(publishInfoView: view),
+      ),
+    ];
   }
 }
