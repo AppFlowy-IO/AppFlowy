@@ -200,22 +200,30 @@ class FieldActionCell extends StatelessWidget {
         (action == FieldAction.duplicate || action == FieldAction.delete)) {
       enable = false;
     }
-
-    return FlowyButton(
+    return FlowyIconTextButton(
       resetHoverOnRebuild: false,
       disable: !enable,
-      text: FlowyText(
-        action.title(fieldInfo),
-        lineHeight: 1.0,
-        color: enable ? null : Theme.of(context).disabledColor,
-      ),
       onHover: (_) => popoverMutex?.close(),
       onTap: () => action.run(context, viewId, fieldInfo),
-      leftIcon: action.leading(
-        fieldInfo,
-        enable ? null : Theme.of(context).disabledColor,
+      // show the error color when delete is hovered
+      textBuilder: (onHover) => FlowyText(
+        action.title(fieldInfo),
+        lineHeight: 1.0,
+        color: enable
+            ? action == FieldAction.delete && onHover
+                ? Theme.of(context).colorScheme.error
+                : null
+            : Theme.of(context).disabledColor,
       ),
-      rightIcon: action.trailing(context, fieldInfo),
+      leftIconBuilder: (onHover) => action.leading(
+        fieldInfo,
+        enable
+            ? action == FieldAction.delete && onHover
+                ? Theme.of(context).colorScheme.error
+                : null
+            : Theme.of(context).disabledColor,
+      ),
+      rightIconBuilder: (_) => action.trailing(context, fieldInfo),
     );
   }
 }
@@ -229,7 +237,7 @@ enum FieldAction {
   delete,
   wrap;
 
-  Widget? leading(FieldInfo fieldInfo, Color? color) {
+  Widget leading(FieldInfo fieldInfo, Color? color) {
     FlowySvgData? svgData;
     switch (this) {
       case FieldAction.insertLeft:
@@ -253,7 +261,7 @@ enum FieldAction {
     }
 
     if (svgData == null) {
-      return null;
+      return const SizedBox.shrink();
     }
     final icon = FlowySvg(
       svgData,
@@ -265,7 +273,7 @@ enum FieldAction {
         : icon;
   }
 
-  Widget? trailing(BuildContext context, FieldInfo fieldInfo) {
+  Widget trailing(BuildContext context, FieldInfo fieldInfo) {
     if (this == FieldAction.wrap) {
       return Toggle(
         value: fieldInfo.wrapCellContent ?? false,
@@ -276,7 +284,7 @@ enum FieldAction {
       );
     }
 
-    return null;
+    return const SizedBox.shrink();
   }
 
   String title(FieldInfo fieldInfo) {
