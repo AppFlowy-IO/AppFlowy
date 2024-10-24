@@ -5,44 +5,15 @@ import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_more_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-final _dateFormat = DateFormat('MMM d, yyyy');
-final _publishPageHeaderTitles = [
-  // todo: i18n
-  'Page',
-  'Published name',
-  'Published date',
-];
-
-class PublishPageHeader extends StatelessWidget {
-  const PublishPageHeader({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: _publishPageHeaderTitles
-          .map(
-            (title) => Expanded(
-              child: FlowyText.medium(
-                title,
-                fontSize: 14.0,
-                textAlign: TextAlign.left,
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class PublishedPageItem extends StatelessWidget {
-  const PublishedPageItem({
+class PublishedViewItem extends StatelessWidget {
+  const PublishedViewItem({
     super.key,
     required this.publishInfoView,
   });
@@ -51,7 +22,7 @@ class PublishedPageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = _dateFormat.format(
+    final formattedDate = SettingsPageSitesConstants.dateFormat.format(
       DateTime.fromMillisecondsSinceEpoch(
         publishInfoView.info.publishTimestampSec.toInt() * 1000,
       ),
@@ -77,6 +48,7 @@ class PublishedPageItem extends StatelessWidget {
             ),
           ),
         ),
+
         // Published at
         Expanded(
           child: FlowyText(
@@ -85,6 +57,7 @@ class PublishedPageItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        const PublishedViewMoreAction(),
       ],
     );
   }

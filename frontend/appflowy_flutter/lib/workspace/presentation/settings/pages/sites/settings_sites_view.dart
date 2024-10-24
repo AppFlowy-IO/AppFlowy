@@ -1,4 +1,5 @@
-import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page_item.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item_header.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
@@ -27,6 +28,7 @@ class _SettingsSitesPageView extends StatelessWidget {
       create: (context) =>
           SettingsSitesBloc()..add(const SettingsSitesEvent.initial()),
       child: SettingsBody(
+        // i18n
         title: 'Sites',
         children: [
           SettingsCategory(
@@ -41,9 +43,9 @@ class _SettingsSitesPageView extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 12.0),
                     ),
                     children: [
-                      const PublishPageHeader(),
+                      const PublishViewItemHeader(),
                       ...state.publishedViews.map(
-                        (view) => PublishedPageItem(publishInfoView: view),
+                        (view) => PublishedViewItem(publishInfoView: view),
                       ),
                     ],
                   );
