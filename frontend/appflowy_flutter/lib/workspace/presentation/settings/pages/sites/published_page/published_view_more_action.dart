@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -93,8 +94,28 @@ class PublishedViewMoreAction extends StatelessWidget {
         PopoverContainer.of(context).close();
         break;
       case _ActionType.settings:
+        _showSettingsDialog(context);
         break;
     }
+  }
+
+  void _showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: SizedBox(
+            width: 440,
+            child: PublishedViewSettingsDialog(
+              publishInfoView: publishInfoView,
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
