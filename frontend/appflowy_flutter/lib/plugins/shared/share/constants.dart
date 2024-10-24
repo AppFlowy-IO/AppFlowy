@@ -9,6 +9,14 @@ class ShareConstants {
     return '$publishBaseUrl/$nameSpace/$publishName';
   }
 
+  static String buildNamespaceUrl({
+    required String nameSpace,
+  }) {
+    return '$publishBaseUrl/$nameSpace'
+        .replaceAll('https://', '')
+        .replaceAll('http://', '');
+  }
+
   static String buildShareUrl({
     required String workspaceId,
     required String viewId,

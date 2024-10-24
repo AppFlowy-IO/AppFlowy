@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_d
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_view.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
@@ -52,6 +53,7 @@ class SettingsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width * 0.6;
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
@@ -60,8 +62,8 @@ class SettingsDialog extends StatelessWidget {
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
-          width: MediaQuery.of(context).size.width * 0.7,
-          constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
+          width: width,
+          constraints: const BoxConstraints(minWidth: 564),
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -155,6 +157,8 @@ class SettingsDialog extends StatelessWidget {
         return SettingsBillingView(workspaceId: workspaceId, user: user);
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
+      case SettingsPage.sites:
+        return const SettingsSitesPage();
       default:
         return const SizedBox.shrink();
     }

@@ -112,6 +112,14 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  SettingsMenuElement(
+                    page: SettingsPage.sites,
+                    selectedPage: currentPage,
+                    // todo: i18n
+                    label: 'Sites',
+                    icon: const Icon(Icons.web),
+                    changeSelectedPage: changeSelectedPage,
+                  ),
                   if (FeatureFlag.planBilling.isOn && isBillingEnabled) ...[
                     SettingsMenuElement(
                       page: SettingsPage.plan,
