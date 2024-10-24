@@ -16,9 +16,16 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
           await _fetchPublishedViews(emit);
         },
         fetchPublishedViews: () async => _fetchPublishedViews(emit),
-        unpublishView: (viewId) async => _unpublishView(viewId, emit),
+        unpublishView: (viewId) async => _unpublishView(
+          viewId,
+          emit,
+        ),
         updateNamespace: (namespace) async => _updateNamespace(
           namespace,
+          emit,
+        ),
+        updatePublishName: (name) async => _updatePublishName(
+          name,
           emit,
         ),
       );
@@ -66,9 +73,16 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
 
     final request = UnpublishViewsPayloadPB(viewIds: [viewId]);
     final result = await FolderEventUnpublishViews(request).send();
+    final publishedViews = result.fold(
+      (_) => state.publishedViews
+          .where((view) => view.info.viewId != viewId)
+          .toList(),
+      (_) => state.publishedViews,
+    );
 
     emit(
       state.copyWith(
+        publishedViews: publishedViews,
         actionResult: SettingsSitesActionResult(
           actionType: SettingsSitesActionType.unpublishView,
           isLoading: false,
@@ -105,6 +119,23 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       ),
     );
   }
+
+  Future<void> _updatePublishName(
+    String name,
+    Emitter<SettingsSitesState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        actionResult: const SettingsSitesActionResult(
+          actionType: SettingsSitesActionType.updatePublishName,
+          isLoading: true,
+          result: null,
+        ),
+      ),
+    );
+
+    // todo: not implemented.
+  }
 }
 
 @freezed
@@ -126,6 +157,8 @@ class SettingsSitesEvent with _$SettingsSitesEvent {
       _UnpublishView;
   const factory SettingsSitesEvent.updateNamespace(String namespace) =
       _UpdateNamespace;
+  const factory SettingsSitesEvent.updatePublishName(String name) =
+      _UpdatePublishName;
 }
 
 enum SettingsSitesActionType {
@@ -133,6 +166,7 @@ enum SettingsSitesActionType {
   unpublishView,
   updateNamespace,
   fetchPublishedViews,
+  updatePublishName,
 }
 
 class SettingsSitesActionResult {

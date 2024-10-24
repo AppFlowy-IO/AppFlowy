@@ -1,6 +1,13 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 class SettingsPageSitesConstants {
   static const threeDotsButtonWidth = 26.0;
@@ -20,6 +27,7 @@ class SettingsPageSitesConstants {
   static final fakeData = [
     PublishInfoViewPB(
       info: PublishInfoResponsePB(
+        viewId: '1',
         publishTimestampSec: Int64(1724409600),
         publishName: 'Published 1',
         namespace: 'https://published1.com',
@@ -33,6 +41,7 @@ class SettingsPageSitesConstants {
     ),
     PublishInfoViewPB(
       info: PublishInfoResponsePB(
+        viewId: '2',
         publishTimestampSec: Int64(1724409600),
         publishName: 'Published 2',
         namespace: 'https://published2.com',
@@ -46,6 +55,7 @@ class SettingsPageSitesConstants {
     ),
     PublishInfoViewPB(
       info: PublishInfoResponsePB(
+        viewId: '3',
         publishTimestampSec: Int64(1724409600),
         publishName: 'Published 3',
         namespace: 'https://published3.com',
@@ -58,4 +68,30 @@ class SettingsPageSitesConstants {
       ),
     ),
   ];
+}
+
+class SettingsPageSitesEvent {
+  static void visitSite(PublishInfoViewPB publishInfoView) {
+    // visit the site
+    final url = ShareConstants.buildPublishUrl(
+      nameSpace: publishInfoView.info.namespace,
+      publishName: publishInfoView.info.publishName,
+    );
+    afLaunchUrlString(url);
+  }
+
+  static void copySiteLink(
+    BuildContext context,
+    PublishInfoViewPB publishInfoView,
+  ) {
+    final url = ShareConstants.buildPublishUrl(
+      nameSpace: publishInfoView.info.namespace,
+      publishName: publishInfoView.info.publishName,
+    );
+    getIt<ClipboardService>().setData(ClipboardServiceData(plainText: url));
+    showToastNotification(
+      context,
+      message: LocaleKeys.grid_url_copy.tr(),
+    );
+  }
 }

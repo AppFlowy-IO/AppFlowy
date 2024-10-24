@@ -1,11 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PublishedViewSettingsDialog extends StatefulWidget {
   const PublishedViewSettingsDialog({
@@ -125,7 +128,7 @@ class _PublishedViewSettingsDialogState
             horizontal: 16.0,
             vertical: 11.0,
           ),
-          onTap: () {},
+          onTap: _savePublishName,
         ),
       ],
     );
@@ -137,7 +140,7 @@ class _PublishedViewSettingsDialogState
       children: [
         OutlinedRoundedButton(
           text: LocaleKeys.shareAction_unPublish.tr(),
-          onTap: () {},
+          onTap: _unpublishView,
         ),
         const HSpace(12.0),
         PrimaryRoundedButton(
@@ -147,9 +150,24 @@ class _PublishedViewSettingsDialogState
             horizontal: 16.0,
             vertical: 9.0,
           ),
-          onTap: () {},
+          onTap: _visitSite,
         ),
       ],
     );
+  }
+
+  void _savePublishName() {}
+
+  void _unpublishView() {
+    context.read<SettingsSitesBloc>().add(
+          SettingsSitesEvent.unpublishView(
+            widget.publishInfoView.info.viewId,
+          ),
+        );
+    Navigator.of(context).pop();
+  }
+
+  void _visitSite() {
+    SettingsPageSitesEvent.visitSite(widget.publishInfoView);
   }
 }
