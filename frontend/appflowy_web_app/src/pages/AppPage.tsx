@@ -77,7 +77,7 @@ function AppPage () {
   }, [view?.layout]) as React.FC<{
     doc: YDoc;
     readOnly: boolean;
-    navigateToView?: (viewId: string) => Promise<void>;
+    navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
     loadViewMeta?: LoadViewMeta;
     createRowDoc?: CreateRowDoc;
     loadView?: LoadView;

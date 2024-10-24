@@ -1,7 +1,7 @@
 import { UIVariant, View } from '@/application/types';
+import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
 import OutlineItemContent from '@/components/_shared/outline/OutlineItemContent';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { ReactComponent as ChevronDownIcon } from '@/assets/chevron_down.svg';
 import { ReactComponent as PrivateIcon } from '@/assets/lock.svg';
 
 function getOutlineExpands () {
@@ -45,35 +45,11 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
   }, [isExpanded, view.view_id]);
 
   const getIcon = useCallback(() => {
-    if (isExpanded) {
-      return (
-        <button
-          style={{
-            paddingLeft: 1.125 * level + 'rem',
-          }}
-          onClick={() => {
-            setIsExpanded(false);
-          }}
-          className={'opacity-50 hover:opacity-100'}
-        >
-          <ChevronDownIcon className={'h-4 w-4'} />
-        </button>
-      );
-    }
-
-    return (
-      <button
-        style={{
-          paddingLeft: 1.125 * level + 'rem',
-        }}
-        className={'opacity-50 hover:opacity-100'}
-        onClick={() => {
-          setIsExpanded(true);
-        }}
-      >
-        <ChevronDownIcon className={'h-4 w-4 -rotate-90 transform'} />
-      </button>
-    );
+    return <span className={'text-sm'}><OutlineIcon
+      level={level}
+      isExpanded={isExpanded}
+      setIsExpanded={setIsExpanded}
+    /></span>;
   }, [isExpanded, level]);
 
   const renderItem = useCallback((item: View) => {

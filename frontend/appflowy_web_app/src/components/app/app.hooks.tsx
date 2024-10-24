@@ -4,7 +4,7 @@ import {
   CreateRowDoc,
   DatabaseRelations,
   LoadView,
-  LoadViewMeta,
+  LoadViewMeta, Types,
   UserWorkspaceInfo,
   View,
   ViewLayout, YjsDatabaseKey, YjsEditorKey, YSharedRoot,
@@ -12,13 +12,13 @@ import {
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
-import { uniqBy } from 'lodash-es';
+import { sortBy, uniqBy } from 'lodash-es';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { validate as uuidValidate } from 'uuid';
 
 export interface AppContextType {
-  toView: (viewId: string) => Promise<void>;
+  toView: (viewId: string, blockId?: string, keepSearch?: boolean) => Promise<void>;
   loadViewMeta: LoadViewMeta;
   createRowDoc?: CreateRowDoc;
   loadView: LoadView;
@@ -135,11 +135,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }, []);
 
-  const toView = useCallback(async (viewId: string, keepSearch?: boolean) => {
+  const toView = useCallback(async (viewId: string, blockId?: string, keepSearch?: boolean) => {
     let url = `/app/${currentWorkspaceId}/${viewId}`;
 
-    if (keepSearch) {
-      url += window.location.search;
+    const searchParams = new URLSearchParams(keepSearch ? window.location.search : undefined);
+
+    if (blockId) {
+      searchParams.set('blockId', blockId);
+    }
+
+    if (searchParams.toString()) {
+      url += `?${searchParams.toString()}`;
     }
 
     navigate(url);
@@ -188,14 +194,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const sharedRoot = res.get(YjsEditorKey.data_section) as YSharedRoot;
       let objectId = id;
+      let collabType = Types.Document;
 
       if (sharedRoot.has(YjsEditorKey.database)) {
         const database = sharedRoot.get(YjsEditorKey.database);
 
         objectId = database?.get(YjsDatabaseKey.id);
+        collabType = Types.Database;
       }
 
-      service.registerDocUpdate(res, currentWorkspaceId, objectId);
+      service.registerDocUpdate(res, {
+        workspaceId: currentWorkspaceId,
+        objectId,
+        collabType,
+      });
 
       return res;
       // eslint-disable-next-line
@@ -219,7 +231,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           throw new Error('Failed to create row doc');
         }
 
-        service.registerDocUpdate(doc, currentWorkspaceId, rowKey);
+        service.registerDocUpdate(doc, {
+          workspaceId: currentWorkspaceId,
+          objectId: rowKey,
+          collabType: Types.DatabaseRow,
+        });
 
         createdRowKeys.current.push(rowKey);
         return doc;
@@ -335,7 +351,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('Recent views not found');
       }
 
-      setRecentViews(uniqBy(res, 'view_id'));
+      setRecentViews(uniqBy(sortBy(res, 'last_edited_time'), 'view_id'));
     } catch (e) {
       console.error('Recent views not found');
     }

@@ -1,3 +1,4 @@
+import { YjsEditorKey, YSharedRoot } from '@/application/types';
 import { generateId, getTestingDocData, insertBlock, withTestingYDoc } from './withTestingYjsEditor';
 import { yDocToSlateContent, deltaInsertToSlateNode, yDataToSlateContent } from '@/application/slate-yjs/utils/convert';
 import { expect } from '@jest/globals';
@@ -9,15 +10,16 @@ describe('convert yjs data to slate content', () => {
   it('should return undefined if root block is not exist', () => {
     const doc = new Y.Doc();
 
+    const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
     expect(yDocToSlateContent(doc)).toBeUndefined();
 
     const doc2 = withTestingYDoc('1');
-    const { blocks, childrenMap, textMap, pageId } = getTestingDocData(doc2);
-    expect(yDataToSlateContent({ blocks, rootId: '2', childrenMap, textMap })).toBeUndefined();
+    const { blocks, pageId } = getTestingDocData(doc2);
+    expect(yDataToSlateContent(sharedRoot)).toBeUndefined();
 
     blocks.delete(pageId);
 
-    expect(yDataToSlateContent({ blocks, rootId: pageId, childrenMap, textMap })).toBeUndefined();
+    expect(yDataToSlateContent(sharedRoot)).toBeUndefined();
   });
   it('should match empty array', () => {
     const doc = withTestingYDoc('1');

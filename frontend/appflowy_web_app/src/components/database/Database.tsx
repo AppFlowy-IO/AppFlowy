@@ -20,7 +20,7 @@ export interface Database2Props {
   doc: YDoc;
   createRowDoc?: CreateRowDoc;
   loadView?: LoadView;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   viewId: string;
   iidName: string;
@@ -108,7 +108,6 @@ function Database ({
   useEffect(() => {
     onRendered?.();
   }, [onRendered]);
-
   if (!rowDocMap || !viewId) {
     return null;
   }
@@ -129,7 +128,10 @@ function Database ({
         createRowDoc={createRowDoc}
       >
         {rowId ? (
-          <DatabaseRow appendBreadcrumb={appendBreadcrumb} rowId={rowId} />
+          <DatabaseRow
+            appendBreadcrumb={appendBreadcrumb}
+            rowId={rowId}
+          />
         ) : (
           <div className="appflowy-database relative flex w-full flex-1 select-text flex-col overflow-y-hidden">
             <DatabaseViews

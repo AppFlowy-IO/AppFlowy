@@ -22,7 +22,7 @@ import { useSearchParams } from 'react-router-dom';
 
 function DatabaseView ({ viewMeta, ...props }: {
   doc: YDoc;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   createRowDoc?: CreateRowDoc;
   loadView?: LoadView;

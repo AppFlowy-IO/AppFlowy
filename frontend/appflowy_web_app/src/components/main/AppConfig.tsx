@@ -131,6 +131,7 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
         isAuthenticated,
         currentUser,
         openLoginModal,
+
       }}
     >
       {children}

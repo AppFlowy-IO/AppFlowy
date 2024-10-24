@@ -20,7 +20,7 @@ function PublishIcon ({
 
   if (is_published && variant === 'app') {
     return (
-      <PublishSvg className="h-5 w-5 text-function-success" />
+      <PublishSvg className="h-5 w-5 shrink-0 text-function-success" />
     );
   }
 

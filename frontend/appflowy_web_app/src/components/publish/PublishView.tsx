@@ -1,14 +1,12 @@
 import { YDoc } from '@/application/types';
 import { PublishProvider } from '@/application/publish';
-import { useOutlineDrawer } from '@/components/_shared/outline/outline.hooks';
-import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
-import { AFScroller } from '@/components/_shared/scroller';
+
 import { AFConfigContext } from '@/components/main/app.hooks';
-import { GlobalCommentProvider } from '@/components/global-comment';
-import CollabView from '@/components/publish/CollabView';
-import SideBar from '@/components/publish/SideBar';
-import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
-import { PublishViewHeader } from '@/components/publish/header';
+
+import PublishLayout from '@/components/publish/PublishLayout';
+import PublishMobileLayout from '@/components/publish/PublishMobileLayout';
+import { getPlatform } from '@/utils/platform';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import NotFound from '@/components/error/NotFound';
 import { useSearchParams } from 'react-router-dom';
 
@@ -50,68 +48,23 @@ export function PublishView ({ namespace, publishName }: PublishViewProps) {
     document.documentElement.setAttribute('thumbnail', 'true');
   }, [isTemplateThumb]);
 
-  const {
-    drawerOpened,
-    drawerWidth,
-    setDrawerWidth,
-    toggleOpenDrawer,
-  } = useOutlineDrawer();
-
   if (notFound && !doc) {
     return <NotFound />;
   }
 
   return (
     <PublishProvider
-      isTemplateThumb={isTemplateThumb} isTemplate={isTemplate} namespace={namespace}
+      isTemplateThumb={isTemplateThumb}
+      isTemplate={isTemplate}
+      namespace={namespace}
       publishName={publishName}
     >
-      <div
-        className={'h-screen w-screen'} style={isTemplateThumb ? {
-        pointerEvents: 'none',
-        transform: 'scale(0.333)',
-        transformOrigin: '0 0',
-        width: '300vw',
-        height: '400vh',
-        overflow: 'hidden',
-      } : undefined}
-      >
-        <AFScroller
-          overflowXHidden
-          overflowYHidden={isTemplateThumb}
-          style={{
-            transform: drawerOpened ? `translateX(${drawerWidth}px)` : 'none',
-            width: drawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
-            transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
-          }}
-          className={'appflowy-layout appflowy-scroll-container h-full'}
-        >
-          {!isTemplate && <PublishViewHeader
-            onOpenDrawer={() => {
-              toggleOpenDrawer(true);
-            }}
-            drawerWidth={drawerWidth}
-            onCloseDrawer={() => {
-              toggleOpenDrawer(false);
-            }}
-            openDrawer={drawerOpened}
-          />}
+      {getPlatform().isMobile ? <PublishMobileLayout doc={doc} /> : <PublishLayout
+        isTemplateThumb={isTemplateThumb}
+        isTemplate={isTemplate}
+        doc={doc}
+      />}
 
-          <CollabView doc={doc} />
-          {doc && !isTemplate && (
-            <Suspense fallback={<ComponentLoading />}>
-              <GlobalCommentProvider />
-            </Suspense>
-          )}
-
-        </AFScroller>
-        {drawerOpened &&
-          <SideBar
-            onResizeDrawerWidth={setDrawerWidth} drawerWidth={drawerWidth} drawerOpened={drawerOpened}
-            toggleOpenDrawer={toggleOpenDrawer}
-          />
-        }
-      </div>
     </PublishProvider>
   );
 }

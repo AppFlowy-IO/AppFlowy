@@ -23,13 +23,22 @@ export const CodeBlock = memo(
         }}
         onMouseLeave={() => setShowToolbar(false)}
       >
-        <div contentEditable={false} className={'absolute mt-2  flex h-20 w-full select-none items-center px-6'}>
-          <LanguageSelect readOnly language={language} onChangeLanguage={handleChangeLanguage} />
+        <div
+          contentEditable={false}
+          className={'absolute mt-2  flex h-20 w-full select-none items-center px-6'}
+        >
+          <LanguageSelect
+            readOnly
+            language={language}
+            onChangeLanguage={handleChangeLanguage}
+          />
         </div>
-        <div {...attributes} ref={ref} className={`${attributes.className ?? ''} flex w-full bg-bg-body py-2`}>
+        <div {...attributes} ref={ref}
+             className={`${attributes.className ?? ''} flex w-full bg-bg-body py-2`}
+        >
           <pre
             spellCheck={false}
-            className={`flex w-full overflow-hidden rounded border border-line-divider bg-fill-list-active p-5 pt-20`}
+            className={`flex w-full overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-5 pt-20`}
           >
             <code>{children}</code>
           </pre>
@@ -55,6 +64,6 @@ export const CodeBlock = memo(
       </div>
     );
   }),
-  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node)
+  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node),
 );
 export default CodeBlock;
