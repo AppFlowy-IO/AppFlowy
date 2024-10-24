@@ -15,7 +15,7 @@ class SettingsPageSitesConstants {
   ];
 
   // the published view name is longer than the other two, so we give it more flex
-  static final publishedViewItemFlexes = [2, 3, 1];
+  static final publishedViewItemFlexes = [1, 1, 1];
 
   static final fakeData = [
     PublishInfoViewPB(

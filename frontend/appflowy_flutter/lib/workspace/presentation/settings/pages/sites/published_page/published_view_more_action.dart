@@ -1,3 +1,4 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -71,23 +72,24 @@ class PublishedViewMoreAction extends StatelessWidget {
   }
 
   void _onTap(BuildContext context, _ActionType type) {
+    final url = ShareConstants.buildPublishUrl(
+      nameSpace: publishInfoView.info.namespace,
+      publishName: publishInfoView.info.publishName,
+    );
+
     switch (type) {
       case _ActionType.viewSite:
+        afLaunchUrlString(url);
+        PopoverContainer.of(context).close();
         break;
       case _ActionType.copySiteLink:
-        final url = ShareConstants.buildPublishUrl(
-          nameSpace: publishInfoView.info.namespace,
-          publishName: publishInfoView.info.publishName,
-        );
         getIt<ClipboardService>().setData(
           ClipboardServiceData(plainText: url),
         );
-
         showToastNotification(
           context,
           message: LocaleKeys.grid_url_copy.tr(),
         );
-
         PopoverContainer.of(context).close();
         break;
       case _ActionType.settings:
