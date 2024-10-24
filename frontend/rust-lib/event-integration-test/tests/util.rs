@@ -1,11 +1,11 @@
+use nanoid::nanoid;
+use std::env::temp_dir;
 use std::fs::{create_dir_all, File, OpenOptions};
 use std::io::copy;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use std::{fs, io};
-
-use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::timeout;
 use uuid::Uuid;
@@ -14,8 +14,9 @@ use zip::write::FileOptions;
 use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
 use event_integration_test::event_builder::EventBuilder;
-use event_integration_test::Cleaner;
+
 use event_integration_test::EventIntegrationTest;
+use flowy_folder::entities::{ImportPayloadPB, ImportTypePB, ImportValuePayloadPB, ViewLayoutPB};
 use flowy_user::entities::UpdateUserProfilePayloadPB;
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
@@ -122,26 +123,23 @@ pub fn zip(src_dir: PathBuf, output_file_path: PathBuf) -> io::Result<()> {
   zip.finish()?;
   Ok(())
 }
-pub fn unzip_test_asset(folder_name: &str) -> io::Result<(Cleaner, PathBuf)> {
+pub fn unzip_test_asset(folder_name: &str) -> io::Result<PathBuf> {
   unzip("./tests/asset", folder_name)
 }
 
-pub fn unzip(root: &str, folder_name: &str) -> io::Result<(Cleaner, PathBuf)> {
+pub fn unzip(test_asset_dir: &str, folder_name: &str) -> io::Result<PathBuf> {
   // Open the zip file
-  let zip_file_path = format!("{}/{}.zip", root, folder_name);
+  let zip_file_path = format!("{}/{}.zip", test_asset_dir, folder_name);
   let reader = File::open(zip_file_path)?;
-  let output_folder_path = format!("{}/unit_test_{}", root, nanoid!(6));
+  // let output_folder_path = format!("{}/unit_test_{}", test_asset_dir, nanoid!(6));
+  let output_folder_path = temp_dir().join(nanoid!(6)).to_str().unwrap().to_string();
 
   // Create a ZipArchive from the file
   let mut archive = ZipArchive::new(reader)?;
-
-  // Iterate through each file in the zip
   for i in 0..archive.len() {
     let mut file = archive.by_index(i)?;
     let output_path = Path::new(&output_folder_path).join(file.mangled_name());
-
     if file.name().ends_with('/') {
-      // Create directory
       create_dir_all(&output_path)?;
     } else {
       // Write file
@@ -155,12 +153,23 @@ pub fn unzip(root: &str, folder_name: &str) -> io::Result<(Cleaner, PathBuf)> {
     }
   }
   let path = format!("{}/{}", output_folder_path, folder_name);
-  Ok((
-    Cleaner::new(PathBuf::from(output_folder_path)),
-    PathBuf::from(path),
-  ))
+  Ok(PathBuf::from(path))
 }
 
 pub fn generate_test_email() -> String {
   format!("{}@test.com", Uuid::new_v4())
+}
+
+pub fn gen_csv_import_data(file_name: &str, workspace_id: &str) -> ImportPayloadPB {
+  let file_path = unzip("./tests/asset", file_name).unwrap();
+  ImportPayloadPB {
+    parent_view_id: workspace_id.to_string(),
+    values: vec![ImportValuePayloadPB {
+      name: file_name.to_string(),
+      data: None,
+      file_path: Some(file_path.to_str().unwrap().to_string()),
+      view_layout: ViewLayoutPB::Grid,
+      import_type: ImportTypePB::CSV,
+    }],
+  }
 }

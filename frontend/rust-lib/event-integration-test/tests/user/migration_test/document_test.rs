@@ -6,7 +6,7 @@ use crate::util::unzip;
 
 #[tokio::test]
 async fn migrate_historical_empty_document_test() {
-  let (cleaner, user_db_path) = unzip(
+  let user_db_path = unzip(
     "./tests/user/migration_test/history_user_db",
     "historical_empty_document",
   )
@@ -23,6 +23,4 @@ async fn migrate_historical_empty_document_test() {
     assert_eq!(data.blocks.len(), 2);
     assert!(!data.meta.children_map.is_empty());
   }
-
-  drop(cleaner);
 }

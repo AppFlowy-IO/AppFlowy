@@ -174,6 +174,24 @@ impl EventIntegrationTest {
       .error()
   }
 
+  pub async fn remove_calculate(&self, changeset: RemoveCalculationChangesetPB) {
+    // #[event(input = "RemoveCalculationChangesetPB")]
+    // RemoveCalculation = 165,
+    todo!()
+  }
+
+  pub async fn get_all_calculations(&self) -> RepeatedCalculationsPB {
+    // #[event(input = "DatabaseViewIdPB", output = "RepeatedCalculationsPB")]
+    // GetAllCalculations = 163,
+    todo!()
+  }
+
+  pub async fn update_calculation(&self, changeset: UpdateCalculationChangesetPB) {
+    // #[event(input = "UpdateCalculationChangesetPB")]
+    // UpdateCalculation = 164,
+    todo!()
+  }
+
   pub async fn update_field_type(
     &self,
     view_id: &str,
