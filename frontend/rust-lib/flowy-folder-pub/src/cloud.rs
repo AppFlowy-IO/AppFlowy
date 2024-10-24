@@ -1,6 +1,5 @@
-use crate::entities::PublishPayload;
+use crate::entities::{PublishInfoResponse, PublishPayload};
 pub use anyhow::Error;
-use client_api::entity::{workspace_dto::PublishInfoView, PublishInfo};
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use lib_infra::async_trait::async_trait;
@@ -55,23 +54,12 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   async fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> Result<(), Error>;
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, Error>;
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, Error>;
 
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,
     new_namespace: &str,
-  ) -> Result<(), Error>;
-
-  async fn list_published_views(&self, workspace_id: &str) -> Result<Vec<PublishInfoView>, Error>;
-
-  async fn get_default_published_view_info(&self, workspace_id: &str)
-    -> Result<PublishInfo, Error>;
-
-  async fn set_default_published_view(
-    &self,
-    workspace_id: &str,
-    view_id: uuid::Uuid,
   ) -> Result<(), Error>;
 
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error>;
