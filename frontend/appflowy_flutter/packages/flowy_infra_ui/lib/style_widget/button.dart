@@ -30,6 +30,7 @@ class FlowyIconTextButton extends StatelessWidget {
   final double iconPadding;
   final bool expand;
   final Color? borderColor;
+  final bool resetHoverOnRebuild;
 
   const FlowyIconTextButton({
     super.key,
@@ -54,6 +55,7 @@ class FlowyIconTextButton extends StatelessWidget {
     this.iconPadding = 6,
     this.expand = false,
     this.borderColor,
+    this.resetHoverOnRebuild = true,
   });
 
   @override
@@ -65,6 +67,7 @@ class FlowyIconTextButton extends StatelessWidget {
       onTap: disable ? null : onTap,
       onSecondaryTap: disable ? null : onSecondaryTap,
       child: FlowyHover(
+        resetHoverOnRebuild: resetHoverOnRebuild,
         cursor:
             disable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
         style: HoverStyle(
