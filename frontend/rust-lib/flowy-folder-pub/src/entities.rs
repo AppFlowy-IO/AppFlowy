@@ -116,3 +116,11 @@ pub enum PublishPayload {
   Database(PublishDatabasePayload),
   Unknown,
 }
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PublishInfoResponse {
+  pub view_id: String,
+  /// One part of publish url: /{namespace}/{publish_name}
+  pub namespace: Option<String>,
+  pub publish_name: String,
+}

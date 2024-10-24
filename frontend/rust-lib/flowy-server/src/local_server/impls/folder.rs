@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::workspace_dto::PublishInfoView;
-use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
 
 use crate::local_server::LocalServerDB;
@@ -10,7 +8,7 @@ use flowy_folder_pub::cloud::{
   gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
-use flowy_folder_pub::entities::PublishPayload;
+use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
 use lib_infra::async_trait::async_trait;
 
 pub(crate) struct LocalServerFolderCloudServiceImpl {
@@ -93,7 +91,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(anyhow!("Local server doesn't support unpublish views"))
   }
 
-  async fn get_publish_info(&self, _view_id: &str) -> Result<PublishInfo, Error> {
+  async fn get_publish_info(&self, _view_id: &str) -> Result<PublishInfoResponse, Error> {
     Err(anyhow!(
       "Local server doesn't support get publish info from remote"
     ))
@@ -113,25 +111,6 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(anyhow!(
       "Local server doesn't support get publish namespace"
     ))
-  }
-
-  async fn list_published_views(&self, _workspace_id: &str) -> Result<Vec<PublishInfoView>, Error> {
-    Err(anyhow!("Local server doesn't support list published views"))
-  }
-
-  async fn get_default_published_view_info(
-    &self,
-    _workspace_id: &str,
-  ) -> Result<PublishInfo, Error> {
-    Err(anyhow!("Local server doesn't support list published views"))
-  }
-
-  async fn set_default_published_view(
-    &self,
-    _workspace_id: &str,
-    _view_id: uuid::Uuid,
-  ) -> Result<(), Error> {
-    Err(anyhow!("Local server doesn't support list published views"))
   }
 
   async fn import_zip(&self, _file_path: &str) -> Result<(), Error> {
