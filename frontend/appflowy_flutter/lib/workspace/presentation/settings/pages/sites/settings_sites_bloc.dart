@@ -12,9 +12,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   SettingsSitesBloc() : super(const SettingsSitesState()) {
     on<SettingsSitesEvent>((event, emit) async {
       await event.when(
-        initial: () async {
-          await _fetchPublishedViews(emit);
-        },
+        initial: () async => _initial(emit),
         fetchPublishedViews: () async => _fetchPublishedViews(emit),
         unpublishView: (viewId) async => _unpublishView(
           viewId,
@@ -30,9 +28,27 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
         ),
       );
     });
+  }
 
-    // Trigger the initial event
-    add(const SettingsSitesEvent.initial());
+  Future<void> _initial(Emitter<SettingsSitesState> emit) async {
+    await _fetchPublishedViews(emit);
+    await _fetchPublishNamespace(emit);
+  }
+
+  Future<void> _fetchPublishNamespace(Emitter<SettingsSitesState> emit) async {
+    emit(
+      state.copyWith(
+        actionResult: SettingsSitesActionResult.none(),
+      ),
+    );
+
+    final result = await FolderEventGetPublishNamespace().send();
+
+    emit(
+      state.copyWith(
+        namespace: result.fold((s) => s.namespace, (_) => ''),
+      ),
+    );
   }
 
   Future<void> _fetchPublishedViews(Emitter<SettingsSitesState> emit) async {

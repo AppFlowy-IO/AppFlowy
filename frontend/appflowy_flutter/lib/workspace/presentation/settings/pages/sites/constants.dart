@@ -21,6 +21,11 @@ class SettingsPageSitesConstants {
     'Published date',
   ];
 
+  static final namespaceHeaderTitles = [
+    'Namespace',
+    'Homepage',
+  ];
+
   // the published view name is longer than the other two, so we give it more flex
   static final publishedViewItemFlexes = [1, 1, 1];
 

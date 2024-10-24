@@ -1,22 +1,19 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_settings_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PublishedViewMoreAction extends StatelessWidget {
-  const PublishedViewMoreAction({
+class DomainMoreAction extends StatelessWidget {
+  const DomainMoreAction({
     super.key,
-    required this.publishInfoView,
+    required this.namespace,
   });
 
-  final PublishInfoViewPB publishInfoView;
+  final String namespace;
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +39,7 @@ class PublishedViewMoreAction extends StatelessWidget {
               _buildActionButton(
                 context,
                 builderContext,
-                type: _ActionType.viewSite,
-              ),
-              _buildActionButton(
-                context,
-                builderContext,
-                type: _ActionType.copySiteLink,
-              ),
-              _buildActionButton(
-                context,
-                builderContext,
-                type: _ActionType.settings,
+                type: _ActionType.updateNamespace,
               ),
             ],
           ),
@@ -91,16 +78,7 @@ class PublishedViewMoreAction extends StatelessWidget {
     _ActionType type,
   ) {
     switch (type) {
-      case _ActionType.viewSite:
-        SettingsPageSitesEvent.visitSite(publishInfoView);
-        break;
-      case _ActionType.copySiteLink:
-        SettingsPageSitesEvent.copySiteLink(
-          context,
-          publishInfoView,
-        );
-        break;
-      case _ActionType.settings:
+      case _ActionType.updateNamespace:
         _showSettingsDialog(
           context,
           builderContext,
@@ -126,8 +104,8 @@ class PublishedViewMoreAction extends StatelessWidget {
             ),
             child: SizedBox(
               width: 440,
-              child: PublishedViewSettingsDialog(
-                publishInfoView: publishInfoView,
+              child: DomainSettingsDialog(
+                namespace: namespace,
               ),
             ),
           ),
@@ -138,19 +116,13 @@ class PublishedViewMoreAction extends StatelessWidget {
 }
 
 enum _ActionType {
-  viewSite,
-  copySiteLink,
-  settings;
+  updateNamespace;
 
   String get name => switch (this) {
-        _ActionType.viewSite => LocaleKeys.shareAction_visitSite.tr(),
-        _ActionType.copySiteLink => LocaleKeys.shareAction_copyLink.tr(),
-        _ActionType.settings => LocaleKeys.settings_popupMenuItem_settings.tr(),
+        _ActionType.updateNamespace => 'Update namespace',
       };
 
   FlowySvgData get leftIconSvg => switch (this) {
-        _ActionType.viewSite => FlowySvgs.share_publish_s,
-        _ActionType.copySiteLink => FlowySvgs.copy_s,
-        _ActionType.settings => FlowySvgs.settings_s,
+        _ActionType.updateNamespace => FlowySvgs.view_item_rename_s,
       };
 }

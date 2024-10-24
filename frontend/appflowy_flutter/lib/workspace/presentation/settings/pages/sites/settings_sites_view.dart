@@ -1,3 +1,5 @@
+import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_header.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item_header.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
@@ -25,31 +27,70 @@ class _SettingsSitesPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          SettingsSitesBloc()..add(const SettingsSitesEvent.initial()),
+      create: (context) => SettingsSitesBloc()
+        ..add(
+          const SettingsSitesEvent.initial(),
+        ),
       child: SettingsBody(
         // i18n
         title: 'Sites',
+        autoSeparate: false,
         children: [
-          SettingsCategory(
-            title: 'All published pages',
-            children: [
-              const FlowyDivider(),
-              BlocBuilder<SettingsSitesBloc, SettingsSitesState>(
-                builder: (context, state) {
-                  return SeparatedColumn(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    separatorBuilder: () => const FlowyDivider(
-                      padding: EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    children: _buildPublishedViewsResult(context, state),
-                  );
-                },
-              ),
-            ],
-          ),
+          // Domain / Namespace
+          _buildNamespaceCategory(context),
+          const VSpace(36),
+          // All published pages
+          _buildPublishedViewsCategory(context),
         ],
       ),
+    );
+  }
+
+  Widget _buildNamespaceCategory(BuildContext context) {
+    return SettingsCategory(
+      title: 'Namespace',
+      description: 'Manage your domain and homepage',
+      descriptionColor: Theme.of(context).hintColor,
+      children: [
+        const FlowyDivider(),
+        BlocBuilder<SettingsSitesBloc, SettingsSitesState>(
+          builder: (context, state) {
+            return SeparatedColumn(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              separatorBuilder: () => const FlowyDivider(
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+              ),
+              children: [
+                const DomainHeader(),
+                DomainItem(
+                  namespace: state.namespace,
+                  homepage: '',
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPublishedViewsCategory(BuildContext context) {
+    return SettingsCategory(
+      title: 'All published pages',
+      children: [
+        const FlowyDivider(),
+        BlocBuilder<SettingsSitesBloc, SettingsSitesState>(
+          builder: (context, state) {
+            return SeparatedColumn(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              separatorBuilder: () => const FlowyDivider(
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+              ),
+              children: _buildPublishedViewsResult(context, state),
+            );
+          },
+        ),
+      ],
     );
   }
 
