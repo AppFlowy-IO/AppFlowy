@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -44,7 +44,7 @@ class _DateCellEditor extends State<DateCellEditor> {
       child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
         builder: (context, state) {
           final dateCellBloc = context.read<DateCellEditorBloc>();
-          return AppFlowyDatePicker(
+          return DesktopAppFlowyDatePicker(
             dateTime: state.dateTime,
             endDateTime: state.endDateTime,
             dateFormat: state.dateTypeOptionPB.dateFormat,

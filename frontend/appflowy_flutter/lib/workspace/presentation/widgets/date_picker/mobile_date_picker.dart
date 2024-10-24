@@ -5,7 +5,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_she
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_option_decorate_box.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_editor.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
@@ -15,93 +14,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class MobileAppFlowyDatePicker extends StatefulWidget {
+import 'appflowy_date_picker_base.dart';
+
+class MobileAppFlowyDatePicker extends AppFlowyDatePicker {
   const MobileAppFlowyDatePicker({
     super.key,
-    this.dateTime,
-    this.endDateTime,
-    required this.dateFormat,
-    required this.timeFormat,
-    this.reminderOption = ReminderOption.none,
-    required this.includeTime,
-    required this.onIncludeTimeChanged,
-    this.isRange = false,
-    this.onIsRangeChanged,
-    this.onDaySelected,
-    this.onRangeSelected,
+    required super.dateTime,
+    super.endDateTime,
+    required super.includeTime,
+    required super.isRange,
+    super.reminderOption = ReminderOption.none,
+    required super.dateFormat,
+    required super.timeFormat,
+    super.onDaySelected,
+    super.onRangeSelected,
+    super.onIncludeTimeChanged,
+    super.onIsRangeChanged,
+    super.onReminderSelected,
     this.onClearDate,
-    this.onReminderSelected,
   });
 
-  final DateTime? dateTime;
-  final DateTime? endDateTime;
-
-  final bool isRange;
-  final bool includeTime;
-
-  final TimeFormatPB timeFormat;
-  final DateFormatPB dateFormat;
-
-  final ReminderOption reminderOption;
-
-  final Function(bool)? onIncludeTimeChanged;
-  final Function(bool)? onIsRangeChanged;
-
-  final DaySelectedCallback? onDaySelected;
-  final RangeSelectedCallback? onRangeSelected;
   final VoidCallback? onClearDate;
-  final OnReminderSelected? onReminderSelected;
 
   @override
   State<MobileAppFlowyDatePicker> createState() =>
       _MobileAppFlowyDatePickerState();
 }
 
-class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
-  // store date values in the state and refresh the ui upon any changes made, instead of only updating them after receiving update from backend.
-  late DateTime? dateTime;
-  late DateTime? startDateTime;
-  late DateTime? endDateTime;
-  late bool includeTime;
-  late bool isRange;
-  late ReminderOption reminderOption;
-
-  late DateTime focusedDateTime;
-  PageController? pageController;
-
-  bool justChangedIsRange = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    dateTime = widget.dateTime;
-    startDateTime = widget.isRange ? widget.dateTime : null;
-    endDateTime = widget.isRange ? widget.endDateTime : null;
-    includeTime = widget.includeTime;
-    isRange = widget.isRange;
-    reminderOption = widget.reminderOption;
-
-    focusedDateTime = widget.dateTime ?? DateTime.now();
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    dateTime = widget.dateTime;
-    if (widget.isRange) {
-      startDateTime = widget.dateTime;
-      endDateTime = widget.endDateTime;
-    } else {
-      startDateTime = endDateTime = null;
-    }
-    includeTime = widget.includeTime;
-    isRange = widget.isRange;
-    if (oldWidget.reminderOption != widget.reminderOption) {
-      reminderOption = widget.reminderOption;
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
+class _MobileAppFlowyDatePickerState
+    extends AppFlowyDatePickerState<MobileAppFlowyDatePicker> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -115,8 +56,8 @@ class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
             isRange: isRange,
             dateFormat: widget.dateFormat,
             timeFormat: widget.timeFormat,
-            onStartTimeChanged: onStartTimeChanged,
-            onEndTimeChanged: onEndTimeChanged,
+            onStartTimeChanged: onDateTimeInputSubmitted,
+            onEndTimeChanged: onEndDateTimeInputSubmitted,
           ),
         ),
         const _Divider(),
@@ -183,149 +124,6 @@ class _MobileAppFlowyDatePickerState extends State<MobileAppFlowyDatePicker> {
         const _Divider(),
       ],
     );
-  }
-
-  void onDateSelectedFromDatePicker(
-    DateTime? newStartDateTime,
-    DateTime? newEndDateTime,
-  ) {
-    if (newStartDateTime == null) {
-      return;
-    }
-    if (isRange) {
-      if (newEndDateTime == null) {
-        if (justChangedIsRange && dateTime != null) {
-          justChangedIsRange = false;
-          DateTime start = dateTime!;
-          DateTime end = DateTime(
-            newStartDateTime.year,
-            newStartDateTime.month,
-            newStartDateTime.day,
-          );
-          if (end.isBefore(start)) {
-            (start, end) = (end, start);
-          }
-          widget.onRangeSelected?.call(start, end);
-          setState(() {
-            // hAcK: Resetting these state variables to null to reset the click counter of the table calendar widget, which doesn't expose a controller for us to do so otherwise. The parent widget needs to provide the data again so that it can be shown.
-            dateTime = startDateTime = endDateTime = null;
-            focusedDateTime = getNewFocusedDay(newStartDateTime);
-          });
-        } else {
-          final combined = combineDateTimes(newStartDateTime, dateTime);
-          setState(() {
-            dateTime = combined;
-            startDateTime = combined;
-            endDateTime = null;
-            focusedDateTime = getNewFocusedDay(combined);
-          });
-        }
-      } else {
-        bool switched = false;
-        DateTime combinedDateTime =
-            combineDateTimes(newStartDateTime, dateTime);
-        DateTime combinedEndDateTime =
-            combineDateTimes(newEndDateTime, widget.endDateTime);
-
-        if (combinedEndDateTime.isBefore(combinedDateTime)) {
-          (combinedDateTime, combinedEndDateTime) =
-              (combinedEndDateTime, combinedDateTime);
-          switched = true;
-        }
-
-        widget.onRangeSelected?.call(combinedDateTime, combinedEndDateTime);
-
-        setState(() {
-          dateTime = switched ? combinedDateTime : combinedEndDateTime;
-          startDateTime = combinedDateTime;
-          endDateTime = combinedEndDateTime;
-          focusedDateTime = getNewFocusedDay(newEndDateTime);
-        });
-      }
-    } else {
-      final combinedDateTime = combineDateTimes(newStartDateTime, dateTime);
-      widget.onDaySelected?.call(combinedDateTime);
-
-      setState(() {
-        dateTime = combinedDateTime;
-        focusedDateTime = getNewFocusedDay(combinedDateTime);
-      });
-    }
-  }
-
-  DateTime combineDateTimes(DateTime date, DateTime? time) {
-    final timeComponent = time == null
-        ? Duration.zero
-        : Duration(hours: time.hour, minutes: time.minute);
-
-    return DateTime(date.year, date.month, date.day).add(timeComponent);
-  }
-
-  void onStartTimeChanged(DateTime value) {
-    if (isRange) {
-      DateTime end = endDateTime ?? value;
-      if (end.isBefore(value)) {
-        (value, end) = (end, value);
-      }
-
-      widget.onRangeSelected?.call(value, end);
-
-      setState(() {
-        dateTime = value;
-        startDateTime = value;
-        endDateTime = end;
-        focusedDateTime = getNewFocusedDay(value);
-      });
-    } else {
-      widget.onDaySelected?.call(value);
-
-      setState(() {
-        dateTime = value;
-        focusedDateTime = getNewFocusedDay(value);
-      });
-    }
-  }
-
-  void onEndTimeChanged(DateTime value) {
-    if (isRange) {
-      DateTime start = startDateTime ?? value;
-      if (value.isBefore(start)) {
-        (start, value) = (value, start);
-      }
-
-      widget.onRangeSelected?.call(start, value);
-
-      if (endDateTime == null) {
-        // hAcK: Resetting these state variables to null to reset the click counter of the table calendar widget, which doesn't expose a controller for us to do so otherwise. The parent widget needs to provide the data again so that it can be shown.
-        setState(() {
-          dateTime = startDateTime = endDateTime = null;
-          focusedDateTime = getNewFocusedDay(value);
-        });
-      } else {
-        setState(() {
-          dateTime = start;
-          startDateTime = start;
-          endDateTime = value;
-          focusedDateTime = getNewFocusedDay(value);
-        });
-      }
-    } else {
-      widget.onDaySelected?.call(value);
-
-      setState(() {
-        dateTime = value;
-        focusedDateTime = getNewFocusedDay(value);
-      });
-    }
-  }
-
-  DateTime getNewFocusedDay(DateTime dateTime) {
-    if (focusedDateTime.year != dateTime.year ||
-        focusedDateTime.month != dateTime.month) {
-      return DateTime(dateTime.year, dateTime.month);
-    } else {
-      return focusedDateTime;
-    }
   }
 }
 

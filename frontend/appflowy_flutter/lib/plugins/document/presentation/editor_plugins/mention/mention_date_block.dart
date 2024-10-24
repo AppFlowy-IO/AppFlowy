@@ -9,7 +9,7 @@ import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
@@ -357,6 +357,7 @@ class _DatePickerBottomSheet extends StatelessWidget {
           MobileAppFlowyDatePicker(
             dateTime: parsedDate,
             includeTime: includeTime,
+            isRange: options.isRange,
             dateFormat: options.dateFormat.simplified,
             timeFormat: options.timeFormat.simplified,
             reminderOption: reminderOption,

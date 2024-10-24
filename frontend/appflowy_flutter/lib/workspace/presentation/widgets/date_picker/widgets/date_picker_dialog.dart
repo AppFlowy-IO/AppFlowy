@@ -1,4 +1,5 @@
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker_base.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
@@ -156,7 +157,7 @@ class _AnimatedDatePicker extends StatelessWidget {
           Theme.of(context).colorScheme.shadow,
         ),
         constraints: BoxConstraints.loose(const Size(_datePickerWidth, 465)),
-        child: AppFlowyDatePicker(
+        child: DesktopAppFlowyDatePicker(
           includeTime: options.includeTime,
           onIncludeTimeChanged: (includeTime) {
             options.onIncludeTimeChanged.call(includeTime);

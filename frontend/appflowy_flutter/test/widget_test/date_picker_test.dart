@@ -1,7 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker_base.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_time_text_field.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
@@ -95,7 +96,7 @@ class _MockDatePickerState extends State<_MockDatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyDatePicker(
+    return DesktopAppFlowyDatePicker(
       dateTime: data.dateTime,
       endDateTime: data.endDateTime,
       includeTime: data.includeTime,
@@ -160,7 +161,9 @@ void main() {
       tester.state<_MockDatePickerState>(find.byType(_MockDatePicker));
 
   AppFlowyDatePickerState getAfState(WidgetTester tester) =>
-      tester.state<AppFlowyDatePickerState>(find.byType(AppFlowyDatePicker));
+      tester.state<DesktopAppFlowyDatePickerState>(
+        find.byType(DesktopAppFlowyDatePicker),
+      );
 
   group('AppFlowy date picker:', () {
     testWidgets('default state', (tester) async {

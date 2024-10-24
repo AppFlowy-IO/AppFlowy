@@ -1,11 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'appflowy_date_picker_base.dart';
 import 'widgets/date_picker.dart';
 import 'widgets/date_time_text_field.dart';
 import 'widgets/end_time_button.dart';
@@ -17,109 +17,39 @@ class OptionGroup {
   final List<Widget> options;
 }
 
-typedef DaySelectedCallback = void Function(DateTime);
-typedef RangeSelectedCallback = void Function(DateTime, DateTime);
-typedef IncludeTimeChangedCallback = void Function(bool);
-
-class AppFlowyDatePicker extends StatefulWidget {
-  const AppFlowyDatePicker({
+class DesktopAppFlowyDatePicker extends AppFlowyDatePicker {
+  const DesktopAppFlowyDatePicker({
     super.key,
-    required this.dateTime,
-    this.endDateTime,
-    required this.includeTime,
-    required this.isRange,
-    this.reminderOption = ReminderOption.none,
-    required this.dateFormat,
-    required this.timeFormat,
+    required super.dateTime,
+    super.endDateTime,
+    required super.includeTime,
+    required super.isRange,
+    super.reminderOption = ReminderOption.none,
+    required super.dateFormat,
+    required super.timeFormat,
+    super.onDaySelected,
+    super.onRangeSelected,
+    super.onIncludeTimeChanged,
+    super.onIsRangeChanged,
+    super.onReminderSelected,
     this.popoverMutex,
     this.options = const [],
-    this.onDaySelected,
-    this.onRangeSelected,
-    this.onIncludeTimeChanged,
-    this.onIsRangeChanged,
-    this.onReminderSelected,
   });
-
-  final DateTime? dateTime;
-  final DateTime? endDateTime;
-
-  final DateFormatPB dateFormat;
-  final TimeFormatPB timeFormat;
 
   final PopoverMutex? popoverMutex;
 
-  final DaySelectedCallback? onDaySelected;
-  final RangeSelectedCallback? onRangeSelected;
-
-  final bool includeTime;
-  final Function(bool)? onIncludeTimeChanged;
-
-  final bool isRange;
-  final Function(bool)? onIsRangeChanged;
-
-  final ReminderOption reminderOption;
-  final OnReminderSelected? onReminderSelected;
-
-  /// A list of [OptionGroup] that will be rendered with proper
-  /// separators, each group can contain multiple options.
-  ///
-  /// __Supported on Desktop & Web__
-  ///
   final List<OptionGroup> options;
 
   @override
-  State<AppFlowyDatePicker> createState() => AppFlowyDatePickerState();
+  State<AppFlowyDatePicker> createState() => DesktopAppFlowyDatePickerState();
 }
 
 @visibleForTesting
-class AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
-  // store date values in the state and refresh the ui upon any changes made, instead of only updating them after receiving update from backend.
-  late DateTime? dateTime;
-  late DateTime? startDateTime;
-  late DateTime? endDateTime;
-  late bool includeTime;
-  late bool isRange;
-  late ReminderOption reminderOption;
-
-  late DateTime focusedDateTime;
-  PageController? pageController;
-
-  bool justChangedIsRange = false;
-
+class DesktopAppFlowyDatePickerState
+    extends AppFlowyDatePickerState<DesktopAppFlowyDatePicker> {
   final isTabPressedNotifier = ValueNotifier<bool>(false);
   final refreshStartTextFieldNotifier = RefreshDateTimeTextFieldController();
   final refreshEndTextFieldNotifier = RefreshDateTimeTextFieldController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    dateTime = widget.dateTime;
-    startDateTime = widget.isRange ? widget.dateTime : null;
-    endDateTime = widget.isRange ? widget.endDateTime : null;
-    includeTime = widget.includeTime;
-    isRange = widget.isRange;
-    reminderOption = widget.reminderOption;
-
-    focusedDateTime = widget.dateTime ?? DateTime.now();
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    dateTime = widget.dateTime;
-    if (widget.isRange) {
-      startDateTime = widget.dateTime;
-      endDateTime = widget.endDateTime;
-    } else {
-      startDateTime = endDateTime = null;
-    }
-    includeTime = widget.includeTime;
-    isRange = widget.isRange;
-    if (oldWidget.reminderOption != widget.reminderOption) {
-      reminderOption = widget.reminderOption;
-    }
-    super.didUpdateWidget(oldWidget);
-  }
 
   @override
   void dispose() {
@@ -306,82 +236,7 @@ class AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
         itemBuilder: (_, index) => options[index],
       );
 
-  void onDateSelectedFromDatePicker(
-    DateTime? newStartDateTime,
-    DateTime? newEndDateTime,
-  ) {
-    if (newStartDateTime == null) {
-      return;
-    }
-    if (isRange) {
-      if (newEndDateTime == null) {
-        if (justChangedIsRange && dateTime != null) {
-          justChangedIsRange = false;
-          DateTime start = dateTime!;
-          DateTime end = DateTime(
-            newStartDateTime.year,
-            newStartDateTime.month,
-            newStartDateTime.day,
-          );
-          if (end.isBefore(start)) {
-            (start, end) = (end, start);
-          }
-          widget.onRangeSelected?.call(start, end);
-          setState(() {
-            // hAcK: Resetting these state variables to null to reset the click counter of the table calendar widget, which doesn't expose a controller for us to do so otherwise. The parent widget needs to provide the data again so that it can be shown.
-            dateTime = startDateTime = endDateTime = null;
-            focusedDateTime = getNewFocusedDay(newStartDateTime);
-          });
-        } else {
-          final combined = combineDateTimes(newStartDateTime, dateTime);
-          setState(() {
-            dateTime = combined;
-            startDateTime = combined;
-            endDateTime = null;
-            focusedDateTime = getNewFocusedDay(combined);
-          });
-        }
-      } else {
-        bool switched = false;
-        DateTime combinedDateTime =
-            combineDateTimes(newStartDateTime, dateTime);
-        DateTime combinedEndDateTime =
-            combineDateTimes(newEndDateTime, widget.endDateTime);
-
-        if (combinedEndDateTime.isBefore(combinedDateTime)) {
-          (combinedDateTime, combinedEndDateTime) =
-              (combinedEndDateTime, combinedDateTime);
-          switched = true;
-        }
-
-        widget.onRangeSelected?.call(combinedDateTime, combinedEndDateTime);
-
-        setState(() {
-          dateTime = switched ? combinedDateTime : combinedEndDateTime;
-          startDateTime = combinedDateTime;
-          endDateTime = combinedEndDateTime;
-          focusedDateTime = getNewFocusedDay(newEndDateTime);
-        });
-      }
-    } else {
-      final combinedDateTime = combineDateTimes(newStartDateTime, dateTime);
-      widget.onDaySelected?.call(combinedDateTime);
-
-      setState(() {
-        dateTime = combinedDateTime;
-        focusedDateTime = getNewFocusedDay(combinedDateTime);
-      });
-    }
-  }
-
-  DateTime combineDateTimes(DateTime date, DateTime? time) {
-    final timeComponent = time == null
-        ? Duration.zero
-        : Duration(hours: time.hour, minutes: time.minute);
-
-    return DateTime(date.year, date.month, date.day).add(timeComponent);
-  }
-
+  @override
   void onDateTimeInputSubmitted(DateTime value) {
     if (isRange) {
       DateTime end = endDateTime ?? value;
@@ -408,6 +263,7 @@ class AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
     }
   }
 
+  @override
   void onEndDateTimeInputSubmitted(DateTime value) {
     if (isRange) {
       DateTime start = startDateTime ?? value;
@@ -439,15 +295,6 @@ class AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
         dateTime = value;
         focusedDateTime = getNewFocusedDay(value);
       });
-    }
-  }
-
-  DateTime getNewFocusedDay(DateTime dateTime) {
-    if (focusedDateTime.year != dateTime.year ||
-        focusedDateTime.month != dateTime.month) {
-      return DateTime(dateTime.year, dateTime.month);
-    } else {
-      return focusedDateTime;
     }
   }
 }
