@@ -50,14 +50,12 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
           iconColorOnHover: Theme.of(context).colorScheme.onSurface,
         ),
       ),
-      popupBuilder: (BuildContext context) {
-        return TabBarAddButtonAction(
-          onTap: (action) {
-            popoverController.close();
-            widget.onTap(action);
-          },
-        );
-      },
+      popupBuilder: (_) => TabBarAddButtonAction(
+        onTap: (action) {
+          popoverController.close();
+          widget.onTap(action);
+        },
+      ),
     );
   }
 }
@@ -69,19 +67,17 @@ class TabBarAddButtonAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cells = DatabaseLayoutPB.values.map((layout) {
-      return TabBarAddButtonActionCell(
-        action: layout,
-        onTap: onTap,
-      );
-    }).toList();
+    final cells = DatabaseLayoutPB.values.map(
+      (layout) {
+        return TabBarAddButtonActionCell(action: layout, onTap: onTap);
+      },
+    ).toList();
 
     return ListView.separated(
       shrinkWrap: true,
       itemCount: cells.length,
-      itemBuilder: (BuildContext context, int index) => cells[index],
-      separatorBuilder: (BuildContext context, int index) =>
-          VSpace(GridSize.typeOptionSeparatorHeight),
+      itemBuilder: (_, index) => cells[index],
+      separatorBuilder: (_, __) => VSpace(GridSize.typeOptionSeparatorHeight),
       padding: const EdgeInsets.symmetric(vertical: 4.0),
     );
   }

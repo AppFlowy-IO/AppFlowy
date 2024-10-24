@@ -70,6 +70,7 @@ List<DatabaseSettingAction> actionsForDatabaseLayout(DatabaseLayoutPB? layout) {
         DatabaseSettingAction.showCalendarLayout,
       ];
     case DatabaseLayoutPB.Grid:
+    case DatabaseLayoutPB.Gallery:
       return [
         DatabaseSettingAction.showProperties,
         DatabaseSettingAction.showLayout,

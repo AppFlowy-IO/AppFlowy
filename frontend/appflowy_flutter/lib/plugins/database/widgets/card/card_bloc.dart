@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -17,9 +17,9 @@ part 'card_bloc.freezed.dart';
 class CardBloc extends Bloc<CardEvent, CardState> {
   CardBloc({
     required this.fieldController,
-    required this.groupFieldId,
+    this.groupFieldId,
     required this.viewId,
-    required bool isEditing,
+    bool isEditing = false,
     required this.rowController,
   }) : super(
           CardState.initial(

@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database/gallery/presentation/gallery_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -64,6 +65,9 @@ void main() {
             break;
           case ViewLayoutPB.Calendar:
             expect(find.byType(CalendarPage), findsOneWidget);
+            break;
+          case ViewLayoutPB.Gallery:
+            expect(find.byType(GalleryPage), findsOneWidget);
             break;
           case ViewLayoutPB.Chat:
             break;

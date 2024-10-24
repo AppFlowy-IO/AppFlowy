@@ -46,6 +46,7 @@ pub enum DatabaseLayoutPB {
   Grid = 0,
   Board = 1,
   Calendar = 2,
+  Gallery = 3,
 }
 
 impl std::convert::From<DatabaseLayout> for DatabaseLayoutPB {
@@ -54,6 +55,7 @@ impl std::convert::From<DatabaseLayout> for DatabaseLayoutPB {
       DatabaseLayout::Grid => DatabaseLayoutPB::Grid,
       DatabaseLayout::Board => DatabaseLayoutPB::Board,
       DatabaseLayout::Calendar => DatabaseLayoutPB::Calendar,
+      DatabaseLayout::Gallery => DatabaseLayoutPB::Gallery,
     }
   }
 }
@@ -64,6 +66,7 @@ impl std::convert::From<DatabaseLayoutPB> for DatabaseLayout {
       DatabaseLayoutPB::Grid => DatabaseLayout::Grid,
       DatabaseLayoutPB::Board => DatabaseLayout::Board,
       DatabaseLayoutPB::Calendar => DatabaseLayout::Calendar,
+      DatabaseLayoutPB::Gallery => DatabaseLayout::Gallery,
     }
   }
 }
