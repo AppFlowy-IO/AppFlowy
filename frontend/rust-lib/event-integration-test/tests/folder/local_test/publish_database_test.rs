@@ -121,23 +121,21 @@ async fn test_publish_encode_collab_result(
 }
 
 async fn import_workspace(file_name: &str, test: &EventIntegrationTest) -> Vec<ViewPB> {
-  let (cleaner, file_path) = unzip("./tests/asset", file_name).unwrap();
+  let file_path = unzip("./tests/asset", file_name).unwrap();
   test
     .import_appflowy_data(file_path.to_str().unwrap().to_string(), None)
     .await
     .unwrap();
   let views = test.get_all_workspace_views().await;
-  drop(cleaner);
   views
 }
 
 async fn import_csv(file_name: &str, test: &EventIntegrationTest) -> ViewPB {
-  let (cleaner, file_path) = unzip("./tests/asset", file_name).unwrap();
+  let file_path = unzip("./tests/asset", file_name).unwrap();
   let csv_string = std::fs::read_to_string(file_path).unwrap();
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name.to_string(), csv_string, workspace_id);
   let views = test.import_data(import_data).await;
-  drop(cleaner);
   views[0].clone()
 }
 

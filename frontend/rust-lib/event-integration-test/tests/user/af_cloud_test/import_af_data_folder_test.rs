@@ -17,7 +17,7 @@ use std::env::temp_dir;
 #[tokio::test]
 async fn import_appflowy_data_with_ref_views_test() {
   let import_container_name = "data_ref_doc".to_string();
-  let (_cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
+  let user_db_path = unzip("./tests/asset", &import_container_name).unwrap();
   use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
@@ -98,7 +98,7 @@ async fn import_appflowy_data_with_ref_views_test() {
 #[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
   let import_container_name = "040_local".to_string();
-  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
+  let user_db_path = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local, the structure is:
   //  Document1
   //     Document2
@@ -173,13 +173,12 @@ async fn import_appflowy_data_folder_into_new_view_test() {
 
   let row_document_data = test.get_document_data(&row_document_id).await;
   assert_json_include!(actual: json!(row_document_data), expected: expected_row_doc_json());
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn import_appflowy_data_folder_into_current_workspace_test() {
   let import_container_name = "040_local".to_string();
-  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
+  let user_db_path = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local, the structure is:
   //  Document1
   //     Document2
@@ -224,8 +223,6 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
   assert_eq!(document2_child_views.len(), 2);
   assert_eq!(document2_child_views[0].name, "Grid1");
   assert_eq!(document2_child_views[1].name, "Grid2");
-
-  drop(cleaner);
 }
 
 #[tokio::test]
@@ -247,7 +244,7 @@ async fn import_empty_appflowy_data_folder_test() {
 #[tokio::test]
 async fn import_appflowy_data_folder_multiple_times_test() {
   let import_container_name = "040_local_2".to_string();
-  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
+  let user_db_path = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local_2, the structure is:
   //  Getting Started
   //     Doc1
@@ -313,7 +310,6 @@ async fn import_appflowy_data_folder_multiple_times_test() {
   for view in shared_space_children_views {
     assert_040_local_2_import_content(&test, &view.id).await;
   }
-  drop(cleaner);
 }
 
 async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id: &str) {
