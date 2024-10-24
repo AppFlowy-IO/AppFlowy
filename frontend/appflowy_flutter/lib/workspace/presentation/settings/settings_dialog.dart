@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_d
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_view.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
@@ -155,6 +156,8 @@ class SettingsDialog extends StatelessWidget {
         return SettingsBillingView(workspaceId: workspaceId, user: user);
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
+      case SettingsPage.sites:
+        return const SettingsSitesPage();
       default:
         return const SizedBox.shrink();
     }
