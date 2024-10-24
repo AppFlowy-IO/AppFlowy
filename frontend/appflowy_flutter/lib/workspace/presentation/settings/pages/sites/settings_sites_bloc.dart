@@ -11,7 +11,9 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   SettingsSitesBloc() : super(const SettingsSitesState()) {
     on<SettingsSitesEvent>((event, emit) async {
       await event.when(
-        initial: () async {},
+        initial: () async {
+          await _fetchPublishedViews(emit);
+        },
         fetchPublishedViews: () async => _fetchPublishedViews(emit),
         unpublishView: (viewId) async => _unpublishView(viewId, emit),
         updateNamespace: (namespace) async => _updateNamespace(
