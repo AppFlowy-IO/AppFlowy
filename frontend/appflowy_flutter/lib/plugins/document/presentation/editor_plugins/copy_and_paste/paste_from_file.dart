@@ -5,7 +5,7 @@ import 'package:cross_file/cross_file.dart';
 
 extension PasteFromFile on EditorState {
   Future<void> dropFiles(
-    Node dropNode,
+    List<int> dropPath,
     List<XFile> files,
     String documentId,
     bool isLocalMode,
@@ -27,7 +27,7 @@ extension PasteFromFile on EditorState {
 
       final t = transaction
         ..insertNode(
-          dropNode.path,
+          dropPath,
           fileNode(
             url: path,
             type: type,
