@@ -111,8 +111,7 @@ class SettingsSitesState with _$SettingsSitesState {
     @Default('') String namespace,
   }) = _SettingsSitesState;
 
-  factory SettingsSitesState.fromJson(Map<String, dynamic> json) =>
-      _$SettingsSitesStateFromJson(json);
+  factory SettingsSitesState.initial() => const SettingsSitesState();
 }
 
 @freezed
