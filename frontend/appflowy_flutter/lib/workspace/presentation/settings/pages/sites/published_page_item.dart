@@ -1,5 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,7 +14,7 @@ final _dateFormat = DateFormat('MMM d, yyyy');
 final _publishPageHeaderTitles = [
   // todo: i18n
   'Page',
-  'Published by',
+  'Published name',
   'Published date',
 ];
 
@@ -95,33 +99,42 @@ class _PublishedViewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = publishInfoView.view.icon.value;
     final name = publishInfoView.view.name;
-    return Row(
-      children: [
-        ...icon.isNotEmpty
-            ? [
-                FlowyText.emoji(
-                  icon,
-                  fontSize: 16.0,
-                  figmaLineHeight: 18.0,
-                ),
-                const HSpace(2.0),
-              ]
-            : [
-                const HSpace(1.0),
-                publishInfoView.view.defaultIcon(),
-                const HSpace(5.0),
-              ],
-        FlowyText.regular(
-          name.orDefault(
-            LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-          ),
-          fontSize: 14.0,
-          overflow: TextOverflow.ellipsis,
-          figmaLineHeight: 18.0,
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      expandText: false,
+      mainAxisAlignment: MainAxisAlignment.start,
+      leftIcon: _buildIcon(),
+      text: FlowyText.regular(
+        name.orDefault(
+          LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
         ),
-      ],
+        fontSize: 14.0,
+        overflow: TextOverflow.ellipsis,
+        figmaLineHeight: 18.0,
+      ),
+      onTap: () {
+        context.popToHome();
+
+        getIt<ActionNavigationBloc>().add(
+          ActionNavigationEvent.performAction(
+            action: NavigationAction(
+              objectId: publishInfoView.view.viewId,
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  Widget _buildIcon() {
+    final icon = publishInfoView.view.icon.value;
+    return icon.isNotEmpty
+        ? FlowyText.emoji(
+            icon,
+            fontSize: 16.0,
+            figmaLineHeight: 18.0,
+          )
+        : publishInfoView.view.defaultIcon();
   }
 }
