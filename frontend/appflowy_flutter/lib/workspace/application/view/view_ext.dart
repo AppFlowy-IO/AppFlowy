@@ -13,7 +13,7 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -50,6 +50,20 @@ class ViewExtKeys {
   static String spaceIconKey = 'space_icon';
   static String spaceIconColorKey = 'space_icon_color';
   static String spacePermissionKey = 'space_permission';
+}
+
+extension MinimalViewExtension on FolderViewMinimalPB {
+  Widget defaultIcon({Size? size}) => FlowySvg(
+        switch (layout) {
+          ViewLayoutPB.Board => FlowySvgs.icon_board_s,
+          ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
+          ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
+          ViewLayoutPB.Document => FlowySvgs.icon_document_s,
+          ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
+          _ => FlowySvgs.document_s,
+        },
+        size: size,
+      );
 }
 
 extension ViewExtension on ViewPB {
