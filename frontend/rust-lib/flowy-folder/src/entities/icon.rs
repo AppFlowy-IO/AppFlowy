@@ -31,16 +31,6 @@ impl From<IconType> for ViewIconTypePB {
   }
 }
 
-impl From<client_api::entity::workspace_dto::IconType> for ViewIconTypePB {
-  fn from(val: client_api::entity::workspace_dto::IconType) -> Self {
-    match val {
-      client_api::entity::workspace_dto::IconType::Emoji => ViewIconTypePB::Emoji,
-      client_api::entity::workspace_dto::IconType::Url => ViewIconTypePB::Url,
-      client_api::entity::workspace_dto::IconType::Icon => ViewIconTypePB::Icon,
-    }
-  }
-}
-
 #[derive(Default, ProtoBuf, Debug, Clone, PartialEq, Eq)]
 pub struct ViewIconPB {
   #[pb(index = 1)]
@@ -60,15 +50,6 @@ impl From<ViewIconPB> for ViewIcon {
 
 impl From<ViewIcon> for ViewIconPB {
   fn from(val: ViewIcon) -> Self {
-    ViewIconPB {
-      ty: val.ty.into(),
-      value: val.value,
-    }
-  }
-}
-
-impl From<client_api::entity::workspace_dto::ViewIcon> for ViewIconPB {
-  fn from(val: client_api::entity::workspace_dto::ViewIcon) -> Self {
     ViewIconPB {
       ty: val.ty.into(),
       value: val.value,

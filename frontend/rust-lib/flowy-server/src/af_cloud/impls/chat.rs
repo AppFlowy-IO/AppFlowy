@@ -159,7 +159,6 @@ where
     text: &str,
     completion_type: CompletionType,
   ) -> Result<StreamComplete, FlowyError> {
-    // TODO(Nathan): Check if this is correct after updating to latest client-api
     let params = CompleteTextParams {
       text: text.to_string(),
       completion_type: Some(completion_type),
