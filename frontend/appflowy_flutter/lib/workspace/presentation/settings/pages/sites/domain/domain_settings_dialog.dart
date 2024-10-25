@@ -178,9 +178,10 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         Navigator.of(context).pop();
       },
       (f) {
+        final errorMessage = f.msg.split(': ').last;
         showToastNotification(
           context,
-          message: 'Update namespace failed',
+          message: 'Update namespace failed ($errorMessage)',
           type: ToastificationType.error,
         );
       },
