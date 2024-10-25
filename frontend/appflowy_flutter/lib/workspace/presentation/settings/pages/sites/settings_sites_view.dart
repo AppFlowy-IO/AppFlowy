@@ -5,6 +5,8 @@ import 'package:appflowy/workspace/presentation/settings/pages/sites/published_p
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +60,8 @@ class _SettingsSitesPageView extends StatelessWidget {
       descriptionColor: Theme.of(context).hintColor,
       children: [
         const FlowyDivider(),
-        BlocBuilder<SettingsSitesBloc, SettingsSitesState>(
+        BlocConsumer<SettingsSitesBloc, SettingsSitesState>(
+          listener: _onListener,
           builder: (context, state) {
             return SeparatedColumn(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,11 +107,11 @@ class _SettingsSitesPageView extends StatelessWidget {
     SettingsSitesState state,
   ) {
     final result = state.actionResult;
+    final publishedViews = state.publishedViews;
+
     if (result != null &&
         result.actionType == SettingsSitesActionType.fetchPublishedViews) {
-      if (result.isLoading) {
-        return [const CircularProgressIndicator()];
-      } else if (result.result?.isFailure == true) {
+      if (result.result?.isFailure == true) {
         final error = result.result?.getFailure();
         // remove the error message.
         return [
@@ -117,18 +120,14 @@ class _SettingsSitesPageView extends StatelessWidget {
             color: Theme.of(context).colorScheme.error,
           ),
         ];
+      } else if (!result.isLoading && publishedViews.isEmpty) {
+        return [
+          FlowyText.regular(
+            'You have no published pages in this workspace',
+            color: Theme.of(context).hintColor,
+          ),
+        ];
       }
-    }
-
-    final publishedViews = state.publishedViews;
-
-    if (publishedViews.isEmpty) {
-      return [
-        FlowyText.regular(
-          'You have no published pages in this workspace',
-          color: Theme.of(context).hintColor,
-        ),
-      ];
     }
 
     return [
@@ -137,5 +136,22 @@ class _SettingsSitesPageView extends StatelessWidget {
         (view) => PublishedViewItem(publishInfoView: view),
       ),
     ];
+  }
+
+  void _onListener(BuildContext context, SettingsSitesState state) {
+    final actionResult = state.actionResult;
+    final type = actionResult?.actionType;
+    final result = actionResult?.result;
+    if (type == SettingsSitesActionType.upgradeSubscription && result != null) {
+      result.onFailure((f) {
+        Log.error('Failed to generate payment link for Pro Plan: ${f.msg}');
+
+        showToastNotification(
+          context,
+          message: 'Failed to generate payment link for Pro Plan',
+          type: ToastificationType.error,
+        );
+      });
+    }
   }
 }

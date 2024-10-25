@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,12 @@ class DomainItem extends StatelessWidget {
 
   Widget _buildHomepage(BuildContext context) {
     final plan = context.read<SettingsSitesBloc>().state.subscriptionInfo?.plan;
-    final isFreePlan = plan == null || plan == WorkspacePlanPB.FreePlan;
+
+    if (plan == null) {
+      return const SizedBox.shrink();
+    }
+
+    final isFreePlan = plan == WorkspacePlanPB.FreePlan;
 
     if (isFreePlan) {
       return Container(
@@ -63,7 +69,17 @@ class DomainItem extends StatelessWidget {
               horizontal: 8.0,
               vertical: 6.0,
             ),
-            onTap: () {},
+            onTap: () {
+              showToastNotification(
+                context,
+                message: 'Redirecting to payment page...',
+                type: ToastificationType.info,
+              );
+
+              context.read<SettingsSitesBloc>().add(
+                    const SettingsSitesEvent.upgradeSubscription(),
+                  );
+            },
           ),
         ),
       );

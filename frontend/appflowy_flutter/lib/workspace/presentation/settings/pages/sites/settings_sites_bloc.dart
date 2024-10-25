@@ -1,3 +1,4 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -72,7 +73,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
 
     emit(
       state.copyWith(
-        namespace: result.fold((s) => s.namespace, (_) => ''),
+        namespace: result.fold((s) => s.namespace, (_) => state.namespace),
       ),
     );
   }
@@ -80,7 +81,11 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   Future<void> _fetchPublishedViews(Emitter<SettingsSitesState> emit) async {
     emit(
       state.copyWith(
-        actionResult: SettingsSitesActionResult.none(),
+        actionResult: const SettingsSitesActionResult(
+          actionType: SettingsSitesActionType.fetchPublishedViews,
+          isLoading: true,
+          result: null,
+        ),
       ),
     );
 
@@ -186,6 +191,10 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       workspaceId,
       SubscriptionPlanPB.Pro,
     );
+
+    result.onSuccess((s) {
+      afLaunchUrlString(s.paymentLink);
+    });
 
     emit(
       state.copyWith(

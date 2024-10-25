@@ -62,9 +62,10 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
             children: [
               _buildTitle(),
               const VSpace(20),
-              _buildNamespaceLabel(),
-              const VSpace(8),
               _buildNamespaceTextField(),
+              const VSpace(8),
+              _buildNamespaceDescription(),
+              const VSpace(8),
               const VSpace(20),
               _buildButtons(),
             ],
@@ -79,7 +80,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
       children: [
         const Expanded(
           child: FlowyText(
-            'Namespace settings',
+            'Update existing namespace',
             fontSize: 16.0,
             figmaLineHeight: 22.0,
             fontWeight: FontWeight.w500,
@@ -100,11 +101,14 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
     );
   }
 
-  Widget _buildNamespaceLabel() {
+  Widget _buildNamespaceDescription() {
     return FlowyText(
-      'Namespace',
-      fontSize: 14.0,
+      '• This change will apply to all the sites live on this namespace.\n'
+      '• We reserve the rights to remove any inappropriate namespaces.',
+      fontSize: 12.0,
       color: Theme.of(context).hintColor,
+      figmaLineHeight: 16.0,
+      maxLines: 3,
     );
   }
 
