@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -220,7 +221,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         final errorMessage = _localizeErrorMessage(f.code);
 
         setState(() {
-          errorHintText = errorMessage;
+          errorHintText = errorMessage.orDefault(basicErrorMessage);
         });
 
         final toastMessage = errorMessage.isEmpty
@@ -244,7 +245,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
       ErrorCode.InvalidNamespace => 'The namespace is invalid',
       ErrorCode.CustomNamespaceNotAllowed =>
         'Custom namespaces are not allowed',
-      _ => 'Update namespace failed',
+      _ => '',
     };
   }
 }

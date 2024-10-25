@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_header.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item.dart';
@@ -24,11 +25,19 @@ class SettingsSitesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SettingsSitesBloc(
-        workspaceId: workspaceId,
-        user: user,
-      )..add(const SettingsSitesEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SettingsSitesBloc>(
+          create: (context) => SettingsSitesBloc(
+            workspaceId: workspaceId,
+            user: user,
+          )..add(const SettingsSitesEvent.initial()),
+        ),
+        BlocProvider<UserWorkspaceBloc>(
+          create: (context) => UserWorkspaceBloc(userProfile: user)
+            ..add(const UserWorkspaceEvent.initial()),
+        ),
+      ],
       child: const _SettingsSitesPageView(),
     );
   }
@@ -152,6 +161,17 @@ class _SettingsSitesPageView extends StatelessWidget {
         showToastNotification(
           context,
           message: 'Failed to generate payment link for Pro Plan',
+          type: ToastificationType.error,
+        );
+      });
+    } else if (type == SettingsSitesActionType.unpublishView &&
+        result != null) {
+      result.onFailure((f) {
+        Log.error('Failed to unpublish view: ${f.msg}');
+
+        showToastNotification(
+          context,
+          message: 'Failed to unpublish view',
           type: ToastificationType.error,
         );
       });

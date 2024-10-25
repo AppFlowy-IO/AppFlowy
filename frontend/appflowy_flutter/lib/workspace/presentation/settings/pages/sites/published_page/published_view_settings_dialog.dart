@@ -117,6 +117,9 @@ class _PublishedViewSettingsDialogState
               autoFocus: false,
               controller: controller,
               enableBorderColor: ShareMenuColors.borderColor(context),
+              textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    height: 1.4,
+                  ),
             ),
           ),
         ),

@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
@@ -36,16 +38,48 @@ class DomainMoreAction extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildActionButton(
+              _buildUpdateNamespaceButton(
                 context,
                 builderContext,
-                type: _ActionType.updateNamespace,
               ),
             ],
           ),
         );
       },
     );
+  }
+
+  Widget _buildUpdateNamespaceButton(
+    BuildContext context,
+    BuildContext builderContext,
+  ) {
+    final isOwner = context
+            .read<UserWorkspaceBloc>()
+            .state
+            .currentWorkspaceMember
+            ?.role
+            .isOwner ??
+        false;
+    final Widget child = _buildActionButton(
+      context,
+      builderContext,
+      type: _ActionType.updateNamespace,
+    );
+
+    if (!isOwner) {
+      return Opacity(
+        opacity: 0.5,
+        child: FlowyTooltip(
+          message: 'Only workspace owner can update the namespace',
+          child: MouseRegion(
+            cursor: SystemMouseCursors.forbidden,
+            child: IgnorePointer(child: child),
+          ),
+        ),
+      );
+    }
+
+    return child;
   }
 
   Widget _buildActionButton(
