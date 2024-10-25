@@ -434,6 +434,39 @@
       "trash": "Trash",
       "helpAndSupport": "Help & Support"
     },
+    "sites": {
+      "title": "Sites",
+      "namespaceTitle": "Namespace",
+      "namespaceDescription": "Manage your namespace and homepage",
+      "namespaceHeader": "Namespace",
+      "homepageHeader": "Homepage",
+      "updateNamespace": "Update",
+      "namespace": {
+        "description": "This change will apply to all the published pages live on this namespace",
+        "tooltip": "We reserve the rights to remove any inappropriate namespaces",
+        "updateExistingNamespace": "Update existing namespace"
+      },
+      "publishedPage": {
+        "title": "All published pages",
+        "description": "Manage your published pages",
+        "header": "page",
+        "pathName": "Path name",
+        "date": "Published date",
+        "settingsTitle": "Path name settings",
+        "emptyHinText": "You have no published pages in this workspace"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
+        "failedToUpdateNamespace": "Failed to update namespace",
+        "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
+        "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
+        "invalidNamespace": "Invalid namespace, please try another one",
+        "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long"
+      },
+      "success": {
+        "namespaceUpdated": "Updated namespace successfully"
+      }
+    },
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",

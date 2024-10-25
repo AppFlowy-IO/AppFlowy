@@ -87,18 +87,17 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
   Widget _buildTitle() {
     return Row(
       children: [
-        const FlowyText(
-          'Update existing namespace',
+        FlowyText(
+          LocaleKeys.settings_sites_namespace_updateExistingNamespace.tr(),
           fontSize: 16.0,
           figmaLineHeight: 22.0,
           fontWeight: FontWeight.w500,
           overflow: TextOverflow.ellipsis,
         ),
         const HSpace(6.0),
-        const FlowyTooltip(
-          message:
-              'We reserve the rights to remove any inappropriate namespaces.',
-          child: FlowySvg(FlowySvgs.information_s),
+        FlowyTooltip(
+          message: LocaleKeys.settings_sites_namespace_tooltip.tr(),
+          child: const FlowySvg(FlowySvgs.information_s),
         ),
         const HSpace(6.0),
         const Spacer(),
@@ -117,7 +116,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
 
   Widget _buildNamespaceDescription() {
     return FlowyText(
-      'This change will apply to all the sites live on this namespace.',
+      LocaleKeys.settings_sites_namespace_description.tr(),
       fontSize: 14.0,
       color: Theme.of(context).hintColor,
       figmaLineHeight: 16.0,
@@ -141,7 +140,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         OutlinedRoundedButton(
-          text: 'Cancel',
+          text: LocaleKeys.button_cancel.tr(),
           onTap: () => Navigator.of(context).pop(),
         ),
         const HSpace(12.0),
@@ -213,11 +212,15 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
 
     result.fold(
       (s) {
-        showToastNotification(context, message: 'Update namespace success');
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
+        );
         Navigator.of(context).pop();
       },
       (f) {
-        const basicErrorMessage = 'Update namespace failed';
+        final basicErrorMessage =
+            LocaleKeys.settings_sites_error_failedToUpdateNamespace.tr();
         final errorMessage = _localizeErrorMessage(f.code);
 
         setState(() {
@@ -240,11 +243,13 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
   String _localizeErrorMessage(ErrorCode code) {
     return switch (code) {
       ErrorCode.CustomNamespaceRequirePlanUpgrade =>
-        'You need to upgrade to Pro Plan to update the namespace',
-      ErrorCode.CustomNamespaceAlreadyTaken => 'The namespace is already taken',
-      ErrorCode.InvalidNamespace => 'The namespace is invalid',
+        LocaleKeys.settings_sites_error_proPlanLimitation.tr(),
+      ErrorCode.CustomNamespaceAlreadyTaken =>
+        LocaleKeys.settings_sites_error_namespaceAlreadyInUse.tr(),
+      ErrorCode.InvalidNamespace =>
+        LocaleKeys.settings_sites_error_invalidNamespace.tr(),
       ErrorCode.CustomNamespaceNotAllowed =>
-        'Custom namespaces are not allowed',
+        LocaleKeys.settings_sites_error_namespaceLengthAtLeast2Characters.tr(),
       _ => '',
     };
   }
