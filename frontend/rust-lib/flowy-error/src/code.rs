@@ -326,6 +326,12 @@ pub enum ErrorCode {
 
   #[error("Invalid publish name")]
   InvalidPublishName = 112,
+
+  #[error("Custom namespace requires Pro Plan upgrade")]
+  CustomNamespaceRequirePlanUpgrade = 113,
+
+  #[error("Requested namespace is not allowed")]
+  CustomNamespaceNotAllowed = 114,
 }
 
 impl ErrorCode {
