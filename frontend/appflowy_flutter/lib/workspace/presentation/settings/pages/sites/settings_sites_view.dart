@@ -106,37 +106,39 @@ class _SettingsSitesPageView extends StatelessWidget {
     BuildContext context,
     SettingsSitesState state,
   ) {
-    final result = state.actionResult;
     final publishedViews = state.publishedViews;
+    final List<Widget> children = [
+      const PublishViewItemHeader(),
+    ];
 
-    if (result != null &&
-        result.actionType == SettingsSitesActionType.fetchPublishedViews) {
-      if (result.result?.isFailure == true) {
-        final error = result.result?.getFailure();
-        // remove the error message.
-        return [
-          FlowyText.regular(
-            'Failed to fetch published pages(${error?.msg})',
-            color: Theme.of(context).colorScheme.error,
-          ),
-        ];
-      } else if (!result.isLoading && publishedViews.isEmpty) {
-        return [
-          const PublishViewItemHeader(),
+    if (!state.isLoading) {
+      if (publishedViews.isEmpty) {
+        children.add(
           FlowyText.regular(
             'You have no published pages in this workspace',
             color: Theme.of(context).hintColor,
           ),
-        ];
+        );
+      } else {
+        children.addAll(
+          publishedViews.map(
+            (view) => PublishedViewItem(publishInfoView: view),
+          ),
+        );
       }
+    } else {
+      children.add(
+        const Center(
+          child: SizedBox(
+            height: 24,
+            width: 24,
+            child: CircularProgressIndicator.adaptive(strokeWidth: 3),
+          ),
+        ),
+      );
     }
 
-    return [
-      const PublishViewItemHeader(),
-      ...publishedViews.map(
-        (view) => PublishedViewItem(publishInfoView: view),
-      ),
-    ];
+    return children;
   }
 
   void _onListener(BuildContext context, SettingsSitesState state) {

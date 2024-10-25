@@ -103,7 +103,7 @@ class DomainMoreAction extends StatelessWidget {
               borderRadius: BorderRadius.circular(12.0),
             ),
             child: SizedBox(
-              width: 440,
+              width: 460,
               child: DomainSettingsDialog(
                 namespace: namespace,
               ),

@@ -26,18 +26,24 @@ class DomainSettingsDialog extends StatefulWidget {
 class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
   final focusNode = FocusNode();
   final controller = TextEditingController();
+  late final controllerText = ValueNotifier<String>(widget.namespace);
+  String errorHintText = '';
 
   @override
   void initState() {
     super.initState();
 
     controller.text = widget.namespace;
+    controller.addListener(() {
+      controllerText.value = controller.text;
+    });
   }
 
   @override
   void dispose() {
     focusNode.dispose();
     controller.dispose();
+    controllerText.dispose();
 
     super.dispose();
   }
@@ -62,11 +68,12 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTitle(),
+              const VSpace(12),
+              _buildNamespaceDescription(),
               const VSpace(20),
               _buildNamespaceTextField(),
-              const VSpace(8),
-              _buildNamespaceDescription(),
-              const VSpace(8),
+              _buildPreviewNamespace(),
+              _buildErrorHintText(),
               const VSpace(20),
               _buildButtons(),
             ],
@@ -79,16 +86,21 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
   Widget _buildTitle() {
     return Row(
       children: [
-        const Expanded(
-          child: FlowyText(
-            'Update existing namespace',
-            fontSize: 16.0,
-            figmaLineHeight: 22.0,
-            fontWeight: FontWeight.w500,
-            overflow: TextOverflow.ellipsis,
-          ),
+        const FlowyText(
+          'Update existing namespace',
+          fontSize: 16.0,
+          figmaLineHeight: 22.0,
+          fontWeight: FontWeight.w500,
+          overflow: TextOverflow.ellipsis,
         ),
         const HSpace(6.0),
+        const FlowyTooltip(
+          message:
+              'We reserve the rights to remove any inappropriate namespaces.',
+          child: FlowySvg(FlowySvgs.information_s),
+        ),
+        const HSpace(6.0),
+        const Spacer(),
         FlowyButton(
           margin: const EdgeInsets.all(3),
           useIntrinsicWidth: true,
@@ -104,9 +116,8 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
 
   Widget _buildNamespaceDescription() {
     return FlowyText(
-      '• This change will apply to all the sites live on this namespace.\n'
-      '• We reserve the rights to remove any inappropriate namespaces.',
-      fontSize: 12.0,
+      'This change will apply to all the sites live on this namespace.',
+      fontSize: 14.0,
       color: Theme.of(context).hintColor,
       figmaLineHeight: 16.0,
       maxLines: 3,
@@ -120,18 +131,6 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         autoFocus: false,
         controller: controller,
         enableBorderColor: ShareMenuColors.borderColor(context),
-        prefixIcon: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            HSpace(12.0),
-            FlowyText(
-              ShareConstants.publishBaseUrl,
-              fontSize: 14.0,
-              figmaLineHeight: 36.0,
-            ),
-            VerticalDivider(),
-          ],
-        ),
       ),
     );
   }
@@ -158,6 +157,44 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
     );
   }
 
+  Widget _buildErrorHintText() {
+    if (errorHintText.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0, left: 2.0),
+      child: FlowyText(
+        errorHintText,
+        fontSize: 12.0,
+        figmaLineHeight: 18.0,
+        color: Theme.of(context).colorScheme.error,
+      ),
+    );
+  }
+
+  Widget _buildPreviewNamespace() {
+    return ValueListenableBuilder<String>(
+      valueListenable: controllerText,
+      builder: (context, value, child) {
+        final url = ShareConstants.buildNamespaceUrl(
+          nameSpace: value,
+        );
+        return Padding(
+          padding: const EdgeInsets.only(top: 4.0, left: 2.0),
+          child: Opacity(
+            opacity: 0.8,
+            child: FlowyText(
+              url,
+              fontSize: 14.0,
+              figmaLineHeight: 18.0,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _onSave() {
     // listen on the result
     context.read<SettingsSitesBloc>().add(
@@ -179,20 +216,35 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         Navigator.of(context).pop();
       },
       (f) {
-        var errorMessage = 'Update namespace failed';
-        if (f.code == ErrorCode.CustomNamespaceRequirePlanUpgrade) {
-          errorMessage =
-              'You need to upgrade to Pro Plan to update the namespace';
-        } else {
-          errorMessage += f.msg.split(': ').last;
-        }
+        const basicErrorMessage = 'Update namespace failed';
+        final errorMessage = _localizeErrorMessage(f.code);
+
+        setState(() {
+          errorHintText = errorMessage;
+        });
+
+        final toastMessage = errorMessage.isEmpty
+            ? basicErrorMessage
+            : '$basicErrorMessage: $errorMessage';
 
         showToastNotification(
           context,
-          message: errorMessage,
+          message: toastMessage,
           type: ToastificationType.error,
         );
       },
     );
+  }
+
+  String _localizeErrorMessage(ErrorCode code) {
+    return switch (code) {
+      ErrorCode.CustomNamespaceRequirePlanUpgrade =>
+        'You need to upgrade to Pro Plan to update the namespace',
+      ErrorCode.CustomNamespaceAlreadyTaken => 'The namespace is already taken',
+      ErrorCode.InvalidNamespace => 'The namespace is invalid',
+      ErrorCode.CustomNamespaceNotAllowed =>
+        'Custom namespaces are not allowed',
+      _ => 'Update namespace failed',
+    };
   }
 }

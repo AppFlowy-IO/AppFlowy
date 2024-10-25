@@ -11,8 +11,10 @@ class ShareConstants {
 
   static String buildNamespaceUrl({
     required String nameSpace,
+    bool withHttps = false,
   }) {
-    return '$publishBaseUrl/$nameSpace';
+    final url = withHttps ? 'https://$publishBaseUrl' : publishBaseUrl;
+    return '$url/$nameSpace';
   }
 
   static String buildShareUrl({

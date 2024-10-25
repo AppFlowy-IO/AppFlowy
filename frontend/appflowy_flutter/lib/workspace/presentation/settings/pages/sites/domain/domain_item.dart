@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/shared/colors.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -61,14 +62,18 @@ class DomainItem extends StatelessWidget {
         child: FlowyTooltip(
           message: 'Upgrade to Pro Plan to set a homepage',
           child: PrimaryRoundedButton(
-            text: 'Upgrade ↗',
+            text: 'Pro ↗',
             fontSize: 12.0,
-            figmaLineHeight: 12.0,
+            figmaLineHeight: 16.0,
+            fontWeight: FontWeight.w600,
             radius: 8.0,
+            textColor: context.proPrimaryColor,
+            backgroundColor: context.proSecondaryColor,
             margin: const EdgeInsets.symmetric(
               horizontal: 8.0,
               vertical: 6.0,
             ),
+            hoverColor: context.proSecondaryColor.withOpacity(0.9),
             onTap: () {
               showToastNotification(
                 context,

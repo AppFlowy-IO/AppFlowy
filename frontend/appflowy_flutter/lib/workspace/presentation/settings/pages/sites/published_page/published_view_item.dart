@@ -47,6 +47,7 @@ class PublishedViewItem extends StatelessWidget {
             child: FlowyText(
               publishInfoView.info.publishName,
               fontSize: 14.0,
+              figmaLineHeight: 18.0,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -91,8 +92,8 @@ class _PublishedViewItem extends StatelessWidget {
           LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
         ),
         fontSize: 14.0,
-        overflow: TextOverflow.ellipsis,
         figmaLineHeight: 18.0,
+        overflow: TextOverflow.ellipsis,
       ),
       onTap: () {
         context.popToHome();

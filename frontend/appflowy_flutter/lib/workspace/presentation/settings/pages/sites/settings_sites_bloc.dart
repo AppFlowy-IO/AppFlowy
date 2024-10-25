@@ -10,6 +10,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_sites_bloc.freezed.dart';
 
+String _lastNamespace = '';
+
 class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   SettingsSitesBloc({
     required this.workspaceId,
@@ -18,7 +20,6 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
     on<SettingsSitesEvent>((event, emit) async {
       await event.when(
         initial: () async => _initial(emit),
-        fetchPublishedViews: () async => _fetchPublishedViews(emit),
         unpublishView: (viewId) async => _unpublishView(
           viewId,
           emit,
@@ -40,68 +41,52 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   final UserProfilePB user;
 
   Future<void> _initial(Emitter<SettingsSitesState> emit) async {
-    await Future.wait([
-      // these two request are for the namespace
-      _fetchPublishNamespace(emit),
-      _fetchUserSubscription(emit),
-    ]);
+    emit(
+      state.copyWith(
+        isLoading: true,
+        namespace: _lastNamespace,
+      ),
+    );
 
-    // this request is for the published views
-    await _fetchPublishedViews(emit);
+    // Combine fetching subscription info and namespace
+    final (subscriptionInfo, namespace) = await (
+      _fetchUserSubscription(),
+      _fetchPublishNamespace(),
+    ).wait;
+
+    emit(
+      state.copyWith(
+        subscriptionInfo: subscriptionInfo,
+        namespace: namespace,
+      ),
+    );
+
+    // This request is not blocking, render the namespace and subscription info first.
+    final publishViews = await _fetchPublishedViews();
+    emit(
+      state.copyWith(
+        publishedViews: publishViews,
+        isLoading: false,
+      ),
+    );
   }
 
-  Future<void> _fetchUserSubscription(Emitter<SettingsSitesState> emit) async {
+  Future<WorkspaceSubscriptionInfoPB?> _fetchUserSubscription() async {
     final result = await UserBackendService.getWorkspaceSubscriptionInfo(
       workspaceId,
     );
-
-    emit(
-      state.copyWith(
-        subscriptionInfo: result.fold((s) => s, (_) => null),
-      ),
-    );
+    return result.fold((s) => s, (_) => null);
   }
 
-  Future<void> _fetchPublishNamespace(Emitter<SettingsSitesState> emit) async {
-    emit(
-      state.copyWith(
-        actionResult: SettingsSitesActionResult.none(),
-      ),
-    );
-
+  Future<String> _fetchPublishNamespace() async {
     final result = await FolderEventGetPublishNamespace().send();
-
-    emit(
-      state.copyWith(
-        namespace: result.fold((s) => s.namespace, (_) => state.namespace),
-      ),
-    );
+    _lastNamespace = result.fold((s) => s.namespace, (_) => _lastNamespace);
+    return _lastNamespace;
   }
 
-  Future<void> _fetchPublishedViews(Emitter<SettingsSitesState> emit) async {
-    emit(
-      state.copyWith(
-        actionResult: const SettingsSitesActionResult(
-          actionType: SettingsSitesActionType.fetchPublishedViews,
-          isLoading: true,
-          result: null,
-        ),
-      ),
-    );
-
+  Future<List<PublishInfoViewPB>> _fetchPublishedViews() async {
     final result = await FolderEventListPublishedViews().send();
-
-    emit(
-      state.copyWith(
-        publishedViews: result.fold((s) => s.items, (_) => []),
-        // publishedViews: SettingsPageSitesConstants.fakeData,
-        actionResult: const SettingsSitesActionResult(
-          actionType: SettingsSitesActionType.fetchPublishedViews,
-          isLoading: false,
-          result: null,
-        ),
-      ),
-    );
+    return result.fold((s) => s.items, (_) => []);
   }
 
   Future<void> _unpublishView(
@@ -215,6 +200,7 @@ class SettingsSitesState with _$SettingsSitesState {
     SettingsSitesActionResult? actionResult,
     @Default('') String namespace,
     @Default(null) WorkspaceSubscriptionInfoPB? subscriptionInfo,
+    @Default(true) bool isLoading,
   }) = _SettingsSitesState;
 
   factory SettingsSitesState.initial() => const SettingsSitesState();
@@ -223,7 +209,6 @@ class SettingsSitesState with _$SettingsSitesState {
 @freezed
 class SettingsSitesEvent with _$SettingsSitesEvent {
   const factory SettingsSitesEvent.initial() = _Initial;
-  const factory SettingsSitesEvent.fetchPublishedViews() = _FetchPublishedViews;
   const factory SettingsSitesEvent.unpublishView(String viewId) =
       _UnpublishView;
   const factory SettingsSitesEvent.updateNamespace(String namespace) =
