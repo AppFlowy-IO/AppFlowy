@@ -13,7 +13,7 @@ use crate::code::ErrorCode;
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 
 #[derive(Debug, Default, Clone, ProtoBuf, Error)]
-#[error("{code:?}: {msg}")]
+#[error("{msg}")]
 pub struct FlowyError {
   #[pb(index = 1)]
   pub code: ErrorCode,
