@@ -20,10 +20,11 @@ extension FileTypeDisplay on MediaFileTypePB {
         MediaFileTypePB.Link => const Color(0xFFEBE4FF),
         MediaFileTypePB.Audio => const Color(0xFFE4FFDE),
         MediaFileTypePB.Video => const Color(0xFFE0F8FF),
+        MediaFileTypePB.Archive => const Color(0xFFFFE7EE),
         MediaFileTypePB.Text ||
-        MediaFileTypePB.Archive ||
-        MediaFileTypePB.Document =>
-          const Color(0xFFFFE7EE),
+        MediaFileTypePB.Document ||
+        MediaFileTypePB.Other =>
+          const Color(0xFFF5FFDC),
         _ => const Color(0xFF87B3A8),
       };
 }

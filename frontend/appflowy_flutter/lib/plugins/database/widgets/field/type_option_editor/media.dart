@@ -33,14 +33,14 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
       child: FlowyButton(
         resetHoverOnRebuild: false,
         text: FlowyText(
-          LocaleKeys.grid_media_hideFileNames.tr(),
+          LocaleKeys.grid_media_showFileNames.tr(),
           lineHeight: 1.0,
         ),
         onHover: (_) => popoverMutex.close(),
         rightIcon: Toggle(
-          value: typeOption.hideFileNames,
+          value: !typeOption.hideFileNames,
           onChanged: (val) => onTypeOptionUpdated(
-            _toggleHideFiles(typeOption, val).writeToBuffer(),
+            _toggleHideFiles(typeOption, !val).writeToBuffer(),
           ),
           padding: EdgeInsets.zero,
         ),

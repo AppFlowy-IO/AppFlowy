@@ -285,7 +285,7 @@ class __EditFileSheetState extends State<_EditFileSheet> {
           const VSpace(20),
           if (file.fileType == MediaFileTypePB.Image)
             FlowyOptionTile.text(
-              text: LocaleKeys.grid_media_open.tr(),
+              text: LocaleKeys.grid_media_expand.tr(),
               leftIcon: const FlowySvg(
                 FlowySvgs.full_view_s,
                 size: Size.square(20),
@@ -294,7 +294,7 @@ class __EditFileSheetState extends State<_EditFileSheet> {
             ),
           FlowyOptionTile.text(
             text: file.fileType == MediaFileTypePB.Link
-                ? LocaleKeys.grid_media_open.tr()
+                ? LocaleKeys.grid_media_expand.tr()
                 : LocaleKeys.grid_media_download.tr(),
             leftIcon: FlowySvg(
               file.fileType == MediaFileTypePB.Link

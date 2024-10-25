@@ -171,7 +171,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
               resetHoverOnRebuild: false,
               isSelected: () => isDragging,
               style: HoverStyle(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 hoverColor:
                     isDragging ? AFThemeExtension.of(context).tint9 : null,
               ),
@@ -197,14 +197,30 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                             color: Theme.of(context).hintColor,
                           ),
                         ] else ...[
-                          FlowyText(
-                            LocaleKeys.document_plugins_file_fileUploadHint
-                                .tr(),
-                            fontSize: 16,
-                            maxLines: 2,
-                            lineHeight: 1.5,
-                            textAlign: TextAlign.center,
-                            color: Theme.of(context).hintColor,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: LocaleKeys
+                                      .document_plugins_file_fileUploadHint
+                                      .tr(),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(context).hintColor,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: LocaleKeys
+                                      .document_plugins_file_fileUploadHintSuffix
+                                      .tr(),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ],

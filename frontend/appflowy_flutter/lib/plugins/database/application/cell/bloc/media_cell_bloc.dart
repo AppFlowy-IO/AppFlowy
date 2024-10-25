@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +26,10 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
     _startListening();
   }
 
+  late final RowBackendService _rowService =
+      RowBackendService(viewId: cellController.viewId);
   final MediaCellController cellController;
+
   void Function()? _onCellChangedFn;
 
   String get databaseId => cellController.viewId;
@@ -110,10 +115,6 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
           },
           reorderFiles: (from, to) async {
             final files = List<MediaFilePB>.from(state.files);
-            if (from < to) {
-              to--;
-            }
-
             files.insert(to, files.removeAt(from));
 
             // We emit the new state first to update the UI
@@ -153,6 +154,10 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
           toggleShowAllFiles: () {
             emit(state.copyWith(showAllFiles: !state.showAllFiles));
           },
+          setCover: (cover) => _rowService.updateMeta(
+            rowId: cellController.rowId,
+            cover: cover,
+          ),
         );
       },
     );
@@ -214,6 +219,8 @@ class MediaCellEvent with _$MediaCellEvent {
   }) = _RenameFile;
 
   const factory MediaCellEvent.toggleShowAllFiles() = _ToggleShowAllFiles;
+
+  const factory MediaCellEvent.setCover(RowCoverPB cover) = _SetCover;
 }
 
 @freezed
