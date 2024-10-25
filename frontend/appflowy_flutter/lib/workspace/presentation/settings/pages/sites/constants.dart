@@ -76,10 +76,13 @@ class SettingsPageSitesConstants {
 }
 
 class SettingsPageSitesEvent {
-  static void visitSite(PublishInfoViewPB publishInfoView) {
+  static void visitSite(
+    PublishInfoViewPB publishInfoView, {
+    String? nameSpace,
+  }) {
     // visit the site
     final url = ShareConstants.buildPublishUrl(
-      nameSpace: publishInfoView.info.namespace,
+      nameSpace: nameSpace ?? publishInfoView.info.namespace,
       publishName: publishInfoView.info.publishName,
     );
     afLaunchUrlString(url);
@@ -87,10 +90,11 @@ class SettingsPageSitesEvent {
 
   static void copySiteLink(
     BuildContext context,
-    PublishInfoViewPB publishInfoView,
-  ) {
+    PublishInfoViewPB publishInfoView, {
+    String? nameSpace,
+  }) {
     final url = ShareConstants.buildPublishUrl(
-      nameSpace: publishInfoView.info.namespace,
+      nameSpace: nameSpace ?? publishInfoView.info.namespace,
       publishName: publishInfoView.info.publishName,
     );
     getIt<ClipboardService>().setData(ClipboardServiceData(plainText: url));

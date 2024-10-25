@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -178,10 +179,17 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         Navigator.of(context).pop();
       },
       (f) {
-        final errorMessage = f.msg.split(': ').last;
+        var errorMessage = 'Update namespace failed';
+        if (f.code == ErrorCode.CustomNamespaceRequirePlanUpgrade) {
+          errorMessage =
+              'You need to upgrade to Pro Plan to update the namespace';
+        } else {
+          errorMessage += f.msg.split(': ').last;
+        }
+
         showToastNotification(
           context,
-          message: 'Update namespace failed ($errorMessage)',
+          message: errorMessage,
           type: ToastificationType.error,
         );
       },

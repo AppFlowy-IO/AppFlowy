@@ -122,6 +122,7 @@ class _SettingsSitesPageView extends StatelessWidget {
         ];
       } else if (!result.isLoading && publishedViews.isEmpty) {
         return [
+          const PublishViewItemHeader(),
           FlowyText.regular(
             'You have no published pages in this workspace',
             color: Theme.of(context).hintColor,

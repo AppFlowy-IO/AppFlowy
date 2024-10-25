@@ -332,6 +332,9 @@ pub enum ErrorCode {
 
   #[error("Requested namespace is not allowed")]
   CustomNamespaceNotAllowed = 114,
+
+  #[error("Requested namespace is already taken")]
+  CustomNamespaceAlreadyTaken = 115,
 }
 
 impl ErrorCode {

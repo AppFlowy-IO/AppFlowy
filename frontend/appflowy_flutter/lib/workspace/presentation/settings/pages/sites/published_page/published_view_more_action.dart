@@ -92,12 +92,16 @@ class PublishedViewMoreAction extends StatelessWidget {
   ) {
     switch (type) {
       case _ActionType.viewSite:
-        SettingsPageSitesEvent.visitSite(publishInfoView);
+        SettingsPageSitesEvent.visitSite(
+          publishInfoView,
+          nameSpace: context.read<SettingsSitesBloc>().state.namespace,
+        );
         break;
       case _ActionType.copySiteLink:
         SettingsPageSitesEvent.copySiteLink(
           context,
           publishInfoView,
+          nameSpace: context.read<SettingsSitesBloc>().state.namespace,
         );
         break;
       case _ActionType.settings:

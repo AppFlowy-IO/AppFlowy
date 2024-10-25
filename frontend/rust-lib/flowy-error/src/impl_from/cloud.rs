@@ -29,6 +29,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::SingleUploadLimitExceeded => ErrorCode::SingleUploadLimitExceeded,
       AppErrorCode::CustomNamespaceDisabled => ErrorCode::CustomNamespaceRequirePlanUpgrade,
       AppErrorCode::CustomNamespaceDisallowed => ErrorCode::CustomNamespaceNotAllowed,
+      AppErrorCode::PublishNamespaceAlreadyTaken => ErrorCode::CustomNamespaceAlreadyTaken,
       _ => ErrorCode::Internal,
     };
 
