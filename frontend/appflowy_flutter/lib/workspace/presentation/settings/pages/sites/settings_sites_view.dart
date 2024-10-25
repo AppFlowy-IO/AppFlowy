@@ -5,17 +5,28 @@ import 'package:appflowy/workspace/presentation/settings/pages/sites/published_p
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsSitesPage extends StatelessWidget {
-  const SettingsSitesPage({super.key});
+  const SettingsSitesPage({
+    super.key,
+    required this.workspaceId,
+    required this.user,
+  });
+
+  final String workspaceId;
+  final UserProfilePB user;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SettingsSitesBloc(),
+      create: (context) => SettingsSitesBloc(
+        workspaceId: workspaceId,
+        user: user,
+      )..add(const SettingsSitesEvent.initial()),
       child: const _SettingsSitesPageView(),
     );
   }
@@ -26,23 +37,17 @@ class _SettingsSitesPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SettingsSitesBloc()
-        ..add(
-          const SettingsSitesEvent.initial(),
-        ),
-      child: SettingsBody(
-        // i18n
-        title: 'Sites',
-        autoSeparate: false,
-        children: [
-          // Domain / Namespace
-          _buildNamespaceCategory(context),
-          const VSpace(36),
-          // All published pages
-          _buildPublishedViewsCategory(context),
-        ],
-      ),
+    return SettingsBody(
+      // i18n
+      title: 'Sites',
+      autoSeparate: false,
+      children: [
+        // Domain / Namespace
+        _buildNamespaceCategory(context),
+        const VSpace(36),
+        // All published pages
+        _buildPublishedViewsCategory(context),
+      ],
     );
   }
 
@@ -120,7 +125,7 @@ class _SettingsSitesPageView extends StatelessWidget {
     if (publishedViews.isEmpty) {
       return [
         FlowyText.regular(
-          'No published pages',
+          'You have no published pages in this workspace',
           color: Theme.of(context).hintColor,
         ),
       ];

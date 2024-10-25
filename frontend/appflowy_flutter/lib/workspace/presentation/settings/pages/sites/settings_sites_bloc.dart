@@ -1,7 +1,8 @@
-import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,7 +10,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'settings_sites_bloc.freezed.dart';
 
 class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
-  SettingsSitesBloc() : super(const SettingsSitesState()) {
+  SettingsSitesBloc({
+    required this.workspaceId,
+    required this.user,
+  }) : super(const SettingsSitesState()) {
     on<SettingsSitesEvent>((event, emit) async {
       await event.when(
         initial: () async => _initial(emit),
@@ -26,13 +30,35 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
           name,
           emit,
         ),
+        upgradeSubscription: () async => _upgradeSubscription(emit),
       );
     });
   }
 
+  final String workspaceId;
+  final UserProfilePB user;
+
   Future<void> _initial(Emitter<SettingsSitesState> emit) async {
+    await Future.wait([
+      // these two request are for the namespace
+      _fetchPublishNamespace(emit),
+      _fetchUserSubscription(emit),
+    ]);
+
+    // this request is for the published views
     await _fetchPublishedViews(emit);
-    await _fetchPublishNamespace(emit);
+  }
+
+  Future<void> _fetchUserSubscription(Emitter<SettingsSitesState> emit) async {
+    final result = await UserBackendService.getWorkspaceSubscriptionInfo(
+      workspaceId,
+    );
+
+    emit(
+      state.copyWith(
+        subscriptionInfo: result.fold((s) => s, (_) => null),
+      ),
+    );
   }
 
   Future<void> _fetchPublishNamespace(Emitter<SettingsSitesState> emit) async {
@@ -58,12 +84,12 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       ),
     );
 
-    // final result = await FolderEventListPublishedViews().send();
+    final result = await FolderEventListPublishedViews().send();
 
     emit(
       state.copyWith(
-        // publishedViews: result.fold((s) => s.items, (_) => []),
-        publishedViews: SettingsPageSitesConstants.fakeData,
+        publishedViews: result.fold((s) => s.items, (_) => []),
+        // publishedViews: SettingsPageSitesConstants.fakeData,
         actionResult: const SettingsSitesActionResult(
           actionType: SettingsSitesActionType.fetchPublishedViews,
           isLoading: false,
@@ -127,6 +153,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
 
     emit(
       state.copyWith(
+        namespace: result.fold((_) => namespace, (_) => state.namespace),
         actionResult: SettingsSitesActionResult(
           actionType: SettingsSitesActionType.updateNamespace,
           isLoading: false,
@@ -152,6 +179,24 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
 
     // todo: not implemented.
   }
+
+  Future<void> _upgradeSubscription(Emitter<SettingsSitesState> emit) async {
+    final userService = UserBackendService(userId: user.id);
+    final result = await userService.createSubscription(
+      workspaceId,
+      SubscriptionPlanPB.Pro,
+    );
+
+    emit(
+      state.copyWith(
+        actionResult: SettingsSitesActionResult(
+          actionType: SettingsSitesActionType.upgradeSubscription,
+          isLoading: false,
+          result: result,
+        ),
+      ),
+    );
+  }
 }
 
 @freezed
@@ -160,6 +205,7 @@ class SettingsSitesState with _$SettingsSitesState {
     @Default([]) List<PublishInfoViewPB> publishedViews,
     SettingsSitesActionResult? actionResult,
     @Default('') String namespace,
+    @Default(null) WorkspaceSubscriptionInfoPB? subscriptionInfo,
   }) = _SettingsSitesState;
 
   factory SettingsSitesState.initial() => const SettingsSitesState();
@@ -175,6 +221,7 @@ class SettingsSitesEvent with _$SettingsSitesEvent {
       _UpdateNamespace;
   const factory SettingsSitesEvent.updatePublishName(String name) =
       _UpdatePublishName;
+  const factory SettingsSitesEvent.upgradeSubscription() = _UpgradeSubscription;
 }
 
 enum SettingsSitesActionType {
@@ -183,6 +230,8 @@ enum SettingsSitesActionType {
   updateNamespace,
   fetchPublishedViews,
   updatePublishName,
+  fetchUserSubscription,
+  upgradeSubscription,
 }
 
 class SettingsSitesActionResult {

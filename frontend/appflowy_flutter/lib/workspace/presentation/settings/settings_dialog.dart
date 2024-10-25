@@ -152,13 +152,22 @@ class SettingsDialog extends StatelessWidget {
           workspaceId: workspaceId,
         );
       case SettingsPage.plan:
-        return SettingsPlanView(workspaceId: workspaceId, user: user);
+        return SettingsPlanView(
+          workspaceId: workspaceId,
+          user: user,
+        );
       case SettingsPage.billing:
-        return SettingsBillingView(workspaceId: workspaceId, user: user);
+        return SettingsBillingView(
+          workspaceId: workspaceId,
+          user: user,
+        );
+      case SettingsPage.sites:
+        return SettingsSitesPage(
+          workspaceId: workspaceId,
+          user: user,
+        );
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
-      case SettingsPage.sites:
-        return const SettingsSitesPage();
       default:
         return const SizedBox.shrink();
     }

@@ -1,20 +1,18 @@
 class ShareConstants {
-  static const String publishBaseUrl = 'https://appflowy.com';
-  static const String shareBaseUrl = 'https://appflowy.com/app';
+  static const String publishBaseUrl = 'test.appflowy.com';
+  static const String shareBaseUrl = 'test.appflowy.com/app';
 
   static String buildPublishUrl({
     required String nameSpace,
     required String publishName,
   }) {
-    return '$publishBaseUrl/$nameSpace/$publishName';
+    return 'https://$publishBaseUrl/$nameSpace/$publishName';
   }
 
   static String buildNamespaceUrl({
     required String nameSpace,
   }) {
-    return '$publishBaseUrl/$nameSpace'
-        .replaceAll('https://', '')
-        .replaceAll('http://', '');
+    return '$publishBaseUrl/$nameSpace';
   }
 
   static String buildShareUrl({
@@ -22,10 +20,10 @@ class ShareConstants {
     required String viewId,
     String? blockId,
   }) {
-    final url = '$shareBaseUrl/$workspaceId/$viewId';
+    final url = 'https://$shareBaseUrl/$workspaceId/$viewId';
     if (blockId == null || blockId.isEmpty) {
       return url;
     }
-    return '$url?blockId=$blockId';
+    return 'https://$url?blockId=$blockId';
   }
 }

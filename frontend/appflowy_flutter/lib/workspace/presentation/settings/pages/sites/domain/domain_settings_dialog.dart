@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -119,7 +120,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
           children: [
             HSpace(12.0),
             FlowyText(
-              'appflowy.com',
+              ShareConstants.publishBaseUrl,
               fontSize: 14.0,
               figmaLineHeight: 36.0,
             ),
