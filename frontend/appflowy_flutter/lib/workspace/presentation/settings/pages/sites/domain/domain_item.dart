@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/colors.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,7 +62,7 @@ class DomainItem extends StatelessWidget {
       return Container(
         alignment: Alignment.centerLeft,
         child: FlowyTooltip(
-          message: 'Upgrade to Pro Plan to set a homepage',
+          message: LocaleKeys.settings_sites_namespace_upgradeToPro.tr(),
           child: PrimaryRoundedButton(
             text: 'Pro ↗',
             fontSize: 12.0,
@@ -77,7 +79,8 @@ class DomainItem extends StatelessWidget {
             onTap: () {
               showToastNotification(
                 context,
-                message: 'Redirecting to payment page...',
+                message:
+                    LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
                 type: ToastificationType.info,
               );
 

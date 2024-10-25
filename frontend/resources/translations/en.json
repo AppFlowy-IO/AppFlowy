@@ -444,16 +444,18 @@
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
-        "updateExistingNamespace": "Update existing namespace"
+        "updateExistingNamespace": "Update existing namespace",
+        "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
+        "redirectToPayment": "Redirecting to payment page..."
       },
       "publishedPage": {
         "title": "All published pages",
         "description": "Manage your published pages",
-        "header": "page",
+        "page": "page",
         "pathName": "Path name",
         "date": "Published date",
-        "settingsTitle": "Path name settings",
-        "emptyHinText": "You have no published pages in this workspace"
+        "emptyHinText": "You have no published pages in this workspace",
+        "settings": "Publish settings"
       },
       "error": {
         "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
@@ -461,7 +463,8 @@
         "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
         "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
         "invalidNamespace": "Invalid namespace, please try another one",
-        "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long"
+        "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Only workspace owner can update the namespace"
       },
       "success": {
         "namespaceUpdated": "Updated namespace successfully"

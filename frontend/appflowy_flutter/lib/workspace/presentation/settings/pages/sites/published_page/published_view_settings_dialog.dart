@@ -76,9 +76,9 @@ class _PublishedViewSettingsDialogState
   Widget _buildTitle() {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: FlowyText(
-            'Publish settings',
+            LocaleKeys.settings_sites_publishedPage_settings.tr(),
             fontSize: 16.0,
             figmaLineHeight: 22.0,
             fontWeight: FontWeight.w500,
@@ -101,7 +101,7 @@ class _PublishedViewSettingsDialogState
 
   Widget _buildPublishNameLabel() {
     return FlowyText(
-      'Publish name',
+      LocaleKeys.settings_sites_publishedPage_pathName.tr(),
       fontSize: 14.0,
       color: Theme.of(context).hintColor,
     );

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_header.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_item.dart';
@@ -9,6 +10,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_categor
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,8 +51,7 @@ class _SettingsSitesPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsBody(
-      // i18n
-      title: 'Sites',
+      title: LocaleKeys.settings_sites_title.tr(),
       autoSeparate: false,
       children: [
         // Domain / Namespace
@@ -64,8 +65,8 @@ class _SettingsSitesPageView extends StatelessWidget {
 
   Widget _buildNamespaceCategory(BuildContext context) {
     return SettingsCategory(
-      title: 'Namespace',
-      description: 'Manage your domain and homepage',
+      title: LocaleKeys.settings_sites_namespaceHeader.tr(),
+      description: LocaleKeys.settings_sites_namespaceDescription.tr(),
       descriptionColor: Theme.of(context).hintColor,
       children: [
         const FlowyDivider(),
@@ -93,7 +94,9 @@ class _SettingsSitesPageView extends StatelessWidget {
 
   Widget _buildPublishedViewsCategory(BuildContext context) {
     return SettingsCategory(
-      title: 'All published pages',
+      title: LocaleKeys.settings_sites_publishedPage_title.tr(),
+      description: LocaleKeys.settings_sites_publishedPage_description.tr(),
+      descriptionColor: Theme.of(context).hintColor,
       children: [
         const FlowyDivider(),
         BlocBuilder<SettingsSitesBloc, SettingsSitesState>(
@@ -124,7 +127,7 @@ class _SettingsSitesPageView extends StatelessWidget {
       if (publishedViews.isEmpty) {
         children.add(
           FlowyText.regular(
-            'You have no published pages in this workspace',
+            LocaleKeys.settings_sites_publishedPage_emptyHinText.tr(),
             color: Theme.of(context).hintColor,
           ),
         );
@@ -160,7 +163,8 @@ class _SettingsSitesPageView extends StatelessWidget {
 
         showToastNotification(
           context,
-          message: 'Failed to generate payment link for Pro Plan',
+          message:
+              LocaleKeys.settings_sites_error_failedToGeneratePaymentLink.tr(),
           type: ToastificationType.error,
         );
       });
@@ -171,7 +175,7 @@ class _SettingsSitesPageView extends StatelessWidget {
 
         showToastNotification(
           context,
-          message: 'Failed to unpublish view',
+          message: LocaleKeys.publish_unpublishFailed.tr(),
           type: ToastificationType.error,
         );
       });
