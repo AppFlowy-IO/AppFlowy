@@ -37,6 +37,7 @@ class PublishedPageItem extends StatelessWidget {
             publishInfoView: publishInfoView,
           ),
         ),
+
         // Published Name
         Expanded(
           child: Padding(
@@ -57,6 +58,8 @@ class PublishedPageItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+
+        // ... button
         PublishedViewMoreAction(
           publishInfoView: publishInfoView,
         ),

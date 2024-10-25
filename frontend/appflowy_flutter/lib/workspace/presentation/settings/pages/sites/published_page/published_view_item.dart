@@ -39,6 +39,7 @@ class PublishedViewItem extends StatelessWidget {
             publishInfoView: publishInfoView,
           ),
         ),
+
         // Published Name
         Expanded(
           flex: flexes[1],

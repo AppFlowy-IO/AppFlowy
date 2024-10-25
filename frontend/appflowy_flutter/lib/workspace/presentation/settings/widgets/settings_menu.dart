@@ -115,8 +115,7 @@ class SettingsMenu extends StatelessWidget {
                   SettingsMenuElement(
                     page: SettingsPage.sites,
                     selectedPage: currentPage,
-                    // todo: i18n
-                    label: 'Sites',
+                    label: LocaleKeys.settings_sites_title.tr(),
                     icon: const Icon(Icons.web),
                     changeSelectedPage: changeSelectedPage,
                   ),

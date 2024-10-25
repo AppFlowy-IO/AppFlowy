@@ -39,11 +39,9 @@ class DomainItem extends StatelessWidget {
             ),
           ),
         ),
-        // Published Name
-
         // Homepage
         Expanded(child: _buildHomepage(context)),
-
+        // ... button
         DomainMoreAction(namespace: namespace),
       ],
     );
