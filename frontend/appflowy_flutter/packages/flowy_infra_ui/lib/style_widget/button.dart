@@ -14,8 +14,8 @@ class FlowyIconTextButton extends StatelessWidget {
   final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
   final EdgeInsets? margin;
-  final Widget Function(bool onHover)? leftIconBuilder;
-  final Widget Function(bool onHover)? rightIconBuilder;
+  final Widget? Function(bool onHover)? leftIconBuilder;
+  final Widget? Function(bool onHover)? rightIconBuilder;
   final Color? hoverColor;
   final bool isSelected;
   final BorderRadius? radius;
@@ -85,11 +85,12 @@ class FlowyIconTextButton extends StatelessWidget {
   Widget _render(BuildContext context, bool onHover) {
     final List<Widget> children = [];
 
-    if (leftIconBuilder != null) {
+    final Widget? leftIcon = leftIconBuilder?.call(onHover);
+    if (leftIcon != null) {
       children.add(
         SizedBox.fromSize(
           size: leftIconSize,
-          child: leftIconBuilder!(onHover),
+          child: leftIcon,
         ),
       );
       children.add(HSpace(iconPadding));
@@ -101,10 +102,11 @@ class FlowyIconTextButton extends StatelessWidget {
       children.add(textBuilder(onHover));
     }
 
-    if (rightIconBuilder != null) {
+    final Widget? rightIcon = rightIconBuilder?.call(onHover);
+    if (rightIcon != null) {
       children.add(HSpace(iconPadding));
       // No need to define the size of rightIcon. Just use its intrinsic width
-      children.add(rightIconBuilder!(onHover));
+      children.add(rightIcon);
     }
 
     Widget child = Row(

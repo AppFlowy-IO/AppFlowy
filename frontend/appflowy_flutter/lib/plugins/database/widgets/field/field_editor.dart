@@ -237,7 +237,7 @@ enum FieldAction {
   delete,
   wrap;
 
-  Widget leading(FieldInfo fieldInfo, Color? color) {
+  Widget? leading(FieldInfo fieldInfo, Color? color) {
     FlowySvgData? svgData;
     switch (this) {
       case FieldAction.insertLeft:
@@ -261,7 +261,7 @@ enum FieldAction {
     }
 
     if (svgData == null) {
-      return const SizedBox.shrink();
+      return null;
     }
     final icon = FlowySvg(
       svgData,
@@ -273,7 +273,7 @@ enum FieldAction {
         : icon;
   }
 
-  Widget trailing(BuildContext context, FieldInfo fieldInfo) {
+  Widget? trailing(BuildContext context, FieldInfo fieldInfo) {
     if (this == FieldAction.wrap) {
       return Toggle(
         value: fieldInfo.wrapCellContent ?? false,
@@ -284,7 +284,7 @@ enum FieldAction {
       );
     }
 
-    return const SizedBox.shrink();
+    return null;
   }
 
   String title(FieldInfo fieldInfo) {
