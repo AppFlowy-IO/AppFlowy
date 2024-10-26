@@ -20,7 +20,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CLOUD_VERSION: 0.6.50-amd64
+  CLOUD_VERSION: 0.6.50
   RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
@@ -62,10 +62,14 @@ jobs:
             running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
             if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
               echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
+              docker rm -f $(docker ps -aq)
+              docker volume rm $(docker volume ls -q)
               docker compose pull
               docker compose up -d
               echo "Waiting for the container to be ready..."
               sleep 10
+              docker ps -a
+              docker compose logs
             else
               echo "AppFlowy-Cloud is running with the correct version."
             fi
@@ -145,25 +149,14 @@ jobs:
           APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
           APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
         run: |
-          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
-          if [ -z "$container_id" ]; then
-            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
-            docker compose pull
-            docker compose up -d
-            echo "Waiting for the container to be ready..."
-            sleep 10
-          else
-            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
-            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
-              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
-              docker compose pull
-              docker compose up -d
-              echo "Waiting for the container to be ready..."
-              sleep 10
-            else
-              echo "AppFlowy-Cloud is running with the correct version."
-            fi
-          fi
+          docker rm -f $(docker ps -aq)
+          docker volume rm $(docker volume ls -q)
+          docker compose pull
+          docker compose up -d
+          echo "Waiting for the container to be ready..."
+          sleep 10
+          docker ps -a
+          docker compose logs
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
