@@ -1,4 +1,3 @@
-use anyhow::Error;
 use collab::entity::EncodedCollab;
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError};
@@ -26,7 +25,7 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     _document_id: &str,
     _limit: usize,
     _workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
@@ -34,7 +33,7 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
     _workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, FlowyError> {
     Ok(None)
   }
 
@@ -43,7 +42,7 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     _workspace_id: &str,
     _document_id: &str,
     _encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     Ok(())
   }
 }

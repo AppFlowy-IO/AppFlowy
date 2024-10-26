@@ -163,7 +163,7 @@ checksum = "b3d1d046238990b9cf5bcde22a3fb3584ee5cf65fb2765f454ed428c7a0063da"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "bincode",
@@ -183,7 +183,7 @@ dependencies = [
 [[package]]
 name = "appflowy-ai-client"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "bytes",
@@ -774,7 +774,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "again",
  "anyhow",
@@ -829,7 +829,7 @@ dependencies = [
 [[package]]
 name = "client-api-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "collab-entity",
  "collab-rt-entity",
@@ -842,7 +842,7 @@ dependencies = [
 [[package]]
 name = "client-websocket"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -1109,7 +1109,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1134,7 +1134,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1523,7 +1523,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "app-error",
@@ -2296,6 +2296,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "client-api",
+ "collab",
  "collab-database",
  "collab-document",
  "collab-folder",
@@ -2365,6 +2366,7 @@ dependencies = [
  "collab",
  "collab-entity",
  "collab-folder",
+ "flowy-error",
  "lib-infra",
  "serde",
  "serde_json",
@@ -2961,7 +2963,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2978,7 +2980,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "app-error",
@@ -3340,10 +3342,12 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "bytes",
+ "futures",
+ "pin-project",
  "reqwest",
  "serde",
  "serde_json",
@@ -4439,18 +4443,18 @@ dependencies = [
 
 [[package]]
 name = "pin-project"
-version = "1.1.5"
+version = "1.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6bf43b791c5b9e34c3d182969b4abb522f9343702850a2e57f460d00d09b4b3"
+checksum = "be57f64e946e500c8ee36ef6331845d40a93055567ec57e8fae13efd33759b95"
 dependencies = [
  "pin-project-internal",
 ]
 
 [[package]]
 name = "pin-project-internal"
-version = "1.1.5"
+version = "1.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f38a4412a78282e09a2cf38d195ea5420d15ba0602cb375210efbc877243965"
+checksum = "3c0f5fad0874fc7abcd4d750e76917eaebbecaa2c20bde22e1dbeeba8beb758c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5617,7 +5621,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=d3e4a6870d10b04e4aedac4addb17915a7acdde2#d3e4a6870d10b04e4aedac4addb17915a7acdde2"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7cea106984dda057467290844acad8f0d196065b#7cea106984dda057467290844acad8f0d196065b"
 dependencies = [
  "anyhow",
  "app-error",
@@ -5628,6 +5632,7 @@ dependencies = [
  "database-entity",
  "futures",
  "gotrue-entity",
+ "infra",
  "log",
  "pin-project",
  "reqwest",

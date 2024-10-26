@@ -1,4 +1,3 @@
-use anyhow::Error;
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
   QueryCollab, QueryCollabParams,
@@ -35,7 +34,7 @@ impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  async fn create_workspace(&self, _uid: i64, name: &str) -> Result<Workspace, Error> {
+  async fn create_workspace(&self, _uid: i64, name: &str) -> Result<Workspace, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let cloned_name = name.to_string();
 
@@ -57,7 +56,7 @@ where
     })
   }
 
-  async fn open_workspace(&self, workspace_id: &str) -> Result<(), Error> {
+  async fn open_workspace(&self, workspace_id: &str) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
 
@@ -66,7 +65,7 @@ where
     Ok(())
   }
 
-  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, Error> {
+  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, FlowyError> {
     let try_get_client = self.inner.try_get_client();
 
     let client = try_get_client?;
@@ -89,7 +88,7 @@ where
     &self,
     workspace_id: &str,
     uid: &i64,
-  ) -> Result<Option<FolderData>, Error> {
+  ) -> Result<Option<FolderData>, FlowyError> {
     let uid = *uid;
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -120,7 +119,7 @@ where
     &self,
     _workspace_id: &str,
     _limit: usize,
-  ) -> Result<Vec<FolderSnapshot>, Error> {
+  ) -> Result<Vec<FolderSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
@@ -131,7 +130,7 @@ where
     _uid: i64,
     collab_type: CollabType,
     object_id: &str,
-  ) -> Result<Vec<u8>, Error> {
+  ) -> Result<Vec<u8>, FlowyError> {
     let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -155,7 +154,7 @@ where
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = objects
@@ -170,8 +169,7 @@ where
       .collect::<Vec<_>>();
     try_get_client?
       .create_collab_list(&workspace_id, params)
-      .await
-      .map_err(FlowyError::from)?;
+      .await?;
     Ok(())
   }
 
@@ -183,7 +181,7 @@ where
     &self,
     workspace_id: &str,
     payload: Vec<PublishPayload>,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = payload
@@ -208,12 +206,15 @@ where
       .collect::<Vec<_>>();
     try_get_client?
       .publish_collabs(&workspace_id, params)
-      .await
-      .map_err(FlowyError::from)?;
+      .await?;
     Ok(())
   }
 
-  async fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> Result<(), Error> {
+  async fn unpublish_views(
+    &self,
+    workspace_id: &str,
+    view_ids: Vec<String>,
+  ) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let view_uuids = view_ids
@@ -222,21 +223,17 @@ where
       .collect::<Vec<_>>();
     try_get_client?
       .unpublish_collabs(&workspace_id, &view_uuids)
-      .await
-      .map_err(FlowyError::from)?;
+      .await?;
     Ok(())
   }
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, Error> {
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let view_id = Uuid::parse_str(view_id)
       .map_err(|_| FlowyError::new(ErrorCode::InvalidParams, "Invalid view id"));
 
     let view_id = view_id?;
-    let info = try_get_client?
-      .get_published_collab_info(&view_id)
-      .await
-      .map_err(FlowyError::from)?;
+    let info = try_get_client?.get_published_collab_info(&view_id).await?;
     Ok(PublishInfoResponse {
       view_id: info.view_id.to_string(),
       publish_name: info.publish_name,
@@ -248,29 +245,27 @@ where
     &self,
     workspace_id: &str,
     new_namespace: &str,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let namespace = new_namespace.to_string();
     let try_get_client = self.inner.try_get_client();
     try_get_client?
       .set_workspace_publish_namespace(&workspace_id, &namespace)
-      .await
-      .map_err(FlowyError::from)?;
+      .await?;
     Ok(())
   }
 
-  async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error> {
+  async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let namespace = self
       .inner
       .try_get_client()?
       .get_workspace_publish_namespace(&workspace_id)
-      .await
-      .map_err(FlowyError::from)?;
+      .await?;
     Ok(namespace)
   }
 
-  async fn import_zip(&self, file_path: &str) -> Result<(), Error> {
+  async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {
     let file_path = PathBuf::from(file_path);
     self.inner.try_get_client()?.import_file(&file_path).await?;
     Ok(())

@@ -28,7 +28,7 @@ env:
   FLUTTER_VERSION: "3.22.2"
   RUST_TOOLCHAIN: "1.80.1"
   CARGO_MAKE_VERSION: "0.37.18"
-  CLOUD_VERSION: 0.6.34-amd64
+  CLOUD_VERSION: 0.6.50
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -74,7 +74,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-latest]
+        os: [ windows-latest ]
         include:
           - os: windows-latest
             flutter_profile: development-windows-x86
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-latest]
+        os: [ macos-latest ]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -123,12 +123,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -217,11 +217,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -263,10 +263,14 @@ jobs:
             running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
             if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
               echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
+              docker rm -f $(docker ps -aq)
+              docker volume rm $(docker volume ls -q)
               docker compose pull
               docker compose up -d
               echo "Waiting for the container to be ready..."
               sleep 10
+              docker ps -a
+              docker compose logs
             else
               echo "AppFlowy-Cloud is running with the correct version."
             fi
@@ -326,12 +330,12 @@ jobs:
 
   # split the integration tests into different machines to minimize the time
   integration_test_1:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -350,12 +354,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_2:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -374,12 +378,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_3:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -398,12 +402,12 @@ jobs:
           rust_target: ${{ matrix.target }}
 
   integration_test_4:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"

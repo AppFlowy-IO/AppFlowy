@@ -161,7 +161,8 @@ where
   ) -> Result<StreamComplete, FlowyError> {
     let params = CompleteTextParams {
       text: text.to_string(),
-      completion_type,
+      completion_type: Some(completion_type),
+      custom_prompt: None,
     };
     let stream = self
       .inner
