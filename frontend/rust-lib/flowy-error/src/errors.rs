@@ -1,7 +1,7 @@
+use collab::error::CollabError;
+use protobuf::ProtobufError;
 use std::convert::TryInto;
 use std::fmt::{Debug, Display};
-
-use protobuf::ProtobufError;
 use thiserror::Error;
 use tokio::task::JoinError;
 use validator::{ValidationError, ValidationErrors};
@@ -203,5 +203,26 @@ impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
 impl From<String> for FlowyError {
   fn from(e: String) -> Self {
     FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<collab::error::CollabError> for FlowyError {
+  fn from(value: CollabError) -> Self {
+    match value {
+      CollabError::SerdeJson(err) => FlowyError::serde().with_context(err),
+      CollabError::UnexpectedEmpty(err) => FlowyError::payload_none().with_context(err),
+      CollabError::AcquiredWriteTxnFail => FlowyError::internal(),
+      CollabError::AcquiredReadTxnFail => FlowyError::internal(),
+      CollabError::YrsTransactionError(err) => FlowyError::internal().with_context(err),
+      CollabError::YrsEncodeStateError(err) => FlowyError::internal().with_context(err),
+      CollabError::UndoManagerNotEnabled => {
+        FlowyError::not_support().with_context("UndoManager is not enabled")
+      },
+      CollabError::DecodeUpdate(err) => FlowyError::internal().with_context(err),
+      CollabError::NoRequiredData(err) => FlowyError::internal().with_context(err),
+      CollabError::Awareness(err) => FlowyError::internal().with_context(err),
+      CollabError::UpdateFailed(err) => FlowyError::internal().with_context(err),
+      CollabError::Internal(err) => FlowyError::internal().with_context(err),
+    }
   }
 }

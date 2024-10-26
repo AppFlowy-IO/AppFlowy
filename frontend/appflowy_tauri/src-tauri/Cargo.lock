@@ -2431,6 +2431,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "client-api",
+ "collab",
  "collab-database",
  "collab-document",
  "collab-folder",

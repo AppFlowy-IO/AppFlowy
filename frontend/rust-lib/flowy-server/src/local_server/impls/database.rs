@@ -1,4 +1,3 @@
-use anyhow::Error;
 use collab::entity::EncodedCollab;
 use collab_database::database::default_database_data;
 use collab_database::workspace_database::default_workspace_database_data;
@@ -6,6 +5,7 @@ use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_user::core::default_user_awareness_data;
 use flowy_database_pub::cloud::{DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid};
+use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
@@ -17,7 +17,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     object_id: &str,
     collab_type: CollabType,
     _workspace_id: &str,
-  ) -> Result<Option<EncodedCollab>, Error> {
+  ) -> Result<Option<EncodedCollab>, FlowyError> {
     match collab_type {
       CollabType::Document => {
         let encode_collab = default_document_collab_data(object_id)?;
@@ -40,7 +40,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _collab_type: CollabType,
     _workspace_id: &str,
     _encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     Ok(())
   }
 
@@ -49,7 +49,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _object_ids: Vec<String>,
     _object_ty: CollabType,
     _workspace_id: &str,
-  ) -> Result<EncodeCollabByOid, Error> {
+  ) -> Result<EncodeCollabByOid, FlowyError> {
     Ok(EncodeCollabByOid::default())
   }
 
@@ -57,7 +57,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     &self,
     _object_id: &str,
     _limit: usize,
-  ) -> Result<Vec<DatabaseSnapshot>, Error> {
+  ) -> Result<Vec<DatabaseSnapshot>, FlowyError> {
     Ok(vec![])
   }
 }

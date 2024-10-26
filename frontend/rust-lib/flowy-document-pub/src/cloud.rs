@@ -1,4 +1,3 @@
-use anyhow::Error;
 use collab::entity::EncodedCollab;
 pub use collab_document::blocks::DocumentData;
 
@@ -21,20 +20,20 @@ pub trait DocumentCloudService: Send + Sync + 'static {
     document_id: &str,
     limit: usize,
     workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error>;
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError>;
 
   async fn get_document_data(
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error>;
+  ) -> Result<Option<DocumentData>, FlowyError>;
 
   async fn create_document_collab(
     &self,
     workspace_id: &str,
     document_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error>;
+  ) -> Result<(), FlowyError>;
 }
 
 pub struct DocumentSnapshot {

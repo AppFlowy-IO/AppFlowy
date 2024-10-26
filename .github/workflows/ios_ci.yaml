@@ -22,7 +22,7 @@ on:
 env:
   FLUTTER_VERSION: "3.22.0"
   RUST_TOOLCHAIN: "1.80.1"
-  CLOUD_VERSION: 0.6.34-amd64
+  CLOUD_VERSION: 0.6.50-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

@@ -1,4 +1,3 @@
-use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::search_dto::SearchDocumentResponseItem;
@@ -368,7 +367,7 @@ impl DatabaseCloudService for ServerProvider {
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<EncodedCollab>, Error> {
+  ) -> Result<Option<EncodedCollab>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
     let database_id = object_id.to_string();
@@ -384,7 +383,7 @@ impl DatabaseCloudService for ServerProvider {
     collab_type: CollabType,
     workspace_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .database_service()
@@ -397,7 +396,7 @@ impl DatabaseCloudService for ServerProvider {
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<EncodeCollabByOid, Error> {
+  ) -> Result<EncodeCollabByOid, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
 
@@ -411,7 +410,7 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     object_id: &str,
     limit: usize,
-  ) -> Result<Vec<DatabaseSnapshot>, Error> {
+  ) -> Result<Vec<DatabaseSnapshot>, FlowyError> {
     let server = self.get_server()?;
     let database_id = object_id.to_string();
 
@@ -472,7 +471,7 @@ impl DocumentCloudService for ServerProvider {
     document_id: &str,
     limit: usize,
     workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -485,7 +484,7 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, FlowyError> {
     let server = self.get_server()?;
     server
       .document_service()
@@ -498,7 +497,7 @@ impl DocumentCloudService for ServerProvider {
     workspace_id: &str,
     document_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .document_service()
