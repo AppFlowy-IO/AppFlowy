@@ -13,7 +13,6 @@ class ChatMemberBloc extends Bloc<ChatMemberEvent, ChatMemberState> {
     on<ChatMemberEvent>(
       (event, emit) async {
         event.when(
-          initial: () {},
           receiveMemberInfo: (String id, WorkspaceMemberPB memberInfo) {
             final members = Map<String, ChatMember>.from(state.members);
             members[id] = ChatMember(info: memberInfo);
@@ -51,7 +50,6 @@ class ChatMemberBloc extends Bloc<ChatMemberEvent, ChatMemberState> {
 
 @freezed
 class ChatMemberEvent with _$ChatMemberEvent {
-  const factory ChatMemberEvent.initial() = Initial;
   const factory ChatMemberEvent.getMemberInfo(
     String userId,
   ) = _GetMemberInfo;

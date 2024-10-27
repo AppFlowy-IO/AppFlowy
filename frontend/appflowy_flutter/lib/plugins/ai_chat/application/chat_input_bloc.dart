@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.da
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'chat_input_bloc.freezed.dart';
@@ -13,15 +14,9 @@ class ChatInputStateBloc
   ChatInputStateBloc()
       : listener = LocalLLMListener(),
         super(const ChatInputStateState(aiType: _AppFlowyAI())) {
-    listener.start(
-      stateCallback: (pluginState) {
-        if (!isClosed) {
-          add(ChatInputStateEvent.updatePluginState(pluginState));
-        }
-      },
-    );
-
-    on<ChatInputStateEvent>(_handleEvent);
+    _dispatch();
+    _startListening();
+    _init();
   }
 
   final LocalLLMListener listener;
@@ -32,41 +27,45 @@ class ChatInputStateBloc
     return super.close();
   }
 
-  Future<void> _handleEvent(
-    ChatInputStateEvent event,
-    Emitter<ChatInputStateState> emit,
-  ) async {
-    await event.when(
-      started: () async {
-        final result = await AIEventGetLocalAIPluginState().send();
-        result.fold(
-          (pluginState) {
-            if (!isClosed) {
-              add(
-                ChatInputStateEvent.updatePluginState(pluginState),
-              );
-            }
-          },
-          (err) {
-            Log.error(err.toString());
-          },
-        );
-      },
-      updatePluginState: (pluginState) {
-        if (pluginState.state == RunningStatePB.Running) {
-          emit(const ChatInputStateState(aiType: _LocalAI()));
-        } else {
-          emit(const ChatInputStateState(aiType: _AppFlowyAI()));
+  void _dispatch() {
+    on<ChatInputStateEvent>((event, emit) {
+      event.when(
+        didUpdatePluginState: (pluginState) {
+          if (pluginState.state == RunningStatePB.Running) {
+            emit(const ChatInputStateState(aiType: _LocalAI()));
+          } else {
+            emit(const ChatInputStateState(aiType: _AppFlowyAI()));
+          }
+        },
+      );
+    });
+  }
+
+  void _startListening() {
+    listener.start(
+      stateCallback: (pluginState) {
+        if (!isClosed) {
+          add(ChatInputStateEvent.didUpdatePluginState(pluginState));
         }
       },
+    );
+  }
+
+  void _init() {
+    AIEventGetLocalAIPluginState().send().fold(
+      (pluginState) {
+        if (!isClosed) {
+          add(ChatInputStateEvent.didUpdatePluginState(pluginState));
+        }
+      },
+      Log.error,
     );
   }
 }
 
 @freezed
 class ChatInputStateEvent with _$ChatInputStateEvent {
-  const factory ChatInputStateEvent.started() = _Started;
-  const factory ChatInputStateEvent.updatePluginState(
+  const factory ChatInputStateEvent.didUpdatePluginState(
     LocalAIPluginStatePB pluginState,
   ) = _UpdatePluginState;
 }

@@ -9,8 +9,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chat_side_panel_bloc.freezed.dart';
 
-const double kDefaultSidePanelWidth = 500;
-
 class ChatSidePanelBloc extends Bloc<ChatSidePanelEvent, ChatSidePanelState> {
   ChatSidePanelBloc({
     required this.chatId,

@@ -72,56 +72,53 @@ class AIChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      return MultiBlocProvider(
-        providers: [
-          /// [ChatBloc] is used to handle chat messages including send/receive message
-          BlocProvider(
-            create: (_) => ChatBloc(
-              view: view,
-              userProfile: userProfile,
-            )..add(const ChatEvent.initialLoad()),
-          ),
-
-          /// [ChatFileBloc] is used to handle file indexing as a chat context
-          BlocProvider(
-            create: (_) => ChatFileBloc()..add(const ChatFileEvent.initial()),
-          ),
-
-          /// [ChatInputStateBloc] is used to handle chat input text field state
-          BlocProvider(
-            create: (_) =>
-                ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
-          ),
-          BlocProvider(create: (_) => ChatSidePanelBloc(chatId: view.id)),
-          BlocProvider(create: (_) => ChatMemberBloc()),
-        ],
-        child: BlocBuilder<ChatFileBloc, ChatFileState>(
-          builder: (context, state) {
-            return DropTarget(
-              onDragDone: (DropDoneDetails detail) async {
-                if (state.supportChatWithFile) {
-                  for (final file in detail.files) {
-                    context
-                        .read<ChatFileBloc>()
-                        .add(ChatFileEvent.newFile(file.path, file.name));
-                  }
-                }
-              },
-              child: _ChatContentPage(
-                view: view,
-                userProfile: userProfile,
-              ),
-            );
-          },
+    if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
+      return Center(
+        child: FlowyText(
+          LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+          fontSize: 20,
         ),
       );
     }
 
-    return Center(
-      child: FlowyText(
-        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-        fontSize: 20,
+    return MultiBlocProvider(
+      providers: [
+        /// [ChatBloc] is used to handle chat messages including send/receive message
+        BlocProvider(
+          create: (_) => ChatBloc(
+            view: view,
+            userProfile: userProfile,
+          )..add(const ChatEvent.initialLoad()),
+        ),
+
+        /// [ChatFileBloc] is used to handle file indexing as a chat context
+        BlocProvider(
+          create: (_) => ChatFileBloc()..add(const ChatFileEvent.initial()),
+        ),
+
+        /// [ChatInputStateBloc] is used to handle chat input text field state
+        BlocProvider(create: (_) => ChatInputStateBloc()),
+        BlocProvider(create: (_) => ChatSidePanelBloc(chatId: view.id)),
+        BlocProvider(create: (_) => ChatMemberBloc()),
+      ],
+      child: BlocBuilder<ChatFileBloc, ChatFileState>(
+        builder: (context, state) {
+          return DropTarget(
+            onDragDone: (DropDoneDetails detail) async {
+              if (state.supportChatWithFile) {
+                for (final file in detail.files) {
+                  context
+                      .read<ChatFileBloc>()
+                      .add(ChatFileEvent.newFile(file.path, file.name));
+                }
+              }
+            },
+            child: _ChatContentPage(
+              view: view,
+              userProfile: userProfile,
+            ),
+          );
+        },
       ),
     );
   }
@@ -151,80 +148,71 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      if (UniversalPlatform.isDesktop) {
-        return BlocSelector<ChatSidePanelBloc, ChatSidePanelState, bool>(
-          selector: (state) => state.isShowPanel,
-          builder: (context, isShowPanel) {
-            return LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                final double chatOffsetX = isShowPanel
-                    ? 60
-                    : (constraints.maxWidth > 784
-                        ? (constraints.maxWidth - 784) / 2.0
-                        : 60);
+    if (UniversalPlatform.isDesktop) {
+      return BlocSelector<ChatSidePanelBloc, ChatSidePanelState, bool>(
+        selector: (state) => state.isShowPanel,
+        builder: (context, isShowPanel) {
+          return LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final double chatOffsetX = isShowPanel
+                  ? 60
+                  : (constraints.maxWidth > 784
+                      ? (constraints.maxWidth - 784) / 2.0
+                      : 60);
 
-                final double width = isShowPanel
-                    ? (constraints.maxWidth - chatOffsetX * 2) * 0.46
-                    : min(constraints.maxWidth - chatOffsetX * 2, 784);
+              final double width = isShowPanel
+                  ? (constraints.maxWidth - chatOffsetX * 2) * 0.46
+                  : min(constraints.maxWidth - chatOffsetX * 2, 784);
 
-                final double sidePanelOffsetX = chatOffsetX + width;
+              final double sidePanelOffsetX = chatOffsetX + width;
 
-                return Stack(
-                  alignment: AlignmentDirectional.centerStart,
-                  children: [
-                    buildChatWidget()
-                        .constrained(width: width)
+              return Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: [
+                  buildChatWidget()
+                      .constrained(width: width)
+                      .positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: chatOffsetX,
+                        animate: true,
+                      )
+                      .animate(
+                        const Duration(milliseconds: 200),
+                        Curves.easeOut,
+                      ),
+                  if (isShowPanel)
+                    buildChatSidePanel()
                         .positioned(
+                          left: sidePanelOffsetX,
+                          right: 0,
                           top: 0,
                           bottom: 0,
-                          left: chatOffsetX,
                           animate: true,
                         )
                         .animate(
                           const Duration(milliseconds: 200),
                           Curves.easeOut,
                         ),
-                    if (isShowPanel)
-                      buildChatSidePanel()
-                          .positioned(
-                            left: sidePanelOffsetX,
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            animate: true,
-                          )
-                          .animate(
-                            const Duration(milliseconds: 200),
-                            Curves.easeOut,
-                          ),
-                  ],
-                );
-              },
-            );
-          },
-        );
-      } else {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 784),
-                child: buildChatWidget(),
-              ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 784),
+              child: buildChatWidget(),
             ),
-          ],
-        );
-      }
+          ),
+        ],
+      );
     }
-
-    return Center(
-      child: FlowyText(
-        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-        fontSize: 20,
-      ),
-    );
   }
 
   Widget buildChatSidePanel() {
