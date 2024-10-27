@@ -5,8 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-
-import 'chat_input/chat_input.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class WelcomeQuestion {
   WelcomeQuestion({
@@ -73,7 +72,7 @@ class ChatWelcomePage extends StatelessWidget {
             const VSpace(8),
             Wrap(
               direction: Axis.vertical,
-              spacing: isMobile ? 12.0 : 0.0,
+              spacing: UniversalPlatform.isMobile ? 12.0 : 0.0,
               children: items
                   .map(
                     (i) => WelcomeQuestionWidget(
@@ -109,7 +108,7 @@ class WelcomeQuestionWidget extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: FlowyHover(
           // Make the hover effect only available on mobile
-          isSelected: () => isMobile,
+          isSelected: () => UniversalPlatform.isMobile,
           style: HoverStyle(
             borderRadius: BorderRadius.circular(6),
           ),

@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_input.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
@@ -21,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const _leftPadding = 16.0;
 
@@ -38,7 +38,7 @@ class OtherUserMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     const padding = EdgeInsets.symmetric(horizontal: _leftPadding);
     final childWithPadding = Padding(padding: padding, child: child);
-    final widget = isMobile
+    final widget = UniversalPlatform.isMobile
         ? _wrapPopMenu(childWithPadding)
         : _wrapHover(childWithPadding);
 

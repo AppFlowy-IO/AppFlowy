@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bubble_bloc.dart';
@@ -137,7 +138,11 @@ class _MessageFile extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox.square(dimension: 16, child: file.fileType.icon),
+            FlowySvg(
+              FlowySvgs.page_m,
+              size: const Size.square(16),
+              color: Theme.of(context).hintColor,
+            ),
             const HSpace(6),
             Flexible(
               child: ConstrainedBox(

@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:path/path.dart' as path;
 
@@ -98,30 +96,6 @@ class ChatFile extends Equatable {
 
   @override
   List<Object?> get props => [filePath];
-}
-
-extension ChatFileTypeExtension on ChatMessageMetaTypePB {
-  Widget get icon {
-    switch (this) {
-      case ChatMessageMetaTypePB.PDF:
-        return const FlowySvg(
-          FlowySvgs.file_pdf_s,
-          color: Color(0xff00BCF0),
-        );
-      case ChatMessageMetaTypePB.Txt:
-        return const FlowySvg(
-          FlowySvgs.file_txt_s,
-          color: Color(0xff00BCF0),
-        );
-      case ChatMessageMetaTypePB.Markdown:
-        return const FlowySvg(
-          FlowySvgs.file_md_s,
-          color: Color(0xff00BCF0),
-        );
-      default:
-        return const FlowySvg(FlowySvgs.file_unknown_s);
-    }
-  }
 }
 
 typedef ChatInputFileMetadata = Map<String, ChatFile>;

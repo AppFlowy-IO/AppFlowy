@@ -1,130 +1,167 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_file_bloc.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+import 'layout_define.dart';
+
 class ChatInputFile extends StatelessWidget {
   const ChatInputFile({
-    required this.chatId,
-    required this.files,
-    required this.onDeleted,
     super.key,
+    required this.chatId,
+    required this.onDeleted,
   });
-  final List<ChatFile> files;
-  final String chatId;
 
-  final Function(ChatFile) onDeleted;
+  final String chatId;
+  final void Function(ChatFile) onDeleted;
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = files
-        .map(
-          (file) => ChatFilePreview(
-            chatId: chatId,
-            file: file,
-            onDeleted: onDeleted,
+    return BlocSelector<AIPromptInputBloc, AIPromptInputState, List<ChatFile>>(
+      selector: (state) => state.uploadFiles,
+      builder: (context, files) {
+        if (files.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: DesktopAIPromptSizes.attachedFilesBarPadding -
+              const EdgeInsets.only(top: 6),
+          separatorBuilder: (context, index) => const HSpace(
+            DesktopAIPromptSizes.attachedFilesPreviewSpacing - 6,
           ),
-        )
-        .toList();
-
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: children,
+          itemCount: files.length,
+          itemBuilder: (context, index) => ChatFilePreview(
+            chatId: chatId,
+            file: files[index],
+            onDeleted: () => onDeleted(files[index]),
+          ),
+        );
+      },
     );
   }
 }
 
-class ChatFilePreview extends StatelessWidget {
+class ChatFilePreview extends StatefulWidget {
   const ChatFilePreview({
     required this.chatId,
     required this.file,
     required this.onDeleted,
     super.key,
   });
+
   final String chatId;
   final ChatFile file;
-  final Function(ChatFile) onDeleted;
+  final VoidCallback onDeleted;
+
+  @override
+  State<ChatFilePreview> createState() => _ChatFilePreviewState();
+}
+
+class _ChatFilePreviewState extends State<ChatFilePreview> {
+  bool isHover = false;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ChatInputFileBloc(chatId: chatId, file: file)
-        ..add(const ChatInputFileEvent.initial()),
+      create: (context) => ChatInputFileBloc(file: widget.file),
       child: BlocBuilder<ChatInputFileBloc, ChatInputFileState>(
         builder: (context, state) {
-          return FlowyHover(
-            builder: (context, onHover) {
-              return ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 260,
-                ),
-                child: DecoratedBox(
+          return MouseRegion(
+            onEnter: (_) => setHover(true),
+            onExit: (_) => setHover(false),
+            child: Stack(
+              children: [
+                Container(
+                  margin: const EdgeInsetsDirectional.only(top: 6, end: 6),
+                  constraints: const BoxConstraints(maxWidth: 240),
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    border: Border.all(
+                      color: Theme.of(context).dividerColor,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Stack(
-                    clipBehavior: Clip.none,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0,
-                          vertical: 14,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AFThemeExtension.of(context).tint1,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        height: 32,
+                        width: 32,
+                        child: Center(
+                          child: FlowySvg(
+                            FlowySvgs.page_m,
+                            size: const Size.square(16),
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ),
+                      const HSpace(8),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            file.fileType.icon,
-                            const HSpace(6),
-                            Flexible(
-                              child: FlowyText(
-                                file.fileName,
-                                fontSize: 12,
-                                maxLines: 6,
-                              ),
+                            FlowyText(
+                              widget.file.fileName,
+                              fontSize: 12.0,
+                            ),
+                            FlowyText(
+                              widget.file.fileType.name,
+                              color: Theme.of(context).hintColor,
+                              fontSize: 12.0,
                             ),
                           ],
                         ),
                       ),
-                      if (onHover)
-                        _CloseButton(
-                          onPressed: () => onDeleted(file),
-                        ).positioned(top: -6, right: -6),
                     ],
                   ),
                 ),
-              );
-            },
+                if (isHover)
+                  _CloseButton(
+                    onTap: widget.onDeleted,
+                  ).positioned(top: 0, right: 0),
+              ],
+            ),
           );
         },
       ),
     );
   }
+
+  void setHover(bool value) {
+    if (value != isHover) {
+      setState(() => isHover = value);
+    }
+  }
 }
 
 class _CloseButton extends StatelessWidget {
-  const _CloseButton({required this.onPressed});
-  final VoidCallback onPressed;
+  const _CloseButton({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyIconButton(
-      width: 24,
-      height: 24,
-      isSelected: true,
-      radius: BorderRadius.circular(12),
-      fillColor: Theme.of(context).colorScheme.surfaceContainer,
-      icon: const FlowySvg(
-        FlowySvgs.close_s,
-        size: Size.square(20),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: FlowySvg(
+          FlowySvgs.ai_close_filled_s,
+          color: AFThemeExtension.of(context).greyHover,
+          size: const Size.square(16),
+        ),
       ),
-      onPressed: onPressed,
     );
   }
 }

@@ -3,8 +3,7 @@ import 'dart:math';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
@@ -26,7 +25,8 @@ import 'package:universal_platform/universal_platform.dart';
 
 import 'application/chat_member_bloc.dart';
 import 'application/chat_side_panel_bloc.dart';
-import 'presentation/chat_input/chat_input.dart';
+import 'presentation/chat_input/desktop_ai_prompt_input.dart';
+import 'presentation/chat_input/mobile_ai_prompt_input.dart';
 import 'presentation/chat_side_panel.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
@@ -35,10 +35,7 @@ import 'presentation/message/ai_text_message.dart';
 import 'presentation/message/user_text_message.dart';
 
 class AIChatUILayout {
-  static EdgeInsets get chatPadding =>
-      isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 20);
-
-  static EdgeInsets get welcomePagePadding => isMobile
+  static EdgeInsets get welcomePagePadding => UniversalPlatform.isMobile
       ? const EdgeInsets.symmetric(horizontal: 20)
       : const EdgeInsets.symmetric(horizontal: 50);
 
@@ -46,7 +43,7 @@ class AIChatUILayout {
 
   static EdgeInsets safeAreaInsets(BuildContext context) {
     final query = MediaQuery.of(context);
-    return isMobile
+    return UniversalPlatform.isMobile
         ? EdgeInsets.fromLTRB(
             query.padding.left,
             0,
@@ -91,34 +88,25 @@ class AIChatPage extends StatelessWidget {
           )..add(const ChatEvent.initialLoad()),
         ),
 
-        /// [ChatFileBloc] is used to handle file indexing as a chat context
-        BlocProvider(
-          create: (_) => ChatFileBloc()..add(const ChatFileEvent.initial()),
-        ),
-
-        /// [ChatInputStateBloc] is used to handle chat input text field state
-        BlocProvider(create: (_) => ChatInputStateBloc()),
+        /// [AIPromptInputBloc] is used to handle the user prompt
+        BlocProvider(create: (_) => AIPromptInputBloc()),
         BlocProvider(create: (_) => ChatSidePanelBloc(chatId: view.id)),
         BlocProvider(create: (_) => ChatMemberBloc()),
       ],
-      child: BlocBuilder<ChatFileBloc, ChatFileState>(
-        builder: (context, state) {
-          return DropTarget(
-            onDragDone: (DropDoneDetails detail) async {
-              if (state.supportChatWithFile) {
-                for (final file in detail.files) {
-                  context
-                      .read<ChatFileBloc>()
-                      .add(ChatFileEvent.newFile(file.path, file.name));
-                }
-              }
-            },
-            child: _ChatContentPage(
-              view: view,
-              userProfile: userProfile,
-            ),
-          );
+      child: DropTarget(
+        onDragDone: (DropDoneDetails detail) async {
+          if (context.read<AIPromptInputBloc>().state.supportChatWithFile) {
+            for (final file in detail.files) {
+              context
+                  .read<AIPromptInputBloc>()
+                  .add(AIPromptInputEvent.newFile(file.path, file.name));
+            }
+          }
         },
+        child: _ChatContentPage(
+          view: view,
+          userProfile: userProfile,
+        ),
       ),
     );
   }
@@ -219,11 +207,10 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     if (UniversalPlatform.isDesktop) {
       return BlocBuilder<ChatSidePanelBloc, ChatSidePanelState>(
         builder: (context, state) {
-          if (state.metadata != null) {
-            return const ChatSidePanel();
-          } else {
+          if (state.metadata == null) {
             return const SizedBox.shrink();
           }
+          return const ChatSidePanel();
         },
       );
     } else {
@@ -374,58 +361,52 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   }
 
   Widget _buildBottom(BuildContext context) {
-    return ClipRect(
-      child: Padding(
-        padding: AIChatUILayout.safeAreaInsets(context),
-        child: BlocBuilder<ChatInputStateBloc, ChatInputStateState>(
-          builder: (context, state) {
-            // Show different hint text based on the AI type
-            final aiType = state.aiType;
-            final hintText = state.aiType.when(
-              appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
-              localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
-            );
-
-            return Column(
-              children: [
-                BlocSelector<ChatBloc, ChatState, bool>(
-                  selector: (state) => state.canSendMessage,
-                  builder: (context, canSendMessage) {
-                    return ChatInput(
-                      aiType: aiType,
-                      chatId: widget.view.id,
-                      onSendPressed: (message) {
-                        context.read<ChatBloc>().add(
-                              ChatEvent.sendMessage(
-                                message: message.text,
-                                metadata: message.metadata,
-                              ),
-                            );
-                      },
-                      isStreaming: !canSendMessage,
-                      onStopStreaming: () {
-                        context
-                            .read<ChatBloc>()
-                            .add(const ChatEvent.stopStream());
-                      },
-                      hintText: hintText,
-                    );
+    return Padding(
+      padding: AIChatUILayout.safeAreaInsets(context),
+      child: BlocSelector<ChatBloc, ChatState, bool>(
+        selector: (state) => state.canSendMessage,
+        builder: (context, canSendMessage) {
+          return UniversalPlatform.isDesktop
+              ? DesktopAIPromptInput(
+                  chatId: widget.view.id,
+                  indicateFocus: true,
+                  onSubmitted: (message) {
+                    context.read<ChatBloc>().add(
+                          ChatEvent.sendMessage(
+                            message: message.text,
+                            metadata: message.metadata,
+                          ),
+                        );
                   },
-                ),
-                const VSpace(6),
-                if (UniversalPlatform.isDesktop)
-                  Opacity(
-                    opacity: 0.6,
-                    child: FlowyText(
-                      LocaleKeys.chat_aiMistakePrompt.tr(),
-                      fontSize: 12,
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+                  isStreaming: !canSendMessage,
+                  onStopStreaming: () {
+                    context.read<ChatBloc>().add(const ChatEvent.stopStream());
+                  },
+                )
+              : MobileAIPromptInput(
+                  chatId: widget.view.id,
+                  onSubmitted: (message) {
+                    context.read<ChatBloc>().add(
+                          ChatEvent.sendMessage(
+                            message: message.text,
+                            metadata: message.metadata,
+                          ),
+                        );
+                  },
+                  isStreaming: !canSendMessage,
+                  onStopStreaming: () {
+                    context.read<ChatBloc>().add(const ChatEvent.stopStream());
+                  },
+                );
+        },
       ),
+      // Opacity(
+      //   opacity: 0.6,
+      //   child: FlowyText(
+      //     LocaleKeys.chat_aiMistakePrompt.tr(),
+      //     fontSize: 12,
+      //   ),
+      // ),
     );
   }
 }

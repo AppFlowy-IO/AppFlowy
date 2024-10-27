@@ -193,8 +193,8 @@
     "inputActionNoPages": "No page results",
     "referenceSource": "{} source found",
     "referenceSources": "{} sources found",
-    "clickToMention": "Click to mention a page",
-    "uploadFile": "Upload PDFs, md or txt files to chat with",
+    "clickToMention": "Mention a page",
+    "uploadFile": "Attach PDFs, text or markdown files",
     "questionTitle": "Ideas",
     "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}"
