@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/navigator_context_exntesion.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -24,69 +23,74 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   const MobileViewPageMoreBottomSheet({super.key, required this.view});
 
   final ViewPB view;
-
   @override
   Widget build(BuildContext context) {
-    return ViewPageBottomSheet(
-      view: view,
-      onAction: (action) async {
-        switch (action) {
-          case MobileViewBottomSheetBodyAction.duplicate:
-            context.read<ViewBloc>().add(const ViewEvent.duplicate());
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.delete:
-            context.read<ViewBloc>().add(const ViewEvent.delete());
-            context.popToHome();
-            break;
-          case MobileViewBottomSheetBodyAction.addToFavorites:
-          case MobileViewBottomSheetBodyAction.removeFromFavorites:
-            context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.undo:
-            EditorNotification.undo().post();
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.redo:
-            EditorNotification.redo().post();
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.helpCenter:
-            // unimplemented
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.publish:
-            await _publish(context);
-            if (context.mounted) {
-              context.pop();
-            }
-            break;
-          case MobileViewBottomSheetBodyAction.unpublish:
-            _unpublish(context);
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.copyPublishLink:
-            _copyPublishLink(context);
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.visitSite:
-            _visitPublishedSite(context);
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.copyShareLink:
-            _copyShareLink(context);
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.rename:
-            // no need to implement, rename is handled by the onRename callback.
-            throw UnimplementedError();
+    return BlocListener<ViewBloc, ViewState>(
+      listener: (context, state) {
+        if (state.successOrFailure.isSuccess && state.isDeleted) {
+          context.go('/home');
         }
       },
-      onRename: (name) {
-        _onRename(context, name);
-        context.pop();
-      },
+      child: ViewPageBottomSheet(
+        view: view,
+        onAction: (action) async {
+          switch (action) {
+            case MobileViewBottomSheetBodyAction.duplicate:
+              context.read<ViewBloc>().add(const ViewEvent.duplicate());
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.delete:
+              context.read<ViewBloc>().add(const ViewEvent.delete());
+              break;
+            case MobileViewBottomSheetBodyAction.addToFavorites:
+            case MobileViewBottomSheetBodyAction.removeFromFavorites:
+              context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.undo:
+              EditorNotification.undo().post();
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.redo:
+              EditorNotification.redo().post();
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.helpCenter:
+              // unimplemented
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.publish:
+              await _publish(context);
+              if (context.mounted) {
+                context.pop();
+              }
+              break;
+            case MobileViewBottomSheetBodyAction.unpublish:
+              _unpublish(context);
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.copyPublishLink:
+              _copyPublishLink(context);
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.visitSite:
+              _visitPublishedSite(context);
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.copyShareLink:
+              _copyShareLink(context);
+              context.pop();
+              break;
+            case MobileViewBottomSheetBodyAction.rename:
+              // no need to implement, rename is handled by the onRename callback.
+              throw UnimplementedError();
+          }
+        },
+        onRename: (name) {
+          _onRename(context, name);
+          context.pop();
+        },
+      ),
     );
   }
 
