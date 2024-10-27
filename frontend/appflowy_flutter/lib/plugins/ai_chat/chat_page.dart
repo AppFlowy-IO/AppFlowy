@@ -25,9 +25,9 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'application/chat_member_bloc.dart';
-import 'application/chat_side_pannel_bloc.dart';
+import 'application/chat_side_panel_bloc.dart';
 import 'presentation/chat_input/chat_input.dart';
-import 'presentation/chat_side_pannel.dart';
+import 'presentation/chat_side_panel.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
@@ -93,7 +93,7 @@ class AIChatPage extends StatelessWidget {
             create: (_) =>
                 ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
           ),
-          BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
+          BlocProvider(create: (_) => ChatSidePanelBloc(chatId: view.id)),
           BlocProvider(create: (_) => ChatMemberBloc()),
         ],
         child: BlocBuilder<ChatFileBloc, ChatFileState>(
@@ -153,22 +153,22 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   Widget build(BuildContext context) {
     if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
       if (UniversalPlatform.isDesktop) {
-        return BlocSelector<ChatSidePannelBloc, ChatSidePannelState, bool>(
-          selector: (state) => state.isShowPannel,
-          builder: (context, isShowPannel) {
+        return BlocSelector<ChatSidePanelBloc, ChatSidePanelState, bool>(
+          selector: (state) => state.isShowPanel,
+          builder: (context, isShowPanel) {
             return LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                final double chatOffsetX = isShowPannel
+                final double chatOffsetX = isShowPanel
                     ? 60
                     : (constraints.maxWidth > 784
                         ? (constraints.maxWidth - 784) / 2.0
                         : 60);
 
-                final double width = isShowPannel
+                final double width = isShowPanel
                     ? (constraints.maxWidth - chatOffsetX * 2) * 0.46
                     : min(constraints.maxWidth - chatOffsetX * 2, 784);
 
-                final double sidePannelOffsetX = chatOffsetX + width;
+                final double sidePanelOffsetX = chatOffsetX + width;
 
                 return Stack(
                   alignment: AlignmentDirectional.centerStart,
@@ -185,10 +185,10 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                           const Duration(milliseconds: 200),
                           Curves.easeOut,
                         ),
-                    if (isShowPannel)
-                      buildChatSidePannel()
+                    if (isShowPanel)
+                      buildChatSidePanel()
                           .positioned(
-                            left: sidePannelOffsetX,
+                            left: sidePanelOffsetX,
                             right: 0,
                             top: 0,
                             bottom: 0,
@@ -227,12 +227,12 @@ class _ChatContentPageState extends State<_ChatContentPage> {
     );
   }
 
-  Widget buildChatSidePannel() {
+  Widget buildChatSidePanel() {
     if (UniversalPlatform.isDesktop) {
-      return BlocBuilder<ChatSidePannelBloc, ChatSidePannelState>(
+      return BlocBuilder<ChatSidePanelBloc, ChatSidePanelState>(
         builder: (context, state) {
           if (state.metadata != null) {
-            return const ChatSidePannel();
+            return const ChatSidePanel();
           } else {
             return const SizedBox.shrink();
           }
@@ -339,8 +339,8 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         chatId: widget.view.id,
         refSourceJsonString: refSourceJsonString,
         onSelectedMetadata: (ChatMessageRefSource metadata) {
-          context.read<ChatSidePannelBloc>().add(
-                ChatSidePannelEvent.selectedMetadata(metadata),
+          context.read<ChatSidePanelBloc>().add(
+                ChatSidePanelEvent.selectedMetadata(metadata),
               );
         },
       );

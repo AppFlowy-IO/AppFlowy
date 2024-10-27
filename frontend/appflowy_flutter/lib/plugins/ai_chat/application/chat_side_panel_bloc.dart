@@ -7,23 +7,22 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'chat_side_pannel_bloc.freezed.dart';
+part 'chat_side_panel_bloc.freezed.dart';
 
-const double kDefaultSidePannelWidth = 500;
+const double kDefaultSidePanelWidth = 500;
 
-class ChatSidePannelBloc
-    extends Bloc<ChatSidePannelEvent, ChatSidePannelState> {
-  ChatSidePannelBloc({
+class ChatSidePanelBloc extends Bloc<ChatSidePanelEvent, ChatSidePanelState> {
+  ChatSidePanelBloc({
     required this.chatId,
-  }) : super(const ChatSidePannelState()) {
-    on<ChatSidePannelEvent>(
+  }) : super(const ChatSidePanelState()) {
+    on<ChatSidePanelEvent>(
       (event, emit) async {
         await event.when(
           selectedMetadata: (ChatMessageRefSource metadata) async {
             emit(
               state.copyWith(
                 metadata: metadata,
-                indicator: const ChatSidePannelIndicator.loading(),
+                indicator: const ChatSidePanelIndicator.loading(),
               ),
             );
             unawaited(
@@ -31,7 +30,7 @@ class ChatSidePannelBloc
                 (result) {
                   result.fold((view) {
                     if (!isClosed) {
-                      add(ChatSidePannelEvent.open(view));
+                      add(ChatSidePanelEvent.open(view));
                     }
                   }, (err) {
                     Log.error("Failed to get view: $err");
@@ -41,13 +40,13 @@ class ChatSidePannelBloc
             );
           },
           close: () {
-            emit(state.copyWith(metadata: null, isShowPannel: false));
+            emit(state.copyWith(metadata: null, isShowPanel: false));
           },
           open: (ViewPB view) {
             emit(
               state.copyWith(
-                indicator: ChatSidePannelIndicator.ready(view),
-                isShowPannel: true,
+                indicator: ChatSidePanelIndicator.ready(view),
+                isShowPanel: true,
               ),
             );
           },
@@ -60,26 +59,25 @@ class ChatSidePannelBloc
 }
 
 @freezed
-class ChatSidePannelEvent with _$ChatSidePannelEvent {
-  const factory ChatSidePannelEvent.selectedMetadata(
+class ChatSidePanelEvent with _$ChatSidePanelEvent {
+  const factory ChatSidePanelEvent.selectedMetadata(
     ChatMessageRefSource metadata,
   ) = _SelectedMetadata;
-  const factory ChatSidePannelEvent.close() = _Close;
-  const factory ChatSidePannelEvent.open(ViewPB view) = _Open;
+  const factory ChatSidePanelEvent.close() = _Close;
+  const factory ChatSidePanelEvent.open(ViewPB view) = _Open;
 }
 
 @freezed
-class ChatSidePannelState with _$ChatSidePannelState {
-  const factory ChatSidePannelState({
+class ChatSidePanelState with _$ChatSidePanelState {
+  const factory ChatSidePanelState({
     ChatMessageRefSource? metadata,
-    @Default(ChatSidePannelIndicator.loading())
-    ChatSidePannelIndicator indicator,
-    @Default(false) bool isShowPannel,
-  }) = _ChatSidePannelState;
+    @Default(ChatSidePanelIndicator.loading()) ChatSidePanelIndicator indicator,
+    @Default(false) bool isShowPanel,
+  }) = _ChatSidePanelState;
 }
 
 @freezed
-class ChatSidePannelIndicator with _$ChatSidePannelIndicator {
-  const factory ChatSidePannelIndicator.ready(ViewPB view) = _Ready;
-  const factory ChatSidePannelIndicator.loading() = _Loading;
+class ChatSidePanelIndicator with _$ChatSidePanelIndicator {
+  const factory ChatSidePanelIndicator.ready(ViewPB view) = _Ready;
+  const factory ChatSidePanelIndicator.loading() = _Loading;
 }

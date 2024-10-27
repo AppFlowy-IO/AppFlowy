@@ -966,9 +966,7 @@
       "createNew": "Crie um novo",
       "orSelectOne": "Ou selecione uma opção",
       "typeANewOption": "Digite uma nova opção",
-      "tagName": "Nome da etiqueta",
-      "colorPannelTitle": "Cores",
-      "pannelTitle": "Escolha uma opção ou crie uma"
+      "tagName": "Nome da etiqueta"
     },
     "checklist": {
       "taskHint": "Descrição da tarefa",

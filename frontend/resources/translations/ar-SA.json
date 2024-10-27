@@ -691,9 +691,7 @@
       "createNew": "إنشاء جديد",
       "orSelectOne": "أو حدد خيارًا",
       "typeANewOption": "اكتب خيارًا جديدًا",
-      "tagName": "اسم العلامة",
-      "colorPannelTitle": "لوحة الالوان",
-      "pannelTitle": "لوحة الخيارات"
+      "tagName": "اسم العلامة"
     },
     "checklist": {
       "taskHint": "وصف المهمة",

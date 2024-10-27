@@ -1,17 +1,17 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_side_pannel_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_side_panel_bloc.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChatSidePannel extends StatelessWidget {
-  const ChatSidePannel({super.key});
+class ChatSidePanel extends StatelessWidget {
+  const ChatSidePanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatSidePannelBloc, ChatSidePannelState>(
+    return BlocBuilder<ChatSidePanelBloc, ChatSidePanelState>(
       builder: (context, state) {
         return state.indicator.when(
           loading: () {
@@ -35,8 +35,8 @@ class ChatSidePannel extends StatelessWidget {
                       icon: const FlowySvg(FlowySvgs.show_menu_s),
                       onPressed: () {
                         context
-                            .read<ChatSidePannelBloc>()
-                            .add(const ChatSidePannelEvent.close());
+                            .read<ChatSidePanelBloc>()
+                            .add(const ChatSidePanelEvent.close());
                       },
                     ),
                   ),
