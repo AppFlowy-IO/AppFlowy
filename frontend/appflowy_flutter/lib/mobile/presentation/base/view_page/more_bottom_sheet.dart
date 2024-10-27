@@ -41,6 +41,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
               break;
             case MobileViewBottomSheetBodyAction.delete:
               context.read<ViewBloc>().add(const ViewEvent.delete());
+              context.pop();
               break;
             case MobileViewBottomSheetBodyAction.addToFavorites:
             case MobileViewBottomSheetBodyAction.removeFromFavorites:
