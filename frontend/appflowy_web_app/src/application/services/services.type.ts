@@ -65,6 +65,7 @@ export interface AppService {
   getSubscriptions: () => Promise<Subscriptions>;
   getActiveSubscription: (workspaceId: string) => Promise<SubscriptionPlan[]>;
   registerDocUpdate: (doc: YDoc, workspaceId: string, objectId: string) => void;
+  uploadFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
   importFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
 }
 

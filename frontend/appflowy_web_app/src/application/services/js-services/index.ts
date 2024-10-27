@@ -472,7 +472,13 @@ export class AFClientService implements AFService {
     sync.initialize();
   }
 
-  importFile (file: File, onProgress: (progress: number) => void) {
-    return APIService.importFile(file, onProgress);
+  uploadFile (file: File, onProgress: (progress: number) => void) {
+    return APIService.uploadFile(file, onProgress);
+  }
+
+  async importFile (file: File, onProgress: (progress: number) => void) {
+    const task = await APIService.createImportTask(file);
+
+    await APIService.uploadImportFile(task.presignedUrl, file, onProgress);
   }
 }
