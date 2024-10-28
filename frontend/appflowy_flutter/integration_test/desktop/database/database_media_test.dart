@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/core/config/kv.dart';
@@ -68,10 +69,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect one file
       expect(find.byType(RenderMedia), findsOneWidget);
@@ -84,9 +82,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
+      await tester.tapFileUploadHint();
       await tester.pumpAndSettle();
 
       // Expect two files
@@ -138,10 +134,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect two files
       expect(find.byType(RenderMedia), findsNWidgets(2));
@@ -192,10 +185,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect two files
       expect(find.byType(RenderMedia), findsNWidgets(2));
@@ -271,10 +261,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect two files
       expect(find.byType(RenderMedia), findsNWidgets(2));
@@ -308,4 +295,18 @@ void main() {
       await Future.wait([firstFile.delete(), secondFile.delete()]);
     });
   });
+}
+
+extension _TapFileUploadHint on WidgetTester {
+  Future<void> tapFileUploadHint() async {
+    final finder = find.byWidgetPredicate(
+      (w) =>
+          w is RichText &&
+          w.text.toPlainText().contains(
+                LocaleKeys.document_plugins_file_fileUploadHint.tr(),
+              ),
+    );
+    await tap(finder);
+    await pumpAndSettle(const Duration(seconds: 2));
+  }
 }
