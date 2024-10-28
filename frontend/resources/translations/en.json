@@ -1525,7 +1525,8 @@
       "downloadSuccess": "File downloaded",
       "downloadFailedToken": "Failed to download file, user token unavailable",
       "setAsCover": "Set as cover",
-      "openInBrowser": "Open in browser"
+      "openInBrowser": "Open in browser",
+      "embedLink": "Embed file link"
     }
   },
   "document": {
@@ -1751,7 +1752,8 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
-        "uploadMobile": "Pick from files",
+        "uploadMobile": "Choose a file",
+        "uploadMobileGallery": "From Photo Gallery",
         "networkTab": "Embed link",
         "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",

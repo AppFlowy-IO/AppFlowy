@@ -1,4 +1,5 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_media_upload.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
@@ -141,15 +142,7 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
       child = InkWell(
         borderRadius:
             isMobileRowDetail ? BorderRadius.circular(12) : BorderRadius.zero,
-        onTap: () {
-          showMobileBottomSheet(
-            context,
-            builder: (_) => BlocProvider.value(
-              value: context.read<MediaCellBloc>(),
-              child: const MobileMediaCellEditor(),
-            ),
-          );
-        },
+        onTap: () => _tapCellMobile(context),
         hoverColor: Colors.transparent,
         child: child,
       );
@@ -194,6 +187,35 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
             context.read<MediaCellBloc>().deleteFile(deleteFile.id);
           },
         ),
+      ),
+    );
+  }
+
+  void _tapCellMobile(BuildContext context) {
+    final files = context.read<MediaCellBloc>().state.files;
+
+    if (files.isEmpty) {
+      showMobileBottomSheet(
+        context,
+        title: LocaleKeys.grid_media_addFileMobile.tr(),
+        showHeader: true,
+        showCloseButton: true,
+        showDragHandle: true,
+        builder: (dContext) => BlocProvider.value(
+          value: context.read<MediaCellBloc>(),
+          child: MobileMediaUploadSheetContent(
+            dialogContext: dContext,
+          ),
+        ),
+      );
+      return;
+    }
+
+    showMobileBottomSheet(
+      context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<MediaCellBloc>(),
+        child: const MobileMediaCellEditor(),
       ),
     );
   }
