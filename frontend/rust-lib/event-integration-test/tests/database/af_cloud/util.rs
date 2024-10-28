@@ -36,10 +36,9 @@ pub fn make_test_summary_grid() -> DatabaseData {
 
   let rows = create_rows(&database_id, &fields, options);
 
-  let inline_view_id = gen_database_view_id();
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
@@ -48,7 +47,6 @@ pub fn make_test_summary_grid() -> DatabaseData {
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,

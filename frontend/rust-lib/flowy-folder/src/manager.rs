@@ -16,7 +16,7 @@ use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::{ImportParams, ImportValue};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
-  create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers,
+  create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers, ViewData,
 };
 use arc_swap::ArcSwapOption;
 use collab::core::collab::DataSource;
@@ -497,13 +497,18 @@ impl FolderManager {
     let user_id = self.user.user_id()?;
     let mut encoded_collab: Option<EncodedCollab> = None;
 
+    info!(
+      "{} create view {}, name:{}, layout:{:?}",
+      handler.name(),
+      params.view_id,
+      params.name,
+      params.layout
+    );
     if params.meta.is_empty() && params.initial_data.is_empty() {
-      tracing::trace!("Create view with build-in data");
       handler
-        .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
+        .create_view_with_default_data(user_id, &params.view_id, &params.name, view_layout.clone())
         .await?;
     } else {
-      tracing::trace!("Create view with view data");
       encoded_collab = handler
         .create_view_with_view_data(user_id, params.clone())
         .await?;
@@ -539,7 +544,7 @@ impl FolderManager {
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     handler
-      .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
+      .create_view_with_default_data(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
 
     let view = create_view(self.user.user_id()?, params, view_layout);
@@ -987,6 +992,13 @@ impl FolderManager {
         })?;
 
       let handler = self.get_handler(&view.layout)?;
+      info!(
+        "{} duplicate view{}, name:{}, layout:{:?}",
+        handler.name(),
+        view.id,
+        view.name,
+        view.layout
+      );
       let view_data = handler.duplicate_view(&view.id).await?;
 
       let index = self
@@ -1020,7 +1032,7 @@ impl FolderManager {
         name,
         desc: view.desc.clone(),
         layout: view.layout.clone().into(),
-        initial_data: view_data.to_vec(),
+        initial_data: ViewData::DuplicateData(view_data),
         view_id: gen_view_id().to_string(),
         meta: Default::default(),
         set_as_current: is_source_view && open_after_duplicated,
@@ -1583,7 +1595,7 @@ impl FolderManager {
       name: import_data.name,
       desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
-      initial_data: vec![],
+      initial_data: ViewData::Empty,
       view_id,
       meta: Default::default(),
       set_as_current: false,

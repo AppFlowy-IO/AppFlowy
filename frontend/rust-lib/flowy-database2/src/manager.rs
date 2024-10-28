@@ -340,12 +340,11 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_database_json_bytes(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
+  pub async fn get_database_data(&self, view_id: &str) -> FlowyResult<DatabaseData> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let data = wdb.get_database_data(view_id).await?;
-    let json_bytes = data.to_json_bytes()?;
-    Ok(json_bytes)
+    Ok(data)
   }
 
   pub async fn get_database_json_string(&self, view_id: &str) -> FlowyResult<String> {
@@ -358,24 +357,24 @@ impl DatabaseManager {
 
   /// Create a new database with the given data that can be deserialized to [DatabaseData].
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_database_with_database_data(
+  pub async fn create_database_with_data(
     &self,
     view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
+    let view_id = view_id.to_string();
+    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
+    debug_assert!(
+      create_database_params.views.len() == 1,
+      "Currently, only support create database with one view"
+    );
 
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data, None);
-    let old_view_id = create_database_params.inline_view_id.clone();
-    create_database_params.inline_view_id = view_id.to_string();
-
-    if let Some(create_view_params) = create_database_params
+    // when creating database views, each views must equal to the view_id
+    create_database_params
       .views
       .iter_mut()
-      .find(|view| view.view_id == old_view_id)
-    {
-      create_view_params.view_id = view_id.to_string();
-    }
+      .for_each(|view| view.view_id = view_id.clone());
 
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
@@ -448,14 +447,17 @@ impl DatabaseManager {
         let database_template = csv_template.try_into_database_template(None).await?;
         database_template.into_params()
       },
-      CSVFormat::META => tokio::task::spawn_blocking(move || {
-        CSVImporter.import_csv_from_string(view_id, content, format)
-      })
-      .await
-      .map_err(internal_error)??,
+
+      CSVFormat::META => {
+        let cloned_view_id = view_id.clone();
+        tokio::task::spawn_blocking(move || {
+          CSVImporter.import_csv_from_string(cloned_view_id, content, format)
+        })
+        .await
+        .map_err(internal_error)??
+      },
     };
 
-    let view_id = params.inline_view_id.clone();
     let database_id = params.database_id.clone();
     let database = self.import_database(params).await?;
     let encoded_database = database.read().await.encode_database_collabs().await?;
