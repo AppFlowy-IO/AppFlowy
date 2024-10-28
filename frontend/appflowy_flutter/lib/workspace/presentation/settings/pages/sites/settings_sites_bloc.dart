@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -20,6 +21,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
     on<SettingsSitesEvent>((event, emit) async {
       await event.when(
         initial: () async => _initial(emit),
+        upgradeSubscription: () async => _upgradeSubscription(emit),
         unpublishView: (viewId) async => _unpublishView(
           viewId,
           emit,
@@ -32,7 +34,10 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
           name,
           emit,
         ),
-        upgradeSubscription: () async => _upgradeSubscription(emit),
+        setHomePage: (viewId) async => _setHomePage(
+          viewId,
+          emit,
+        ),
       );
     });
   }
@@ -62,10 +67,19 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
     );
 
     // This request is not blocking, render the namespace and subscription info first.
-    final publishViews = await _fetchPublishedViews();
+    final (publishViews, homePageId) = await (
+      _fetchPublishedViews(),
+      _fetchHomePageView(),
+    ).wait;
+
+    final homePageView = publishViews.firstWhereOrNull(
+      (view) => view.info.viewId == homePageId,
+    );
+
     emit(
       state.copyWith(
         publishedViews: publishViews,
+        homePageView: homePageView,
         isLoading: false,
       ),
     );
@@ -191,6 +205,36 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       ),
     );
   }
+
+  Future<void> _setHomePage(
+    String? viewId,
+    Emitter<SettingsSitesState> emit,
+  ) async {
+    final viewIdPB = ViewIdPB();
+    if (viewId != null) {
+      viewIdPB.value = viewId;
+    }
+    final result = await FolderEventSetDefaultPublishInfo(viewIdPB).send();
+    final homePageView = state.publishedViews.firstWhereOrNull(
+      (view) => view.info.viewId == viewId,
+    );
+
+    emit(
+      state.copyWith(
+        homePageView: homePageView,
+        actionResult: SettingsSitesActionResult(
+          actionType: SettingsSitesActionType.setHomePage,
+          isLoading: false,
+          result: result,
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _fetchHomePageView() async {
+    final result = await FolderEventGetDefaultPublishInfo().send();
+    return result.fold((s) => s.viewId, (_) => null);
+  }
 }
 
 @freezed
@@ -201,6 +245,7 @@ class SettingsSitesState with _$SettingsSitesState {
     @Default('') String namespace,
     @Default(null) WorkspaceSubscriptionInfoPB? subscriptionInfo,
     @Default(true) bool isLoading,
+    @Default(null) PublishInfoViewPB? homePageView,
   }) = _SettingsSitesState;
 
   factory SettingsSitesState.initial() => const SettingsSitesState();
@@ -216,6 +261,7 @@ class SettingsSitesEvent with _$SettingsSitesEvent {
   const factory SettingsSitesEvent.updatePublishName(String name) =
       _UpdatePublishName;
   const factory SettingsSitesEvent.upgradeSubscription() = _UpgradeSubscription;
+  const factory SettingsSitesEvent.setHomePage(String viewId) = _SetHomePage;
 }
 
 enum SettingsSitesActionType {
@@ -226,6 +272,8 @@ enum SettingsSitesActionType {
   updatePublishName,
   fetchUserSubscription,
   upgradeSubscription,
+  setHomePage,
+  removeHomePage,
 }
 
 class SettingsSitesActionResult {
