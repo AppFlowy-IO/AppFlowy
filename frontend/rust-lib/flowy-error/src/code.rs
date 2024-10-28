@@ -335,6 +335,15 @@ pub enum ErrorCode {
 
   #[error("Requested namespace is already taken")]
   CustomNamespaceAlreadyTaken = 115,
+
+  #[error("Requested namespace is too short")]
+  CustomNamespaceTooShort = 116,
+
+  #[error("Requested namespace is too long")]
+  CustomNamespaceTooLong = 117,
+
+  #[error("Requested namespace is reserved")]
+  CustomNamespaceReserved = 118,
 }
 
 impl ErrorCode {

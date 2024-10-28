@@ -30,6 +30,9 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::CustomNamespaceDisabled => ErrorCode::CustomNamespaceRequirePlanUpgrade,
       AppErrorCode::CustomNamespaceDisallowed => ErrorCode::CustomNamespaceNotAllowed,
       AppErrorCode::PublishNamespaceAlreadyTaken => ErrorCode::CustomNamespaceAlreadyTaken,
+      AppErrorCode::CustomNamespaceTooShort => ErrorCode::CustomNamespaceTooShort,
+      AppErrorCode::CustomNamespaceTooLong => ErrorCode::CustomNamespaceTooLong,
+      AppErrorCode::CustomNamespaceReserved => ErrorCode::CustomNamespaceReserved,
       _ => ErrorCode::Internal,
     };
 
