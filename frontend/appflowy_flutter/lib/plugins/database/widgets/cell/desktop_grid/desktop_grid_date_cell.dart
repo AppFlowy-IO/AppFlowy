@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_cell_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/widgets.dart';

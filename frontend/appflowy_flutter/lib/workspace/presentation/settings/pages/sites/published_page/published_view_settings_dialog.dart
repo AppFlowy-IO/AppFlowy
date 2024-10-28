@@ -205,6 +205,7 @@ class _PublishedViewSettingsDialogState
         Log.error('update path name failed: $f');
         showToastNotification(
           context,
+          // todo: remove this message after backend fixed.
           message: 'Update path name failed(${f.msg})',
           type: ToastificationType.error,
         );

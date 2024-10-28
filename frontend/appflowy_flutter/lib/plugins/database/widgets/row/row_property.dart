@@ -11,7 +11,6 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';

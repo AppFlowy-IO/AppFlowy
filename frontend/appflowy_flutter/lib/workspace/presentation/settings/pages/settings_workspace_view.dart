@@ -35,7 +35,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/th
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';

@@ -9,7 +9,6 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';

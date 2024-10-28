@@ -19,7 +19,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';

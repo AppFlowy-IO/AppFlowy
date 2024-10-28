@@ -11,7 +11,6 @@ import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/shared/af_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
