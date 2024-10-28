@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -74,7 +74,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ windows-latest ]
+        os: [windows-latest]
         include:
           - os: windows-latest
             flutter_profile: development-windows-x86
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ macos-latest ]
+        os: [macos-latest]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -123,12 +123,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -217,11 +217,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -328,14 +328,14 @@ jobs:
           flutter test integration_test/desktop/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
-  # split the integration tests into different machines to minimize the time
-  integration_test_1:
-    needs: [ prepare-linux ]
+  integration_test:
+    needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
+        test_number: [1, 2, 3, 4, 5, 6]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -344,82 +344,10 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Flutter Integration Test 1
+      - name: Flutter Integration Test ${{ matrix.test_number }}
         uses: ./.github/actions/flutter_integration_test
         with:
-          test_path: integration_test/desktop_runner_1.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
-  integration_test_2:
-    needs: [ prepare-linux ]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        include:
-          - os: ubuntu-latest
-            target: "x86_64-unknown-linux-gnu"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test 2
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          test_path: integration_test/desktop_runner_2.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
-  integration_test_3:
-    needs: [ prepare-linux ]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        include:
-          - os: ubuntu-latest
-            target: "x86_64-unknown-linux-gnu"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test 3
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          test_path: integration_test/desktop_runner_3.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
-  integration_test_4:
-    needs: [ prepare-linux ]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        include:
-          - os: ubuntu-latest
-            target: "x86_64-unknown-linux-gnu"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test 4
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          test_path: integration_test/desktop_runner_4.dart
+          test_path: integration_test/desktop_runner_${{ matrix.test_number }}.dart
           flutter_version: ${{ env.FLUTTER_VERSION }}
           rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
