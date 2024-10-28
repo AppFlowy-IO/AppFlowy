@@ -160,7 +160,9 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         _PublishUrl(
           namespace: widget.namespace,
           controller: controller,
-          onCopy: (url) {
+          onCopy: (_) {
+            final url = context.read<ShareBloc>().state.url;
+
             getIt<ClipboardService>().setData(
               ClipboardServiceData(plainText: url),
             );
@@ -202,6 +204,8 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () {
+          PopoverContainer.of(context).close();
+
           // open settings sites page
           showSettingsDialog(
             context,
@@ -238,7 +242,10 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
     return RoundedTextButton(
       width: 108,
       height: 36,
-      onPressed: () => widget.onVisitSite(controller.text),
+      onPressed: () {
+        final url = context.read<ShareBloc>().state.url;
+        widget.onVisitSite(url);
+      },
       title: LocaleKeys.shareAction_visitSite.tr(),
       borderRadius: const BorderRadius.all(Radius.circular(10)),
       fillColor: Theme.of(context).colorScheme.primary,
@@ -446,7 +453,10 @@ class _PublishUrlState extends State<_PublishUrl> {
           LocaleKeys.button_save.tr(),
           figmaLineHeight: 18.0,
         ),
-        onTap: () => widget.onSubmitted(widget.controller.text),
+        onTap: () {
+          widget.onSubmitted(widget.controller.text);
+          focusNode.unfocus();
+        },
       ),
     );
   }
@@ -457,6 +467,7 @@ class _PublishUrlState extends State<_PublishUrl> {
         contentMargin: EdgeInsets.all(4),
       ),
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => widget.onCopy(widget.controller.text),
         child: Container(
           width: 32,

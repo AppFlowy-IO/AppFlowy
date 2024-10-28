@@ -227,6 +227,13 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
       state.copyWith(
         updatePathNameResult: result,
         pathName: result.fold((_) => pathName, (f) => state.pathName),
+        url: result.fold(
+          (s) => ShareConstants.buildPublishUrl(
+            nameSpace: state.namespace,
+            publishName: pathName,
+          ),
+          (f) => state.url,
+        ),
       ),
     );
   }

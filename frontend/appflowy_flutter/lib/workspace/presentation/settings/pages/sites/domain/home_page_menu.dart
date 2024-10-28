@@ -49,7 +49,21 @@ class _SelectHomePageMenuState extends State<SelectHomePageMenu> {
       children: [
         SpaceSearchField(
           width: 240,
-          onSearch: (context, value) {},
+          onSearch: (context, value) {
+            setState(() {
+              if (value.isEmpty) {
+                views = source;
+              } else {
+                views = source
+                    .where(
+                      (view) => view.view.name
+                          .toLowerCase()
+                          .contains(value.toLowerCase()),
+                    )
+                    .toList();
+              }
+            });
+          },
         ),
         const VSpace(10),
         ...views.map(

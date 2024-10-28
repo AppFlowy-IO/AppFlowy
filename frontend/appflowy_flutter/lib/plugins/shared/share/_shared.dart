@@ -30,6 +30,11 @@ class ShareMenuButton extends StatelessWidget {
             maxWidth: 500,
           ),
           offset: const Offset(0, 8),
+          onOpen: () {
+            context
+                .read<ShareBloc>()
+                .add(const ShareEvent.updatePublishStatus());
+          },
           popupBuilder: (context) => MultiBlocProvider(
             providers: [
               if (databaseBloc != null)
