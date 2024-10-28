@@ -11,7 +11,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_sites_bloc.freezed.dart';
 
-String _lastNamespace = '';
+// workspaceId -> namespace
+Map<String, String?> _namespaceCache = {};
 
 class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   SettingsSitesBloc({
@@ -46,10 +47,11 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   final UserProfilePB user;
 
   Future<void> _initial(Emitter<SettingsSitesState> emit) async {
+    final lastNamespace = _namespaceCache[workspaceId] ?? '';
     emit(
       state.copyWith(
         isLoading: true,
-        namespace: _lastNamespace,
+        namespace: lastNamespace,
       ),
     );
 
@@ -94,8 +96,8 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
 
   Future<String> _fetchPublishNamespace() async {
     final result = await FolderEventGetPublishNamespace().send();
-    _lastNamespace = result.fold((s) => s.namespace, (_) => _lastNamespace);
-    return _lastNamespace;
+    _namespaceCache[workspaceId] = result.fold((s) => s.namespace, (_) => null);
+    return _namespaceCache[workspaceId] ?? '';
   }
 
   Future<List<PublishInfoViewPB>> _fetchPublishedViews() async {
