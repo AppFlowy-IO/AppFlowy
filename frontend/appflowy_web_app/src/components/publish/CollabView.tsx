@@ -40,7 +40,7 @@ function CollabView ({ doc }: CollabViewProps) {
   }, [layout]) as React.FC<{
     doc: YDoc;
     readOnly: boolean;
-    navigateToView?: (viewId: string) => Promise<void>;
+    navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
     loadViewMeta?: LoadViewMeta;
     createRowDoc?: CreateRowDoc;
     loadView?: LoadView;
@@ -98,7 +98,10 @@ function CollabView ({ doc }: CollabViewProps) {
   return (
     <>
       {rendered && <Suspense>
-        <ViewHelmet icon={icon} name={name} />
+        <ViewHelmet
+          icon={icon}
+          name={name}
+        />
       </Suspense>}
 
       <div

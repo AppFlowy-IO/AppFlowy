@@ -1,20 +1,22 @@
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_51_8)">
-<path d="M12.7861 10.0512V7.95725C12.7861 6.47044 11.5807 5.26513 10.0939 5.26513H5.90618C4.4193 5.26513 3.21399 6.47044 3.21399 7.95725V10.0512C3.21399 12.6944 5.3568 14.8372 8.00005 14.8372C10.6433 14.8372 12.7861 12.6944 12.7861 10.0512Z" stroke="black"/>
-<path d="M11.0767 5.607V4.92325C11.0767 3.224 9.69922 1.8465 7.99997 1.8465C6.30072 1.8465 4.92322 3.224 4.92322 4.92325V5.607" stroke="black"/>
-<path d="M12.786 9.36744H14.8371" stroke="black" stroke-linecap="round"/>
-<path d="M3.21397 9.36744H1.16284" stroke="black" stroke-linecap="round"/>
-<path d="M9.70935 2.18837L11.4187 1.16281" stroke="black" stroke-linecap="round"/>
-<path d="M6.29073 2.18837L4.58142 1.16281" stroke="black" stroke-linecap="round"/>
-<path d="M13.8117 13.4699L12.4442 12.9229" stroke="black" stroke-linecap="round"/>
-<path d="M13.8117 5.265L12.4442 5.81194" stroke="black" stroke-linecap="round"/>
-<path d="M2.18835 13.4699L3.55579 12.9229" stroke="black" stroke-linecap="round"/>
-<path d="M2.18835 5.265L3.55579 5.81194" stroke="black" stroke-linecap="round"/>
-<path d="M8 14.4954V10.0512" stroke="black" stroke-linecap="round"/>
-</g>
-<defs>
-<clipPath id="clip0_51_8">
-<rect width="16" height="16" fill="white"/>
-</clipPath>
-</defs>
+    <g clip-path="url(#clip0_51_8)">
+        <path d="M12.7861 10.0512V7.95725C12.7861 6.47044 11.5807 5.26513 10.0939 5.26513H5.90618C4.4193 5.26513 3.21399 6.47044 3.21399 7.95725V10.0512C3.21399 12.6944 5.3568 14.8372 8.00005 14.8372C10.6433 14.8372 12.7861 12.6944 12.7861 10.0512Z"
+              stroke="currentColor"/>
+        <path d="M11.0767 5.607V4.92325C11.0767 3.224 9.69922 1.8465 7.99997 1.8465C6.30072 1.8465 4.92322 3.224 4.92322 4.92325V5.607"
+              stroke="currentColor"/>
+        <path d="M12.786 9.36744H14.8371" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M3.21397 9.36744H1.16284" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M9.70935 2.18837L11.4187 1.16281" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M6.29073 2.18837L4.58142 1.16281" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M13.8117 13.4699L12.4442 12.9229" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M13.8117 5.265L12.4442 5.81194" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M2.18835 13.4699L3.55579 12.9229" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M2.18835 5.265L3.55579 5.81194" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M8 14.4954V10.0512" stroke="currentColor" stroke-linecap="round"/>
+    </g>
+    <defs>
+        <clipPath id="clip0_51_8">
+            <rect width="16" height="16" fill="white"/>
+        </clipPath>
+    </defs>
 </svg>

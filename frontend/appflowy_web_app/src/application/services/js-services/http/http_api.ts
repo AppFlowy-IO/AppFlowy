@@ -14,7 +14,7 @@ import {
   Subscriptions,
   SubscriptionPlan,
   SubscriptionInterval,
-  RequestAccessInfoStatus,
+  RequestAccessInfoStatus, ViewInfo,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -274,10 +274,22 @@ export async function getUserWorkspaceInfo (): Promise<{
 }
 
 export async function getPublishViewMeta (namespace: string, publishName: string) {
-  const url = `/api/workspace/published/${namespace}/${publishName}`;
-  const response = await axiosInstance?.get(url);
+  const url = `/api/workspace/v1/published/${namespace}/${publishName}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: {
+      view: ViewInfo;
+      child_views: ViewInfo[];
+      ancestor_views: ViewInfo[];
+    };
+    message: string;
+  }>(url);
 
-  return response?.data;
+  if (response?.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  return response?.data.data;
 }
 
 export async function getPublishViewBlob (namespace: string, publishName: string) {
@@ -289,7 +301,7 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   return blobToBytes(response?.data);
 }
 
-export async function updateCollab (workspaceId: string, objectId: string, docState: Uint8Array, context: {
+export async function updateCollab (workspaceId: string, objectId: string, collabType: Types, docState: Uint8Array, context: {
   version_vector: number;
 }) {
   const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}/web-update`;
@@ -298,6 +310,7 @@ export async function updateCollab (workspaceId: string, objectId: string, docSt
     message: string;
   }>(url, {
     doc_state: Array.from(docState),
+    collab_type: collabType,
   });
 
   if (response?.data.code !== 0) {
@@ -1269,3 +1282,4 @@ export async function uploadFile (file: File, onProgress: (progress: number) => 
 
   return Promise.reject(response?.data);
 }
+

@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Mon, 16 Sep 2024 06:19:26 GMT
+* Generated on Tue, 22 Oct 2024 09:59:50 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -41,6 +41,9 @@ module.exports = {
     "blue-400": "var(--content-blue-400)",
     "blue-300": "var(--content-blue-300)",
     "blue-600": "var(--content-blue-600)",
+    "blue-700": "var(--content-blue-700)",
+    "blue-800": "var(--content-blue-800)",
+    "blue-900": "var(--content-blue-900)",
     "blue-100": "var(--content-blue-100)",
     "blue-50": "var(--content-blue-50)",
     "on-fill-hover": "var(--content-on-fill-hover)",
