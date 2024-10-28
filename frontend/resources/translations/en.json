@@ -468,11 +468,16 @@
         "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long",
         "onlyWorkspaceOwnerCanUpdateNamespace": "Only workspace owner can update the namespace",
         "onlyWorkspaceOwnerCanRemoveHomepage": "Only workspace owner can remove the homepage",
-        "setHomepageFailed": "Failed to set homepage"
+        "setHomepageFailed": "Failed to set homepage",
+        "namespaceTooLong": "The namespace is too long, please try another one",
+        "namespaceTooShort": "The namespace is too short, please try another one",
+        "namespaceIsReserved": "The namespace is reserved, please try another one",
+        "updatePathNameFailed": "Failed to update namespace"
       },
       "success": {
         "namespaceUpdated": "Updated namespace successfully",
-        "setHomepageSuccess": "Set homepage successfully"
+        "setHomepageSuccess": "Set homepage successfully",
+        "updatePathNameSuccess": "Updated namespace successfully"
       }
     },
     "accountPage": {

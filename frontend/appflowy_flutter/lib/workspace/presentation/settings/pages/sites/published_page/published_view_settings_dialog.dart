@@ -200,13 +200,18 @@ class _PublishedViewSettingsDialogState
     }
 
     result.fold(
-      (s) => Navigator.of(context).pop(),
+      (s) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
+        );
+        Navigator.of(context).pop();
+      },
       (f) {
         Log.error('update path name failed: $f');
         showToastNotification(
           context,
-          // todo: remove this message after backend fixed.
-          message: 'Update path name failed(${f.msg})',
+          message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
           type: ToastificationType.error,
         );
       },

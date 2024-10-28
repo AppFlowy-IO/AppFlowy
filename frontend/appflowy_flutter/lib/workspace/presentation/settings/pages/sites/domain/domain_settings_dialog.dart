@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -216,6 +217,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
           context,
           message: LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
         );
+
         Navigator.of(context).pop();
       },
       (f) {
@@ -226,6 +228,8 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         setState(() {
           errorHintText = errorMessage.orDefault(basicErrorMessage);
         });
+
+        Log.error('Failed to update namespace: $f');
 
         final toastMessage = errorMessage.isEmpty
             ? basicErrorMessage
@@ -248,8 +252,12 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         LocaleKeys.settings_sites_error_namespaceAlreadyInUse.tr(),
       ErrorCode.InvalidNamespace =>
         LocaleKeys.settings_sites_error_invalidNamespace.tr(),
-      ErrorCode.CustomNamespaceNotAllowed =>
-        LocaleKeys.settings_sites_error_namespaceLengthAtLeast2Characters.tr(),
+      ErrorCode.CustomNamespaceTooLong =>
+        LocaleKeys.settings_sites_error_namespaceTooLong.tr(),
+      ErrorCode.CustomNamespaceTooShort =>
+        LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
+      ErrorCode.CustomNamespaceReserved =>
+        LocaleKeys.settings_sites_error_namespaceIsReserved.tr(),
       _ => '',
     };
   }

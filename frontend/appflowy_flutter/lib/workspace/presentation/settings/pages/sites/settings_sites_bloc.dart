@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -8,6 +10,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 part 'settings_sites_bloc.freezed.dart';
 
@@ -197,9 +200,24 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       ..viewId = viewId
       ..newName = name;
     final result = await FolderEventSetPublishName(request).send();
+    final publishedViews = result.fold(
+      (_) => state.publishedViews.map((view) {
+        view.freeze();
+        if (view.info.viewId == viewId) {
+          view = view.rebuild((b) {
+            final info = b.info;
+            info.freeze();
+            b.info = info.rebuild((b) => b.publishName = name);
+          });
+        }
+        return view;
+      }).toList(),
+      (_) => state.publishedViews,
+    );
 
     emit(
       state.copyWith(
+        publishedViews: publishedViews,
         actionResult: SettingsSitesActionResult(
           actionType: SettingsSitesActionType.updatePublishName,
           isLoading: false,
