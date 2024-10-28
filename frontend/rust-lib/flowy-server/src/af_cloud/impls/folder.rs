@@ -1,10 +1,10 @@
 use anyhow::Error;
 use client_api::entity::workspace_dto::PublishInfoView;
-use client_api::entity::PublishInfo;
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
   QueryCollab, QueryCollabParams,
 };
+use client_api::entity::{PatchPublishedCollab, PublishInfo};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
@@ -240,6 +240,29 @@ where
       .await
       .map_err(FlowyError::from)?;
     Ok(info)
+  }
+
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), Error> {
+    let try_get_client = self.inner.try_get_client()?;
+    let view_id = Uuid::parse_str(&view_id)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidParams, "Invalid view id"))?;
+
+    try_get_client
+      .patch_published_collabs(
+        workspace_id,
+        &[PatchPublishedCollab {
+          view_id,
+          publish_name: Some(new_name),
+        }],
+      )
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
   }
 
   async fn set_publish_namespace(

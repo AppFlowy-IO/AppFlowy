@@ -57,6 +57,13 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, Error>;
 
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), Error>;
+
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,

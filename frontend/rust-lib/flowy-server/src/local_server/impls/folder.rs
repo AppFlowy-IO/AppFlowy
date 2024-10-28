@@ -115,6 +115,15 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     ))
   }
 
+  async fn set_publish_name(
+    &self,
+    _workspace_id: &str,
+    _view_id: String,
+    _new_name: String,
+  ) -> Result<(), Error> {
+    Err(anyhow!("Local server doesn't support set publish name"))
+  }
+
   async fn list_published_views(&self, _workspace_id: &str) -> Result<Vec<PublishInfoView>, Error> {
     Err(anyhow!("Local server doesn't support list published views"))
   }
