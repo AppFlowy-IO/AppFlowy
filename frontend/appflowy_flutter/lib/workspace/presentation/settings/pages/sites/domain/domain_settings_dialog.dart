@@ -189,6 +189,8 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
               url,
               fontSize: 14.0,
               figmaLineHeight: 18.0,
+              withTooltip: true,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         );
@@ -231,14 +233,11 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
 
         Log.error('Failed to update namespace: $f');
 
-        final toastMessage = errorMessage.isEmpty
-            ? basicErrorMessage
-            : '$basicErrorMessage: $errorMessage';
-
         showToastNotification(
           context,
-          message: toastMessage,
+          message: basicErrorMessage,
           type: ToastificationType.error,
+          description: errorHintText,
         );
       },
     );

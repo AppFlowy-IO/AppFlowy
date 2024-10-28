@@ -182,6 +182,7 @@ class _SettingsSitesPageView extends StatelessWidget {
           context,
           message: LocaleKeys.publish_unpublishFailed.tr(),
           type: ToastificationType.error,
+          description: f.msg,
         );
       });
     } else if (type == SettingsSitesActionType.setHomePage && result != null) {

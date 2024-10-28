@@ -213,6 +213,7 @@ class _PublishedViewSettingsDialogState
           context,
           message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
           type: ToastificationType.error,
+          description: f.msg,
         );
       },
     );

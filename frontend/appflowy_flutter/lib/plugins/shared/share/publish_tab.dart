@@ -84,6 +84,7 @@ class PublishTab extends StatelessWidget {
         (error) => showToastNotification(
           context,
           message: '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
+          type: ToastificationType.error,
         ),
       );
     } else if (state.unpublishResult != null) {
@@ -96,6 +97,7 @@ class PublishTab extends StatelessWidget {
           context,
           message: LocaleKeys.publish_unpublishFailed.tr(),
           description: error.msg,
+          type: ToastificationType.error,
         ),
       );
     } else if (state.updatePathNameResult != null) {

@@ -55,6 +55,7 @@ class PublishedViewItem extends StatelessWidget {
             padding: const EdgeInsets.only(right: 48.0),
             child: FlowyText(
               publishInfoView.info.publishName,
+              withTooltip: true,
               fontSize: 14.0,
               figmaLineHeight: 18.0,
               overflow: TextOverflow.ellipsis,
