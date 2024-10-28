@@ -1175,7 +1175,56 @@ export async function getActiveSubscription (workspaceId: string) {
   return Promise.reject(response?.data);
 }
 
-export async function importFile (file: File, onProgress: (progress: number) => void) {
+export async function createImportTask (file: File) {
+  const url = `/api/import/create`;
+  const fileName = file.name.split('.').slice(0, -1).join('.') || crypto.randomUUID();
+
+  const res = await axiosInstance?.post<{
+    code: number;
+    data: {
+      task_id: string;
+      presigned_url: string;
+    };
+    message: string;
+  }>(url, {
+    workspace_name: fileName,
+    content_length: file.size,
+  });
+
+  if (res?.data.code === 0) {
+    return {
+      taskId: res?.data.data.task_id,
+      presignedUrl: res?.data.data.presigned_url,
+    };
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function uploadImportFile (presignedUrl: string, file: File, onProgress: (progress: number) => void) {
+  const response = await axios.put(presignedUrl, file, {
+    onUploadProgress: (progressEvent) => {
+      const { progress = 0 } = progressEvent;
+
+      console.log(`Upload progress: ${progress * 100}%`);
+      onProgress(progress);
+    },
+    headers: {
+      'Content-Type': 'application/zip',
+    },
+  });
+
+  if (response.status === 200) {
+    return;
+  }
+
+  return Promise.reject({
+    code: -1,
+    message: `Upload file failed. ${response.statusText}`,
+  });
+}
+
+export async function uploadFile (file: File, onProgress: (progress: number) => void) {
   const url = `/api/import`;
 
   const fileName = file.name.split('.').slice(0, -1).join('.') || crypto.randomUUID();
