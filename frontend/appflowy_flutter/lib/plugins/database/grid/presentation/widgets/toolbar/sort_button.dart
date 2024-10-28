@@ -37,7 +37,6 @@ class _SortButtonState extends State<SortButton> {
             LocaleKeys.grid_settings_sort.tr(),
             fontColor: textColor,
             fontSize: FontSizes.s12,
-            fontWeight: FontWeight.w400,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: GridSize.toolbarSettingButtonInsets,
