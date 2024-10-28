@@ -66,6 +66,7 @@ where
     }
   }
 
+  #[instrument(level = "debug", skip_all, err)]
   async fn create_database_encode_collab(
     &self,
     object_id: &str,

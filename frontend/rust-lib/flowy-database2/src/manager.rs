@@ -743,6 +743,7 @@ impl WorkspaceDatabaseCollabServiceImpl {
 impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,
   /// therefore all Database/DatabaseRow creation methods must initialize plugins thmselves.
+  #[instrument(level = "trace", skip_all)]
   async fn build_collab(
     &self,
     object_id: &str,
