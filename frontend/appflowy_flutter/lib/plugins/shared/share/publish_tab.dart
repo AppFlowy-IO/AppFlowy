@@ -197,9 +197,9 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
       height: 36,
       child: FlowyButton(
         radius: BorderRadius.circular(10),
-        text: const FlowyText.regular(
+        text: FlowyText.regular(
           lineHeight: 1.0,
-          'Manage all sites',
+          LocaleKeys.shareAction_manageAllSites.tr(),
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
         ),
