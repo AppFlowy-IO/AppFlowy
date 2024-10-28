@@ -1,7 +1,10 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/colors.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/publish_info_view_item.dart';
@@ -46,22 +49,29 @@ class DomainItem extends StatelessWidget {
   }
 
   Widget _buildNamespace(BuildContext context, String namespaceUrl) {
-    return Padding(
+    return Container(
+      alignment: Alignment.centerLeft,
       padding: const EdgeInsets.only(right: 12.0),
-      child: FlowyText(
-        namespaceUrl,
-        fontSize: 14.0,
-        overflow: TextOverflow.ellipsis,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: FlowyText(
+          namespaceUrl,
+          fontSize: 14.0,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onTap: () {
+          final namespaceUrl = ShareConstants.buildNamespaceUrl(
+            nameSpace: namespace,
+            withHttps: true,
+          );
+          afLaunchUrlString(namespaceUrl);
+        },
       ),
     );
   }
 
   Widget _buildHomepage(BuildContext context) {
     final plan = context.read<SettingsSitesBloc>().state.subscriptionInfo?.plan;
-
-    if (plan == null) {
-      return const SizedBox.shrink();
-    }
 
     final isFreePlan = plan == WorkspacePlanPB.FreePlan;
     if (isFreePlan) {
@@ -77,10 +87,24 @@ class _HomePageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isOwner = context
+            .watch<UserWorkspaceBloc>()
+            .state
+            .currentWorkspaceMember
+            ?.role
+            .isOwner ??
+        false;
     final homePageView = context.watch<SettingsSitesBloc>().state.homePageView;
-    return Container(
-      alignment: Alignment.centerLeft,
-      child: AppFlowyPopover(
+
+    Widget child = homePageView == null
+        ? _defaultHomePageButton(context)
+        : PublishInfoViewItem(
+            publishInfoView: homePageView,
+            margin: isOwner ? null : EdgeInsets.zero,
+          );
+
+    if (isOwner) {
+      child = AppFlowyPopover(
         direction: PopoverDirection.bottomWithCenterAligned,
         constraints: const BoxConstraints(
           maxWidth: 260,
@@ -101,24 +125,32 @@ class _HomePageButton extends StatelessWidget {
             ),
           );
         },
-        child: homePageView == null
-            ? _defaultHomePageButton(context)
-            : PublishInfoViewItem(
-                publishInfoView: homePageView,
-              ),
-      ),
+        child: child,
+      );
+    } else {
+      child = FlowyTooltip(
+        message: 'Only workspace owner can set up a home page',
+        child: IgnorePointer(
+          child: child,
+        ),
+      );
+    }
+
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: child,
     );
   }
 
   Widget _defaultHomePageButton(BuildContext context) {
-    return const FlowyButton(
+    return FlowyButton(
       useIntrinsicWidth: true,
-      leftIcon: FlowySvg(
+      leftIcon: const FlowySvg(
         FlowySvgs.search_s,
       ),
-      leftIconSize: Size.square(14.0),
+      leftIconSize: const Size.square(14.0),
       text: FlowyText(
-        'Select a page',
+        LocaleKeys.settings_sites_selectHomePage.tr(),
         figmaLineHeight: 18.0,
       ),
     );

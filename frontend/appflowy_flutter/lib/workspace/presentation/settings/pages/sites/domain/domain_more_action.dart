@@ -5,13 +5,12 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DomainMoreAction extends StatelessWidget {
+class DomainMoreAction extends StatefulWidget {
   const DomainMoreAction({
     super.key,
     required this.namespace,
@@ -20,9 +19,22 @@ class DomainMoreAction extends StatelessWidget {
   final String namespace;
 
   @override
+  State<DomainMoreAction> createState() => _DomainMoreActionState();
+}
+
+class _DomainMoreActionState extends State<DomainMoreAction> {
+  @override
+  void initState() {
+    super.initState();
+
+    // update the current workspace to ensure the owner check is correct
+    context.read<UserWorkspaceBloc>().add(const UserWorkspaceEvent.initial());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      constraints: const BoxConstraints(maxWidth: 168),
+      constraints: const BoxConstraints(maxWidth: 188),
       offset: const Offset(6, 0),
       animationDuration: Durations.short3,
       beginScaleFactor: 1.0,
@@ -44,6 +56,10 @@ class DomainMoreAction extends StatelessWidget {
                 context,
                 builderContext,
               ),
+              _buildRemoveHomePageButton(
+                context,
+                builderContext,
+              ),
             ],
           ),
         );
@@ -55,26 +71,58 @@ class DomainMoreAction extends StatelessWidget {
     BuildContext context,
     BuildContext builderContext,
   ) {
-    final isOwner = context
-            .read<UserWorkspaceBloc>()
-            .state
-            .currentWorkspaceMember
-            ?.role
-            .isOwner ??
-        false;
-    final Widget child = _buildActionButton(
+    final child = _buildActionButton(
       context,
       builderContext,
       type: _ActionType.updateNamespace,
     );
 
+    return _onlyOwnerCanDoWidget(
+      context,
+      tooltipMessage: LocaleKeys
+          .settings_sites_error_onlyWorkspaceOwnerCanUpdateNamespace
+          .tr(),
+      child: child,
+    );
+  }
+
+  Widget _buildRemoveHomePageButton(
+    BuildContext context,
+    BuildContext builderContext,
+  ) {
+    final child = _buildActionButton(
+      context,
+      builderContext,
+      type: _ActionType.removeHomePage,
+    );
+
+    return _onlyOwnerCanDoWidget(
+      context,
+      tooltipMessage: LocaleKeys
+          .settings_sites_error_onlyWorkspaceOwnerCanRemoveHomepage
+          .tr(),
+      child: child,
+    );
+  }
+
+  Widget _onlyOwnerCanDoWidget(
+    BuildContext context, {
+    required String tooltipMessage,
+    required Widget child,
+  }) {
+    final isOwner = context
+            .watch<UserWorkspaceBloc>()
+            .state
+            .currentWorkspaceMember
+            ?.role
+            .isOwner ??
+        false;
+
     if (!isOwner) {
       return Opacity(
         opacity: 0.5,
         child: FlowyTooltip(
-          message: LocaleKeys
-              .settings_sites_error_onlyWorkspaceOwnerCanUpdateNamespace
-              .tr(),
+          message: tooltipMessage,
           child: MouseRegion(
             cursor: SystemMouseCursors.forbidden,
             child: IgnorePointer(child: child),
@@ -105,6 +153,7 @@ class DomainMoreAction extends StatelessWidget {
           type.name,
           fontSize: 14.0,
           figmaLineHeight: 18.0,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
@@ -121,6 +170,11 @@ class DomainMoreAction extends StatelessWidget {
           context,
           builderContext,
         );
+        break;
+      case _ActionType.removeHomePage:
+        context.read<SettingsSitesBloc>().add(
+              const SettingsSitesEvent.setHomePage(null),
+            );
         break;
     }
 
@@ -143,7 +197,7 @@ class DomainMoreAction extends StatelessWidget {
             child: SizedBox(
               width: 460,
               child: DomainSettingsDialog(
-                namespace: namespace,
+                namespace: widget.namespace,
               ),
             ),
           ),
@@ -154,14 +208,20 @@ class DomainMoreAction extends StatelessWidget {
 }
 
 enum _ActionType {
-  updateNamespace;
+  updateNamespace,
+  removeHomePage,
+}
 
+extension _ActionTypeExtension on _ActionType {
   String get name => switch (this) {
         _ActionType.updateNamespace =>
           LocaleKeys.settings_sites_updateNamespace.tr(),
+        _ActionType.removeHomePage =>
+          LocaleKeys.settings_sites_removeHomepage.tr(),
       };
 
   FlowySvgData get leftIconSvg => switch (this) {
         _ActionType.updateNamespace => FlowySvgs.view_item_rename_s,
+        _ActionType.removeHomePage => FlowySvgs.trash_s,
       };
 }

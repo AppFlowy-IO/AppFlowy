@@ -440,7 +440,9 @@
       "namespaceDescription": "Manage your namespace and homepage",
       "namespaceHeader": "Namespace",
       "homepageHeader": "Homepage",
-      "updateNamespace": "Update",
+      "updateNamespace": "Update namespace",
+      "removeHomepage": "Remove homepage",
+      "selectHomePage": "Select a page",
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
@@ -464,10 +466,13 @@
         "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
         "invalidNamespace": "Invalid namespace, please try another one",
         "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long",
-        "onlyWorkspaceOwnerCanUpdateNamespace": "Only workspace owner can update the namespace"
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Only workspace owner can update the namespace",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Only workspace owner can remove the homepage",
+        "setHomepageFailed": "Failed to set homepage"
       },
       "success": {
-        "namespaceUpdated": "Updated namespace successfully"
+        "namespaceUpdated": "Updated namespace successfully",
+        "setHomepageSuccess": "Set homepage successfully"
       }
     },
     "accountPage": {

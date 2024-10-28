@@ -126,6 +126,14 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       (_) => state.publishedViews,
     );
 
+    result.onSuccess((_) async {
+      final isHomepage = state.homePageView?.info.viewId == viewId;
+      await _setHomePage(
+        isHomepage ? null : state.homePageView?.info.viewId,
+        emit,
+      );
+    });
+
     emit(
       state.copyWith(
         publishedViews: publishedViews,
@@ -261,7 +269,7 @@ class SettingsSitesEvent with _$SettingsSitesEvent {
   const factory SettingsSitesEvent.updatePublishName(String name) =
       _UpdatePublishName;
   const factory SettingsSitesEvent.upgradeSubscription() = _UpgradeSubscription;
-  const factory SettingsSitesEvent.setHomePage(String viewId) = _SetHomePage;
+  const factory SettingsSitesEvent.setHomePage(String? viewId) = _SetHomePage;
 }
 
 enum SettingsSitesActionType {

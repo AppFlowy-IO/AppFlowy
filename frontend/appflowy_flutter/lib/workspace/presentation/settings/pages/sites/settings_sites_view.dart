@@ -179,6 +179,21 @@ class _SettingsSitesPageView extends StatelessWidget {
           type: ToastificationType.error,
         );
       });
+    } else if (type == SettingsSitesActionType.setHomePage && result != null) {
+      result.fold((s) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_success_setHomepageSuccess.tr(),
+        );
+      }, (f) {
+        Log.error('Failed to set homepage: ${f.msg}');
+
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_error_setHomepageFailed.tr(),
+          type: ToastificationType.error,
+        );
+      });
     }
   }
 }

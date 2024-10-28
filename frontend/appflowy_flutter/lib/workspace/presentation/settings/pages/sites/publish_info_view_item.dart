@@ -12,11 +12,13 @@ class PublishInfoViewItem extends StatelessWidget {
     required this.publishInfoView,
     this.onTap,
     this.useIntrinsicWidth = true,
+    this.margin,
   });
 
   final PublishInfoViewPB publishInfoView;
   final VoidCallback? onTap;
   final bool useIntrinsicWidth;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,7 @@ class PublishInfoViewItem extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       child: FlowyButton(
+        margin: margin,
         useIntrinsicWidth: useIntrinsicWidth,
         mainAxisAlignment: MainAxisAlignment.start,
         leftIcon: _buildIcon(),
