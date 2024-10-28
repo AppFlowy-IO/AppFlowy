@@ -170,7 +170,12 @@ class _SettingsSitesPageView extends StatelessWidget {
       });
     } else if (type == SettingsSitesActionType.unpublishView &&
         result != null) {
-      result.onFailure((f) {
+      result.fold((_) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.publish_unpublishSuccessfully.tr(),
+        );
+      }, (f) {
         Log.error('Failed to unpublish view: ${f.msg}');
 
         showToastNotification(

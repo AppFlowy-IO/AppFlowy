@@ -132,13 +132,10 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       (_) => state.publishedViews,
     );
 
-    result.onSuccess((_) async {
-      final isHomepage = state.homePageView?.info.viewId == viewId;
-      await _setHomePage(
-        isHomepage ? null : state.homePageView?.info.viewId,
-        emit,
-      );
-    });
+    final isHomepage = result.fold(
+      (_) => state.homePageView?.info.viewId == viewId,
+      (_) => false,
+    );
 
     emit(
       state.copyWith(
@@ -148,6 +145,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
           isLoading: false,
           result: result,
         ),
+        homePageView: isHomepage ? null : state.homePageView,
       ),
     );
   }
