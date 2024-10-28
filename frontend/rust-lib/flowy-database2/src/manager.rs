@@ -685,7 +685,8 @@ impl WorkspaceDatabaseCollabServiceImpl {
     let encode_collab = self
       .cloud_service
       .get_database_encode_collab(object_id, object_ty, &workspace_id)
-      .await?;
+      .await
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     Ok(encode_collab)
   }
 
@@ -701,7 +702,8 @@ impl WorkspaceDatabaseCollabServiceImpl {
     let updates = self
       .cloud_service
       .batch_get_database_encode_collab(object_ids, object_ty, &workspace_id)
-      .await?;
+      .await
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     Ok(updates)
   }
 

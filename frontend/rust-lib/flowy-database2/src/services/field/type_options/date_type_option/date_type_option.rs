@@ -34,7 +34,11 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     let is_range = cell_data.is_range;
 
     let timestamp = cell_data.timestamp;
-    let end_timestamp = cell_data.end_timestamp;
+    let end_timestamp = if is_range {
+      cell_data.end_timestamp.or(timestamp)
+    } else {
+      None
+    };
 
     let reminder_id = cell_data.reminder_id;
 
@@ -190,7 +194,7 @@ impl CellDataChangeset for DateTypeOption {
 
     let timestamp = changeset.timestamp.or(timestamp);
     let end_timestamp = if is_range && timestamp.is_some() {
-      changeset.end_timestamp.or(end_timestamp)
+      changeset.end_timestamp.or(end_timestamp).or(timestamp)
     } else {
       None
     };

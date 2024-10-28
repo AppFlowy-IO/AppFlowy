@@ -91,19 +91,13 @@ class EditorDropHandler extends StatelessWidget {
           return;
         }
 
-        final node = editorState.getNodeAtPath(dropPath);
-
-        if (node == null) {
-          return;
-        }
-
         for (final file in details.files) {
           final fileName = file.name.toLowerCase();
           if (file.mimeType?.startsWith('image/') ??
               false || imgExtensionRegex.hasMatch(fileName)) {
-            await editorState.dropImages(node, [file], viewId, isLocalMode);
+            await editorState.dropImages(dropPath, [file], viewId, isLocalMode);
           } else {
-            await editorState.dropFiles(node, [file], viewId, isLocalMode);
+            await editorState.dropFiles(dropPath, [file], viewId, isLocalMode);
           }
         }
       }
