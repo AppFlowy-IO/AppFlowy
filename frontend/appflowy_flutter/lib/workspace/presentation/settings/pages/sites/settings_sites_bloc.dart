@@ -31,7 +31,8 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
           namespace,
           emit,
         ),
-        updatePublishName: (name) async => _updatePublishName(
+        updatePublishName: (viewId, name) async => _updatePublishName(
+          viewId,
           name,
           emit,
         ),
@@ -178,6 +179,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
   }
 
   Future<void> _updatePublishName(
+    String viewId,
     String name,
     Emitter<SettingsSitesState> emit,
   ) async {
@@ -191,7 +193,20 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
       ),
     );
 
-    // todo: not implemented.
+    final request = SetPublishNamePB()
+      ..viewId = viewId
+      ..newName = name;
+    final result = await FolderEventSetPublishName(request).send();
+
+    emit(
+      state.copyWith(
+        actionResult: SettingsSitesActionResult(
+          actionType: SettingsSitesActionType.updatePublishName,
+          isLoading: false,
+          result: result,
+        ),
+      ),
+    );
   }
 
   Future<void> _upgradeSubscription(Emitter<SettingsSitesState> emit) async {
@@ -268,8 +283,10 @@ class SettingsSitesEvent with _$SettingsSitesEvent {
       _UnpublishView;
   const factory SettingsSitesEvent.updateNamespace(String namespace) =
       _UpdateNamespace;
-  const factory SettingsSitesEvent.updatePublishName(String name) =
-      _UpdatePublishName;
+  const factory SettingsSitesEvent.updatePublishName(
+    String viewId,
+    String name,
+  ) = _UpdatePublishName;
   const factory SettingsSitesEvent.upgradeSubscription() = _UpgradeSubscription;
   const factory SettingsSitesEvent.setHomePage(String? viewId) = _SetHomePage;
 }

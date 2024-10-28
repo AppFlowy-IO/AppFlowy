@@ -3,6 +3,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -45,29 +47,32 @@ class _PublishedViewSettingsDialogState
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
-      focusNode: focusNode,
-      autofocus: true,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTitle(),
-            const VSpace(20),
-            _buildPublishNameLabel(),
-            const VSpace(8),
-            _buildPublishNameTextField(),
-            const VSpace(20),
-            _buildButtons(),
-          ],
+    return BlocListener<SettingsSitesBloc, SettingsSitesState>(
+      listener: _onListener,
+      child: KeyboardListener(
+        focusNode: focusNode,
+        autofocus: true,
+        onKeyEvent: (event) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.escape) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTitle(),
+              const VSpace(20),
+              _buildPublishNameLabel(),
+              const VSpace(8),
+              _buildPublishNameTextField(),
+              const VSpace(20),
+              _buildButtons(),
+            ],
+          ),
         ),
       ),
     );
@@ -159,7 +164,14 @@ class _PublishedViewSettingsDialogState
     );
   }
 
-  void _savePublishName() {}
+  void _savePublishName() {
+    context.read<SettingsSitesBloc>().add(
+          SettingsSitesEvent.updatePublishName(
+            widget.publishInfoView.info.viewId,
+            controller.text,
+          ),
+        );
+  }
 
   void _unpublishView() {
     context.read<SettingsSitesBloc>().add(
@@ -167,6 +179,7 @@ class _PublishedViewSettingsDialogState
             widget.publishInfoView.info.viewId,
           ),
         );
+
     Navigator.of(context).pop();
   }
 
@@ -174,6 +187,28 @@ class _PublishedViewSettingsDialogState
     SettingsPageSitesEvent.visitSite(
       widget.publishInfoView,
       nameSpace: context.read<SettingsSitesBloc>().state.namespace,
+    );
+  }
+
+  void _onListener(BuildContext context, SettingsSitesState state) {
+    final actionResult = state.actionResult;
+    final result = actionResult?.result;
+    if (actionResult == null ||
+        result == null ||
+        actionResult.actionType != SettingsSitesActionType.updatePublishName) {
+      return;
+    }
+
+    result.fold(
+      (s) => Navigator.of(context).pop(),
+      (f) {
+        Log.error('update path name failed: $f');
+        showToastNotification(
+          context,
+          message: 'Update path name failed(${f.msg})',
+          type: ToastificationType.error,
+        );
+      },
     );
   }
 }
