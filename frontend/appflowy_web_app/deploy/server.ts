@@ -136,7 +136,7 @@ const createServer = async (req: Request) => {
         const publishInfo = data?.data?.info;
 
         if (publishInfo) {
-          const newURL = `/${publishInfo.namespace}/${publishInfo.publish_name}`;
+          const newURL = `/${encodeURIComponent(publishInfo.namespace)}/${encodeURIComponent(publishInfo.publish_name)}`;
 
           logger.info(`Redirecting to default page in: ${JSON.stringify(publishInfo)}`);
           timer();
