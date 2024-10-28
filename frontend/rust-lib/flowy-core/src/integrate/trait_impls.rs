@@ -329,6 +329,19 @@ impl FolderCloudService for ServerProvider {
     server.folder_service().get_publish_info(view_id).await
   }
 
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), Error> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .set_publish_name(workspace_id, view_id, new_name)
+      .await
+  }
+
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,

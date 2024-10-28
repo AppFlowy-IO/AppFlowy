@@ -458,6 +458,17 @@ pub(crate) async fn get_publish_info_handler(
   data_result_ok(PublishInfoResponsePB::from(info))
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn set_publish_name_handler(
+  data: AFPluginData<SetPublishNamePB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let SetPublishNamePB { view_id, new_name } = data.into_inner();
+  folder.set_publish_name(view_id, new_name).await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn set_publish_namespace_handler(
   data: AFPluginData<SetPublishNamespacePayloadPB>,

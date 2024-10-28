@@ -405,6 +405,15 @@ impl std::convert::From<&str> for ViewIdPB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SetPublishNamePB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub new_name: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct DeletedViewPB {
   #[pb(index = 1)]
   pub view_id: String,
