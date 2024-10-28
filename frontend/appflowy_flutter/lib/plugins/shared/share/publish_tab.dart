@@ -3,11 +3,15 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -32,6 +36,8 @@ class PublishTab extends StatelessWidget {
         if (state.isPublished) {
           return _PublishedWidget(
             url: state.url,
+            pathName: state.pathName,
+            namespace: state.namespace,
             onVisitSite: (url) => afLaunchUrlString(url),
             onUnPublish: () {
               context.read<ShareBloc>().add(const ShareEvent.unPublish());
@@ -92,6 +98,18 @@ class PublishTab extends StatelessWidget {
           description: error.msg,
         ),
       );
+    } else if (state.updatePathNameResult != null) {
+      state.updatePathNameResult!.fold(
+        (value) => showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
+        ),
+        (error) => showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
+          type: ToastificationType.error,
+        ),
+      );
     }
   }
 }
@@ -99,11 +117,15 @@ class PublishTab extends StatelessWidget {
 class _PublishedWidget extends StatefulWidget {
   const _PublishedWidget({
     required this.url,
+    required this.pathName,
+    required this.namespace,
     required this.onVisitSite,
     required this.onUnPublish,
   });
 
   final String url;
+  final String pathName;
+  final String namespace;
   final void Function(String url) onVisitSite;
   final VoidCallback onUnPublish;
 
@@ -117,7 +139,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
   @override
   void initState() {
     super.initState();
-    controller.text = widget.url;
+    controller.text = widget.pathName;
   }
 
   @override
@@ -136,6 +158,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         const _PublishTabHeader(),
         const VSpace(16),
         _PublishUrl(
+          namespace: widget.namespace,
           controller: controller,
           onCopy: (url) {
             getIt<ClipboardService>().setData(
@@ -147,14 +170,18 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
               message: LocaleKeys.grid_url_copy.tr(),
             );
           },
-          onSubmitted: (url) {},
+          onSubmitted: (pathName) {
+            context.read<ShareBloc>().add(ShareEvent.updatePathName(pathName));
+          },
         ),
         const VSpace(16),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildUnpublishButton(),
+            _buildManageSiteButton(),
             const Spacer(),
+            _buildUnpublishButton(),
+            const HSpace(6),
             _buildVisitSiteButton(),
           ],
         ),
@@ -162,9 +189,34 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
     );
   }
 
+  Widget _buildManageSiteButton() {
+    return SizedBox(
+      width: 128,
+      height: 36,
+      child: FlowyButton(
+        radius: BorderRadius.circular(10),
+        text: const FlowyText.regular(
+          lineHeight: 1.0,
+          'Manage all sites',
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onTap: () {
+          // open settings sites page
+          showSettingsDialog(
+            context,
+            context.read<UserWorkspaceBloc>().userProfile,
+            context.read<UserWorkspaceBloc>(),
+            SettingsPage.sites,
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildUnpublishButton() {
     return SizedBox(
-      width: 184,
+      width: 108,
       height: 36,
       child: FlowyButton(
         decoration: BoxDecoration(
@@ -184,7 +236,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
 
   Widget _buildVisitSiteButton() {
     return RoundedTextButton(
-      width: 184,
+      width: 108,
       height: 36,
       onPressed: () => widget.onVisitSite(controller.text),
       title: LocaleKeys.shareAction_visitSite.tr(),
@@ -298,40 +350,119 @@ class _PublishTabHeader extends StatelessWidget {
   }
 }
 
-class _PublishUrl extends StatelessWidget {
+class _PublishUrl extends StatefulWidget {
   const _PublishUrl({
+    required this.namespace,
     required this.controller,
     required this.onCopy,
     required this.onSubmitted,
   });
 
+  final String namespace;
   final TextEditingController controller;
   final void Function(String url) onCopy;
   final void Function(String url) onSubmitted;
+
+  @override
+  State<_PublishUrl> createState() => _PublishUrlState();
+}
+
+class _PublishUrlState extends State<_PublishUrl> {
+  final focusNode = FocusNode();
+  bool showSaveButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    focusNode.addListener(() {
+      setState(() {
+        showSaveButton = focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 36,
       child: FlowyTextField(
-        readOnly: true,
         autoFocus: false,
-        controller: controller,
+        controller: widget.controller,
+        focusNode: focusNode,
         enableBorderColor: ShareMenuColors.borderColor(context),
-        suffixIcon: _buildCopyLinkIcon(context),
+        prefixIcon: _buildPrefixIcon(context),
+        suffixIcon: _buildSuffixIcon(context),
+        textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+              height: 18.0 / 14.0,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildPrefixIcon(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const HSpace(8.0),
+        FlowyText.regular(
+          ShareConstants.buildNamespaceUrl(nameSpace: '${widget.namespace}/'),
+          fontSize: 14,
+          figmaLineHeight: 18.0,
+        ),
+        const HSpace(6.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 2.0),
+          child: VerticalDivider(
+            thickness: 1.0,
+            width: 1.0,
+          ),
+        ),
+        const HSpace(6.0),
+      ],
+    );
+  }
+
+  Widget _buildSuffixIcon(BuildContext context) {
+    return showSaveButton
+        ? _buildSaveButton(context)
+        : _buildCopyLinkIcon(context);
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: FlowyText.regular(
+          LocaleKeys.button_save.tr(),
+          figmaLineHeight: 18.0,
+        ),
+        onTap: () => widget.onSubmitted(widget.controller.text),
       ),
     );
   }
 
   Widget _buildCopyLinkIcon(BuildContext context) {
     return FlowyHover(
+      style: const HoverStyle(
+        contentMargin: EdgeInsets.all(4),
+      ),
       child: GestureDetector(
-        onTap: () => onCopy(controller.text),
+        onTap: () => widget.onCopy(widget.controller.text),
         child: Container(
-          width: 36,
-          height: 36,
+          width: 32,
+          height: 32,
           alignment: Alignment.center,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(6),
           decoration: const BoxDecoration(
             border: Border(left: BorderSide(color: Color(0x141F2329))),
           ),
