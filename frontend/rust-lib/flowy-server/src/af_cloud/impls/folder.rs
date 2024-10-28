@@ -267,7 +267,9 @@ where
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {
     let file_path = PathBuf::from(file_path);
-    self.inner.try_get_client()?.import_file(&file_path).await?;
+    let client = self.inner.try_get_client()?;
+    let url = client.create_import(&file_path).await?.presigned_url;
+    client.upload_import_file(&file_path, &url).await?;
     Ok(())
   }
 }
