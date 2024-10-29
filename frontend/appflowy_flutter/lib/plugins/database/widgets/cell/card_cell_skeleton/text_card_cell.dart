@@ -62,13 +62,8 @@ class _TextCellState extends State<TextCardCell> {
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController(text: cellBloc.state.content)
-      ..addListener(() {
-        if (_textEditingController.value.composing.isCollapsed) {
-          cellBloc
-              .add(TextCellEvent.updateText(_textEditingController.value.text));
-        }
-      });
+    _textEditingController =
+        TextEditingController(text: cellBloc.state.content);
 
     if (widget.editableNotifier?.isCellEditing.value ?? false) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

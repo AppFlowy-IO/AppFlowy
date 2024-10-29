@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -74,7 +74,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-latest]
+        os: [ windows-latest ]
         include:
           - os: windows-latest
             flutter_profile: development-windows-x86
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-latest]
+        os: [ macos-latest ]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -123,12 +123,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -217,11 +217,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -262,9 +262,20 @@ jobs:
           else
             running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
             if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
-              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
-              docker rm -f $(docker ps -aq)
-              docker volume rm $(docker volume ls -q)
+              echo "AppFlowy-Cloud is running with an incorrect version. Restarting with the correct version..."
+              # Remove all containers if any exist
+              if [ "$(docker ps -aq)" ]; then
+                docker rm -f $(docker ps -aq)
+              else
+                echo "No containers to remove."
+              fi
+          
+              # Remove all volumes if any exist
+              if [ "$(docker volume ls -q)" ]; then
+                docker volume rm $(docker volume ls -q)
+              else
+                echo "No volumes to remove."
+              fi
               docker compose pull
               docker compose up -d
               echo "Waiting for the container to be ready..."
@@ -329,13 +340,13 @@ jobs:
         shell: bash
 
   integration_test:
-    needs: [prepare-linux]
+    needs: [ prepare-linux ]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        test_number: [1, 2, 3, 4, 5, 6, 7, 8]
+        os: [ ubuntu-latest ]
+        test_number: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"

@@ -34,7 +34,6 @@ class _SettingButtonState extends State<SettingButton> {
         LocaleKeys.settings_title.tr(),
         fontColor: Theme.of(context).hintColor,
         fontSize: FontSizes.s12,
-        fontWeight: FontWeight.w400,
         fillColor: Colors.transparent,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         padding: GridSize.toolbarSettingButtonInsets,

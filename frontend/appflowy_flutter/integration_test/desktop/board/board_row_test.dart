@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:time/time.dart';
 
 import '../../shared/database_test_op.dart';
 import '../../shared/util.dart';
@@ -14,6 +15,31 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('board row test', () {
+    testWidgets('edit item in ToDo card', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+      const name = 'Card 1';
+      final card1 = find.ancestor(
+        matching: find.byType(RowCard),
+        of: find.text(name),
+      );
+      await tester.hoverOnWidget(
+        card1,
+        onHover: () async {
+          final editCard = find.byType(EditCardAccessory);
+          await tester.tapButton(editCard);
+        },
+      );
+      await tester.showKeyboard(card1);
+      tester.testTextInput.enterText("");
+      await tester.pump(300.milliseconds);
+      tester.testTextInput.enterText("a");
+      await tester.pump(300.milliseconds);
+      expect(find.text('a'), findsOneWidget);
+    });
+
     testWidgets('delete item in ToDo card', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
