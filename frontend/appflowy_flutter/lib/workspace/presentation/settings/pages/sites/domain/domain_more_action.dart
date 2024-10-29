@@ -173,7 +173,7 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
         break;
       case _ActionType.removeHomePage:
         context.read<SettingsSitesBloc>().add(
-              const SettingsSitesEvent.setHomePage(null),
+              const SettingsSitesEvent.removeHomePage(),
             );
         break;
     }

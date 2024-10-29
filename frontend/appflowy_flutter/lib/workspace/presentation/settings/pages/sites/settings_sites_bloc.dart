@@ -43,6 +43,7 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
           viewId,
           emit,
         ),
+        removeHomePage: () async => _removeHomePage(emit),
       );
     });
   }
@@ -251,11 +252,11 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
     String? viewId,
     Emitter<SettingsSitesState> emit,
   ) async {
-    final viewIdPB = ViewIdPB();
-    if (viewId != null) {
-      viewIdPB.value = viewId;
+    if (viewId == null) {
+      return;
     }
-    final result = await FolderEventSetDefaultPublishInfo(viewIdPB).send();
+    final viewIdPB = ViewIdPB()..value = viewId;
+    final result = await FolderEventSetDefaultPublishView(viewIdPB).send();
     final homePageView = state.publishedViews.firstWhereOrNull(
       (view) => view.info.viewId == viewId,
     );
@@ -265,6 +266,21 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
         homePageView: homePageView,
         actionResult: SettingsSitesActionResult(
           actionType: SettingsSitesActionType.setHomePage,
+          isLoading: false,
+          result: result,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _removeHomePage(Emitter<SettingsSitesState> emit) async {
+    final result = await FolderEventRemoveDefaultPublishView().send();
+
+    emit(
+      state.copyWith(
+        homePageView: result.fold((_) => null, (_) => state.homePageView),
+        actionResult: SettingsSitesActionResult(
+          actionType: SettingsSitesActionType.removeHomePage,
           isLoading: false,
           result: result,
         ),
@@ -305,6 +321,7 @@ class SettingsSitesEvent with _$SettingsSitesEvent {
   ) = _UpdatePublishName;
   const factory SettingsSitesEvent.upgradeSubscription() = _UpgradeSubscription;
   const factory SettingsSitesEvent.setHomePage(String? viewId) = _SetHomePage;
+  const factory SettingsSitesEvent.removeHomePage() = _RemoveHomePage;
 }
 
 enum SettingsSitesActionType {

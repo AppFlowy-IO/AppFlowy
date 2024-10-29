@@ -200,6 +200,22 @@ class _SettingsSitesPageView extends StatelessWidget {
           type: ToastificationType.error,
         );
       });
+    } else if (type == SettingsSitesActionType.removeHomePage &&
+        result != null) {
+      result.fold((s) {
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_success_removeHomePageSuccess.tr(),
+        );
+      }, (f) {
+        Log.error('Failed to remove homepage: ${f.msg}');
+
+        showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_error_removeHomePageFailed.tr(),
+          type: ToastificationType.error,
+        );
+      });
     }
   }
 }
