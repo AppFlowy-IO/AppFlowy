@@ -2,11 +2,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
+import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -225,7 +225,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
       (f) {
         final basicErrorMessage =
             LocaleKeys.settings_sites_error_failedToUpdateNamespace.tr();
-        final errorMessage = _localizeErrorMessage(f.code);
+        final errorMessage = f.code.namespaceErrorMessage;
 
         setState(() {
           errorHintText = errorMessage.orDefault(basicErrorMessage);
@@ -241,23 +241,5 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
         );
       },
     );
-  }
-
-  String _localizeErrorMessage(ErrorCode code) {
-    return switch (code) {
-      ErrorCode.CustomNamespaceRequirePlanUpgrade =>
-        LocaleKeys.settings_sites_error_proPlanLimitation.tr(),
-      ErrorCode.CustomNamespaceAlreadyTaken =>
-        LocaleKeys.settings_sites_error_namespaceAlreadyInUse.tr(),
-      ErrorCode.InvalidNamespace =>
-        LocaleKeys.settings_sites_error_invalidNamespace.tr(),
-      ErrorCode.CustomNamespaceTooLong =>
-        LocaleKeys.settings_sites_error_namespaceTooLong.tr(),
-      ErrorCode.CustomNamespaceTooShort =>
-        LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
-      ErrorCode.CustomNamespaceReserved =>
-        LocaleKeys.settings_sites_error_namespaceIsReserved.tr(),
-      _ => '',
-    };
   }
 }

@@ -1,11 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
+import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -210,29 +210,15 @@ class _PublishedViewSettingsDialogState
       },
       (f) {
         Log.error('update path name failed: $f');
-        final desc = _mapErrorCodeToMessage(f.code);
+
         showToastNotification(
           context,
           message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
           type: ToastificationType.error,
-          description: desc,
+          description: f.code.publishErrorMessage,
         );
       },
     );
   }
 
-  String _mapErrorCodeToMessage(ErrorCode code) {
-    switch (code) {
-      case ErrorCode.PublishNameAlreadyExists:
-        return LocaleKeys.settings_sites_error_publishNameAlreadyInUse.tr();
-      case ErrorCode.PublishNameInvalidCharacter:
-        return LocaleKeys
-            .settings_sites_error_publishNameContainsInvalidCharacters
-            .tr();
-      case ErrorCode.PublishNameTooLong:
-        return LocaleKeys.settings_sites_error_publishNameTooLong.tr();
-      default:
-        return '';
-    }
-  }
 }

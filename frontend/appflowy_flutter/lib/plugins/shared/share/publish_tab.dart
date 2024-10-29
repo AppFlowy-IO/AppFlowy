@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -106,11 +107,16 @@ class PublishTab extends StatelessWidget {
           context,
           message: LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
         ),
-        (error) => showToastNotification(
-          context,
-          message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
-          type: ToastificationType.error,
-        ),
+        (error) {
+          Log.error('update path name failed: $error');
+
+          showToastNotification(
+            context,
+            message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
+            type: ToastificationType.error,
+            description: error.code.publishErrorMessage,
+          );
+        },
       );
     }
   }
