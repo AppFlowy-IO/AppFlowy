@@ -35,7 +35,6 @@ use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use lib_infra::async_trait::async_trait;
-use tracing::error;
 
 pub struct FolderDepsResolver();
 #[allow(clippy::too_many_arguments)]
@@ -653,9 +652,4 @@ impl FolderOperationHandler for ChatFolderOperation {
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support())
   }
-}
-
-pub struct DuplicateDatabaseData {
-  pub target_view_id: String,
-  pub data: Vec<Bytes>,
 }
