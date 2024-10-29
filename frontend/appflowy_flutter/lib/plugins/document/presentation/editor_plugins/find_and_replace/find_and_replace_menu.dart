@@ -31,32 +31,34 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: FindMenu(
-            onDismiss: widget.onDismiss,
-            editorState: widget.editorState,
-            searchService: searchService,
-            onShowReplace: (value) => setState(
-              () => showReplaceMenu = value,
+    return TextFieldTapRegion(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: FindMenu(
+              onDismiss: widget.onDismiss,
+              editorState: widget.editorState,
+              searchService: searchService,
+              onShowReplace: (value) => setState(
+                () => showReplaceMenu = value,
+              ),
             ),
           ),
-        ),
-        showReplaceMenu
-            ? Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 8.0,
-                ),
-                child: ReplaceMenu(
-                  editorState: widget.editorState,
-                  searchService: searchService,
-                ),
-              )
-            : const SizedBox.shrink(),
-      ],
+          showReplaceMenu
+              ? Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 8.0,
+                  ),
+                  child: ReplaceMenu(
+                    editorState: widget.editorState,
+                    searchService: searchService,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ],
+      ),
     );
   }
 }
@@ -143,19 +145,8 @@ class _FindMenuState extends State<FindMenu> {
             onFocusCreated: (focusNode) {
               findTextFieldFocusNode = focusNode;
             },
-            onEditingComplete: () {
-              widget.searchService.navigateToMatch();
-              // after update selection or navigate to match, the editor
-              //  will request focus, here's a workaround to request the
-              //  focus back to the findTextField
-              Future.delayed(const Duration(milliseconds: 50), () {
-                if (context.mounted) {
-                  FocusScope.of(context).requestFocus(
-                    findTextFieldFocusNode,
-                  );
-                }
-              });
-            },
+            textInputAction: TextInputAction.none,
+            onEditingComplete: () => widget.searchService.navigateToMatch(),
             controller: findTextEditingController,
             hintText: LocaleKeys.findAndReplace_find.tr(),
             textAlign: TextAlign.left,
@@ -260,19 +251,8 @@ class _ReplaceMenuState extends State<ReplaceMenu> {
             onFocusCreated: (focusNode) {
               replaceTextFieldFocusNode = focusNode;
             },
-            onEditingComplete: () {
-              widget.searchService.navigateToMatch();
-              // after update selection or navigate to match, the editor
-              //  will request focus, here's a workaround to request the
-              //  focus back to the findTextField
-              Future.delayed(const Duration(milliseconds: 50), () {
-                if (context.mounted) {
-                  FocusScope.of(context).requestFocus(
-                    replaceTextFieldFocusNode,
-                  );
-                }
-              });
-            },
+            textInputAction: TextInputAction.none,
+            onEditingComplete: () => widget.searchService.navigateToMatch(),
             controller: replaceTextEditingController,
             hintText: LocaleKeys.findAndReplace_replace.tr(),
             textAlign: TextAlign.left,
