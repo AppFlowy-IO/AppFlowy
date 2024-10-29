@@ -311,6 +311,15 @@ extension CommonOperations on WidgetTester {
     await tapButton(shareButton);
   }
 
+  // open the share menu and then click the publish tab
+  Future<void> openPublishMenu() async {
+    await tapShareButton();
+    final publishButton = find.textContaining(
+      LocaleKeys.shareAction_publishTab.tr(),
+    );
+    await tapButton(publishButton);
+  }
+
   /// Tap the export markdown button
   ///
   /// Must call [tapShareButton] first.
