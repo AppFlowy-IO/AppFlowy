@@ -309,6 +309,11 @@ void main() {
       expect(find.text('Child page'), findsNothing);
       expect(find.byType(SubPageBlockComponent), findsNothing);
 
+      // Since there is no selection active in editor before deleting Node,
+      // we need to give focus back to the editor
+      await tester.editor
+          .updateSelection(Selection.collapsed(Position(path: [0])));
+
       await tester.simulateKeyEvent(
         LogicalKeyboardKey.keyZ,
         isControlPressed: Platform.isLinux || Platform.isWindows,
