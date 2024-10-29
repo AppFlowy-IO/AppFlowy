@@ -28,6 +28,7 @@
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		706E045829F286F600B789F4 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 706E045729F286EC00B789F4 /* libc++.tbd */; };
 		D7360C6D6177708F7B2D3C9D /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CD81A6C7244B2318E0BA2E8 /* Pods_Runner.framework */; };
+		FBADCAF92CD0717200BB6FB1 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FBADCAF82CD0716900BB6FB1 /* libbz2.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		7D41C30A3910C3A40B6085E3 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		FBADCAF82CD0716900BB6FB1 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBADCAF92CD0717200BB6FB1 /* libbz2.tbd in Frameworks */,
 				706E045829F286F600B789F4 /* libc++.tbd in Frameworks */,
 				D7360C6D6177708F7B2D3C9D /* Pods_Runner.framework in Frameworks */,
 			);
@@ -168,6 +171,7 @@
 		D73912EC22F37F3D000D13A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FBADCAF82CD0716900BB6FB1 /* libbz2.tbd */,
 				706E045729F286EC00B789F4 /* libc++.tbd */,
 				1CD81A6C7244B2318E0BA2E8 /* Pods_Runner.framework */,
 			);
