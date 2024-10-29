@@ -344,6 +344,15 @@ pub enum ErrorCode {
 
   #[error("Requested namespace is reserved")]
   CustomNamespaceReserved = 118,
+
+  #[error("Publish name is already used for another published view")]
+  PublishNameAlreadyExists = 119,
+
+  #[error("Publish name contains one or more invalid characters")]
+  PublishNameInvalidCharacter = 120,
+
+  #[error("Publish name has exceeded the maximum length allowable")]
+  PublishNameTooLong = 121,
 }
 
 impl ErrorCode {
