@@ -248,6 +248,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                                   view.icon.value,
                                   fontSize: textStyle.fontSize,
                                   lineHeight: textStyle.height,
+                                  color: textStyle.color,
                                 )
                               : Opacity(
                                   opacity: 0.6,
