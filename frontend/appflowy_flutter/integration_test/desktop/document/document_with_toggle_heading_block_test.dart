@@ -76,7 +76,7 @@ Future<void> _insertToggleHeadingBlockInDocument(
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
     name,
-    offset: 100,
+    offset: 150,
   );
   await tester.pumpAndSettle();
 }

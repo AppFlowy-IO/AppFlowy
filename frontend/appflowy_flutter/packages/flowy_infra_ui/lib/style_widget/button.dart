@@ -528,7 +528,6 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     child = RawMaterialButton(
-      visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
