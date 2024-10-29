@@ -50,6 +50,8 @@ function MainLayout () {
           }}
           openDrawer={drawerOpened}
         />
+
+
         <ErrorBoundary FallbackComponent={SomethingError}>
           {main}
         </ErrorBoundary>
@@ -58,7 +60,8 @@ function MainLayout () {
       {drawerOpened &&
         <SideBar
           onResizeDrawerWidth={setDrawerWidth}
-          drawerWidth={drawerWidth} drawerOpened={drawerOpened}
+          drawerWidth={drawerWidth}
+          drawerOpened={drawerOpened}
           toggleOpenDrawer={toggleOpenDrawer}
         />
       }

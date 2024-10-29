@@ -35,7 +35,11 @@ function renderEditor (doc: YDoc) {
   const AppWrapper = withAppWrapper(() => {
     return (
       <div className={'h-screen w-screen overflow-y-auto'}>
-        <Editor doc={doc} readOnly />
+        <Editor
+          doc={doc}
+          readOnly
+          viewId={''}
+        />
       </div>
     );
   });

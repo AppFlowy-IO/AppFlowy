@@ -1577,6 +1577,9 @@
         "mathEquation": "Math Equation",
         "code": "Code",
         "toggleList": "Toggle list",
+        "toggleHeading1": "Toggle heading 1",
+        "toggleHeading2": "Toggle heading 2",
+        "toggleHeading3": "Toggle heading 3",
         "emoji": "Emoji",
         "aiWriter": "AI Writer",
         "dateOrReminder": "Date or Reminder",
@@ -2715,5 +2718,48 @@
     "laterButton": "Later",
     "refreshNote": "After successful upgrade, click <refresh/> to activate your new features.",
     "refresh": "here"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumbs"
+  },
+  "time": {
+    "justNow": "Just now",
+    "seconds": {
+      "one": "1 second",
+      "other": "{count} seconds"
+    },
+    "minutes": {
+      "one": "1 minute",
+      "other": "{count} minutes"
+    },
+    "hours": {
+      "one": "1 hour",
+      "other": "{count} hours"
+    },
+    "days": {
+      "one": "1 day",
+      "other": "{count} days"
+    },
+    "weeks": {
+      "one": "1 week",
+      "other": "{count} weeks"
+    },
+    "months": {
+      "one": "1 month",
+      "other": "{count} months"
+    },
+    "years": {
+      "one": "1 year",
+      "other": "{count} years"
+    },
+    "ago": "ago",
+    "yesterday": "Yesterday",
+    "today": "Today"
+  },
+  "members": {
+    "zero": "No members",
+    "one": "1 member",
+    "many": "{count} members",
+    "other": "{count} members"
   }
 }

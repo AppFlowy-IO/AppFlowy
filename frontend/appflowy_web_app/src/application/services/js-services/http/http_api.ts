@@ -14,7 +14,7 @@ import {
   Subscriptions,
   SubscriptionPlan,
   SubscriptionInterval,
-  RequestAccessInfoStatus,
+  RequestAccessInfoStatus, ViewInfo,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -274,10 +274,22 @@ export async function getUserWorkspaceInfo (): Promise<{
 }
 
 export async function getPublishViewMeta (namespace: string, publishName: string) {
-  const url = `/api/workspace/published/${namespace}/${publishName}`;
-  const response = await axiosInstance?.get(url);
+  const url = `/api/workspace/v1/published/${namespace}/${publishName}`;
+  const response = await axiosInstance?.get<{
+    code: number;
+    data: {
+      view: ViewInfo;
+      child_views: ViewInfo[];
+      ancestor_views: ViewInfo[];
+    };
+    message: string;
+  }>(url);
 
-  return response?.data;
+  if (response?.data.code !== 0) {
+    return Promise.reject(response?.data);
+  }
+
+  return response?.data.data;
 }
 
 export async function getPublishViewBlob (namespace: string, publishName: string) {
@@ -289,7 +301,7 @@ export async function getPublishViewBlob (namespace: string, publishName: string
   return blobToBytes(response?.data);
 }
 
-export async function updateCollab (workspaceId: string, objectId: string, docState: Uint8Array, context: {
+export async function updateCollab (workspaceId: string, objectId: string, collabType: Types, docState: Uint8Array, context: {
   version_vector: number;
 }) {
   const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}/web-update`;
@@ -298,6 +310,7 @@ export async function updateCollab (workspaceId: string, objectId: string, docSt
     message: string;
   }>(url, {
     doc_state: Array.from(docState),
+    collab_type: collabType,
   });
 
   if (response?.data.code !== 0) {
@@ -1175,7 +1188,56 @@ export async function getActiveSubscription (workspaceId: string) {
   return Promise.reject(response?.data);
 }
 
-export async function importFile (file: File, onProgress: (progress: number) => void) {
+export async function createImportTask (file: File) {
+  const url = `/api/import/create`;
+  const fileName = file.name.split('.').slice(0, -1).join('.') || crypto.randomUUID();
+
+  const res = await axiosInstance?.post<{
+    code: number;
+    data: {
+      task_id: string;
+      presigned_url: string;
+    };
+    message: string;
+  }>(url, {
+    workspace_name: fileName,
+    content_length: file.size,
+  });
+
+  if (res?.data.code === 0) {
+    return {
+      taskId: res?.data.data.task_id,
+      presignedUrl: res?.data.data.presigned_url,
+    };
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function uploadImportFile (presignedUrl: string, file: File, onProgress: (progress: number) => void) {
+  const response = await axios.put(presignedUrl, file, {
+    onUploadProgress: (progressEvent) => {
+      const { progress = 0 } = progressEvent;
+
+      console.log(`Upload progress: ${progress * 100}%`);
+      onProgress(progress);
+    },
+    headers: {
+      'Content-Type': 'application/zip',
+    },
+  });
+
+  if (response.status === 200) {
+    return;
+  }
+
+  return Promise.reject({
+    code: -1,
+    message: `Upload file failed. ${response.statusText}`,
+  });
+}
+
+export async function uploadFile (file: File, onProgress: (progress: number) => void) {
   const url = `/api/import`;
 
   const fileName = file.name.split('.').slice(0, -1).join('.') || crypto.randomUUID();
@@ -1220,3 +1282,4 @@ export async function importFile (file: File, onProgress: (progress: number) => 
 
   return Promise.reject(response?.data);
 }
+

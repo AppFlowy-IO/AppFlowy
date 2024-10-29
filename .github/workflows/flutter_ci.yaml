@@ -28,7 +28,7 @@ env:
   FLUTTER_VERSION: "3.22.2"
   RUST_TOOLCHAIN: "1.80.1"
   CARGO_MAKE_VERSION: "0.37.18"
-  CLOUD_VERSION: 0.6.34-amd64
+  CLOUD_VERSION: 0.6.51-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -263,10 +263,14 @@ jobs:
             running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
             if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
               echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
+              docker rm -f $(docker ps -aq)
+              docker volume rm $(docker volume ls -q)
               docker compose pull
               docker compose up -d
               echo "Waiting for the container to be ready..."
               sleep 10
+              docker ps -a
+              docker compose logs
             else
               echo "AppFlowy-Cloud is running with the correct version."
             fi
@@ -324,14 +328,14 @@ jobs:
           flutter test integration_test/desktop/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
-  # split the integration tests into different machines to minimize the time
-  integration_test_1:
+  integration_test:
     needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
+        test_number: [1, 2, 3, 4, 5, 6, 7, 8]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
@@ -340,82 +344,10 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Flutter Integration Test 1
+      - name: Flutter Integration Test ${{ matrix.test_number }}
         uses: ./.github/actions/flutter_integration_test
         with:
-          test_path: integration_test/desktop_runner_1.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
-  integration_test_2:
-    needs: [prepare-linux]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        include:
-          - os: ubuntu-latest
-            target: "x86_64-unknown-linux-gnu"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test 2
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          test_path: integration_test/desktop_runner_2.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
-  integration_test_3:
-    needs: [prepare-linux]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        include:
-          - os: ubuntu-latest
-            target: "x86_64-unknown-linux-gnu"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test 3
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          test_path: integration_test/desktop_runner_3.dart
-          flutter_version: ${{ env.FLUTTER_VERSION }}
-          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
-          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
-          rust_target: ${{ matrix.target }}
-
-  integration_test_4:
-    needs: [prepare-linux]
-    if: github.event.pull_request.draft != true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        include:
-          - os: ubuntu-latest
-            target: "x86_64-unknown-linux-gnu"
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Flutter Integration Test 4
-        uses: ./.github/actions/flutter_integration_test
-        with:
-          test_path: integration_test/desktop_runner_4.dart
+          test_path: integration_test/desktop_runner_${{ matrix.test_number }}.dart
           flutter_version: ${{ env.FLUTTER_VERSION }}
           rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}

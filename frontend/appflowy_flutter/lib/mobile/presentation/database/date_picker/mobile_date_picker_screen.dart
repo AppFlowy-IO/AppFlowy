@@ -7,7 +7,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,71 +70,44 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
     );
   }
 
-  Widget _buildDatePicker() => MultiBlocProvider(
-        providers: [
-          BlocProvider<DateCellEditorBloc>(
-            create: (_) => DateCellEditorBloc(
-              reminderBloc: getIt<ReminderBloc>(),
-              cellController: widget.controller,
-            ),
-          ),
-        ],
-        child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
-          builder: (context, state) {
-            return MobileAppFlowyDatePicker(
-              selectedDay: state.dateTime,
-              dateStr: state.dateStr,
-              endDateStr: state.endDateStr,
-              timeStr: state.timeStr,
-              endTimeStr: state.endTimeStr,
-              startDay: state.startDay,
-              endDay: state.endDay,
-              enableRanges: true,
-              isRange: state.isRange,
-              includeTime: state.includeTime,
-              use24hFormat: state.dateTypeOptionPB.timeFormat ==
-                  TimeFormatPB.TwentyFourHour,
-              timeFormat: state.dateTypeOptionPB.timeFormat,
-              selectedReminderOption: state.reminderOption,
-              onStartTimeChanged: (String? time) {
-                if (time != null) {
-                  context
-                      .read<DateCellEditorBloc>()
-                      .add(DateCellEditorEvent.setTime(time));
-                }
-              },
-              onEndTimeChanged: (String? time) {
-                if (time != null) {
-                  context
-                      .read<DateCellEditorBloc>()
-                      .add(DateCellEditorEvent.setEndTime(time));
-                }
-              },
-              onDaySelected: (selectedDay, focusedDay) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.selectDay(selectedDay)),
-              onRangeSelected: (start, end, focused) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.selectDateRange(start, end)),
-              onRangeChanged: (value) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.setIsRange(value)),
-              onIncludeTimeChanged: (value) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.setIncludeTime(value)),
-              onClearDate: () => context
-                  .read<DateCellEditorBloc>()
-                  .add(const DateCellEditorEvent.clearDate()),
-              onReminderSelected: (option) =>
-                  context.read<DateCellEditorBloc>().add(
-                        DateCellEditorEvent.setReminderOption(
-                          option: option,
-                          selectedDay:
-                              state.dateTime == null ? DateTime.now() : null,
-                        ),
-                      ),
-            );
-          },
-        ),
-      );
+  Widget _buildDatePicker() {
+    return BlocProvider(
+      create: (_) => DateCellEditorBloc(
+        reminderBloc: getIt<ReminderBloc>(),
+        cellController: widget.controller,
+      ),
+      child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(
+        builder: (context, state) {
+          final dateCellBloc = context.read<DateCellEditorBloc>();
+          return MobileAppFlowyDatePicker(
+            dateTime: state.dateTime,
+            endDateTime: state.endDateTime,
+            isRange: state.isRange,
+            includeTime: state.includeTime,
+            dateFormat: state.dateTypeOptionPB.dateFormat,
+            timeFormat: state.dateTypeOptionPB.timeFormat,
+            reminderOption: state.reminderOption,
+            onDaySelected: (selectedDay) {
+              dateCellBloc.add(DateCellEditorEvent.updateDateTime(selectedDay));
+            },
+            onRangeSelected: (start, end) {
+              dateCellBloc.add(DateCellEditorEvent.updateDateRange(start, end));
+            },
+            onIsRangeChanged: (value) {
+              dateCellBloc.add(DateCellEditorEvent.setIsRange(value));
+            },
+            onIncludeTimeChanged: (value) {
+              dateCellBloc.add(DateCellEditorEvent.setIncludeTime(value));
+            },
+            onClearDate: () {
+              dateCellBloc.add(const DateCellEditorEvent.clearDate());
+            },
+            onReminderSelected: (option) {
+              dateCellBloc.add(DateCellEditorEvent.setReminderOption(option));
+            },
+          );
+        },
+      ),
+    );
+  }
 }

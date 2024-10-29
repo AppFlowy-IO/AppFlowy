@@ -1,4 +1,19 @@
 # Release Notes
+## Version 0.7.2 - 22/10/2024
+### New Features
+- Copy link to block
+- Support turn into in document
+- Enable sharing links and publishing pages on mobile
+- Enable drag and drop in row documents
+- Right-click on page in sidebar to open more actions
+- Create new subpage in document using `+` character
+- Allow reordering checklist item
+
+### Bug Fixes
+- Fixed issue with inability to cancel inline code format in French IME
+- Fixed delete with Shift or Ctrl shortcuts not working in documents
+- Fixed the issues with incorrect time zone being used in filters.
+
 ## Version 0.7.1 - 07/10/2024
 ### New Features
 - Copy link to share and open it in a browser
@@ -60,7 +75,7 @@
 - Fixed the inability to edit group names on Kanban boards
 - Made error codes more user-friendly
 - Added leading zeros to day and month in date format
-  
+
 ## Version 0.6.8 - 22/08/2024
 ### New Features
 - Enabled viewing data inside a database record on mobile.

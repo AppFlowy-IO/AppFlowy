@@ -21,7 +21,7 @@ export interface DatabaseContextState {
   loadView?: LoadView;
   createRowDoc?: CreateRowDoc;
   loadViewMeta?: LoadViewMeta;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
 }
 
 export const DatabaseContext = createContext<DatabaseContextState | null>(null);

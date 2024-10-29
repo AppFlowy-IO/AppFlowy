@@ -9,7 +9,7 @@ use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
@@ -147,7 +147,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           create_if_not_exist: true,
         },
         Server::AppFlowyCloud => {
-          return Err(FlowyError::from(err));
+          return Err(err);
         },
       },
     };

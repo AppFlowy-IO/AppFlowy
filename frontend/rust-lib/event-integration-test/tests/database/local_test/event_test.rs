@@ -536,7 +536,7 @@ async fn update_date_cell_event_test() {
   let error = test
     .update_date_cell(DateCellChangesetPB {
       cell_id: cell_path,
-      date: Some(timestamp),
+      timestamp: Some(timestamp),
       ..Default::default()
     })
     .await;
@@ -546,8 +546,7 @@ async fn update_date_cell_event_test() {
   let cell = test
     .get_date_cell(&grid_view.id, &database.rows[0].id, &date_field.id)
     .await;
-  assert_eq!(cell.date, "Jun 09, 2023");
-  assert_eq!(cell.timestamp, timestamp);
+  assert_eq!(cell.timestamp, Some(timestamp));
 }
 
 #[tokio::test]
@@ -572,7 +571,7 @@ async fn update_date_cell_event_with_empty_time_str_test() {
   let error = test
     .update_date_cell(DateCellChangesetPB {
       cell_id: cell_path,
-      date: None,
+      timestamp: None,
       ..Default::default()
     })
     .await;
@@ -582,8 +581,7 @@ async fn update_date_cell_event_with_empty_time_str_test() {
   let cell = test
     .get_date_cell(&grid_view.id, &row_id, &date_field.id)
     .await;
-  assert_eq!(cell.date, "");
-  assert_eq!(cell.timestamp, 0);
+  assert_eq!(cell.timestamp, None);
 }
 
 #[tokio::test]
@@ -788,7 +786,7 @@ async fn create_calendar_event_test() {
         field_id: date_field.id.clone(),
         row_id: row.id,
       },
-      date: Some(timestamp()),
+      timestamp: Some(timestamp()),
       ..Default::default()
     })
     .await;

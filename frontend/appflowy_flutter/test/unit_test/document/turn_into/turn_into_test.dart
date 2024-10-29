@@ -19,6 +19,7 @@ void main() {
       String originalText, {
       Selection? selection,
       String? toType,
+      int? level,
       void Function(EditorState editorState, Node node)? afterTurnInto,
     }) async {
       final editorState = EditorState(document: document);
@@ -46,6 +47,7 @@ void main() {
         final result = await cubit.turnIntoBlock(
           type,
           node,
+          level: level,
         );
         expect(result, true);
         final newNode = editorState.getNodeAtPath([0])!;
@@ -682,6 +684,254 @@ void main() {
         ),
         Selection.collapsed(Position(path: [2])),
       );
+    });
+
+    group('turn into toggle list', () {
+      const heading1 = 'heading 1';
+      const heading2 = 'heading 2';
+      const heading3 = 'heading 3';
+      const paragraph1 = 'paragraph 1';
+      const paragraph2 = 'paragraph 2';
+      const paragraph3 = 'paragraph 3';
+
+      test('turn heading 1 block to toggle heading 1 block', () async {
+        // before
+        // # Heading 1
+        // paragraph 1
+        // paragraph 2
+        // paragraph 3
+
+        // after
+        // > # Heading 1
+        //   paragraph 1
+        //   paragraph 2
+        //   paragraph 3
+        final document = createDocument([
+          headingNode(level: 1, text: heading1),
+          paragraphNode(text: paragraph1),
+          paragraphNode(text: paragraph2),
+          paragraphNode(text: paragraph3),
+        ]);
+
+        await checkTurnInto(
+          document,
+          HeadingBlockKeys.type,
+          heading1,
+          selection: Selection.collapsed(
+            Position(path: [0]),
+          ),
+          toType: ToggleListBlockKeys.type,
+          level: 1,
+          afterTurnInto: (editorState, node) {
+            expect(editorState.document.root.children.length, 1);
+            expect(node.type, ToggleListBlockKeys.type);
+            expect(node.attributes[ToggleListBlockKeys.level], 1);
+            expect(node.children.length, 3);
+            for (var i = 0; i < 3; i++) {
+              expect(node.children[i].type, ParagraphBlockKeys.type);
+              expect(
+                node.children[i].delta!.toPlainText(),
+                [paragraph1, paragraph2, paragraph3][i],
+              );
+            }
+
+            // test undo together
+            final result = undoCommand.execute(editorState);
+            expect(result, KeyEventResult.handled);
+            expect(editorState.document.root.children.length, 4);
+          },
+        );
+      });
+
+      test('turn toggle heading 1 block to heading 1 block', () async {
+        // before
+        // > # Heading 1
+        //   paragraph 1
+        //   paragraph 2
+        //   paragraph 3
+
+        // after
+        // # Heading 1
+        // paragraph 1
+        // paragraph 2
+        // paragraph 3
+        final document = createDocument([
+          toggleHeadingNode(
+            text: heading1,
+            children: [
+              paragraphNode(text: paragraph1),
+              paragraphNode(text: paragraph2),
+              paragraphNode(text: paragraph3),
+            ],
+          ),
+        ]);
+
+        await checkTurnInto(
+          document,
+          ToggleListBlockKeys.type,
+          heading1,
+          selection: Selection.collapsed(
+            Position(path: [0]),
+          ),
+          toType: HeadingBlockKeys.type,
+          level: 1,
+          afterTurnInto: (editorState, node) {
+            expect(editorState.document.root.children.length, 4);
+            expect(node.type, HeadingBlockKeys.type);
+            expect(node.attributes[HeadingBlockKeys.level], 1);
+            expect(node.children.length, 0);
+            for (var i = 1; i <= 3; i++) {
+              final node = editorState.getNodeAtPath([i])!;
+              expect(node.type, ParagraphBlockKeys.type);
+              expect(
+                node.delta!.toPlainText(),
+                [paragraph1, paragraph2, paragraph3][i - 1],
+              );
+            }
+
+            // test undo together
+            editorState.selection = Selection.collapsed(
+              Position(path: [0]),
+            );
+            final result = undoCommand.execute(editorState);
+            expect(result, KeyEventResult.handled);
+            expect(editorState.document.root.children.length, 1);
+            final afterNode = editorState.getNodeAtPath([0])!;
+            expect(afterNode.type, ToggleListBlockKeys.type);
+            expect(afterNode.attributes[ToggleListBlockKeys.level], 1);
+            expect(afterNode.children.length, 3);
+          },
+        );
+      });
+
+      test('turn heading 2 block to toggle heading 2 block - case 1', () async {
+        // before
+        // ## Heading 2
+        // paragraph 1
+        // ### Heading 3
+        // paragraph 2
+        // # Heading 1 <- the heading 1 block will not be converted
+        // paragraph 3
+
+        // after
+        // > ## Heading 2
+        //   paragraph 1
+        //   ## Heading 2
+        //   paragraph 2
+        // # Heading 1
+        // paragraph 3
+        final document = createDocument([
+          headingNode(level: 2, text: heading2),
+          paragraphNode(text: paragraph1),
+          headingNode(level: 3, text: heading3),
+          paragraphNode(text: paragraph2),
+          headingNode(level: 1, text: heading1),
+          paragraphNode(text: paragraph3),
+        ]);
+
+        await checkTurnInto(
+          document,
+          HeadingBlockKeys.type,
+          heading2,
+          selection: Selection.collapsed(
+            Position(path: [0]),
+          ),
+          toType: ToggleListBlockKeys.type,
+          level: 2,
+          afterTurnInto: (editorState, node) {
+            expect(editorState.document.root.children.length, 3);
+            expect(node.type, ToggleListBlockKeys.type);
+            expect(node.attributes[ToggleListBlockKeys.level], 2);
+            expect(node.children.length, 3);
+            expect(node.children[0].delta!.toPlainText(), paragraph1);
+            expect(node.children[1].delta!.toPlainText(), heading3);
+            expect(node.children[2].delta!.toPlainText(), paragraph2);
+
+            // the heading 1 block will not be converted
+            final heading1Node = editorState.getNodeAtPath([1])!;
+            expect(heading1Node.type, HeadingBlockKeys.type);
+            expect(heading1Node.attributes[HeadingBlockKeys.level], 1);
+            expect(heading1Node.delta!.toPlainText(), heading1);
+
+            final paragraph3Node = editorState.getNodeAtPath([2])!;
+            expect(paragraph3Node.type, ParagraphBlockKeys.type);
+            expect(paragraph3Node.delta!.toPlainText(), paragraph3);
+
+            // test undo together
+            final result = undoCommand.execute(editorState);
+            expect(result, KeyEventResult.handled);
+            expect(editorState.document.root.children.length, 6);
+          },
+        );
+      });
+
+      test('turn heading 2 block to toggle heading 2 block - case 2', () async {
+        // before
+        // ## Heading 2
+        // paragraph 1
+        // ## Heading 2 <- the heading 2 block will not be converted
+        // paragraph 2
+        // # Heading 1 <- the heading 1 block will not be converted
+        // paragraph 3
+
+        // after
+        // > ## Heading 2
+        //   paragraph 1
+        // ## Heading 2
+        //   paragraph 2
+        // # Heading 1
+        // paragraph 3
+        final document = createDocument([
+          headingNode(level: 2, text: heading2),
+          paragraphNode(text: paragraph1),
+          headingNode(level: 2, text: heading2),
+          paragraphNode(text: paragraph2),
+          headingNode(level: 1, text: heading1),
+          paragraphNode(text: paragraph3),
+        ]);
+
+        await checkTurnInto(
+          document,
+          HeadingBlockKeys.type,
+          heading2,
+          selection: Selection.collapsed(
+            Position(path: [0]),
+          ),
+          toType: ToggleListBlockKeys.type,
+          level: 2,
+          afterTurnInto: (editorState, node) {
+            expect(editorState.document.root.children.length, 5);
+            expect(node.type, ToggleListBlockKeys.type);
+            expect(node.attributes[ToggleListBlockKeys.level], 2);
+            expect(node.children.length, 1);
+            expect(node.children[0].delta!.toPlainText(), paragraph1);
+
+            final heading2Node = editorState.getNodeAtPath([1])!;
+            expect(heading2Node.type, HeadingBlockKeys.type);
+            expect(heading2Node.attributes[HeadingBlockKeys.level], 2);
+            expect(heading2Node.delta!.toPlainText(), heading2);
+
+            final paragraph2Node = editorState.getNodeAtPath([2])!;
+            expect(paragraph2Node.type, ParagraphBlockKeys.type);
+            expect(paragraph2Node.delta!.toPlainText(), paragraph2);
+
+            // the heading 1 block will not be converted
+            final heading1Node = editorState.getNodeAtPath([3])!;
+            expect(heading1Node.type, HeadingBlockKeys.type);
+            expect(heading1Node.attributes[HeadingBlockKeys.level], 1);
+            expect(heading1Node.delta!.toPlainText(), heading1);
+
+            final paragraph3Node = editorState.getNodeAtPath([4])!;
+            expect(paragraph3Node.type, ParagraphBlockKeys.type);
+            expect(paragraph3Node.delta!.toPlainText(), paragraph3);
+
+            // test undo together
+            final result = undoCommand.execute(editorState);
+            expect(result, KeyEventResult.handled);
+            expect(editorState.document.root.children.length, 6);
+          },
+        );
+      });
     });
   });
 }

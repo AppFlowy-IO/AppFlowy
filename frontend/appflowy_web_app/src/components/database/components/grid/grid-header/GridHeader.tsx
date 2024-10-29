@@ -20,12 +20,18 @@ const Cell = memo(({ columnIndex, style, data }: GridChildComponentProps) => {
   if (column.type === GridColumnType.Field) {
     return (
       <div style={style}>
-        <GridColumn column={column} index={columnIndex} />
+        <GridColumn
+          column={column}
+          index={columnIndex}
+        />
       </div>
     );
   }
 
-  return <div style={style} className={'border-t border-b border-line-divider'} />;
+  return <div
+    style={style}
+    className={'border-t border-b border-line-divider'}
+  />;
 }, areEqual);
 
 export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: GridHeaderProps) => {

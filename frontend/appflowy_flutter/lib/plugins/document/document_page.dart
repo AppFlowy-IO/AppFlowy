@@ -14,6 +14,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -172,7 +173,7 @@ class _DocumentPageState extends State<DocumentPage>
 
   Widget buildBanner(BuildContext context) {
     return DocumentBanner(
-      viewName: widget.view.name,
+      viewName: widget.view.nameOrDefault,
       onRestore: () =>
           context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
       onDelete: () => context

@@ -676,14 +676,11 @@ impl DatabaseEditor {
       .get_or_init_view_editor(&params.view_id)
       .await?;
 
-    let CreateRowParams {
-      collab_params,
-      open_after_create: _,
-    } = view_editor.v_will_create_row(params).await?;
+    let params = view_editor.v_will_create_row(params).await?;
 
     let mut database = self.database.write().await;
     let (index, row_order) = database
-      .create_row_in_view(&view_editor.view_id, collab_params)
+      .create_row_in_view(&view_editor.view_id, params)
       .await?;
     let row_detail = database.get_row_detail(&row_order.id).await;
     drop(database);
