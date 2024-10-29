@@ -35,6 +35,7 @@ use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use lib_infra::async_trait::async_trait;
+use tracing::error;
 
 pub struct FolderDepsResolver();
 #[allow(clippy::too_many_arguments)]
@@ -413,8 +414,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   }
 
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
-    let database_data = self.0.get_database_data(view_id).await?;
-    Ok(Bytes::from(database_data.to_json_bytes()?))
+    Ok(Bytes::from(view_id.to_string()))
   }
 
   /// Create a database view with duplicated data.
@@ -428,9 +428,11 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     match CreateDatabaseExtParams::from_map(params.meta.clone()) {
       None => match params.initial_data {
         ViewData::DuplicateData(data) => {
+          let duplicated_view_id =
+            String::from_utf8(data.to_vec()).map_err(|_| FlowyError::invalid_data())?;
           let encoded_collab = self
             .0
-            .create_database_with_data(&params.view_id, data.to_vec())
+            .duplicate_database(&duplicated_view_id, &params.view_id)
             .await?;
           Ok(Some(encoded_collab))
         },
@@ -651,4 +653,9 @@ impl FolderOperationHandler for ChatFolderOperation {
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support())
   }
+}
+
+pub struct DuplicateDatabaseData {
+  pub target_view_id: String,
+  pub data: Vec<Bytes>,
 }

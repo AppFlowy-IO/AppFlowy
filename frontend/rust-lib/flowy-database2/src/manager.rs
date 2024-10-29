@@ -359,26 +359,48 @@ impl DatabaseManager {
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn create_database_with_data(
     &self,
-    view_id: &str,
+    new_database_view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
-    let view_id = view_id.to_string();
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
-    debug_assert!(
-      create_database_params.views.len() == 1,
-      "Currently, only support create database with one view"
-    );
+    if database_data.views.is_empty() {
+      return Err(FlowyError::invalid_data().with_context("The database data is empty"));
+    }
 
-    // when creating database views, each views must equal to the view_id
-    create_database_params
-      .views
-      .iter_mut()
-      .for_each(|view| view.view_id = view_id.clone());
+    // choose the first view as the display view. The new database_view_id is the ID in the Folder.
+    let database_view_id = database_data.views[0].id.clone();
+    let create_database_params = CreateDatabaseParams::from_database_data(
+      database_data,
+      &database_view_id,
+      new_database_view_id,
+    );
 
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
     let database = wdb.create_database(create_database_params).await?;
+    drop(wdb);
+
+    let encoded_collab = database
+      .read()
+      .await
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
+      .map_err(|err| FlowyError::internal().with_context(err))?;
+    Ok(encoded_collab)
+  }
+
+  /// When duplicating a database view, it will duplicate all the database views and replace the duplicated
+  /// database_view_id with the new_database_view_id. The new database id is the ID created by Folder.
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn duplicate_database(
+    &self,
+    database_view_id: &str,
+    new_database_view_id: &str,
+  ) -> FlowyResult<EncodedCollab> {
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
+    let database = wdb
+      .duplicate_database(database_view_id, new_database_view_id)
+      .await?;
     drop(wdb);
 
     let encoded_collab = database

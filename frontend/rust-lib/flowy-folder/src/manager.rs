@@ -1022,7 +1022,15 @@ impl FolderManager {
       };
 
       let name = if is_source_view {
-        format!("{}{}", &view.name, suffix)
+        format!(
+          "{}{}",
+          if view.name.is_empty() {
+            "Untitled"
+          } else {
+            view.name.as_str()
+          },
+          suffix
+        )
       } else {
         view.name.clone()
       };
