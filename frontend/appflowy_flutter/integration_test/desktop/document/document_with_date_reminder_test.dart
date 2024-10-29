@@ -10,7 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../../shared/util.dart';
-import '../board/board_hide_groups_test.dart';
 
 void main() {
   setUp(() {
@@ -52,18 +51,19 @@ void main() {
       await tester.tap(find.byType(MentionDateBlock));
       await tester.pumpAndSettle();
 
+      final currentTime = DateFormat('HH:mm').format(DateTime.now());
+
       // tap the toggle of include time
       await tester.tap(find.byType(Toggle));
       await tester.pumpAndSettle();
 
       // add time 11:12
-      final currentTime = DateFormat('HH:mm').format(DateTime.now());
       final textField = find.byWidgetPredicate(
         (widget) =>
             widget is TextField && widget.controller!.text == currentTime,
       );
       await tester.enterText(textField, "11:12");
-      await tester.editor.tapLineOfEditorAt(0);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
       // we will get field with current date and 11:12 as time

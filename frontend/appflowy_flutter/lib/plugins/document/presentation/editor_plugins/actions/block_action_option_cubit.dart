@@ -184,6 +184,15 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         .toList();
     Log.info('turnIntoBlock selectedNodes $selectedNodes');
 
+    // try to turn into a single toggle heading block
+    if (await turnIntoSingleToggleHeading(
+      type: toType,
+      selectedNodes: selectedNodes,
+      level: level,
+    )) {
+      return true;
+    }
+
     final insertedNode = <Node>[];
 
     for (final node in selectedNodes) {
@@ -195,6 +204,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         type: type,
         attributes: {
           if (toType == HeadingBlockKeys.type) HeadingBlockKeys.level: level,
+          if (toType == ToggleListBlockKeys.type)
+            ToggleListBlockKeys.level: level,
           if (toType == TodoListBlockKeys.type)
             TodoListBlockKeys.checked: false,
           blockComponentBackgroundColor:
@@ -228,6 +239,99 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       insertedNode,
     );
     transaction.deleteNodes(selectedNodes);
+    await editorState.apply(transaction);
+
+    return true;
+  }
+
+  // turn a single node into toggle heading block
+  // 1. find the sibling nodes after the selected node until
+  //  meet the first node that contains level and its value is greater or equal to the level
+  // 2. move the found nodes in the selected node
+  //
+  // example:
+  // Toggle Heading 1 <- selected node
+  // - bulleted item 1
+  // - bulleted item 2
+  // - bulleted item 3
+  // Heading 1
+  // - paragraph 1
+  // - paragraph 2
+  // when turning "Toggle Heading 1" into toggle heading, the bulleted items will be moved into the toggle heading
+  Future<bool> turnIntoSingleToggleHeading({
+    required String type,
+    required List<Node> selectedNodes,
+    int? level,
+    Delta? delta,
+    Selection? afterSelection,
+  }) async {
+    // only support turn a single node into toggle heading block
+    if (type != ToggleListBlockKeys.type ||
+        selectedNodes.length != 1 ||
+        level == null) {
+      return false;
+    }
+
+    // find the sibling nodes after the selected node until
+    final insertedNodes = <Node>[];
+    final node = selectedNodes.first;
+    Path path = node.path.next;
+    Node? nextNode = editorState.getNodeAtPath(path);
+    while (nextNode != null) {
+      if (nextNode.type == HeadingBlockKeys.type &&
+          nextNode.attributes[HeadingBlockKeys.level] != null &&
+          nextNode.attributes[HeadingBlockKeys.level]! <= level) {
+        break;
+      }
+
+      if (nextNode.type == ToggleListBlockKeys.type &&
+          nextNode.attributes[ToggleListBlockKeys.level] != null &&
+          nextNode.attributes[ToggleListBlockKeys.level]! <= level) {
+        break;
+      }
+
+      insertedNodes.add(nextNode);
+
+      path = path.next;
+      nextNode = editorState.getNodeAtPath(path);
+    }
+
+    Log.info('insertedNodes $insertedNodes');
+
+    Log.info(
+      'Turn into block: from ${node.type} to $type',
+    );
+
+    final afterNode = node.copyWith(
+      type: type,
+      attributes: {
+        ToggleListBlockKeys.level: level,
+        ToggleListBlockKeys.collapsed:
+            node.attributes[ToggleListBlockKeys.collapsed] ?? false,
+        blockComponentBackgroundColor:
+            node.attributes[blockComponentBackgroundColor],
+        blockComponentTextDirection:
+            node.attributes[blockComponentTextDirection],
+        blockComponentDelta: (delta ?? node.delta ?? Delta()).toJson(),
+      },
+      children: [
+        ...node.children,
+        ...insertedNodes.map((e) => e.copyWith()),
+      ],
+    );
+
+    final transaction = editorState.transaction;
+    transaction.insertNode(
+      node.path,
+      afterNode,
+    );
+    transaction.deleteNodes([
+      node,
+      ...insertedNodes,
+    ]);
+    if (afterSelection != null) {
+      transaction.afterSelection = afterSelection;
+    }
     await editorState.apply(transaction);
 
     return true;

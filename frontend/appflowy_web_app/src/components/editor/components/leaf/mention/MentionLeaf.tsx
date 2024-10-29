@@ -11,26 +11,33 @@ export function MentionLeaf ({ mention, text }: {
   text: Text;
 }) {
   const readonly = useReadOnly();
-  const { type, date, page_id, reminder_id, reminder_option } = mention;
+  const { type, date, page_id, reminder_id, reminder_option, block_id } = mention;
 
   const reminder = useMemo(() => {
     return reminder_id ? { id: reminder_id ?? '', option: reminder_option ?? '' } : undefined;
   }, [reminder_id, reminder_option]);
 
   const content = useMemo(() => {
-    if (type === MentionType.PageRef && page_id) {
-      return <MentionPage pageId={page_id} />;
+    if ([MentionType.PageRef, MentionType.childPage].includes(type) && page_id) {
+      return <MentionPage
+        type={type}
+        pageId={page_id}
+        blockId={block_id}
+      />;
     }
 
     if (type === MentionType.Date && date) {
-      return <MentionDate date={date} reminder={reminder} />;
+      return <MentionDate
+        date={date}
+        reminder={reminder}
+      />;
     }
-  }, [date, page_id, reminder, type]);
+  }, [date, page_id, reminder, type, block_id]);
 
   // check if the mention is selected
   const { isSelected, select, isCursorAfter, isCursorBefore } = useLeafSelected(text);
   const className = useMemo(() => {
-    const classList = ['w-fit mention', 'relative', 'rounded', 'p-0.5'];
+    const classList = ['w-fit mention', 'relative', 'rounded', 'py-0.5'];
 
     if (readonly) classList.push('cursor-default');
     else classList.push('cursor-pointer');
@@ -43,7 +50,8 @@ export function MentionLeaf ({ mention, text }: {
 
   return <span
     onClick={select}
-    contentEditable={false} className={className}
+    contentEditable={false}
+    className={className}
   >
     {content}
   </span>;

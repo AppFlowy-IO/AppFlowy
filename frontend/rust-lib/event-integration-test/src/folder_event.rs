@@ -1,4 +1,4 @@
-use flowy_folder::view_operation::EncodedCollabWrapper;
+use flowy_folder::view_operation::{EncodedCollabWrapper, ViewData};
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -128,7 +128,7 @@ impl EventIntegrationTest {
         desc: "".to_string(),
         layout: view.layout.into(),
         view_id: view.id,
-        initial_data: vec![],
+        initial_data: ViewData::Empty,
         meta: Default::default(),
         set_as_current: false,
         index: None,

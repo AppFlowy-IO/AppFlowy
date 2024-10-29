@@ -22,14 +22,16 @@ function ImporterDialogContent ({
 
   const handleUpload = useCallback(async (file: File) => {
     setIsError(false);
+    if (!service) return;
     try {
-      await service?.importFile(file, setProgress);
+      await service.importFile(file, setProgress);
       onSuccess();
-    } catch (e) {
-      notify.error(t('web.importFailed'));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      notify.error(e.message);
       setIsError(true);
     }
-  }, [onSuccess, service, t]);
+  }, [onSuccess, service]);
 
   return (
     <div className={'flex flex-col gap-8'}>

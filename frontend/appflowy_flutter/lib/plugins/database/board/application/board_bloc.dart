@@ -146,18 +146,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           createGroup: (name) async {
             final result = await groupBackendSvc.createGroup(name: name);
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           deleteGroup: (groupId) async {
             final result = await groupBackendSvc.deleteGroup(groupId: groupId);
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           renameGroup: (groupId, name) async {
             final result = await groupBackendSvc.updateGroup(
               groupId: groupId,
               name: name,
             );
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           didReceiveError: (error) {
             emit(BoardState.error(error: error));

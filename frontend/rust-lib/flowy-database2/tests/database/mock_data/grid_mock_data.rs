@@ -181,9 +181,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1647251762, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1647251762, None, &field_type),
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
@@ -206,9 +204,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell(""),
             FieldType::Number => row_builder.insert_number_cell("2"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1647251762, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1647251762, None, &field_type),
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(1)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
@@ -228,9 +224,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1647251762, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1647251762, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -247,9 +241,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("14"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1668704685, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1668704685, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -269,9 +261,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1668359085, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1668359085, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -287,9 +277,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell("5"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1671938394, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1671938394, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -316,11 +304,9 @@ pub fn make_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
-  let inline_view_id = gen_database_view_id();
-
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
@@ -329,7 +315,6 @@ pub fn make_test_grid() -> DatabaseData {
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,
@@ -404,11 +389,9 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
-  let inline_view_id = gen_database_view_id();
-
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
@@ -417,7 +400,6 @@ pub fn make_no_date_test_grid() -> DatabaseData {
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,

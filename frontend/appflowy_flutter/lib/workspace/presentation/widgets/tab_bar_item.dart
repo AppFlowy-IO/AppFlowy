@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -38,5 +39,5 @@ class _ViewTabBarItemState extends State<ViewTabBarItem> {
   }
 
   @override
-  Widget build(BuildContext context) => FlowyText.medium(view.name);
+  Widget build(BuildContext context) => FlowyText.medium(view.nameOrDefault);
 }

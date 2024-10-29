@@ -17,11 +17,15 @@ function RightMenu () {
       <MoreActions />
       <ShareButton />
       <Button
-        size={'small'} startIcon={<EditOutlined />} variant={'outlined'} color={'inherit'}
+        size={'small'}
+        startIcon={<EditOutlined />}
+        variant={'outlined'}
+        color={'inherit'}
         onClick={() => setComingSoon(true)}
       >
         {t('button.editing')}
       </Button>
+
       <Divider
         orientation={'vertical'}
         className={'mx-2'}
@@ -34,10 +38,13 @@ function RightMenu () {
       </Tooltip>
 
       <NormalModal
-        onOk={() => setComingSoon(false)} okText={t('button.gotIt')}
+        onOk={() => setComingSoon(false)}
+        okText={t('button.gotIt')}
         title={
           <div className={'text-left font-semibold'}>{'❤️ Coming Soon'}</div>
-        } open={comingSoon} onClose={() => setComingSoon(false)}
+        }
+        open={comingSoon}
+        onClose={() => setComingSoon(false)}
       >
         <div className={'text-text-caption'}>
           🌟 This feature is coming soon. Stay tuned!
