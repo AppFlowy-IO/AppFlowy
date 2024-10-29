@@ -110,7 +110,6 @@ class _FindMenuState extends State<FindMenu> {
     widget.searchService.dispose();
     findTextEditingController.removeListener(_searchPattern);
     findTextEditingController.dispose();
-    findTextFieldFocusNode.dispose();
     super.dispose();
   }
 
