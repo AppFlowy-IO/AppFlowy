@@ -209,9 +209,6 @@ class _FindMenuState extends State<FindMenu> {
   }
 
   void _searchPattern() {
-    if (findTextEditingController.text.isEmpty) {
-      return;
-    }
     widget.searchService.findAndHighlight(findTextEditingController.text);
     setState(() => queriedPattern = findTextEditingController.text);
   }
