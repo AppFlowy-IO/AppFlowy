@@ -50,3 +50,9 @@ extension StringExtension on String {
     return isEmpty ? defaultValue : this;
   }
 }
+
+extension NullableStringExtension on String? {
+  String orDefault(String defaultValue) {
+    return this?.isEmpty ?? true ? defaultValue : this ?? '';
+  }
+}

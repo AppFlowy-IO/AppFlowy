@@ -237,7 +237,7 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
           context,
           message: basicErrorMessage,
           type: ToastificationType.error,
-          description: errorHintText,
+          description: errorMessage,
         );
       },
     );

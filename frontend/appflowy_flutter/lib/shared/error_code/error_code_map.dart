@@ -3,7 +3,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 extension PublishNameErrorCodeMap on ErrorCode {
-  String get publishErrorMessage {
+  String? get publishErrorMessage {
     return switch (this) {
       ErrorCode.PublishNameAlreadyExists =>
         LocaleKeys.settings_sites_error_publishNameAlreadyInUse.tr(),
@@ -12,19 +12,20 @@ extension PublishNameErrorCodeMap on ErrorCode {
           .tr(),
       ErrorCode.PublishNameTooLong =>
         LocaleKeys.settings_sites_error_publishNameTooLong.tr(),
-      _ => '',
+      _ => null,
     };
   }
 }
 
 extension DomainErrorCodeMap on ErrorCode {
-  String get namespaceErrorMessage {
+  String? get namespaceErrorMessage {
     return switch (this) {
       ErrorCode.CustomNamespaceRequirePlanUpgrade =>
         LocaleKeys.settings_sites_error_proPlanLimitation.tr(),
       ErrorCode.CustomNamespaceAlreadyTaken =>
         LocaleKeys.settings_sites_error_namespaceAlreadyInUse.tr(),
-      ErrorCode.InvalidNamespace =>
+      ErrorCode.InvalidNamespace ||
+      ErrorCode.InvalidRequest =>
         LocaleKeys.settings_sites_error_invalidNamespace.tr(),
       ErrorCode.CustomNamespaceTooLong =>
         LocaleKeys.settings_sites_error_namespaceTooLong.tr(),
@@ -32,7 +33,7 @@ extension DomainErrorCodeMap on ErrorCode {
         LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
       ErrorCode.CustomNamespaceReserved =>
         LocaleKeys.settings_sites_error_namespaceIsReserved.tr(),
-      _ => '',
+      _ => null,
     };
   }
 }
