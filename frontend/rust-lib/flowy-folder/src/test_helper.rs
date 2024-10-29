@@ -2,8 +2,9 @@ use std::collections::HashMap;
 
 use flowy_folder_pub::cloud::gen_view_id;
 
-use crate::entities::{CreateViewParams, ViewData, ViewLayoutPB, ViewSectionPB};
+use crate::entities::{CreateViewParams, ViewLayoutPB, ViewSectionPB};
 use crate::manager::FolderManager;
+use crate::view_operation::ViewData;
 
 #[cfg(feature = "test_helper")]
 impl FolderManager {

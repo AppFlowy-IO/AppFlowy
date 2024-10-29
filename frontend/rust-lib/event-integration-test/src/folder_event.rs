@@ -1,4 +1,4 @@
-use flowy_folder::view_operation::EncodedCollabWrapper;
+use flowy_folder::view_operation::{EncodedCollabWrapper, ViewData};
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
