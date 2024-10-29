@@ -29,7 +29,6 @@ class AppFlowyPopover extends StatelessWidget {
     this.endScaleFactor = 1.0,
     this.beginOpacity = 0.0,
     this.endOpacity = 1.0,
-    this.showAtCursor = false,
   });
 
   final Widget child;
@@ -66,8 +65,6 @@ class AppFlowyPopover extends StatelessWidget {
   ///
   final bool skipTraversal;
 
-  final bool showAtCursor;
-
   @override
   Widget build(BuildContext context) {
     return Popover(
@@ -89,7 +86,6 @@ class AppFlowyPopover extends StatelessWidget {
       offset: offset,
       clickHandler: clickHandler,
       skipTraversal: skipTraversal,
-      showAtCursor: showAtCursor,
       popupBuilder: (context) => _PopoverContainer(
         constraints: constraints,
         margin: margin,

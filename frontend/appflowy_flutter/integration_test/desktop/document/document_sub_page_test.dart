@@ -389,8 +389,12 @@ void main() {
       expect(find.text('Child page'), findsNWidgets(2));
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
 
-      await tester.hoverOnPageName('Child page');
-      await tester.tapDeletePageButton();
+      await tester.hoverOnPageName(
+        'Child page',
+        onHover: () async {
+          await tester.tapDeletePageButton();
+        },
+      );
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Child page'), findsNothing);
@@ -477,11 +481,15 @@ extension _SubPageTestHelper on WidgetTester {
     String currentName,
     String newName,
   ) async {
-    await hoverOnPageName(currentName);
-    await rightClickOnPageName(currentName);
-    await tapButtonWithName(ViewMoreActionType.rename.name);
-    await enterText(find.byType(TextFormField), newName);
-    await tapOKButton();
-    await pumpAndSettle();
+    await hoverOnPageName(
+      currentName,
+      onHover: () async {
+        await rightClickOnPageName(currentName);
+        await tapButtonWithName(ViewMoreActionType.rename.name);
+        await enterText(find.byType(TextFormField), newName);
+        await tapOKButton();
+        await pumpAndSettle();
+      },
+    );
   }
 }

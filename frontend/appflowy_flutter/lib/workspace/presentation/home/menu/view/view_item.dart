@@ -29,6 +29,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -476,6 +477,8 @@ class SingleInnerViewItem extends StatefulWidget {
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   final controller = PopoverController();
+  final viewMoreActionController = PopoverController();
+
   bool isIconPickerOpened = false;
 
   @override
@@ -546,12 +549,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         children.add(
           _buildViewMoreActionButton(
             context,
-            (popover) => FlowyTooltip(
+            viewMoreActionController,
+            (_) => FlowyTooltip(
               message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
               child: FlowyIconButton(
                 width: 24,
                 icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
-                onPressed: popover.show,
+                onPressed: viewMoreActionController.show,
               ),
             ),
           ),
@@ -575,13 +579,16 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         height: widget.height,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: widget.enableRightClickContext
-              ? _buildViewMoreActionButton(
-                  context,
-                  showAtCursor: true,
-                  (_) => Row(children: children),
-                )
-              : Row(children: children),
+          child: Listener(
+            onPointerDown: (event) {
+              if (event.buttons == kSecondaryMouseButton &&
+                  widget.enableRightClickContext) {
+                viewMoreActionController.showAt(event.position);
+              }
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Row(children: children),
+          ),
         ),
       ),
     );
@@ -709,9 +716,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   // ··· more action button
   Widget _buildViewMoreActionButton(
     BuildContext context,
-    Widget Function(PopoverController) buildChild, {
-    bool showAtCursor = false,
-  }) {
+    PopoverController controller,
+    Widget Function(PopoverController) buildChild,
+  ) {
     return BlocProvider(
       create: (context) => SpaceBloc(
         userProfile: context.read<SpaceBloc>().userProfile,
@@ -719,9 +726,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       )..add(const SpaceEvent.initial(openFirstPage: false)),
       child: ViewMoreActionPopover(
         view: widget.view,
+        controller: controller,
         isExpanded: widget.isExpanded,
         spaceType: widget.spaceType,
-        showAtCursor: showAtCursor,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         buildChild: buildChild,

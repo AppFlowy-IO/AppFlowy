@@ -11,6 +11,7 @@ class PopoverController {
 
   void close() => _state?.close();
   void show() => _state?.showOverlay();
+  void showAt(Offset position) => _state?.showOverlay(position);
 }
 
 class PopoverTriggerFlags {
@@ -77,7 +78,6 @@ class Popover extends StatefulWidget {
     this.maskDecoration = const BoxDecoration(
       color: Color.fromARGB(0, 244, 67, 54),
     ),
-    this.showAtCursor = false,
   });
 
   final PopoverController? controller;
@@ -138,8 +138,6 @@ class Popover extends StatefulWidget {
   /// The content area of the popover.
   final Widget child;
 
-  final bool showAtCursor;
-
   @override
   State<Popover> createState() => PopoverState();
 }
@@ -153,7 +151,6 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     link: popoverLink,
     offset: widget.offset ?? Offset.zero,
     windowPadding: widget.windowPadding ?? EdgeInsets.zero,
-    showAtCursor: widget.showAtCursor,
   );
 
   late AnimationController animationController;
@@ -205,11 +202,20 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     super.reassemble();
   }
 
-  void showOverlay() {
+  void showOverlay([Offset? position]) {
     close(withAnimation: true);
 
     if (widget.mutex != null) {
       widget.mutex?.state = this;
+    }
+
+    if (position != null) {
+      final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+      final offset = renderBox?.globalToLocal(position);
+      layoutDelegate = layoutDelegate.copyWith(
+        offset: offset ?? position,
+        windowPadding: EdgeInsets.zero,
+      );
     }
 
     final shouldAddMask = rootEntry.isEmpty;
@@ -290,10 +296,11 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     return switch (widget.clickHandler) {
       PopoverClickHandler.listener => Listener(
           onPointerDown: (event) {
-            if (widget.showAtCursor) {
-              layoutDelegate =
-                  layoutDelegate.copyWith(cursorOffset: event.localPosition);
-            }
+            // if (widget.showAtCursor) {
+            //   layoutDelegate = layoutDelegate.copyWith(
+            //     cursorOffset: event.position,
+            //   );
+            // }
 
             if (event.buttons == kSecondaryMouseButton &&
                 widget.triggerActions & PopoverTriggerFlags.secondaryClick !=

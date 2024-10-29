@@ -17,31 +17,31 @@ class ViewMoreActionPopover extends StatelessWidget {
   const ViewMoreActionPopover({
     super.key,
     required this.view,
+    this.controller,
     required this.onEditing,
     required this.onAction,
     required this.spaceType,
     required this.isExpanded,
-    this.showAtCursor = false,
     required this.buildChild,
   });
 
   final ViewPB view;
+  final PopoverController? controller;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType type, dynamic data) onAction;
   final FolderSpaceType spaceType;
   final bool isExpanded;
-  final bool showAtCursor;
   final Widget Function(PopoverController) buildChild;
 
   @override
   Widget build(BuildContext context) {
     final wrappers = _buildActionTypeWrappers();
     return PopoverActionList<ViewMoreActionTypeWrapper>(
+      controller: controller,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
       actions: wrappers,
       constraints: const BoxConstraints(minWidth: 260),
-      showAtCursor: showAtCursor,
       onPopupBuilder: () => onEditing(true),
       buildChild: buildChild,
       onSelected: (_, __) {},
