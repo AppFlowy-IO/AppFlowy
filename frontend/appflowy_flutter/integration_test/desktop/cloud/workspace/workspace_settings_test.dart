@@ -101,7 +101,9 @@ void main() {
   });
 
   group('sites settings:', () {
-    testWidgets('publish page and check in sites page', (tester) async {
+    testWidgets(
+        'manage published page, set it as homepage, remove the homepage',
+        (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
@@ -159,6 +161,16 @@ void main() {
         matching: find.text(pageName),
       );
       expect(homePageItem, findsOneWidget);
+
+      // remove the homepage
+      await tester.tapButton(find.byType(DomainMoreAction));
+      await tester.tapButton(
+        find.text(LocaleKeys.settings_sites_removeHomepage.tr()),
+      );
+      await tester.pumpAndSettle();
+
+      // check if the page is removed from homepage
+      expect(homePageItem, findsNothing);
     });
 
     testWidgets('update namespace', (tester) async {
@@ -211,6 +223,8 @@ void main() {
         LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
       );
       expect(successToast, findsOneWidget);
+
+      // remove the
     });
   });
 }
