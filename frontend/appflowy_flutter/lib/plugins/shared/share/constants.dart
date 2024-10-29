@@ -26,6 +26,6 @@ class ShareConstants {
     if (blockId == null || blockId.isEmpty) {
       return url;
     }
-    return 'https://$url?blockId=$blockId';
+    return '$url?blockId=$blockId';
   }
 }

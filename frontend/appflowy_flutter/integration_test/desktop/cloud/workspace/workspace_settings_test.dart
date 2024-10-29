@@ -6,6 +6,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/shared/share/publish_tab.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
@@ -122,7 +123,7 @@ void main() {
       await tester.openPublishMenu();
 
       // publish the document
-      await tester.tapButton(find.text(LocaleKeys.shareAction_publish.tr()));
+      await tester.tapButton(find.byType(PublishButton));
 
       // click empty area to close the publish menu
       await tester.tapAt(Offset.zero);
@@ -188,13 +189,15 @@ void main() {
 
       // update the domain
       final domainMoreAction = find.byType(DomainMoreAction);
-      await tester.tap(domainMoreAction);
-
-      // click the update namespace button
+      await tester.tapButton(domainMoreAction);
       final updateNamespaceButton = find.text(
         LocaleKeys.settings_sites_updateNamespace.tr(),
       );
-      await tester.tap(updateNamespaceButton);
+      await tester.pumpUntilFound(updateNamespaceButton);
+
+      // click the update namespace button
+
+      await tester.tapButton(updateNamespaceButton);
 
       // expect to see the dialog
       await tester.updateNamespace('&&&???');

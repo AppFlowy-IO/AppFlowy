@@ -296,7 +296,7 @@ class _PublishWidgetState extends State<_PublishWidget> {
           ),
           const VSpace(16),
         ],
-        _PublishButton(
+        PublishButton(
           onPublish: () {
             if (context.read<ShareBloc>().view.layout.isDatabaseView) {
               // check if any database is selected
@@ -317,8 +317,9 @@ class _PublishWidgetState extends State<_PublishWidget> {
   }
 }
 
-class _PublishButton extends StatelessWidget {
-  const _PublishButton({
+class PublishButton extends StatelessWidget {
+  const PublishButton({
+    super.key,
     required this.onPublish,
   });
 
