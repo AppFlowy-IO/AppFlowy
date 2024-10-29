@@ -169,6 +169,7 @@ pub(crate) fn generate_import_data(
   };
 
   let (views, orphan_views) = user_collab_db.with_write_txn(|current_collab_db_write_txn| {
+    let imported_uid = imported_folder.imported_session.user_id;
     let imported_collab_db_read_txn = imported_collab_db.read_txn();
     // use the old_to_new_id_map to keep track of the other collab object id and the new collab object id
     let mut old_to_new_id_map = OldToNewIdMap::new();
@@ -178,6 +179,8 @@ pub(crate) fn generate_import_data(
       .get_all_docs()
       .map(|iter| iter.collect::<Vec<String>>())
       .unwrap_or_default();
+
+    info!("[AppflowyData]: {} has {} collab objects", imported_uid, all_imported_object_ids.len());
 
     // when doing import, we don't want to import these objects:
     // 1. user workspace
@@ -580,9 +583,17 @@ where
       }
 
       database_object_ids.push(object_id.clone());
-      reset_inline_view_id(database_collab, |old_inline_view_id| {
+      if reset_inline_view_id(database_collab, |old_inline_view_id| {
         old_to_new_id_map.exchange_new_id(&old_inline_view_id)
-      });
+      })
+      .is_err()
+      {
+        error!(
+          "[AppflowyData]: reset inline view id failed for database: {}",
+          object_id
+        );
+        continue;
+      }
 
       mut_database_views_with_collab(database_collab, |database_view| {
         let new_view_id = old_to_new_id_map.exchange_new_id(&database_view.id);
