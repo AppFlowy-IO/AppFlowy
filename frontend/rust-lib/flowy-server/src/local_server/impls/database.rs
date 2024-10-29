@@ -24,6 +24,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
         Ok(Some(encode_collab))
       },
       CollabType::Database => default_database_data(object_id)
+        .await
         .map(Some)
         .map_err(Into::into),
       CollabType::WorkspaceDatabase => Ok(Some(default_workspace_database_data(object_id))),

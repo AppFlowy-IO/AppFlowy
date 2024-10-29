@@ -142,14 +142,14 @@ rocksdb = { git = "https://github.com/rust-rocksdb/rust-rocksdb", rev = "1710120
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
-collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4bd78daec6d4bce5cb0c0be8d2536973aff2861d" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
+collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a302e9aaa3a86b7c2fe63992c312959feaf80bc0" }
 
 # Working directory: frontend
 # To update the commit ID, run:

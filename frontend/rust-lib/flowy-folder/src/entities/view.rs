@@ -1,9 +1,8 @@
+use collab_folder::{View, ViewIcon, ViewLayout};
 use std::collections::HashMap;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
-
-use collab_folder::{View, ViewIcon, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -11,6 +10,7 @@ use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
+use crate::view_operation::ViewData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChildViewUpdatePB {
@@ -325,7 +325,7 @@ pub struct CreateViewParams {
   pub desc: String,
   pub layout: ViewLayoutPB,
   pub view_id: String,
-  pub initial_data: Vec<u8>,
+  pub initial_data: ViewData,
   pub meta: HashMap<String, String>,
   // Mark the view as current view after creation.
   pub set_as_current: bool,
@@ -355,7 +355,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       desc: self.desc,
       layout: self.layout,
       view_id,
-      initial_data: self.initial_data,
+      initial_data: ViewData::Data(self.initial_data.into()),
       meta: self.meta,
       set_as_current: self.set_as_current,
       index: self.index,
@@ -379,7 +379,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       desc: self.desc,
       layout: self.layout,
       view_id: self.view_id,
-      initial_data: self.initial_data,
+      initial_data: ViewData::Data(self.initial_data.into()),
       meta: Default::default(),
       set_as_current: false,
       index: None,

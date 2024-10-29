@@ -136,9 +136,9 @@ const createServer = async (req: Request) => {
         const publishInfo = data?.data?.info;
 
         if (publishInfo) {
-          const newURL = `/${publishInfo.namespace}/${publishInfo.publish_name}`;
+          const newURL = `/${encodeURIComponent(publishInfo.namespace)}/${encodeURIComponent(publishInfo.publish_name)}`;
 
-          logger.info('Redirecting to default page: ', newURL);
+          logger.info(`Redirecting to default page in: ${JSON.stringify(publishInfo)}`);
           timer();
           return new Response(null, {
             status: 302,
@@ -159,7 +159,7 @@ const createServer = async (req: Request) => {
     let title = 'AppFlowy';
     const url = `https://${hostname}${reqUrl.pathname}`;
     let image = '/og-image.png';
-    let favicon = '/appflowy.svg';
+    let favicon = '/appflowy.ico';
 
     try {
       if (metaData && metaData.view) {
@@ -202,6 +202,7 @@ const createServer = async (req: Request) => {
 
     $('title').text(title);
     $('link[rel="icon"]').attr('href', favicon);
+    $('link[rel="canonical"]').attr('href', url);
     setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);
     setOrUpdateMetaTag($, 'meta[property="og:title"]', 'property', title);
     setOrUpdateMetaTag($, 'meta[property="og:description"]', 'property', description);
