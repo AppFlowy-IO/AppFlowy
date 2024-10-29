@@ -51,12 +51,13 @@ void main() {
       await tester.tap(find.byType(MentionDateBlock));
       await tester.pumpAndSettle();
 
+      final currentTime = DateFormat('HH:mm').format(DateTime.now());
+
       // tap the toggle of include time
       await tester.tap(find.byType(Toggle));
       await tester.pumpAndSettle();
 
       // add time 11:12
-      final currentTime = DateFormat('HH:mm').format(DateTime.now());
       final textField = find.byWidgetPredicate(
         (widget) =>
             widget is TextField && widget.controller!.text == currentTime,
