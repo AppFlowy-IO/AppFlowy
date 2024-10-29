@@ -207,7 +207,7 @@ class EditorOperations {
   /// Must call [showSlashMenu] first.
   Future<void> tapSlashMenuItemWithName(
     String name, {
-    double offset = 200,
+    double offset = 300,
   }) async {
     final slashMenu = find
         .ancestor(
