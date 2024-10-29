@@ -32,7 +32,6 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
-        offset: 100,
       );
 
       final dateTimeSettings = DateTimeSettingsPB(
@@ -84,7 +83,6 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
-        offset: 100,
       );
 
       final dateTimeSettings = DateTimeSettingsPB(
