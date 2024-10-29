@@ -112,13 +112,15 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  SettingsMenuElement(
-                    page: SettingsPage.sites,
-                    selectedPage: currentPage,
-                    label: LocaleKeys.settings_sites_title.tr(),
-                    icon: const Icon(Icons.web),
-                    changeSelectedPage: changeSelectedPage,
-                  ),
+                  if (userProfile.authenticator ==
+                      AuthenticatorPB.AppFlowyCloud)
+                    SettingsMenuElement(
+                      page: SettingsPage.sites,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_sites_title.tr(),
+                      icon: const Icon(Icons.web),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
                   if (FeatureFlag.planBilling.isOn && isBillingEnabled) ...[
                     SettingsMenuElement(
                       page: SettingsPage.plan,
