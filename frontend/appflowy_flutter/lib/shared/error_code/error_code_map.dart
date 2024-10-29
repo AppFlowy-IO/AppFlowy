@@ -33,6 +33,8 @@ extension DomainErrorCodeMap on ErrorCode {
         LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
       ErrorCode.CustomNamespaceReserved =>
         LocaleKeys.settings_sites_error_namespaceIsReserved.tr(),
+      ErrorCode.CustomNamespaceInvalidCharacter =>
+        LocaleKeys.settings_sites_error_namespaceContainsInvalidCharacters.tr(),
       _ => null,
     };
   }

@@ -475,10 +475,11 @@
         "namespaceIsReserved": "The namespace is reserved, please try another one",
         "updatePathNameFailed": "Failed to update namespace",
         "removeHomePageFailed": "Failed to remove homepage",
-        "publishNameContainsInvalidCharacters": "The path name contains invalid characters, please try another one",
+        "publishNameContainsInvalidCharacters": "The path name contains invalid character(s), please try another one",
         "publishNameTooShort": "The path name is too short, please try another one",
         "publishNameTooLong": "The path name is too long, please try another one",
-        "publishNameAlreadyInUse": "The path name is already in use, please try another one"
+        "publishNameAlreadyInUse": "The path name is already in use, please try another one",
+        "namespaceContainsInvalidCharacters": "The namespace contains invalid character(s), please try another one"
       },
       "success": {
         "namespaceUpdated": "Updated namespace successfully",
