@@ -56,6 +56,11 @@ class DesktopAppearance extends BaseAppearance {
         fontFamily: fontFamily,
         fontColor: theme.text,
       ),
+      textButtonTheme: const TextButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size.zero),
+        ),
+      ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,
         selectionHandleColor: theme.main2,
