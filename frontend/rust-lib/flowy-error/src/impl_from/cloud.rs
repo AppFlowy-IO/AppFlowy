@@ -36,6 +36,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::PublishNameAlreadyExists => ErrorCode::PublishNameAlreadyExists,
       AppErrorCode::PublishNameInvalidCharacter => ErrorCode::PublishNameInvalidCharacter,
       AppErrorCode::PublishNameTooLong => ErrorCode::PublishNameTooLong,
+      AppErrorCode::CustomNamespaceInvalidCharacter => ErrorCode::CustomNamespaceInvalidCharacter,
       _ => ErrorCode::Internal,
     };
 

@@ -353,6 +353,9 @@ pub enum ErrorCode {
 
   #[error("Publish name has exceeded the maximum length allowable")]
   PublishNameTooLong = 121,
+
+  #[error("Requested namespace has one or more invalid characters")]
+  CustomNamespaceInvalidCharacter = 122,
 }
 
 impl ErrorCode {
