@@ -340,12 +340,11 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_database_json_bytes(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
+  pub async fn get_database_data(&self, view_id: &str) -> FlowyResult<DatabaseData> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let data = wdb.get_database_data(view_id).await?;
-    let json_bytes = data.to_json_bytes()?;
-    Ok(json_bytes)
+    Ok(data)
   }
 
   pub async fn get_database_json_string(&self, view_id: &str) -> FlowyResult<String> {
@@ -358,28 +357,50 @@ impl DatabaseManager {
 
   /// Create a new database with the given data that can be deserialized to [DatabaseData].
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_database_with_database_data(
+  pub async fn create_database_with_data(
     &self,
-    view_id: &str,
+    new_database_view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
-
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data, None);
-    let old_view_id = create_database_params.inline_view_id.clone();
-    create_database_params.inline_view_id = view_id.to_string();
-
-    if let Some(create_view_params) = create_database_params
-      .views
-      .iter_mut()
-      .find(|view| view.view_id == old_view_id)
-    {
-      create_view_params.view_id = view_id.to_string();
+    if database_data.views.is_empty() {
+      return Err(FlowyError::invalid_data().with_context("The database data is empty"));
     }
+
+    // choose the first view as the display view. The new database_view_id is the ID in the Folder.
+    let database_view_id = database_data.views[0].id.clone();
+    let create_database_params = CreateDatabaseParams::from_database_data(
+      database_data,
+      &database_view_id,
+      new_database_view_id,
+    );
 
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
     let database = wdb.create_database(create_database_params).await?;
+    drop(wdb);
+
+    let encoded_collab = database
+      .read()
+      .await
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
+      .map_err(|err| FlowyError::internal().with_context(err))?;
+    Ok(encoded_collab)
+  }
+
+  /// When duplicating a database view, it will duplicate all the database views and replace the duplicated
+  /// database_view_id with the new_database_view_id. The new database id is the ID created by Folder.
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn duplicate_database(
+    &self,
+    database_view_id: &str,
+    new_database_view_id: &str,
+  ) -> FlowyResult<EncodedCollab> {
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
+    let database = wdb
+      .duplicate_database(database_view_id, new_database_view_id)
+      .await?;
     drop(wdb);
 
     let encoded_collab = database
@@ -448,14 +469,17 @@ impl DatabaseManager {
         let database_template = csv_template.try_into_database_template(None).await?;
         database_template.into_params()
       },
-      CSVFormat::META => tokio::task::spawn_blocking(move || {
-        CSVImporter.import_csv_from_string(view_id, content, format)
-      })
-      .await
-      .map_err(internal_error)??,
+
+      CSVFormat::META => {
+        let cloned_view_id = view_id.clone();
+        tokio::task::spawn_blocking(move || {
+          CSVImporter.import_csv_from_string(cloned_view_id, content, format)
+        })
+        .await
+        .map_err(internal_error)??
+      },
     };
 
-    let view_id = params.inline_view_id.clone();
     let database_id = params.database_id.clone();
     let database = self.import_database(params).await?;
     let encoded_database = database.read().await.encode_database_collabs().await?;
