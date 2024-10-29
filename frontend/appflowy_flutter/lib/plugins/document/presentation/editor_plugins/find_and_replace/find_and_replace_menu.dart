@@ -46,17 +46,16 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
               ),
             ),
           ),
-          showReplaceMenu
-              ? Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 8.0,
-                  ),
-                  child: ReplaceMenu(
-                    editorState: widget.editorState,
-                    searchService: searchService,
-                  ),
-                )
-              : const SizedBox.shrink(),
+          if (showReplaceMenu)
+            Padding(
+              padding: const EdgeInsets.only(
+                bottom: 8.0,
+              ),
+              child: ReplaceMenu(
+                editorState: widget.editorState,
+                searchService: searchService,
+              ),
+            ),
         ],
       ),
     );
