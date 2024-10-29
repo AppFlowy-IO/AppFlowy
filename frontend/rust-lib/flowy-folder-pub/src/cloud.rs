@@ -91,6 +91,8 @@ pub trait FolderCloudService: Send + Sync + 'static {
     view_id: uuid::Uuid,
   ) -> Result<(), FlowyError>;
 
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError>;
+
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;

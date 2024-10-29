@@ -524,3 +524,12 @@ pub(crate) async fn set_default_publish_view_handler(
   folder.set_default_published_view(view_id).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(folder))]
+pub(crate) async fn remove_default_publish_view_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  folder.remove_default_published_view().await?;
+  Ok(())
+}

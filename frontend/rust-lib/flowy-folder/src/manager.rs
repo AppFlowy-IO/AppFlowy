@@ -1321,6 +1321,16 @@ impl FolderManager {
     Ok(())
   }
 
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn remove_default_published_view(&self) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .remove_default_published_view(&workspace_id)
+      .await?;
+    Ok(())
+  }
+
   /// Retrieves the publishing payload for a specified view and optionally its child views.
   ///
   /// # Arguments

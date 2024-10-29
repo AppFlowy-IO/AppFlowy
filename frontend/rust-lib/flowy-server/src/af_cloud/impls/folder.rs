@@ -330,6 +330,16 @@ where
     Ok(())
   }
 
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .delete_default_publish_view(workspace_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
+  }
+
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {
     let file_path = PathBuf::from(file_path);
     self.inner.try_get_client()?.import_file(&file_path).await?;

@@ -365,6 +365,18 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
+  /// List all published views of the current workspace.
+  async fn list_published_views(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<PublishInfoView>, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .list_published_views(workspace_id)
+      .await
+  }
+
   async fn get_default_published_view_info(
     &self,
     workspace_id: &str,
@@ -388,15 +400,11 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  /// List all published views of the current workspace.
-  async fn list_published_views(
-    &self,
-    workspace_id: &str,
-  ) -> Result<Vec<PublishInfoView>, FlowyError> {
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .folder_service()
-      .list_published_views(workspace_id)
+      .remove_default_published_view(workspace_id)
       .await
   }
 

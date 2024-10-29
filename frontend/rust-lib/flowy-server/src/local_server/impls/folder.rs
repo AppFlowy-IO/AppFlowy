@@ -138,6 +138,10 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(FlowyError::local_version_not_support())
   }
 
+  async fn remove_default_published_view(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
   async fn import_zip(&self, _file_path: &str) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
