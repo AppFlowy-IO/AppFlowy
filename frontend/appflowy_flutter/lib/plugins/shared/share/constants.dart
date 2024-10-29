@@ -1,6 +1,6 @@
 class ShareConstants {
-  static const String publishBaseUrl = 'test.appflowy.com';
-  static const String shareBaseUrl = 'test.appflowy.com/app';
+  static const String publishBaseUrl = 'appflowy.com';
+  static const String shareBaseUrl = 'appflowy.com/app';
 
   static String buildPublishUrl({
     required String nameSpace,
