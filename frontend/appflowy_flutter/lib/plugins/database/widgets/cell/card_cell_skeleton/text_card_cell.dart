@@ -83,6 +83,7 @@ class _TextCellState extends State<TextCardCell> {
     if (!focusNode.hasFocus) {
       widget.editableNotifier?.isCellEditing.value = false;
       cellBloc.add(const TextCellEvent.enableEdit(false));
+      cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
     }
   }
 
