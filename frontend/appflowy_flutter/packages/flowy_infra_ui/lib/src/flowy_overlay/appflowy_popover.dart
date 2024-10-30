@@ -66,6 +66,14 @@ class AppFlowyPopover extends StatelessWidget {
   ///
   final bool skipTraversal;
 
+  /// Whether the popover should be shown at the cursor position.
+  /// If true, the [offset] will be ignored.
+  ///
+  /// This only works when using [PopoverClickHandler.listener] as the click handler.
+  ///
+  /// Alternatively for having a normal popover, and use the cursor position only on
+  /// secondary click, consider showing the popover programatically with [PopoverController.showAt].
+  ///
   final bool showAtCursor;
 
   @override
@@ -89,7 +97,6 @@ class AppFlowyPopover extends StatelessWidget {
       offset: offset,
       clickHandler: clickHandler,
       skipTraversal: skipTraversal,
-      showAtCursor: showAtCursor,
       popupBuilder: (context) => _PopoverContainer(
         constraints: constraints,
         margin: margin,
@@ -97,6 +104,7 @@ class AppFlowyPopover extends StatelessWidget {
         borderRadius: borderRadius,
         child: popupBuilder(context),
       ),
+      showAtCursor: showAtCursor,
       child: child,
     );
   }

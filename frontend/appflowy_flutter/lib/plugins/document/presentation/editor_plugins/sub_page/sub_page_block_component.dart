@@ -13,6 +13,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -248,17 +249,17 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                                   view.icon.value,
                                   fontSize: textStyle.fontSize,
                                   lineHeight: textStyle.height,
+                                  color:
+                                      AFThemeExtension.of(context).strongText,
                                 )
-                              : Opacity(
-                                  opacity: 0.6,
-                                  child: view.defaultIcon(),
-                                ),
-                          const HSpace(10),
+                              : view.defaultIcon(),
+                          const HSpace(6),
                           Flexible(
                             child: FlowyText(
                               view.nameOrDefault,
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
+                              decoration: TextDecoration.underline,
                               lineHeight: textStyle.height,
                               overflow: TextOverflow.ellipsis,
                             ),

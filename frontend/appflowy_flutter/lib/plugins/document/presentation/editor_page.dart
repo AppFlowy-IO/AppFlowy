@@ -401,8 +401,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       dateOrReminderSlashMenuItem,
       photoGallerySlashMenuItem,
       fileSlashMenuItem,
-      // disable subPageSlashMenuItem temporarily, enable it in version 0.7.2
-      // subPageSlashMenuItem,
+      subPageSlashMenuItem,
     ];
   }
 

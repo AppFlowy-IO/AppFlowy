@@ -9,6 +9,7 @@ import 'document_with_date_reminder_test.dart'
     as document_with_date_reminder_test;
 import 'document_with_toggle_heading_block_test.dart'
     as document_with_toggle_heading_block_test;
+import 'document_sub_page_test.dart' as document_sub_page_test;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,5 @@ void main() {
   document_option_action_test.main();
   document_inline_sub_page_test.main();
   document_with_toggle_heading_block_test.main();
-  // Disable subPage test temporarily, enable it in version 0.7.2
-  // document_sub_page_test.main();
+  document_sub_page_test.main();
 }

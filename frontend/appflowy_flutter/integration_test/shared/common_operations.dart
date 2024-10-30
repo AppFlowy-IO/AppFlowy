@@ -192,8 +192,13 @@ extension CommonOperations on WidgetTester {
     ViewLayoutPB layout = ViewLayoutPB.Document,
   }) async {
     final page = findPageName(name, layout: layout);
-    await tap(page, buttons: kSecondaryMouseButton);
-    await pumpAndSettle();
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        await tap(page, buttons: kSecondaryMouseButton);
+        await pumpAndSettle();
+      },
+    );
   }
 
   /// open the page with given name.

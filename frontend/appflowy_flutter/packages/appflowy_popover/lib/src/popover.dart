@@ -11,6 +11,7 @@ class PopoverController {
 
   void close() => _state?.close();
   void show() => _state?.showOverlay();
+  void showAt(Offset position) => _state?.showOverlay(position);
 }
 
 class PopoverTriggerFlags {
@@ -135,10 +136,17 @@ class Popover extends StatefulWidget {
 
   final String? debugId;
 
+  /// Whether the popover should be shown at the cursor position.
+  ///
+  /// This only works when using [PopoverClickHandler.listener] as the click handler.
+  ///
+  /// Alternatively for having a normal popover, and use the cursor position only on
+  /// secondary click, consider showing the popover programatically with [PopoverController.showAt].
+  ///
+  final bool showAtCursor;
+
   /// The content area of the popover.
   final Widget child;
-
-  final bool showAtCursor;
 
   @override
   State<Popover> createState() => PopoverState();
@@ -153,7 +161,6 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     link: popoverLink,
     offset: widget.offset ?? Offset.zero,
     windowPadding: widget.windowPadding ?? EdgeInsets.zero,
-    showAtCursor: widget.showAtCursor,
   );
 
   late AnimationController animationController;
@@ -163,6 +170,8 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   // If the widget is disposed, prevent the animation from being called.
   bool isDisposed = false;
+
+  Offset? cursorPosition;
 
   @override
   void initState() {
@@ -205,11 +214,21 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     super.reassemble();
   }
 
-  void showOverlay() {
+  void showOverlay([Offset? position]) {
     close(withAnimation: true);
 
     if (widget.mutex != null) {
       widget.mutex?.state = this;
+    }
+
+    if (position != null) {
+      final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+      final offset = renderBox?.globalToLocal(position);
+      layoutDelegate = layoutDelegate.copyWith(
+        position: offset ?? position,
+        windowPadding: EdgeInsets.zero,
+        showAtCursor: true,
+      );
     }
 
     final shouldAddMask = rootEntry.isEmpty;
@@ -272,7 +291,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
           return;
         }
 
-        showOverlay();
+        showOverlay(cursorPosition);
       },
     );
 
@@ -290,10 +309,7 @@ class PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     return switch (widget.clickHandler) {
       PopoverClickHandler.listener => Listener(
           onPointerDown: (event) {
-            if (widget.showAtCursor) {
-              layoutDelegate =
-                  layoutDelegate.copyWith(cursorOffset: event.localPosition);
-            }
+            cursorPosition = widget.showAtCursor ? event.position : null;
 
             if (event.buttons == kSecondaryMouseButton &&
                 widget.triggerActions & PopoverTriggerFlags.secondaryClick !=
