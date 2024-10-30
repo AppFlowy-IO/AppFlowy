@@ -1070,15 +1070,16 @@ class _FontListPopupState extends State<_FontListPopup> {
             child: ListView.separated(
               shrinkWrap: _filteredOptions.length < 10,
               controller: widget.scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               itemCount: _filteredOptions.length,
-              separatorBuilder: (_, __) => const VSpace(4),
+              separatorBuilder: (_, __) => const VSpace(6),
               itemBuilder: (context, index) {
                 final font = _filteredOptions[index];
                 final isSelected = widget.currentFont == font;
                 return SizedBox(
-                  height: 28,
+                  height: 29,
                   child: ListTile(
+                    minVerticalPadding: 0,
                     selected: isSelected,
                     dense: true,
                     hoverColor: Theme.of(context)
@@ -1087,8 +1088,9 @@ class _FontListPopupState extends State<_FontListPopup> {
                         .withOpacity(0.12),
                     selectedTileColor:
                         Theme.of(context).colorScheme.primary.withOpacity(0.12),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                    minTileHeight: 28,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    minTileHeight: 0,
                     onTap: () {
                       context
                           .read<AppearanceSettingsCubit>()
@@ -1102,11 +1104,14 @@ class _FontListPopupState extends State<_FontListPopup> {
 
                       widget.controller.close();
                     },
-                    title: Text(
-                      font.fontFamilyDisplayName,
-                      style: TextStyle(
-                        color: AFThemeExtension.of(context).textColor,
-                        fontFamily: getGoogleFontSafely(font).fontFamily,
+                    title: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        font.fontFamilyDisplayName,
+                        style: TextStyle(
+                          color: AFThemeExtension.of(context).textColor,
+                          fontFamily: getGoogleFontSafely(font).fontFamily,
+                        ),
                       ),
                     ),
                     trailing:
