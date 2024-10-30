@@ -16,8 +16,11 @@ SelectionMenuItem referencedDocumentMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['page', 'notes', 'referenced page', 'referenced document'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Document),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Document,
+  ),
 );
 
 // Database References
@@ -30,8 +33,11 @@ SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'grid', 'database'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Grid),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Grid,
+  ),
 );
 
 SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
@@ -42,8 +48,11 @@ SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'board', 'kanban'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Board),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Board,
+  ),
 );
 
 SelectionMenuItem referencedCalendarMenuItem = SelectionMenuItem(
@@ -54,6 +63,9 @@ SelectionMenuItem referencedCalendarMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'calendar', 'database'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Calendar),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Calendar,
+  ),
 );
