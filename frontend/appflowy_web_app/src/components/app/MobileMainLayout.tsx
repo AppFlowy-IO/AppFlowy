@@ -1,5 +1,4 @@
 import { UIVariant } from '@/application/types';
-import MobileTopBar from '@/components/_shared/mobile-topbar/MobileTopBar';
 import { AFScroller } from '@/components/_shared/scroller';
 import { useViewErrorStatus } from '@/components/app/app.hooks';
 import Main from '@/components/app/Main';
@@ -8,6 +7,8 @@ import RecordNotFound from '@/components/error/RecordNotFound';
 import SomethingError from '@/components/error/SomethingError';
 import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+
+const MobileTopBar = React.lazy(() => import('@/components/_shared/mobile-topbar/MobileTopBar'));
 
 function MobileMainLayout () {
   const { notFound, deleted } = useViewErrorStatus();
@@ -27,7 +28,12 @@ function MobileMainLayout () {
         overflowYHidden={false}
         className={'appflowy-layout appflowy-mobile-layout flex flex-col appflowy-scroll-container h-full'}
       >
-        <MobileTopBar variant={UIVariant.App} />
+        <React.Suspense
+          fallback={
+            <div className={'flex items-center justify-between w-full h-[48px] min-h-[48px] px-4 gap-2'} />}
+        >
+          <MobileTopBar variant={UIVariant.App} />
+        </React.Suspense>
 
         <ErrorBoundary FallbackComponent={SomethingError}>
           {main}
