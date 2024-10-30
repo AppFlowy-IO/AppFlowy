@@ -320,6 +320,12 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.escape) {
           Navigator.of(context).pop();
+        } else if (event is KeyUpEvent &&
+            event.logicalKey == LogicalKeyboardKey.enter) {
+          widget.onConfirm();
+          if (widget.closeOnAction) {
+            Navigator.of(context).pop();
+          }
         }
       },
       child: Container(
