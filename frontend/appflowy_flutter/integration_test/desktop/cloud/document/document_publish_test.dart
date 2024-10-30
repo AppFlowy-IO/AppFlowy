@@ -110,6 +110,7 @@ void main() {
         LocaleKeys.settings_sites_error_publishNameContainsInvalidCharacters
             .tr(),
       );
+      await tester.pumpUntilFound(errorToast1);
       expect(errorToast1, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast1);
 
@@ -123,6 +124,7 @@ void main() {
       final errorToast2 = find.text(
         LocaleKeys.settings_sites_error_publishNameTooLong.tr(),
       );
+      await tester.pumpUntilFound(errorToast2);
       expect(errorToast2, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast2);
 
