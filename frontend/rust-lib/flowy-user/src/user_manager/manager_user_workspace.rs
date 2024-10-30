@@ -53,13 +53,8 @@ impl UserManager {
 
     let cloned_current_session = current_session.clone();
     let import_data = tokio::task::spawn_blocking(move || {
-      generate_import_data(
-        &cloned_current_session,
-        &cloned_current_session.user_workspace.id,
-        &user_collab_db,
-        imported_folder,
-      )
-      .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
+      generate_import_data(&cloned_current_session, &user_collab_db, imported_folder)
+        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
     })
     .await??;
 

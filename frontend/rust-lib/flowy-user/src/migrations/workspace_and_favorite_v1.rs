@@ -35,7 +35,12 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
     _authenticator: &Authenticator,
   ) -> FlowyResult<()> {
     collab_db.with_write_txn(|write_txn| {
-      if let Ok(collab) = load_collab(session.user_id, write_txn, &session.user_workspace.id) {
+      if let Ok(collab) = load_collab(
+        session.user_id,
+        write_txn,
+        &session.user_workspace.id,
+        &session.user_workspace.id,
+      ) {
         let mut folder = Folder::open(session.user_id, collab, None)
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         folder
@@ -57,6 +62,7 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
           .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc(
           session.user_id,
+          &session.user_workspace.id,
           &session.user_workspace.id,
           encode.state_vector.to_vec(),
           encode.doc_state.to_vec(),

@@ -158,8 +158,10 @@ impl FolderManager {
     // only need the check the workspace id when the doc state is not from the disk.
     let config = CollabBuilderConfig::default().sync_enable(true);
 
-    let data_source = data_source
-      .unwrap_or_else(|| CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
+    let data_source = data_source.unwrap_or_else(|| {
+      CollabPersistenceImpl::new(collab_db.clone(), uid, workspace_id.to_string())
+        .into_data_source()
+    });
 
     let object_id = workspace_id;
     let collab_object =
@@ -186,7 +188,7 @@ impl FolderManager {
           err
         );
         if let Some(db) = self.user.collab_db(uid).ok().and_then(|a| a.upgrade()) {
-          let _ = db.delete_doc(uid, workspace_id).await;
+          let _ = db.delete_doc(uid, workspace_id, workspace_id).await;
         }
         Err(err.into())
       },
@@ -207,7 +209,8 @@ impl FolderManager {
         .collab_builder
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
 
-    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
+    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid, workspace_id.to_string())
+      .into_data_source();
     let folder = self.collab_builder.create_folder(
       collab_object,
       doc_state,

@@ -44,8 +44,12 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     }
     collab_db.with_write_txn(|write_txn| {
       let origin = CollabOrigin::Client(CollabClient::new(session.user_id, "phantom"));
-      let folder_collab = match load_collab(session.user_id, write_txn, &session.user_workspace.id)
-      {
+      let folder_collab = match load_collab(
+        session.user_id,
+        write_txn,
+        &session.user_workspace.id,
+        &session.user_workspace.id,
+      ) {
         Ok(fc) => fc,
         Err(_) => return Ok(()),
       };
@@ -57,7 +61,15 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
         // For historical reasons, the first level documents are empty. So migrate them by inserting
         // the default document data.
         for view in migration_views {
-          if migrate_empty_document(write_txn, &origin, &view, session.user_id).is_err() {
+          if migrate_empty_document(
+            write_txn,
+            &origin,
+            &view,
+            session.user_id,
+            &session.user_workspace.id,
+          )
+          .is_err()
+          {
             event!(
               tracing::Level::ERROR,
               "Failed to migrate document {}",
@@ -79,18 +91,20 @@ fn migrate_empty_document<'a, W>(
   origin: &CollabOrigin,
   view: &View,
   user_id: i64,
+  workspace_id: &str,
 ) -> Result<(), FlowyError>
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
   // If the document is not exist, we don't need to migrate it.
-  if load_collab(user_id, write_txn, &view.id).is_err() {
+  if load_collab(user_id, write_txn, workspace_id, &view.id).is_err() {
     let collab = Collab::new_with_origin(origin.clone(), &view.id, vec![], false);
     let document = Document::create_with_data(collab, default_document_data(&view.id))?;
     let encode = document.encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
     write_txn.flush_doc(
       user_id,
+      workspace_id,
       &view.id,
       encode.state_vector.to_vec(),
       encode.doc_state.to_vec(),

@@ -111,9 +111,10 @@ impl AuthenticateUser {
   }
 
   pub fn is_collab_on_disk(&self, uid: i64, object_id: &str) -> FlowyResult<bool> {
+    let session = self.get_session()?;
     let collab_db = self.database.get_collab_db(uid)?;
     let read_txn = collab_db.read_txn();
-    Ok(read_txn.is_exist(uid, &object_id))
+    Ok(read_txn.is_exist(uid, session.user_workspace.id.as_str(), object_id))
   }
 
   pub fn set_session(&self, session: Option<Arc<Session>>) -> Result<(), FlowyError> {

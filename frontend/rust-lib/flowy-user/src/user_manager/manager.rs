@@ -39,14 +39,14 @@ use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
 
+use super::manager_user_workspace::save_user_workspace;
+use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
 use crate::user_manager::manager_user_workspace::save_all_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
-
-use super::manager_user_workspace::save_user_workspace;
 
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
@@ -854,6 +854,7 @@ fn collab_migration_list() -> Vec<Box<dyn UserDataMigration>> {
     Box::new(HistoricalEmptyDocumentMigration),
     Box::new(FavoriteV1AndWorkspaceArrayMigration),
     Box::new(WorkspaceTrashMapToSectionMigration),
+    Box::new(CollabDocKeyWithWorkspaceIdMigration),
   ]
 }
 
