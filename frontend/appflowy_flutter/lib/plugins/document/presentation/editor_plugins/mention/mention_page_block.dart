@@ -327,7 +327,10 @@ Future<void> _handleTap(
 
   if (UniversalPlatform.isMobile) {
     if (context.mounted && currentViewId != view.id) {
-      await context.pushView(view);
+      await context.pushView(
+        view,
+        blockId: blockId,
+      );
     }
   } else {
     final action = NavigationAction(

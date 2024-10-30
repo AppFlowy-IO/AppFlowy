@@ -499,6 +499,8 @@ GoRoute _mobileEditorScreenRoute() {
       );
       final fixedTitle =
           state.uri.queryParameters[MobileDocumentScreen.viewFixedTitle];
+      final blockId =
+          state.uri.queryParameters[MobileDocumentScreen.viewBlockId];
 
       return MaterialExtendedPage(
         child: MobileDocumentScreen(
@@ -506,6 +508,7 @@ GoRoute _mobileEditorScreenRoute() {
           title: title,
           showMoreButton: showMoreButton ?? true,
           fixedTitle: fixedTitle,
+          blockId: blockId,
         ),
       );
     },

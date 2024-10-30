@@ -181,20 +181,54 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       focusManager = AFFocusManager.maybeOf(context);
       focusManager?.loseFocusNotifier.addListener(_loseFocus);
 
-      final initialSelection = widget.initialSelection;
-      final path = initialSelection?.start.path;
-      if (initialSelection != null && path != null && path.isNotEmpty) {
-        editorScrollController.itemScrollController.jumpTo(
-          index: path.first,
-          alignment: 0.5,
-        );
-        widget.editorState.updateSelectionWithReason(initialSelection);
-      }
+      _scrollToSelectionIfNeeded();
 
       widget.editorState.service.keyboardService?.registerInterceptor(
         editorKeyboardInterceptor,
       );
     });
+  }
+
+  void _scrollToSelectionIfNeeded() {
+    final initialSelection = widget.initialSelection;
+    final path = initialSelection?.start.path;
+    if (path == null) {
+      return;
+    }
+
+    // on desktop, using jumpTo to scroll to the selection.
+    // on mobile, using scrollTo to scroll to the selection, because using jumpTo will break the scroll notification metrics.
+    if (UniversalPlatform.isDesktop) {
+      editorScrollController.itemScrollController.jumpTo(
+        index: path.first,
+        alignment: 0.5,
+      );
+      widget.editorState.updateSelectionWithReason(
+        initialSelection,
+      );
+    } else {
+      const delayDuration = Duration(milliseconds: 250);
+      const animationDuration = Duration(milliseconds: 400);
+      Future.delayed(delayDuration, () {
+        editorScrollController.itemScrollController.scrollTo(
+          index: path.first,
+          duration: animationDuration,
+          curve: Curves.easeInOut,
+        );
+        widget.editorState.updateSelectionWithReason(
+          initialSelection,
+          extraInfo: {
+            selectionExtraInfoDoNotAttachTextService: true,
+            selectionExtraInfoDisableMobileToolbarKey: true,
+          },
+        );
+      }).then((_) {
+        Future.delayed(animationDuration, () {
+          widget.editorState.selectionType = SelectionType.inline;
+          widget.editorState.selectionExtraInfo = null;
+        });
+      });
+    }
   }
 
   void onSelectionChanged() {

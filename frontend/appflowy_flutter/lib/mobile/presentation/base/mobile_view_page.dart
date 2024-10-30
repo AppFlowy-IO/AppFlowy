@@ -30,6 +30,7 @@ class MobileViewPage extends StatefulWidget {
     this.arguments,
     this.fixedTitle,
     this.showMoreButton = true,
+    this.blockId,
   });
 
   /// view id
@@ -38,6 +39,7 @@ class MobileViewPage extends StatefulWidget {
   final String? title;
   final Map<String, dynamic>? arguments;
   final bool showMoreButton;
+  final String? blockId;
 
   // only used in row page
   final String? fixedTitle;
@@ -177,6 +179,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           context: PluginContext(userProfile: state.userProfilePB),
           data: {
             MobileDocumentScreen.viewFixedTitle: widget.fixedTitle,
+            MobileDocumentScreen.viewBlockId: widget.blockId,
           },
         );
       },
@@ -287,12 +290,18 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
     if (notification is ScrollUpdateNotification &&
         defaultScrollNotificationPredicate(notification)) {
+      final element = notification.context as Element;
+      debugPrint('[x] element: $element');
       final ScrollMetrics metrics = notification.metrics;
       double height = MediaQuery.of(context).padding.top;
       if (defaultTargetPlatform == TargetPlatform.android) {
         height += AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight;
       }
+
       final progress = (metrics.pixels / height).clamp(0.0, 1.0);
+      debugPrint(
+        '[x] progress: $progress, metrics.pixels: ${metrics.pixels}, height = $height',
+      );
       // reduce the sensitivity of the app bar opacity change
       if ((progress - _appBarOpacity.value).abs() >= 0.1 ||
           progress == 0 ||

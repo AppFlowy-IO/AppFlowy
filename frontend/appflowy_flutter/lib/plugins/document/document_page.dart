@@ -133,7 +133,7 @@ class _DocumentPageState extends State<DocumentPage>
             padding: EditorStyleCustomizer.documentPadding,
           ),
           header: buildCoverAndIcon(context, state),
-          initialSelection: widget.initialSelection,
+          initialSelection: _calculateInitialSelection(editorState),
         ),
       );
     } else {
@@ -299,6 +299,9 @@ class _DocumentPageState extends State<DocumentPage>
       final path = _findNodePathByBlockId(editorState, widget.initialBlockId!);
       if (path != null) {
         editorState.selectionType = SelectionType.block;
+        editorState.selectionExtraInfo = {
+          selectionExtraInfoDoNotAttachTextService: true,
+        };
         return Selection.collapsed(
           Position(
             path: path,
