@@ -39,7 +39,6 @@ class _FilterButtonState extends State<FilterButton> {
             LocaleKeys.grid_settings_filter.tr(),
             fontColor: textColor,
             fontSize: FontSizes.s12,
-            fontWeight: FontWeight.w400,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: GridSize.toolbarSettingButtonInsets,

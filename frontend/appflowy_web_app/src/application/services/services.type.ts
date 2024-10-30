@@ -67,7 +67,6 @@ export interface AppService {
   registerDocUpdate: (doc: YDoc, context: {
     workspaceId: string, objectId: string, collabType: Types
   }) => void;
-  uploadFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
   importFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
 }
 

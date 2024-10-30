@@ -436,7 +436,6 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 ),
                 side: BorderSide(color: Theme.of(context).dividerColor),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                visualDensity: VisualDensity.compact,
               ),
               onPressed: () {
                 if (state.unscheduleEvents.isNotEmpty) {

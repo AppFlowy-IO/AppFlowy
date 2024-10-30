@@ -46,16 +46,15 @@ class TabBarHeader extends StatelessWidget {
               const Expanded(
                 child: DatabaseTabBar(),
               ),
-              BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-                builder: (context, state) {
-                  return SizedBox(
-                    width: 200,
-                    child: Padding(
+              Flexible(
+                child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                  builder: (context, state) {
+                    return Padding(
                       padding: const EdgeInsets.only(top: 6.0),
                       child: pageSettingBarFromState(context, state),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           ),

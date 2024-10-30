@@ -103,7 +103,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final fontStyle = Theme.of(context)
         .textTheme
         .bodyMedium!
-        .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
+        .copyWith(fontSize: 40.0, fontWeight: FontWeight.w700);
     final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
       listenWhen: (previous, current) =>

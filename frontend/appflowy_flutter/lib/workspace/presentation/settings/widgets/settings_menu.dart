@@ -36,9 +36,9 @@ class SettingsMenu extends StatelessWidget {
                 const EdgeInsets.only(left: 8, right: 4),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
+              borderRadius: const BorderRadiusDirectional.only(
+                topStart: Radius.circular(8),
+                bottomStart: Radius.circular(8),
               ),
             ),
             child: SingleChildScrollView(

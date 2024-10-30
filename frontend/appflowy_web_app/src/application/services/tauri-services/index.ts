@@ -262,10 +262,6 @@ export class AFClientService implements AFService {
     throw new Error('Method not implemented.');
   }
 
-  uploadFile (_file: File, _onProgress: (progress: number) => void) {
-    return Promise.reject('Method not implemented');
-  }
-
   importFile (_file: File, _onProgress: (progress: number) => void) {
     return Promise.reject('Method not implemented');
   }
