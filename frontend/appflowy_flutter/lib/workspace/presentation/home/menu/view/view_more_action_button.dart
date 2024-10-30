@@ -23,6 +23,7 @@ class ViewMoreActionPopover extends StatelessWidget {
     required this.spaceType,
     required this.isExpanded,
     required this.buildChild,
+    this.showAtCursor = false,
   });
 
   final ViewPB view;
@@ -32,6 +33,7 @@ class ViewMoreActionPopover extends StatelessWidget {
   final FolderSpaceType spaceType;
   final bool isExpanded;
   final Widget Function(PopoverController) buildChild;
+  final bool showAtCursor;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class ViewMoreActionPopover extends StatelessWidget {
       buildChild: buildChild,
       onSelected: (_, __) {},
       onClosed: () => onEditing(false),
+      showAtCursor: showAtCursor,
     );
   }
 

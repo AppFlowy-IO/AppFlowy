@@ -29,6 +29,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
       maxWidth: 460,
       maxHeight: 300,
     ),
+    this.showAtCursor = false,
   });
 
   final PopoverController? controller;
@@ -49,6 +50,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final double endScaleFactor;
   final double beginOpacity;
   final double endOpacity;
+  final bool showAtCursor;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -94,6 +96,7 @@ class _PopoverActionListState<T extends PopoverAction>
       offset: widget.offset,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
+      showAtCursor: widget.showAtCursor,
       popupBuilder: (_) {
         widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {

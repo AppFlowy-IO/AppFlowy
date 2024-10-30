@@ -582,7 +582,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             onPointerDown: (event) {
               if (event.buttons == kSecondaryMouseButton &&
                   widget.enableRightClickContext) {
-                viewMoreActionController.showAt(event.position);
+                viewMoreActionController.showAt(
+                  // We add some horizontal offset
+                  event.position + const Offset(4, 0),
+                );
               }
             },
             behavior: HitTestBehavior.opaque,
