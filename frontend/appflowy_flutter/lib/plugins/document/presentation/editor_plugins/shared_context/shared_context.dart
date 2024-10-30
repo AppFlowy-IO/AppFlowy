@@ -6,9 +6,14 @@ import 'package:flutter/widgets.dart';
 /// so we need to use the shared context to get the focus node.
 ///
 class SharedEditorContext {
-  SharedEditorContext();
+  SharedEditorContext() : _coverTitleFocusNode = FocusNode();
 
   // The focus node of the cover title.
-  // It's null when the cover title is not focused.
-  FocusNode? coverTitleFocusNode;
+  final FocusNode _coverTitleFocusNode;
+
+  FocusNode get coverTitleFocusNode => _coverTitleFocusNode;
+
+  void dispose() {
+    _coverTitleFocusNode.dispose();
+  }
 }
