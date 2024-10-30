@@ -73,6 +73,10 @@ class DomainItem extends StatelessWidget {
   Widget _buildHomepage(BuildContext context) {
     final plan = context.read<SettingsSitesBloc>().state.subscriptionInfo?.plan;
 
+    if (plan == null) {
+      return const SizedBox.shrink();
+    }
+
     final isFreePlan = plan == WorkspacePlanPB.FreePlan;
     if (isFreePlan) {
       return const _FreePlanUpgradeButton();
@@ -129,7 +133,9 @@ class _HomePageButton extends StatelessWidget {
       );
     } else {
       child = FlowyTooltip(
-        message: 'Only workspace owner can set up a home page',
+        message: LocaleKeys
+            .settings_sites_namespace_onlyWorkspaceOwnerCanSetHomePage
+            .tr(),
         child: IgnorePointer(
           child: child,
         ),

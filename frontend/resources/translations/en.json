@@ -449,7 +449,8 @@
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
         "updateExistingNamespace": "Update existing namespace",
         "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
-        "redirectToPayment": "Redirecting to payment page..."
+        "redirectToPayment": "Redirecting to payment page...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage"
       },
       "publishedPage": {
         "title": "All published pages",
@@ -458,6 +459,7 @@
         "pathName": "Path name",
         "date": "Published date",
         "emptyHinText": "You have no published pages in this workspace",
+        "noPublishedPages": "No published pages",
         "settings": "Publish settings"
       },
       "error": {

@@ -1,8 +1,10 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/publish_info_view_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,32 +40,29 @@ class _SelectHomePageMenuState extends State<SelectHomePageMenu> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
+  Widget build(BuildContext context) {
+    if (views.isEmpty) {
+      return _buildNoPublishedViews();
+    }
+
+    return _buildMenu(context);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildNoPublishedViews() {
+    return FlowyText.regular(
+      LocaleKeys.settings_sites_publishedPage_noPublishedPages.tr(),
+      color: Theme.of(context).hintColor,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildMenu(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SpaceSearchField(
           width: 240,
-          onSearch: (context, value) {
-            setState(() {
-              if (value.isEmpty) {
-                views = source;
-              } else {
-                views = source
-                    .where(
-                      (view) => view.view.name
-                          .toLowerCase()
-                          .contains(value.toLowerCase()),
-                    )
-                    .toList();
-              }
-            });
-          },
+          onSearch: (context, value) => _onSearch(value),
         ),
         const VSpace(10),
         ...views.map(
@@ -84,5 +83,20 @@ class _SelectHomePageMenuState extends State<SelectHomePageMenu> {
         ),
       ],
     );
+  }
+
+  void _onSearch(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        views = source;
+      } else {
+        views = source
+            .where(
+              (view) =>
+                  view.view.name.toLowerCase().contains(value.toLowerCase()),
+            )
+            .toList();
+      }
+    });
   }
 }
