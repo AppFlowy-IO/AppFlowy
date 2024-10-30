@@ -1,21 +1,23 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text_input.dart';
+import 'package:flutter/material.dart';
 
 class FindAndReplaceMenuWidget extends StatefulWidget {
   const FindAndReplaceMenuWidget({
     super.key,
     required this.onDismiss,
     required this.editorState,
+    required this.showReplaceMenu,
   });
 
   final EditorState editorState;
   final VoidCallback onDismiss;
+
+  /// Whether to show the replace menu initially
+  final bool showReplaceMenu;
 
   @override
   State<FindAndReplaceMenuWidget> createState() =>
@@ -23,11 +25,34 @@ class FindAndReplaceMenuWidget extends StatefulWidget {
 }
 
 class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
-  bool showReplaceMenu = false;
+  String queriedPattern = '';
+  late bool showReplaceMenu = widget.showReplaceMenu;
+
+  final findFocusNode = FocusNode();
+  final replaceFocusNode = FocusNode();
 
   late SearchServiceV3 searchService = SearchServiceV3(
     editorState: widget.editorState,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.showReplaceMenu) {
+        replaceFocusNode.requestFocus();
+      } else {
+        findFocusNode.requestFocus();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    findFocusNode.dispose();
+    replaceFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +66,11 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
               onDismiss: widget.onDismiss,
               editorState: widget.editorState,
               searchService: searchService,
-              onShowReplace: (value) => setState(
-                () => showReplaceMenu = value,
-              ),
+              focusNode: findFocusNode,
+              showReplaceMenu: showReplaceMenu,
+              onToggleShowReplace: () => setState(() {
+                showReplaceMenu = !showReplaceMenu;
+              }),
             ),
           ),
           if (showReplaceMenu)
@@ -54,6 +81,7 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
               child: ReplaceMenu(
                 editorState: widget.editorState,
                 searchService: searchService,
+                focusNode: replaceFocusNode,
               ),
             ),
         ],
@@ -65,29 +93,30 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
 class FindMenu extends StatefulWidget {
   const FindMenu({
     super.key,
-    required this.onDismiss,
     required this.editorState,
     required this.searchService,
-    required this.onShowReplace,
+    required this.showReplaceMenu,
+    required this.focusNode,
+    required this.onDismiss,
+    required this.onToggleShowReplace,
   });
 
   final EditorState editorState;
-  final VoidCallback onDismiss;
   final SearchServiceV3 searchService;
-  final void Function(bool value) onShowReplace;
+
+  final bool showReplaceMenu;
+  final FocusNode focusNode;
+
+  final VoidCallback onDismiss;
+  final void Function() onToggleShowReplace;
 
   @override
   State<FindMenu> createState() => _FindMenuState();
 }
 
 class _FindMenuState extends State<FindMenu> {
-  late final FocusNode findTextFieldFocusNode;
+  final textController = TextEditingController();
 
-  final findTextEditingController = TextEditingController();
-
-  String queriedPattern = '';
-
-  bool showReplaceMenu = false;
   bool caseSensitive = false;
 
   @override
@@ -97,11 +126,7 @@ class _FindMenuState extends State<FindMenu> {
     widget.searchService.matchWrappers.addListener(_setState);
     widget.searchService.currentSelectedIndex.addListener(_setState);
 
-    findTextEditingController.addListener(_searchPattern);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      findTextFieldFocusNode.requestFocus();
-    });
+    textController.addListener(_searchPattern);
   }
 
   @override
@@ -109,8 +134,7 @@ class _FindMenuState extends State<FindMenu> {
     widget.searchService.matchWrappers.removeListener(_setState);
     widget.searchService.currentSelectedIndex.removeListener(_setState);
     widget.searchService.dispose();
-    findTextEditingController.removeListener(_searchPattern);
-    findTextEditingController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -124,31 +148,36 @@ class _FindMenuState extends State<FindMenu> {
         const HSpace(4.0),
         // expand/collapse button
         _FindAndReplaceIcon(
-          icon: showReplaceMenu
+          icon: widget.showReplaceMenu
               ? FlowySvgs.drop_menu_show_s
               : FlowySvgs.drop_menu_hide_s,
           tooltipText: '',
-          onPressed: () {
-            widget.onShowReplace(!showReplaceMenu);
-            setState(
-              () => showReplaceMenu = !showReplaceMenu,
-            );
-          },
+          onPressed: widget.onToggleShowReplace,
         ),
         const HSpace(4.0),
         // find text input
         SizedBox(
-          width: 150,
+          width: 200,
           height: 30,
-          child: FlowyFormTextInput(
-            onFocusCreated: (focusNode) {
-              findTextFieldFocusNode = focusNode;
+          child: TextField(
+            key: const Key('findTextField'),
+            focusNode: widget.focusNode,
+            controller: textController,
+            style: Theme.of(context).textTheme.bodyMedium,
+            onSubmitted: (_) {
+              widget.searchService.navigateToMatch();
+
+              // after update selection or navigate to match, the editor
+              // will request focus, here's a workaround to request the
+              // focus back to the text field
+              Future.delayed(
+                const Duration(milliseconds: 50),
+                () => widget.focusNode.requestFocus(),
+              );
             },
-            textInputAction: TextInputAction.none,
-            onEditingComplete: () => widget.searchService.navigateToMatch(),
-            controller: findTextEditingController,
-            hintText: LocaleKeys.findAndReplace_find.tr(),
-            textAlign: TextAlign.left,
+            decoration: _buildInputDecoration(
+              LocaleKeys.findAndReplace_find.tr(),
+            ),
           ),
         ),
         // the count of matches
@@ -199,8 +228,8 @@ class _FindMenuState extends State<FindMenu> {
   }
 
   void _searchPattern() {
-    widget.searchService.findAndHighlight(findTextEditingController.text);
-    setState(() => queriedPattern = findTextEditingController.text);
+    widget.searchService.findAndHighlight(textController.text);
+    _setState();
   }
 
   void _setState() {
@@ -213,27 +242,24 @@ class ReplaceMenu extends StatefulWidget {
     super.key,
     required this.editorState,
     required this.searchService,
-    this.localizations,
+    required this.focusNode,
   });
 
   final EditorState editorState;
-
-  /// The localizations of the find and replace menu
-  final FindReplaceLocalizations? localizations;
-
   final SearchServiceV3 searchService;
+
+  final FocusNode focusNode;
 
   @override
   State<ReplaceMenu> createState() => _ReplaceMenuState();
 }
 
 class _ReplaceMenuState extends State<ReplaceMenu> {
-  late final FocusNode replaceTextFieldFocusNode;
-  final replaceTextEditingController = TextEditingController();
+  final textController = TextEditingController();
 
   @override
   void dispose() {
-    replaceTextEditingController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -244,20 +270,26 @@ class _ReplaceMenuState extends State<ReplaceMenu> {
         // placeholder for aligning the replace menu
         const HSpace(30),
         SizedBox(
-          width: 150,
+          width: 200,
           height: 30,
-          child: FlowyFormTextInput(
-            onFocusCreated: (focusNode) {
-              replaceTextFieldFocusNode = focusNode;
+          child: TextField(
+            key: const Key('replaceTextField'),
+            focusNode: widget.focusNode,
+            controller: textController,
+            style: Theme.of(context).textTheme.bodyMedium,
+            onSubmitted: (_) {
+              _replaceSelectedWord();
+
+              Future.delayed(
+                const Duration(milliseconds: 50),
+                () => widget.focusNode.requestFocus(),
+              );
             },
-            textInputAction: TextInputAction.none,
-            onEditingComplete: () => widget.searchService.navigateToMatch(),
-            controller: replaceTextEditingController,
-            hintText: LocaleKeys.findAndReplace_replace.tr(),
-            textAlign: TextAlign.left,
+            decoration: _buildInputDecoration(
+              LocaleKeys.findAndReplace_replace.tr(),
+            ),
           ),
         ),
-        const HSpace(4.0),
         _FindAndReplaceIcon(
           onPressed: _replaceSelectedWord,
           iconBuilder: (_) => const Icon(
@@ -274,7 +306,7 @@ class _ReplaceMenuState extends State<ReplaceMenu> {
           ),
           tooltipText: LocaleKeys.findAndReplace_replaceAll.tr(),
           onPressed: () => widget.searchService.replaceAllMatches(
-            replaceTextEditingController.text,
+            textController.text,
           ),
         ),
       ],
@@ -282,7 +314,7 @@ class _ReplaceMenuState extends State<ReplaceMenu> {
   }
 
   void _replaceSelectedWord() {
-    widget.searchService.replaceSelectedWord(replaceTextEditingController.text);
+    widget.searchService.replaceSelectedWord(textController.text);
   }
 }
 
@@ -314,4 +346,12 @@ class _FindAndReplaceIcon extends StatelessWidget {
       iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
     );
   }
+}
+
+InputDecoration _buildInputDecoration(String hintText) {
+  return InputDecoration(
+    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+    border: const UnderlineInputBorder(),
+    hintText: hintText,
+  );
 }

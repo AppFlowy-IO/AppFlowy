@@ -453,6 +453,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
               borderRadius: BorderRadius.circular(4),
             ),
             child: FindAndReplaceMenuWidget(
+              showReplaceMenu: showReplaceMenu,
               editorState: editorState,
               onDismiss: onDismiss,
             ),
