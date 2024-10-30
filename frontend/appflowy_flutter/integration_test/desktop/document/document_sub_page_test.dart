@@ -486,15 +486,11 @@ extension _SubPageTestHelper on WidgetTester {
     String currentName,
     String newName,
   ) async {
-    await hoverOnPageName(
-      currentName,
-      onHover: () async {
-        await rightClickOnPageName(currentName);
-        await tapButtonWithName(ViewMoreActionType.rename.name);
-        await enterText(find.byType(TextFormField), newName);
-        await tapOKButton();
-        await pumpAndSettle();
-      },
-    );
+    await hoverOnPageName(currentName, onHover: () async => pumpAndSettle());
+    await rightClickOnPageName(currentName);
+    await tapButtonWithName(ViewMoreActionType.rename.name);
+    await enterText(find.byType(TextFormField), newName);
+    await tapOKButton();
+    await pumpAndSettle();
   }
 }
