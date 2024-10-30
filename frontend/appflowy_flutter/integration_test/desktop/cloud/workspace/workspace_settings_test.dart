@@ -222,7 +222,6 @@ void main() {
       await tester.pumpUntilNotFound(errorToast2);
       // valid namespace
       await tester.updateNamespace('AppFlowy');
-      await tester.wait(400);
 
       // expect to see the toast with success message
       final successToast = find.text(
@@ -230,8 +229,6 @@ void main() {
       );
       await tester.pumpUntilFound(successToast);
       expect(successToast, findsOneWidget);
-
-      // remove the
     });
   });
 }

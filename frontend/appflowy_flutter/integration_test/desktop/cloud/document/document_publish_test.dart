@@ -110,6 +110,7 @@ void main() {
       final successToast = find.text(
         LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
       );
+      await tester.pumpUntilFound(successToast);
       expect(successToast, findsOneWidget);
       await tester.pumpUntilNotFound(successToast);
 
