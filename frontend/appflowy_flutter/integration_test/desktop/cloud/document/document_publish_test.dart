@@ -98,10 +98,38 @@ void main() {
         of: find.byType(ShareMenu),
         matching: find.byType(TextField),
       );
+
+      // rename with invalid name
+      await tester.tap(inputField);
+      await tester.enterText(inputField, '&&&???');
+      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
+      await tester.pumpAndSettle();
+
+      // expect to see the toast with error message
+      final errorToast1 = find.text(
+        LocaleKeys.settings_sites_error_publishNameContainsInvalidCharacters
+            .tr(),
+      );
+      expect(errorToast1, findsOneWidget);
+      await tester.pumpUntilNotFound(errorToast1);
+
+      // rename with long name
+      await tester.tap(inputField);
+      await tester.enterText(inputField, 'long-path-name' * 200);
+      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
+      await tester.pumpAndSettle();
+
+      // expect to see the toast with error message
+      final errorToast2 = find.text(
+        LocaleKeys.settings_sites_error_publishNameTooLong.tr(),
+      );
+      expect(errorToast2, findsOneWidget);
+      await tester.pumpUntilNotFound(errorToast2);
+
       await tester.tap(inputField);
 
       // input the new path name
-      await tester.enterText(inputField, 'new_path_name');
+      await tester.enterText(inputField, 'new-path-name');
       // click save button
       await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
       await tester.pumpAndSettle();
@@ -126,36 +154,9 @@ void main() {
       // check the clipboard has the link
       final content = await Clipboard.getData(Clipboard.kTextPlain);
       expect(
-        content?.text?.contains('new_path_name'),
+        content?.text?.contains('new-path-name'),
         isTrue,
       );
-
-      // rename with invalid name
-      await tester.tap(inputField);
-      await tester.enterText(inputField, '&&&???');
-      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
-      await tester.pumpAndSettle();
-
-      // expect to see the toast with error message
-      final errorToast1 = find.text(
-        LocaleKeys.settings_sites_error_publishNameContainsInvalidCharacters
-            .tr(),
-      );
-      expect(errorToast1, findsOneWidget);
-      await tester.pumpUntilNotFound(errorToast1);
-
-      // rename with long name
-      await tester.tap(inputField);
-      await tester.enterText(inputField, 'A' * 100);
-      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
-      await tester.pumpAndSettle();
-
-      // expect to see the toast with error message
-      final errorToast2 = find.text(
-        LocaleKeys.settings_sites_error_publishNameTooLong.tr(),
-      );
-      expect(errorToast2, findsOneWidget);
-      await tester.pumpUntilNotFound(errorToast2);
     });
   });
 }
