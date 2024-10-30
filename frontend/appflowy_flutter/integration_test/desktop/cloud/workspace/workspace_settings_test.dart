@@ -142,36 +142,37 @@ void main() {
       );
       expect(pageItem, findsOneWidget);
 
-      // set it to homepage
-      await tester.tapButton(
-        find.textContaining(
-          LocaleKeys.settings_sites_selectHomePage.tr(),
-        ),
-      );
-      await tester.tapButton(
-        find.descendant(
-          of: find.byType(SelectHomePageMenu),
-          matching: find.text(pageName),
-        ),
-      );
-      await tester.pumpAndSettle();
+      // only pro plan can set the page as homepage
+      // // set it to homepage
+      // await tester.tapButton(
+      //   find.textContaining(
+      //     LocaleKeys.settings_sites_selectHomePage.tr(),
+      //   ),
+      // );
+      // await tester.tapButton(
+      //   find.descendant(
+      //     of: find.byType(SelectHomePageMenu),
+      //     matching: find.text(pageName),
+      //   ),
+      // );
+      // await tester.pumpAndSettle();
 
-      // check if the page is set to homepage
-      final homePageItem = find.descendant(
-        of: find.byType(DomainItem),
-        matching: find.text(pageName),
-      );
-      expect(homePageItem, findsOneWidget);
+      // // check if the page is set to homepage
+      // final homePageItem = find.descendant(
+      //   of: find.byType(DomainItem),
+      //   matching: find.text(pageName),
+      // );
+      // expect(homePageItem, findsOneWidget);
 
-      // remove the homepage
-      await tester.tapButton(find.byType(DomainMoreAction));
-      await tester.tapButton(
-        find.text(LocaleKeys.settings_sites_removeHomepage.tr()),
-      );
-      await tester.pumpAndSettle();
+      // // remove the homepage
+      // await tester.tapButton(find.byType(DomainMoreAction));
+      // await tester.tapButton(
+      //   find.text(LocaleKeys.settings_sites_removeHomepage.tr()),
+      // );
+      // await tester.pumpAndSettle();
 
-      // check if the page is removed from homepage
-      expect(homePageItem, findsNothing);
+      // // check if the page is removed from homepage
+      // expect(homePageItem, findsNothing);
     });
 
     testWidgets('update namespace', (tester) async {
@@ -202,33 +203,33 @@ void main() {
       // expect to see the dialog
       await tester.updateNamespace('&&&???');
 
-      // expect to see the toast with error message
+      // need to upgrade to pro plan to update the namespace
       final errorToast = find.text(
-        LocaleKeys.settings_sites_error_namespaceContainsInvalidCharacters.tr(),
+        LocaleKeys.settings_sites_error_proPlanLimitation.tr(),
       );
       await tester.pumpUntilFound(errorToast);
       expect(errorToast, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast);
 
-      // short namespace
-      await tester.updateNamespace('a');
+      // // short namespace
+      // await tester.updateNamespace('a');
 
-      // expect to see the toast with error message
-      final errorToast2 = find.text(
-        LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
-      );
-      await tester.pumpUntilFound(errorToast2);
-      expect(errorToast2, findsOneWidget);
-      await tester.pumpUntilNotFound(errorToast2);
-      // valid namespace
-      await tester.updateNamespace('AppFlowy');
+      // // expect to see the toast with error message
+      // final errorToast2 = find.text(
+      //   LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
+      // );
+      // await tester.pumpUntilFound(errorToast2);
+      // expect(errorToast2, findsOneWidget);
+      // await tester.pumpUntilNotFound(errorToast2);
+      // // valid namespace
+      // await tester.updateNamespace('AppFlowy');
 
-      // expect to see the toast with success message
-      final successToast = find.text(
-        LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
-      );
-      await tester.pumpUntilFound(successToast);
-      expect(successToast, findsOneWidget);
+      // // expect to see the toast with success message
+      // final successToast = find.text(
+      //   LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
+      // );
+      // await tester.pumpUntilFound(successToast);
+      // expect(successToast, findsOneWidget);
     });
   });
 }

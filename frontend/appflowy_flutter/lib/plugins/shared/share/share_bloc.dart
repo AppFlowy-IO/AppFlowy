@@ -231,6 +231,8 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
     emit(
       state.copyWith(
         updatePathNameResult: result,
+        publishResult: null,
+        unpublishResult: null,
         pathName: result.fold(
           (_) => pathName,
           (f) => state.pathName,
