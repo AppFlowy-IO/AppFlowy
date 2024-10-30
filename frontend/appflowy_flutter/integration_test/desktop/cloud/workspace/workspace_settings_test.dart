@@ -201,23 +201,23 @@ void main() {
 
       // expect to see the dialog
       await tester.updateNamespace('&&&???');
-      await tester.wait(400);
 
       // expect to see the toast with error message
       final errorToast = find.text(
         LocaleKeys.settings_sites_error_namespaceContainsInvalidCharacters.tr(),
       );
+      await tester.pumpUntilFound(errorToast);
       expect(errorToast, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast);
 
       // short namespace
       await tester.updateNamespace('a');
-      await tester.wait(400);
 
       // expect to see the toast with error message
       final errorToast2 = find.text(
         LocaleKeys.settings_sites_error_namespaceTooShort.tr(),
       );
+      await tester.pumpUntilFound(errorToast2);
       expect(errorToast2, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast2);
       // valid namespace
@@ -228,6 +228,7 @@ void main() {
       final successToast = find.text(
         LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
       );
+      await tester.pumpUntilFound(successToast);
       expect(successToast, findsOneWidget);
 
       // remove the
