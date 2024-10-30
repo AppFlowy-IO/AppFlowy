@@ -91,7 +91,7 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
 
   const mentionIcon = useMemo(() => {
     if (pageId === currentViewId && blockId) {
-      return <MarkIcon className={'text-icon-secondary ml-0.5'} />;
+      return <MarkIcon className={'text-icon-primary ml-0.5 opacity-70'} />;
     }
 
     return <>
@@ -101,8 +101,8 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
         className={'text-text-title ml-0.5'}
       />}
       {type === MentionType.PageRef &&
-        <span className={`absolute ${icon?.value ? 'right-1 bottom-1' : 'right-0 bottom-0'}`}>
-          <NorthEast className={'w-3 h-3 text-text-title'} />
+        <span className={`absolute -right-0.5 bottom-0`}>
+          <NorthEast className={'w-3 h-3 text-content-blue-900'} />
         </span>
       }
     </>;

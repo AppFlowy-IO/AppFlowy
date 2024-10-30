@@ -27,8 +27,6 @@ export default defineConfig({
               
               <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
               <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-              <script crossorigin src="https://cdn.jsdelivr.net/npm/react-is/umd/react-is.production.min.js"></script>
-              
             ` : '',
         },
       },
@@ -36,6 +34,7 @@ export default defineConfig({
     isProd ? viteExternalsPlugin({
       react: 'React',
       'react-dom': 'ReactDOM',
+
     }) : undefined,
     svgr({
       svgrOptions: {
@@ -141,7 +140,7 @@ export default defineConfig({
               if (
                 // id.includes('/react@') ||
                 // id.includes('/react-dom@') ||
-                // id.includes('/react-is@') ||
+                id.includes('/react-is@') ||
                 id.includes('/yjs@') ||
                 id.includes('/y-indexeddb@') ||
                 id.includes('/dexie') ||
@@ -173,7 +172,6 @@ export default defineConfig({
       },
       { find: '$icons', replacement: `${resourcesPath}/flowy_icons/` },
       { find: 'cypress/support', replacement: `${__dirname}/cypress/support` },
-      { find: 'lodash', replacement: 'lodash-es' },
     ],
   },
 
