@@ -5,6 +5,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/plugins/shared/share/publish_tab.dart';
 import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
@@ -51,10 +52,12 @@ void main() {
       await tester.openPublishMenu();
 
       // publish the document
-      await tester.tapButton(find.text(LocaleKeys.shareAction_publish.tr()));
+      final publishButton = find.byType(PublishButton);
+      final unpublishButton = find.byType(UnPublishButton);
+      await tester.tapButton(publishButton);
 
       // expect to see unpublish, visit site and manage all sites button
-      expect(find.text(LocaleKeys.shareAction_unPublish.tr()), findsOneWidget);
+      expect(unpublishButton, findsOneWidget);
       expect(find.text(LocaleKeys.shareAction_visitSite.tr()), findsOneWidget);
       expect(
         find.text(LocaleKeys.shareAction_manageAllSites.tr()),
@@ -62,10 +65,10 @@ void main() {
       );
 
       // unpublish the document
-      await tester.tapButton(find.text(LocaleKeys.shareAction_unPublish.tr()));
+      await tester.tapButton(unpublishButton);
 
       // expect to see publish button
-      expect(find.text(LocaleKeys.shareAction_publish.tr()), findsOneWidget);
+      expect(publishButton, findsOneWidget);
     });
 
     testWidgets('rename path name', (tester) async {
@@ -87,7 +90,8 @@ void main() {
       await tester.openPublishMenu();
 
       // publish the document
-      await tester.tapButton(find.text(LocaleKeys.shareAction_publish.tr()));
+      final publishButton = find.byType(PublishButton);
+      await tester.tapButton(publishButton);
 
       // rename the path name
       final inputField = find.descendant(

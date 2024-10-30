@@ -190,7 +190,9 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           children: [
             _buildManageSiteButton(),
             const Spacer(),
-            _buildUnpublishButton(),
+            UnPublishButton(
+              onUnPublish: widget.onUnPublish,
+            ),
             const HSpace(6),
             _buildVisitSiteButton(),
           ],
@@ -226,7 +228,33 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
     );
   }
 
-  Widget _buildUnpublishButton() {
+  Widget _buildVisitSiteButton() {
+    return RoundedTextButton(
+      width: 108,
+      height: 36,
+      onPressed: () {
+        final url = context.read<ShareBloc>().state.url;
+        widget.onVisitSite(url);
+      },
+      title: LocaleKeys.shareAction_visitSite.tr(),
+      borderRadius: const BorderRadius.all(Radius.circular(10)),
+      fillColor: Theme.of(context).colorScheme.primary,
+      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+      textColor: Theme.of(context).colorScheme.onPrimary,
+    );
+  }
+}
+
+class UnPublishButton extends StatelessWidget {
+  const UnPublishButton({
+    super.key,
+    required this.onUnPublish,
+  });
+
+  final VoidCallback onUnPublish;
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       width: 108,
       height: 36,
@@ -241,24 +269,8 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           LocaleKeys.shareAction_unPublish.tr(),
           textAlign: TextAlign.center,
         ),
-        onTap: widget.onUnPublish,
+        onTap: onUnPublish,
       ),
-    );
-  }
-
-  Widget _buildVisitSiteButton() {
-    return RoundedTextButton(
-      width: 108,
-      height: 36,
-      onPressed: () {
-        final url = context.read<ShareBloc>().state.url;
-        widget.onVisitSite(url);
-      },
-      title: LocaleKeys.shareAction_visitSite.tr(),
-      borderRadius: const BorderRadius.all(Radius.circular(10)),
-      fillColor: Theme.of(context).colorScheme.primary,
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
-      textColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
 }

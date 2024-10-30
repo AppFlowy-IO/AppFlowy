@@ -127,7 +127,7 @@ void main() {
 
       // click empty area to close the publish menu
       await tester.tapAt(Offset.zero);
-
+      await tester.pumpAndSettle();
       // check if the page is published in sites page
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.sites);
@@ -201,6 +201,7 @@ void main() {
 
       // expect to see the dialog
       await tester.updateNamespace('&&&???');
+      await tester.wait(400);
 
       // expect to see the toast with error message
       final errorToast = find.text(
@@ -211,6 +212,7 @@ void main() {
 
       // short namespace
       await tester.updateNamespace('a');
+      await tester.wait(400);
 
       // expect to see the toast with error message
       final errorToast2 = find.text(
@@ -220,6 +222,7 @@ void main() {
       await tester.pumpUntilNotFound(errorToast2);
       // valid namespace
       await tester.updateNamespace('AppFlowy');
+      await tester.wait(400);
 
       // expect to see the toast with success message
       final successToast = find.text(
