@@ -21,8 +21,8 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
     "workspace_trash_map_to_section_migration"
   }
 
-  fn applies_to_version(&self, _app_version: &Version) -> bool {
-    true
+  fn applies_to_version(&self, install_version: &Version) -> bool {
+    install_version < &Version::new(0, 4, 0)
   }
 
   #[instrument(name = "WorkspaceTrashMapToSectionMigration", skip_all, err)]

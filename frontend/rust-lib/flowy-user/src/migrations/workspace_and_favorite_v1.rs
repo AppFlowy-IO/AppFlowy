@@ -23,8 +23,8 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
     "workspace_favorite_v1_and_workspace_array_migration"
   }
 
-  fn applies_to_version(&self, _app_version: &Version) -> bool {
-    true
+  fn applies_to_version(&self, install_version: &Version) -> bool {
+    install_version < &Version::new(0, 4, 0)
   }
 
   #[instrument(name = "FavoriteV1AndWorkspaceArrayMigration", skip_all, err)]

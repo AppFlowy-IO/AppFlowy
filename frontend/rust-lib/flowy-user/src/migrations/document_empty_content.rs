@@ -25,8 +25,8 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     "historical_empty_document"
   }
 
-  fn applies_to_version(&self, _version: &Version) -> bool {
-    true
+  fn applies_to_version(&self, install_version: &Version) -> bool {
+    install_version < &Version::new(0, 4, 0)
   }
 
   #[instrument(name = "HistoricalEmptyDocumentMigration", skip_all, err)]

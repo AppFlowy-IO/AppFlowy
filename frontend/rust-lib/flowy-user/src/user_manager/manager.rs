@@ -14,14 +14,13 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
-use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, event, info, instrument, trace, warn};
+use tracing::{debug, error, event, info, instrument, warn};
 
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
@@ -262,7 +261,7 @@ impl UserManager {
             &user,
             collab_db,
             sqlite_pool,
-            Some(self.authenticate_user.user_config.app_version.clone()),
+            self.store_preferences.clone(),
           );
         },
         _ => error!("Failed to get collab db or sqlite pool"),
@@ -872,19 +871,16 @@ pub(crate) fn run_collab_data_migration(
   user: &UserProfile,
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
-  version: Option<Version>,
+  kv: Arc<KVStorePreferences>,
 ) {
-  trace!("[AppflowyData]:Run collab data migration: {:?}", version);
   let migrations = collab_migration_list();
-  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(
-    migrations,
-    &user.authenticator,
-    version,
-  ) {
+  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool, kv)
+    .run(migrations, &user.authenticator)
+  {
     Ok(applied_migrations) => {
       if !applied_migrations.is_empty() {
         info!(
-          "[AppflowyData]:Did apply migrations: {:?}",
+          "[Migration]: did apply migrations: {:?}",
           applied_migrations
         );
       }

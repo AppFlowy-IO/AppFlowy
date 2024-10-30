@@ -107,7 +107,7 @@ pub(crate) fn prepare_import(
     &imported_user,
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
-    None,
+    other_store_preferences.clone(),
   );
 
   Ok(ImportedFolder {
@@ -181,7 +181,11 @@ pub(crate) fn generate_import_data(
       .map(|iter| iter.collect::<Vec<String>>())
       .unwrap_or_default();
 
-    info!("[AppflowyData]: {} has {} collab objects", imported_uid, all_imported_object_ids.len());
+    info!(
+      "[AppflowyData]: {} has {} collab objects",
+      imported_uid,
+      all_imported_object_ids.len()
+    );
 
     // when doing import, we don't want to import these objects:
     // 1. user workspace
@@ -237,8 +241,8 @@ pub(crate) fn generate_import_data(
 
     // import the database
     let MigrateDatabase {
-        database_view_ids ,
-        database_row_ids,
+      database_view_ids,
+      database_row_ids,
     } = migrate_databases(
       &mut old_to_new_id_map,
       current_session,
@@ -277,38 +281,46 @@ pub(crate) fn generate_import_data(
     // Currently, when importing AppFlowy data, the view which is a space doesn't have a corresponding
     // collab data in disk.
     for view_id in not_exist_parent_view_ids {
-      if let Err(err) = create_empty_document_for_view(current_session.user_id, &current_session.user_workspace.id, &view_id, current_collab_db_write_txn) {
-        error!("[AppflowyData]: create empty document for view failed: {}", err);
+      if let Err(err) = create_empty_document_for_view(
+        current_session.user_id,
+        &current_session.user_workspace.id,
+        &view_id,
+        current_collab_db_write_txn,
+      ) {
+        error!(
+          "[AppflowyData]: create empty document for view failed: {}",
+          err
+        );
       }
     }
 
     let gen_document_collabs = all_imported_object_ids
-        .par_iter()
-        .filter_map(|object_id| {
-          let f = || {
-            let imported_collab = imported_collab_by_oid.get(object_id)?;
-            let new_object_id = old_to_new_id_map.get_exchanged_id(object_id)?;
-            gen_sv_and_doc_state(
-              current_session.user_id,
-              new_object_id,
-              imported_collab,
-              CollabType::Document,
-              &old_to_new_id_map,
-            )
-          };
-          match f() {
-            None => {
-              warn!(
-              "[AppflowyData]: Can't find the new id for the imported object:{}, new object id:{:?}",
-              object_id,
-              old_to_new_id_map.get_exchanged_id(object_id),
-            );
-              None
-            },
-            Some(value) => Some(value),
-          }
-        })
-        .collect::<Vec<_>>();
+      .par_iter()
+      .filter_map(|object_id| {
+        let f = || {
+          let imported_collab = imported_collab_by_oid.get(object_id)?;
+          let new_object_id = old_to_new_id_map.get_exchanged_id(object_id)?;
+          gen_sv_and_doc_state(
+            current_session.user_id,
+            new_object_id,
+            imported_collab,
+            CollabType::Document,
+            &old_to_new_id_map,
+          )
+        };
+        match f() {
+          None => {
+            //   warn!(
+            //   "[AppflowyData]: Can't find the new id for the imported object:{}, new object id:{:?}",
+            //   object_id,
+            //   old_to_new_id_map.get_exchanged_id(object_id),
+            // );
+            None
+          },
+          Some(value) => Some(value),
+        }
+      })
+      .collect::<Vec<_>>();
 
     for document_collab in gen_document_collabs {
       document_object_ids.insert(document_collab.object_id.clone());
@@ -1131,7 +1143,6 @@ impl OldToNewIdMap {
     Self::default()
   }
   fn exchange_new_id(&mut self, old_id: &str) -> String {
-    println!("old_id: {}", old_id);
     let view_id = self
       .0
       .entry(old_id.to_string())

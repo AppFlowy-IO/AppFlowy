@@ -60,7 +60,7 @@ serde_repr.workspace = true
 futures.workspace = true
 walkdir = "2.4.0"
 sysinfo = "0.30.5"
-semver = "1.0.22"
+semver = { version = "1.0.22", features = ["serde"] }
 
 [features]
 profiling = ["console-subscriber", "tokio/tracing"]
