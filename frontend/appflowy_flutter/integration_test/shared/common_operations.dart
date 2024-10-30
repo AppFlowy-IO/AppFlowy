@@ -43,7 +43,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../desktop/board/board_hide_groups_test.dart';
 import 'emoji.dart';
 import 'util.dart';
 
@@ -215,7 +214,7 @@ extension CommonOperations on WidgetTester {
       of: find.byType(ViewMoreActionPopover),
       matching: find.byFlowySvg(FlowySvgs.workspace_three_dots_s),
     );
-    await tapButton(optionButton, warnIfMissed: true);
+    await tapButton(optionButton);
   }
 
   /// Tap the delete page button.
@@ -788,6 +787,25 @@ extension SettingsFinder on CommonFinders {
         matching: find.byType(Scrollable),
       )
       .first;
+}
+
+extension FlowySvgFinder on CommonFinders {
+  Finder byFlowySvg(FlowySvgData svg) => _FlowySvgFinder(svg);
+}
+
+class _FlowySvgFinder extends MatchFinder {
+  _FlowySvgFinder(this.svg);
+
+  final FlowySvgData svg;
+
+  @override
+  String get description => 'flowy_svg "$svg"';
+
+  @override
+  bool matches(Element candidate) {
+    final Widget widget = candidate.widget;
+    return widget is FlowySvg && widget.svg == svg;
+  }
 }
 
 extension ViewLayoutPBTest on ViewLayoutPB {

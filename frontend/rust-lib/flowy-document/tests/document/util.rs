@@ -161,7 +161,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     _document_id: &str,
     _limit: usize,
     _workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
@@ -169,7 +169,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
     _workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, FlowyError> {
     Ok(None)
   }
 
@@ -178,7 +178,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     _workspace_id: &str,
     _document_id: &str,
     _encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     Ok(())
   }
 }

@@ -31,6 +31,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 typedef ViewItemOnSelected = void Function(BuildContext context, ViewPB view);
 typedef ViewItemLeftIconBuilder = Widget Function(
@@ -509,9 +510,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final name = FlowyText.regular(
-      widget.view.name.isEmpty
-          ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
-          : widget.view.name,
+      widget.view.nameOrDefault,
       overflow: TextOverflow.ellipsis,
       fontSize: 14.0,
       figmaLineHeight: 18.0,
@@ -608,11 +607,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   Widget _buildViewIconButton() {
+    // using same line height on macos will result the emoji not aligned vertically with the text
+    final height = UniversalPlatform.isMacOS ? 20.0 : 18.0;
     final icon = widget.view.icon.value.isNotEmpty
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 16.0,
-            figmaLineHeight: 21.0,
+            figmaLineHeight: height,
           )
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 

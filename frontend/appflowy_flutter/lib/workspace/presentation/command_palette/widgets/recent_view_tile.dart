@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
@@ -27,7 +28,7 @@ class RecentViewTile extends StatelessWidget {
         children: [
           icon,
           const HSpace(6),
-          FlowyText(view.name),
+          FlowyText(view.nameOrDefault),
         ],
       ),
       focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),

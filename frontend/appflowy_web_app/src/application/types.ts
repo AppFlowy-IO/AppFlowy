@@ -35,6 +35,7 @@ export enum BlockType {
   LinkPreview = 'link_preview',
   FileBlock = 'file',
   GalleryBlock = 'multi_image',
+  SubpageBlock = 'sub_page',
 }
 
 export enum InlineBlockType {
@@ -151,14 +152,20 @@ export interface DatabaseNodeData extends BlockData {
   view_id: ViewId;
 }
 
+export interface SubpageNodeData extends BlockData {
+  view_id: string;
+}
+
 export enum MentionType {
   PageRef = 'page',
   Date = 'date',
+  childPage = 'childPage'
 }
 
 export interface Mention {
   // inline page ref id
   page_id?: string;
+  block_id?: string;
   // reminder date ref id
   date?: string;
   reminder_id?: string;
@@ -294,6 +301,7 @@ export enum YjsDatabaseKey {
   show_week_numbers = 'show_week_numbers',
   show_weekends = 'show_weekends',
   layout_ty = 'layout_ty',
+  icon = 'icon',
 }
 
 export interface YDoc extends Y.Doc {
@@ -597,6 +605,9 @@ export interface YDatabaseField extends Y.Map<unknown> {
   get (key: YjsDatabaseKey.id): FieldId;
 
   // eslint-disable-next-line @typescript-eslint/unified-signatures
+  get (key: YjsDatabaseKey.icon): string;
+
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
   get (key: YjsDatabaseKey.type): string;
 
   get (key: YjsDatabaseKey.type_option): YDatabaseFieldTypeOption;
@@ -644,7 +655,7 @@ export enum CollabOrigin {
   Local = 'local',
   // from remote changes and never sync to remote.
   Remote = 'remote',
-  
+
 }
 
 export const layoutMap = {
@@ -790,6 +801,8 @@ export interface View {
   is_published: boolean;
   is_private: boolean;
   last_edited_time?: string;
+  favorited_at?: string;
+  last_viewed_at?: string;
   created_at?: string;
   database_relations?: DatabaseRelations;
 }

@@ -11,7 +11,7 @@ void main() {
     testWidgets('empty test', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
-      await tester.wait(1000);
+      await tester.wait(500);
     });
   });
 }

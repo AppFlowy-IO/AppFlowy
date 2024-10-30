@@ -446,6 +446,8 @@ class _MentionPageBlockContent extends StatelessWidget {
       content,
     );
     final isBlockContentEmpty = content == null || content.isEmpty;
+    final emojiSize = textStyle?.fontSize ?? 12.0;
+    final iconSize = textStyle?.fontSize ?? 16.0;
 
     // if the block is from the same doc, display the paragraph mark icon '¶'
     if (isSameDocument && !isBlockContentEmpty) {
@@ -453,14 +455,11 @@ class _MentionPageBlockContent extends StatelessWidget {
         const HSpace(2),
         FlowySvg(
           FlowySvgs.paragraph_mark_s,
-          size: const Size.square(14.0),
+          size: Size.square(iconSize - 2.0),
           color: Theme.of(context).hintColor,
         ),
       ];
     } else if (shouldDisplayViewName) {
-      final emojiSize = textStyle?.fontSize ?? 12.0;
-      final iconSize = textStyle?.fontSize ?? 16.0;
-
       return [
         const HSpace(4),
         view.icon.value.isNotEmpty

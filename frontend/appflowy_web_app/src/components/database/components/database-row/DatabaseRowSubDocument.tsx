@@ -39,10 +39,10 @@ export function DatabaseRowSubDocument ({ rowId }: { rowId: string }) {
     );
   }
 
-  if (!doc) return null;
+  if (!doc || !documentId) return null;
   return (
-
     <Editor
+      viewId={documentId}
       doc={doc}
       loadViewMeta={loadViewMeta}
       navigateToView={navigateToView}
