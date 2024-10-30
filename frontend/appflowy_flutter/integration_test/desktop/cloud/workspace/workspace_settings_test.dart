@@ -20,7 +20,7 @@ import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/doma
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page_item.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
@@ -137,7 +137,7 @@ void main() {
       // check if the page is published in sites page
       final pageItem = find.byWidgetPredicate(
         (widget) =>
-            widget is PublishedPageItem &&
+            widget is PublishedViewItem &&
             widget.publishInfoView.view.name == pageName,
       );
       expect(pageItem, findsOneWidget);

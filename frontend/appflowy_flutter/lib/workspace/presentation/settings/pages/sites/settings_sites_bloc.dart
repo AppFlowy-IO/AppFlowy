@@ -107,7 +107,15 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
 
   Future<List<PublishInfoViewPB>> _fetchPublishedViews() async {
     final result = await FolderEventListPublishedViews().send();
-    return result.fold((s) => s.items, (_) => []);
+    return result.fold(
+      // new -> old
+      (s) => s.items.sorted(
+        (a, b) =>
+            b.info.publishTimestampSec.toInt() -
+            a.info.publishTimestampSec.toInt(),
+      ),
+      (_) => [],
+    );
   }
 
   Future<void> _unpublishView(
