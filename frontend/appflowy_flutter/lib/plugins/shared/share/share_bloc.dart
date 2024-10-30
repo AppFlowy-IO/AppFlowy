@@ -219,6 +219,11 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
     String pathName,
     Emitter<ShareState> emit,
   ) async {
+    emit(
+      state.copyWith(
+        updatePathNameResult: null,
+      ),
+    );
     final request = SetPublishNamePB()
       ..viewId = view.id
       ..newName = pathName;
@@ -226,7 +231,10 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
     emit(
       state.copyWith(
         updatePathNameResult: result,
-        pathName: result.fold((_) => pathName, (f) => state.pathName),
+        pathName: result.fold(
+          (_) => pathName,
+          (f) => state.pathName,
+        ),
         url: result.fold(
           (s) => ShareConstants.buildPublishUrl(
             nameSpace: state.namespace,

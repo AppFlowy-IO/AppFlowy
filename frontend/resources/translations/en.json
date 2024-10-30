@@ -473,7 +473,7 @@
         "namespaceTooLong": "The namespace is too long, please try another one",
         "namespaceTooShort": "The namespace is too short, please try another one",
         "namespaceIsReserved": "The namespace is reserved, please try another one",
-        "updatePathNameFailed": "Failed to update namespace",
+        "updatePathNameFailed": "Failed to update path name",
         "removeHomePageFailed": "Failed to remove homepage",
         "publishNameContainsInvalidCharacters": "The path name contains invalid character(s), please try another one",
         "publishNameTooShort": "The path name is too short, please try another one",
@@ -485,7 +485,7 @@
       "success": {
         "namespaceUpdated": "Updated namespace successfully",
         "setHomepageSuccess": "Set homepage successfully",
-        "updatePathNameSuccess": "Updated namespace successfully",
+        "updatePathNameSuccess": "Updated path name successfully",
         "removeHomePageSuccess": "Remove homepage successfully"
       }
     },
