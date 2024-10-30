@@ -122,7 +122,7 @@ function AppPage () {
     return doc && viewMeta && View ? (
       <View
         doc={doc}
-        readOnly={false}
+        readOnly={true}
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}

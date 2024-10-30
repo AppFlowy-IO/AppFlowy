@@ -173,6 +173,7 @@ export default defineConfig({
       },
       { find: '$icons', replacement: `${resourcesPath}/flowy_icons/` },
       { find: 'cypress/support', replacement: `${__dirname}/cypress/support` },
+      { find: 'lodash', replacement: 'lodash-es' },
     ],
   },
 
