@@ -21,7 +21,6 @@ class FlowyFormTextInput extends StatelessWidget {
   final bool showCounter;
   final TextEditingController? controller;
   final TextCapitalization? capitalization;
-  final TextInputAction? textInputAction;
   final Function(String)? onChanged;
   final Function()? onEditingComplete;
   final Function(bool)? onFocusChanged;
@@ -45,7 +44,6 @@ class FlowyFormTextInput extends StatelessWidget {
     this.maxLines,
     this.maxLength,
     this.showCounter = true,
-    this.textInputAction,
   });
 
   @override
@@ -75,7 +73,6 @@ class FlowyFormTextInput extends StatelessWidget {
       inputBorder: const ThinUnderlineBorder(
         borderSide: BorderSide(width: 5, color: Colors.red),
       ),
-      textInputAction: textInputAction,
     );
   }
 }
@@ -107,7 +104,6 @@ class StyledSearchTextInput extends StatefulWidget {
   final Widget? suffixIcon;
   final InputDecoration? inputDecoration;
   final InputBorder? inputBorder;
-  final TextInputAction? textInputAction;
 
   final Function(String)? onChanged;
   final Function()? onEditingComplete;
@@ -154,7 +150,6 @@ class StyledSearchTextInput extends StatefulWidget {
     this.maxLength,
     this.showCounter = false,
     this.inputBorder,
-    this.textInputAction,
   });
 
   @override
@@ -213,7 +208,6 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         onChanged: widget.onChanged,
         onEditingComplete: widget.onEditingComplete,
         onFieldSubmitted: widget.onFieldSubmitted,
-        textInputAction: widget.textInputAction,
         onSaved: widget.onSaved,
         onTap: widget.onTap,
         autofocus: widget.autoFocus ?? false,
