@@ -437,25 +437,33 @@ class _PublishUrlState extends State<_PublishUrl> {
   }
 
   Widget _buildPrefixIcon(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const HSpace(8.0),
-        FlowyText.regular(
-          ShareConstants.buildNamespaceUrl(nameSpace: '${widget.namespace}/'),
-          fontSize: 14,
-          figmaLineHeight: 18.0,
-        ),
-        const HSpace(6.0),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 2.0),
-          child: VerticalDivider(
-            thickness: 1.0,
-            width: 1.0,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 230),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const HSpace(8.0),
+          Flexible(
+            child: FlowyText.regular(
+              ShareConstants.buildNamespaceUrl(
+                nameSpace: '${widget.namespace}/',
+              ),
+              fontSize: 14,
+              figmaLineHeight: 18.0,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-        const HSpace(6.0),
-      ],
+          const HSpace(6.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 2.0),
+            child: VerticalDivider(
+              thickness: 1.0,
+              width: 1.0,
+            ),
+          ),
+          const HSpace(6.0),
+        ],
+      ),
     );
   }
 
