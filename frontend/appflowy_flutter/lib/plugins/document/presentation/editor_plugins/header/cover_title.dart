@@ -83,7 +83,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         editorState.selection = null;
       }
     });
-    _requestFocusIfNeeded(widget.view, null);
+    // _requestFocusIfNeeded(widget.view, null);
 
     editorContext.coverTitleFocusNode = titleFocusNode;
   }
