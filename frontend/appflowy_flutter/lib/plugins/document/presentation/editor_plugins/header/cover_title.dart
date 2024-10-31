@@ -152,14 +152,12 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   }
 
   void _onFocusChanged() {
-    final isTitleFocused = titleFocusNode.hasFocus;
+    if (titleFocusNode.hasFocus) {
+      if (editorState.selection != null) {
+        Log.info('cover title got focus, clear the editor selection');
+        editorState.selection = null;
+      }
 
-    if (titleFocusNode.hasFocus && editorState.selection != null) {
-      Log.info('cover title got focus, clear the editor selection');
-      editorState.selection = null;
-    }
-
-    if (isTitleFocused) {
       Log.info('cover title got focus, disable keyboard service');
       editorState.service.keyboardService?.disable();
     } else {
