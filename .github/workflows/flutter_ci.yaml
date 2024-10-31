@@ -28,7 +28,7 @@ env:
   FLUTTER_VERSION: "3.22.2"
   RUST_TOOLCHAIN: "1.80.1"
   CARGO_MAKE_VERSION: "0.37.18"
-  CLOUD_VERSION: 0.6.51-amd64
+  CLOUD_VERSION: 0.6.54-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -74,7 +74,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ windows-latest ]
+        os: [windows-latest]
         include:
           - os: windows-latest
             flutter_profile: development-windows-x86
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ macos-latest ]
+        os: [macos-latest]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -123,12 +123,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -217,11 +217,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -269,7 +269,7 @@ jobs:
               else
                 echo "No containers to remove."
               fi
-          
+
               # Remove all volumes if any exist
               if [ "$(docker volume ls -q)" ]; then
                 docker volume rm $(docker volume ls -q)
@@ -340,13 +340,13 @@ jobs:
         shell: bash
 
   integration_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        test_number: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+        os: [ubuntu-latest]
+        test_number: [1, 2, 3, 4, 5, 6, 7, 8]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"
