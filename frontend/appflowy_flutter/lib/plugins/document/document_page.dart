@@ -46,6 +46,7 @@ class DocumentPage extends StatefulWidget {
 class _DocumentPageState extends State<DocumentPage>
     with WidgetsBindingObserver {
   EditorState? editorState;
+  Selection? initialSelection;
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
 
@@ -120,6 +121,9 @@ class _DocumentPageState extends State<DocumentPage>
 
     final width = context.read<DocumentAppearanceCubit>().state.width;
 
+    // avoid the initial selection calculation change when the editorState is not changed
+    initialSelection ??= _calculateInitialSelection(editorState);
+
     final Widget child;
     if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
@@ -133,7 +137,7 @@ class _DocumentPageState extends State<DocumentPage>
             padding: EditorStyleCustomizer.documentPadding,
           ),
           header: buildCoverAndIcon(context, state),
-          initialSelection: widget.initialSelection,
+          initialSelection: initialSelection,
         ),
       );
     } else {
@@ -151,7 +155,7 @@ class _DocumentPageState extends State<DocumentPage>
             padding: EditorStyleCustomizer.documentPadding,
           ),
           header: buildCoverAndIcon(context, state),
-          initialSelection: _calculateInitialSelection(editorState),
+          initialSelection: initialSelection,
         ),
       );
     }
@@ -299,6 +303,9 @@ class _DocumentPageState extends State<DocumentPage>
       final path = _findNodePathByBlockId(editorState, widget.initialBlockId!);
       if (path != null) {
         editorState.selectionType = SelectionType.block;
+        editorState.selectionExtraInfo = {
+          selectionExtraInfoDoNotAttachTextService: true,
+        };
         return Selection.collapsed(
           Position(
             path: path,
