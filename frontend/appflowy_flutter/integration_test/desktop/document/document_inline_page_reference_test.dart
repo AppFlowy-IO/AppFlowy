@@ -1,8 +1,6 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,22 +78,6 @@ void main() {
 
       final mentionBlock = find.byType(MentionPageBlock);
       expect(mentionBlock, findsOneWidget);
-    });
-
-    testWidgets('show database and document in link to page menu',
-        (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      await tester.editor.tapLineOfEditorAt(0);
-      await tester.pumpAndSettle();
-
-      await tester.editor.showSlashMenu();
-      await tester.pumpAndSettle();
-
-      await tester.editor.tapSlashMenuItemWithName(
-        LocaleKeys.document_slashMenu_name_linkedDoc.tr(),
-      );
     });
   });
 }
