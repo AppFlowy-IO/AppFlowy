@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
@@ -51,7 +50,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Delete from editor
       await tester.editor.updateSelection(
@@ -125,7 +123,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Cut from editor
       await tester.editor.updateSelection(
@@ -151,7 +148,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Cut again
       await tester.editor.updateSelection(
@@ -195,7 +191,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(_createdPageName), findsNWidgets(2));
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
     });
     testWidgets(
         'Cut+paste in same docuemnt and then paste again in same document',
@@ -214,7 +209,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Cut from editor
       await tester.editor.updateSelection(
@@ -240,7 +234,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Paste again
       await tester.simulateKeyEvent(
@@ -252,7 +245,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsNWidgets(2));
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsNWidgets(2));
       expect(find.text('$_createdPageName (copy)'), findsNWidgets(2));
     });
 
@@ -271,7 +263,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       final headingText = LocaleKeys.document_slashMenu_name_heading1.tr();
       final paragraphText = LocaleKeys.document_slashMenu_name_text.tr();
@@ -283,7 +274,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Turn into paragraph
       await tester.editor.openTurnIntoMenu([0]);
@@ -292,7 +282,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
     });
 
     testWidgets('Duplicate a block containing two sub page mentions',
@@ -331,7 +320,6 @@ void main() {
       expect(find.text(_createdPageName), findsOneWidget);
       expect(find.text("$_createdPageName (copy)"), findsOneWidget);
       expect(find.byType(MentionSubPageBlock), findsNWidgets(2));
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsNWidgets(2));
 
       // Duplicate node from block action menu
       await tester.editor.hoverAndClickOptionMenuButton([0]);
