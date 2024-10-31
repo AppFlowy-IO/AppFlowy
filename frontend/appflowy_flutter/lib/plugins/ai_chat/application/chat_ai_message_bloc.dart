@@ -61,7 +61,6 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     on<ChatAIMessageEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {},
           updateText: (newText) {
             emit(
               state.copyWith(
@@ -135,7 +134,6 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
 
 @freezed
 class ChatAIMessageEvent with _$ChatAIMessageEvent {
-  const factory ChatAIMessageEvent.initial() = Initial;
   const factory ChatAIMessageEvent.updateText(String text) = _UpdateText;
   const factory ChatAIMessageEvent.receiveError(String error) = _ReceiveError;
   const factory ChatAIMessageEvent.retry() = _Retry;

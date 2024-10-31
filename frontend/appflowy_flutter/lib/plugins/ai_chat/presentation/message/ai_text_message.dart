@@ -44,16 +44,16 @@ class ChatAIMessageWidget extends StatelessWidget {
         refSourceJsonString: refSourceJsonString,
         chatId: chatId,
         questionId: questionId,
-      )..add(const ChatAIMessageEvent.initial()),
+      ),
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
           return state.messageState.when(
             onError: (err) {
               return StreamingError(
                 onRetryPressed: () {
-                  context.read<ChatAIMessageBloc>().add(
-                        const ChatAIMessageEvent.retry(),
-                      );
+                  context
+                      .read<ChatAIMessageBloc>()
+                      .add(const ChatAIMessageEvent.retry());
                 },
               );
             },
@@ -66,7 +66,7 @@ class ChatAIMessageWidget extends StatelessWidget {
             },
             ready: () {
               if (state.text.isEmpty) {
-                return const ChatAILoading();
+                return ChatAILoading(message: "Analyzing the files");
               } else {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +81,7 @@ class ChatAIMessageWidget extends StatelessWidget {
               }
             },
             loading: () {
-              return const ChatAILoading();
+              return ChatAILoading(message: "Analyzing the files");
             },
           );
         },
