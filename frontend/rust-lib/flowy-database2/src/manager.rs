@@ -918,14 +918,22 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   }
 
   fn persistence(&self) -> Option<Arc<dyn DatabaseCollabPersistenceService>> {
-    Some(Arc::new(DatabasePersistenceImpl {
-      user: self.user.clone(),
-    }))
+    Some(self.persistence.clone())
   }
 }
 
 pub struct DatabasePersistenceImpl {
   user: Arc<dyn DatabaseUser>,
+}
+
+impl DatabasePersistenceImpl {
+  fn workspace_id(&self) -> Result<String, DatabaseError> {
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    Ok(workspace_id)
+  }
 }
 
 impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
@@ -935,47 +943,50 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
       .user_id()
       .map(|uid| (uid, self.user.collab_db(uid).map(|weak| weak.upgrade())));
 
-    if let Ok((uid, Ok(Some(collab_db)))) = result {
-      let object_id = collab.object_id().to_string();
-      let db_read = collab_db.read_txn();
-      if !db_read.is_exist(uid, &object_id) {
-        trace!(
-          "[Database]: collab:{} not exist in local storage",
-          object_id
-        );
-        return;
-      }
-
-      trace!("[Database]: start loading collab:{} from disk", object_id);
-      let mut txn = collab.transact_mut();
-      match db_read.load_doc_with_txn(uid, &object_id, &mut txn) {
-        Ok(update_count) => {
+    if let Ok(workspace_id) = self.user.workspace_id() {
+      if let Ok((uid, Ok(Some(collab_db)))) = result {
+        let object_id = collab.object_id().to_string();
+        let db_read = collab_db.read_txn();
+        if !db_read.is_exist(uid, &workspace_id, &object_id) {
           trace!(
-            "[Database]: did load collab:{}, update_count:{}",
-            object_id,
-            update_count
+            "[Database]: collab:{} not exist in local storage",
+            object_id
           );
-        },
-        Err(err) => {
-          if !err.is_record_not_found() {
-            error!("[Database]: load collab:{} failed:{}", object_id, err);
-          }
-        },
+          return;
+        }
+
+        trace!("[Database]: start loading collab:{} from disk", object_id);
+        let mut txn = collab.transact_mut();
+        match db_read.load_doc_with_txn(uid, &workspace_id, &object_id, &mut txn) {
+          Ok(update_count) => {
+            trace!(
+              "[Database]: did load collab:{}, update_count:{}",
+              object_id,
+              update_count
+            );
+          },
+          Err(err) => {
+            if !err.is_record_not_found() {
+              error!("[Database]: load collab:{} failed:{}", object_id, err);
+            }
+          },
+        }
       }
     }
   }
 
   fn get_encoded_collab(&self, object_id: &str, collab_type: CollabType) -> Option<EncodedCollab> {
+    let workspace_id = self.user.workspace_id().ok()?;
     let uid = self.user.user_id().ok()?;
     let db = self.user.collab_db(uid).ok()?.upgrade()?;
     let read_txn = db.read_txn();
-    if !read_txn.is_exist(uid, &object_id) {
+    if !read_txn.is_exist(uid, workspace_id.as_str(), object_id) {
       return None;
     }
 
     let mut collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
     let mut txn = collab.transact_mut();
-    let _ = read_txn.load_doc_with_txn(uid, &object_id, &mut txn);
+    let _ = read_txn.load_doc_with_txn(uid, workspace_id.as_str(), object_id, &mut txn);
     drop(txn);
 
     collab
@@ -984,13 +995,16 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
   }
 
   fn delete_collab(&self, object_id: &str) -> Result<(), DatabaseError> {
+    let workspace_id = self.workspace_id()?;
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
-      write_txn.delete_doc(uid, object_id).unwrap();
+      write_txn
+        .delete_doc(uid, workspace_id.as_str(), object_id)
+        .unwrap();
       write_txn
         .commit_transaction()
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
@@ -1003,6 +1017,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     object_id: &str,
     encoded_collab: EncodedCollab,
   ) -> Result<(), DatabaseError> {
+    let workspace_id = self.workspace_id()?;
     let uid = self
       .user
       .user_id()
@@ -1012,6 +1027,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
       write_txn
         .flush_doc(
           uid,
+          workspace_id.as_str(),
           object_id,
           encoded_collab.state_vector.to_vec(),
           encoded_collab.doc_state.to_vec(),
@@ -1025,17 +1041,22 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
   }
 
   fn is_collab_exist(&self, object_id: &str) -> bool {
-    match self
-      .user
-      .user_id()
-      .map_err(|err| DatabaseError::Internal(err.into()))
-    {
-      Ok(uid) => {
-        if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-          let read_txn = collab_db.read_txn();
-          return read_txn.is_exist(uid, object_id);
+    match self.user.workspace_id() {
+      Ok(workspace_id) => {
+        match self
+          .user
+          .user_id()
+          .map_err(|err| DatabaseError::Internal(err.into()))
+        {
+          Ok(uid) => {
+            if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+              let read_txn = collab_db.read_txn();
+              return read_txn.is_exist(uid, workspace_id.as_str(), object_id);
+            }
+            false
+          },
+          Err(_) => false,
         }
-        false
       },
       Err(_) => false,
     }
@@ -1049,12 +1070,18 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
       for (object_id, encode_collab) in encoded_collabs {
         write_txn
           .flush_doc(
             uid,
+            &workspace_id,
             &object_id,
             encode_collab.state_vector.to_vec(),
             encode_collab.doc_state.to_vec(),
@@ -1066,19 +1093,6 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
     }
     Ok(())
-  }
-
-  fn is_row_exist_partition(&self, row_ids: Vec<RowId>) -> (Vec<RowId>, Vec<RowId>) {
-    if let Ok(uid) = self.user.user_id() {
-      if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-        let read_txn = collab_db.read_txn();
-        return row_ids
-          .into_iter()
-          .partition(|row_id| read_txn.is_exist(uid, row_id.as_ref()));
-      }
-    }
-
-    (vec![], row_ids)
   }
 }
 async fn open_database_with_retry(

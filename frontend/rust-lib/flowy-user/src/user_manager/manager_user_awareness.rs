@@ -156,8 +156,12 @@ impl UserManager {
           authenticator
         );
         let collab_db = self.get_collab_db(session.user_id)?;
-        let doc_state =
-          CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+        let doc_state = CollabPersistenceImpl::new(
+          collab_db.clone(),
+          session.user_id,
+          session.user_workspace.id.clone(),
+        )
+        .into_data_source();
         let awareness = Self::collab_for_user_awareness(
           &self.collab_builder.clone(),
           &session.user_workspace.id,
@@ -219,8 +223,12 @@ impl UserManager {
       };
 
       let create_awareness = if authenticator.is_local() {
-        let doc_state =
-          CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+        let doc_state = CollabPersistenceImpl::new(
+          collab_db.clone(),
+          session.user_id,
+          session.user_workspace.id.clone(),
+        )
+        .into_data_source();
         Self::collab_for_user_awareness(
           &weak_builder,
           &session.user_workspace.id,
@@ -252,8 +260,12 @@ impl UserManager {
           Err(err) => {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
-              let doc_state =
-                CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+              let doc_state = CollabPersistenceImpl::new(
+                collab_db.clone(),
+                session.user_id,
+                session.user_workspace.id.clone(),
+              )
+              .into_data_source();
               Self::collab_for_user_awareness(
                 &weak_builder,
                 &session.user_workspace.id,

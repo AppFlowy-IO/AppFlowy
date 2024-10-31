@@ -84,8 +84,10 @@ impl DocumentManager {
   /// Get the encoded collab of the document.
   pub fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     let doc_state =
-      CollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
+      CollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid, workspace_id)
+        .into_data_source();
     let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
     let encoded_collab = collab
       .try_read()
@@ -123,8 +125,9 @@ impl DocumentManager {
 
   fn persistence(&self) -> FlowyResult<CollabPersistenceImpl> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     let db = self.user_service.collab_db(uid)?;
-    Ok(CollabPersistenceImpl::new(db, uid))
+    Ok(CollabPersistenceImpl::new(db, uid, workspace_id))
   }
 
   /// Create a new document.
@@ -333,8 +336,9 @@ impl DocumentManager {
 
   pub async fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-      db.delete_doc(uid, doc_id).await?;
+      db.delete_doc(uid, &workspace_id, doc_id).await?;
       // When deleting a document, we need to remove it from the cache.
       self.documents.remove(doc_id);
     }
@@ -426,8 +430,9 @@ impl DocumentManager {
 
   async fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     if let Some(collab_db) = self.user_service.collab_db(uid)?.upgrade() {
-      let is_exist = collab_db.is_exist(uid, doc_id).await?;
+      let is_exist = collab_db.is_exist(uid, &workspace_id, doc_id).await?;
       Ok(is_exist)
     } else {
       Ok(false)
