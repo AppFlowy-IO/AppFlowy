@@ -11,6 +11,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -405,7 +406,7 @@ class _MentionPageBlockContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ..._buildPrefixIcons(context, view, content, isChildPage),
-        const HSpace(2),
+        const HSpace(4),
         Flexible(
           child: FlowyText(
             text,
@@ -462,17 +463,33 @@ class _MentionPageBlockContent extends StatelessWidget {
     } else if (shouldDisplayViewName) {
       return [
         const HSpace(4),
-        view.icon.value.isNotEmpty
-            ? FlowyText.emoji(
-                view.icon.value,
-                fontSize: emojiSize,
-                lineHeight: textStyle?.height,
-                optimizeEmojiAlign: true,
-              )
-            : FlowySvg(
-                isChildPage ? FlowySvgs.child_page_s : FlowySvgs.link_to_page_s,
-                size: Size.square(iconSize + 2.0),
+        Stack(
+          children: [
+            view.icon.value.isNotEmpty
+                ? FlowyText.emoji(
+                    view.icon.value,
+                    fontSize: emojiSize,
+                    lineHeight: textStyle?.height,
+                    optimizeEmojiAlign: true,
+                    color: AFThemeExtension.of(context).strongText,
+                  )
+                : FlowySvg(
+                    view.layout.icon,
+                    size: Size.square(iconSize + 2.0),
+                    color: AFThemeExtension.of(context).strongText,
+                  ),
+            if (!isChildPage) ...[
+              const Positioned(
+                right: 0,
+                bottom: 0,
+                child: FlowySvg(
+                  FlowySvgs.referenced_page_s,
+                  blendMode: BlendMode.dstIn,
+                ),
               ),
+            ],
+          ],
+        ),
       ];
     }
 
