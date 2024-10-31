@@ -37,6 +37,7 @@ use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
+use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
@@ -66,6 +67,7 @@ impl ImportedFolder {
 pub(crate) fn prepare_import(
   path: &str,
   parent_view_id: Option<String>,
+  app_version: &Version,
 ) -> anyhow::Result<ImportedFolder> {
   info!(
     "[AppflowyData]:importing data from path: {}, parent_view_id:{:?}",
@@ -108,6 +110,7 @@ pub(crate) fn prepare_import(
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
     other_store_preferences.clone(),
+    app_version,
   );
 
   Ok(ImportedFolder {

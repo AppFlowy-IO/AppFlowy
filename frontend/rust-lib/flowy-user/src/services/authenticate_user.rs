@@ -4,7 +4,7 @@ use crate::services::entities::{UserConfig, UserPaths};
 use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
-use crate::migrations::migration::INSTALL_VERSION;
+use crate::migrations::migration::FIRST_TIME_INSTALL_VERSION;
 use arc_swap::ArcSwapOption;
 use collab_plugins::local_storage::kv::doc::CollabKVAction;
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -29,13 +29,6 @@ pub struct AuthenticateUser {
 
 impl AuthenticateUser {
   pub fn new(user_config: UserConfig, store_preferences: Arc<KVStorePreferences>) -> Self {
-    if store_preferences.get_str(INSTALL_VERSION).is_none() {
-      info!("Set install version: {:?}", user_config.app_version);
-      if let Err(err) = store_preferences.set_object(INSTALL_VERSION, &user_config.app_version) {
-        error!("Set install version error: {:?}", err);
-      }
-    }
-
     let user_paths = UserPaths::new(user_config.storage_path.clone());
     let database = Arc::new(UserDB::new(user_paths.clone()));
     let session =

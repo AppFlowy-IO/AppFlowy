@@ -12,7 +12,9 @@ use flowy_user_pub::session::Session;
 use semver::Version;
 use tracing::info;
 
-pub const INSTALL_VERSION: &str = "install_version";
+/// Store the version that user first time install AppFlowy. For old user, this value will be set
+/// to the version when upgrade to the newest version.
+pub const FIRST_TIME_INSTALL_VERSION: &str = "first_install_version";
 
 pub struct UserLocalDataMigration {
   session: Session,
@@ -53,11 +55,12 @@ impl UserLocalDataMigration {
     self,
     migrations: Vec<Box<dyn UserDataMigration>>,
     authenticator: &Authenticator,
+    app_version: &Version,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
     let mut conn = self.sqlite_pool.get()?;
     let record = get_all_records(&mut conn)?;
-    let install_version = self.kv.get_object::<Version>(INSTALL_VERSION);
+    let install_version = self.kv.get_object::<Version>(FIRST_TIME_INSTALL_VERSION);
 
     info!("[Migration] Install app version: {:?}", install_version);
     let mut duplicated_names = vec![];
@@ -66,10 +69,8 @@ impl UserLocalDataMigration {
         .iter()
         .any(|record| record.migration_name == migration.name())
       {
-        if let Some(app_version) = install_version.as_ref() {
-          if !migration.applies_to_version(app_version) {
-            continue;
-          }
+        if !migration.run_when(&install_version, app_version) {
+          continue;
         }
 
         let migration_name = migration.name().to_string();
@@ -90,8 +91,9 @@ impl UserLocalDataMigration {
 pub trait UserDataMigration {
   /// Migration with the same name will be skipped
   fn name(&self) -> &str;
-  // install_version is the version when user first time installing AppFlowy
-  fn applies_to_version(&self, install_version: &Version) -> bool;
+  // The user's initial installed version is None if they were using an AppFlowy version lower than 0.7.3
+  // Because we store the first time installed version after version 0.7.3.
+  fn run_when(&self, first_installed_version: &Option<Version>, current_version: &Version) -> bool;
   fn run(
     &self,
     user: &Session,

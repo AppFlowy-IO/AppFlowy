@@ -14,6 +14,7 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
+use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicI64, Ordering};
@@ -29,7 +30,7 @@ use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettin
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{
-  save_migration_record, UserDataMigration, UserLocalDataMigration,
+  save_migration_record, UserDataMigration, UserLocalDataMigration, FIRST_TIME_INSTALL_VERSION,
 };
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
@@ -246,7 +247,7 @@ impl UserManager {
         }
       }
 
-      // Do the user data migration if needed
+      // Do the user data migration if needed.
       event!(tracing::Level::INFO, "Prepare user data migration");
       match (
         self
@@ -262,11 +263,15 @@ impl UserManager {
             collab_db,
             sqlite_pool,
             self.store_preferences.clone(),
+            &self.authenticate_user.user_config.app_version,
           );
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
       self.authenticate_user.vacuum_database_if_need();
+
+      // migrations should run before set the first time installed version
+      self.set_first_time_installed_version();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       // Init the user awareness. here we ignore the error
       let _ = self
@@ -283,8 +288,29 @@ impl UserManager {
           &user.authenticator,
         )
         .await?;
+    } else {
+      self.set_first_time_installed_version();
     }
     Ok(())
+  }
+
+  fn set_first_time_installed_version(&self) {
+    if self
+      .store_preferences
+      .get_str(FIRST_TIME_INSTALL_VERSION)
+      .is_none()
+    {
+      info!(
+        "Set install version: {:?}",
+        self.authenticate_user.user_config.app_version
+      );
+      if let Err(err) = self.store_preferences.set_object(
+        FIRST_TIME_INSTALL_VERSION,
+        &self.authenticate_user.user_config.app_version,
+      ) {
+        error!("Set install version error: {:?}", err);
+      }
+    }
   }
 
   pub fn get_session(&self) -> FlowyResult<Arc<Session>> {
@@ -872,11 +898,14 @@ pub(crate) fn run_collab_data_migration(
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
   kv: Arc<KVStorePreferences>,
+  app_version: &Version,
 ) {
   let migrations = collab_migration_list();
-  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool, kv)
-    .run(migrations, &user.authenticator)
-  {
+  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool, kv).run(
+    migrations,
+    &user.authenticator,
+    app_version,
+  ) {
     Ok(applied_migrations) => {
       if !applied_migrations.is_empty() {
         info!(
