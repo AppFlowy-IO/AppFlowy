@@ -28,8 +28,8 @@ class MobileNotificationsScreen extends StatefulWidget {
 
 class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
     with SingleTickerProviderStateMixin {
-  final ReminderBloc _reminderBloc = getIt<ReminderBloc>();
-  late final TabController _controller = TabController(length: 2, vsync: this);
+  final ReminderBloc reminderBloc = getIt<ReminderBloc>();
+  late final TabController controller = TabController(length: 2, vsync: this);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
           create: (context) =>
               UserProfileBloc()..add(const UserProfileEvent.started()),
         ),
-        BlocProvider<ReminderBloc>.value(value: _reminderBloc),
+        BlocProvider<ReminderBloc>.value(value: reminderBloc),
         BlocProvider<NotificationFilterBloc>(
           create: (_) => NotificationFilterBloc(),
         ),
@@ -54,8 +54,8 @@ class _MobileNotificationsScreenState extends State<MobileNotificationsScreen>
                 _NotificationScreenContent(
               workspaceSetting: workspaceSetting,
               userProfile: userProfile,
-              controller: _controller,
-              reminderBloc: _reminderBloc,
+              controller: controller,
+              reminderBloc: reminderBloc,
             ),
           );
         },
@@ -124,7 +124,6 @@ class _NotificationScreenContent extends StatelessWidget {
                               reminderBloc: reminderBloc,
                               views: sectionState.section.publicViews,
                               onAction: _onAction,
-                              onDelete: _onDelete,
                               onReadChanged: _onReadChanged,
                               actionBar: InboxActionBar(
                                 hasUnreads: state.hasUnreads,
@@ -160,9 +159,6 @@ class _NotificationScreenContent extends StatelessWidget {
           view: view,
         ),
       );
-
-  void _onDelete(ReminderPB reminder) =>
-      reminderBloc.add(ReminderEvent.remove(reminderId: reminder.id));
 
   void _onReadChanged(ReminderPB reminder, bool isRead) => reminderBloc.add(
         ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),

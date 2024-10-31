@@ -49,7 +49,7 @@ class _NotificationButtonState extends State<NotificationButton> {
         builder: (notificationSettingsContext, notificationSettingsState) {
           return BlocBuilder<ReminderBloc, ReminderState>(
             builder: (context, state) {
-              final hasUnreads = state.reminders.any((r) => !r.isRead);
+              final hasUnreads = state.pastReminders.any((r) => !r.isRead);
               return notificationSettingsState.isShowNotificationsIconEnabled
                   ? FlowyTooltip(
                       message: LocaleKeys.notificationHub_title.tr(),

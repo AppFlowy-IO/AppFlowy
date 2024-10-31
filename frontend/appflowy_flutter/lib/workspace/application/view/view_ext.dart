@@ -287,12 +287,6 @@ extension ViewLayoutExtension on ViewLayoutPB {
         _ => throw Exception('Unknown layout type'),
       };
 
-  FlowySvgData mentionIcon({bool isChildPage = false}) => switch (this) {
-        ViewLayoutPB.Document =>
-          isChildPage ? FlowySvgs.child_page_s : FlowySvgs.link_to_page_s,
-        _ => icon,
-      };
-
   bool get isDocumentView => switch (this) {
         ViewLayoutPB.Document => true,
         ViewLayoutPB.Chat ||
