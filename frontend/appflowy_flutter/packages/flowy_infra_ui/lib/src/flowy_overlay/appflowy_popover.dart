@@ -2,6 +2,8 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flutter/material.dart';
 
+export 'package:appflowy_popover/appflowy_popover.dart';
+
 class AppFlowyPopover extends StatelessWidget {
   const AppFlowyPopover({
     super.key,

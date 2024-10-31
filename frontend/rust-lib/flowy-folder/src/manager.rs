@@ -19,6 +19,8 @@ use crate::view_operation::{
   create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers, ViewData,
 };
 use arc_swap::ArcSwapOption;
+use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
@@ -34,8 +36,8 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
 use flowy_folder_pub::entities::{
-  PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishInfoResponse,
-  PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
+  PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishPayload,
+  PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -1272,9 +1274,20 @@ impl FolderManager {
   /// Get the publish info of the view with the given view id.
   /// The publish info contains the namespace and publish_name of the view.
   #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfoResponse> {
+  pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfo> {
     let publish_info = self.cloud_service.get_publish_info(view_id).await?;
     Ok(publish_info)
+  }
+
+  /// Sets the publish name of the view with the given view id.
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn set_publish_name(&self, view_id: String, new_name: String) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_publish_name(&workspace_id, view_id, new_name)
+      .await?;
+    Ok(())
   }
 
   /// Get the namespace of the current workspace.
@@ -1298,6 +1311,47 @@ impl FolderManager {
       .get_publish_namespace(workspace_id.as_str())
       .await?;
     Ok(namespace)
+  }
+
+  /// List all published views of the current workspace.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn list_published_views(&self) -> FlowyResult<Vec<PublishInfoView>> {
+    let workspace_id = self.user.workspace_id()?;
+    let published_views = self
+      .cloud_service
+      .list_published_views(&workspace_id)
+      .await?;
+    Ok(published_views)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_default_published_view_info(&self) -> FlowyResult<PublishInfo> {
+    let workspace_id = self.user.workspace_id()?;
+    let default_published_view_info = self
+      .cloud_service
+      .get_default_published_view_info(&workspace_id)
+      .await?;
+    Ok(default_published_view_info)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn set_default_published_view(&self, view_id: uuid::Uuid) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_default_published_view(&workspace_id, view_id)
+      .await?;
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn remove_default_published_view(&self) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .remove_default_published_view(&workspace_id)
+      .await?;
+    Ok(())
   }
 
   /// Retrieves the publishing payload for a specified view and optionally its child views.

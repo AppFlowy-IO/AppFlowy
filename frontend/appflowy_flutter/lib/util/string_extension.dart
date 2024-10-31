@@ -45,4 +45,14 @@ extension StringExtension on String {
     //  if it fails, try to parse the color as a hex string
     return FlowyTint.fromId(this)?.color(context) ?? tryToColor();
   }
+
+  String orDefault(String defaultValue) {
+    return isEmpty ? defaultValue : this;
+  }
+}
+
+extension NullableStringExtension on String? {
+  String orDefault(String defaultValue) {
+    return this?.isEmpty ?? true ? defaultValue : this ?? '';
+  }
 }

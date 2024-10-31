@@ -160,6 +160,18 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
   }
 }
 
+impl From<client_api::entity::workspace_dto::ViewLayout> for ViewLayoutPB {
+  fn from(val: client_api::entity::workspace_dto::ViewLayout) -> Self {
+    match val {
+      client_api::entity::workspace_dto::ViewLayout::Document => ViewLayoutPB::Document,
+      client_api::entity::workspace_dto::ViewLayout::Grid => ViewLayoutPB::Grid,
+      client_api::entity::workspace_dto::ViewLayout::Board => ViewLayoutPB::Board,
+      client_api::entity::workspace_dto::ViewLayout::Calendar => ViewLayoutPB::Calendar,
+      client_api::entity::workspace_dto::ViewLayout::Chat => ViewLayoutPB::Chat,
+    }
+  }
+}
+
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct SectionViewsPB {
   #[pb(index = 1)]
@@ -390,6 +402,15 @@ impl std::convert::From<&str> for ViewIdPB {
       value: value.to_string(),
     }
   }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SetPublishNamePB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub new_name: String,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

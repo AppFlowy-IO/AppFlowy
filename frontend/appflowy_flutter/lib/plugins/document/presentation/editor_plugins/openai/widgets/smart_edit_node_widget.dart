@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/wid
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -172,9 +171,11 @@ class _SmartEditBlockComponentWidgetState
     var width = double.infinity;
     try {
       final editorSize = editorState.renderBox?.size;
+      final editorWidth =
+          editorSize?.width.clamp(0, editorState.editorStyle.maxWidth ?? width);
       final padding = editorState.editorStyle.padding;
-      if (editorSize != null) {
-        width = editorSize.width - padding.left - padding.right;
+      if (editorWidth != null) {
+        width = editorWidth - padding.left - padding.right;
       }
     } catch (_) {}
     return width;

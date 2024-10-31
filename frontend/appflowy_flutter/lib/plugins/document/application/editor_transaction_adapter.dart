@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_node_widget.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -175,6 +176,10 @@ extension on InsertOperation {
     Path currentPath = path;
     final List<BlockActionWrapper> actions = [];
     for (final node in nodes) {
+      if (node.type == SmartEditBlockKeys.type) {
+        continue;
+      }
+
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(currentPath.parent)?.id ??
           '';
