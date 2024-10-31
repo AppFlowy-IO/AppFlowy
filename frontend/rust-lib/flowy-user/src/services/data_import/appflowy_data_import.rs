@@ -311,17 +311,7 @@ pub(crate) fn generate_import_data(
             &old_to_new_id_map,
           )
         };
-        match f() {
-          None => {
-            //   warn!(
-            //   "[AppflowyData]: Can't find the new id for the imported object:{}, new object id:{:?}",
-            //   object_id,
-            //   old_to_new_id_map.get_exchanged_id(object_id),
-            // );
-            None
-          },
-          Some(value) => Some(value),
-        }
+        f()
       })
       .collect::<Vec<_>>();
 
@@ -810,7 +800,7 @@ fn write_collab_object<'a, W>(
       if let Err(err) = w_txn.flush_doc(
         new_uid,
         new_workspace_id,
-        &new_object_id,
+        new_object_id,
         state_vector.encode_v1(),
         doc_state,
       ) {
