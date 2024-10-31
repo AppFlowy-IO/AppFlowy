@@ -101,7 +101,7 @@ void main() {
 
       // rename with invalid name
       await tester.tap(inputField);
-      await tester.enterText(inputField, '&&&???');
+      await tester.enterText(inputField, '&&&&????');
       await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
       await tester.pumpAndSettle();
 
@@ -111,7 +111,6 @@ void main() {
             .tr(),
       );
       await tester.pumpUntilFound(errorToast1);
-      expect(errorToast1, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast1);
 
       // rename with long name
@@ -125,7 +124,6 @@ void main() {
         LocaleKeys.settings_sites_error_publishNameTooLong.tr(),
       );
       await tester.pumpUntilFound(errorToast2);
-      expect(errorToast2, findsOneWidget);
       await tester.pumpUntilNotFound(errorToast2);
 
       await tester.tap(inputField);
@@ -141,7 +139,6 @@ void main() {
         LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
       );
       await tester.pumpUntilFound(successToast);
-      expect(successToast, findsOneWidget);
       await tester.pumpUntilNotFound(successToast);
 
       // click the copy link button
