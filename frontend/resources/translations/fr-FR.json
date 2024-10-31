@@ -186,8 +186,7 @@
     "referenceSources": "{} sources trouvées",
     "clickToMention": "Cliquez pour mentionner une page",
     "uploadFile": "Téléchargez des fichiers PDF, MD ou TXT pour discuter avec",
-    "questionTitle": "Idées",
-    "questionDetail": "Bonjour {} ! Comment puis-je vous aider aujourd'hui ?",
+    "questionDetail": "Bonjour {}! Comment puis-je vous aider aujourd'hui?",
     "indexingFile": "Indexation {}"
   },
   "trash": {

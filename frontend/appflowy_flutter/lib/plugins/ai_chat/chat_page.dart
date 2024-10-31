@@ -36,7 +36,7 @@ import 'presentation/message/user_text_message.dart';
 
 class AIChatUILayout {
   static EdgeInsets get welcomePagePadding => UniversalPlatform.isMobile
-      ? const EdgeInsets.symmetric(horizontal: 20)
+      ? EdgeInsets.zero
       : const EdgeInsets.symmetric(horizontal: 50);
 
   static double get messageWidthRatio => 0.85;

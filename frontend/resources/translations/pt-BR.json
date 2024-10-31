@@ -184,7 +184,6 @@
     "referenceSources": "{} fontes encontradas",
     "clickToMention": "Clique para mencionar uma página",
     "uploadFile": "Carregue arquivos PDFs, md ou txt para conversar",
-    "questionTitle": "Ideias",
     "questionDetail": "Olá {}! Como posso te ajudar hoje?",
     "indexingFile": "Indexando {}"
   },
