@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -8,7 +9,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ac
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -168,22 +168,6 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
         disable = true;
         message = LocaleKeys.space_unableToDeleteLastSpace.tr();
       } else if (!allowToDelete) {
-        disable = true;
-        message = LocaleKeys.space_unableToDeleteSpaceNotCreatedByYou.tr();
-      }
-    }
-    final currentWorkspaceMember =
-        workspaceBloc.state.currentWorkspaceMember;
-
-    bool disable = false;
-    var message = '';
-
-    if (inner == SpaceMoreActionType.delete) {
-      if (spaces.length <= 1) {
-        disable = true;
-        message = LocaleKeys.space_unableToDeleteLastSpace.tr();
-      } else if (currentWorkspaceMember?.role != AFRolePB.Owner &&
-          currentSpace?.createdBy != context.read<UserProfilePB>().id) {
         disable = true;
         message = LocaleKeys.space_unableToDeleteSpaceNotCreatedByYou.tr();
       }
