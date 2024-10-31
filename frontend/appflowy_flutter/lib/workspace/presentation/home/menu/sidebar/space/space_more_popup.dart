@@ -150,7 +150,28 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
     final spaces = spaceBloc.state.spaces;
     final currentSpace = spaceBloc.state.currentSpace;
 
-    final workspaceBloc = context.read<UserWorkspaceBloc>();
+    final isOwner = context
+            .read<UserWorkspaceBloc?>()
+            ?.state
+            .currentWorkspaceMember
+            ?.role
+            .isOwner ??
+        false;
+    final isPageCreator =
+        currentSpace?.createdBy == context.read<UserProfilePB>().id;
+    final allowToDelete = isOwner || isPageCreator;
+
+    bool disable = false;
+    var message = '';
+    if (inner == SpaceMoreActionType.delete) {
+      if (spaces.length <= 1) {
+        disable = true;
+        message = LocaleKeys.space_unableToDeleteLastSpace.tr();
+      } else if (!allowToDelete) {
+        disable = true;
+        message = LocaleKeys.space_unableToDeleteSpaceNotCreatedByYou.tr();
+      }
+    }
     final currentWorkspaceMember =
         workspaceBloc.state.currentWorkspaceMember;
 
