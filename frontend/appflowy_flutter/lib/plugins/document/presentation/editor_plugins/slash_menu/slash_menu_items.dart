@@ -326,12 +326,19 @@ final referencedDocSlashMenuItem = SelectionMenuItem(
     'notes',
     'referenced page',
     'referenced document',
+    'referenced database',
+    'link to database',
+    'link to document',
     'link to page',
+    'link to grid',
+    'link to board',
+    'link to calendar',
   ],
   handler: (editorState, menuService, context) => showLinkToPageMenu(
     editorState,
     menuService,
-    ViewLayoutPB.Document,
+    // enable database and document references
+    insertPage: false,
   ),
 );
 
@@ -345,8 +352,11 @@ SelectionMenuItem referencedGridSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'grid', 'database', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Grid),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Grid,
+  ),
 );
 
 SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
@@ -358,8 +368,11 @@ SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'board', 'kanban', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Board),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Board,
+  ),
 );
 
 SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
@@ -371,8 +384,11 @@ SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'calendar', 'database', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Calendar),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Calendar,
+  ),
 );
 
 // callout menu item
