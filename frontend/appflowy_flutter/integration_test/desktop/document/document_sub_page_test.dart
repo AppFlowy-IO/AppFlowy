@@ -456,6 +456,49 @@ void main() {
       expect(afterNode.type, beforeNode.type);
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
     });
+
+    testWidgets('turn into page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
+
+      final editorState = tester.editor.getCurrentEditorState();
+
+      // Insert nested list
+      final transaction = editorState.transaction;
+      transaction.insertNode(
+        [0],
+        bulletedListNode(
+          text: 'Parent',
+          children: [
+            bulletedListNode(text: 'Child 1'),
+            bulletedListNode(text: 'Child 2'),
+          ],
+        ),
+      );
+      await editorState.apply(transaction);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SubPageBlockComponent), findsNothing);
+
+      await tester.editor.hoverAndClickOptionMenuButton([0]);
+      await tester.tapButtonWithName(
+        LocaleKeys.document_plugins_optionAction_turnInto.tr(),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(LocaleKeys.editor_page.tr()));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      expect(find.text('Parent'), findsNWidgets(2));
+    });
   });
 }
 
