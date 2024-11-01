@@ -3,11 +3,16 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_color_extension.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -32,6 +37,8 @@ class PublishTab extends StatelessWidget {
         if (state.isPublished) {
           return _PublishedWidget(
             url: state.url,
+            pathName: state.pathName,
+            namespace: state.namespace,
             onVisitSite: (url) => afLaunchUrlString(url),
             onUnPublish: () {
               context.read<ShareBloc>().add(const ShareEvent.unPublish());
@@ -78,6 +85,7 @@ class PublishTab extends StatelessWidget {
         (error) => showToastNotification(
           context,
           message: '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
+          type: ToastificationType.error,
         ),
       );
     } else if (state.unpublishResult != null) {
@@ -90,7 +98,25 @@ class PublishTab extends StatelessWidget {
           context,
           message: LocaleKeys.publish_unpublishFailed.tr(),
           description: error.msg,
+          type: ToastificationType.error,
         ),
+      );
+    } else if (state.updatePathNameResult != null) {
+      state.updatePathNameResult!.fold(
+        (value) => showToastNotification(
+          context,
+          message: LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
+        ),
+        (error) {
+          Log.error('update path name failed: $error');
+
+          showToastNotification(
+            context,
+            message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
+            type: ToastificationType.error,
+            description: error.code.publishErrorMessage,
+          );
+        },
       );
     }
   }
@@ -99,11 +125,15 @@ class PublishTab extends StatelessWidget {
 class _PublishedWidget extends StatefulWidget {
   const _PublishedWidget({
     required this.url,
+    required this.pathName,
+    required this.namespace,
     required this.onVisitSite,
     required this.onUnPublish,
   });
 
   final String url;
+  final String pathName;
+  final String namespace;
   final void Function(String url) onVisitSite;
   final VoidCallback onUnPublish;
 
@@ -117,7 +147,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
   @override
   void initState() {
     super.initState();
-    controller.text = widget.url;
+    controller.text = widget.pathName;
   }
 
   @override
@@ -136,8 +166,11 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         const _PublishTabHeader(),
         const VSpace(16),
         _PublishUrl(
+          namespace: widget.namespace,
           controller: controller,
-          onCopy: (url) {
+          onCopy: (_) {
+            final url = context.read<ShareBloc>().state.url;
+
             getIt<ClipboardService>().setData(
               ClipboardServiceData(plainText: url),
             );
@@ -147,14 +180,20 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
               message: LocaleKeys.grid_url_copy.tr(),
             );
           },
-          onSubmitted: (url) {},
+          onSubmitted: (pathName) {
+            context.read<ShareBloc>().add(ShareEvent.updatePathName(pathName));
+          },
         ),
         const VSpace(16),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildUnpublishButton(),
+            _buildManageSiteButton(),
             const Spacer(),
+            UnPublishButton(
+              onUnPublish: widget.onUnPublish,
+            ),
+            const HSpace(6),
             _buildVisitSiteButton(),
           ],
         ),
@@ -162,9 +201,62 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
     );
   }
 
-  Widget _buildUnpublishButton() {
+  Widget _buildManageSiteButton() {
     return SizedBox(
-      width: 184,
+      width: 128,
+      height: 36,
+      child: FlowyButton(
+        radius: BorderRadius.circular(10),
+        text: FlowyText.regular(
+          lineHeight: 1.0,
+          LocaleKeys.shareAction_manageAllSites.tr(),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onTap: () {
+          PopoverContainer.of(context).close();
+
+          // open settings sites page
+          showSettingsDialog(
+            context,
+            context.read<UserWorkspaceBloc>().userProfile,
+            context.read<UserWorkspaceBloc>(),
+            SettingsPage.sites,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildVisitSiteButton() {
+    return RoundedTextButton(
+      width: 108,
+      height: 36,
+      onPressed: () {
+        final url = context.read<ShareBloc>().state.url;
+        widget.onVisitSite(url);
+      },
+      title: LocaleKeys.shareAction_visitSite.tr(),
+      borderRadius: const BorderRadius.all(Radius.circular(10)),
+      fillColor: Theme.of(context).colorScheme.primary,
+      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+      textColor: Theme.of(context).colorScheme.onPrimary,
+    );
+  }
+}
+
+class UnPublishButton extends StatelessWidget {
+  const UnPublishButton({
+    super.key,
+    required this.onUnPublish,
+  });
+
+  final VoidCallback onUnPublish;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 108,
       height: 36,
       child: FlowyButton(
         decoration: BoxDecoration(
@@ -177,21 +269,8 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           LocaleKeys.shareAction_unPublish.tr(),
           textAlign: TextAlign.center,
         ),
-        onTap: widget.onUnPublish,
+        onTap: onUnPublish,
       ),
-    );
-  }
-
-  Widget _buildVisitSiteButton() {
-    return RoundedTextButton(
-      width: 184,
-      height: 36,
-      onPressed: () => widget.onVisitSite(controller.text),
-      title: LocaleKeys.shareAction_visitSite.tr(),
-      borderRadius: const BorderRadius.all(Radius.circular(10)),
-      fillColor: Theme.of(context).colorScheme.primary,
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
-      textColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
 }
@@ -229,7 +308,7 @@ class _PublishWidgetState extends State<_PublishWidget> {
           ),
           const VSpace(16),
         ],
-        _PublishButton(
+        PublishButton(
           onPublish: () {
             if (context.read<ShareBloc>().view.layout.isDatabaseView) {
               // check if any database is selected
@@ -250,8 +329,9 @@ class _PublishWidgetState extends State<_PublishWidget> {
   }
 }
 
-class _PublishButton extends StatelessWidget {
-  const _PublishButton({
+class PublishButton extends StatelessWidget {
+  const PublishButton({
+    super.key,
     required this.onPublish,
   });
 
@@ -298,40 +378,131 @@ class _PublishTabHeader extends StatelessWidget {
   }
 }
 
-class _PublishUrl extends StatelessWidget {
+class _PublishUrl extends StatefulWidget {
   const _PublishUrl({
+    required this.namespace,
     required this.controller,
     required this.onCopy,
     required this.onSubmitted,
   });
 
+  final String namespace;
   final TextEditingController controller;
   final void Function(String url) onCopy;
   final void Function(String url) onSubmitted;
+
+  @override
+  State<_PublishUrl> createState() => _PublishUrlState();
+}
+
+class _PublishUrlState extends State<_PublishUrl> {
+  final focusNode = FocusNode();
+  bool showSaveButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    focusNode.addListener(() {
+      setState(() {
+        showSaveButton = focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 36,
       child: FlowyTextField(
-        readOnly: true,
         autoFocus: false,
-        controller: controller,
+        controller: widget.controller,
+        focusNode: focusNode,
         enableBorderColor: ShareMenuColors.borderColor(context),
-        suffixIcon: _buildCopyLinkIcon(context),
+        prefixIcon: _buildPrefixIcon(context),
+        suffixIcon: _buildSuffixIcon(context),
+        textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+              height: 18.0 / 14.0,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildPrefixIcon(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 230),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const HSpace(8.0),
+          Flexible(
+            child: FlowyText.regular(
+              ShareConstants.buildNamespaceUrl(
+                nameSpace: '${widget.namespace}/',
+              ),
+              fontSize: 14,
+              figmaLineHeight: 18.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const HSpace(6.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 2.0),
+            child: VerticalDivider(
+              thickness: 1.0,
+              width: 1.0,
+            ),
+          ),
+          const HSpace(6.0),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuffixIcon(BuildContext context) {
+    return showSaveButton
+        ? _buildSaveButton(context)
+        : _buildCopyLinkIcon(context);
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: FlowyText.regular(
+          LocaleKeys.button_save.tr(),
+          figmaLineHeight: 18.0,
+        ),
+        onTap: () {
+          widget.onSubmitted(widget.controller.text);
+          focusNode.unfocus();
+        },
       ),
     );
   }
 
   Widget _buildCopyLinkIcon(BuildContext context) {
     return FlowyHover(
+      style: const HoverStyle(
+        contentMargin: EdgeInsets.all(4),
+      ),
       child: GestureDetector(
-        onTap: () => onCopy(controller.text),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => widget.onCopy(widget.controller.text),
         child: Container(
-          width: 36,
-          height: 36,
+          width: 32,
+          height: 32,
           alignment: Alignment.center,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(6),
           decoration: const BoxDecoration(
             border: Border(left: BorderSide(color: Color(0x141F2329))),
           ),

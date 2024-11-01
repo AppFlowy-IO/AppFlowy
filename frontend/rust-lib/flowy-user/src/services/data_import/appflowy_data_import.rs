@@ -37,6 +37,7 @@ use std::collections::{HashMap, HashSet};
 
 use collab_document::blocks::TextDelta;
 use collab_document::document::Document;
+use semver::Version;
 use serde_json::json;
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
@@ -66,6 +67,7 @@ impl ImportedFolder {
 pub(crate) fn prepare_import(
   path: &str,
   parent_view_id: Option<String>,
+  app_version: &Version,
 ) -> anyhow::Result<ImportedFolder> {
   info!(
     "[AppflowyData]:importing data from path: {}, parent_view_id:{:?}",
@@ -107,7 +109,8 @@ pub(crate) fn prepare_import(
     &imported_user,
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
-    None,
+    other_store_preferences.clone(),
+    app_version,
   );
 
   Ok(ImportedFolder {
@@ -140,7 +143,6 @@ fn migrate_user_awareness(
 #[instrument(level = "debug", skip_all, err)]
 pub(crate) fn generate_import_data(
   current_session: &Session,
-  workspace_id: &str,
   user_collab_db: &Arc<CollabKVDB>,
   imported_folder: ImportedFolder,
 ) -> anyhow::Result<ImportedAppFlowyData> {
@@ -149,6 +151,8 @@ pub(crate) fn generate_import_data(
     imported_folder.imported_session.user_workspace.name,
     imported_folder.imported_session.user_workspace.id,
   );
+  let workspace_id = current_session.user_workspace.id.clone();
+  let imported_workspace_id = imported_folder.imported_session.user_workspace.id.clone();
   let imported_session = imported_folder.imported_session.clone();
   let imported_collab_db = imported_folder.imported_collab_db.clone();
   let imported_container_view_name = imported_folder.container_name.clone();
@@ -176,11 +180,15 @@ pub(crate) fn generate_import_data(
 
     // 1. Get all the imported collab object ids
     let mut all_imported_object_ids = imported_collab_db_read_txn
-      .get_all_docs()
+      .get_all_object_ids(imported_uid, imported_workspace_id.as_str())
       .map(|iter| iter.collect::<Vec<String>>())
       .unwrap_or_default();
 
-    info!("[AppflowyData]: {} has {} collab objects", imported_uid, all_imported_object_ids.len());
+    info!(
+      "[AppflowyData]: {} has {} collab objects",
+      imported_uid,
+      all_imported_object_ids.len()
+    );
 
     // when doing import, we don't want to import these objects:
     // 1. user workspace
@@ -218,6 +226,7 @@ pub(crate) fn generate_import_data(
     // 3. load imported collab objects data.
     let (mut imported_collab_by_oid, invalid_object_ids) = load_collab_by_object_ids(
       imported_session.user_id,
+      &imported_workspace_id,
       &imported_collab_db_read_txn,
       &all_imported_object_ids,
     );
@@ -235,8 +244,8 @@ pub(crate) fn generate_import_data(
 
     // import the database
     let MigrateDatabase {
-        database_view_ids ,
-        database_row_ids,
+      database_view_ids,
+      database_row_ids,
     } = migrate_databases(
       &mut old_to_new_id_map,
       current_session,
@@ -275,42 +284,40 @@ pub(crate) fn generate_import_data(
     // Currently, when importing AppFlowy data, the view which is a space doesn't have a corresponding
     // collab data in disk.
     for view_id in not_exist_parent_view_ids {
-      if let Err(err) = create_empty_document_for_view(current_session.user_id, &view_id, current_collab_db_write_txn) {
-        error!("[AppflowyData]: create empty document for view failed: {}", err);
+      if let Err(err) = create_empty_document_for_view(
+        current_session.user_id,
+        &current_session.user_workspace.id,
+        &view_id,
+        current_collab_db_write_txn,
+      ) {
+        error!(
+          "[AppflowyData]: create empty document for view failed: {}",
+          err
+        );
       }
     }
 
     let gen_document_collabs = all_imported_object_ids
-        .par_iter()
-        .filter_map(|object_id| {
-          let f = || {
-            let imported_collab = imported_collab_by_oid.get(object_id)?;
-            let new_object_id = old_to_new_id_map.get_exchanged_id(object_id)?;
-            gen_sv_and_doc_state(
-              current_session.user_id,
-              new_object_id,
-              imported_collab,
-              CollabType::Document,
-              &old_to_new_id_map,
-            )
-          };
-          match f() {
-            None => {
-              warn!(
-              "[AppflowyData]: Can't find the new id for the imported object:{}, new object id:{:?}",
-              object_id,
-              old_to_new_id_map.get_exchanged_id(object_id),
-            );
-              None
-            },
-            Some(value) => Some(value),
-          }
-        })
-        .collect::<Vec<_>>();
+      .par_iter()
+      .filter_map(|object_id| {
+        let f = || {
+          let imported_collab = imported_collab_by_oid.get(object_id)?;
+          let new_object_id = old_to_new_id_map.get_exchanged_id(object_id)?;
+          gen_sv_and_doc_state(
+            current_session.user_id,
+            new_object_id,
+            imported_collab,
+            CollabType::Document,
+            &old_to_new_id_map,
+          )
+        };
+        f()
+      })
+      .collect::<Vec<_>>();
 
     for document_collab in gen_document_collabs {
       document_object_ids.insert(document_collab.object_id.clone());
-      write_gen_collab(document_collab, current_collab_db_write_txn);
+      write_gen_collab(&workspace_id, document_collab, current_collab_db_write_txn);
     }
 
     let (mut views, orphan_views) = match imported_folder.source {
@@ -388,6 +395,7 @@ pub(crate) fn generate_import_data(
 
 fn create_empty_document_for_view<'a, W>(
   uid: i64,
+  workspace_id: &str,
   view_id: &str,
   collab_write_txn: &'a W,
 ) -> FlowyResult<()>
@@ -412,6 +420,7 @@ where
   write_collab_object(
     &collab,
     uid,
+    workspace_id,
     view_id,
     collab_write_txn,
     CollabType::Document,
@@ -467,6 +476,7 @@ where
   write_collab_object(
     &collab,
     current_session.user_id,
+    current_session.user_workspace.id.as_str(),
     import_container_view_id,
     collab_write_txn,
     CollabType::Document,
@@ -508,6 +518,7 @@ where
   );
   imported_collab_db_read_txn.load_doc_with_txn(
     imported_session.user_id,
+    &imported_session.user_workspace.id,
     &imported_session.user_workspace.workspace_database_id,
     &mut workspace_database_collab.transact_mut(),
   )?;
@@ -637,6 +648,7 @@ where
       write_collab_object(
         database_collab,
         session.user_id,
+        session.user_workspace.id.as_str(),
         &new_database_object_id,
         collab_write_txn,
         CollabType::Database,
@@ -659,7 +671,7 @@ where
     })
     .collect::<Vec<_>>();
   for gen_collab in gen_database_row_document_collabs {
-    write_gen_collab(gen_collab, collab_write_txn);
+    write_gen_collab(&session.user_workspace.id, gen_collab, collab_write_txn);
   }
 
   // remove the database object ids from the object ids
@@ -746,7 +758,7 @@ where
       .collect::<Vec<_>>();
 
     for gen_collab in gen_database_row_collabs {
-      write_gen_collab(gen_collab, collab_write_txn);
+      write_gen_collab(&session.user_workspace.id, gen_collab, collab_write_txn);
     }
   }
 
@@ -756,6 +768,7 @@ where
 fn write_collab_object<'a, W>(
   collab: &Collab,
   new_uid: i64,
+  new_workspace_id: &str,
   new_object_id: &str,
   w_txn: &'a W,
   collab_type: CollabType,
@@ -784,9 +797,13 @@ fn write_collab_object<'a, W>(
       let txn = doc.transact();
       let state_vector = txn.state_vector();
       let doc_state = txn.encode_state_as_update_v1(&StateVector::default());
-      if let Err(err) =
-        w_txn.flush_doc(new_uid, &new_object_id, state_vector.encode_v1(), doc_state)
-      {
+      if let Err(err) = w_txn.flush_doc(
+        new_uid,
+        new_workspace_id,
+        new_object_id,
+        state_vector.encode_v1(),
+        doc_state,
+      ) {
         error!(
           "[AppflowyData]:import collab:{} failed: {:?}",
           new_object_id, err
@@ -805,12 +822,18 @@ struct GenCollab {
   object_id: String,
 }
 
-fn write_gen_collab<'a, W>(collab: GenCollab, w_txn: &'a W)
+fn write_gen_collab<'a, W>(workspace_id: &str, collab: GenCollab, w_txn: &'a W)
 where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  if let Err(err) = w_txn.flush_doc(collab.uid, &collab.object_id, collab.sv, collab.doc_state) {
+  if let Err(err) = w_txn.flush_doc(
+    collab.uid,
+    workspace_id,
+    collab.object_id.as_str(),
+    collab.sv,
+    collab.doc_state,
+  ) {
     error!(
       "[AppflowyData]:import collab:{} failed: {:?}",
       collab.object_id, err
@@ -909,6 +932,7 @@ where
   imported_collab_db_read_txn
     .load_doc_with_txn(
       imported_session.user_id,
+      &imported_session.user_workspace.id,
       &imported_session.user_workspace.id,
       &mut imported_folder_collab.transact_mut(),
     )
@@ -1112,7 +1136,6 @@ impl OldToNewIdMap {
     Self::default()
   }
   fn exchange_new_id(&mut self, old_id: &str) -> String {
-    println!("old_id: {}", old_id);
     let view_id = self
       .0
       .entry(old_id.to_string())
@@ -1159,6 +1182,7 @@ pub async fn upload_collab_objects_data(
     database_object_ids,
   } = collab_data;
   {
+    let cloned_workspace_id = workspace_id.to_string();
     let object_by_collab_type = tokio::task::spawn_blocking(move || {
       let user_collab_db = user_collab_db.upgrade().ok_or_else(|| {
         FlowyError::internal().with_context(
@@ -1175,7 +1199,12 @@ pub async fn upload_collab_objects_data(
       );
       object_by_collab_type.insert(
         CollabType::Database,
-        load_and_process_collab_data(uid, &collab_read, &database_object_ids),
+        load_and_process_collab_data(
+          uid,
+          &cloned_workspace_id,
+          &collab_read,
+          &database_object_ids,
+        ),
       );
 
       event!(
@@ -1184,7 +1213,12 @@ pub async fn upload_collab_objects_data(
       );
       object_by_collab_type.insert(
         CollabType::Document,
-        load_and_process_collab_data(uid, &collab_read, &document_object_ids),
+        load_and_process_collab_data(
+          uid,
+          &cloned_workspace_id,
+          &collab_read,
+          &document_object_ids,
+        ),
       );
 
       event!(
@@ -1193,7 +1227,7 @@ pub async fn upload_collab_objects_data(
       );
       object_by_collab_type.insert(
         CollabType::DatabaseRow,
-        load_and_process_collab_data(uid, &collab_read, &row_object_ids),
+        load_and_process_collab_data(uid, &cloned_workspace_id, &collab_read, &row_object_ids),
       );
       Ok::<_, FlowyError>(object_by_collab_type)
     })
@@ -1262,6 +1296,7 @@ async fn batch_create(
 #[instrument(level = "debug", skip_all)]
 fn load_and_process_collab_data<'a, R>(
   uid: i64,
+  workspace_id: &str,
   collab_read: &R,
   object_ids: &[String],
 ) -> HashMap<String, Vec<u8>>
@@ -1269,7 +1304,7 @@ where
   R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
-  load_collab_by_object_ids(uid, collab_read, object_ids)
+  load_collab_by_object_ids(uid, workspace_id, collab_read, object_ids)
     .0
     .into_iter()
     .filter_map(|(oid, collab)| {

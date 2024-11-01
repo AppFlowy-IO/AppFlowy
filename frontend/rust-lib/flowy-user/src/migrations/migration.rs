@@ -1,21 +1,26 @@
 use std::sync::Arc;
 
 use chrono::NaiveDateTime;
-use diesel::{RunQueryDsl, SqliteConnection};
-use semver::Version;
-
 use collab_integrate::CollabKVDB;
+use diesel::{RunQueryDsl, SqliteConnection};
 use flowy_error::FlowyResult;
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
 use flowy_user_pub::entities::Authenticator;
-
 use flowy_user_pub::session::Session;
+use semver::Version;
+use tracing::info;
+
+/// Store the version that user first time install AppFlowy. For old user, this value will be set
+/// to the version when upgrade to the newest version.
+pub const FIRST_TIME_INSTALL_VERSION: &str = "first_install_version";
 
 pub struct UserLocalDataMigration {
   session: Session,
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
+  kv: Arc<KVStorePreferences>,
 }
 
 impl UserLocalDataMigration {
@@ -23,11 +28,13 @@ impl UserLocalDataMigration {
     session: Session,
     collab_db: Arc<CollabKVDB>,
     sqlite_pool: Arc<ConnectionPool>,
+    kv: Arc<KVStorePreferences>,
   ) -> Self {
     Self {
       session,
       collab_db,
       sqlite_pool,
+      kv,
     }
   }
 
@@ -48,21 +55,22 @@ impl UserLocalDataMigration {
     self,
     migrations: Vec<Box<dyn UserDataMigration>>,
     authenticator: &Authenticator,
-    app_version: Option<Version>,
+    app_version: &Version,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
     let mut conn = self.sqlite_pool.get()?;
     let record = get_all_records(&mut conn)?;
+    let install_version = self.kv.get_object::<Version>(FIRST_TIME_INSTALL_VERSION);
+
+    info!("[Migration] Install app version: {:?}", install_version);
     let mut duplicated_names = vec![];
     for migration in migrations {
       if !record
         .iter()
         .any(|record| record.migration_name == migration.name())
       {
-        if let Some(app_version) = app_version.as_ref() {
-          if !migration.applies_to_version(app_version) {
-            continue;
-          }
+        if !migration.run_when(&install_version, app_version) {
+          continue;
         }
 
         let migration_name = migration.name().to_string();
@@ -72,7 +80,7 @@ impl UserLocalDataMigration {
           save_migration_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
         } else {
-          tracing::error!("Duplicated migration name: {}", migration_name);
+          tracing::error!("[Migration] Duplicated migration name: {}", migration_name);
         }
       }
     }
@@ -83,9 +91,9 @@ impl UserLocalDataMigration {
 pub trait UserDataMigration {
   /// Migration with the same name will be skipped
   fn name(&self) -> &str;
-  /// Returns bool value whether the migration should be applied to the current app version
-  /// true if the migration should be applied, false otherwise
-  fn applies_to_version(&self, app_version: &Version) -> bool;
+  // The user's initial installed version is None if they were using an AppFlowy version lower than 0.7.3
+  // Because we store the first time installed version after version 0.7.3.
+  fn run_when(&self, first_installed_version: &Option<Version>, current_version: &Version) -> bool;
   fn run(
     &self,
     user: &Session,
@@ -112,7 +120,7 @@ fn get_all_records(conn: &mut SqliteConnection) -> FlowyResult<Vec<UserDataMigra
   )
 }
 
-#[derive(Clone, Default, Queryable, Identifiable)]
+#[derive(Clone, Debug, Default, Queryable, Identifiable)]
 #[diesel(table_name = user_data_migration_records)]
 pub struct UserDataMigrationRecord {
   pub id: i32,

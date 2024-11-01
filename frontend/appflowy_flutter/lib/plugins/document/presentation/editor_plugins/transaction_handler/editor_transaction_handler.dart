@@ -32,6 +32,7 @@ abstract class EditorTransactionHandler<T> {
     bool isUndoRedo = false,
     bool isPaste = false,
     bool isDraggingNode = false,
+    bool isTurnInto = false,
     String? parentViewId,
   });
 }

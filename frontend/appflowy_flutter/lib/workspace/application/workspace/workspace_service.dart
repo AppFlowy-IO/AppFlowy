@@ -14,7 +14,6 @@ class WorkspaceService {
   Future<FlowyResult<ViewPB, FlowyError>> createView({
     required String name,
     required ViewSectionPB viewSection,
-    String? desc,
     int? index,
     ViewLayoutPB? layout,
     bool? setAsCurrent,
@@ -26,10 +25,6 @@ class WorkspaceService {
       ..name = name
       ..layout = layout ?? ViewLayoutPB.Document
       ..section = viewSection;
-
-    if (desc != null) {
-      payload.desc = desc;
-    }
 
     if (index != null) {
       payload.index = index;

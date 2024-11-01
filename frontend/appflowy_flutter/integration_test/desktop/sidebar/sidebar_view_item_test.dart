@@ -19,8 +19,13 @@ void main() {
       await tester.tapAnonymousSignInButton();
 
       // Right click on the view item and change icon
-      await tester.tap(find.byType(ViewItem), buttons: kSecondaryButton);
-      await tester.pumpAndSettle();
+      await tester.hoverOnWidget(
+        find.byType(ViewItem),
+        onHover: () async {
+          await tester.tap(find.byType(ViewItem), buttons: kSecondaryButton);
+          await tester.pumpAndSettle();
+        },
+      );
 
       // Change icon
       final changeIconButton =

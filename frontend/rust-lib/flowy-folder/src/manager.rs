@@ -19,6 +19,8 @@ use crate::view_operation::{
   create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers, ViewData,
 };
 use arc_swap::ArcSwapOption;
+use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
@@ -34,8 +36,8 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService, FolderCollabParams};
 use flowy_folder_pub::entities::{
-  PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishInfoResponse,
-  PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
+  PublishDatabaseData, PublishDatabasePayload, PublishDocumentPayload, PublishPayload,
+  PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -158,8 +160,10 @@ impl FolderManager {
     // only need the check the workspace id when the doc state is not from the disk.
     let config = CollabBuilderConfig::default().sync_enable(true);
 
-    let data_source = data_source
-      .unwrap_or_else(|| CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source());
+    let data_source = data_source.unwrap_or_else(|| {
+      CollabPersistenceImpl::new(collab_db.clone(), uid, workspace_id.to_string())
+        .into_data_source()
+    });
 
     let object_id = workspace_id;
     let collab_object =
@@ -186,7 +190,7 @@ impl FolderManager {
           err
         );
         if let Some(db) = self.user.collab_db(uid).ok().and_then(|a| a.upgrade()) {
-          let _ = db.delete_doc(uid, workspace_id).await;
+          let _ = db.delete_doc(uid, workspace_id, workspace_id).await;
         }
         Err(err.into())
       },
@@ -207,7 +211,8 @@ impl FolderManager {
         .collab_builder
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
 
-    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid).into_data_source();
+    let doc_state = CollabPersistenceImpl::new(collab_db.clone(), uid, workspace_id.to_string())
+      .into_data_source();
     let folder = self.collab_builder.create_folder(
       collab_object,
       doc_state,
@@ -1038,7 +1043,6 @@ impl FolderManager {
       let duplicate_params = CreateViewParams {
         parent_view_id: current_parent_id.clone(),
         name,
-        desc: view.desc.clone(),
         layout: view.layout.clone().into(),
         initial_data: ViewData::DuplicateData(view_data),
         view_id: gen_view_id().to_string(),
@@ -1269,9 +1273,20 @@ impl FolderManager {
   /// Get the publish info of the view with the given view id.
   /// The publish info contains the namespace and publish_name of the view.
   #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfoResponse> {
+  pub async fn get_publish_info(&self, view_id: &str) -> FlowyResult<PublishInfo> {
     let publish_info = self.cloud_service.get_publish_info(view_id).await?;
     Ok(publish_info)
+  }
+
+  /// Sets the publish name of the view with the given view id.
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn set_publish_name(&self, view_id: String, new_name: String) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_publish_name(&workspace_id, view_id, new_name)
+      .await?;
+    Ok(())
   }
 
   /// Get the namespace of the current workspace.
@@ -1295,6 +1310,47 @@ impl FolderManager {
       .get_publish_namespace(workspace_id.as_str())
       .await?;
     Ok(namespace)
+  }
+
+  /// List all published views of the current workspace.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn list_published_views(&self) -> FlowyResult<Vec<PublishInfoView>> {
+    let workspace_id = self.user.workspace_id()?;
+    let published_views = self
+      .cloud_service
+      .list_published_views(&workspace_id)
+      .await?;
+    Ok(published_views)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn get_default_published_view_info(&self) -> FlowyResult<PublishInfo> {
+    let workspace_id = self.user.workspace_id()?;
+    let default_published_view_info = self
+      .cloud_service
+      .get_default_published_view_info(&workspace_id)
+      .await?;
+    Ok(default_published_view_info)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn set_default_published_view(&self, view_id: uuid::Uuid) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .set_default_published_view(&workspace_id, view_id)
+      .await?;
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn remove_default_published_view(&self) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    self
+      .cloud_service
+      .remove_default_published_view(&workspace_id)
+      .await?;
+    Ok(())
   }
 
   /// Retrieves the publishing payload for a specified view and optionally its child views.
@@ -1601,7 +1657,6 @@ impl FolderManager {
     let params = CreateViewParams {
       parent_view_id,
       name: import_data.name,
-      desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
       initial_data: ViewData::Empty,
       view_id,

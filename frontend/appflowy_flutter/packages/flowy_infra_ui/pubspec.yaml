@@ -32,6 +32,7 @@ dependencies:
     path: ../flowy_svg
 
 dev_dependencies:
+  build_runner: ^2.4.9
   provider: ^6.0.5
   flutter_test:
     sdk: flutter

@@ -197,7 +197,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
   ) -> Result<EncodedCollabWrapper, FlowyError> {
     // get the collab_object_id for the document.
     // the collab_object_id for the document is the view_id.
-
+    let workspace_id = user.workspace_id()?;
     let uid = user
       .user_id()
       .map_err(|e| e.with_context("unable to get the uid: {}"))?;
@@ -214,9 +214,10 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let collab_read_txn = collab_db.read_txn();
 
     // read the collab from the db
-    let collab = load_collab_by_object_id(uid, &collab_read_txn, view_id).map_err(|e| {
-      FlowyError::internal().with_context(format!("load document collab failed: {}", e))
-    })?;
+    let collab =
+      load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, view_id).map_err(|e| {
+        FlowyError::internal().with_context(format!("load document collab failed: {}", e))
+      })?;
 
     let encoded_collab = collab
         // encode the collab and check the integrity of the collab
@@ -313,6 +314,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     user: Arc<dyn FolderUser>,
     view_id: &str,
   ) -> Result<EncodedCollabWrapper, FlowyError> {
+    let workspace_id = user.workspace_id()?;
     // get the collab_object_id for the database.
     //
     // the collab object_id for the database is not the view_id,
@@ -350,9 +352,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     tokio::task::spawn_blocking(move || {
       let collab_read_txn = collab_db.read_txn();
 
-      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
-        FlowyError::internal().with_context(format!("load database collab failed: {}", e))
-      })?;
+      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, &oid)
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("load database collab failed: {}", e))
+        })?;
 
       let database_encoded_collab = database_collab
           // encode the collab and check the integrity of the collab
@@ -362,7 +365,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           })?;
 
       let database_row_encoded_collabs =
-        load_collab_by_object_ids(uid, &collab_read_txn, &row_oids)
+        load_collab_by_object_ids(uid, &workspace_id, &collab_read_txn, &row_oids)
           .0
           .into_iter()
           .map(|(oid, collab)| {
@@ -388,7 +391,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         .collect::<HashMap<_, _>>();
 
       let database_row_document_encoded_collabs =
-        load_collab_by_object_ids(uid, &collab_read_txn, &row_document_ids)
+        load_collab_by_object_ids(uid, &workspace_id, &collab_read_txn, &row_document_ids)
           .0
           .into_iter()
           .map(|(oid, collab)| {

@@ -1,7 +1,9 @@
+use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
   QueryCollab, QueryCollabParams,
 };
+use client_api::entity::{PatchPublishedCollab, PublishInfo};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
@@ -9,7 +11,7 @@ use collab_folder::RepeatedViewIdentifier;
 use serde_json::to_vec;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::instrument;
+use tracing::{instrument, trace};
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -17,7 +19,7 @@ use flowy_folder_pub::cloud::{
   Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
+use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
 
 use crate::af_cloud::define::ServerUser;
@@ -227,18 +229,40 @@ where
     Ok(())
   }
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, FlowyError> {
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let view_id = Uuid::parse_str(view_id)
       .map_err(|_| FlowyError::new(ErrorCode::InvalidParams, "Invalid view id"));
 
     let view_id = view_id?;
-    let info = try_get_client?.get_published_collab_info(&view_id).await?;
-    Ok(PublishInfoResponse {
-      view_id: info.view_id.to_string(),
-      publish_name: info.publish_name,
-      namespace: info.namespace,
-    })
+    let info = try_get_client?
+      .get_published_collab_info(&view_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(info)
+  }
+
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), FlowyError> {
+    let try_get_client = self.inner.try_get_client()?;
+    let view_id = Uuid::parse_str(&view_id)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidParams, "Invalid view id"))?;
+
+    try_get_client
+      .patch_published_collabs(
+        workspace_id,
+        &[PatchPublishedCollab {
+          view_id,
+          publish_name: Some(new_name),
+        }],
+      )
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
   }
 
   async fn set_publish_namespace(
@@ -265,10 +289,66 @@ where
     Ok(namespace)
   }
 
+  async fn list_published_views(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<PublishInfoView>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let published_views = self
+      .inner
+      .try_get_client()?
+      .list_published_views(&workspace_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(published_views)
+  }
+
+  async fn get_default_published_view_info(
+    &self,
+    workspace_id: &str,
+  ) -> Result<PublishInfo, FlowyError> {
+    let default_published_view_info = self
+      .inner
+      .try_get_client()?
+      .get_default_publish_view_info(workspace_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(default_published_view_info)
+  }
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .set_default_publish_view(workspace_id, view_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
+  }
+
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .delete_default_publish_view(workspace_id)
+      .await
+      .map_err(FlowyError::from)?;
+    Ok(())
+  }
+
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {
     let file_path = PathBuf::from(file_path);
     let client = self.inner.try_get_client()?;
     let url = client.create_import(&file_path).await?.presigned_url;
+    trace!(
+      "Importing zip file: {} to url: {}",
+      file_path.display(),
+      url
+    );
     client.upload_import_file(&file_path, &url).await?;
     Ok(())
   }

@@ -64,11 +64,15 @@ class NotificationItem extends StatelessWidget {
             child: child,
             onTapUp: () async {
               final view = state.view;
+              final blockId = state.blockId;
               if (view == null) {
                 return;
               }
 
-              await context.pushView(view);
+              await context.pushView(
+                view,
+                blockId: blockId,
+              );
 
               if (!reminder.isRead && context.mounted) {
                 context.read<ReminderBloc>().add(

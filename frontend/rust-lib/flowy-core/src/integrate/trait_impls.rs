@@ -1,7 +1,8 @@
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::search_dto::SearchDocumentResponseItem;
-use client_api::entity::ChatMessageType;
+use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::{ChatMessageType, PublishInfo};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
@@ -33,7 +34,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
+use flowy_folder_pub::entities::PublishPayload;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
@@ -326,9 +327,22 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, FlowyError> {
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, FlowyError> {
     let server = self.get_server()?;
     server.folder_service().get_publish_info(view_id).await
+  }
+
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .set_publish_name(workspace_id, view_id, new_name)
+      .await
   }
 
   async fn set_publish_namespace(
@@ -348,6 +362,49 @@ impl FolderCloudService for ServerProvider {
     server
       .folder_service()
       .get_publish_namespace(workspace_id)
+      .await
+  }
+
+  /// List all published views of the current workspace.
+  async fn list_published_views(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<PublishInfoView>, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .list_published_views(workspace_id)
+      .await
+  }
+
+  async fn get_default_published_view_info(
+    &self,
+    workspace_id: &str,
+  ) -> Result<PublishInfo, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .get_default_published_view_info(workspace_id)
+      .await
+  }
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .set_default_published_view(workspace_id, view_id)
+      .await
+  }
+
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .remove_default_published_view(workspace_id)
       .await
   }
 

@@ -30,6 +30,7 @@ class MobileViewPage extends StatefulWidget {
     this.arguments,
     this.fixedTitle,
     this.showMoreButton = true,
+    this.blockId,
   });
 
   /// view id
@@ -38,6 +39,7 @@ class MobileViewPage extends StatefulWidget {
   final String? title;
   final Map<String, dynamic>? arguments;
   final bool showMoreButton;
+  final String? blockId;
 
   // only used in row page
   final String? fixedTitle;
@@ -177,6 +179,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           context: PluginContext(userProfile: state.userProfilePB),
           data: {
             MobileDocumentScreen.viewFixedTitle: widget.fixedTitle,
+            MobileDocumentScreen.viewBlockId: widget.blockId,
           },
         );
       },
