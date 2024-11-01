@@ -181,6 +181,9 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       return false;
     }
 
+    // Notify the transaction service that the next apply is from turn into action
+    EditorNotification.turnInto().post();
+
     final toType = type;
 
     // only handle the node in the same depth
@@ -368,7 +371,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
     Log.info('Turn into page');
 
-    final document = Document.blank()..insert([0], selectedNodes);
+    final insertedNodes = selectedNodes.map((n) => n.copyWith()).toList();
+    final document = Document.blank()..insert([0], insertedNodes);
     final name = _extractNameFromNodes(selectedNodes);
 
     final viewResult = await ViewBackendService.createView(
@@ -394,8 +398,10 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         final node = subPageNode(viewId: view.id);
         final transaction = editorState.transaction;
         transaction
+          ..insertNode(selection.normalized.start.path.next, node)
           ..deleteNodes(selectedNodes)
-          ..insertNode(selection.normalized.start.path, node);
+          ..afterSelection = Selection.collapsed(selection.normalized.start);
+        editorState.selectionType = SelectionType.inline;
 
         await editorState.apply(transaction);
       },

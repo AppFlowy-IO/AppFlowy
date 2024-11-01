@@ -37,9 +37,10 @@ class ChildPageTransactionHandler
     bool isUndoRedo = false,
     bool isPaste = false,
     bool isDraggingNode = false,
+    bool isTurnInto = false,
     String? parentViewId,
   }) async {
-    if (isDraggingNode) {
+    if (isDraggingNode || isTurnInto) {
       return;
     }
 
