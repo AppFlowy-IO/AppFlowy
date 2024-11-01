@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -175,6 +174,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     String type,
     Node node, {
     int? level,
+    String? currentViewId,
   }) async {
     final selection = editorState.selection;
     if (selection == null) {
@@ -203,11 +203,13 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     }
 
     // try to turn into a page block
-    if (await turnIntoPage(
-      type: toType,
-      selectedNodes: selectedNodes,
-      selection: selection,
-    )) {
+    if (currentViewId != null &&
+        await turnIntoPage(
+          type: toType,
+          selectedNodes: selectedNodes,
+          selection: selection,
+          currentViewId: currentViewId,
+        )) {
       return true;
     }
 
@@ -359,6 +361,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     required String type,
     required List<Node> selectedNodes,
     required Selection selection,
+    required String currentViewId,
   }) async {
     if (type != SubPageBlockKeys.type || selectedNodes.isEmpty) {
       return false;
@@ -378,7 +381,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     final viewResult = await ViewBackendService.createView(
       layoutType: ViewLayoutPB.Document,
       name: name,
-      parentViewId: getIt<MenuSharedState>().latestOpenView?.id ?? '',
+      parentViewId: currentViewId,
       initialDataBytes:
           DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer(),
     );
