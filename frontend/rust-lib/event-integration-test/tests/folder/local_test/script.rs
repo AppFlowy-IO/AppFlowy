@@ -260,7 +260,6 @@ pub async fn create_view(
   let request = CreateViewPayloadPB {
     parent_view_id: parent_view_id.to_string(),
     name: name.to_string(),
-    desc: desc.to_string(),
     thumbnail: None,
     layout: layout.into(),
     initial_data: vec![],
