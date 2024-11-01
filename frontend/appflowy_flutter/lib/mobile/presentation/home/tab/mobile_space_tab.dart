@@ -138,11 +138,9 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     if (tabController == null) {
       return;
     }
-    context.read<SpaceOrderBloc>().add(
-          SpaceOrderEvent.open(
-            tabController!.index,
-          ),
-        );
+    context
+        .read<SpaceOrderBloc>()
+        .add(SpaceOrderEvent.open(tabController!.index));
   }
 
   List<Widget> _buildTabs(SpaceOrderState state) {
@@ -174,13 +172,9 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
   }
 
   // quick create new page when clicking the add button in navigation bar
-  void _createNewDocument() {
-    _createNewPage(ViewLayoutPB.Document);
-  }
+  void _createNewDocument() => _createNewPage(ViewLayoutPB.Document);
 
-  void _createNewAIChat() {
-    _createNewPage(ViewLayoutPB.Chat);
-  }
+  void _createNewAIChat() => _createNewPage(ViewLayoutPB.Chat);
 
   void _createNewPage(ViewLayoutPB layout) {
     if (context.read<SpaceBloc>().state.spaces.isNotEmpty) {
@@ -206,8 +200,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     final workspaceId =
         context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId;
     if (workspaceId == null) {
-      Log.error('Workspace ID is null');
-      return;
+      return Log.error('Workspace ID is null');
     }
     context
         .read<UserWorkspaceBloc>()

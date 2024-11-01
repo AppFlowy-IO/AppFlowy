@@ -402,18 +402,15 @@ class _PublishUrlState extends State<_PublishUrl> {
   @override
   void initState() {
     super.initState();
-
-    focusNode.addListener(() {
-      setState(() {
-        showSaveButton = focusNode.hasFocus;
-      });
-    });
+    focusNode.addListener(_onFocusChanged);
   }
+
+  void _onFocusChanged() => setState(() => showSaveButton = focusNode.hasFocus);
 
   @override
   void dispose() {
+    focusNode.removeListener(_onFocusChanged);
     focusNode.dispose();
-
     super.dispose();
   }
 
@@ -539,12 +536,7 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
   void initState() {
     super.initState();
 
-    _databaseStatus.addListener(() {
-      final selectedDatabases =
-          _databaseStatus.value.where((e) => e.$2).map((e) => e.$1).toList();
-      widget.onSelected(selectedDatabases);
-    });
-
+    _databaseStatus.addListener(_onDatabaseStatusChanged);
     _databaseStatus.value = context
         .read<DatabaseTabBarBloc>()
         .state
@@ -553,8 +545,15 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
         .toList();
   }
 
+  void _onDatabaseStatusChanged() {
+    final selectedDatabases =
+        _databaseStatus.value.where((e) => e.$2).map((e) => e.$1).toList();
+    widget.onSelected(selectedDatabases);
+  }
+
   @override
   void dispose() {
+    _databaseStatus.removeListener(_onDatabaseStatusChanged);
     _databaseStatus.dispose();
     super.dispose();
   }

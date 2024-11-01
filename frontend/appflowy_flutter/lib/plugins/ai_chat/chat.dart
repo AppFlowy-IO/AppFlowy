@@ -98,12 +98,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
     required bool shrinkWrap,
     Map<String, dynamic>? data,
   }) {
-    notifier.isDeleted.addListener(() {
-      final deletedView = notifier.isDeleted.value;
-      if (deletedView != null && deletedView.hasIndex()) {
-        deletedViewIndex = deletedView.index;
-      }
-    });
+    notifier.isDeleted.addListener(_onDeleted);
 
     if (context.userProfile == null) {
       Log.error("User profile is null when opening AI Chat plugin");
@@ -120,6 +115,13 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
             context.onDeleted?.call(notifier.view, deletedViewIndex),
       ),
     );
+  }
+
+  void _onDeleted() {
+    final deletedView = notifier.isDeleted.value;
+    if (deletedView != null && deletedView.hasIndex()) {
+      deletedViewIndex = deletedView.index;
+    }
   }
 
   @override

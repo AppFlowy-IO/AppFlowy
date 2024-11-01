@@ -60,6 +60,12 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         _scrollToEnd();
       });
     }
+
+    if (oldWidget.textController != widget.textController) {
+      oldWidget.textController.removeListener(_onChanged);
+      widget.textController.addListener(_onChanged);
+    }
+
     super.didUpdateWidget(oldWidget);
   }
 

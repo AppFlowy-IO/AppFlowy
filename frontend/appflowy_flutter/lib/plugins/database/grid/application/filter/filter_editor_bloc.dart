@@ -80,12 +80,8 @@ class FilterEditorBloc extends Bloc<FilterEditorEvent, FilterEditorState> {
     };
 
     fieldController.addListener(
-      onFilters: (filters) {
-        _onFilterFn?.call(filters);
-      },
-      onReceiveFields: (fields) {
-        _onFieldFn?.call(fields);
-      },
+      onFilters: _onFilterFn,
+      onReceiveFields: _onFieldFn,
     );
   }
 
