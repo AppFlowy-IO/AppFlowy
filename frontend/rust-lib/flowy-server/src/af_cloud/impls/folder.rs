@@ -9,7 +9,7 @@ use collab_folder::RepeatedViewIdentifier;
 use serde_json::to_vec;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::instrument;
+use tracing::{instrument, trace};
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -269,6 +269,11 @@ where
     let file_path = PathBuf::from(file_path);
     let client = self.inner.try_get_client()?;
     let url = client.create_import(&file_path).await?.presigned_url;
+    trace!(
+      "Importing zip file: {} to url: {}",
+      file_path.display(),
+      url
+    );
     client.upload_import_file(&file_path, &url).await?;
     Ok(())
   }
