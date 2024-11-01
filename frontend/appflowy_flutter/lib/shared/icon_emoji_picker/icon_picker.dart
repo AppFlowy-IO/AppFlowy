@@ -10,7 +10,6 @@ import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

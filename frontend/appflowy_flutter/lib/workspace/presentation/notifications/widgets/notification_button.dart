@@ -6,7 +6,6 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_dialog.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,7 @@ class _NotificationButtonState extends State<NotificationButton> {
         builder: (notificationSettingsContext, notificationSettingsState) {
           return BlocBuilder<ReminderBloc, ReminderState>(
             builder: (context, state) {
-              final hasUnreads = state.reminders.any((r) => !r.isRead);
+              final hasUnreads = state.pastReminders.any((r) => !r.isRead);
               return notificationSettingsState.isShowNotificationsIconEnabled
                   ? FlowyTooltip(
                       message: LocaleKeys.notificationHub_title.tr(),

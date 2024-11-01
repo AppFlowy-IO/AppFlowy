@@ -48,12 +48,18 @@ class DesktopAppearance extends BaseAppearance {
 
     // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
     return ThemeData(
+      visualDensity: VisualDensity.standard,
       useMaterial3: false,
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
       textTheme: getTextTheme(
         fontFamily: fontFamily,
         fontColor: theme.text,
+      ),
+      textButtonTheme: const TextButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size.zero),
+        ),
       ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,

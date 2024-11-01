@@ -340,12 +340,11 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_database_json_bytes(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
+  pub async fn get_database_data(&self, view_id: &str) -> FlowyResult<DatabaseData> {
     let lock = self.workspace_database()?;
     let wdb = lock.read().await;
     let data = wdb.get_database_data(view_id).await?;
-    let json_bytes = data.to_json_bytes()?;
-    Ok(json_bytes)
+    Ok(data)
   }
 
   pub async fn get_database_json_string(&self, view_id: &str) -> FlowyResult<String> {
@@ -358,28 +357,50 @@ impl DatabaseManager {
 
   /// Create a new database with the given data that can be deserialized to [DatabaseData].
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_database_with_database_data(
+  pub async fn create_database_with_data(
     &self,
-    view_id: &str,
+    new_database_view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<EncodedCollab> {
     let database_data = DatabaseData::from_json_bytes(data)?;
-
-    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data, None);
-    let old_view_id = create_database_params.inline_view_id.clone();
-    create_database_params.inline_view_id = view_id.to_string();
-
-    if let Some(create_view_params) = create_database_params
-      .views
-      .iter_mut()
-      .find(|view| view.view_id == old_view_id)
-    {
-      create_view_params.view_id = view_id.to_string();
+    if database_data.views.is_empty() {
+      return Err(FlowyError::invalid_data().with_context("The database data is empty"));
     }
+
+    // choose the first view as the display view. The new database_view_id is the ID in the Folder.
+    let database_view_id = database_data.views[0].id.clone();
+    let create_database_params = CreateDatabaseParams::from_database_data(
+      database_data,
+      &database_view_id,
+      new_database_view_id,
+    );
 
     let lock = self.workspace_database()?;
     let mut wdb = lock.write().await;
     let database = wdb.create_database(create_database_params).await?;
+    drop(wdb);
+
+    let encoded_collab = database
+      .read()
+      .await
+      .encode_collab_v1(|collab| CollabType::Database.validate_require_data(collab))
+      .map_err(|err| FlowyError::internal().with_context(err))?;
+    Ok(encoded_collab)
+  }
+
+  /// When duplicating a database view, it will duplicate all the database views and replace the duplicated
+  /// database_view_id with the new_database_view_id. The new database id is the ID created by Folder.
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn duplicate_database(
+    &self,
+    database_view_id: &str,
+    new_database_view_id: &str,
+  ) -> FlowyResult<EncodedCollab> {
+    let lock = self.workspace_database()?;
+    let mut wdb = lock.write().await;
+    let database = wdb
+      .duplicate_database(database_view_id, new_database_view_id)
+      .await?;
     drop(wdb);
 
     let encoded_collab = database
@@ -448,14 +469,17 @@ impl DatabaseManager {
         let database_template = csv_template.try_into_database_template(None).await?;
         database_template.into_params()
       },
-      CSVFormat::META => tokio::task::spawn_blocking(move || {
-        CSVImporter.import_csv_from_string(view_id, content, format)
-      })
-      .await
-      .map_err(internal_error)??,
+
+      CSVFormat::META => {
+        let cloned_view_id = view_id.clone();
+        tokio::task::spawn_blocking(move || {
+          CSVImporter.import_csv_from_string(cloned_view_id, content, format)
+        })
+        .await
+        .map_err(internal_error)??
+      },
     };
 
-    let view_id = params.inline_view_id.clone();
     let database_id = params.database_id.clone();
     let database = self.import_database(params).await?;
     let encoded_database = database.read().await.encode_database_collabs().await?;
@@ -685,7 +709,8 @@ impl WorkspaceDatabaseCollabServiceImpl {
     let encode_collab = self
       .cloud_service
       .get_database_encode_collab(object_id, object_ty, &workspace_id)
-      .await?;
+      .await
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     Ok(encode_collab)
   }
 
@@ -701,7 +726,8 @@ impl WorkspaceDatabaseCollabServiceImpl {
     let updates = self
       .cloud_service
       .batch_get_database_encode_collab(object_ids, object_ty, &workspace_id)
-      .await?;
+      .await
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     Ok(updates)
   }
 
@@ -741,6 +767,7 @@ impl WorkspaceDatabaseCollabServiceImpl {
 impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   ///NOTE: this method doesn't initialize plugins, however it is passed into WorkspaceDatabase,
   /// therefore all Database/DatabaseRow creation methods must initialize plugins thmselves.
+  #[instrument(level = "trace", skip_all)]
   async fn build_collab(
     &self,
     object_id: &str,
@@ -891,14 +918,22 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   }
 
   fn persistence(&self) -> Option<Arc<dyn DatabaseCollabPersistenceService>> {
-    Some(Arc::new(DatabasePersistenceImpl {
-      user: self.user.clone(),
-    }))
+    Some(self.persistence.clone())
   }
 }
 
 pub struct DatabasePersistenceImpl {
   user: Arc<dyn DatabaseUser>,
+}
+
+impl DatabasePersistenceImpl {
+  fn workspace_id(&self) -> Result<String, DatabaseError> {
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+    Ok(workspace_id)
+  }
 }
 
 impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
@@ -908,47 +943,50 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
       .user_id()
       .map(|uid| (uid, self.user.collab_db(uid).map(|weak| weak.upgrade())));
 
-    if let Ok((uid, Ok(Some(collab_db)))) = result {
-      let object_id = collab.object_id().to_string();
-      let db_read = collab_db.read_txn();
-      if !db_read.is_exist(uid, &object_id) {
-        trace!(
-          "[Database]: collab:{} not exist in local storage",
-          object_id
-        );
-        return;
-      }
-
-      trace!("[Database]: start loading collab:{} from disk", object_id);
-      let mut txn = collab.transact_mut();
-      match db_read.load_doc_with_txn(uid, &object_id, &mut txn) {
-        Ok(update_count) => {
+    if let Ok(workspace_id) = self.user.workspace_id() {
+      if let Ok((uid, Ok(Some(collab_db)))) = result {
+        let object_id = collab.object_id().to_string();
+        let db_read = collab_db.read_txn();
+        if !db_read.is_exist(uid, &workspace_id, &object_id) {
           trace!(
-            "[Database]: did load collab:{}, update_count:{}",
-            object_id,
-            update_count
+            "[Database]: collab:{} not exist in local storage",
+            object_id
           );
-        },
-        Err(err) => {
-          if !err.is_record_not_found() {
-            error!("[Database]: load collab:{} failed:{}", object_id, err);
-          }
-        },
+          return;
+        }
+
+        trace!("[Database]: start loading collab:{} from disk", object_id);
+        let mut txn = collab.transact_mut();
+        match db_read.load_doc_with_txn(uid, &workspace_id, &object_id, &mut txn) {
+          Ok(update_count) => {
+            trace!(
+              "[Database]: did load collab:{}, update_count:{}",
+              object_id,
+              update_count
+            );
+          },
+          Err(err) => {
+            if !err.is_record_not_found() {
+              error!("[Database]: load collab:{} failed:{}", object_id, err);
+            }
+          },
+        }
       }
     }
   }
 
   fn get_encoded_collab(&self, object_id: &str, collab_type: CollabType) -> Option<EncodedCollab> {
+    let workspace_id = self.user.workspace_id().ok()?;
     let uid = self.user.user_id().ok()?;
     let db = self.user.collab_db(uid).ok()?.upgrade()?;
     let read_txn = db.read_txn();
-    if !read_txn.is_exist(uid, &object_id) {
+    if !read_txn.is_exist(uid, workspace_id.as_str(), object_id) {
       return None;
     }
 
     let mut collab = Collab::new_with_origin(CollabOrigin::Empty, object_id, vec![], false);
     let mut txn = collab.transact_mut();
-    let _ = read_txn.load_doc_with_txn(uid, &object_id, &mut txn);
+    let _ = read_txn.load_doc_with_txn(uid, workspace_id.as_str(), object_id, &mut txn);
     drop(txn);
 
     collab
@@ -957,13 +995,16 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
   }
 
   fn delete_collab(&self, object_id: &str) -> Result<(), DatabaseError> {
+    let workspace_id = self.workspace_id()?;
     let uid = self
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
-      write_txn.delete_doc(uid, object_id).unwrap();
+      write_txn
+        .delete_doc(uid, workspace_id.as_str(), object_id)
+        .unwrap();
       write_txn
         .commit_transaction()
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
@@ -976,6 +1017,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
     object_id: &str,
     encoded_collab: EncodedCollab,
   ) -> Result<(), DatabaseError> {
+    let workspace_id = self.workspace_id()?;
     let uid = self
       .user
       .user_id()
@@ -985,6 +1027,7 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
       write_txn
         .flush_doc(
           uid,
+          workspace_id.as_str(),
           object_id,
           encoded_collab.state_vector.to_vec(),
           encoded_collab.doc_state.to_vec(),
@@ -998,17 +1041,22 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
   }
 
   fn is_collab_exist(&self, object_id: &str) -> bool {
-    match self
-      .user
-      .user_id()
-      .map_err(|err| DatabaseError::Internal(err.into()))
-    {
-      Ok(uid) => {
-        if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-          let read_txn = collab_db.read_txn();
-          return read_txn.is_exist(uid, object_id);
+    match self.user.workspace_id() {
+      Ok(workspace_id) => {
+        match self
+          .user
+          .user_id()
+          .map_err(|err| DatabaseError::Internal(err.into()))
+        {
+          Ok(uid) => {
+            if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
+              let read_txn = collab_db.read_txn();
+              return read_txn.is_exist(uid, workspace_id.as_str(), object_id);
+            }
+            false
+          },
+          Err(_) => false,
         }
-        false
       },
       Err(_) => false,
     }
@@ -1022,12 +1070,18 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
       .user
       .user_id()
       .map_err(|err| DatabaseError::Internal(err.into()))?;
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
+
     if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
       let write_txn = collab_db.write_txn();
       for (object_id, encode_collab) in encoded_collabs {
         write_txn
           .flush_doc(
             uid,
+            &workspace_id,
             &object_id,
             encode_collab.state_vector.to_vec(),
             encode_collab.doc_state.to_vec(),
@@ -1039,19 +1093,6 @@ impl DatabaseCollabPersistenceService for DatabasePersistenceImpl {
         .map_err(|err| DatabaseError::Internal(anyhow!("failed to commit transaction: {}", err)))?;
     }
     Ok(())
-  }
-
-  fn is_row_exist_partition(&self, row_ids: Vec<RowId>) -> (Vec<RowId>, Vec<RowId>) {
-    if let Ok(uid) = self.user.user_id() {
-      if let Ok(Some(collab_db)) = self.user.collab_db(uid).map(|weak| weak.upgrade()) {
-        let read_txn = collab_db.read_txn();
-        return row_ids
-          .into_iter()
-          .partition(|row_id| read_txn.is_exist(uid, row_id.as_ref()));
-      }
-    }
-
-    (vec![], row_ids)
   }
 }
 async fn open_database_with_retry(

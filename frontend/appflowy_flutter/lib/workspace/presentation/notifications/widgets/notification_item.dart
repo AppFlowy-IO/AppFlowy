@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/settings/date_time/date_format_ex
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/size.dart';
@@ -28,7 +27,6 @@ class NotificationItem extends StatefulWidget {
     this.includeTime = false,
     this.readOnly = false,
     this.onAction,
-    this.onDelete,
     this.onReadChanged,
     this.view,
   });
@@ -51,7 +49,6 @@ class NotificationItem extends StatefulWidget {
   final bool readOnly;
 
   final void Function(int? path)? onAction;
-  final VoidCallback? onDelete;
   final void Function(bool isRead)? onReadChanged;
 
   @override
@@ -154,7 +151,6 @@ class _NotificationItemState extends State<NotificationItem> {
                                       UniversalPlatform.isMobile ? 16 : 14,
                                   color: AFThemeExtension.of(context).textColor,
                                 ),
-                                // TODO(Xazin): Relative time
                                 FlowyText.regular(
                                   infoString,
                                   fontSize:
@@ -192,7 +188,6 @@ class _NotificationItemState extends State<NotificationItem> {
               top: UniversalPlatform.isMobile ? 8 : 4,
               child: NotificationItemActions(
                 isRead: widget.isRead,
-                onDelete: widget.onDelete,
                 onReadChanged: widget.onReadChanged,
               ),
             ),
@@ -248,12 +243,10 @@ class NotificationItemActions extends StatelessWidget {
   const NotificationItemActions({
     super.key,
     required this.isRead,
-    this.onDelete,
     this.onReadChanged,
   });
 
   final bool isRead;
-  final VoidCallback? onDelete;
   final void Function(bool isRead)? onReadChanged;
 
   @override
@@ -293,23 +286,6 @@ class NotificationItemActions extends StatelessWidget {
                 onPressed: () => onReadChanged?.call(true),
               ),
             ],
-            VerticalDivider(
-              width: 3,
-              thickness: 1,
-              indent: 2,
-              endIndent: 2,
-              color: UniversalPlatform.isMobile
-                  ? Theme.of(context).colorScheme.outline
-                  : Theme.of(context).dividerColor,
-            ),
-            FlowyIconButton(
-              height: size,
-              width: size,
-              tooltipText: LocaleKeys.reminderNotification_tooltipDelete.tr(),
-              icon: const FlowySvg(FlowySvgs.delete_s),
-              iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-              onPressed: onDelete,
-            ),
           ],
         ),
       ),

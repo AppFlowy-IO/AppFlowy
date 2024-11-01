@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +95,29 @@ class TurnIntoOptionMenu extends StatelessWidget {
     final children = <Widget>[];
 
     for (final type in EditorOptionActionType.turnInto.supportTypes) {
-      if (type != HeadingBlockKeys.type) {
+      if (type == ToggleListBlockKeys.type) {
+        // toggle list block and toggle heading block are the same type,
+        // but they have different attributes.
+
+        // toggle list block
+        children.add(
+          _TurnInfoButton(
+            type: type,
+            node: node,
+          ),
+        );
+
+        // toggle heading block
+        for (final i in [1, 2, 3]) {
+          children.add(
+            _TurnInfoButton(
+              type: type,
+              node: node,
+              level: i,
+            ),
+          );
+        }
+      } else if (type != HeadingBlockKeys.type) {
         children.add(
           _TurnInfoButton(
             type: type,
@@ -104,7 +125,6 @@ class TurnIntoOptionMenu extends StatelessWidget {
           ),
         );
       } else {
-        // support h46
         for (final i in [1, 2, 3]) {
           children.add(
             _TurnInfoButton(
@@ -179,6 +199,13 @@ class _TurnInfoButton extends StatelessWidget {
       }
     }
 
+    if (node.type == ToggleListBlockKeys.type) {
+      final nodeLevel = node.attributes[ToggleListBlockKeys.level];
+      if (level != nodeLevel) {
+        return null;
+      }
+    }
+
     return const FlowySvg(
       FlowySvgs.workspace_selected_s,
       blendMode: null,
@@ -199,7 +226,6 @@ class _TurnInfoButton extends StatelessWidget {
           return FlowySvgs.slash_menu_icon_h2_s;
         case 3:
           return FlowySvgs.slash_menu_icon_h3_s;
-        // support h4h6
         default:
           return FlowySvgs.slash_menu_icon_text_s;
       }
@@ -213,6 +239,19 @@ class _TurnInfoButton extends StatelessWidget {
       return FlowySvgs.slash_menu_icon_checkbox_s;
     } else if (type == CalloutBlockKeys.type) {
       return FlowySvgs.slash_menu_icon_callout_s;
+    } else if (type == SubPageBlockKeys.type) {
+      return FlowySvgs.document_s;
+    } else if (type == ToggleListBlockKeys.type) {
+      switch (level) {
+        case 1:
+          return FlowySvgs.slash_menu_icon_h1_s;
+        case 2:
+          return FlowySvgs.slash_menu_icon_h2_s;
+        case 3:
+          return FlowySvgs.slash_menu_icon_h3_s;
+        default:
+          return FlowySvgs.slash_menu_icon_toggle_s;
+      }
     }
 
     throw UnimplementedError('Unsupported block type: $type');
@@ -246,6 +285,19 @@ class _TurnInfoButton extends StatelessWidget {
         return LocaleKeys.document_slashMenu_name_todoList.tr();
       case CalloutBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_callout.tr();
+      case SubPageBlockKeys.type:
+        return LocaleKeys.editor_page.tr();
+      case ToggleListBlockKeys.type:
+        switch (level) {
+          case 1:
+            return LocaleKeys.document_slashMenu_name_toggleHeading1.tr();
+          case 2:
+            return LocaleKeys.document_slashMenu_name_toggleHeading2.tr();
+          case 3:
+            return LocaleKeys.document_slashMenu_name_toggleHeading3.tr();
+          default:
+            return LocaleKeys.document_slashMenu_name_toggleList.tr();
+        }
     }
 
     throw UnimplementedError('Unsupported block type: $type');

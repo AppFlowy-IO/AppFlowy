@@ -15,7 +15,6 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -437,7 +436,6 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 ),
                 side: BorderSide(color: Theme.of(context).dividerColor),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                visualDensity: VisualDensity.compact,
               ),
               onPressed: () {
                 if (state.unscheduleEvents.isNotEmpty) {

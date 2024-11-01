@@ -36,6 +36,7 @@
     "loginButtonText": "Anmelden",
     "loginStartWithAnonymous": "Anonyme Sitzung starten",
     "continueAnonymousUser": "in anonymer Sitzung fortfahren",
+    "anonymous": "Anonym",
     "buttonText": "Anmelden",
     "signingInText": "Anmelden...",
     "forgotPassword": "Passwort vergessen?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Mit Google anmelden",
     "signInWithGithub": "Mit Github anmelden",
     "signInWithDiscord": "Mit Discord anmelden",
+    "signInWithApple": "Weiter mit Apple",
+    "continueAnotherWay": "Anders fortfahren",
     "signUpWithGoogle": "Mit Google registrieren",
     "signUpWithGithub": "Mit Github registrieren",
     "signUpWithDiscord": "Mit Discord registrieren",
@@ -69,9 +72,13 @@
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
+    "defaultName": "Mein Arbeitsbereich",
     "create": "Arbeitsbereich erstellen",
+    "importFromNotion": "Von Notion importieren",
+    "learnMore": "Mehr erfahren",
     "reset": "Arbeitsbereich zurücksetzen",
     "renameWorkspace": "Arbeitsbereich umbenennen",
+    "workspaceNameCannotBeEmpty": "Arbeitsbereichname darf nicht leer sein",
     "resetWorkspacePrompt": "Das Zurücksetzen des Arbeitsbereiches löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchtest? ",
     "hint": "Arbeitsbereich",
     "notFoundError": "Arbeitsbereich nicht gefunden",
@@ -115,7 +122,15 @@
     "visitSite": "Seite aufrufen",
     "exportAsTab": "Exportieren als",
     "publishTab": "Veröffentlichen",
-    "shareTab": "Teilen"
+    "shareTab": "Teilen",
+    "publishOnAppFlowy": "Auf AppFlowy veröffentlichen",
+    "shareTabTitle": "Zum Mitmachen einladen",
+    "shareTabDescription": "Für eine einfache Zusammenarbeit mit allen",
+    "copyLinkSuccess": "Link in die Zwischenablage kopiert",
+    "copyShareLink": "Link zum Teilen kopieren",
+    "copyLinkFailed": "Link konnte nicht in die Zwischenablage kopiert werden",
+    "copyLinkToBlockSuccess": "Blocklink in die Zwischenablage kopiert",
+    "copyLinkToBlockFailed": "Blocklink konnte nicht in die Zwischenablage kopiert werden"
   },
   "moreAction": {
     "small": "klein",
@@ -134,6 +149,7 @@
     "textAndMarkdown": "Text & Markdown",
     "documentFromV010": "Dokument ab v0.1.0",
     "databaseFromV010": "Datenbank ab v0.1.0",
+    "notionZip": "von Notion exportierte Zip-Datei",
     "csv": "CSV",
     "database": "Datenbank"
   },
@@ -185,6 +201,7 @@
   "trash": {
     "text": "Papierkorb",
     "restoreAll": "Alles wiederherstellen",
+    "restore": "Wiederherstellen",
     "deleteAll": "Alles löschen",
     "pageHeader": {
       "fileName": "Dateiname",
@@ -199,6 +216,10 @@
       "title": "Möchtest du wirklich alle Seiten aus dem Papierkorb wiederherstellen?",
       "caption": "Diese Aktion kann nicht rückgängig gemacht werden."
     },
+    "restorePage": {
+      "title": "Wiederherstellen: {}",
+      "caption": "Möchten Sie diese Seite wirklich wiederherstellen?"
+    },
     "mobile": {
       "actions": "Papierkorb-Einstellungen",
       "empty": "Der Papierkorb ist leer.",
@@ -211,7 +232,8 @@
   "deletePagePrompt": {
     "text": "Diese Seite befindet sich im Papierkorb",
     "restore": "Seite wiederherstellen",
-    "deletePermanent": "Dauerhaft löschen"
+    "deletePermanent": "Dauerhaft löschen",
+    "deletePermanentDescription": "Möchten Sie diese Seite wirklich dauerhaft löschen? Dies kann nicht rückgängig gemacht werden."
   },
   "dialogCreatePageNameHint": "Seitenname",
   "questionBubble": {
@@ -284,6 +306,7 @@
     "today": "Heute",
     "thisWeek": "Diese Woche",
     "others": "Andere",
+    "earlier": "Früher",
     "justNow": "soeben",
     "minutesAgo": "vor {count} Minuten",
     "lastViewed": "Zuletzt angesehen",
@@ -300,11 +323,15 @@
     "upgradeToPro": "Upgrade auf Pro",
     "upgradeToAIMax": "Schalte unbegrenzte KI frei",
     "storageLimitDialogTitle": "Dein freier Speicherplatz ist aufgebraucht. Upgrade deinen Plan, um unbegrenzten Speicherplatz freizuschalten.",
+    "storageLimitDialogTitleIOS": "Ihr freier Speicherplatz ist aufgebraucht.",
     "aiResponseLimitTitle": "Du hast keine kostenlosen KI-Antworten mehr. Upgrade auf den Pro-Plan oder kaufe ein KI-Add-on, um unbegrenzte Antworten freizuschalten",
+    "aiResponseLimitTitleIOS": "Ihre kostenlosen KI-Antworten sind aufgebraucht.",
     "aiResponseLimitDialogTitle": "Limit für KI-Antworten erreicht",
     "aiResponseLimit": "Du hast keine kostenlosen KI-Antworten mehr zur Verfügung.\n\nGehe zu Einstellungen -> Plan -> Klicke auf KI Max oder Pro Plan, um mehr KI-Antworten zu erhalten",
     "askOwnerToUpgradeToPro": "Dein Arbeitsbereich hat nicht mehr genügend freien Speicherplatz. Bitte den Eigentümer deines Arbeitsbereichs, auf den Pro-Plan hochzustufen.",
+    "askOwnerToUpgradeToProIOS": "In Ihrem Arbeitsbereich ist nicht mehr genügend freier Speicherplatz verfügbar.",
     "askOwnerToUpgradeToAIMax": "In deinem Arbeitsbereich sind die kostenlosen KI-Antworten aufgebraucht. Bitte den Eigentümer deines Arbeitsbereichs, den Plan zu wechseln oder KI-Add-ons zu erwerben.",
+    "askOwnerToUpgradeToAIMaxIOS": "In Ihrem Arbeitsbereich gehen die kostenlosen KI-Antworten aus.",
     "purchaseStorageSpace": "Speicherplatz kaufen",
     "purchaseAIResponse": "Kaufen ",
     "askOwnerToUpgradeToLocalAI": "Bitte den Arbeitsbereichsbesitzer, KI auf dem Gerät zu aktivieren.",
@@ -355,6 +382,7 @@
     "addToFavorites": "Zu den Favoriten hinzufügen",
     "favoriteSuccessfully": "Erfolgreich favorisiert",
     "unfavoriteSuccessfully": "Erfolgreich entfavorisiert",
+    "duplicateSuccessfully": "Erfolgreich dupliziert",
     "rename": "Umbenennen",
     "helpCenter": "Hilfe Center",
     "add": "Hinzufügen",
@@ -377,7 +405,11 @@
     "close": "Schließen",
     "next": "Weiter",
     "previous": "Zurück",
-    "submit": "Einreichen"
+    "submit": "Einreichen",
+    "download": "Herunterladen",
+    "backToHome": "Zurück zur Startseite",
+    "editing": "Bearbeiten",
+    "gotIt": "Verstanden"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -401,6 +433,12 @@
   },
   "settings": {
     "title": "Einstellungen",
+    "popupMenuItem": {
+      "settings": "Einstellungen",
+      "members": "Mitglieder",
+      "trash": "Müll",
+      "helpAndSupport": "Hilfe & Unterstützung"
+    },
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
@@ -451,6 +489,9 @@
         "title": "Dokumentauswahlfarbe zurücksetzen",
         "description": "Möchtest du die Auswahlfarbe wirklich zurücksetzen?"
       },
+      "resetWidth": {
+        "resetSuccess": "Dokumentbreite erfolgreich zurückgesetzt"
+      },
       "theme": {
         "title": "Design",
         "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch.",
@@ -494,7 +535,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Arbeitsbereich verlassen",
-        "content": "Möchtest du diesen Arbeitsbereich wirklich verlassen? Du verlierst den Zugriff auf alle darin enthaltenen Seiten und Daten."
+        "content": "Möchtest du diesen Arbeitsbereich wirklich verlassen? Du verlierst den Zugriff auf alle darin enthaltenen Seiten und Daten.",
+        "success": "Sie haben den Arbeitsbereich erfolgreich verlassen.",
+        "fail": "Das Verlassen des Arbeitsbereichs ist fehlgeschlagen."
       },
       "manageWorkspace": {
         "title": "Arbeitsbereich verwalten",
@@ -675,6 +718,7 @@
         "downloadLLMPrompt": "Herunterladen {}",
         "downloadAppFlowyOfflineAI": "Durch das Herunterladen des KI-Offlinepakets kann KI auf deinem Gerät ausgeführt werden. Möchtest du fortfahren?",
         "downloadLLMPromptDetail": "Das Herunterladen des lokalen Modells {} beansprucht bis zu {} Speicherplatz. Möchtest du fortfahren?",
+        "downloadBigFilePrompt": "Der Download kann etwa 10 Minuten dauern",
         "downloadAIModelButton": "KI-Modell herunterladen",
         "downloadingModel": "wird heruntergeladen",
         "localAILoaded": "Lokales KI-Modell erfolgreich hinzugefügt und einsatzbereit",
@@ -769,6 +813,7 @@
             "description": "KI offline auf deinem Gerät",
             "price": "{}",
             "priceInfo": "pro Benutzer und Monat",
+            "recommend": "Empfohlen wird M1 oder neuer",
             "billingInfo": "jährliche Abrechnung oder {} bei monatlicher Abrechnung"
           }
         },
@@ -857,6 +902,7 @@
         "itemFour": "Gäste",
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
+        "itemFileUpload": "Datei-Uploads",
         "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
         "intelligentSearch": "Intelligente Suche",
         "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
@@ -873,6 +919,7 @@
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "ja",
+        "itemFileUpload": "Bis zu 7 MB",
         "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "1.000 lebenslang"
@@ -884,6 +931,7 @@
         "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
         "itemFive": "unbegrenzt",
         "itemSix": "ja",
+        "itemFileUpload": "Unbegrenzt",
         "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "10.000 monatlich"
@@ -936,6 +984,8 @@
       }
     },
     "common": {
+      "uploadingFile": "Datei wird hochgeladen. Bitte beenden Sie die App nicht.",
+      "uploadNotionSuccess": "Ihre Notion-ZIP-Datei wurde erfolgreich hochgeladen. Sobald der Import abgeschlossen ist, erhalten Sie eine Bestätigungs-E-Mail",
       "reset": "Zurücksetzen"
     },
     "menu": {
@@ -964,6 +1014,7 @@
       "selfHostStart": "Falls du keinen Server hast, konsultiere bitte",
       "selfHostContent": "Dokument",
       "selfHostEnd": "um einen einen eigenen Server aufzusetzen",
+      "pleaseInputValidURL": "Bitte geben Sie eine gültige URL ein",
       "cloudURLHint": "Eingabe der Basis- URL Ihres Servers",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Eingbe der Websocket Adresse Ihres Servers",
@@ -1054,6 +1105,8 @@
       "documentSettings": {
         "cursorColor": "Cursor-Farbe",
         "selectionColor": "Auswahl-Farbe",
+        "width": "Dokumentbreite",
+        "changeWidth": "Ändern",
         "pickColor": "Wähle eine Farbe",
         "colorShade": "Farbschattierung",
         "opacity": "Opazität",
@@ -1119,6 +1172,8 @@
         "user": "Nutzer",
         "role": "Rolle",
         "removeFromWorkspace": "Vom Arbeitsbereich entfernen",
+        "removeFromWorkspaceSuccess": "Erfolgreich aus dem Arbeitsbereich entfernt",
+        "removeFromWorkspaceFailed": "Entfernen aus Arbeitsbereich fehlgeschlagen",
         "owner": "Besitzer",
         "guest": "Gast",
         "member": "Mitglied",
@@ -1134,6 +1189,7 @@
         },
         "inviteFailedDialogTitle": "Einladung konnte nicht gesendet werden",
         "inviteFailedMemberLimit": "Das Mitgliederlimit wurde erreicht. Bitte führe ein Upgrade durch, um weitere Mitglieder einzuladen.",
+        "inviteFailedMemberLimitMobile": "Ihr Arbeitsbereich hat das Mitgliederlimit erreicht.",
         "memberLimitExceeded": "Du hast die maximal zulässige Mitgliederzahl für dein Benutzerkonto erreicht. Benötigst du weitere Mitglieder, um deine Arbeit fortsetzen zu können, erstelle auf Github bitte eine entsprechende Anfrage.",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Mitgliederlimit erreicht. Wenn du mehr Mitglieder benötigst, kontaktiere",
@@ -1143,7 +1199,9 @@
         "removeMember": "Mitglied entfernen",
         "areYouSureToRemoveMember": "Möchtest du dieses Mitglied wirklich entfernen?",
         "inviteMemberSuccess": "Die Einladung wurde erfolgreich versendet",
-        "failedToInviteMember": "Das Einladen des Mitglieds ist fehlgeschlagen"
+        "failedToInviteMember": "Das Einladen des Mitglieds ist fehlgeschlagen",
+        "workspaceMembersError": "Hoppla, da ist etwas schiefgelaufen",
+        "workspaceMembersErrorDescription": "Wir konnten die Mitgliederliste derzeit nicht laden. Bitte versuchen Sie es später noch einmal."
       }
     },
     "files": {
@@ -1266,6 +1324,10 @@
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
       "numberOfVisibleFields": "{} angezeigt"
+    },
+    "filter": {
+      "empty": "Keine aktiven Filter",
+      "addFilter": "Filter hinzufügen"
     },
     "textFilter": {
       "contains": "Enthält",

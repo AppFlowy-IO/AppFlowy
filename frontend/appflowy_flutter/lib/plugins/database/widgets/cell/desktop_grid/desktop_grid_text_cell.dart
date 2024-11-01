@@ -38,7 +38,6 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
                         : null,
                   ),
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.only(top: 4),
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,

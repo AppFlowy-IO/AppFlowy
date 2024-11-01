@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 
 class FlowyIconTextButton extends StatelessWidget {
   final Widget Function(bool onHover) textBuilder;
@@ -528,7 +527,6 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     child = RawMaterialButton(
-      visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),

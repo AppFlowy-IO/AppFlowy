@@ -360,7 +360,7 @@ pub(crate) fn validate_collab_db(
   match result {
     Ok(db) => {
       let read_txn = db.read_txn();
-      read_txn.is_exist(uid, workspace_id)
+      read_txn.is_exist(uid, workspace_id, workspace_id)
     },
     Err(err) => {
       error!("open collab db error, {:?}", err);

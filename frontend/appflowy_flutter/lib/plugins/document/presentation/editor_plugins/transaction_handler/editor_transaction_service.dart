@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_notification.dart'
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/child_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/mention_transaction_handler.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -44,6 +45,7 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
   bool isUndoRedo = false;
   bool isPaste = false;
   bool isDraggingNode = false;
+  bool isTurnInto = false;
 
   @override
   void initState() {
@@ -75,6 +77,8 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       isDraggingNode = true;
     } else if (type == EditorNotificationType.dragEnd) {
       isDraggingNode = false;
+    } else if (type == EditorNotificationType.turnInto) {
+      isTurnInto = true;
     }
 
     if (type == EditorNotificationType.undo) {
@@ -131,11 +135,11 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
     final Map<String, dynamic> added = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
     final Map<String, dynamic> removed = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
 
     for (final op in event.$2.operations) {
@@ -223,12 +227,14 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         isUndoRedo: isUndoRedo,
         isPaste: isPaste,
         isDraggingNode: isDraggingNode,
+        isTurnInto: isTurnInto,
         parentViewId: widget.viewId,
       );
     }
 
     isUndoRedo = false;
     isPaste = false;
+    isTurnInto = false;
   }
 
   /// Takes an iterable of [TextInsert] and returns a list of [MentionBlockData].

@@ -5,7 +5,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
@@ -173,8 +172,6 @@ class EditorStyleCustomizer {
     final String? fontFamily;
     final List<double> fontSizes;
     final double fontSize;
-    final FontWeight fontWeight =
-        level <= 2 ? FontWeight.w700 : FontWeight.w600;
     if (UniversalPlatform.isMobile) {
       final state = context.read<DocumentPageStyleBloc>().state;
       fontFamily = state.fontFamily;
@@ -192,7 +189,7 @@ class EditorStyleCustomizer {
         fontSize,
       ];
     }
-    return baseTextStyle(fontFamily, fontWeight: fontWeight).copyWith(
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.w600).copyWith(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
     );
   }

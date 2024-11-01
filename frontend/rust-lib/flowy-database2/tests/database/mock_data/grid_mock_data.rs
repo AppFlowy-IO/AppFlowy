@@ -304,11 +304,9 @@ pub fn make_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
-  let inline_view_id = gen_database_view_id();
-
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
@@ -317,7 +315,6 @@ pub fn make_test_grid() -> DatabaseData {
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,
@@ -392,11 +389,9 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
-  let inline_view_id = gen_database_view_id();
-
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
@@ -405,7 +400,6 @@ pub fn make_no_date_test_grid() -> DatabaseData {
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,

@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/calendar_card_cell_style.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

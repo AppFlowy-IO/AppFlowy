@@ -25,12 +25,13 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 typedef ViewItemOnSelected = void Function(BuildContext context, ViewPB view);
 typedef ViewItemLeftIconBuilder = Widget Function(
@@ -476,6 +477,8 @@ class SingleInnerViewItem extends StatefulWidget {
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   final controller = PopoverController();
+  final viewMoreActionController = PopoverController();
+
   bool isIconPickerOpened = false;
 
   @override
@@ -544,12 +547,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         children.add(
           _buildViewMoreActionButton(
             context,
-            (popover) => FlowyTooltip(
+            viewMoreActionController,
+            (_) => FlowyTooltip(
               message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
               child: FlowyIconButton(
                 width: 24,
                 icon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
-                onPressed: popover.show,
+                onPressed: viewMoreActionController.show,
               ),
             ),
           ),
@@ -573,13 +577,19 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         height: widget.height,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: widget.enableRightClickContext
-              ? _buildViewMoreActionButton(
-                  context,
-                  showAtCursor: true,
-                  (_) => Row(children: children),
-                )
-              : Row(children: children),
+          child: Listener(
+            onPointerDown: (event) {
+              if (event.buttons == kSecondaryMouseButton &&
+                  widget.enableRightClickContext) {
+                viewMoreActionController.showAt(
+                  // We add some horizontal offset
+                  event.position + const Offset(4, 0),
+                );
+              }
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Row(children: children),
+          ),
         ),
       ),
     );
@@ -606,11 +616,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   Widget _buildViewIconButton() {
+    // using same line height on macos will result the emoji not aligned vertically with the text
+    final height = UniversalPlatform.isMacOS ? 20.0 : 18.0;
     final icon = widget.view.icon.value.isNotEmpty
         ? FlowyText.emoji(
             widget.view.icon.value,
             fontSize: 16.0,
-            figmaLineHeight: 21.0,
+            figmaLineHeight: height,
           )
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
@@ -707,9 +719,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   // ··· more action button
   Widget _buildViewMoreActionButton(
     BuildContext context,
-    Widget Function(PopoverController) buildChild, {
-    bool showAtCursor = false,
-  }) {
+    PopoverController controller,
+    Widget Function(PopoverController) buildChild,
+  ) {
     return BlocProvider(
       create: (context) => SpaceBloc(
         userProfile: context.read<SpaceBloc>().userProfile,
@@ -717,9 +729,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       )..add(const SpaceEvent.initial(openFirstPage: false)),
       child: ViewMoreActionPopover(
         view: widget.view,
+        controller: controller,
         isExpanded: widget.isExpanded,
         spaceType: widget.spaceType,
-        showAtCursor: showAtCursor,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         buildChild: buildChild,

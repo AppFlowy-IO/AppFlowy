@@ -459,7 +459,9 @@ export class AFClientService implements AFService {
     return APIService.getActiveSubscription(workspaceId);
   }
 
-  registerDocUpdate (doc: Y.Doc, workspaceId: string, objectId: string) {
+  registerDocUpdate (doc: Y.Doc, context: {
+    workspaceId: string, objectId: string, collabType: Types
+  }) {
     const token = getTokenParsed();
     const userId = token?.user.id;
 
@@ -467,12 +469,14 @@ export class AFClientService implements AFService {
       throw new Error('User not found');
     }
 
-    const sync = new SyncManager(doc, userId, workspaceId, objectId);
+    const sync = new SyncManager(doc, { userId, ...context });
 
     sync.initialize();
   }
 
-  importFile (file: File, onProgress: (progress: number) => void) {
-    return APIService.importFile(file, onProgress);
+  async importFile (file: File, onProgress: (progress: number) => void) {
+    const task = await APIService.createImportTask(file);
+
+    await APIService.uploadImportFile(task.presignedUrl, file, onProgress);
   }
 }

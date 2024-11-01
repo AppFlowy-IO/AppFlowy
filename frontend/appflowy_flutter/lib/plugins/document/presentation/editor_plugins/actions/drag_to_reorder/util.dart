@@ -52,11 +52,21 @@ Future<void> dragToMoveNode(
 
   Log.info('Moving node($node, ${node.path}) to path($newPath)');
 
-  // Perform the node move operation
-  final transaction = editorState.transaction;
-  transaction.deleteNode(node);
-  transaction.insertNode(newPath, node.copyWith());
-  await editorState.apply(transaction);
+  final newPathNode = editorState.getNodeAtPath(newPath);
+  if (newPathNode == null) {
+    // if the new path is not a valid path, it means the node is not in the editor.
+    // we should perform insertion before deletion.
+    final transaction = editorState.transaction;
+    transaction.insertNode(newPath, node.copyWith());
+    transaction.deleteNode(node);
+    await editorState.apply(transaction);
+  } else {
+    // Perform the node move operation
+    final transaction = editorState.transaction;
+    transaction.deleteNode(node);
+    transaction.insertNode(newPath, node.copyWith());
+    await editorState.apply(transaction);
+  }
 }
 
 (VerticalPosition, HorizontalPosition, Rect)? getDragAreaPosition(

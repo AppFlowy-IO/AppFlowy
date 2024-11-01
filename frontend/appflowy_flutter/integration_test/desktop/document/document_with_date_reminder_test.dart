@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,7 +33,6 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
-        offset: 100,
       );
 
       final dateTimeSettings = DateTimeSettingsPB(
@@ -56,11 +56,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // add time 11:12
-      final currentTime = DateFormat('HH:mm').format(DateTime.now());
-      final textField = find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.controller!.text == currentTime,
-      );
+      final textField = find
+          .descendant(
+            of: find.byType(AppFlowyDatePicker),
+            matching: find.byType(TextField),
+          )
+          .last;
+      await tester.pumpUntilFound(textField);
       await tester.enterText(textField, "11:12");
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
@@ -84,7 +86,6 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_dateOrReminder.tr(),
-        offset: 100,
       );
 
       final dateTimeSettings = DateTimeSettingsPB(

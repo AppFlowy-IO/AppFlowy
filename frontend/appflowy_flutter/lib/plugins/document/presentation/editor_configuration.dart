@@ -4,10 +4,7 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -261,6 +258,8 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     ToggleListBlockKeys.type: _buildToggleListBlockComponentBuilder(
       context,
       configuration,
+      styleCustomizer,
+      customHeadingPadding,
     ),
     OutlineBlockKeys.type: _buildOutlineBlockComponentBuilder(
       context,
@@ -574,9 +573,47 @@ SmartEditBlockComponentBuilder _buildSmartEditBlockComponentBuilder(
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
+  EditorStyleCustomizer styleCustomizer,
+  EdgeInsets? customHeadingPadding,
 ) {
   return ToggleListBlockComponentBuilder(
-    configuration: configuration,
+    configuration: configuration.copyWith(
+      padding: (node) {
+        if (customHeadingPadding != null) {
+          return customHeadingPadding;
+        }
+
+        if (UniversalPlatform.isMobile) {
+          final pageStyle = context.read<DocumentPageStyleBloc>().state;
+          final factor = pageStyle.fontLayout.factor;
+          final headingPaddings =
+              pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
+          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+          level = level.clamp(1, 6);
+          return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
+        }
+
+        return const EdgeInsets.only(top: 12.0, bottom: 4.0);
+      },
+      textStyle: (node) {
+        final level = node.attributes[ToggleListBlockKeys.level] as int?;
+        if (level == null) {
+          return configuration.textStyle(node);
+        }
+        return styleCustomizer.headingStyleBuilder(level);
+      },
+      placeholderText: (node) {
+        int? level = node.attributes[ToggleListBlockKeys.level];
+        if (level == null) {
+          return configuration.placeholderText(node);
+        }
+        level = level.clamp(1, 6);
+        return LocaleKeys.blockPlaceholders_heading.tr(
+          args: [level.toString()],
+        );
+      },
+    ),
+    textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
   );
 }
 

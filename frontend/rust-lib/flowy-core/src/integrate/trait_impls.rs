@@ -1,8 +1,8 @@
-use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::search_dto::SearchDocumentResponseItem;
-use client_api::entity::ChatMessageType;
+use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::{ChatMessageType, PublishInfo};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
@@ -34,7 +34,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
+use flowy_folder_pub::entities::PublishPayload;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
@@ -224,19 +224,19 @@ impl UserCloudServiceProvider for ServerProvider {
 
 #[async_trait]
 impl FolderCloudService for ServerProvider {
-  async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, Error> {
+  async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, FlowyError> {
     let server = self.get_server()?;
     let name = name.to_string();
     server.folder_service().create_workspace(uid, &name).await
   }
 
-  async fn open_workspace(&self, workspace_id: &str) -> Result<(), Error> {
+  async fn open_workspace(&self, workspace_id: &str) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
     server.folder_service().open_workspace(&workspace_id).await
   }
 
-  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, Error> {
+  async fn get_all_workspace(&self) -> Result<Vec<WorkspaceRecord>, FlowyError> {
     let server = self.get_server()?;
     server.folder_service().get_all_workspace().await
   }
@@ -245,7 +245,7 @@ impl FolderCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     uid: &i64,
-  ) -> Result<Option<FolderData>, Error> {
+  ) -> Result<Option<FolderData>, FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -258,7 +258,7 @@ impl FolderCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     limit: usize,
-  ) -> Result<Vec<FolderSnapshot>, Error> {
+  ) -> Result<Vec<FolderSnapshot>, FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -273,7 +273,7 @@ impl FolderCloudService for ServerProvider {
     uid: i64,
     collab_type: CollabType,
     object_id: &str,
-  ) -> Result<Vec<u8>, Error> {
+  ) -> Result<Vec<u8>, FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -286,7 +286,7 @@ impl FolderCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -306,7 +306,7 @@ impl FolderCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     payload: Vec<PublishPayload>,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -315,7 +315,11 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn unpublish_views(&self, workspace_id: &str, view_ids: Vec<String>) -> Result<(), Error> {
+  async fn unpublish_views(
+    &self,
+    workspace_id: &str,
+    view_ids: Vec<String>,
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .folder_service()
@@ -323,16 +327,29 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, Error> {
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, FlowyError> {
     let server = self.get_server()?;
     server.folder_service().get_publish_info(view_id).await
+  }
+
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .set_publish_name(workspace_id, view_id, new_name)
+      .await
   }
 
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,
     new_namespace: &str,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .folder_service()
@@ -340,7 +357,7 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, Error> {
+  async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError> {
     let server = self.get_server()?;
     server
       .folder_service()
@@ -348,7 +365,50 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn import_zip(&self, file_path: &str) -> Result<(), Error> {
+  /// List all published views of the current workspace.
+  async fn list_published_views(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<PublishInfoView>, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .list_published_views(workspace_id)
+      .await
+  }
+
+  async fn get_default_published_view_info(
+    &self,
+    workspace_id: &str,
+  ) -> Result<PublishInfo, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .get_default_published_view_info(workspace_id)
+      .await
+  }
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .set_default_published_view(workspace_id, view_id)
+      .await
+  }
+
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .remove_default_published_view(workspace_id)
+      .await
+  }
+
+  async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError> {
     self
       .get_server()?
       .folder_service()
@@ -364,7 +424,7 @@ impl DatabaseCloudService for ServerProvider {
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<EncodedCollab>, Error> {
+  ) -> Result<Option<EncodedCollab>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
     let database_id = object_id.to_string();
@@ -380,7 +440,7 @@ impl DatabaseCloudService for ServerProvider {
     collab_type: CollabType,
     workspace_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .database_service()
@@ -393,7 +453,7 @@ impl DatabaseCloudService for ServerProvider {
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<EncodeCollabByOid, Error> {
+  ) -> Result<EncodeCollabByOid, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
 
@@ -407,7 +467,7 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     object_id: &str,
     limit: usize,
-  ) -> Result<Vec<DatabaseSnapshot>, Error> {
+  ) -> Result<Vec<DatabaseSnapshot>, FlowyError> {
     let server = self.get_server()?;
     let database_id = object_id.to_string();
 
@@ -468,7 +528,7 @@ impl DocumentCloudService for ServerProvider {
     document_id: &str,
     limit: usize,
     workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     let server = self.get_server()?;
 
     server
@@ -481,7 +541,7 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, FlowyError> {
     let server = self.get_server()?;
     server
       .document_service()
@@ -494,7 +554,7 @@ impl DocumentCloudService for ServerProvider {
     workspace_id: &str,
     document_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server
       .document_service()

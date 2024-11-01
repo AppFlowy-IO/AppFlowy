@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -37,7 +36,6 @@ class _SortButtonState extends State<SortButton> {
             LocaleKeys.grid_settings_sort.tr(),
             fontColor: textColor,
             fontSize: FontSizes.s12,
-            fontWeight: FontWeight.w400,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: GridSize.toolbarSettingButtonInsets,

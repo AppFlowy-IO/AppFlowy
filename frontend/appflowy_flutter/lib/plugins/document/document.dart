@@ -128,6 +128,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     });
 
     final fixedTitle = data?[MobileDocumentScreen.viewFixedTitle];
+    final blockId = initialBlockId ?? data?[MobileDocumentScreen.viewBlockId];
 
     return BlocProvider<ViewInfoBloc>.value(
       value: bloc,
@@ -137,7 +138,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           view: view,
           onDeleted: () => context.onDeleted?.call(view, deletedViewIndex),
           initialSelection: initialSelection,
-          initialBlockId: initialBlockId,
+          initialBlockId: blockId,
           fixedTitle: fixedTitle,
         ),
       ),

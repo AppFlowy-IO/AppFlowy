@@ -33,8 +33,21 @@ import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Te
 import { ReactEditor } from 'slate-react';
 
 export const CustomEditor = {
+  // find entry from blockId
+  getBlockEntry (editor: YjsEditor, blockId: string): NodeEntry<Element> | undefined {
+    const [entry] = editor.nodes({
+      at: [],
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
+    });
+
+    if (!entry) {
+      return;
+    }
+
+    return entry as NodeEntry<Element>;
+  },
   // Get the text content of a block node, including the text content of its children and formula nodes
-  getBlockTextContent (node: Node): string {
+  getBlockTextContent (node: Node, depth: number = Infinity): string {
     if (Text.isText(node)) {
       if (node.formula) {
         return node.formula;
@@ -56,7 +69,13 @@ export const CustomEditor = {
       return node.text || '';
     }
 
-    return node.children.map((n) => CustomEditor.getBlockTextContent(n)).join('');
+    if (depth <= 0) {
+      return ''; // Prevent infinite recursion
+    }
+
+    return node.children
+      .map((n) => CustomEditor.getBlockTextContent(n, depth - 1))
+      .join('');
   },
 
   setBlockData<T = BlockData> (editor: YjsEditor, blockId: string, updateData: T, select?: boolean) {
@@ -75,10 +94,7 @@ export const CustomEditor = {
     const newProperties = {
       data: newData,
     } as Partial<Element>;
-    const [entry] = editor.nodes({
-      at: [],
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
-    });
+    const entry = CustomEditor.getBlockEntry(editor, blockId);
 
     if (!entry) {
       console.error('Block not found');

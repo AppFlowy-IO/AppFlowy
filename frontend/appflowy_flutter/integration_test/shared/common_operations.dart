@@ -192,8 +192,13 @@ extension CommonOperations on WidgetTester {
     ViewLayoutPB layout = ViewLayoutPB.Document,
   }) async {
     final page = findPageName(name, layout: layout);
-    await tap(page, buttons: kSecondaryMouseButton);
-    await pumpAndSettle();
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        await tap(page, buttons: kSecondaryMouseButton);
+        await pumpAndSettle();
+      },
+    );
   }
 
   /// open the page with given name.
@@ -214,7 +219,7 @@ extension CommonOperations on WidgetTester {
       of: find.byType(ViewMoreActionPopover),
       matching: find.byFlowySvg(FlowySvgs.workspace_three_dots_s),
     );
-    await tapButton(optionButton, warnIfMissed: true);
+    await tapButton(optionButton);
   }
 
   /// Tap the delete page button.
@@ -309,6 +314,15 @@ extension CommonOperations on WidgetTester {
       (widget) => widget is ShareButton,
     );
     await tapButton(shareButton);
+  }
+
+  // open the share menu and then click the publish tab
+  Future<void> openPublishMenu() async {
+    await tapShareButton();
+    final publishButton = find.textContaining(
+      LocaleKeys.shareAction_publishTab.tr(),
+    );
+    await tapButton(publishButton);
   }
 
   /// Tap the export markdown button

@@ -22,11 +22,12 @@ serde_json.workspace = true
 serde_repr.workspace = true
 serde.workspace = true
 reqwest = { version = "0.11.14", optional = true, features = [
-    "native-tls-vendored",
+  "native-tls-vendored",
 ] }
 flowy-sqlite = { workspace = true, optional = true }
 r2d2 = { version = "0.8", optional = true }
 url = { version = "2.2", optional = true }
+collab = { workspace = true }
 collab-database = { workspace = true, optional = true }
 collab-document = { workspace = true, optional = true }
 collab-plugins = { workspace = true, optional = true }
@@ -35,14 +36,15 @@ client-api = { workspace = true, optional = true }
 tantivy = { version = "0.22.0", optional = true }
 
 [features]
+default = ["impl_from_dispatch_error", "impl_from_serde", "impl_from_reqwest"]
 impl_from_dispatch_error = ["lib-dispatch"]
 impl_from_serde = []
 impl_from_reqwest = ["reqwest"]
 impl_from_collab_persistence = ["collab-plugins"]
 impl_from_collab_document = [
-    "collab-document",
-    "impl_from_reqwest",
-    "collab-plugins",
+  "collab-document",
+  "impl_from_reqwest",
+  "collab-plugins",
 ]
 impl_from_collab_folder = ["collab-folder"]
 impl_from_collab_database = ["collab-database"]

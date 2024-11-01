@@ -46,7 +46,7 @@ export const LinkPreview = memo(
       >
         <div
           className={
-            'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded border border-line-divider bg-fill-list-active p-3'
+            'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-3'
           }
         >
           {notFound ? (

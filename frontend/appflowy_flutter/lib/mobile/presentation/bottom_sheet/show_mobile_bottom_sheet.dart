@@ -143,6 +143,7 @@ Future<T?> showMobileBottomSheet<T>(
                     ) ??
                     Expanded(
                       child: Scrollbar(
+                        controller: scrollController,
                         child: SingleChildScrollView(
                           controller: scrollController,
                           child: child,

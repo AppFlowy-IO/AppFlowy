@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/share_menu.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -61,11 +62,11 @@ void main() {
       final plainText = clipboardContent.plainText;
       expect(
         plainText,
-        startsWith(ShareConstants.shareBaseUrl),
+        matches(appflowySharePageLinkPattern),
       );
 
       final shareValues = plainText!
-          .replaceAll('${ShareConstants.shareBaseUrl}/', '')
+          .replaceAll('https://${ShareConstants.shareBaseUrl}/', '')
           .split('/');
       final workspaceId = shareValues[0];
       expect(workspaceId, isNotEmpty);

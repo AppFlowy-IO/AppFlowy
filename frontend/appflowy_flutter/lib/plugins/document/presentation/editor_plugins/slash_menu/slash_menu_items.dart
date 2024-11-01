@@ -7,7 +7,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -72,6 +71,62 @@ final heading3SlashMenuItem = SelectionMenuItem(
   keywords: ['heading 3', 'h3', 'heading3'],
   handler: (editorState, _, __) {
     insertHeadingAfterSelection(editorState, 3);
+  },
+);
+
+// toggle heading 1 menu item
+// heading 1 - 3 menu items
+final toggleHeading1SlashMenuItem = SelectionMenuItem(
+  // todo: i18n
+  getName: () => LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_h1_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 1', 'toggle h1', 'toggle heading1'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(),
+    );
+  },
+);
+
+final toggleHeading2SlashMenuItem = SelectionMenuItem(
+  // todo: i18n
+  getName: () => LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_h2_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 2', 'toggle h2', 'toggle heading2'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(level: 2),
+    );
+  },
+);
+
+final toggleHeading3SlashMenuItem = SelectionMenuItem(
+  // todo: i18n
+  getName: () => LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.slash_menu_icon_h3_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 3', 'toggle h3', 'toggle heading3'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(level: 3),
+    );
   },
 );
 
@@ -270,12 +325,19 @@ final referencedDocSlashMenuItem = SelectionMenuItem(
     'notes',
     'referenced page',
     'referenced document',
+    'referenced database',
+    'link to database',
+    'link to document',
     'link to page',
+    'link to grid',
+    'link to board',
+    'link to calendar',
   ],
   handler: (editorState, menuService, context) => showLinkToPageMenu(
     editorState,
     menuService,
-    ViewLayoutPB.Document,
+    // enable database and document references
+    insertPage: false,
   ),
 );
 
@@ -289,8 +351,11 @@ SelectionMenuItem referencedGridSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'grid', 'database', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Grid),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Grid,
+  ),
 );
 
 SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
@@ -302,8 +367,11 @@ SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'board', 'kanban', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Board),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Board,
+  ),
 );
 
 SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
@@ -315,8 +383,11 @@ SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'calendar', 'database', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Calendar),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Calendar,
+  ),
 );
 
 // callout menu item

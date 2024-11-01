@@ -130,7 +130,8 @@
     "copyShareLink": "Copy share link",
     "copyLinkFailed": "Failed to copy link to clipboard",
     "copyLinkToBlockSuccess": "Copied block link to clipboard",
-    "copyLinkToBlockFailed": "Failed to copy block link to clipboard"
+    "copyLinkToBlockFailed": "Failed to copy block link to clipboard",
+    "manageAllSites": "Manage all sites"
   },
   "moreAction": {
     "small": "small",
@@ -433,6 +434,62 @@
       "members": "Members",
       "trash": "Trash",
       "helpAndSupport": "Help & Support"
+    },
+    "sites": {
+      "title": "Sites",
+      "namespaceTitle": "Namespace",
+      "namespaceDescription": "Manage your namespace and homepage",
+      "namespaceHeader": "Namespace",
+      "homepageHeader": "Homepage",
+      "updateNamespace": "Update namespace",
+      "removeHomepage": "Remove homepage",
+      "selectHomePage": "Select a page",
+      "namespace": {
+        "description": "This change will apply to all the published pages live on this namespace",
+        "tooltip": "We reserve the rights to remove any inappropriate namespaces",
+        "updateExistingNamespace": "Update existing namespace",
+        "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
+        "redirectToPayment": "Redirecting to payment page...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage"
+      },
+      "publishedPage": {
+        "title": "All published pages",
+        "description": "Manage your published pages",
+        "page": "page",
+        "pathName": "Path name",
+        "date": "Published date",
+        "emptyHinText": "You have no published pages in this workspace",
+        "noPublishedPages": "No published pages",
+        "settings": "Publish settings"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
+        "failedToUpdateNamespace": "Failed to update namespace",
+        "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
+        "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
+        "invalidNamespace": "Invalid namespace, please try another one",
+        "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Only workspace owner can update the namespace",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Only workspace owner can remove the homepage",
+        "setHomepageFailed": "Failed to set homepage",
+        "namespaceTooLong": "The namespace is too long, please try another one",
+        "namespaceTooShort": "The namespace is too short, please try another one",
+        "namespaceIsReserved": "The namespace is reserved, please try another one",
+        "updatePathNameFailed": "Failed to update path name",
+        "removeHomePageFailed": "Failed to remove homepage",
+        "publishNameContainsInvalidCharacters": "The path name contains invalid character(s), please try another one",
+        "publishNameTooShort": "The path name is too short, please try another one",
+        "publishNameTooLong": "The path name is too long, please try another one",
+        "publishNameAlreadyInUse": "The path name is already in use, please try another one",
+        "namespaceContainsInvalidCharacters": "The namespace contains invalid character(s), please try another one",
+        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings"
+      },
+      "success": {
+        "namespaceUpdated": "Updated namespace successfully",
+        "setHomepageSuccess": "Set homepage successfully",
+        "updatePathNameSuccess": "Updated path name successfully",
+        "removeHomePageSuccess": "Remove homepage successfully"
+      }
     },
     "accountPage": {
       "menuLabel": "My account",
@@ -1341,8 +1398,8 @@
       "label": "Property",
       "hide": "Hide property",
       "show": "Show property",
-      "insertLeft": "Insert Left",
-      "insertRight": "Insert Right",
+      "insertLeft": "Insert left",
+      "insertRight": "Insert right",
       "duplicate": "Duplicate",
       "delete": "Delete",
       "wrapCellContent": "Wrap text",
@@ -1395,7 +1452,7 @@
       "openRowDocument": "Open as a page",
       "deleteFieldPromptMessage": "Are you sure? This property and all its data will be deleted",
       "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
-      "newColumn": "New Column",
+      "newColumn": "New column",
       "format": "Format",
       "reminderOnDateTooltip": "This cell has a scheduled reminder",
       "optionAlreadyExist": "Option already exists"
@@ -1576,6 +1633,9 @@
         "mathEquation": "Math Equation",
         "code": "Code",
         "toggleList": "Toggle list",
+        "toggleHeading1": "Toggle heading 1",
+        "toggleHeading2": "Toggle heading 2",
+        "toggleHeading3": "Toggle heading 3",
         "emoji": "Emoji",
         "aiWriter": "AI Writer",
         "dateOrReminder": "Date or Reminder",
@@ -2716,5 +2776,48 @@
     "laterButton": "Later",
     "refreshNote": "After successful upgrade, click <refresh/> to activate your new features.",
     "refresh": "here"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumbs"
+  },
+  "time": {
+    "justNow": "Just now",
+    "seconds": {
+      "one": "1 second",
+      "other": "{count} seconds"
+    },
+    "minutes": {
+      "one": "1 minute",
+      "other": "{count} minutes"
+    },
+    "hours": {
+      "one": "1 hour",
+      "other": "{count} hours"
+    },
+    "days": {
+      "one": "1 day",
+      "other": "{count} days"
+    },
+    "weeks": {
+      "one": "1 week",
+      "other": "{count} weeks"
+    },
+    "months": {
+      "one": "1 month",
+      "other": "{count} months"
+    },
+    "years": {
+      "one": "1 year",
+      "other": "{count} years"
+    },
+    "ago": "ago",
+    "yesterday": "Yesterday",
+    "today": "Today"
+  },
+  "members": {
+    "zero": "No members",
+    "one": "1 member",
+    "many": "{count} members",
+    "other": "{count} members"
   }
 }

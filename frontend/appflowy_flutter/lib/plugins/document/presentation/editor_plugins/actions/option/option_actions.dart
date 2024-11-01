@@ -28,6 +28,8 @@ enum EditorOptionActionType {
           BulletedListBlockKeys.type,
           NumberedListBlockKeys.type,
           TodoListBlockKeys.type,
+          ToggleListBlockKeys.type,
+          SubPageBlockKeys.type,
         };
       case EditorOptionActionType.color:
         return {
