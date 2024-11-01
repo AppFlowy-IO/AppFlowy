@@ -76,3 +76,11 @@ runs:
         sudo apt-get install network-manager
         flutter test ${{ inputs.test_path }} -d Linux --coverage
       shell: bash
+
+    - uses: codecov/codecov-action@v4
+      with:
+        working-directory: frontend/appflowy_flutter
+        flags: flutter_integration_test_${{ inputs.test_path }}
+        name: flutter_integration_test_${{ inputs.test_path }}
+        token: ${{ secrets.CODECOV_TOKEN }}
+        verbose: true

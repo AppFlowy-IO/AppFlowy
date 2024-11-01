@@ -216,6 +216,13 @@ jobs:
           fi
         shell: bash
 
+      - uses: codecov/codecov-action@v4
+        with:
+          working-directory: frontend/appflowy_flutter
+          verbose: true
+          flags: flutter_unit_test
+          name: flutter_unit_test
+
   cloud_integration_test:
     needs: [prepare-linux]
     strategy:
@@ -338,6 +345,13 @@ jobs:
           docker ps -a
           flutter test integration_test/desktop/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
+
+      - uses: codecov/codecov-action@v4
+        with:
+          working-directory: frontend/appflowy_flutter
+          verbose: true
+          flags: flutter_integration_test_cloud_runner
+          name: flutter_integration_test_cloud_runner
 
   integration_test:
     needs: [prepare-linux]
