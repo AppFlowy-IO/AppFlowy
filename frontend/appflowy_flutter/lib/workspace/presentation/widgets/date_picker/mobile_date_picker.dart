@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_she
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_option_decorate_box.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_editor.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
@@ -293,23 +294,6 @@ class _TimePicker extends StatelessWidget {
     final endDateStr = getDateStr(endDateTime);
     final endTimeStr = getTimeStr(endDateTime);
 
-    if (dateStr.isEmpty) {
-      return const Divider(height: 1);
-    }
-
-    if (endDateStr.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: _buildTime(
-          context,
-          dateStr,
-          timeStr,
-          includeTime,
-          false,
-        ),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -322,14 +306,16 @@ class _TimePicker extends StatelessWidget {
             includeTime,
             true,
           ),
-          VSpace(8.0, color: Theme.of(context).colorScheme.surface),
-          _buildTime(
-            context,
-            endDateStr,
-            endTimeStr,
-            includeTime,
-            false,
-          ),
+          if (endDateTime != null) ...[
+            VSpace(8.0, color: Theme.of(context).colorScheme.surface),
+            _buildTime(
+              context,
+              endDateStr,
+              endTimeStr,
+              includeTime,
+              false,
+            ),
+          ],
         ],
       ),
     );
@@ -337,41 +323,21 @@ class _TimePicker extends StatelessWidget {
 
   Widget _buildTime(
     BuildContext context,
-    String? dateStr,
-    String? timeStr,
+    String dateStr,
+    String timeStr,
     bool includeTime,
     bool isStartDay,
   ) {
-    if (dateStr == null) {
-      return const SizedBox.shrink();
-    }
-
     final List<Widget> children = [];
+
+    final now = DateTime.now();
+    final hintDate = DateTime(now.year, now.month, 1, 9);
 
     if (!includeTime) {
       children.add(
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: GestureDetector(
-              onTap: () async {
-                final result = await _showDateTimePicker(
-                  context,
-                  isStartDay ? dateTime : endDateTime,
-                  use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
-                  mode: CupertinoDatePickerMode.date,
-                );
-                handleDateTimePickerResult(result, isStartDay);
-              },
-              child: FlowyText(dateStr),
-            ),
-          ),
-        ),
-      );
-    } else {
-      children.addAll([
-        Expanded(
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () async {
               final result = await _showDateTimePicker(
                 context,
@@ -381,9 +347,40 @@ class _TimePicker extends StatelessWidget {
               );
               handleDateTimePickerResult(result, isStartDay);
             },
-            child: FlowyText(
-              dateStr,
-              textAlign: TextAlign.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 8,
+              ),
+              child: FlowyText(
+                dateStr.isNotEmpty ? dateStr : getDateStr(hintDate),
+                color: dateStr.isEmpty ? Theme.of(context).hintColor : null,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      children.addAll([
+        Expanded(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () async {
+              final result = await _showDateTimePicker(
+                context,
+                isStartDay ? dateTime : endDateTime,
+                use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
+                mode: CupertinoDatePickerMode.date,
+              );
+              handleDateTimePickerResult(result, isStartDay);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: FlowyText(
+                dateStr.isNotEmpty ? dateStr : getDateStr(hintDate),
+                textAlign: TextAlign.center,
+                color: dateStr.isEmpty ? Theme.of(context).hintColor : null,
+              ),
             ),
           ),
         ),
@@ -394,6 +391,7 @@ class _TimePicker extends StatelessWidget {
         ),
         Expanded(
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () async {
               final result = await _showDateTimePicker(
                 context,
@@ -403,9 +401,13 @@ class _TimePicker extends StatelessWidget {
               );
               handleDateTimePickerResult(result, isStartDay);
             },
-            child: FlowyText(
-              timeStr!,
-              textAlign: TextAlign.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: FlowyText(
+                timeStr.isNotEmpty ? timeStr : getTimeStr(hintDate),
+                textAlign: TextAlign.center,
+                color: dateStr.isEmpty ? Theme.of(context).hintColor : null,
+              ),
             ),
           ),
         ),
@@ -421,7 +423,9 @@ class _TimePicker extends StatelessWidget {
           color: Theme.of(context).colorScheme.outline,
         ),
       ),
-      child: Row(children: children),
+      child: Row(
+        children: children,
+      ),
     );
   }
 
@@ -482,29 +486,14 @@ class _TimePicker extends StatelessWidget {
     if (dateTime == null) {
       return "";
     }
-    final format = DateFormat(
-      switch (dateFormat) {
-        DateFormatPB.Local => 'MM/dd/y',
-        DateFormatPB.US => 'y/MM/dd',
-        DateFormatPB.ISO => 'y-MM-dd',
-        DateFormatPB.Friendly => 'MMM dd, y',
-        DateFormatPB.DayMonthYear => 'dd/MM/y',
-        _ => 'MMM dd, y',
-      },
-    );
-
-    return format.format(dateTime);
+    return DateFormat(dateFormat.pattern).format(dateTime);
   }
 
   String getTimeStr(DateTime? dateTime) {
     if (dateTime == null || !includeTime) {
       return "";
     }
-    final format = timeFormat == TimeFormatPB.TwelveHour
-        ? DateFormat.jm()
-        : DateFormat.Hm();
-
-    return format.format(dateTime);
+    return DateFormat(timeFormat.pattern).format(dateTime);
   }
 }
 
