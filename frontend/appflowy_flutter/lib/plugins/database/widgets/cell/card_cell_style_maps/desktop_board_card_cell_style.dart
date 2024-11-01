@@ -22,7 +22,6 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
   final TextStyle textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
         fontSize: 11,
         overflow: TextOverflow.ellipsis,
-        fontWeight: FontWeight.w400,
       );
 
   return {
