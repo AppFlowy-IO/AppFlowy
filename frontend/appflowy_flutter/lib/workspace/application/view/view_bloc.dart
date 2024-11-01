@@ -209,7 +209,6 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             final result = await ViewBackendService.createView(
               parentViewId: view.id,
               name: e.name,
-              desc: '',
               layoutType: e.layoutType,
               ext: {},
               openAfterCreate: e.openAfterCreated,

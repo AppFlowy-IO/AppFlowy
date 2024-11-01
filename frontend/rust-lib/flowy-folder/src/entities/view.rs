@@ -250,42 +250,39 @@ pub struct CreateViewPayloadPB {
   #[pb(index = 2)]
   pub name: String,
 
-  #[pb(index = 3)]
-  pub desc: String,
-
-  #[pb(index = 4, one_of)]
+  #[pb(index = 3, one_of)]
   pub thumbnail: Option<String>,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub layout: ViewLayoutPB,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub initial_data: Vec<u8>,
 
-  #[pb(index = 7)]
+  #[pb(index = 6)]
   pub meta: HashMap<String, String>,
 
   // Mark the view as current view after creation.
-  #[pb(index = 8)]
+  #[pb(index = 7)]
   pub set_as_current: bool,
 
   // The index of the view in the parent view.
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
-  #[pb(index = 9, one_of)]
+  #[pb(index = 8, one_of)]
   pub index: Option<u32>,
 
   // The section of the view.
   // Only the view in public section will be shown in the shared workspace view list.
   // The view in private section will only be shown in the user's private view list.
-  #[pb(index = 10, one_of)]
+  #[pb(index = 9, one_of)]
   pub section: Option<ViewSectionPB>,
 
-  #[pb(index = 11, one_of)]
+  #[pb(index = 10, one_of)]
   pub view_id: Option<String>,
 
   // The extra data of the view.
   // Refer to the extra field in the collab
-  #[pb(index = 12, one_of)]
+  #[pb(index = 11, one_of)]
   pub extra: Option<String>,
 }
 
@@ -309,12 +306,9 @@ pub struct CreateOrphanViewPayloadPB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub desc: String,
-
-  #[pb(index = 4)]
   pub layout: ViewLayoutPB,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub initial_data: Vec<u8>,
 }
 
@@ -322,7 +316,6 @@ pub struct CreateOrphanViewPayloadPB {
 pub struct CreateViewParams {
   pub parent_view_id: String,
   pub name: String,
-  pub desc: String,
   pub layout: ViewLayoutPB,
   pub view_id: String,
   pub initial_data: ViewData,
@@ -352,7 +345,6 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
     Ok(CreateViewParams {
       parent_view_id,
       name,
-      desc: self.desc,
       layout: self.layout,
       view_id,
       initial_data: ViewData::Data(self.initial_data.into()),
@@ -376,7 +368,6 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
     Ok(CreateViewParams {
       parent_view_id,
       name,
-      desc: self.desc,
       layout: self.layout,
       view_id: self.view_id,
       initial_data: ViewData::Data(self.initial_data.into()),

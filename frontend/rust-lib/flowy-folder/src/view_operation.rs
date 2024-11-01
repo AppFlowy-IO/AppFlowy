@@ -158,7 +158,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     id: params.view_id,
     parent_view_id: params.parent_view_id,
     name: params.name,
-    desc: params.desc,
     created_at: time,
     is_favorite: false,
     layout,
