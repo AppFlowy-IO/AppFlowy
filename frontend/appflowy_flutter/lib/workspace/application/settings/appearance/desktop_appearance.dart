@@ -143,6 +143,7 @@ class DesktopAppearance extends BaseAppearance {
           borderColor: theme.borderColor,
           scrollbarColor: theme.scrollbarColor,
           scrollbarHoverColor: theme.scrollbarHoverColor,
+          lightIconColor: theme.lightIconColor,
         ),
       ],
     );

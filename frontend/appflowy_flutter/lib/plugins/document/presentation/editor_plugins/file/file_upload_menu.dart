@@ -205,7 +205,8 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                                       .document_plugins_file_fileUploadHint
                                       .tr(),
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
                                     color: Theme.of(context).hintColor,
                                   ),
                                 ),
@@ -214,7 +215,8 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                                       .document_plugins_file_fileUploadHintSuffix
                                       .tr(),
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                   ),

@@ -57,6 +57,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
             if (state.files.isNotEmpty) ...[
               Flexible(
                 child: ReorderableListView.builder(
+                  padding: const EdgeInsets.all(6),
                   physics: const ClampingScrollPhysics(),
                   shrinkWrap: true,
                   buildDefaultDragHandles: false,
@@ -192,10 +193,10 @@ class _AddButton extends StatelessWidget {
                 padding: const EdgeInsets.all(4.0),
                 child: Row(
                   children: [
-                    const FlowySvg(
+                    FlowySvg(
                       FlowySvgs.add_thin_s,
-                      size: Size.square(16),
-                      color: Color(0xFF8F959E),
+                      size: const Size.square(14),
+                      color: AFThemeExtension.of(context).lightIconColor,
                     ),
                     const HSpace(8),
                     FlowyText.regular(
@@ -265,12 +266,12 @@ class _RenderMediaState extends State<RenderMedia> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() => isHovering = false),
-      cursor: SystemMouseCursors.click,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovering = true),
+        onExit: (_) => setState(() => isHovering = false),
+        cursor: SystemMouseCursors.click,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
@@ -278,18 +279,27 @@ class _RenderMediaState extends State<RenderMedia> {
                 ? AFThemeExtension.of(context).greyHover
                 : Colors.transparent,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                ReorderableDragStartListener(
-                  index: widget.index,
-                  enabled: widget.enableReordering,
-                  child: const FlowySvg(FlowySvgs.drag_element_s),
+          child: Row(
+            crossAxisAlignment: widget.file.fileType == MediaFileTypePB.Image
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            children: [
+              ReorderableDragStartListener(
+                index: widget.index,
+                enabled: widget.enableReordering,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: FlowySvg(
+                    FlowySvgs.drag_element_s,
+                    color: AFThemeExtension.of(context).lightIconColor,
+                  ),
                 ),
-                const HSpace(8),
-                if (widget.file.fileType == MediaFileTypePB.Image) ...[
-                  Expanded(
+              ),
+              const HSpace(4),
+              if (widget.file.fileType == MediaFileTypePB.Image) ...[
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: _openInteractiveViewer(
                       context,
                       files: widget.images,
@@ -302,58 +312,66 @@ class _RenderMediaState extends State<RenderMedia> {
                       ),
                     ),
                   ),
-                ] else ...[
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => afLaunchUrlString(file.url),
-                      child: Row(
-                        children: [
-                          FlowySvg(
+                ),
+              ] else ...[
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => afLaunchUrlString(file.url),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: FlowySvg(
                             file.fileType.icon,
                             color: AFThemeExtension.of(context).strongText,
-                            size: const Size.square(18),
+                            size: const Size.square(12),
                           ),
-                          const HSpace(8),
-                          Flexible(
+                        ),
+                        const HSpace(8),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 1),
                             child: FlowyText(
                               file.name,
                               overflow: TextOverflow.ellipsis,
+                              fontSize: 14,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: AppFlowyPopover(
-                    controller: controller,
-                    mutex: widget.mutex,
-                    asBarrier: true,
-                    constraints: const BoxConstraints(maxWidth: 240),
-                    direction: PopoverDirection.bottomWithRightAligned,
-                    popupBuilder: (popoverContext) => BlocProvider.value(
-                      value: context.read<MediaCellBloc>(),
-                      child: MediaItemMenu(
-                        file: file,
-                        images: widget.images,
-                        index: imageIndex ?? -1,
-                        closeContext: popoverContext,
-                        onAction: () => controller.close(),
-                      ),
-                    ),
-                    child: FlowyIconButton(
-                      width: 24,
-                      icon: FlowySvg(
-                        FlowySvgs.three_dots_s,
-                        color: AFThemeExtension.of(context).textColor,
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
-            ),
+              const HSpace(4),
+              AppFlowyPopover(
+                controller: controller,
+                mutex: widget.mutex,
+                asBarrier: true,
+                offset: const Offset(0, 4),
+                constraints: const BoxConstraints(maxWidth: 240),
+                direction: PopoverDirection.bottomWithLeftAligned,
+                popupBuilder: (popoverContext) => BlocProvider.value(
+                  value: context.read<MediaCellBloc>(),
+                  child: MediaItemMenu(
+                    file: file,
+                    images: widget.images,
+                    index: imageIndex ?? -1,
+                    closeContext: popoverContext,
+                    onAction: () => controller.close(),
+                  ),
+                ),
+                child: FlowyIconButton(
+                  hoverColor: Colors.transparent,
+                  width: 24,
+                  icon: FlowySvg(
+                    FlowySvgs.three_dots_s,
+                    size: const Size.square(16),
+                    color: AFThemeExtension.of(context).lightIconColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

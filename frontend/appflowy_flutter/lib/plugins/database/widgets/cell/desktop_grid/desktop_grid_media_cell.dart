@@ -242,6 +242,7 @@ class _FilePreviewRender extends StatelessWidget {
           ),
           child: FlowySvg(
             file.fileType.icon,
+            size: const Size.square(12),
             color: AFThemeExtension.of(context).textColor,
           ),
         ),

@@ -31,6 +31,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
 
 const _dropFileKey = 'files_media';
+const _itemWidth = 86.4;
 
 class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
   final mutex = PopoverMutex();
@@ -76,8 +77,8 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
               // The row width is surrounded by 8px padding on each side
               final rowWidth = constraints.maxWidth - 16;
 
-              // Each item needs 100 px to render, 92px width + 8px runSpacing
-              final itemsPerRow = rowWidth ~/ (92 + 8);
+              // Each item needs 94.4 px to render, 86.4px width + 8px runSpacing
+              final itemsPerRow = rowWidth ~/ (_itemWidth + 8);
 
               // We show at most 2 rows
               itemsToShow = itemsPerRow * 2;
@@ -103,6 +104,7 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ReorderableWrap(
+                      needsLongPressDraggable: false,
                       runSpacing: 8,
                       spacing: 8,
                       onReorder: (from, to) => context
@@ -128,10 +130,7 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                       buildDraggableFeedback: (_, __, child) =>
                           BlocProvider.value(
                         value: context.read<MediaCellBloc>(),
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: child,
-                        ),
+                        child: _FilePreviewFeedback(child: child),
                       ),
                       children: filesToDisplay
                           .mapIndexed(
@@ -180,6 +179,44 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
     context
         .read<MediaCellBloc>()
         .add(const MediaCellEvent.toggleShowAllFiles());
+  }
+}
+
+class _FilePreviewFeedback extends StatelessWidget {
+  const _FilePreviewFeedback({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          width: 2,
+          color: const Color(0xFF00BCF0),
+        ),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1F2329).withOpacity(.2),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: BlocProvider.value(
+          value: context.read<MediaCellBloc>(),
+          child: Material(
+            type: MaterialType.transparency,
+            child: child,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -344,7 +381,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
         url: file.url,
         uploadType: file.uploadType,
         userProfile: context.read<MediaCellBloc>().state.userProfile,
-        width: 92,
+        width: _itemWidth,
         borderRadius: BorderRadius.only(
           topLeft: Corners.s5Radius,
           topRight: Corners.s5Radius,
@@ -358,7 +395,10 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: FlowySvg(file.fileType.icon, color: Colors.black),
+            child: FlowySvg(
+              file.fileType.icon,
+              color: const Color(0xFF666D76),
+            ),
           ),
         ),
       );
@@ -367,10 +407,12 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
     if (widget.foregroundText != null) {
       child = Stack(
         children: [
-          DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
-            child: child,
+          Positioned.fill(
+            child: DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
+              child: child,
+            ),
           ),
           Positioned.fill(
             child: Center(
@@ -433,7 +475,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                     );
                   },
             child: Container(
-              width: 92,
+              width: _itemWidth,
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Corners.s6Radius),
@@ -467,8 +509,8 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                   if (widget.foregroundText == null &&
                       (isHovering || isSelected))
                     Positioned(
-                      top: 5,
-                      right: 5,
+                      top: 3,
+                      right: 3,
                       child: FlowyIconButton(
                         onPressed: () {
                           setState(() => isSelected = true);
