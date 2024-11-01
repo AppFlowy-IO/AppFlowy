@@ -148,6 +148,14 @@ void main() {
     );
   }
 
+  DateTime getLastMonth(DateTime date) {
+    if (date.month == 1) {
+      return DateTime(date.year - 1, 12);
+    } else {
+      return DateTime(date.year, date.month - 1);
+    }
+  }
+
   _MockDatePickerState getMockState(WidgetTester tester) =>
       tester.state<_MockDatePickerState>(find.byType(_MockDatePicker));
 
@@ -281,7 +289,7 @@ void main() {
         findsOneWidget,
       );
 
-      final lastMonth = now.subtract(const Duration(days: 32));
+      final lastMonth = getLastMonth(now);
       await tester.tap(find.byFlowySvg(FlowySvgs.arrow_left_s));
       await tester.pumpAndSettle();
       expect(
@@ -321,14 +329,18 @@ void main() {
       mockState = getMockState(tester);
       expect(mockState.data.dateTime, expected);
 
-      final firstOfNextMonth = dayInDatePicker(1).last;
-      await tester.tap(firstOfNextMonth);
-      await tester.pumpAndSettle();
+      final firstOfNextMonth = dayInDatePicker(1);
 
-      expected = DateTime(now.year, now.month + 1);
-      afState = getAfState(tester);
-      expect(afState.dateTime, expected);
-      expect(afState.focusedDateTime, expected);
+      // for certain months, the first of next month isn't shown
+      if (firstOfNextMonth.allCandidates.length == 2) {
+        await tester.tap(firstOfNextMonth);
+        await tester.pumpAndSettle();
+
+        expected = DateTime(now.year, now.month + 1);
+        afState = getAfState(tester);
+        expect(afState.dateTime, expected);
+        expect(afState.focusedDateTime, expected);
+      }
     });
 
     testWidgets('select date range', (tester) async {
