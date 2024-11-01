@@ -1043,7 +1043,6 @@ impl FolderManager {
       let duplicate_params = CreateViewParams {
         parent_view_id: current_parent_id.clone(),
         name,
-        desc: view.desc.clone(),
         layout: view.layout.clone().into(),
         initial_data: ViewData::DuplicateData(view_data),
         view_id: gen_view_id().to_string(),
@@ -1658,7 +1657,6 @@ impl FolderManager {
     let params = CreateViewParams {
       parent_view_id,
       name: import_data.name,
-      desc: "".to_string(),
       layout: import_data.view_layout.clone().into(),
       initial_data: ViewData::Empty,
       view_id,

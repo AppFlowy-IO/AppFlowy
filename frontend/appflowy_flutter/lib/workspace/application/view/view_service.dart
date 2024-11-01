@@ -18,7 +18,6 @@ class ViewBackendService {
 
     /// The [name] is the name of the view.
     required String name,
-    String? desc,
 
     /// The default value of [openAfterCreate] is false, meaning the view will
     /// not be opened nor set as the current view. However, if set to true, the
@@ -46,17 +45,12 @@ class ViewBackendService {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
       ..name = name
-      ..desc = desc ?? ""
       ..layout = layoutType
       ..setAsCurrent = openAfterCreate
       ..initialData = initialDataBytes ?? [];
 
     if (ext.isNotEmpty) {
       payload.meta.addAll(ext);
-    }
-
-    if (desc != null) {
-      payload.desc = desc;
     }
 
     if (index != null) {
@@ -90,7 +84,6 @@ class ViewBackendService {
     final payload = CreateOrphanViewPayloadPB.create()
       ..viewId = viewId
       ..name = name
-      ..desc = desc ?? ""
       ..layout = layoutType
       ..initialData = initialDataBytes ?? [];
 

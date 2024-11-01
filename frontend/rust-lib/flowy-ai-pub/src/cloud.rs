@@ -92,14 +92,6 @@ pub trait ChatCloudService: Send + Sync + 'static {
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError>;
 
-  async fn create_chat_context(
-    &self,
-    _workspace_id: &str,
-    _chat_context: CreateTextChatContext,
-  ) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
   async fn get_workspace_plan(
     &self,
     workspace_id: &str,
