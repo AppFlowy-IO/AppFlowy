@@ -25,7 +25,7 @@ env:
 
 jobs:
   self-hosted-job:
-    if: github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: self-hosted
     steps:
       - name: Checkout source code

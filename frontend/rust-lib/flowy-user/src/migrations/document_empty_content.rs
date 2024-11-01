@@ -25,7 +25,11 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     "historical_empty_document"
   }
 
-  fn run_when(&self, first_installed_version: &Option<Version>, _current_version: &Version) -> bool {
+  fn run_when(
+    &self,
+    first_installed_version: &Option<Version>,
+    _current_version: &Version,
+  ) -> bool {
     match first_installed_version {
       None => true,
       Some(version) => version < &Version::new(0, 4, 0),

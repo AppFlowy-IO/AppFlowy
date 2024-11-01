@@ -13,7 +13,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name: "chat".to_string(),
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Chat,
       initial_data: vec![],
