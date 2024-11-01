@@ -1,11 +1,17 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -175,6 +181,9 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       return false;
     }
 
+    // Notify the transaction service that the next apply is from turn into action
+    EditorNotification.turnInto().post();
+
     final toType = type;
 
     // only handle the node in the same depth
@@ -189,6 +198,15 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       type: toType,
       selectedNodes: selectedNodes,
       level: level,
+    )) {
+      return true;
+    }
+
+    // try to turn into a page block
+    if (await turnIntoPage(
+      type: toType,
+      selectedNodes: selectedNodes,
+      selection: selection,
     )) {
       return true;
     }
@@ -335,6 +353,126 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     await editorState.apply(transaction);
 
     return true;
+  }
+
+  Future<bool> turnIntoPage({
+    required String type,
+    required List<Node> selectedNodes,
+    required Selection selection,
+  }) async {
+    if (type != SubPageBlockKeys.type || selectedNodes.isEmpty) {
+      return false;
+    }
+
+    if (selectedNodes.length == 1 &&
+        selectedNodes.first.type == SubPageBlockKeys.type) {
+      return true;
+    }
+
+    Log.info('Turn into page');
+
+    final insertedNodes = selectedNodes.map((n) => n.copyWith()).toList();
+    final document = Document.blank()..insert([0], insertedNodes);
+    final name = _extractNameFromNodes(selectedNodes);
+
+    final viewResult = await ViewBackendService.createView(
+      layoutType: ViewLayoutPB.Document,
+      name: name,
+      parentViewId: getIt<MenuSharedState>().latestOpenView?.id ?? '',
+      initialDataBytes:
+          DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer(),
+    );
+
+    await viewResult.fold(
+      (view) async {
+        final viewIdsToMove = _extractChildViewIds(selectedNodes);
+
+        for (final viewId in viewIdsToMove) {
+          await ViewBackendService.moveViewV2(
+            viewId: viewId,
+            newParentId: view.id,
+            prevViewId: null,
+          );
+        }
+
+        final node = subPageNode(viewId: view.id);
+        final transaction = editorState.transaction;
+        transaction
+          ..insertNode(selection.normalized.start.path.next, node)
+          ..deleteNodes(selectedNodes)
+          ..afterSelection = Selection.collapsed(selection.normalized.start);
+        editorState.selectionType = SelectionType.inline;
+
+        await editorState.apply(transaction);
+      },
+      (err) async => Log.error(err),
+    );
+
+    return true;
+  }
+
+  String _extractNameFromNodes(List<Node>? nodes) {
+    if (nodes == null || nodes.isEmpty) {
+      return '';
+    }
+
+    String name = '';
+    for (final node in nodes) {
+      if (node.delta != null) {
+        final text = node.delta!.toPlainText();
+        if (text == MentionBlockKeys.mentionChar) {
+          continue;
+        }
+
+        name = text.substring(0, min(text.length, 30));
+        if (name.isNotEmpty) {
+          break;
+        }
+      }
+
+      if (node.children.isNotEmpty) {
+        final n = _extractNameFromNodes(node.children);
+        if (n.isNotEmpty) {
+          name = n;
+          break;
+        }
+      }
+    }
+
+    return name;
+  }
+
+  List<String> _extractChildViewIds(List<Node> nodes) {
+    final List<String> viewIds = [];
+    for (final node in nodes) {
+      if (node.type == SubPageBlockKeys.type) {
+        final viewId = node.attributes[SubPageBlockKeys.viewId];
+        viewIds.add(viewId);
+      }
+
+      if (node.children.isNotEmpty) {
+        viewIds.addAll(_extractChildViewIds(node.children));
+      }
+
+      if (node.delta == null || node.delta!.isEmpty) {
+        continue;
+      }
+
+      final textInserts = node.delta!.whereType<TextInsert>();
+      for (final ti in textInserts) {
+        final Map<String, dynamic>? mention =
+            ti.attributes?[MentionBlockKeys.mention];
+        if (mention != null &&
+            mention[MentionBlockKeys.type] == MentionType.childPage.name) {
+          final String? viewId = mention[MentionBlockKeys.pageId];
+          if (viewId != null) {
+            viewIds.add(viewId);
+          }
+        }
+      }
+    }
+
+    return viewIds;
   }
 
   Selection? calculateTurnIntoSelection(

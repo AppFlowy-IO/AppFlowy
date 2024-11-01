@@ -45,6 +45,7 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
   bool isUndoRedo = false;
   bool isPaste = false;
   bool isDraggingNode = false;
+  bool isTurnInto = false;
 
   @override
   void initState() {
@@ -76,6 +77,8 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       isDraggingNode = true;
     } else if (type == EditorNotificationType.dragEnd) {
       isDraggingNode = false;
+    } else if (type == EditorNotificationType.turnInto) {
+      isTurnInto = true;
     }
 
     if (type == EditorNotificationType.undo) {
@@ -224,12 +227,14 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         isUndoRedo: isUndoRedo,
         isPaste: isPaste,
         isDraggingNode: isDraggingNode,
+        isTurnInto: isTurnInto,
         parentViewId: widget.viewId,
       );
     }
 
     isUndoRedo = false;
     isPaste = false;
+    isTurnInto = false;
   }
 
   /// Takes an iterable of [TextInsert] and returns a list of [MentionBlockData].

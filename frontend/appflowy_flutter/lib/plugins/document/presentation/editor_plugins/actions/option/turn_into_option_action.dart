@@ -239,6 +239,8 @@ class _TurnInfoButton extends StatelessWidget {
       return FlowySvgs.slash_menu_icon_checkbox_s;
     } else if (type == CalloutBlockKeys.type) {
       return FlowySvgs.slash_menu_icon_callout_s;
+    } else if (type == SubPageBlockKeys.type) {
+      return FlowySvgs.document_s;
     } else if (type == ToggleListBlockKeys.type) {
       switch (level) {
         case 1:
@@ -283,6 +285,8 @@ class _TurnInfoButton extends StatelessWidget {
         return LocaleKeys.document_slashMenu_name_todoList.tr();
       case CalloutBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_callout.tr();
+      case SubPageBlockKeys.type:
+        return LocaleKeys.editor_page.tr();
       case ToggleListBlockKeys.type:
         switch (level) {
           case 1:

@@ -63,3 +63,7 @@ export 'table/table_option_action.dart';
 export 'todo_list/todo_list_icon.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcuts.dart';
+export 'sub_page/sub_page_block_component.dart';
+export 'mention/mention_block.dart';
+export 'image/custom_image_block_component/custom_image_block_component.dart';
+export 'image/multi_image_block_component/multi_image_block_component.dart';
