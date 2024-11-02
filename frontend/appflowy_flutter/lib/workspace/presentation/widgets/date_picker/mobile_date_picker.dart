@@ -306,7 +306,7 @@ class _TimePicker extends StatelessWidget {
             includeTime,
             true,
           ),
-          if (endDateTime != null) ...[
+          if (isRange) ...[
             VSpace(8.0, color: Theme.of(context).colorScheme.surface),
             _buildTime(
               context,
@@ -377,9 +377,8 @@ class _TimePicker extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: FlowyText(
-                dateStr.isNotEmpty ? dateStr : getDateStr(hintDate),
+                dateStr.isNotEmpty ? dateStr : "",
                 textAlign: TextAlign.center,
-                color: dateStr.isEmpty ? Theme.of(context).hintColor : null,
               ),
             ),
           ),
@@ -404,9 +403,8 @@ class _TimePicker extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: FlowyText(
-                timeStr.isNotEmpty ? timeStr : getTimeStr(hintDate),
+                timeStr.isNotEmpty ? timeStr : "",
                 textAlign: TextAlign.center,
-                color: dateStr.isEmpty ? Theme.of(context).hintColor : null,
               ),
             ),
           ),

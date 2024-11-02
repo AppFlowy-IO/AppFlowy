@@ -81,6 +81,7 @@ class DesktopAppFlowyDatePickerState
               isTabPressed: isTabPressedNotifier,
               refreshTextController: refreshStartTextFieldNotifier,
               onSubmitted: onDateTimeInputSubmitted,
+              showHint: true,
             ),
             if (isRange) ...[
               const VSpace(8),
@@ -94,6 +95,7 @@ class DesktopAppFlowyDatePickerState
                 isTabPressed: isTabPressedNotifier,
                 refreshTextController: refreshEndTextFieldNotifier,
                 onSubmitted: onEndDateTimeInputSubmitted,
+                showHint: isRange && !(dateTime != null && endDateTime == null),
               ),
             ],
             const VSpace(14),

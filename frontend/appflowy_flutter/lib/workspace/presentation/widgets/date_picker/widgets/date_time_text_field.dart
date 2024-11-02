@@ -21,6 +21,7 @@ class DateTimeTextField extends StatefulWidget {
     this.popoverMutex,
     this.isTabPressed,
     this.refreshTextController,
+    required this.showHint,
   }) : assert(includeTime && timeFormat != null || !includeTime);
 
   final DateTime? dateTime;
@@ -31,6 +32,7 @@ class DateTimeTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
   final ValueNotifier<bool>? isTabPressed;
   final RefreshDateTimeTextFieldController? refreshTextController;
+  final bool showHint;
 
   @override
   State<DateTimeTextField> createState() => _DateTimeTextFieldState();
@@ -350,7 +352,7 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
       contentPadding: padding,
       isCollapsed: true,
       isDense: true,
-      hintText: hintText,
+      hintText: widget.showHint ? hintText : null,
       hintStyle: Theme.of(context)
           .textTheme
           .bodyMedium
