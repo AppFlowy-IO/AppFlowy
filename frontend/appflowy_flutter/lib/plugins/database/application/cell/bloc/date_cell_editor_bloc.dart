@@ -210,7 +210,9 @@ class DateCellEditorBloc
   }
 
   Future<void> _updateIsRange(bool isRange) async {
-    final dateTime = state.dateTime == null ? DateTime.now().withoutTime : null;
+    final fillerDate =
+        state.includeTime ? DateTime.now() : DateTime.now().withoutTime;
+    final dateTime = state.dateTime == null ? fillerDate : null;
     final endDateTime = dateTime;
 
     final result = await _dateCellBackendService.update(
@@ -222,8 +224,21 @@ class DateCellEditorBloc
   }
 
   Future<void> _updateIncludeTime(bool includeTime) async {
-    final dateTime = state.dateTime ?? DateTime.now().withoutTime;
-    final endDateTime = state.isRange ? state.endDateTime ?? dateTime : null;
+    late final DateTime dateTime;
+    late final DateTime? endDateTime;
+    final now = DateTime.now();
+    if (includeTime) {
+      final time = Duration(hours: now.hour, minutes: now.minute);
+      dateTime = state.dateTime?.withoutTime.add(time) ?? now;
+      endDateTime = state.isRange
+          ? state.endDateTime?.withoutTime.add(time) ?? dateTime
+          : null;
+    } else {
+      dateTime = (state.dateTime ?? now).withoutTime;
+      endDateTime =
+          state.isRange ? state.endDateTime?.withoutTime ?? dateTime : null;
+    }
+
     final result = await _dateCellBackendService.update(
       date: dateTime,
       endDate: endDateTime,
