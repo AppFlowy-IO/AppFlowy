@@ -51,6 +51,16 @@ class PublishedViewMoreAction extends StatelessWidget {
               _buildActionButton(
                 context,
                 builderContext,
+                type: _ActionType.unpublish,
+              ),
+              _buildActionButton(
+                context,
+                builderContext,
+                type: _ActionType.customUrl,
+              ),
+              _buildActionButton(
+                context,
+                builderContext,
                 type: _ActionType.settings,
               ),
             ],
@@ -109,6 +119,17 @@ class PublishedViewMoreAction extends StatelessWidget {
           builderContext,
         );
         break;
+      case _ActionType.unpublish:
+        context.read<SettingsSitesBloc>().add(
+              SettingsSitesEvent.unpublishView(publishInfoView.info.viewId),
+            );
+        break;
+      case _ActionType.customUrl:
+        _showSettingsDialog(
+          context,
+          builderContext,
+        );
+        break;
     }
 
     PopoverContainer.of(builderContext).closeAll();
@@ -143,17 +164,23 @@ class PublishedViewMoreAction extends StatelessWidget {
 enum _ActionType {
   viewSite,
   copySiteLink,
-  settings;
+  settings,
+  unpublish,
+  customUrl;
 
   String get name => switch (this) {
         _ActionType.viewSite => LocaleKeys.shareAction_visitSite.tr(),
         _ActionType.copySiteLink => LocaleKeys.shareAction_copyLink.tr(),
         _ActionType.settings => LocaleKeys.settings_popupMenuItem_settings.tr(),
+        _ActionType.unpublish => LocaleKeys.shareAction_unPublish.tr(),
+        _ActionType.customUrl => LocaleKeys.settings_sites_customUrl.tr(),
       };
 
   FlowySvgData get leftIconSvg => switch (this) {
         _ActionType.viewSite => FlowySvgs.share_publish_s,
         _ActionType.copySiteLink => FlowySvgs.copy_s,
         _ActionType.settings => FlowySvgs.settings_s,
+        _ActionType.unpublish => FlowySvgs.delete_s,
+        _ActionType.customUrl => FlowySvgs.edit_s,
       };
 }

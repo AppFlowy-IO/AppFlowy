@@ -80,9 +80,12 @@ class _SettingsSitesPageView extends StatelessWidget {
               ),
               children: [
                 const DomainHeader(),
-                DomainItem(
-                  namespace: state.namespace,
-                  homepage: '',
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 36.0),
+                  child: DomainItem(
+                    namespace: state.namespace,
+                    homepage: '',
+                  ),
                 ),
               ],
             );

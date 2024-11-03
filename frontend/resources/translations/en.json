@@ -444,6 +444,8 @@
       "updateNamespace": "Update namespace",
       "removeHomepage": "Remove homepage",
       "selectHomePage": "Select a page",
+      "clearHomePage": "Clear the home page for this namespace",
+      "customUrl": "Custom url",
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
@@ -455,12 +457,14 @@
       "publishedPage": {
         "title": "All published pages",
         "description": "Manage your published pages",
-        "page": "page",
+        "page": "Page",
         "pathName": "Path name",
         "date": "Published date",
         "emptyHinText": "You have no published pages in this workspace",
         "noPublishedPages": "No published pages",
-        "settings": "Publish settings"
+        "settings": "Publish settings",
+        "clickToOpenPageInApp": "Open page in app",
+        "clickToOpenPageInBrowser": "Open page in browser"
       },
       "error": {
         "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
