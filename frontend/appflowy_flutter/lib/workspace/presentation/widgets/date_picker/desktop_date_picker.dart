@@ -135,16 +135,7 @@ class DesktopAppFlowyDatePickerState
             if (widget.onIsRangeChanged != null) ...[
               EndTimeButton(
                 isRange: isRange,
-                onChanged: (value) {
-                  if (value) {
-                    justChangedIsRange = true;
-                  }
-                  widget.onIsRangeChanged!.call(value);
-                  if (dateTime != null && value) {
-                    widget.onRangeSelected?.call(dateTime!, dateTime!);
-                  }
-                  setState(() => isRange = value);
-                },
+                onChanged: onIsRangeChanged,
               ),
               const VSpace(4.0),
             ],
@@ -153,10 +144,7 @@ class DesktopAppFlowyDatePickerState
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: IncludeTimeButton(
                   includeTime: includeTime,
-                  onChanged: (value) {
-                    widget.onIncludeTimeChanged?.call(value);
-                    setState(() => includeTime = value);
-                  },
+                  onChanged: onIncludeTimeChanged,
                 ),
               ),
             if (widget.onReminderSelected != null) ...[

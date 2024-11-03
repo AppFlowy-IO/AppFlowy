@@ -84,22 +84,13 @@ class _MobileAppFlowyDatePickerState
         if (widget.onIsRangeChanged != null)
           _IsRangeSwitch(
             isRange: widget.isRange,
-            onRangeChanged: (value) {
-              if (!isRange) {
-                justChangedIsRange = true;
-              }
-              widget.onIsRangeChanged!.call(value);
-              setState(() => isRange = value);
-            },
+            onRangeChanged: onIsRangeChanged,
           ),
         if (widget.onIncludeTimeChanged != null)
           _IncludeTimeSwitch(
             showTopBorder: widget.onIsRangeChanged == null,
             includeTime: includeTime,
-            onIncludeTimeChanged: (includeTime) {
-              widget.onIncludeTimeChanged?.call(includeTime);
-              setState(() => this.includeTime = includeTime);
-            },
+            onIncludeTimeChanged: onIncludeTimeChanged,
           ),
         if (widget.onReminderSelected != null) ...[
           const _Divider(),

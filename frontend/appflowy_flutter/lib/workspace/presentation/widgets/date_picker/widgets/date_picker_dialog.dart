@@ -24,7 +24,7 @@ class DatePickerOptions {
     this.timeFormat = UserTimeFormatPB.TwentyFourHour,
     this.selectedReminderOption,
     this.onDaySelected,
-    required this.onIncludeTimeChanged,
+    this.onIncludeTimeChanged,
     this.onRangeSelected,
     this.onIsRangeChanged,
     this.onReminderSelected,
@@ -41,8 +41,8 @@ class DatePickerOptions {
 
   final DaySelectedCallback? onDaySelected;
   final RangeSelectedCallback? onRangeSelected;
-  final IncludeTimeChangedCallback onIncludeTimeChanged;
-  final void Function(bool)? onIsRangeChanged;
+  final IncludeTimeChangedCallback? onIncludeTimeChanged;
+  final IsRangeChangedCallback? onIsRangeChanged;
   final OnReminderSelected? onReminderSelected;
 }
 
@@ -159,9 +159,7 @@ class _AnimatedDatePicker extends StatelessWidget {
         constraints: BoxConstraints.loose(const Size(_datePickerWidth, 465)),
         child: DesktopAppFlowyDatePicker(
           includeTime: options.includeTime,
-          onIncludeTimeChanged: (includeTime) {
-            options.onIncludeTimeChanged.call(includeTime);
-          },
+          onIncludeTimeChanged: options.onIncludeTimeChanged,
           isRange: options.isRange,
           onIsRangeChanged: options.onIsRangeChanged,
           dateFormat: options.dateFormat.simplified,

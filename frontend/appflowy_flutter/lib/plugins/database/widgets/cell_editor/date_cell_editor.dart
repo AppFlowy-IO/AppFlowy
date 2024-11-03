@@ -77,11 +77,19 @@ class _DateCellEditor extends State<DateCellEditor> {
                 ],
               ),
             ],
-            onIncludeTimeChanged: (value) {
-              dateCellBloc.add(DateCellEditorEvent.setIncludeTime(value));
+            onIncludeTimeChanged: (value, dateTime, endDateTime) {
+              dateCellBloc.add(
+                DateCellEditorEvent.setIncludeTime(
+                  value,
+                  dateTime,
+                  endDateTime,
+                ),
+              );
             },
-            onIsRangeChanged: (value) {
-              dateCellBloc.add(DateCellEditorEvent.setIsRange(value));
+            onIsRangeChanged: (value, dateTime, endDateTime) {
+              dateCellBloc.add(
+                DateCellEditorEvent.setIsRange(value, dateTime, endDateTime),
+              );
             },
             onDaySelected: (selectedDay) {
               dateCellBloc.add(DateCellEditorEvent.updateDateTime(selectedDay));

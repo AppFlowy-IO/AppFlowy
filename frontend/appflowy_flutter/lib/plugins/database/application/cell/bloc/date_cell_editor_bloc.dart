@@ -137,11 +137,11 @@ class DateCellEditorBloc
             }
             await _updateDateData(date: start, endDate: end);
           },
-          setIncludeTime: (includeTime) async {
-            await _updateIncludeTime(includeTime);
+          setIncludeTime: (includeTime, dateTime, endDateTime) async {
+            await _updateIncludeTime(includeTime, dateTime, endDateTime);
           },
-          setIsRange: (isRange) async {
-            await _updateIsRange(isRange);
+          setIsRange: (isRange, dateTime, endDateTime) async {
+            await _updateIsRange(isRange, dateTime, endDateTime);
           },
           setDateFormat: (DateFormatPB dateFormat) async {
             await _updateTypeOption(emit, dateFormat: dateFormat);
@@ -209,12 +209,11 @@ class DateCellEditorBloc
     result.onFailure(Log.error);
   }
 
-  Future<void> _updateIsRange(bool isRange) async {
-    final fillerDate =
-        state.includeTime ? DateTime.now() : DateTime.now().withoutTime;
-    final dateTime = state.dateTime == null ? fillerDate : null;
-    final endDateTime = dateTime;
-
+  Future<void> _updateIsRange(
+    bool isRange,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) async {
     final result = await _dateCellBackendService.update(
       date: dateTime,
       endDate: endDateTime,
@@ -223,22 +222,11 @@ class DateCellEditorBloc
     result.onFailure(Log.error);
   }
 
-  Future<void> _updateIncludeTime(bool includeTime) async {
-    late final DateTime dateTime;
-    late final DateTime? endDateTime;
-    final now = DateTime.now();
-    if (includeTime) {
-      final time = Duration(hours: now.hour, minutes: now.minute);
-      dateTime = state.dateTime?.withoutTime.add(time) ?? now;
-      endDateTime = state.isRange
-          ? state.endDateTime?.withoutTime.add(time) ?? dateTime
-          : null;
-    } else {
-      dateTime = (state.dateTime ?? now).withoutTime;
-      endDateTime =
-          state.isRange ? state.endDateTime?.withoutTime ?? dateTime : null;
-    }
-
+  Future<void> _updateIncludeTime(
+    bool includeTime,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) async {
     final result = await _dateCellBackendService.update(
       date: dateTime,
       endDate: endDateTime,
@@ -335,10 +323,17 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
     DateTime end,
   ) = _UpdateDateRange;
 
-  const factory DateCellEditorEvent.setIncludeTime(bool includeTime) =
-      _IncludeTime;
+  const factory DateCellEditorEvent.setIncludeTime(
+    bool includeTime,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) = _IncludeTime;
 
-  const factory DateCellEditorEvent.setIsRange(bool isRange) = _SetIsRange;
+  const factory DateCellEditorEvent.setIsRange(
+    bool isRange,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) = _SetIsRange;
 
   const factory DateCellEditorEvent.setReminderOption(ReminderOption option) =
       _SetReminderOption;

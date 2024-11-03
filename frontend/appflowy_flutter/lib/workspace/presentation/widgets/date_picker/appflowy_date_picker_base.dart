@@ -5,7 +5,8 @@ import 'widgets/reminder_selector.dart';
 
 typedef DaySelectedCallback = void Function(DateTime);
 typedef RangeSelectedCallback = void Function(DateTime, DateTime);
-typedef IncludeTimeChangedCallback = void Function(bool);
+typedef IsRangeChangedCallback = void Function(bool, DateTime?, DateTime?);
+typedef IncludeTimeChangedCallback = void Function(bool, DateTime?, DateTime?);
 
 abstract class AppFlowyDatePicker extends StatefulWidget {
   const AppFlowyDatePicker({
@@ -30,14 +31,27 @@ abstract class AppFlowyDatePicker extends StatefulWidget {
   final DateFormatPB dateFormat;
   final TimeFormatPB timeFormat;
 
+  /// Called when the date is picked, whether by submitting a date from the top
+  /// or by selecting a date in the calendar. Will not be called if isRange is
+  /// true
   final DaySelectedCallback? onDaySelected;
+
+  /// Called when a date range is picked. Will not be called if isRange is false
   final RangeSelectedCallback? onRangeSelected;
 
+  /// Whether the date picker allows inputting a time in addition to the date
   final bool includeTime;
-  final Function(bool)? onIncludeTimeChanged;
 
+  /// Called when the include time value is changed. This callback has the side
+  /// effect of changing the dateTime values as well
+  final IncludeTimeChangedCallback? onIncludeTimeChanged;
+
+  // Whether the date picker supports date ranges
   final bool isRange;
-  final Function(bool)? onIsRangeChanged;
+
+  /// Called when the is range value is changed. This callback has the side
+  /// effect of changing the dateTime values as well
+  final IsRangeChangedCallback? onIsRangeChanged;
 
   final ReminderOption reminderOption;
   final OnReminderSelected? onReminderSelected;
@@ -101,10 +115,13 @@ abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
         if (justChangedIsRange && dateTime != null) {
           justChangedIsRange = false;
           DateTime start = dateTime!;
-          DateTime end = DateTime(
-            newStartDateTime.year,
-            newStartDateTime.month,
-            newStartDateTime.day,
+          DateTime end = combineDateTimes(
+            DateTime(
+              newStartDateTime.year,
+              newStartDateTime.month,
+              newStartDateTime.day,
+            ),
+            start,
           );
           if (end.isBefore(start)) {
             (start, end) = (end, start);
@@ -230,5 +247,88 @@ abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
     } else {
       return focusedDateTime;
     }
+  }
+
+  void onIsRangeChanged(bool value) {
+    if (value) {
+      justChangedIsRange = true;
+    }
+
+    final now = DateTime.now();
+    final fillerDate = includeTime
+        ? DateTime(now.year, now.month, now.day, now.hour, now.minute)
+        : DateTime(now.year, now.month, now.day);
+    final newDateTime = dateTime == null ? fillerDate : null;
+    final newEndDateTime = newDateTime;
+
+    if (value) {
+      widget.onIsRangeChanged!.call(value, newDateTime, newEndDateTime);
+    } else {
+      widget.onIsRangeChanged!.call(value, null, null);
+    }
+
+    setState(() {
+      isRange = value;
+      dateTime = newDateTime ?? dateTime;
+      if (value) {
+        startDateTime = newDateTime ?? dateTime;
+        endDateTime = startDateTime;
+      } else {
+        startDateTime = endDateTime = null;
+      }
+    });
+  }
+
+  void onIncludeTimeChanged(bool value) {
+    late final DateTime? newDateTime;
+    late final DateTime? newEndDateTime;
+
+    final now = DateTime.now();
+    final fillerDate = value
+        ? DateTime(now.year, now.month, now.day, now.hour, now.minute)
+        : DateTime(now.year, now.month, now.day);
+
+    if (value) {
+      // fill date if empty, add time component
+      newDateTime = dateTime == null
+          ? fillerDate
+          : combineDateTimes(dateTime!, fillerDate);
+      newEndDateTime = isRange
+          ? endDateTime == null
+              ? fillerDate
+              : combineDateTimes(endDateTime!, fillerDate)
+          : null;
+    } else {
+      // fill date if empty, remove time component
+      newDateTime = dateTime == null
+          ? fillerDate
+          : DateTime(
+              dateTime!.year,
+              dateTime!.month,
+              dateTime!.day,
+            );
+      newEndDateTime = isRange
+          ? endDateTime == null
+              ? fillerDate
+              : DateTime(
+                  endDateTime!.year,
+                  endDateTime!.month,
+                  endDateTime!.day,
+                )
+          : null;
+    }
+
+    widget.onIncludeTimeChanged!.call(value, newDateTime, newEndDateTime);
+
+    setState(() {
+      includeTime = value;
+      dateTime = newDateTime ?? dateTime;
+      if (isRange) {
+        startDateTime = newDateTime ?? dateTime;
+        endDateTime = newEndDateTime ?? endDateTime;
+      } else {
+        startDateTime = endDateTime = null;
+      }
+    });
   }
 }

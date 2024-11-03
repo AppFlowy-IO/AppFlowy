@@ -98,7 +98,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             dateFormat: appearance.dateFormat,
             timeFormat: appearance.timeFormat,
             selectedReminderOption: widget.reminderOption,
-            onIncludeTimeChanged: (includeTime) {
+            onIncludeTimeChanged: (includeTime, dateTime, _) {
               _includeTime = includeTime;
 
               if (widget.reminderOption != ReminderOption.none) {

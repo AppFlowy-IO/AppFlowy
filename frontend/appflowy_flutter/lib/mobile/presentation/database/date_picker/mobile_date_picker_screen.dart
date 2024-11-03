@@ -93,11 +93,19 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             onRangeSelected: (start, end) {
               dateCellBloc.add(DateCellEditorEvent.updateDateRange(start, end));
             },
-            onIsRangeChanged: (value) {
-              dateCellBloc.add(DateCellEditorEvent.setIsRange(value));
+            onIsRangeChanged: (value, dateTime, endDateTime) {
+              dateCellBloc.add(
+                DateCellEditorEvent.setIsRange(value, dateTime, endDateTime),
+              );
             },
-            onIncludeTimeChanged: (value) {
-              dateCellBloc.add(DateCellEditorEvent.setIncludeTime(value));
+            onIncludeTimeChanged: (value, dateTime, endDateTime) {
+              dateCellBloc.add(
+                DateCellEditorEvent.setIncludeTime(
+                  value,
+                  dateTime,
+                  endDateTime,
+                ),
+              );
             },
             onClearDate: () {
               dateCellBloc.add(const DateCellEditorEvent.clearDate());
