@@ -66,6 +66,12 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   late DateTime? parsedDate = DateTime.tryParse(widget.date);
 
   @override
+  void didUpdateWidget(covariant oldWidget) {
+    parsedDate = DateTime.tryParse(widget.date);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     mutex.dispose();
     super.dispose();
@@ -107,9 +113,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   reminder,
                   includeTime,
                 );
-              } else {
+              } else if (dateTime != null) {
+                parsedDate = dateTime;
                 _updateBlock(
-                  parsedDate!,
+                  dateTime,
                   includeTime: includeTime,
                 );
               }
