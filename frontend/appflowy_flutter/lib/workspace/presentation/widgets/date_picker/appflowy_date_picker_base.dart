@@ -209,6 +209,9 @@ abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
 
   void onEndDateTimeInputSubmitted(DateTime value) {
     if (isRange) {
+      if (endDateTime == null) {
+        value = combineDateTimes(value, widget.endDateTime);
+      }
       DateTime start = startDateTime ?? value;
       if (value.isBefore(start)) {
         (start, value) = (value, start);
@@ -258,21 +261,19 @@ abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
     final fillerDate = includeTime
         ? DateTime(now.year, now.month, now.day, now.hour, now.minute)
         : DateTime(now.year, now.month, now.day);
-    final newDateTime = dateTime == null ? fillerDate : null;
-    final newEndDateTime = newDateTime;
+    final newDateTime = dateTime ?? fillerDate;
 
     if (value) {
-      widget.onIsRangeChanged!.call(value, newDateTime, newEndDateTime);
+      widget.onIsRangeChanged!.call(value, newDateTime, newDateTime);
     } else {
       widget.onIsRangeChanged!.call(value, null, null);
     }
 
     setState(() {
       isRange = value;
-      dateTime = newDateTime ?? dateTime;
+      dateTime = newDateTime;
       if (value) {
-        startDateTime = newDateTime ?? dateTime;
-        endDateTime = startDateTime;
+        startDateTime = endDateTime = newDateTime;
       } else {
         startDateTime = endDateTime = null;
       }

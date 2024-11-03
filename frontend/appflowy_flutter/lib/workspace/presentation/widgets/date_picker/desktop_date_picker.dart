@@ -242,7 +242,6 @@ class DesktopAppFlowyDatePickerState
         dateTime = value;
         startDateTime = value;
         endDateTime = end;
-        focusedDateTime = getNewFocusedDay(value);
       });
     } else {
       widget.onDaySelected?.call(value);
@@ -258,6 +257,9 @@ class DesktopAppFlowyDatePickerState
   void onEndDateTimeInputSubmitted(DateTime value) {
     refreshEndTextFieldNotifier.refresh();
     if (isRange) {
+      if (endDateTime == null) {
+        value = combineDateTimes(value, widget.endDateTime);
+      }
       DateTime start = startDateTime ?? value;
       if (value.isBefore(start)) {
         (start, value) = (value, start);
