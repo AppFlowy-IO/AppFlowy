@@ -26,6 +26,8 @@ for /D %%d in (*) do (
     if exist "pubspec.yaml" (
         echo Generating freezed files in %%d...
         echo Please wait while we clean the project and fetch the dependencies.
+        call flutter packages pub get
+        call flutter pub get
         call dart run build_runner clean && call dart run build_runner build -d
         echo Done running build command in %%d
     ) else (
