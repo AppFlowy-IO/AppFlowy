@@ -835,5 +835,79 @@ void main() {
       expect(mockState.data.dateTime, start);
       expect(mockState.data.endDateTime, end);
     });
+
+    testWidgets('same as above but enter time', (tester) async {
+      final fourteenth = DateTime(2024, 10, 14, 1);
+
+      await tester.pumpWidget(
+        WidgetTestApp(
+          child: _MockDatePicker(
+            data: _DatePickerDataStub(
+              dateTime: fourteenth,
+              endDateTime: fourteenth,
+              includeTime: true,
+              isRange: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final third = dayInDatePicker(3).first;
+      await tester.tap(third);
+      await tester.pumpAndSettle();
+
+      final start = DateTime(2024, 10, 3, 1);
+
+      final dateTextField = find.descendant(
+        of: find.byKey(const ValueKey('end_date_time_text_field')),
+        matching: find.byKey(const ValueKey('date_time_text_field_time')),
+      );
+      expect(dateTextField, findsOneWidget);
+      await tester.enterText(dateTextField, "15:00");
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('date_time_text_field')),
+          matching: find.text(
+            DateFormat(DateFormatPB.Friendly.pattern).format(start),
+          ),
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('end_date_time_text_field')),
+          matching: find.text("15:00"),
+        ),
+        findsNothing,
+      );
+
+      AppFlowyDatePickerState afState = getAfState(tester);
+      _MockDatePickerState mockState = getMockState(tester);
+      expect(afState.dateTime, start);
+      expect(afState.startDateTime, start);
+      expect(afState.endDateTime, null);
+      expect(mockState.data.dateTime, fourteenth);
+      expect(mockState.data.endDateTime, fourteenth);
+
+      // select for real now
+      final twentyFifth = dayInDatePicker(25).first;
+      final expected = DateTime(2024, 10, 25, 1);
+      await tester.tap(twentyFifth);
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+      afState = getAfState(tester);
+      mockState = getMockState(tester);
+      expect(afState.dateTime, start);
+      expect(afState.startDateTime, start);
+      expect(afState.endDateTime, expected);
+      expect(mockState.data.dateTime, start);
+      expect(mockState.data.endDateTime, expected);
+    });
   });
 }

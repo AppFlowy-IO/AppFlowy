@@ -198,6 +198,12 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
   }
 
   void onTimeTextFieldSubmitted() {
+    // this happens in the middle of a date range selection
+    if (widget.dateTime == null) {
+      widget.refreshTextController?.refresh();
+      statesController.update(WidgetState.error, true);
+      return;
+    }
     final adjustedTimeStr =
         "${dateTextController.text} ${timeTextController.text.trim()}";
     final dateTime = parseDateTimeStr(adjustedTimeStr);
