@@ -175,7 +175,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(AppFlowyDatePicker), findsOneWidget);
+      expect(find.byType(DesktopAppFlowyDatePicker), findsOneWidget);
       expect(
         find.byWidgetPredicate(
           (w) => w is DateTimeTextField && w.dateTime == null,
@@ -211,7 +211,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(AppFlowyDatePicker), findsOneWidget);
+      expect(find.byType(DesktopAppFlowyDatePicker), findsOneWidget);
       expect(find.byType(DateTimeTextField), findsNWidgets(2));
       expect(find.byType(DatePicker), findsOneWidget);
       expect(
