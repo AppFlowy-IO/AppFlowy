@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_header.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item.dart';
@@ -82,9 +83,15 @@ class _SettingsSitesPageView extends StatelessWidget {
                 const DomainHeader(),
                 ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 36.0),
-                  child: DomainItem(
-                    namespace: state.namespace,
-                    homepage: '',
+                  child: Transform.translate(
+                    offset: const Offset(
+                      -SettingsPageSitesConstants.alignPadding,
+                      0,
+                    ),
+                    child: DomainItem(
+                      namespace: state.namespace,
+                      homepage: '',
+                    ),
                   ),
                 ),
               ],
@@ -137,7 +144,13 @@ class _SettingsSitesPageView extends StatelessWidget {
       } else {
         children.addAll(
           publishedViews.map(
-            (view) => PublishedViewItem(publishInfoView: view),
+            (view) => Transform.translate(
+              offset: const Offset(
+                -SettingsPageSitesConstants.alignPadding,
+                0,
+              ),
+              child: PublishedViewItem(publishInfoView: view),
+            ),
           ),
         );
       }

@@ -43,7 +43,12 @@ class PublishedViewItem extends StatelessWidget {
         // Published at
         Expanded(
           flex: flexes[2],
-          child: _buildPublishedAt(context),
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: SettingsPageSitesConstants.alignPadding,
+            ),
+            child: _buildPublishedAt(context),
+          ),
         ),
 
         // More actions

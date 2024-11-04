@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 class SettingsPageSitesConstants {
   static const threeDotsButtonWidth = 26.0;
+  static const alignPadding = 6.0;
 
   static final dateFormat = DateFormat('MMM d, yyyy');
 

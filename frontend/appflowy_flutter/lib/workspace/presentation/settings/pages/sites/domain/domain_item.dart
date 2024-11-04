@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/colors.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/publish_info_view_item.dart';
@@ -41,7 +42,11 @@ class DomainItem extends StatelessWidget {
         ),
         // Homepage
         Expanded(
-          child: _buildHomepage(context),
+          child: Padding(
+            padding: const EdgeInsets.only(
+                left: SettingsPageSitesConstants.alignPadding,),
+            child: _buildHomepage(context),
+          ),
         ),
         // ... button
         DomainMoreAction(namespace: namespace),
