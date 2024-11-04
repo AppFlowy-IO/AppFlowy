@@ -170,7 +170,8 @@ impl UserManager {
           collab_db,
           doc_state,
           None,
-        )?;
+        )
+        .await?;
         info!("User awareness initialized successfully");
         self.user_awareness.store(Some(awareness));
         if let Some(mut is_loading) = self.is_loading_awareness.get_mut(&object_id) {
@@ -238,6 +239,7 @@ impl UserManager {
           doc_state,
           None,
         )
+        .await
       } else {
         let result = cloud_services
           .get_user_service()?
@@ -256,6 +258,7 @@ impl UserManager {
               DataSource::DocStateV1(data),
               None,
             )
+            .await
           },
           Err(err) => {
             if err.is_record_not_found() {
@@ -275,6 +278,7 @@ impl UserManager {
                 doc_state,
                 None,
               )
+              .await
             } else {
               Err(err)
             }
@@ -315,7 +319,7 @@ impl UserManager {
   /// This function constructs a collaboration instance based on the given session and raw data,
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
-  fn collab_for_user_awareness(
+  async fn collab_for_user_awareness(
     collab_builder: &Weak<AppFlowyCollabBuilder>,
     workspace_id: &str,
     uid: i64,
@@ -338,6 +342,7 @@ impl UserManager {
         CollabBuilderConfig::default().sync_enable(true),
         notifier,
       )
+      .await
       .context("Build collab for user awareness failed")?;
     Ok(collab)
   }

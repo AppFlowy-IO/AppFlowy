@@ -150,7 +150,7 @@ impl AppFlowyCollabBuilder {
     level = "trace",
     skip(self, data_source, collab_db, builder_config, data)
   )]
-  pub fn create_document(
+  pub async fn create_document(
     &self,
     object: CollabObject,
     data_source: DataSource,
@@ -160,7 +160,7 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<Document>>, Error> {
     let expected_collab_type = CollabType::Document;
     assert_eq!(object.collab_type, expected_collab_type);
-    let mut collab = self.build_collab(&object, &collab_db, data_source)?;
+    let mut collab = self.build_collab(&object, &collab_db, data_source).await?;
     collab.enable_undo_redo();
 
     let document = match data {
@@ -192,7 +192,7 @@ impl AppFlowyCollabBuilder {
     level = "trace",
     skip(self, object, doc_state, collab_db, builder_config, folder_notifier)
   )]
-  pub fn create_folder(
+  pub async fn create_folder(
     &self,
     object: CollabObject,
     doc_state: DataSource,
@@ -205,11 +205,11 @@ impl AppFlowyCollabBuilder {
     assert_eq!(object.collab_type, expected_collab_type);
     let folder = match folder_data {
       None => {
-        let collab = self.build_collab(&object, &collab_db, doc_state)?;
+        let collab = self.build_collab(&object, &collab_db, doc_state).await?;
         Folder::open(object.uid, collab, folder_notifier)?
       },
       Some(data) => {
-        let collab = self.build_collab(&object, &collab_db, doc_state)?;
+        let collab = self.build_collab(&object, &collab_db, doc_state).await?;
         let folder = Folder::create(object.uid, collab, folder_notifier, data);
         if let Err(err) = self.write_collab_to_disk(
           object.uid,
@@ -233,7 +233,7 @@ impl AppFlowyCollabBuilder {
     level = "trace",
     skip(self, object, doc_state, collab_db, builder_config, notifier)
   )]
-  pub fn create_user_awareness(
+  pub async fn create_user_awareness(
     &self,
     object: CollabObject,
     doc_state: DataSource,
@@ -243,7 +243,7 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<RwLock<UserAwareness>>, Error> {
     let expected_collab_type = CollabType::UserAwareness;
     assert_eq!(object.collab_type, expected_collab_type);
-    let collab = self.build_collab(&object, &collab_db, doc_state)?;
+    let collab = self.build_collab(&object, &collab_db, doc_state).await?;
     let user_awareness = UserAwareness::create(collab, notifier)?;
     let user_awareness = Arc::new(RwLock::new(user_awareness));
     self.finalize(object, builder_config, user_awareness)
@@ -266,27 +266,34 @@ impl AppFlowyCollabBuilder {
     self.finalize(object, builder_config, workspace)
   }
 
-  pub fn build_collab(
+  pub async fn build_collab(
     &self,
     object: &CollabObject,
     collab_db: &Weak<CollabKVDB>,
     data_source: DataSource,
   ) -> Result<Collab, Error> {
-    let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
-      .with_device_id(self.workspace_integrate.device_id()?)
-      .build()?;
+    let object = object.clone();
+    let collab_db = collab_db.clone();
+    let device_id = self.workspace_integrate.device_id()?;
+    let collab = tokio::task::spawn_blocking(move || {
+      let mut collab = CollabBuilder::new(object.uid, &object.object_id, data_source)
+        .with_device_id(device_id)
+        .build()?;
+      let persistence_config = CollabPersistenceConfig::default();
+      let db_plugin = RocksdbDiskPlugin::new_with_config(
+        object.uid,
+        object.workspace_id.clone(),
+        object.object_id.to_string(),
+        object.collab_type.clone(),
+        collab_db,
+        persistence_config,
+      );
+      collab.add_plugin(Box::new(db_plugin));
+      collab.initialize();
+      Ok::<_, Error>(collab)
+    })
+    .await??;
 
-    let persistence_config = CollabPersistenceConfig::default();
-    let db_plugin = RocksdbDiskPlugin::new_with_config(
-      object.uid,
-      object.workspace_id.clone(),
-      object.object_id.to_string(),
-      object.collab_type.clone(),
-      collab_db.clone(),
-      persistence_config.clone(),
-    );
-    collab.add_plugin(Box::new(db_plugin));
-    collab.initialize();
     Ok(collab)
   }
 
