@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -376,7 +375,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
     final insertedNodes = selectedNodes.map((n) => n.copyWith()).toList();
     final document = Document.blank()..insert([0], insertedNodes);
-    final name = _extractNameFromNodes(selectedNodes);
+    final name = await _extractNameFromNodes(selectedNodes);
 
     final viewResult = await ViewBackendService.createView(
       layoutType: ViewLayoutPB.Document,
@@ -388,16 +387,6 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
     await viewResult.fold(
       (view) async {
-        final viewIdsToMove = _extractChildViewIds(selectedNodes);
-
-        for (final viewId in viewIdsToMove) {
-          await ViewBackendService.moveViewV2(
-            viewId: viewId,
-            newParentId: view.id,
-            prevViewId: null,
-          );
-        }
-
         final node = subPageNode(viewId: view.id);
         final transaction = editorState.transaction;
         transaction
@@ -407,6 +396,19 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         editorState.selectionType = SelectionType.inline;
 
         await editorState.apply(transaction);
+
+        // We move views after applying transaction to avoid performing side-effects on the views
+        final viewIdsToMove = _extractChildViewIds(selectedNodes);
+        for (final viewId in viewIdsToMove) {
+          // Attempt to put back from trash if neccessary
+          await TrashService.putback(viewId);
+
+          await ViewBackendService.moveViewV2(
+            viewId: viewId,
+            newParentId: view.id,
+            prevViewId: null,
+          );
+        }
       },
       (err) async => Log.error(err),
     );
@@ -414,27 +416,46 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     return true;
   }
 
-  String _extractNameFromNodes(List<Node>? nodes) {
+  Future<String> _extractNameFromNodes(List<Node>? nodes) async {
     if (nodes == null || nodes.isEmpty) {
       return '';
     }
 
     String name = '';
     for (final node in nodes) {
+      if (name.length > 30) {
+        return name.substring(0, name.length > 30 ? 30 : name.length);
+      }
+
       if (node.delta != null) {
-        final text = node.delta!.toPlainText();
-        if (text == MentionBlockKeys.mentionChar) {
-          continue;
+        // "ABC [Hello world]" -> ABC Hello world
+        final textInserts = node.delta!.whereType<TextInsert>();
+        for (final ti in textInserts) {
+          if (ti.attributes?[MentionBlockKeys.mention] != null) {
+            // fetch the view name
+            final pageId = ti.attributes![MentionBlockKeys.mention]
+                [MentionBlockKeys.pageId];
+            final viewOrFailure = await ViewBackendService.getView(pageId);
+
+            final view = viewOrFailure.toNullable();
+            if (view == null) {
+              Log.error('Failed to fetch view with id: $pageId');
+              continue;
+            }
+
+            name += view.name;
+          } else {
+            name += ti.data!.toString();
+          }
         }
 
-        name = text.substring(0, min(text.length, 30));
         if (name.isNotEmpty) {
           break;
         }
       }
 
       if (node.children.isNotEmpty) {
-        final n = _extractNameFromNodes(node.children);
+        final n = await _extractNameFromNodes(node.children);
         if (n.isNotEmpty) {
           name = n;
           break;
@@ -442,7 +463,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       }
     }
 
-    return name;
+    return name.substring(0, name.length > 30 ? 30 : name.length);
   }
 
   List<String> _extractChildViewIds(List<Node> nodes) {
