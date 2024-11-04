@@ -543,9 +543,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     Selection? beforeSelection,
   ) {
     final path = selectedNode.path;
-    final selection = Selection.collapsed(
-      Position(path: path),
-    );
+    final selection = Selection.collapsed(Position(path: path));
 
     // if the previous selection is null or the start path is not in the same level as the current block path,
     // then update the selection with the current block path
