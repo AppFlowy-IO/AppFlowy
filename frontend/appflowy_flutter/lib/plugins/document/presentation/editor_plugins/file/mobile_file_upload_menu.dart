@@ -1,22 +1,22 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
+import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:cross_file/cross_file.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:dotted_border/dotted_border.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class FileUploadMenu extends StatefulWidget {
-  const FileUploadMenu({
+class MobileFileUploadMenu extends StatefulWidget {
+  const MobileFileUploadMenu({
     super.key,
     required this.onInsertLocalFile,
     required this.onInsertNetworkFile,
@@ -28,10 +28,10 @@ class FileUploadMenu extends StatefulWidget {
   final bool allowMultipleFiles;
 
   @override
-  State<FileUploadMenu> createState() => _FileUploadMenuState();
+  State<MobileFileUploadMenu> createState() => _MobileFileUploadMenuState();
 }
 
-class _FileUploadMenuState extends State<FileUploadMenu> {
+class _MobileFileUploadMenuState extends State<MobileFileUploadMenu> {
   int currentTab = 0;
 
   @override
@@ -46,10 +46,7 @@ class _FileUploadMenuState extends State<FileUploadMenu> {
           children: [
             TabBar(
               onTap: (value) => setState(() => currentTab = value),
-              isScrollable: true,
               indicatorWeight: 3,
-              tabAlignment: TabAlignment.start,
-              indicatorSize: TabBarIndicatorSize.label,
               labelPadding: EdgeInsets.zero,
               padding: EdgeInsets.zero,
               overlayColor: WidgetStatePropertyAll(
@@ -131,111 +128,59 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
 
   @override
   Widget build(BuildContext context) {
-    final constraints =
-        UniversalPlatform.isMobile ? const BoxConstraints(minHeight: 92) : null;
-
-    if (UniversalPlatform.isMobile) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: SizedBox(
-          height: 32,
-          width: 300,
-          child: FlowyButton(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
-            showDefaultBoxDecorationOnMobile: true,
-            margin: const EdgeInsets.all(5),
-            text: FlowyText(
-              LocaleKeys.document_plugins_file_uploadMobile.tr(),
-              textAlign: TextAlign.center,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-            onTap: () => _uploadFile(context),
-          ),
-        ),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: DropTarget(
-        onDragEntered: (_) => setState(() => isDragging = true),
-        onDragExited: (_) => setState(() => isDragging = false),
-        onDragDone: (details) => widget.onFilesPicked(details.files),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => _uploadFile(context),
-            child: FlowyHover(
-              resetHoverOnRebuild: false,
-              isSelected: () => isDragging,
-              style: HoverStyle(
-                borderRadius: BorderRadius.circular(10),
-                hoverColor:
-                    isDragging ? AFThemeExtension.of(context).tint9 : null,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 36,
+            child: FlowyButton(
+              radius: Corners.s8Border,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              hoverColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+              margin: const EdgeInsets.all(5),
+              text: FlowyText(
+                LocaleKeys.document_plugins_file_uploadMobileGallery.tr(),
+                textAlign: TextAlign.center,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
-              child: Container(
-                height: 172,
-                constraints: constraints,
-                child: DottedBorder(
-                  dashPattern: const [3, 3],
-                  radius: const Radius.circular(8),
-                  borderType: BorderType.RRect,
-                  color: isDragging
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).hintColor,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (isDragging) ...[
-                          FlowyText(
-                            LocaleKeys.document_plugins_file_dropFileToUpload
-                                .tr(),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).hintColor,
-                          ),
-                        ] else ...[
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: LocaleKeys
-                                      .document_plugins_file_fileUploadHint
-                                      .tr(),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).hintColor,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: LocaleKeys
-                                      .document_plugins_file_fileUploadHintSuffix
-                                      .tr(),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              onTap: () => _uploadFileFromGallery(context),
             ),
           ),
-        ),
+          const VSpace(16),
+          SizedBox(
+            height: 36,
+            child: FlowyButton(
+              radius: Corners.s8Border,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              hoverColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+              margin: const EdgeInsets.all(5),
+              text: FlowyText(
+                LocaleKeys.document_plugins_file_uploadMobile.tr(),
+                textAlign: TextAlign.center,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              onTap: () => _uploadFile(context),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<void> _uploadFileFromGallery(BuildContext context) async {
+    final photoPermission =
+        await PermissionChecker.checkPhotoPermission(context);
+    if (!photoPermission) {
+      Log.error('Has no permission to access the photo library');
+      return;
+    }
+    // on mobile, the users can pick a image file from camera or image library
+    final files = await ImagePicker().pickMultiImage();
+
+    widget.onFilesPicked(files);
   }
 
   Future<void> _uploadFile(BuildContext context) async {
@@ -292,15 +237,15 @@ class _FileUploadNetworkState extends State<_FileUploadNetwork> {
           ],
           const VSpace(16),
           SizedBox(
-            height: 32,
+            height: 36,
             child: FlowyButton(
               backgroundColor: Theme.of(context).colorScheme.primary,
               hoverColor:
                   Theme.of(context).colorScheme.primary.withOpacity(0.9),
-              showDefaultBoxDecorationOnMobile: true,
+              radius: Corners.s8Border,
               margin: const EdgeInsets.all(5),
               text: FlowyText(
-                LocaleKeys.document_plugins_file_networkAction.tr(),
+                LocaleKeys.grid_media_embedLink.tr(),
                 textAlign: TextAlign.center,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),

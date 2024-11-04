@@ -775,6 +775,18 @@ extension CommonOperations on WidgetTester {
     await tap(button);
     await pump();
   }
+
+  Future<void> tapFileUploadHint() async {
+    final finder = find.byWidgetPredicate(
+      (w) =>
+          w is RichText &&
+          w.text.toPlainText().contains(
+                LocaleKeys.document_plugins_file_fileUploadHint.tr(),
+              ),
+    );
+    await tap(finder);
+    await pumpAndSettle(const Duration(seconds: 2));
+  }
 }
 
 extension SettingsFinder on CommonFinders {
