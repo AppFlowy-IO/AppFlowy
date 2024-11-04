@@ -230,7 +230,7 @@ class MediaCellState with _$MediaCellState {
     required String fieldName,
     @Default([]) List<MediaFilePB> files,
     @Default(false) showAllFiles,
-    @Default(false) hideFileNames,
+    @Default(true) hideFileNames,
   }) = _MediaCellState;
 
   factory MediaCellState.initial(MediaCellController cellController) {

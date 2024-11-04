@@ -193,7 +193,8 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                           FlowyText(
                             LocaleKeys.document_plugins_file_dropFileToUpload
                                 .tr(),
-                            fontSize: 16,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                             color: Theme.of(context).hintColor,
                           ),
                         ] else ...[
@@ -205,8 +206,8 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                                       .document_plugins_file_fileUploadHint
                                       .tr(),
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
                                     fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                     color: Theme.of(context).hintColor,
                                   ),
                                 ),
@@ -215,8 +216,8 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
                                       .document_plugins_file_fileUploadHintSuffix
                                       .tr(),
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
                                     fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                   ),

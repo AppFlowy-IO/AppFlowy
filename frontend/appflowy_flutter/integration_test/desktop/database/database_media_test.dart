@@ -269,27 +269,27 @@ void main() {
       await tester.dismissCellEditor();
       await tester.pumpAndSettle();
 
-      // Open first row in row detail view then toggle hide file names
+      // Open first row in row detail view then toggle show file names
       await tester.openFirstRowDetailPage();
       await tester.pumpAndSettle();
 
-      // Expect file names to be shown
-      expect(find.text('sample.jpeg'), findsOneWidget);
-      expect(find.text('sample.gif'), findsOneWidget);
+      // Expect file names to not be shown (hidden)
+      expect(find.text('sample.jpeg'), findsNothing);
+      expect(find.text('sample.gif'), findsNothing);
 
       await tester.tapGridFieldWithNameInRowDetailPage('Type');
       await tester.pumpAndSettle();
 
-      // Toggle hide file names
+      // Toggle show file names
       await tester.tap(find.byType(Toggle));
       await tester.pumpAndSettle();
 
       await tester.dismissRowDetailPage();
       await tester.pumpAndSettle();
 
-      // Expect file names to be hidden
-      expect(find.text('sample.jpeg'), findsNothing);
-      expect(find.text('sample.gif'), findsNothing);
+      // Expect file names to be shown
+      expect(find.text('sample.jpeg'), findsOneWidget);
+      expect(find.text('sample.gif'), findsOneWidget);
 
       // Remove the temp files
       await Future.wait([firstFile.delete(), secondFile.delete()]);
