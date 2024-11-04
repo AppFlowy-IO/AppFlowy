@@ -93,9 +93,7 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
     standardActions.add(OptionAction.copyLinkToBlock);
   }
 
-  if (EditorOptionActionType.turnInto.supportTypes.contains(type)) {
-    standardActions.add(OptionAction.turnInto);
-  }
+  standardActions.add(OptionAction.turnInto);
 
   if (EditorOptionActionType.color.supportTypes.contains(type)) {
     standardActions.addAll([OptionAction.divider, OptionAction.color]);

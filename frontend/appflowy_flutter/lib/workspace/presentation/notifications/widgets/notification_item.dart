@@ -269,6 +269,7 @@ class NotificationItemActions extends StatelessWidget {
               FlowyIconButton(
                 height: size,
                 width: size,
+                radius: BorderRadius.circular(4),
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkUnread.tr(),
                 icon: const FlowySvg(FlowySvgs.restore_s),
@@ -279,6 +280,7 @@ class NotificationItemActions extends StatelessWidget {
               FlowyIconButton(
                 height: size,
                 width: size,
+                radius: BorderRadius.circular(4),
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkRead.tr(),
                 iconColorOnHover: Theme.of(context).colorScheme.onSurface,

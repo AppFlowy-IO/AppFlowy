@@ -32,7 +32,7 @@ class TurnIntoOptionAction extends CustomActionCell {
       controller: innerController,
       mutex: mutex,
       popupBuilder: (context) => BlocProvider<BlockActionOptionCubit>(
-        create: (context) => BlockActionOptionCubit(
+        create: (_) => BlockActionOptionCubit(
           editorState: editorState,
           blockComponentBuilder: blockComponentBuilder,
         ),
@@ -50,9 +50,7 @@ class TurnIntoOptionAction extends CustomActionCell {
         // todo(lucas): replace the svg with the correct one
         leftIcon: const FlowySvg(FlowySvgs.turninto_s),
         name: LocaleKeys.document_plugins_optionAction_turnInto.tr(),
-        onTap: () {
-          innerController.show();
-        },
+        onTap: innerController.show,
       ),
     );
   }
@@ -73,7 +71,25 @@ class TurnIntoOptionAction extends CustomActionCell {
       return const SizedBox.shrink();
     }
 
-    return TurnIntoOptionMenu(node: node);
+    return TurnIntoOptionMenu(
+      node: node,
+      hasNonSupportedTypes: _hasNonSupportedTypes(selection),
+    );
+  }
+
+  bool _hasNonSupportedTypes(Selection selection) {
+    final nodes = editorState.getNodesInSelection(selection);
+    if (nodes.isEmpty) {
+      return false;
+    }
+
+    for (final node in nodes) {
+      if (!EditorOptionActionType.turnInto.supportTypes.contains(node.type)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
@@ -81,9 +97,15 @@ class TurnIntoOptionMenu extends StatelessWidget {
   const TurnIntoOptionMenu({
     super.key,
     required this.node,
+    required this.hasNonSupportedTypes,
   });
 
   final Node node;
+
+  /// Signifies whether the selection contains [Node]s that are not supported,
+  /// these often do not have a [Delta], example could be [FileBlockComponent].
+  ///
+  final bool hasNonSupportedTypes;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +117,16 @@ class TurnIntoOptionMenu extends StatelessWidget {
 
   List<Widget> _buildTurnIntoOptions(BuildContext context, Node node) {
     final children = <Widget>[];
+
+    if (hasNonSupportedTypes) {
+      return children
+        ..add(
+          _TurnInfoButton(
+            type: SubPageBlockKeys.type,
+            node: node,
+          ),
+        );
+    }
 
     for (final type in EditorOptionActionType.turnInto.supportTypes) {
       if (type == ToggleListBlockKeys.type) {
@@ -156,41 +188,25 @@ class _TurnInfoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = _buildLocalization(
-      type,
-      level: level,
-    );
-    final leftIcon = _buildLeftIcon(
-      type,
-      level: level,
-    );
-    final rightIcon = _buildRightIcon(
-      type,
-      node,
-      level: level,
-    );
+    final name = _buildLocalization(type, level: level);
+    final leftIcon = _buildLeftIcon(type, level: level);
+    final rightIcon = _buildRightIcon(type, node, level: level);
 
     return HoverButton(
       name: name,
       leftIcon: FlowySvg(leftIcon),
       rightIcon: rightIcon,
       itemHeight: ActionListSizes.itemHeight,
-      onTap: () {
-        context.read<BlockActionOptionCubit>().turnIntoBlock(
-              type,
-              node,
-              level: level,
-              currentViewId: getIt<MenuSharedState>().latestOpenView?.id,
-            );
-      },
+      onTap: () => context.read<BlockActionOptionCubit>().turnIntoBlock(
+            type,
+            node,
+            level: level,
+            currentViewId: getIt<MenuSharedState>().latestOpenView?.id,
+          ),
     );
   }
 
-  Widget? _buildRightIcon(
-    String type,
-    Node node, {
-    int? level,
-  }) {
+  Widget? _buildRightIcon(String type, Node node, {int? level}) {
     if (type != node.type) {
       return null;
     }
@@ -215,10 +231,7 @@ class _TurnInfoButton extends StatelessWidget {
     );
   }
 
-  FlowySvgData _buildLeftIcon(
-    String type, {
-    int? level,
-  }) {
+  FlowySvgData _buildLeftIcon(String type, {int? level}) {
     if (type == ParagraphBlockKeys.type) {
       return FlowySvgs.slash_menu_icon_text_s;
     } else if (type == HeadingBlockKeys.type) {
@@ -243,7 +256,7 @@ class _TurnInfoButton extends StatelessWidget {
     } else if (type == CalloutBlockKeys.type) {
       return FlowySvgs.slash_menu_icon_callout_s;
     } else if (type == SubPageBlockKeys.type) {
-      return FlowySvgs.document_s;
+      return FlowySvgs.icon_document_s;
     } else if (type == ToggleListBlockKeys.type) {
       switch (level) {
         case 1:
