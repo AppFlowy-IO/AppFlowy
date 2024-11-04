@@ -32,9 +32,11 @@ class ShareMenu extends StatefulWidget {
   const ShareMenu({
     super.key,
     required this.tabs,
+    required this.viewName,
   });
 
   final List<ShareMenuTab> tabs;
+  final String viewName;
 
   @override
   State<ShareMenu> createState() => _ShareMenuState();
@@ -119,7 +121,9 @@ class _ShareMenuState extends State<ShareMenu>
   Widget _buildTab(BuildContext context) {
     switch (selectedTab) {
       case ShareMenuTab.publish:
-        return const PublishTab();
+        return PublishTab(
+          viewName: widget.viewName,
+        );
       case ShareMenuTab.exportAs:
         return const ExportTab();
       case ShareMenuTab.share:

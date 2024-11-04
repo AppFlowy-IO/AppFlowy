@@ -22,7 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PublishTab extends StatelessWidget {
-  const PublishTab({super.key});
+  const PublishTab({
+    super.key,
+    required this.viewName,
+  });
+
+  final String viewName;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +52,7 @@ class PublishTab extends StatelessWidget {
               final id = context.read<ShareBloc>().view.id;
               final publishName = await generatePublishName(
                 id,
-                state.viewName,
+                viewName,
               );
 
               if (selectedViews.isNotEmpty) {
