@@ -17,37 +17,8 @@ part 'sidebar_plan_bloc.freezed.dart';
 class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
   SidebarPlanBloc() : super(const SidebarPlanState()) {
     // 1. Listen to user subscription payment callback. After user client 'Open AppFlowy', this listenable will be triggered.
-    final subscriptionListener = getIt<SubscriptionSuccessListenable>();
-    subscriptionListener.addListener(() {
-      final plan = subscriptionListener.subscribedPlan;
-      Log.info("Subscription success listenable triggered: $plan");
-
-      if (!isClosed) {
-        // Notify the user that they have switched to a new plan. It would be better if we use websocket to
-        // notify the client when plan switching.
-        if (state.workspaceId != null) {
-          final payload = SuccessWorkspaceSubscriptionPB(
-            workspaceId: state.workspaceId,
-          );
-
-          if (plan != null) {
-            payload.plan = plan;
-          }
-
-          UserEventNotifyDidSwitchPlan(payload).send().then((result) {
-            result.fold(
-              // After the user has switched to a new plan, we need to refresh the workspace usage.
-              (_) => _checkWorkspaceUsage(),
-              (error) => Log.error("NotifyDidSwitchPlan failed: $error"),
-            );
-          });
-        } else {
-          Log.error(
-            "Unexpected empty workspace id when subscription success listenable triggered. It should not happen. If happens, it must be a bug",
-          );
-        }
-      }
-    });
+    _subscriptionListener = getIt<SubscriptionSuccessListenable>();
+    _subscriptionListener.addListener(_onPaymentSuccessful);
 
     // 2. Listen to the storage notification
     _storageListener = StoreageNotificationListener(
@@ -77,16 +48,49 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
     on<SidebarPlanEvent>(_handleEvent);
   }
 
+  void _onPaymentSuccessful() {
+    final plan = _subscriptionListener.subscribedPlan;
+    Log.info("Subscription success listenable triggered: $plan");
+
+    if (!isClosed) {
+      // Notify the user that they have switched to a new plan. It would be better if we use websocket to
+      // notify the client when plan switching.
+      if (state.workspaceId != null) {
+        final payload = SuccessWorkspaceSubscriptionPB(
+          workspaceId: state.workspaceId,
+        );
+
+        if (plan != null) {
+          payload.plan = plan;
+        }
+
+        UserEventNotifyDidSwitchPlan(payload).send().then((result) {
+          result.fold(
+            // After the user has switched to a new plan, we need to refresh the workspace usage.
+            (_) => _checkWorkspaceUsage(),
+            (error) => Log.error("NotifyDidSwitchPlan failed: $error"),
+          );
+        });
+      } else {
+        Log.error(
+          "Unexpected empty workspace id when subscription success listenable triggered. It should not happen. If happens, it must be a bug",
+        );
+      }
+    }
+  }
+
   Future<void> dispose() async {
     if (_globalErrorListener != null) {
       GlobalErrorCodeNotifier.remove(_globalErrorListener!);
     }
+    _subscriptionListener.removeListener(_onPaymentSuccessful);
     await _storageListener?.stop();
     _storageListener = null;
   }
 
   ErrorListener? _globalErrorListener;
   StoreageNotificationListener? _storageListener;
+  late final SubscriptionSuccessListenable _subscriptionListener;
 
   Future<void> _handleEvent(
     SidebarPlanEvent event,

@@ -132,6 +132,24 @@ class DatabaseController {
     }
   }
 
+  void removeListener({
+    DatabaseCallbacks? onDatabaseChanged,
+    DatabaseLayoutSettingCallbacks? onLayoutSettingsChanged,
+    GroupCallbacks? onGroupChanged,
+  }) {
+    if (onDatabaseChanged != null) {
+      _databaseCallbacks.remove(onDatabaseChanged);
+    }
+
+    if (onLayoutSettingsChanged != null) {
+      _layoutCallbacks.remove(onLayoutSettingsChanged);
+    }
+
+    if (onGroupChanged != null) {
+      _groupCallbacks.remove(onGroupChanged);
+    }
+  }
+
   Future<FlowyResult<void, FlowyError>> open() async {
     return _databaseViewBackendSvc.openDatabase().then((result) {
       return result.fold(

@@ -21,6 +21,12 @@ class _MobileNotificationTabBarState extends State<MobileNotificationTabBar> {
     widget.controller.addListener(_updateState);
   }
 
+  @override
+  void dispose() {
+    widget.controller.removeListener(_updateState);
+    super.dispose();
+  }
+
   void _updateState() => setState(() {});
 
   @override

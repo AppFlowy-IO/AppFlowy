@@ -201,11 +201,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
   void initState() {
     super.initState();
     textController.text = widget.task.data.name;
-    textController.addListener(() {
-      setState(() {
-        isComposing = !textController.value.composing.isCollapsed;
-      });
-    });
+    textController.addListener(_onTextChanged);
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
@@ -213,6 +209,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
       });
     }
   }
+
+  void _onTextChanged() =>
+      setState(() => isComposing = !textController.value.composing.isCollapsed);
 
   @override
   void didUpdateWidget(covariant oldWidget) {
@@ -227,6 +226,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
   void dispose() {
     _debounceOnChanged.dispose();
 
+    textController.removeListener(_onTextChanged);
     textController.dispose();
     focusNode.dispose();
     textFieldFocusNode.dispose();
@@ -241,25 +241,14 @@ class _ChecklistItemState extends State<ChecklistItem> {
         : Colors.transparent;
     return FocusableActionDetector(
       focusNode: focusNode,
-      onShowHoverHighlight: (value) => setState(() {
-        isHovered = value;
-      }),
-      onFocusChange: (value) => setState(() {
-        isFocused = value;
-      }),
+      onShowHoverHighlight: (value) => setState(() => isHovered = value),
+      onFocusChange: (value) => setState(() => isFocused = value),
       actions: _buildActions(),
       shortcuts: _buildShortcuts(),
       child: Container(
-        constraints: BoxConstraints(
-          minHeight: GridSize.popoverItemHeight,
-        ),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: Corners.s6Border,
-        ),
-        child: _buildChild(
-          isFocusedOrHovered && !textFieldFocusNode.hasFocus,
-        ),
+        constraints: BoxConstraints(minHeight: GridSize.popoverItemHeight),
+        decoration: BoxDecoration(color: color, borderRadius: Corners.s6Border),
+        child: _buildChild(isFocusedOrHovered && !textFieldFocusNode.hasFocus),
       ),
     );
   }
@@ -288,9 +277,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
             ),
           ),
         ),
-        ChecklistCellCheckIcon(
-          task: widget.task,
-        ),
+        ChecklistCellCheckIcon(task: widget.task),
         Expanded(
           child: ChecklistCellTextfield(
             textController: textController,
@@ -315,9 +302,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
         ),
         if (showTrash)
           ChecklistCellDeleteButton(
-            onPressed: () => context.read<ChecklistCellBloc>().add(
-                  ChecklistCellEvent.deleteTask(widget.task.data.id),
-                ),
+            onPressed: () => context
+                .read<ChecklistCellBloc>()
+                .add(ChecklistCellEvent.deleteTask(widget.task.data.id)),
           ),
       ],
     );
@@ -366,14 +353,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
     };
   }
 
-  void _submitUpdateTaskDescription(String description) {
-    context.read<ChecklistCellBloc>().add(
-          ChecklistCellEvent.updateTaskName(
-            widget.task.data,
-            description,
-          ),
-        );
-  }
+  void _submitUpdateTaskDescription(String description) => context
+      .read<ChecklistCellBloc>()
+      .add(ChecklistCellEvent.updateTaskName(widget.task.data, description));
 }
 
 /// Creates a new task after entering the description and pressing enter.
@@ -397,18 +379,18 @@ class _NewTaskItemState extends State<NewTaskItem> {
   @override
   void initState() {
     super.initState();
-    textController.addListener(() {
-      setState(() {
-        isComposing = !textController.value.composing.isCollapsed;
-      });
-    });
+    textController.addListener(_onTextChanged);
     if (widget.focusNode.canRequestFocus) {
       widget.focusNode.requestFocus();
     }
   }
 
+  void _onTextChanged() =>
+      setState(() => isComposing = !textController.value.composing.isCollapsed);
+
   @override
   void dispose() {
+    textController.removeListener(_onTextChanged);
     textController.dispose();
     super.dispose();
   }
@@ -444,7 +426,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
                   hintText: LocaleKeys.grid_checklist_addNew.tr(),
                 ),
                 onSubmitted: (_) => _createNewTask(context),
-                onChanged: (value) => setState(
+                onChanged: (_) => setState(
                   () => isCreateButtonEnabled = textController.text.isNotEmpty,
                 ),
               ),
@@ -464,9 +446,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
             onPressed: isCreateButtonEnabled
                 ? () {
                     context.read<ChecklistCellBloc>().add(
-                          ChecklistCellEvent.createNewTask(
-                            textController.text,
-                          ),
+                          ChecklistCellEvent.createNewTask(textController.text),
                         );
                     widget.focusNode.requestFocus();
                     textController.clear();

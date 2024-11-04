@@ -42,9 +42,8 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 }
 
 class _RowDetailPageState extends State<RowDetailPage> {
-  late final cellBuilder = EditableCellBuilder(
-    databaseController: widget.databaseController,
-  );
+  late final cellBuilder =
+      EditableCellBuilder(databaseController: widget.databaseController);
   late final ScrollController scrollController;
 
   double scrollOffset = 0;
@@ -52,9 +51,8 @@ class _RowDetailPageState extends State<RowDetailPage> {
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController(
-      onAttach: (_) => attachScrollListener(),
-    );
+    scrollController =
+        ScrollController(onAttach: (_) => attachScrollListener());
   }
 
   void attachScrollListener() => scrollController.addListener(onScrollChanged);
@@ -120,9 +118,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
                   state.rowMeta.cover.data.isNotEmpty,
                 ),
                 right: 12,
-                child: Row(
-                  children: actions(context),
-                ),
+                child: Row(children: actions(context)),
               ),
             ],
           ),
