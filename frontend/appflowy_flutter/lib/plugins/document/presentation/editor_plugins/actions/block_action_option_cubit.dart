@@ -351,6 +351,14 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     ]);
     if (afterSelection != null) {
       transaction.afterSelection = afterSelection;
+    } else if (insertedNodes.isNotEmpty) {
+      // select the blocks
+      transaction.afterSelection = Selection(
+        start: Position(path: node.path.child(0)),
+        end: Position(path: node.path.child(insertedNodes.length - 1)),
+      );
+    } else {
+      transaction.afterSelection = transaction.beforeSelection;
     }
     await editorState.apply(transaction);
 

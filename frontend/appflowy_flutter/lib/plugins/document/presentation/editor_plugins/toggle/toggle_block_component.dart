@@ -181,6 +181,30 @@ class _ToggleListBlockComponentWidgetState
   }
 
   @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          left: cachedLeft,
+          top: padding.top,
+          child: Container(
+            width: double.infinity,
+            color: backgroundColor,
+          ),
+        ),
+        NestedListWidget(
+          indentPadding: indentPadding,
+          child: buildComponent(context),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget buildComponent(
     BuildContext context, {
     bool withBackgroundColor = false,
@@ -190,9 +214,6 @@ class _ToggleListBlockComponentWidgetState
     );
 
     Widget child = Container(
-      color: withBackgroundColor || backgroundColor != Colors.transparent
-          ? backgroundColor
-          : null,
       width: double.infinity,
       alignment: alignment,
       child: Row(
@@ -208,12 +229,6 @@ class _ToggleListBlockComponentWidgetState
       ),
     );
 
-    child = Padding(
-      key: blockComponentKey,
-      padding: padding,
-      child: child,
-    );
-
     child = BlockSelectionContainer(
       node: node,
       delegate: this,
@@ -223,6 +238,18 @@ class _ToggleListBlockComponentWidgetState
         BlockSelectionType.block,
       ],
       child: child,
+    );
+
+    child = Padding(
+      padding: padding,
+      child: Container(
+        key: blockComponentKey,
+        color: withBackgroundColor ||
+                (backgroundColor != Colors.transparent && collapsed)
+            ? backgroundColor
+            : null,
+        child: child,
+      ),
     );
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -293,16 +320,16 @@ class _ToggleListBlockComponentWidgetState
         minHeight: buttonHeight,
       ),
       padding: EdgeInsets.only(top: top, right: 4.0),
-      child: AnimatedRotation(
-        turns: collapsed ? 0.0 : 0.25,
-        duration: const Duration(milliseconds: 200),
-        child: FlowyIconButton(
-          width: 20.0,
-          icon: const Icon(
+      child: FlowyIconButton(
+        width: 20.0,
+        onPressed: onCollapsed,
+        icon: AnimatedRotation(
+          turns: collapsed ? 0.0 : 0.25,
+          duration: const Duration(milliseconds: 200),
+          child: const Icon(
             Icons.arrow_right,
             size: 18.0,
           ),
-          onPressed: onCollapsed,
         ),
       ),
     );

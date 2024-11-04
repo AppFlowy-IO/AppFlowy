@@ -136,12 +136,31 @@ void _customBlockOptionActions(
       );
 
       builder.actionBuilder = (context, state) {
-        final top = builder.configuration.padding(context.node).top;
-        final padding = context.node.type == HeadingBlockKeys.type
-            ? EdgeInsets.only(top: top + 8.0)
-            : EdgeInsets.only(top: top + 2.0);
+        double top = builder.configuration.padding(context.node).top;
+        final type = context.node.type;
+        final level = context.node.attributes[HeadingBlockKeys.level] ?? 0;
+        if ((type == HeadingBlockKeys.type ||
+                type == ToggleListBlockKeys.type) &&
+            level > 0) {
+          switch (level) {
+            case 1:
+              top += 14.0;
+              break;
+            case 2:
+              top += 11.0;
+              break;
+            case 3:
+              top += 8.0;
+              break;
+            case 4:
+              top += 5.0;
+              break;
+          }
+        } else {
+          top += 2.0;
+        }
         return Padding(
-          padding: padding,
+          padding: EdgeInsets.only(top: top),
           child: BlockActionList(
             blockComponentContext: context,
             blockComponentState: state,
