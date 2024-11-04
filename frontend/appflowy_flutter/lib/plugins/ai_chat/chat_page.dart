@@ -6,8 +6,6 @@ import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/other_user_message_bubble.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/user_message_bubble.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -31,24 +29,9 @@ import 'presentation/chat_side_panel.dart';
 import 'presentation/chat_theme.dart';
 import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
+import 'presentation/layout_define.dart';
 import 'presentation/message/ai_text_message.dart';
 import 'presentation/message/user_text_message.dart';
-
-class AIChatUILayout {
-  static double get messageWidthRatio => 0.94; // Chat adds extra 0.06
-
-  static EdgeInsets safeAreaInsets(BuildContext context) {
-    final query = MediaQuery.of(context);
-    return UniversalPlatform.isMobile
-        ? EdgeInsets.fromLTRB(
-            query.padding.left,
-            0,
-            query.padding.right,
-            query.viewInsets.bottom + query.padding.bottom,
-          )
-        : const EdgeInsets.only(bottom: 16);
-  }
-}
 
 class AIChatPage extends StatelessWidget {
   const AIChatPage({
@@ -107,7 +90,7 @@ class AIChatPage extends StatelessWidget {
   }
 }
 
-class _ChatContentPage extends StatefulWidget {
+class _ChatContentPage extends StatelessWidget {
   const _ChatContentPage({
     required this.view,
     required this.userProfile,
@@ -115,19 +98,6 @@ class _ChatContentPage extends StatefulWidget {
 
   final UserProfilePB userProfile;
   final ViewPB view;
-
-  @override
-  State<_ChatContentPage> createState() => _ChatContentPageState();
-}
-
-class _ChatContentPageState extends State<_ChatContentPage> {
-  late types.User _user;
-
-  @override
-  void initState() {
-    super.initState();
-    _user = types.User(id: widget.userProfile.id.toString());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -211,77 +181,71 @@ class _ChatContentPageState extends State<_ChatContentPage> {
 
   Widget buildChatWidget() {
     return BlocBuilder<ChatBloc, ChatState>(
-      builder: (blocContext, state) => Chat(
-        key: ValueKey(widget.view.id),
-        messages: state.messages,
-        dateHeaderBuilder: (_) => const SizedBox.shrink(),
-        onSendPressed: (_) {
-          // We use custom bottom widget for chat input, so
-          // do not need to handle this event.
-        },
-        customBottomWidget: _buildBottom(blocContext),
-        user: _user,
-        theme: buildTheme(context),
-        onEndReached: () async {
-          if (state.hasMorePrevMessage &&
-              state.loadingPreviousStatus.isFinish) {
-            blocContext
-                .read<ChatBloc>()
-                .add(const ChatEvent.startLoadingPrevMessage());
-          }
-        },
-        emptyState: BlocBuilder<ChatBloc, ChatState>(
-          builder: (_, state) => state.initialLoadingStatus.isFinish
-              ? ChatWelcomePage(
-                  userProfile: widget.userProfile,
-                  onSelectedQuestion: (question) => blocContext
-                      .read<ChatBloc>()
-                      .add(ChatEvent.sendMessage(message: question)),
-                )
-              : const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
-        ),
-        messageWidthRatio: AIChatUILayout.messageWidthRatio,
-        textMessageBuilder: (
-          textMessage, {
-          required messageWidth,
-          required showName,
-        }) =>
-            _buildTextMessage(blocContext, textMessage),
-        bubbleBuilder: (
-          child, {
-          required message,
-          required nextMessageInGroup,
-        }) =>
-            _buildBubble(blocContext, message, child, state),
-      ),
+      builder: (context, state) {
+        return ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: BlocBuilder<ChatBloc, ChatState>(
+            builder: (_, state) => state.initialLoadingStatus.isFinish
+                ? Chat(
+                    messages: state.messages,
+                    dateHeaderBuilder: (_) => const SizedBox.shrink(),
+                    onSendPressed: (_) {
+                      // We use custom bottom widget for chat input, so
+                      // do not need to handle this event.
+                    },
+                    customBottomWidget: _buildBottom(context),
+                    user: types.User(id: userProfile.id.toString()),
+                    theme: _buildTheme(context),
+                    onEndReached: () async {
+                      if (state.hasMorePrevMessage &&
+                          state.loadingPreviousStatus.isFinish) {
+                        context
+                            .read<ChatBloc>()
+                            .add(const ChatEvent.startLoadingPrevMessage());
+                      }
+                    },
+                    emptyState: ChatWelcomePage(
+                      userProfile: userProfile,
+                      onSelectedQuestion: (question) => context
+                          .read<ChatBloc>()
+                          .add(ChatEvent.sendMessage(message: question)),
+                    ),
+                    messageWidthRatio: AIChatUILayout.messageWidthRatio,
+                    textMessageBuilder: (
+                      textMessage, {
+                      required messageWidth,
+                      required showName,
+                    }) =>
+                        _buildTextMessage(context, textMessage, state),
+                    bubbleBuilder: (
+                      child, {
+                      required message,
+                      required nextMessageInGroup,
+                    }) =>
+                        _buildBubble(context, message, child),
+                  )
+                : const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildBubble(
-    BuildContext blocContext,
-    Message message,
-    Widget child,
+  Widget _buildTextMessage(
+    BuildContext context,
+    TextMessage message,
     ChatState state,
   ) {
-    if (message.author.id == _user.id) {
-      return ChatUserMessageBubble(
-        message: message,
-        child: child,
+    if (message.author.id == userProfile.id.toString()) {
+      final stream = message.metadata?["$QuestionStream"];
+      return ChatUserMessageWidget(
+        key: ValueKey(message.id),
+        user: message.author,
+        message: stream is QuestionStream ? stream : message.text,
       );
     } else if (isOtherUserMessage(message)) {
-      return OtherUserMessageBubble(
-        message: message,
-        child: child,
-      );
-    } else {
-      return _buildAIBubble(message, blocContext, state, child);
-    }
-  }
-
-  Widget _buildTextMessage(BuildContext context, TextMessage message) {
-    if (message.author.id == _user.id) {
       final stream = message.metadata?["$QuestionStream"];
       return ChatUserMessageWidget(
         key: ValueKey(message.id),
@@ -293,59 +257,87 @@ class _ChatContentPageState extends State<_ChatContentPage> {
       final questionId = message.metadata?[messageQuestionIdKey];
       final refSourceJsonString =
           message.metadata?[messageRefSourceJsonStringKey] as String?;
-      return ChatAIMessageWidget(
-        user: message.author,
-        messageUserId: message.id,
-        message: stream is AnswerStream ? stream : message.text,
-        key: ValueKey(message.id),
-        questionId: questionId,
-        chatId: widget.view.id,
-        refSourceJsonString: refSourceJsonString,
-        onSelectedMetadata: (ChatMessageRefSource metadata) {
-          context
-              .read<ChatSidePanelBloc>()
-              .add(ChatSidePanelEvent.selectedMetadata(metadata));
+
+      final messageType = onetimeMessageTypeFromMeta(
+        message.metadata,
+      );
+
+      if (messageType == OnetimeShotType.invalidSendMesssage) {
+        return ChatInvalidUserMessage(
+          message: message,
+        );
+      }
+
+      if (messageType == OnetimeShotType.relatedQuestion) {
+        return RelatedQuestionList(
+          relatedQuestions: state.relatedQuestions,
+          onQuestionSelected: (question) {
+            final bloc = context.read<ChatBloc>();
+            bloc
+              ..add(ChatEvent.sendMessage(message: question))
+              ..add(const ChatEvent.clearRelatedQuestions());
+          },
+        );
+      }
+
+      return BlocSelector<ChatBloc, ChatState, bool>(
+        selector: (state) {
+          final messages = state.messages.where((e) {
+            final oneTimeMessageType = onetimeMessageTypeFromMeta(e.metadata);
+            if (oneTimeMessageType == null) {
+              return true;
+            }
+            if (oneTimeMessageType
+                case OnetimeShotType.relatedQuestion ||
+                    OnetimeShotType.sendingMessage ||
+                    OnetimeShotType.invalidSendMesssage) {
+              return false;
+            }
+            return true;
+          });
+          return messages.isEmpty ? false : messages.first.id == message.id;
+        },
+        builder: (context, isLastMessage) {
+          return ChatAIMessageWidget(
+            key: ValueKey(message.id),
+            user: message.author,
+            messageUserId: message.id,
+            message: message,
+            stream: stream is AnswerStream ? stream : null,
+            questionId: questionId,
+            chatId: view.id,
+            refSourceJsonString: refSourceJsonString,
+            isLastMessage: isLastMessage,
+            onSelectedMetadata: (metadata) {
+              context
+                  .read<ChatSidePanelBloc>()
+                  .add(ChatSidePanelEvent.selectedMetadata(metadata));
+            },
+          );
         },
       );
     }
   }
 
-  Widget _buildAIBubble(
+  Widget _buildBubble(
+    BuildContext context,
     Message message,
-    BuildContext blocContext,
-    ChatState state,
     Widget child,
   ) {
-    final messageType = onetimeMessageTypeFromMeta(
-      message.metadata,
-    );
-
-    if (messageType == OnetimeShotType.invalidSendMesssage) {
-      return ChatInvalidUserMessage(
+    if (message.author.id == userProfile.id.toString()) {
+      return ChatUserMessageBubble(
         message: message,
+        child: child,
       );
-    }
-
-    if (messageType == OnetimeShotType.relatedQuestion) {
-      return RelatedQuestionList(
-        onQuestionSelected: (question) {
-          blocContext
-              .read<ChatBloc>()
-              .add(ChatEvent.sendMessage(message: question));
-          blocContext
-              .read<ChatBloc>()
-              .add(const ChatEvent.clearReleatedQuestion());
-        },
-        chatId: widget.view.id,
-        relatedQuestions: state.relatedQuestions,
+    } else if (isOtherUserMessage(message)) {
+      return ChatUserMessageBubble(
+        message: message,
+        isCurrentUser: false,
+        child: child,
       );
+    } else {
+      return child;
     }
-
-    return ChatAIMessageBubble(
-      message: message,
-      customMessageType: messageType,
-      child: child,
-    );
   }
 
   Widget _buildBottom(BuildContext context) {
@@ -356,7 +348,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         builder: (context, canSendMessage) {
           return UniversalPlatform.isDesktop
               ? DesktopAIPromptInput(
-                  chatId: widget.view.id,
+                  chatId: view.id,
                   indicateFocus: true,
                   onSubmitted: (message) {
                     context.read<ChatBloc>().add(
@@ -372,7 +364,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                   },
                 )
               : MobileAIPromptInput(
-                  chatId: widget.view.id,
+                  chatId: view.id,
                   onSubmitted: (message) {
                     context.read<ChatBloc>().add(
                           ChatEvent.sendMessage(
@@ -390,11 +382,11 @@ class _ChatContentPageState extends State<_ChatContentPage> {
       ),
     );
   }
-}
 
-AFDefaultChatTheme buildTheme(BuildContext context) {
-  return AFDefaultChatTheme(
-    primaryColor: Theme.of(context).colorScheme.primary,
-    secondaryColor: AFThemeExtension.of(context).tint1,
-  );
+  AFDefaultChatTheme _buildTheme(BuildContext context) {
+    return AFDefaultChatTheme(
+      primaryColor: Theme.of(context).colorScheme.primary,
+      secondaryColor: AFThemeExtension.of(context).tint1,
+    );
+  }
 }

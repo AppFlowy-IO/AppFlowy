@@ -18,7 +18,7 @@ import 'package:universal_platform/universal_platform.dart';
 
 import 'ai_prompt_buttons.dart';
 import 'chat_input_span.dart';
-import 'layout_define.dart';
+import '../layout_define.dart';
 
 class DesktopAIPromptInput extends StatefulWidget {
   const DesktopAIPromptInput({

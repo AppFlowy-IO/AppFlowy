@@ -190,8 +190,11 @@
     "chatWithFilePrompt": "Möchtest du mit der Datei chatten?",
     "indexFileSuccess": "Datei erfolgreich indiziert",
     "inputActionNoPages": "Keine Seitenergebnisse",
-    "referenceSource": "{} Quelle gefunden",
-    "referenceSources": "{} Quellen gefunden",
+    "referenceSource": {
+      "zero": "0 Quellen gefunden",
+      "one": "{count} Quelle gefunden",
+      "other": "{count} Quellen gefunden"
+    },
     "clickToMention": "Klicke hier, um eine Seite zu erwähnen",
     "uploadFile": "Lade PDF-, md- oder txt-Dateien in den Chat hoch",
     "questionDetail": "Hallo {}! Wie kann ich dir heute helfen?",

@@ -242,7 +242,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          clearReleatedQuestion: () {
+          clearRelatedQuestions: () {
             emit(
               state.copyWith(
                 relatedQuestions: [],
@@ -523,7 +523,7 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.didReceiveRelatedQuestion(
     List<RelatedQuestionPB> questions,
   ) = _DidReceiveRelatedQueston;
-  const factory ChatEvent.clearReleatedQuestion() = _ClearRelatedQuestion;
+  const factory ChatEvent.clearRelatedQuestions() = _ClearRelatedQuestions;
 
   const factory ChatEvent.didUpdateAnswerStream(
     AnswerStream stream,

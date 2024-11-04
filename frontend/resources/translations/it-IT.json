@@ -176,8 +176,11 @@
     "chatWithFilePrompt": "Vuoi chattare col file?",
     "indexFileSuccess": "Indicizzazione file completata con successo",
     "inputActionNoPages": "Nessuna pagina risultante",
-    "referenceSource": "{} fonte trovata",
-    "referenceSources": "{} fonti trovate",
+    "referenceSource": {
+      "zero": "0 fonti trovate",
+      "one": "{count} fonte trovata",
+      "other": "{count} fonti trovate"
+    },
     "clickToMention": "Clicca per menzionare una pagina",
     "uploadFile": "Carica file PDF, MD o TXT con la quale chattare",
     "questionDetail": "Salve {}! Come posso aiutarti oggi?",

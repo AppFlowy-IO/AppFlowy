@@ -193,12 +193,16 @@
     "chatWithFilePrompt": "Do you want to chat with the file?",
     "indexFileSuccess": "Indexing file successfully",
     "inputActionNoPages": "No page results",
-    "referenceSource": "{} source found",
-    "referenceSources": "{} sources found",
+    "referenceSource": {
+      "zero": "0 sources gefunden",
+      "one": "{count} source found",
+      "other": "{count} sources found"
+    },
     "clickToMention": "Mention a page",
     "uploadFile": "Attach PDFs, text or markdown files",
     "questionDetail": "Hi {}! How can I help you today?",
-    "indexingFile": "Indexing {}"
+    "indexingFile": "Indexing {}",
+    "generatingResponse": "Generating response"
   },
   "trash": {
     "text": "Trash",
@@ -329,7 +333,7 @@
     "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
     "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
-    "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
+    "askOwnerToUpgradeToAIMax": "Your workspace has ran out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
     "purchaseAIResponse": "Purchase ",
@@ -1036,7 +1040,7 @@
       "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
-      "clickToCopy": "Click to copy",
+      "clickToCopy": "Copy to clipboard",
       "selfHostStart": "If you don't have a server, please refer to the",
       "selfHostContent": "document",
       "selfHostEnd": "for guidance on how to self-host your own server",

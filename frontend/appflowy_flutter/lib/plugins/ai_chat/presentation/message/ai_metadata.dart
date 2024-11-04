@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
@@ -6,8 +7,9 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:time/time.dart';
 
-class AIMessageMetadata extends StatelessWidget {
+class AIMessageMetadata extends StatefulWidget {
   const AIMessageMetadata({
     required this.sources,
     required this.onSelectedMetadata,
@@ -15,58 +17,90 @@ class AIMessageMetadata extends StatelessWidget {
   });
 
   final List<ChatMessageRefSource> sources;
-  final Function(ChatMessageRefSource metadata) onSelectedMetadata;
+  final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
+
+  @override
+  State<AIMessageMetadata> createState() => _AIMessageMetadataState();
+}
+
+class _AIMessageMetadataState extends State<AIMessageMetadata> {
+  bool isExpanded = true;
+
   @override
   Widget build(BuildContext context) {
-    final title = sources.length == 1
-        ? LocaleKeys.chat_referenceSource.tr(args: [sources.length.toString()])
-        : LocaleKeys.chat_referenceSources
-            .tr(args: [sources.length.toString()]);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (sources.isNotEmpty)
-          Opacity(
-            opacity: 0.5,
-            child: FlowyText(title, fontSize: 12),
+    return AnimatedSize(
+      duration: 150.milliseconds,
+      alignment: AlignmentDirectional.topStart,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VSpace(8.0),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 24,
+              maxWidth: 240,
+            ),
+            child: FlowyButton(
+              margin: const EdgeInsets.all(4.0),
+              useIntrinsicWidth: true,
+              radius: BorderRadius.circular(8.0),
+              text: FlowyText(
+                LocaleKeys.chat_referenceSource.plural(
+                  widget.sources.length,
+                  namedArgs: {'count': '${widget.sources.length}'},
+                ),
+                fontSize: 12,
+                color: Theme.of(context).hintColor,
+              ),
+              rightIcon: FlowySvg(
+                isExpanded ? FlowySvgs.arrow_up_s : FlowySvgs.arrow_down_s,
+                size: const Size.square(10),
+              ),
+              onTap: () {
+                setState(() => isExpanded = !isExpanded);
+              },
+            ),
           ),
-        const VSpace(6),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: sources
-              .map(
-                (m) => SizedBox(
-                  height: 24,
-                  child: FlowyButton(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
+          if (isExpanded) ...[
+            const VSpace(4.0),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: widget.sources.map(
+                (m) {
+                  return ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxHeight: 24,
+                      maxWidth: 240,
                     ),
-                    useIntrinsicWidth: true,
-                    radius: BorderRadius.circular(6),
-                    text: Opacity(
-                      opacity: 0.5,
-                      child: FlowyText(
+                    child: FlowyButton(
+                      margin: const EdgeInsets.all(4.0),
+                      useIntrinsicWidth: true,
+                      radius: BorderRadius.circular(8.0),
+                      text: FlowyText(
                         m.name,
-                        fontSize: 14,
-                        lineHeight: 1.0,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      leftIcon: FlowySvg(
+                        FlowySvgs.icon_document_s,
+                        size: const Size.square(16),
+                        color: Theme.of(context).hintColor,
+                      ),
+                      disable: m.source != appflowySource,
+                      onTap: () {
+                        if (m.source != appflowySource) {
+                          return;
+                        }
+                        widget.onSelectedMetadata(m);
+                      },
                     ),
-                    disable: m.source != appflowySoruce,
-                    onTap: () {
-                      if (m.source != appflowySoruce) {
-                        return;
-                      }
-                      onSelectedMetadata(m);
-                    },
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ],
+                  );
+                },
+              ).toList(),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

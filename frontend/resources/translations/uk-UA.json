@@ -180,8 +180,11 @@
     "chatWithFilePrompt": "Хочете поспілкуватися з файлом?",
     "indexFileSuccess": "Файл успішно індексується",
     "inputActionNoPages": "Сторінка не знайдена",
-    "referenceSource": "{} джерело знайдено",
-    "referenceSources": "{} джерел знайдено",
+    "referenceSource": {
+      "zero": "0 джерел знайдено",
+      "one": "{count} джерело знайдено",
+      "other": "{count} джерел знайдено"
+    },
     "clickToMention": "Натисніть, щоб згадати сторінку",
     "uploadFile": "Завантажуйте PDF-файли, файли md або txt для спілкування в чаті",
     "questionDetail": "Привіт {}! Чим я можу тобі допомогти сьогодні?",

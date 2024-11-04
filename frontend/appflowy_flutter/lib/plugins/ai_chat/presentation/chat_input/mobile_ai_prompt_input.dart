@@ -17,7 +17,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'ai_prompt_buttons.dart';
 import 'chat_input_span.dart';
-import 'layout_define.dart';
+import '../layout_define.dart';
 
 class MobileAIPromptInput extends StatefulWidget {
   const MobileAIPromptInput({

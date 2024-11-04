@@ -181,8 +181,11 @@
     "chatWithFilePrompt": "Bạn có muốn trò chuyện với tập tin không?",
     "indexFileSuccess": "Đang lập chỉ mục tệp thành công",
     "inputActionNoPages": "Không có kết quả trang",
-    "referenceSource": "{} nguồn đã tìm thấy",
-    "referenceSources": "{} nguồn được tìm thấy",
+    "referenceSource": {
+      "zero": "0 nguồn được tìm thấy",
+      "one": "{count} nguồn đã tìm thấy",
+      "other": "{count} nguồn được tìm thấy"
+    },
     "clickToMention": "Nhấp để đề cập đến một trang",
     "uploadFile": "Tải lên các tệp PDF, md hoặc txt để trò chuyện",
     "questionDetail": "Xin chào {}! Tôi có thể giúp gì cho bạn hôm nay?",

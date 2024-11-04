@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
+import 'ai_message_bubble.dart';
 import 'ai_metadata.dart';
 
 class ChatAIMessageWidget extends StatelessWidget {
@@ -20,27 +22,30 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.user,
     required this.messageUserId,
     required this.message,
+    required this.stream,
     required this.questionId,
     required this.chatId,
     required this.refSourceJsonString,
     required this.onSelectedMetadata,
+    this.isLastMessage = false,
   });
 
   final User user;
   final String messageUserId;
 
-  /// message can be a striing or Stream<String>
-  final dynamic message;
+  final Message message;
+  final AnswerStream? stream;
   final Int64? questionId;
   final String chatId;
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
+  final bool isLastMessage;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChatAIMessageBloc(
-        message: message,
+        message: stream ?? (message as TextMessage).text,
         refSourceJsonString: refSourceJsonString,
         chatId: chatId,
         questionId: questionId,
@@ -48,39 +53,55 @@ class ChatAIMessageWidget extends StatelessWidget {
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
           return state.messageState.when(
-            onError: (err) {
-              return StreamingError(
-                onRetryPressed: () {
-                  context
-                      .read<ChatAIMessageBloc>()
-                      .add(const ChatAIMessageEvent.retry());
-                },
-              );
-            },
-            onAIResponseLimit: () {
-              return FlowyText(
-                LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
-                maxLines: null,
+            loading: () {
+              return ChatAIMessageBubble(
+                message: message,
+                showActions: false,
+                child: const ChatAILoading(),
               );
             },
             ready: () {
-              if (state.text.isEmpty) {
-                return ChatAILoading(message: "Analyzing the files");
-              } else {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AIMarkdownText(markdown: state.text),
-                    AIMessageMetadata(
-                      sources: state.sources,
-                      onSelectedMetadata: onSelectedMetadata,
-                    ),
-                  ],
-                );
-              }
+              return state.text.isEmpty
+                  ? const SizedBox.shrink()
+                  : ChatAIMessageBubble(
+                      message: message,
+                      isLastMessage: isLastMessage,
+                      showActions: stream == null && state.text.isNotEmpty,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AIMarkdownText(markdown: state.text),
+                          if (state.sources.isNotEmpty)
+                            AIMessageMetadata(
+                              sources: state.sources,
+                              onSelectedMetadata: onSelectedMetadata,
+                            ),
+                        ],
+                      ),
+                    );
             },
-            loading: () {
-              return ChatAILoading(message: "Analyzing the files");
+            onError: (err) {
+              return ChatAIMessageBubble(
+                message: message,
+                showActions: false,
+                child: StreamingError(
+                  onRetryPressed: () {
+                    context
+                        .read<ChatAIMessageBloc>()
+                        .add(const ChatAIMessageEvent.retry());
+                  },
+                ),
+              );
+            },
+            onAIResponseLimit: () {
+              return ChatAIMessageBubble(
+                message: message,
+                showActions: false,
+                child: FlowyText(
+                  LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                  maxLines: null,
+                ),
+              );
             },
           );
         },
@@ -96,6 +117,7 @@ class StreamingError extends StatelessWidget {
   });
 
   final void Function() onRetryPressed;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -123,7 +145,6 @@ class StreamingError extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: FlowyText(
           LocaleKeys.chat_regenerateAnswer.tr(),
-          fontSize: 14,
         ),
       ),
       onTap: onRetryPressed,
@@ -140,7 +161,6 @@ class StreamingError extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: FlowyText(
         LocaleKeys.chat_aiServerUnavailable.tr(),
-        fontSize: 14,
       ),
     );
   }

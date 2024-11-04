@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bubble_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -14,16 +15,15 @@ class ChatUserMessageBubble extends StatelessWidget {
     super.key,
     required this.message,
     required this.child,
+    this.isCurrentUser = true,
   });
 
   final Message message;
   final Widget child;
+  final bool isCurrentUser;
 
   @override
   Widget build(BuildContext context) {
-    const borderRadius = BorderRadius.all(Radius.circular(6));
-    final backgroundColor =
-        Theme.of(context).colorScheme.surfaceContainerHighest;
     if (context.read<ChatMemberBloc>().state.members[message.author.id] ==
         null) {
       context
@@ -51,39 +51,56 @@ class ChatUserMessageBubble extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: borderRadius,
-                        color: backgroundColor,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        child: child,
-                      ),
-                    ),
-                  ),
-                  BlocBuilder<ChatMemberBloc, ChatMemberState>(
-                    builder: (context, state) {
-                      final member = state.members[message.author.id];
-                      return Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 12.0),
-                        child: ChatUserAvatar(
-                          iconUrl: member?.info.avatarUrl ?? "",
-                          name: member?.info.name ?? "",
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                children: getChildren(context),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> getChildren(BuildContext context) {
+    if (isCurrentUser) {
+      return [
+        _buildBubble(context),
+        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        _buildAvatar(),
+      ];
+    } else {
+      return [
+        _buildAvatar(),
+        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        _buildBubble(context),
+      ];
+    }
+  }
+
+  Widget _buildAvatar() {
+    return BlocBuilder<ChatMemberBloc, ChatMemberState>(
+      builder: (context, state) {
+        final member = state.members[message.author.id];
+        return ChatUserAvatar(
+          iconUrl: member?.info.avatarUrl ?? "",
+          name: member?.info.name ?? "",
+        );
+      },
+    );
+  }
+
+  Widget _buildBubble(BuildContext context) {
+    return Flexible(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 440),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
+        ),
+        child: child,
       ),
     );
   }

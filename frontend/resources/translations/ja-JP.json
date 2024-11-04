@@ -177,8 +177,9 @@
     "chatWithFilePrompt": "ファイルとチャットしますか？",
     "indexFileSuccess": "ファイルのインデックス作成が成功しました",
     "inputActionNoPages": "ページ結果がありません",
-    "referenceSource": "{} 件のソースが見つかりました",
-    "referenceSources": "{} 件のソースが見つかりました",
+    "referenceSource": {
+      "other": "{count} 件のソースが見つかりました"
+    },
     "clickToMention": "ページをメンションするにはクリック",
     "uploadFile": "PDF、md、txtファイルをアップロードしてチャット",
     "questionDetail": "こんにちは、{}！今日はどんなお手伝いをしましょうか？",

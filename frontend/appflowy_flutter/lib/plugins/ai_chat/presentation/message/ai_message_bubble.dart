@@ -2,65 +2,73 @@ import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/chat_popmenu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const _leftPadding = 12.0;
+import '../layout_define.dart';
 
 class ChatAIMessageBubble extends StatelessWidget {
   const ChatAIMessageBubble({
     super.key,
     required this.message,
     required this.child,
-    this.customMessageType,
+    required this.showActions,
+    this.isLastMessage = false,
   });
 
   final Message message;
   final Widget child;
-  final OnetimeShotType? customMessageType;
+  final bool showActions;
+  final bool isLastMessage;
 
   @override
   Widget build(BuildContext context) {
-    const padding = EdgeInsets.symmetric(horizontal: _leftPadding);
-    final childWithPadding = Padding(padding: padding, child: child);
-    final widget = UniversalPlatform.isMobile
-        ? _wrapPopMenu(childWithPadding)
-        : _wrapHover(childWithPadding);
-
-    return Row(
+    final avatarAndMessage = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const ChatAIAvatar(),
-        Expanded(child: widget),
+        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        Expanded(child: child),
       ],
     );
+
+    return showActions
+        ? UniversalPlatform.isMobile
+            ? _wrapPopMenu(avatarAndMessage)
+            : isLastMessage
+                ? _wrapBottomActions(avatarAndMessage)
+                : _wrapHover(avatarAndMessage)
+        : avatarAndMessage;
   }
 
-  ChatAIMessageHover _wrapHover(Padding child) {
-    return ChatAIMessageHover(
+  Widget _wrapBottomActions(Widget child) {
+    return ChatAIBottomInlineActions(
       message: message,
-      customMessageType: customMessageType,
       child: child,
     );
   }
 
-  ChatPopupMenu _wrapPopMenu(Padding childWithPadding) {
+  Widget _wrapHover(Widget child) {
+    return ChatAIMessageHover(
+      message: message,
+      child: child,
+    );
+  }
+
+  Widget _wrapPopMenu(Widget child) {
     return ChatPopupMenu(
       onAction: (action) {
         if (action == ChatMessageAction.copy && message is TextMessage) {
@@ -68,7 +76,44 @@ class ChatAIMessageBubble extends StatelessWidget {
           showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
         }
       },
-      builder: (context) => childWithPadding,
+      builder: (context) => child,
+    );
+  }
+}
+
+class ChatAIBottomInlineActions extends StatelessWidget {
+  const ChatAIBottomInlineActions({
+    super.key,
+    required this.child,
+    required this.message,
+  });
+
+  final Widget child;
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        child,
+        const VSpace(16.0),
+        Padding(
+          padding: const EdgeInsetsDirectional.only(
+            start: DesktopAIConvoSizes.avatarSize +
+                DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
+          ),
+          child: AIResponseActionBar(
+            showDecoration: false,
+            children: [
+              CopyButton(
+                textMessage: message as TextMessage,
+              ),
+            ],
+          ),
+        ),
+        const VSpace(32.0),
+      ],
     );
   }
 }
@@ -78,81 +123,208 @@ class ChatAIMessageHover extends StatefulWidget {
     super.key,
     required this.child,
     required this.message,
-    this.customMessageType,
   });
 
   final Widget child;
   final Message message;
-  final bool autoShowHover = true;
-  final OnetimeShotType? customMessageType;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
 }
 
 class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
-  bool _isHover = false;
+  final controller = OverlayPortalController();
+  final layerLink = LayerLink();
+
+  bool hoverBubble = false;
+  bool hoverActionBar = false;
+
+  ScrollPosition? scrollPosition;
 
   @override
   void initState() {
     super.initState();
-    _isHover = widget.autoShowHover ? false : true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      addScrollListener();
+      controller.show();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [
-      DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: Corners.s6Border,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 30),
+    return MouseRegion(
+      opaque: false,
+      onEnter: (_) {
+        if (!hoverBubble && isBottomOfWidgetVisible(context)) {
+          setState(() => hoverBubble = true);
+        }
+      },
+      onHover: (_) {
+        if (!hoverBubble && isBottomOfWidgetVisible(context)) {
+          setState(() => hoverBubble = true);
+        }
+      },
+      onExit: (_) {
+        if (hoverBubble) {
+          setState(() => hoverBubble = false);
+        }
+      },
+      child: OverlayPortal(
+        controller: controller,
+        overlayChildBuilder: (_) {
+          return CompositedTransformFollower(
+            showWhenUnlinked: false,
+            link: layerLink,
+            targetAnchor: Alignment.bottomLeft,
+            offset: const Offset(
+              DesktopAIConvoSizes.avatarSize +
+                  DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
+              0,
+            ),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: MouseRegion(
+                opaque: false,
+                onEnter: (_) {
+                  if (!hoverActionBar && isBottomOfWidgetVisible(context)) {
+                    setState(() => hoverActionBar = true);
+                  }
+                },
+                onExit: (_) {
+                  if (hoverActionBar) {
+                    setState(() => hoverActionBar = false);
+                  }
+                },
+                child: Container(
+                  constraints: const BoxConstraints(
+                    maxWidth: 784,
+                    maxHeight: 28,
+                  ),
+                  alignment: Alignment.topLeft,
+                  child: hoverBubble || hoverActionBar
+                      ? AIResponseActionBar(
+                          showDecoration: true,
+                          children: [
+                            CopyButton(
+                              textMessage: widget.message as TextMessage,
+                            ),
+                          ],
+                        )
+                      : null,
+                ),
+              ),
+            ),
+          );
+        },
+        child: CompositedTransformTarget(
+          link: layerLink,
           child: widget.child,
         ),
-      ),
-    ];
-
-    if (_isHover) {
-      children.addAll(_buildOnHoverItems());
-    }
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      opaque: false,
-      onEnter: (p) => setState(() {
-        if (widget.autoShowHover) {
-          _isHover = true;
-        }
-      }),
-      onExit: (p) => setState(() {
-        if (widget.autoShowHover) {
-          _isHover = false;
-        }
-      }),
-      child: Stack(
-        alignment: AlignmentDirectional.centerStart,
-        children: children,
       ),
     );
   }
 
-  List<Widget> _buildOnHoverItems() {
-    final List<Widget> children = [];
-    if (widget.customMessageType != null) {
-      //
-    } else {
-      if (widget.message is TextMessage) {
-        children.add(
-          CopyButton(
-            textMessage: widget.message as TextMessage,
-          ).positioned(left: _leftPadding, bottom: 0),
-        );
-      }
+  void addScrollListener() {
+    if (!mounted) {
+      return;
     }
+    scrollPosition = Scrollable.maybeOf(context)?.position;
+    scrollPosition?.addListener(handleScroll);
+  }
 
-    return children;
+  void handleScroll() {
+    if (!mounted) {
+      return;
+    }
+    if ((hoverActionBar || hoverBubble) && !isBottomOfWidgetVisible(context)) {
+      setState(() {
+        hoverBubble = false;
+        hoverActionBar = false;
+      });
+    }
+  }
+
+  bool isBottomOfWidgetVisible(BuildContext context) {
+    if (Scrollable.maybeOf(context) == null) {
+      return false;
+    }
+    final scrollableRenderBox =
+        Scrollable.of(context).context.findRenderObject() as RenderBox;
+    final scrollableHeight = scrollableRenderBox.size.height;
+    final scrollableOffset = scrollableRenderBox.localToGlobal(Offset.zero);
+
+    final messageRenderBox = context.findRenderObject() as RenderBox;
+    final messageOffset = messageRenderBox.localToGlobal(Offset.zero);
+    final messageHeight = messageRenderBox.size.height;
+
+    return messageOffset.dy + messageHeight + 28 <=
+        scrollableOffset.dy + scrollableHeight;
+  }
+
+  @override
+  void dispose() {
+    scrollPosition?.isScrollingNotifier.removeListener(handleScroll);
+    super.dispose();
+  }
+}
+
+class AIResponseActionBar extends StatelessWidget {
+  const AIResponseActionBar({
+    super.key,
+    required this.showDecoration,
+    required this.children,
+  });
+
+  final List<Widget> children;
+  final bool showDecoration;
+
+  @override
+  Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).isLightMode;
+
+    final child = SeparatedRow(
+      mainAxisSize: MainAxisSize.min,
+      separatorBuilder: () =>
+          const HSpace(DesktopAIConvoSizes.actionBarIconSpacing),
+      children: children,
+    );
+
+    return showDecoration
+        ? Container(
+            padding: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              borderRadius: DesktopAIConvoSizes.actionBarIconRadius,
+              border: Border.all(color: Theme.of(context).dividerColor),
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  offset: const Offset(0, 1),
+                  blurRadius: 2,
+                  spreadRadius: -2,
+                  color: isLightMode
+                      ? const Color(0x051F2329)
+                      : Theme.of(context).shadowColor.withOpacity(0.02),
+                ),
+                BoxShadow(
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                  color: isLightMode
+                      ? const Color(0x051F2329)
+                      : Theme.of(context).shadowColor.withOpacity(0.02),
+                ),
+                BoxShadow(
+                  offset: const Offset(0, 2),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                  color: isLightMode
+                      ? const Color(0x051F2329)
+                      : Theme.of(context).shadowColor.withOpacity(0.02),
+                ),
+              ],
+            ),
+            child: child,
+          )
+        : child;
   }
 }
 
@@ -168,12 +340,14 @@ class CopyButton extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.settings_menu_clickToCopy.tr(),
       child: FlowyIconButton(
-        width: 24,
+        width: DesktopAIConvoSizes.actionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         fillColor: Theme.of(context).cardColor,
-        icon: const FlowySvg(
+        radius: DesktopAIConvoSizes.actionBarIconRadius,
+        icon: FlowySvg(
           FlowySvgs.copy_s,
-          size: Size.square(20),
+          color: Theme.of(context).hintColor,
+          size: const Size.square(16),
         ),
         onPressed: () async {
           final document = customMarkdownToDocument(textMessage.text);

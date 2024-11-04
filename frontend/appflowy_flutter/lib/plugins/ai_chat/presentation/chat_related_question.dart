@@ -8,13 +8,11 @@ import 'package:flutter/material.dart';
 
 class RelatedQuestionList extends StatelessWidget {
   const RelatedQuestionList({
-    required this.chatId,
     required this.onQuestionSelected,
     required this.relatedQuestions,
     super.key,
   });
 
-  final String chatId;
   final Function(String) onQuestionSelected;
   final List<RelatedQuestionPB> relatedQuestions;
 

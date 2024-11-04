@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -23,18 +22,13 @@ class ChatSidePanelBloc extends Bloc<ChatSidePanelEvent, ChatSidePanelState> {
                 indicator: const ChatSidePanelIndicator.loading(),
               ),
             );
-            unawaited(
-              ViewBackendService.getView(metadata.id).then(
-                (result) {
-                  result.fold((view) {
-                    if (!isClosed) {
-                      add(ChatSidePanelEvent.open(view));
-                    }
-                  }, (err) {
-                    Log.error("Failed to get view: $err");
-                  });
-                },
-              ),
+            await ViewBackendService.getView(metadata.id).fold(
+              (view) {
+                if (!isClosed) {
+                  add(ChatSidePanelEvent.open(view));
+                }
+              },
+              (err) => Log.error("Failed to get view: $err"),
             );
           },
           close: () {

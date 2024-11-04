@@ -6,7 +6,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 
-import 'layout_define.dart';
+import '../layout_define.dart';
 
 enum SendButtonState { enabled, streaming, disabled }
 

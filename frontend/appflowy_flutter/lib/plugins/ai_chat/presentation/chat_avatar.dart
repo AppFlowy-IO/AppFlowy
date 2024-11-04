@@ -7,6 +7,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:string_validator/string_validator.dart';
 
+import 'layout_define.dart';
+
 class ChatAIAvatar extends StatelessWidget {
   const ChatAIAvatar({
     super.key,
@@ -15,8 +17,8 @@ class ChatAIAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 32,
-      height: 32,
+      width: DesktopAIConvoSizes.avatarSize,
+      height: DesktopAIConvoSizes.avatarSize,
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(shape: BoxShape.circle),
       foregroundDecoration: ShapeDecoration(
@@ -59,8 +61,8 @@ class ChatUserAvatar extends StatelessWidget {
       child = _buildEmojiAvatar(context);
     }
     return Container(
-      width: 32,
-      height: 32,
+      width: DesktopAIConvoSizes.avatarSize,
+      height: DesktopAIConvoSizes.avatarSize,
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(shape: BoxShape.circle),
       foregroundDecoration: ShapeDecoration(
@@ -100,7 +102,7 @@ class ChatUserAvatar extends StatelessWidget {
   Widget _buildUrlAvatar(BuildContext context) {
     return CircleAvatar(
       backgroundColor: Colors.transparent,
-      radius: 16,
+      radius: DesktopAIConvoSizes.avatarSize / 2,
       child: Image.network(
         iconUrl,
         fit: BoxFit.cover,
@@ -113,7 +115,7 @@ class ChatUserAvatar extends StatelessWidget {
   Widget _buildEmojiAvatar(BuildContext context) {
     return CircleAvatar(
       backgroundColor: Colors.transparent,
-      radius: 16,
+      radius: DesktopAIConvoSizes.avatarSize / 2,
       child: builtInSVGIcons.contains(iconUrl)
           ? FlowySvg(
               FlowySvgData('emoji/$iconUrl'),
@@ -121,7 +123,7 @@ class ChatUserAvatar extends StatelessWidget {
             )
           : FlowyText.emoji(
               iconUrl,
-              fontSize: 24,
+              fontSize: 24, // cannot reduce
               optimizeEmojiAlign: true,
             ),
     );

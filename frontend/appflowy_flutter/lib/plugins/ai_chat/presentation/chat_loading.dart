@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,11 +7,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 class ChatAILoading extends StatelessWidget {
   const ChatAILoading({
     super.key,
-    required this.message,
     this.duration = const Duration(seconds: 1),
   });
 
-  final String message;
   final Duration duration;
 
   @override
@@ -23,7 +23,7 @@ class ChatAILoading extends StatelessWidget {
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 8.0),
             child: FlowyText(
-              message,
+              LocaleKeys.chat_generatingResponse.tr(),
               color: Theme.of(context).hintColor,
             ),
           ),

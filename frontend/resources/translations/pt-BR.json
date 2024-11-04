@@ -180,8 +180,11 @@
     "chatWithFilePrompt": "Você quer conversar com o arquivo?",
     "indexFileSuccess": "Arquivo indexado com sucesso",
     "inputActionNoPages": "Nenhum resultado",
-    "referenceSource": "{} fonte encontrada",
-    "referenceSources": "{} fontes encontradas",
+    "referenceSource": {
+      "zero": "0 fontes encontradas",
+      "one": "{count} fonte encontrada",
+      "other": "{count} fontes encontradas"
+    },
     "clickToMention": "Clique para mencionar uma página",
     "uploadFile": "Carregue arquivos PDFs, md ou txt para conversar",
     "questionDetail": "Olá {}! Como posso te ajudar hoje?",

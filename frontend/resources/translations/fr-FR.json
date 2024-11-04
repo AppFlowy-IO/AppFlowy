@@ -182,8 +182,11 @@
     "chatWithFilePrompt": "Voulez-vous discuter avec le fichier ?",
     "indexFileSuccess": "Indexation du fichier réussie",
     "inputActionNoPages": "Aucun résultat de page",
-    "referenceSource": "{} source trouvée",
-    "referenceSources": "{} sources trouvées",
+    "referenceSource": {
+      "zero": "0 sources trouvées",
+      "one": "{count} source trouvée",
+      "other": "{count} sources trouvées"
+    },
     "clickToMention": "Cliquez pour mentionner une page",
     "uploadFile": "Téléchargez des fichiers PDF, MD ou TXT pour discuter avec",
     "questionDetail": "Bonjour {}! Comment puis-je vous aider aujourd'hui?",
