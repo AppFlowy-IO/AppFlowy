@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/core/config/kv.dart';
@@ -219,7 +218,7 @@ void main() {
       await Future.wait([firstFile.delete(), secondFile.delete()]);
     });
 
-    testWidgets('hide file names', (tester) async {
+    testWidgets('show file names', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -284,29 +283,15 @@ void main() {
       await tester.tap(find.byType(Toggle));
       await tester.pumpAndSettle();
 
-      await tester.dismissRowDetailPage();
-      await tester.pumpAndSettle();
-
       // Expect file names to be shown
       expect(find.text('sample.jpeg'), findsOneWidget);
       expect(find.text('sample.gif'), findsOneWidget);
+
+      await tester.dismissRowDetailPage();
+      await tester.pumpAndSettle();
 
       // Remove the temp files
       await Future.wait([firstFile.delete(), secondFile.delete()]);
     });
   });
-}
-
-extension _TapFileUploadHint on WidgetTester {
-  Future<void> tapFileUploadHint() async {
-    final finder = find.byWidgetPredicate(
-      (w) =>
-          w is RichText &&
-          w.text.toPlainText().contains(
-                LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-              ),
-    );
-    await tap(finder);
-    await pumpAndSettle(const Duration(seconds: 2));
-  }
 }
