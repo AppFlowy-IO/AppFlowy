@@ -6,6 +6,7 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/plugins/ai_chat/chat.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database/gallery/presentation/gallery_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
@@ -77,6 +78,7 @@ extension ViewExtension on ViewPB {
           ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
           ViewLayoutPB.Document => FlowySvgs.icon_document_s,
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
+          ViewLayoutPB.Gallery => FlowySvgs.gallery_s,
           _ => FlowySvgs.document_s,
         },
         size: size,
@@ -88,6 +90,7 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Document => PluginType.document,
         ViewLayoutPB.Grid => PluginType.grid,
         ViewLayoutPB.Chat => PluginType.chat,
+        ViewLayoutPB.Gallery => PluginType.gallery,
         _ => throw UnimplementedError(),
       };
 
@@ -95,6 +98,7 @@ extension ViewExtension on ViewPB {
     Map<String, dynamic> arguments = const {},
   }) {
     switch (layout) {
+      case ViewLayoutPB.Gallery:
       case ViewLayoutPB.Board:
       case ViewLayoutPB.Calendar:
       case ViewLayoutPB.Grid:
@@ -126,6 +130,7 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Board => BoardPageTabBarBuilderImpl(),
         ViewLayoutPB.Calendar => CalendarPageTabBarBuilderImpl(),
         ViewLayoutPB.Grid => DesktopGridTabBarBuilderImpl(),
+        ViewLayoutPB.Gallery => GalleryPageTabBarBuilderImpl(),
         _ => throw UnimplementedError,
       };
 
@@ -133,6 +138,8 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Board => BoardPageTabBarBuilderImpl(),
         ViewLayoutPB.Calendar => CalendarPageTabBarBuilderImpl(),
         ViewLayoutPB.Grid => MobileGridTabBarBuilderImpl(),
+        // TODO(Gallery): Custom tab bar for gallery
+        ViewLayoutPB.Gallery => GalleryPageTabBarBuilderImpl(),
         _ => throw UnimplementedError,
       };
 
@@ -298,6 +305,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Calendar => FlowySvgs.calendar_s,
         ViewLayoutPB.Document => FlowySvgs.document_s,
         ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
+        ViewLayoutPB.Gallery => FlowySvgs.gallery_s,
         _ => throw Exception('Unknown layout type'),
       };
 
@@ -306,7 +314,8 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Chat ||
         ViewLayoutPB.Grid ||
         ViewLayoutPB.Board ||
-        ViewLayoutPB.Calendar =>
+        ViewLayoutPB.Calendar ||
+        ViewLayoutPB.Gallery =>
           false,
         _ => throw Exception('Unknown layout type'),
       };
@@ -314,7 +323,8 @@ extension ViewLayoutExtension on ViewLayoutPB {
   bool get isDatabaseView => switch (this) {
         ViewLayoutPB.Grid ||
         ViewLayoutPB.Board ||
-        ViewLayoutPB.Calendar =>
+        ViewLayoutPB.Calendar ||
+        ViewLayoutPB.Gallery =>
           true,
         ViewLayoutPB.Document || ViewLayoutPB.Chat => false,
         _ => throw Exception('Unknown layout type'),

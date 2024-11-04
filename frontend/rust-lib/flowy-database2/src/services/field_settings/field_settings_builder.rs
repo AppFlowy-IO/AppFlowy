@@ -49,6 +49,7 @@ pub fn default_field_visibility(layout_type: DatabaseLayout) -> FieldVisibility 
     DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
     DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
     DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
+    DatabaseLayout::Gallery => FieldVisibility::AlwaysShown,
   }
 }
 

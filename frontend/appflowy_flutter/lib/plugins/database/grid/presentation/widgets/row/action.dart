@@ -27,6 +27,13 @@ class RowActionMenu extends StatelessWidget {
     required this.groupId,
   }) : actions = const [RowAction.duplicate, RowAction.delete];
 
+  const RowActionMenu.gallery({
+    super.key,
+    required this.viewId,
+    required this.rowId,
+  })  : groupId = null,
+        actions = const [RowAction.duplicate, RowAction.delete];
+
   final String viewId;
   final RowId rowId;
   final List<RowAction> actions;

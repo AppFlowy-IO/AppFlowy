@@ -85,6 +85,7 @@ impl DatabaseLayoutDepsResolver {
           },
         }
       },
+      DatabaseLayout::Gallery => (None, None, None),
     }
   }
 
@@ -132,6 +133,7 @@ impl DatabaseLayoutDepsResolver {
           database.insert_layout_setting(view_id, &self.database_layout, layout_setting);
         }
       },
+      DatabaseLayout::Gallery => {},
     }
   }
 

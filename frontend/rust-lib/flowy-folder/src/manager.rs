@@ -1074,7 +1074,9 @@ impl FolderManager {
           let object_id = duplicated_view.id.clone();
           let collab_type = match duplicated_view.layout {
             ViewLayout::Document => CollabType::Document,
-            ViewLayout::Board | ViewLayout::Grid | ViewLayout::Calendar => CollabType::Database,
+            ViewLayout::Board | ViewLayout::Grid | ViewLayout::Calendar | ViewLayout::Gallery => {
+              CollabType::Database
+            },
             ViewLayout::Chat => CollabType::Unknown,
           };
           // don't block the whole import process if the view can't be encoded

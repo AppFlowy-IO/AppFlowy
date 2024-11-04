@@ -175,3 +175,60 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
     fields,
   }
 }
+
+pub fn make_default_gallery(view_id: &str, name: &str) -> CreateDatabaseParams {
+  let database_id = gen_database_id();
+  let timestamp = timestamp();
+
+  // text
+  let text_field = FieldBuilder::from_field_type(FieldType::RichText)
+    .name("Title")
+    .primary(true)
+    .build();
+
+  // date
+  let date_field = FieldBuilder::from_field_type(FieldType::DateTime)
+    .name("Date")
+    .build();
+  let date_field_id = date_field.id.clone();
+
+  // multi select
+  let multi_select_field = FieldBuilder::from_field_type(FieldType::MultiSelect)
+    .name("Tags")
+    .build();
+
+  let fields = vec![text_field, date_field, multi_select_field];
+
+  let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Gallery);
+
+  let mut layout_settings = LayoutSettings::default();
+  layout_settings.insert(
+    DatabaseLayout::Gallery,
+    CalendarLayoutSetting::new(date_field_id).into(),
+  );
+
+  CreateDatabaseParams {
+    database_id: database_id.clone(),
+    inline_view_id: view_id.to_string(),
+    views: vec![CreateViewParams {
+      database_id: database_id.clone(),
+      view_id: view_id.to_string(),
+      name: name.to_string(),
+      layout: DatabaseLayout::Gallery,
+      layout_settings,
+      filters: vec![],
+      group_settings: vec![],
+      sorts: vec![],
+      field_settings,
+      created_at: timestamp,
+      modified_at: timestamp,
+      ..Default::default()
+    }],
+    rows: vec![
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id),
+    ],
+    fields,
+  }
+}

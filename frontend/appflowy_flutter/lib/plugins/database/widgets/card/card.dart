@@ -263,7 +263,7 @@ class _CardContent extends StatelessWidget {
   ) {
     return cells
         .mapIndexed(
-          (int index, CellMeta cellMeta) => _CardContentCell(
+          (int index, CellMeta cellMeta) => CardContentCell(
             cellBuilder: cellBuilder,
             cellMeta: cellMeta,
             rowMeta: rowMeta,
@@ -275,8 +275,9 @@ class _CardContent extends StatelessWidget {
   }
 }
 
-class _CardContentCell extends StatefulWidget {
-  const _CardContentCell({
+class CardContentCell extends StatefulWidget {
+  const CardContentCell({
+    super.key,
     required this.cellBuilder,
     required this.cellMeta,
     required this.rowMeta,
@@ -291,10 +292,10 @@ class _CardContentCell extends StatefulWidget {
   final bool isTitle;
 
   @override
-  State<_CardContentCell> createState() => _CardContentCellState();
+  State<CardContentCell> createState() => _CardContentCellState();
 }
 
-class _CardContentCellState extends State<_CardContentCell> {
+class _CardContentCellState extends State<CardContentCell> {
   late final EditableCardNotifier? cellNotifier;
 
   @override
@@ -334,17 +335,22 @@ class _CardContentCellState extends State<_CardContentCell> {
   }
 }
 
+const _defaultCoverColorDark = "0xFFABABAB";
+const _defaultCoverColorLight = "0xFFE0E0E0";
+
 class CardCover extends StatelessWidget {
   const CardCover({
     super.key,
     this.cover,
     this.userProfile,
     this.isCompact = false,
+    this.showDefaultCover = false,
   });
 
   final RowCoverPB? cover;
   final UserProfilePB? userProfile;
   final bool isCompact;
+  final bool showDefaultCover;
 
   @override
   Widget build(BuildContext context) {
@@ -352,6 +358,28 @@ class CardCover extends StatelessWidget {
         cover!.data.isEmpty ||
         cover!.uploadType == FileUploadTypePB.CloudFile &&
             userProfile == null) {
+      if (showDefaultCover) {
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(4),
+              topRight: Radius.circular(4),
+            ),
+            color: Theme.of(context).cardColor,
+          ),
+          child: _renderCover(
+            context,
+            RowCoverPB(
+              coverType: CoverTypePB.ColorCover,
+              data: Theme.of(context).brightness == Brightness.dark
+                  ? _defaultCoverColorDark
+                  : _defaultCoverColorLight,
+            ),
+          ),
+        );
+      }
+
       return const SizedBox.shrink();
     }
 
@@ -365,9 +393,7 @@ class CardCover extends StatelessWidget {
         color: Theme.of(context).cardColor,
       ),
       child: Row(
-        children: [
-          Expanded(child: _renderCover(context, cover!)),
-        ],
+        children: [Expanded(child: _renderCover(context, cover!))],
       ),
     );
   }
