@@ -21,7 +21,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const _leftPadding = 16.0;
+const _leftPadding = 12.0;
 
 class ChatAIMessageBubble extends StatelessWidget {
   const ChatAIMessageBubble({
@@ -44,16 +44,9 @@ class ChatAIMessageBubble extends StatelessWidget {
         : _wrapHover(childWithPadding);
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ChatBorderedCircleAvatar(
-          child: FlowySvg(
-            FlowySvgs.flowy_logo_s,
-            size: Size.square(20),
-            blendMode: null,
-          ),
-        ),
+        const ChatAIAvatar(),
         Expanded(child: widget),
       ],
     );

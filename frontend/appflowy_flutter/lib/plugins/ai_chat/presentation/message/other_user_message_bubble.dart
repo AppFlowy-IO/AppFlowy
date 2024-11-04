@@ -22,7 +22,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const _leftPadding = 16.0;
+const _leftPadding = 12.0;
 
 class OtherUserMessageBubble extends StatelessWidget {
   const OtherUserMessageBubble({
@@ -50,7 +50,6 @@ class OtherUserMessageBubble extends StatelessWidget {
     }
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         BlocConsumer<ChatMemberBloc, ChatMemberState>(

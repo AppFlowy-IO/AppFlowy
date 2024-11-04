@@ -43,7 +43,7 @@ class ChatUserMessageBubble extends StatelessWidget {
             children: [
               if (state.files.isNotEmpty) ...[
                 Padding(
-                  padding: const EdgeInsets.only(right: defaultAvatarSize + 32),
+                  padding: const EdgeInsets.only(right: 32),
                   child: _MessageFileList(files: state.files),
                 ),
                 const VSpace(6),
@@ -67,21 +67,17 @@ class ChatUserMessageBubble extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: BlocConsumer<ChatMemberBloc, ChatMemberState>(
-                      listenWhen: (previous, current) =>
-                          previous.members[message.author.id] !=
-                          current.members[message.author.id],
-                      listener: (context, state) {},
-                      builder: (context, state) {
-                        final member = state.members[message.author.id];
-                        return ChatUserAvatar(
+                  BlocBuilder<ChatMemberBloc, ChatMemberState>(
+                    builder: (context, state) {
+                      final member = state.members[message.author.id];
+                      return Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 12.0),
+                        child: ChatUserAvatar(
                           iconUrl: member?.info.avatarUrl ?? "",
                           name: member?.info.name ?? "",
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

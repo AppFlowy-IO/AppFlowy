@@ -4,49 +4,32 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:string_validator/string_validator.dart';
 
-const defaultAvatarSize = 30.0;
-
-class ChatChatUserAvatar extends StatelessWidget {
-  const ChatChatUserAvatar({required this.userId, super.key});
-
-  final String userId;
-
-  @override
-  Widget build(BuildContext context) {
-    return const ChatBorderedCircleAvatar();
-  }
-}
-
-class ChatBorderedCircleAvatar extends StatelessWidget {
-  const ChatBorderedCircleAvatar({
+class ChatAIAvatar extends StatelessWidget {
+  const ChatAIAvatar({
     super.key,
-    this.border = const BorderSide(),
-    this.backgroundImage,
-    this.child,
   });
 
-  final BorderSide border;
-  final ImageProvider<Object>? backgroundImage;
-  final Widget? child;
-
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: defaultAvatarSize,
-      child: CircleAvatar(
-        backgroundColor: border.color,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints.expand(),
-          child: CircleAvatar(
-            backgroundImage: backgroundImage,
-            backgroundColor:
-                Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: child,
-          ),
+    return Container(
+      width: 32,
+      height: 32,
+      clipBehavior: Clip.hardEdge,
+      decoration: const BoxDecoration(shape: BoxShape.circle),
+      foregroundDecoration: ShapeDecoration(
+        shape: CircleBorder(
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+      ),
+      child: const CircleAvatar(
+        backgroundColor: Colors.transparent,
+        child: FlowySvg(
+          FlowySvgs.flowy_logo_s,
+          size: Size.square(16),
+          blendMode: null,
         ),
       ),
     );
@@ -58,28 +41,35 @@ class ChatUserAvatar extends StatelessWidget {
     super.key,
     required this.iconUrl,
     required this.name,
-    this.size = defaultAvatarSize,
-    this.isHovering = false,
     this.defaultName,
   });
 
   final String iconUrl;
   final String name;
-  final double size;
   final String? defaultName;
-
-  // If true, a border will be applied on top of the avatar
-  final bool isHovering;
 
   @override
   Widget build(BuildContext context) {
+    late final Widget child;
     if (iconUrl.isEmpty) {
-      return _buildEmptyAvatar(context);
+      child = _buildEmptyAvatar(context);
     } else if (isURL(iconUrl)) {
-      return _buildUrlAvatar(context);
+      child = _buildUrlAvatar(context);
     } else {
-      return _buildEmojiAvatar(context);
+      child = _buildEmojiAvatar(context);
     }
+    return Container(
+      width: 32,
+      height: 32,
+      clipBehavior: Clip.hardEdge,
+      decoration: const BoxDecoration(shape: BoxShape.circle),
+      foregroundDecoration: ShapeDecoration(
+        shape: CircleBorder(
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+      ),
+      child: child,
+    );
   }
 
   Widget _buildEmptyAvatar(BuildContext context) {
@@ -96,96 +86,50 @@ class ChatUserAvatar extends StatelessWidget {
         .map((element) => element[0].toUpperCase())
         .join();
 
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: isHovering
-            ? Border.all(
-                color: _darken(color),
-                width: 4,
-              )
-            : null,
-      ),
-      child: FlowyText.regular(
-        nameInitials,
-        color: Colors.black,
+    return ColoredBox(
+      color: color,
+      child: Center(
+        child: FlowyText.regular(
+          nameInitials,
+          color: Colors.black,
+        ),
       ),
     );
   }
 
   Widget _buildUrlAvatar(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: isHovering
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.secondary,
-                  width: 4,
-                )
-              : null,
-        ),
-        child: ClipRRect(
-          borderRadius: Corners.s5Border,
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            child: Image.network(
-              iconUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  _buildEmptyAvatar(context),
-            ),
-          ),
-        ),
+    return CircleAvatar(
+      backgroundColor: Colors.transparent,
+      radius: 16,
+      child: Image.network(
+        iconUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            _buildEmptyAvatar(context),
       ),
     );
   }
 
   Widget _buildEmojiAvatar(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: isHovering
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 4,
-                )
-              : null,
-        ),
-        child: ClipRRect(
-          borderRadius: Corners.s5Border,
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            child: builtInSVGIcons.contains(iconUrl)
-                ? FlowySvg(
-                    FlowySvgData('emoji/$iconUrl'),
-                    blendMode: null,
-                  )
-                : FlowyText.emoji(iconUrl),
-          ),
-        ),
-      ),
+    return CircleAvatar(
+      backgroundColor: Colors.transparent,
+      radius: 16,
+      child: builtInSVGIcons.contains(iconUrl)
+          ? FlowySvg(
+              FlowySvgData('emoji/$iconUrl'),
+              blendMode: null,
+            )
+          : FlowyText.emoji(
+              iconUrl,
+              fontSize: 24,
+              optimizeEmojiAlign: true,
+            ),
     );
   }
 
-  /// Return the user name, if the user name is empty,
-  /// return the default user name.
+  /// Return the user name.
   ///
+  /// If the user name is empty, return the default user name.
   String _userName(String name, String? defaultName) =>
       name.isEmpty ? (defaultName ?? LocaleKeys.defaultUsername.tr()) : name;
-
-  /// Used to darken the generated color for the hover border effect.
-  /// The color is darkened by 15% - Hence the 0.15 value.
-  ///
-  Color _darken(Color color) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
-  }
 }

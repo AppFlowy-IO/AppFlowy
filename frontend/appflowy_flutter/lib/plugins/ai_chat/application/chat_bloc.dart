@@ -231,6 +231,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final message = CustomMessage(
               metadata: OnetimeShotType.relatedQuestion.toMap(),
               author: const User(id: systemUserId),
+              showStatus: false,
               id: systemUserId,
             );
             allMessages.insert(0, message);
@@ -412,6 +413,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           final error = CustomMessage(
             metadata: metadata,
             author: const User(id: systemUserId),
+            showStatus: false,
             id: systemUserId,
           );
 
@@ -436,6 +438,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         "chatId": chatId,
       },
       id: streamMessageId,
+      showStatus: false,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       text: '',
     );
@@ -462,6 +465,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: state.userProfile.id.toString()),
       metadata: metadata,
       id: questionStreamMessageId,
+      showStatus: false,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       text: '',
     );
@@ -480,6 +484,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       id: messageId,
       text: message.content,
       createdAt: message.createdAt.toInt() * 1000,
+      showStatus: false,
       metadata: {
         messageRefSourceJsonStringKey: message.metadata,
       },

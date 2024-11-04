@@ -50,8 +50,7 @@ class AIChatUILayout {
             query.padding.right,
             query.viewInsets.bottom + query.padding.bottom,
           )
-        : const EdgeInsets.symmetric(horizontal: 50) +
-            const EdgeInsets.only(bottom: 20);
+        : const EdgeInsets.only(bottom: 16);
   }
 }
 
@@ -241,14 +240,11 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         },
         emptyState: BlocBuilder<ChatBloc, ChatState>(
           builder: (_, state) => state.initialLoadingStatus.isFinish
-              ? Padding(
-                  padding: AIChatUILayout.welcomePagePadding,
-                  child: ChatWelcomePage(
-                    userProfile: widget.userProfile,
-                    onSelectedQuestion: (question) => blocContext
-                        .read<ChatBloc>()
-                        .add(ChatEvent.sendMessage(message: question)),
-                  ),
+              ? ChatWelcomePage(
+                  userProfile: widget.userProfile,
+                  onSelectedQuestion: (question) => blocContext
+                      .read<ChatBloc>()
+                      .add(ChatEvent.sendMessage(message: question)),
                 )
               : const Center(
                   child: CircularProgressIndicator.adaptive(),
@@ -314,9 +310,9 @@ class _ChatContentPageState extends State<_ChatContentPage> {
         chatId: widget.view.id,
         refSourceJsonString: refSourceJsonString,
         onSelectedMetadata: (ChatMessageRefSource metadata) {
-          context.read<ChatSidePanelBloc>().add(
-                ChatSidePanelEvent.selectedMetadata(metadata),
-              );
+          context
+              .read<ChatSidePanelBloc>()
+              .add(ChatSidePanelEvent.selectedMetadata(metadata));
         },
       );
     }
@@ -454,5 +450,6 @@ AFDefaultChatTheme buildTheme(BuildContext context) {
       height: 1.5,
     ),
     inputElevation: 2,
+    bubbleMargin: EdgeInsets.zero,
   );
 }
