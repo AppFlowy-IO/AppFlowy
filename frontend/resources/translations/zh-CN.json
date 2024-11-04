@@ -584,6 +584,7 @@
       "importData": {
         "title": "导入数据",
         "tooltip": "从 @:appName 备份/数据文件夹导入数据",
+        "description": "从外部 @:appName 数据文件夹复制数据",
         "action": "浏览文件夹"
       },
       "encryption": {
@@ -611,8 +612,24 @@
       }
     },
     "shortcutsPage": {
+      "actions": {
+        "resetDefault": "重置为默认"
+      },
+      "resetDialog": {
+        "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？"
+      },
       "keybindings": {
         "selectAllCodeblock": "全选"
+      }
+    },
+    "aiPage": {
+      "title": "AI 设置",
+      "menuLabel": "AI 设置",
+      "keys": {
+        "enableAISearchTitle": "AI 搜索",
+        "aiSettingsDescription": "选择你偏好的模型来赋能 AppFlowy AI。目前可以使用 GPT 4-o、Claude 3,5、Llama 3.1 与 Mistral 7B",
+        "llmModel": "语言模型",
+        "llmModelType": "语言模型类别"
       }
     },
     "planPage": {
@@ -711,6 +728,10 @@
         "label": "启用通知",
         "hint": "关闭以阻止本地通知出现。"
       },
+      "showNotificationsIcon": {
+        "label": "显示通知图标",
+        "hint": "关闭开关以隐藏侧边栏中的通知图标。"
+      },
       "markAsReadNotifications": {
         "allSuccess": "成功全部标为已读",
         "success": "成功标为已读"
@@ -806,6 +827,7 @@
       "members": {
         "title": "成员设置",
         "inviteMembers": "添加成员",
+        "inviteHint": "使用电子邮件邀请",
         "sendInvite": "发送邀请",
         "copyInviteLink": "复制邀请链接",
         "label": "成员",
@@ -1786,6 +1808,7 @@
       "deleteAccount": {
         "title": "删除帐户",
         "subtitle": "永久删除你的帐户和所有数据。",
+        "description": "永久删除你的账户，并移除所有工作区的访问权限。",
         "deleteMyAccount": "删除我的账户",
         "dialogTitle": "删除帐户",
         "dialogContent1": "你确定要永久删除您的帐户吗？",
@@ -1814,10 +1837,23 @@
   "commandPalette": {
     "placeholder": "输入你要搜索的内容..."
   },
+  "space": {
+    "defaultSpaceName": "一般"
+  },
+  "publish": {
+    "saveThisPage": "使用此模板创建"
+  },
   "web": {
     "continueWithGoogle": "使用 Google 账户登录",
     "continueWithGithub": "使用 GitHub 账户登录",
     "continueWithDiscord": "使用 Discord 账户登录"
+  },
+  "template": {
+    "deleteFromTemplate": "从模板中删除",
+    "relatedTemplates": "相关模板",
+    "deleteTemplate": "删除模板",
+    "removeRelatedTemplate": "移除相关模板",
+    "label": "模板"
   },
   "time": {
     "justNow": "刚刚",
