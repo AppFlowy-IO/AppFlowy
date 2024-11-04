@@ -20,6 +20,12 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   final String viewId;
   final FieldController fieldController;
 
+  @override
+  Future<void> close() async {
+    fieldController.removeListener(onFieldsListener: _onReceiveFields);
+    await super.close();
+  }
+
   void _dispatch() {
     on<GridHeaderEvent>(
       (event, emit) async {
@@ -82,11 +88,13 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 
   void _startListening() {
     fieldController.addListener(
-      onReceiveFields: (fields) =>
-          add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
+      onReceiveFields: _onReceiveFields,
       listenWhen: () => !isClosed,
     );
   }
+
+  void _onReceiveFields(List<FieldInfo> fields) =>
+      add(GridHeaderEvent.didReceiveFieldUpdate(fields));
 }
 
 @freezed

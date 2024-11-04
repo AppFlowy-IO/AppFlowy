@@ -62,7 +62,7 @@ export function ViewMetaPreview ({ icon, cover, name }: ViewMetaProps) {
       <div
         className={`relative mb-6 mt-[52px] max-md:mt-[38px] px-6 w-[964px] min-w-0 max-w-full overflow-visible`}
       >
-        <div
+        <h1
           className={
             'flex gap-4 overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
           }
@@ -72,7 +72,7 @@ export function ViewMetaPreview ({ icon, cover, name }: ViewMetaProps) {
           <div className={'relative'}>
             {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}
           </div>
-        </div>
+        </h1>
       </div>
     </div>
   );

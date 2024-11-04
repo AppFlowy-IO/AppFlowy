@@ -125,7 +125,6 @@ impl EventIntegrationTest {
       .map(|view| CreateViewParams {
         parent_view_id: view.parent_view_id,
         name: view.name,
-        desc: "".to_string(),
         layout: view.layout.into(),
         view_id: view.id,
         initial_data: ViewData::Empty,
@@ -154,7 +153,6 @@ impl EventIntegrationTest {
   pub async fn create_orphan_view(&self, name: &str, view_id: &str, layout: ViewLayoutPB) {
     let payload = CreateOrphanViewPayloadPB {
       name: name.to_string(),
-      desc: "".to_string(),
       layout,
       view_id: view_id.to_string(),
       initial_data: vec![],
@@ -288,7 +286,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout,
       initial_data: vec![],
@@ -354,7 +351,6 @@ impl ViewTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: workspace.id.clone(),
       name: "View A".to_string(),
-      desc: "".to_string(),
       thumbnail: Some("http://1.png".to_string()),
       layout: layout.into(),
       initial_data: data,

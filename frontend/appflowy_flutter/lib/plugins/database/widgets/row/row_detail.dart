@@ -57,9 +57,8 @@ class _RowDetailPageState extends State<RowDetailPage> {
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController(
-      onAttach: (_) => attachScrollListener(),
-    );
+    scrollController =
+        ScrollController(onAttach: (_) => attachScrollListener());
   }
 
   void attachScrollListener() => scrollController.addListener(onScrollChanged);
@@ -79,7 +78,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
         child: MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (context) => RowDetailBloc(
+              create: (_) => RowDetailBloc(
                 fieldController: widget.databaseController.fieldController,
                 rowController: widget.rowController,
               ),
@@ -127,9 +126,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
                     state.rowMeta.cover.data.isNotEmpty,
                   ),
                   right: 12,
-                  child: Row(
-                    children: actions(context),
-                  ),
+                  child: Row(children: actions(context)),
                 ),
               ],
             ),

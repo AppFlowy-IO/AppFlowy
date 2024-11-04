@@ -47,12 +47,12 @@ pub(crate) async fn observe_rows_change(
   if let Some(mut row_change) = sub {
     af_spawn(async move {
       while let Ok(row_change) = row_change.recv().await {
+        trace!(
+          "[Database Observe]: {} row change:{:?}",
+          database_id,
+          row_change
+        );
         if let Some(database) = weak_database.upgrade() {
-          trace!(
-            "[Database Observe]: {} row change:{:?}",
-            database_id,
-            row_change
-          );
           match row_change {
             RowChange::DidUpdateCell {
               field_id,
@@ -72,6 +72,10 @@ pub(crate) async fn observe_rows_change(
             },
           }
         } else {
+          trace!(
+            "[Database Observe]: {} row change: database dropped",
+            database_id
+          );
           break;
         }
       }

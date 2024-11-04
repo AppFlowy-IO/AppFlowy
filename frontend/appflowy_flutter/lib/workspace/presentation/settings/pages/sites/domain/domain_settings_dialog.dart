@@ -36,17 +36,17 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
     super.initState();
 
     controller.text = widget.namespace;
-    controller.addListener(() {
-      controllerText.value = controller.text;
-    });
+    controller.addListener(_onTextChanged);
   }
+
+  void _onTextChanged() => controllerText.value = controller.text;
 
   @override
   void dispose() {
     focusNode.dispose();
+    controller.removeListener(_onTextChanged);
     controller.dispose();
     controllerText.dispose();
-
     super.dispose();
   }
 
@@ -200,9 +200,9 @@ class _DomainSettingsDialogState extends State<DomainSettingsDialog> {
 
   void _onSave() {
     // listen on the result
-    context.read<SettingsSitesBloc>().add(
-          SettingsSitesEvent.updateNamespace(controller.text),
-        );
+    context
+        .read<SettingsSitesBloc>()
+        .add(SettingsSitesEvent.updateNamespace(controller.text));
   }
 
   void _onListener(BuildContext context, SettingsSitesState state) {
