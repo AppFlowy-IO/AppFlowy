@@ -29,6 +29,15 @@ class UnscheduleEventsBloc
   CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
+  DatabaseCallbacks? _databaseCallbacks;
+
+  @override
+  Future<void> close() async {
+    databaseController.removeListener(onDatabaseChanged: _databaseCallbacks);
+    _databaseCallbacks = null;
+    await super.close();
+  }
+
   void _dispatch() {
     on<UnscheduleEventsEvent>(
       (event, emit) async {
@@ -103,7 +112,7 @@ class UnscheduleEventsBloc
   }
 
   void _startListening() {
-    final onDatabaseChanged = DatabaseCallbacks(
+    _databaseCallbacks = DatabaseCallbacks(
       onRowsCreated: (rows) async {
         if (isClosed) {
           return;
@@ -135,7 +144,7 @@ class UnscheduleEventsBloc
       },
     );
 
-    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.addListener(onDatabaseChanged: _databaseCallbacks);
   }
 }
 

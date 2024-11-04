@@ -86,9 +86,7 @@ class _ChatInputState extends State<ChatInput> {
       },
     );
 
-    _inputFocusNode.addListener(() {
-      setState(() {});
-    });
+    _inputFocusNode.addListener(_updateState);
 
     _inputActionControl = ChatInputActionControl(
       chatId: widget.chatId,
@@ -101,11 +99,14 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   void dispose() {
+    _inputFocusNode.removeListener(_updateState);
     _inputFocusNode.dispose();
     _textController.dispose();
     _inputActionControl.dispose();
     super.dispose();
   }
+
+  void _updateState() => setState(() {});
 
   @override
   Widget build(BuildContext context) {

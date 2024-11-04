@@ -59,30 +59,9 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleTextController.text = widget.view.name;
     titleTextController.addListener(_onViewNameChanged);
     titleFocusNode.onKeyEvent = _onKeyEvent;
-    titleFocusNode.addListener(() {
-      isTitleFocused = titleFocusNode.hasFocus;
+    titleFocusNode.addListener(_onTitleFocusChanged);
 
-      if (titleFocusNode.hasFocus && editorState.selection != null) {
-        Log.info('cover title got focus, clear the editor selection');
-        editorState.selection = null;
-      }
-
-      if (isTitleFocused) {
-        Log.info('cover title got focus, disable keyboard service');
-        editorState.service.keyboardService?.disable();
-      } else {
-        Log.info('cover title lost focus, enable keyboard service');
-        editorState.service.keyboardService?.enable();
-      }
-    });
-
-    editorState.selectionNotifier.addListener(() {
-      // if title is focused and the selection is not null, clear the selection
-      if (editorState.selection != null && isTitleFocused) {
-        Log.info('title is focused, clear the editor selection');
-        editorState.selection = null;
-      }
-    });
+    editorState.selectionNotifier.addListener(_onSelectionChanged);
     _requestFocusIfNeeded(widget.view, null);
 
     editorContext.coverTitleFocusNode = titleFocusNode;
@@ -91,11 +70,39 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   @override
   void dispose() {
     editorContext.coverTitleFocusNode = null;
+    editorState.selectionNotifier.removeListener(_onSelectionChanged);
 
+    titleTextController.removeListener(_onViewNameChanged);
     titleTextController.dispose();
+    titleFocusNode.removeListener(_onTitleFocusChanged);
     titleFocusNode.dispose();
 
     super.dispose();
+  }
+
+  void _onSelectionChanged() {
+    // if title is focused and the selection is not null, clear the selection
+    if (editorState.selection != null && isTitleFocused) {
+      Log.info('title is focused, clear the editor selection');
+      editorState.selection = null;
+    }
+  }
+
+  void _onTitleFocusChanged() {
+    isTitleFocused = titleFocusNode.hasFocus;
+
+    if (titleFocusNode.hasFocus && editorState.selection != null) {
+      Log.info('cover title got focus, clear the editor selection');
+      editorState.selection = null;
+    }
+
+    if (isTitleFocused) {
+      Log.info('cover title got focus, disable keyboard service');
+      editorState.service.keyboardService?.disable();
+    } else {
+      Log.info('cover title lost focus, enable keyboard service');
+      editorState.service.keyboardService?.enable();
+    }
   }
 
   @override

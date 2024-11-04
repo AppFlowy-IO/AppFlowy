@@ -224,18 +224,24 @@ class _SpaceIconPickerState extends State<SpaceIconPicker> {
       widget.onIconChanged(selectedIcon.value, selectedColor.value);
     }
 
-    selectedColor.addListener(() {
-      widget.onIconChanged(selectedIcon.value, selectedColor.value);
-    });
+    selectedColor.addListener(_onColorChanged);
+    selectedIcon.addListener(_onIconChanged);
+  }
 
-    selectedIcon.addListener(() {
-      widget.onIconChanged(selectedIcon.value, selectedColor.value);
-    });
+  void _onColorChanged() {
+    widget.onIconChanged(selectedIcon.value, selectedColor.value);
+  }
+
+  void _onIconChanged() {
+    widget.onIconChanged(selectedIcon.value, selectedColor.value);
   }
 
   @override
   void dispose() {
+    selectedColor.removeListener(_onColorChanged);
     selectedColor.dispose();
+
+    selectedIcon.removeListener(_onIconChanged);
     selectedIcon.dispose();
     super.dispose();
   }
@@ -253,9 +259,7 @@ class _SpaceIconPickerState extends State<SpaceIconPicker> {
         const VSpace(10.0),
         _Colors(
           selectedColor: selectedColor.value,
-          onColorSelected: (color) {
-            selectedColor.value = color;
-          },
+          onColorSelected: (color) => selectedColor.value = color,
         ),
         const VSpace(12.0),
         FlowyText.regular(
@@ -268,9 +272,7 @@ class _SpaceIconPickerState extends State<SpaceIconPicker> {
           builder: (_, value, ___) => _Icons(
             selectedColor: value,
             selectedIcon: selectedIcon.value,
-            onIconSelected: (icon) {
-              selectedIcon.value = icon;
-            },
+            onIconSelected: (icon) => selectedIcon.value = icon,
           ),
         ),
       ],
@@ -303,9 +305,7 @@ class _ColorsState extends State<_Colors> {
       children: builtInSpaceColors.map((color) {
         return GestureDetector(
           onTap: () {
-            setState(() {
-              selectedColor = color;
-            });
+            setState(() => selectedColor = color);
 
             widget.onColorSelected(color);
           },
@@ -365,9 +365,7 @@ class _IconsState extends State<_Icons> {
       children: builtInSpaceIcons.map((icon) {
         return GestureDetector(
           onTap: () {
-            setState(() {
-              selectedIcon = icon;
-            });
+            setState(() => selectedIcon = icon);
 
             widget.onIconSelected(icon);
           },

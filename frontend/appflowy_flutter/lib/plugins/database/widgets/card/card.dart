@@ -311,6 +311,7 @@ class _CardContentCellState extends State<_CardContentCell> {
 
   @override
   void dispose() {
+    cellNotifier?.isCellEditing.removeListener(listener);
     cellNotifier?.dispose();
     super.dispose();
   }
