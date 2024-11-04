@@ -142,20 +142,8 @@ void _customBlockOptionActions(
         if ((type == HeadingBlockKeys.type ||
                 type == ToggleListBlockKeys.type) &&
             level > 0) {
-          switch (level) {
-            case 1:
-              top += 14.0;
-              break;
-            case 2:
-              top += 11.0;
-              break;
-            case 3:
-              top += 8.0;
-              break;
-            case 4:
-              top += 5.0;
-              break;
-          }
+          final offset = [14.0, 11.0, 8.0, 6.0, 4.0, 2.0];
+          top += offset[level - 1];
         } else {
           top += 2.0;
         }
