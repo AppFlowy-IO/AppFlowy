@@ -123,6 +123,7 @@ class PublishedViewMoreAction extends StatelessWidget {
         context.read<SettingsSitesBloc>().add(
               SettingsSitesEvent.unpublishView(publishInfoView.info.viewId),
             );
+        PopoverContainer.maybeOf(builderContext)?.close();
         break;
       case _ActionType.customUrl:
         _showSettingsDialog(

@@ -358,6 +358,7 @@ More actions for published page:
         );
         await tester.pumpUntilFound(successToast);
         expect(successToast, findsOneWidget);
+        await tester.pumpUntilNotFound(successToast);
 
         // check if the page is unpublished in sites page
         expect(pageItem, findsNothing);
