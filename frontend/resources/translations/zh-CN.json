@@ -399,6 +399,7 @@
       "menuLabel": "我的账户",
       "title": "我的账户",
       "general": {
+        "title": "账户名与资料图像",
         "changeProfilePicture": "更换头像"
       },
       "email": {
@@ -436,18 +437,32 @@
           "dark": "黑暗"
         }
       },
+      "resetCursorColor": {
+        "title": "重置文档光标颜色",
+        "description": "确定要重置光标颜色吗？"
+      },
+      "resetSelectionColor": {
+        "title": "重置文档选取颜色",
+        "description": "确定要重置选区颜色吗？"
+      },
+      "resetWidth": {
+        "resetSuccess": "文档宽度重置成功"
+      },
       "theme": {
         "title": "主题",
-        "description": "选择预设主题，或上传你自己的自定义主题。"
+        "description": "选择预设主题，或上传你自己的自定义主题。",
+        "uploadCustomThemeTooltip": "上传自定义主题"
       },
       "workspaceFont": {
-        "title": "工作区字体"
+        "title": "工作区字体",
+        "noFontHint": "找不到字体，换个词试试。"
       },
       "textDirection": {
         "title": "文字方向",
         "leftToRight": "从左到右",
         "rightToLeft": "从右到左",
-        "auto": "自动"
+        "auto": "自动",
+        "enableRTLItems": "启用从右向左工具栏项目"
       },
       "layoutDirection": {
         "title": "布局方向",
@@ -456,10 +471,14 @@
       },
       "dateTime": {
         "title": "日期 & 时间",
+        "example": "{} 于 {} ({})",
         "24HourTime": "24 小时制",
         "dateFormat": {
           "label": "日期格式",
+          "local": "本地",
+          "us": "US",
           "iso": "ISO",
+          "friendly": "友好",
           "dmy": "日/月/年"
         }
       },
@@ -472,7 +491,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "离开工作区",
-        "content": "你确定要离开此工作区吗？你将无法访问其中的所有页面和数据。"
+        "content": "你确定要离开此工作区吗？你将无法访问其中的所有页面和数据。",
+        "success": "你已经成功离开工作区。",
+        "fail": "无法离开工作区。"
       },
       "manageWorkspace": {
         "title": "管理工作区",
