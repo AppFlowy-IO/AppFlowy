@@ -184,14 +184,15 @@ class _ToggleListBlockComponentWidgetState
   Widget buildComponentWithChildren(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(
-          left: cachedLeft,
-          top: padding.top,
-          child: Container(
-            width: double.infinity,
-            color: backgroundColor,
+        if (backgroundColor != Colors.transparent)
+          Positioned.fill(
+            left: cachedLeft,
+            top: padding.top,
+            child: Container(
+              width: double.infinity,
+              color: backgroundColor,
+            ),
           ),
-        ),
         NestedListWidget(
           indentPadding: indentPadding,
           child: buildComponent(context),
