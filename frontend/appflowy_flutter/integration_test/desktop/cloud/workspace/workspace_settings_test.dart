@@ -337,7 +337,7 @@ More actions for published page:
 
         // expect to see the toast with success message
         final successToast = find.text(
-          LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
+          LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
         );
         await tester.pumpUntilFound(successToast);
         expect(successToast, findsOneWidget);

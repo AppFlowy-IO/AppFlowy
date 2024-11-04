@@ -452,7 +452,8 @@
         "updateExistingNamespace": "Update existing namespace",
         "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
         "redirectToPayment": "Redirecting to payment page...",
-        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage"
+        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage",
+        "pleaseAskOwnerToSetHomePage": "Please ask the workspace owner to upgrade to Pro Plan"
       },
       "publishedPage": {
         "title": "All published pages",

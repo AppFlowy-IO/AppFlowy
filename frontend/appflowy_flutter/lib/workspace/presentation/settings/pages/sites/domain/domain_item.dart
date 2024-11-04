@@ -215,6 +215,13 @@ class _FreePlanUpgradeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isOwner = context
+            .watch<UserWorkspaceBloc>()
+            .state
+            .currentWorkspaceMember
+            ?.role
+            .isOwner ??
+        false;
     return Container(
       alignment: Alignment.centerLeft,
       child: FlowyTooltip(
@@ -233,16 +240,26 @@ class _FreePlanUpgradeButton extends StatelessWidget {
           ),
           hoverColor: context.proSecondaryColor.withOpacity(0.9),
           onTap: () {
-            showToastNotification(
-              context,
-              message:
-                  LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
-              type: ToastificationType.info,
-            );
+            if (isOwner) {
+              showToastNotification(
+                context,
+                message:
+                    LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
+                type: ToastificationType.info,
+              );
 
-            context.read<SettingsSitesBloc>().add(
-                  const SettingsSitesEvent.upgradeSubscription(),
-                );
+              context.read<SettingsSitesBloc>().add(
+                    const SettingsSitesEvent.upgradeSubscription(),
+                  );
+            } else {
+              showToastNotification(
+                context,
+                message: LocaleKeys
+                    .settings_sites_namespace_pleaseAskOwnerToSetHomePage
+                    .tr(),
+                type: ToastificationType.info,
+              );
+            }
           },
         ),
       ),
