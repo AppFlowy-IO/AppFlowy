@@ -243,7 +243,7 @@ class _TurnInfoButton extends StatelessWidget {
     } else if (type == CalloutBlockKeys.type) {
       return FlowySvgs.slash_menu_icon_callout_s;
     } else if (type == SubPageBlockKeys.type) {
-      return FlowySvgs.document_s;
+      return FlowySvgs.icon_document_s;
     } else if (type == ToggleListBlockKeys.type) {
       switch (level) {
         case 1:
