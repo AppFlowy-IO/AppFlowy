@@ -355,7 +355,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       'Turn into block: from ${node.type} to $type',
     );
 
-    Delta newDelta = delta ?? Delta();
+    Delta newDelta = delta ?? (node.delta ?? Delta());
     if (delta == null && node.type == SubPageBlockKeys.type) {
       newDelta = await _deltaFromSubPageNode(node) ?? Delta();
     }
