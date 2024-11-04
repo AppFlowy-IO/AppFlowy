@@ -16,7 +16,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use crate::local_ai::watch::offline_app_path;
-#[cfg(any(target_os = "macos"))]
+#[cfg(target_os = "macos")]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use tokio::fs::{self};
 use tokio_util::sync::CancellationToken;
@@ -70,7 +70,7 @@ pub struct LocalAIResourceController {
   ai_config: ArcSwapOption<LocalAIConfig>,
   download_task: Arc<ArcSwapOption<DownloadTask>>,
   resource_notify: tokio::sync::mpsc::Sender<()>,
-  #[cfg(any(target_os = "macos"))]
+  #[cfg(target_os = "macos")]
   #[allow(dead_code)]
   offline_app_disk_watch: Option<WatchContext>,
   offline_app_state_sender: tokio::sync::broadcast::Sender<WatchDiskEvent>,
@@ -84,10 +84,10 @@ impl LocalAIResourceController {
   ) -> Self {
     let (offline_app_state_sender, _) = tokio::sync::broadcast::channel(1);
     let llm_setting = resource_service.retrieve_setting().map(Arc::new);
-    #[cfg(any(target_os = "macos"))]
+    #[cfg(target_os = "macos")]
     let mut offline_app_disk_watch: Option<WatchContext> = None;
 
-    #[cfg(any(target_os = "macos"))]
+    #[cfg(target_os = "macos")]
     {
       match watch_offline_app() {
         Ok((new_watcher, mut rx)) => {
@@ -114,7 +114,7 @@ impl LocalAIResourceController {
       ai_config: Default::default(),
       download_task: Default::default(),
       resource_notify,
-      #[cfg(any(target_os = "macos"))]
+      #[cfg(target_os = "macos")]
       offline_app_disk_watch,
       offline_app_state_sender,
     }
