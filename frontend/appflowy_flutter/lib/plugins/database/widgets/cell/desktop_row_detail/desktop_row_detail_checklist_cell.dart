@@ -285,28 +285,30 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
   @override
   void initState() {
     super.initState();
-    textController.addListener(() {
-      setState(() {
-        isComposing = !textController.value.composing.isCollapsed;
-      });
-    });
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        textController.clear();
-        Actions.maybeInvoke(
-          context,
-          const _CancelCreatingFromPhantomIntent(),
-        );
-      }
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
-    });
+    textController.addListener(_onTextChanged);
+    focusNode.addListener(_onFocusChanged);
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => focusNode.requestFocus());
+  }
+
+  void _onTextChanged() =>
+      setState(() => isComposing = !textController.value.composing.isCollapsed);
+
+  void _onFocusChanged() {
+    if (!focusNode.hasFocus) {
+      textController.clear();
+      Actions.maybeInvoke(
+        context,
+        const _CancelCreatingFromPhantomIntent(),
+      );
+    }
   }
 
   @override
   void dispose() {
+    textController.removeListener(_onTextChanged);
     textController.dispose();
+    focusNode.removeListener(_onFocusChanged);
     focusNode.dispose();
     super.dispose();
   }

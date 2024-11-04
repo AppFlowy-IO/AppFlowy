@@ -116,6 +116,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     _syncTimer?.cancel();
     _syncTimer = null;
+    state.editorState?.selectionNotifier
+        .removeListener(_debounceOnSelectionUpdate);
     state.editorState?.service.keyboardService?.closeKeyboard();
     state.editorState?.dispose();
   }

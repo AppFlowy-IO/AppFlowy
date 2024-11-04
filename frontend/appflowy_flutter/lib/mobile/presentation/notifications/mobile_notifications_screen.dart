@@ -61,15 +61,11 @@ class _MobileNotificationsScreenV2State
     );
   }
 
-  void _onRefresh() {
-    getIt<ReminderBloc>().add(const ReminderEvent.refresh());
-  }
+  void _onRefresh() => getIt<ReminderBloc>().add(const ReminderEvent.refresh());
 }
 
 class MobileNotificationsTab extends StatefulWidget {
-  const MobileNotificationsTab({
-    super.key,
-  });
+  const MobileNotificationsTab({super.key});
 
   @override
   State<MobileNotificationsTab> createState() => _MobileNotificationsTabState();
@@ -88,17 +84,12 @@ class _MobileNotificationsTabState extends State<MobileNotificationsTab>
   @override
   void initState() {
     super.initState();
-
-    tabController = TabController(
-      length: 3,
-      vsync: this,
-    );
+    tabController = TabController(length: 3, vsync: this);
   }
 
   @override
   void dispose() {
     tabController.dispose();
-
     super.dispose();
   }
 

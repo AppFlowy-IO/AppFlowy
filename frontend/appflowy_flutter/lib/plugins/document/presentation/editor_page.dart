@@ -408,7 +408,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       heading1SlashMenuItem,
       heading2SlashMenuItem,
       heading3SlashMenuItem,
-
       imageSlashMenuItem,
       bulletedListSlashMenuItem,
       numberedListSlashMenuItem,

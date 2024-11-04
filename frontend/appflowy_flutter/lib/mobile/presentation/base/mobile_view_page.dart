@@ -65,6 +65,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void dispose() {
     _appBarOpacity.dispose();
+    _scrollNotificationObserver?.removeListener(_onScrollNotification);
     _scrollNotificationObserver = null;
 
     super.dispose();

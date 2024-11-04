@@ -19,7 +19,11 @@ impl UserDataMigration for CollabDocKeyWithWorkspaceIdMigration {
     "collab_doc_key_with_workspace_id"
   }
 
-  fn run_when(&self, first_installed_version: &Option<Version>, _current_version: &Version) -> bool {
+  fn run_when(
+    &self,
+    first_installed_version: &Option<Version>,
+    _current_version: &Version,
+  ) -> bool {
     match first_installed_version {
       None => {
         // The user's initial installed version is None if they were using an AppFlowy version

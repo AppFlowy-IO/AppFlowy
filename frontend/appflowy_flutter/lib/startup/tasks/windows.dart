@@ -129,5 +129,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
   }
 
   @override
-  Future<void> dispose() async {}
+  Future<void> dispose() async {
+    windowManager.removeListener(this);
+  }
 }
