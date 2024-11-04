@@ -29,8 +29,8 @@ collab-entity = { workspace = true }
 collab-plugins = { workspace = true }
 collab-folder = { workspace = true }
 
-collab = { workspace = true }
-#collab = { workspace = true, features = ["verbose_log"] }
+#collab = { workspace = true }
+collab = { workspace = true, features = ["verbose_log"] }
 
 diesel.workspace = true
 uuid.workspace = true
