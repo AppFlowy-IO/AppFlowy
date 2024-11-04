@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/shared/share/publish_tab.dart';
@@ -21,6 +22,8 @@ import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/doma
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_item.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_more_action.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/published_page/published_view_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
@@ -232,6 +235,133 @@ void main() {
       // );
       // await tester.pumpUntilFound(successToast);
       // expect(successToast, findsOneWidget);
+    });
+
+    testWidgets('''
+More actions for published page:
+1. visit site
+2. copy link
+3. settings
+4. unpublish
+5. custom url
+''', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      const pageName = 'Document';
+
+      await tester.createNewPageInSpace(
+        spaceName: Constants.generalSpaceName,
+        layout: ViewLayoutPB.Document,
+        pageName: pageName,
+      );
+
+      // open the publish menu
+      await tester.openPublishMenu();
+
+      // publish the document
+      await tester.tapButton(find.byType(PublishButton));
+
+      // click empty area to close the publish menu
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+      // check if the page is published in sites page
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.sites);
+      // wait the backend return the sites data
+      await tester.wait(1000);
+
+      // check if the page is published in sites page
+      final pageItem = find.byWidgetPredicate(
+        (widget) =>
+            widget is PublishedViewItem &&
+            widget.publishInfoView.view.name == pageName,
+      );
+      expect(pageItem, findsOneWidget);
+
+      final copyLinkItem = find.text(LocaleKeys.shareAction_copyLink.tr());
+      final customUrlItem = find.text(LocaleKeys.settings_sites_customUrl.tr());
+      final unpublishItem = find.text(LocaleKeys.shareAction_unPublish.tr());
+
+      // custom url
+      final publishMoreAction = find.byType(PublishedViewMoreAction);
+
+      // click the copy link button
+      {
+        await tester.tapButton(publishMoreAction);
+        await tester.pumpAndSettle();
+        await tester.pumpUntilFound(copyLinkItem);
+        await tester.tapButton(copyLinkItem);
+        await tester.pumpAndSettle();
+        await tester.pumpUntilNotFound(copyLinkItem);
+
+        final clipboardContent = await getIt<ClipboardService>().getData();
+        final plainText = clipboardContent.plainText;
+        expect(
+          plainText,
+          contains(pageName),
+        );
+      }
+
+      // custom url
+      {
+        await tester.tapButton(publishMoreAction);
+        await tester.pumpAndSettle();
+        await tester.pumpUntilFound(customUrlItem);
+        await tester.tapButton(customUrlItem);
+        await tester.pumpAndSettle();
+        await tester.pumpUntilNotFound(customUrlItem);
+
+        // see the custom url dialog
+        final customUrlDialog = find.byType(PublishedViewSettingsDialog);
+        expect(customUrlDialog, findsOneWidget);
+
+        // rename the custom url
+        final textField = find.descendant(
+          of: customUrlDialog,
+          matching: find.byType(TextField),
+        );
+        await tester.enterText(textField, 'hello-world');
+        await tester.pumpAndSettle();
+
+        // click the save button
+        final saveButton = find.descendant(
+          of: customUrlDialog,
+          matching: find.text(LocaleKeys.button_save.tr()),
+        );
+        await tester.tapButton(saveButton);
+        await tester.pumpAndSettle();
+
+        // expect to see the toast with success message
+        final successToast = find.text(
+          LocaleKeys.settings_sites_success_namespaceUpdated.tr(),
+        );
+        await tester.pumpUntilFound(successToast);
+        expect(successToast, findsOneWidget);
+      }
+
+      // unpublish
+      {
+        await tester.tapButton(publishMoreAction);
+        await tester.pumpAndSettle();
+        await tester.pumpUntilFound(unpublishItem);
+        await tester.tapButton(unpublishItem);
+        await tester.pumpAndSettle();
+        await tester.pumpUntilNotFound(unpublishItem);
+
+        // expect to see the toast with success message
+        final successToast = find.text(
+          LocaleKeys.publish_unpublishSuccessfully.tr(),
+        );
+        await tester.pumpUntilFound(successToast);
+        expect(successToast, findsOneWidget);
+
+        // check if the page is unpublished in sites page
+        expect(pageItem, findsNothing);
+      }
     });
   });
 }
