@@ -49,7 +49,7 @@ final headingsToolbarItem = ToolbarItem(
         ],
       ),
     );
-    return _HeadingPopup(
+    return HeadingPopup(
       currentLevel: isHighlight ? level : -1,
       highlightColor: highlightColor,
       child: child,
@@ -104,8 +104,9 @@ final headingsToolbarItem = ToolbarItem(
   },
 );
 
-class _HeadingPopup extends StatelessWidget {
-  const _HeadingPopup({
+class HeadingPopup extends StatelessWidget {
+  const HeadingPopup({
+    super.key,
     required this.currentLevel,
     required this.highlightColor,
     required this.onLevelChanged,
@@ -169,7 +170,7 @@ class _HeadingButtons extends StatelessWidget {
             final svg = data.$1;
             final message = data.$2;
             return [
-              _HeadingButton(
+              HeadingButton(
                 icon: svg,
                 tooltip: message,
                 onTap: () => onLevelChanged(index + 1),
@@ -188,8 +189,9 @@ class _HeadingButtons extends StatelessWidget {
   }
 }
 
-class _HeadingButton extends StatelessWidget {
-  const _HeadingButton({
+class HeadingButton extends StatelessWidget {
+  const HeadingButton({
+    super.key,
     required this.icon,
     required this.tooltip,
     required this.onTap,
