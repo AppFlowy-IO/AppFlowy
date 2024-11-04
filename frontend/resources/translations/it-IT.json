@@ -36,6 +36,7 @@
     "loginButtonText": "Login",
     "loginStartWithAnonymous": "Inizia con una sessione anonima",
     "continueAnonymousUser": "Continua con una sessione anonima",
+    "anonymous": "Anonimo",
     "buttonText": "Accedi",
     "signingInText": "Accesso in corso...",
     "forgotPassword": "Password Dimentica?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Continua con Google",
     "signInWithGithub": "Continua con Github",
     "signInWithDiscord": "Continua con Discord",
+    "signInWithApple": "Continua con Apple",
+    "continueAnotherWay": "Continua in un altro modo",
     "signUpWithGoogle": "Registrati con Google",
     "signUpWithGithub": "Registrati con Github",
     "signUpWithDiscord": "Registrati con Discord",
@@ -73,9 +76,13 @@
   },
   "workspace": {
     "chooseWorkspace": "Scegli il tuo spazio di lavoro",
+    "defaultName": "Il mio spazio di lavoro",
     "create": "Crea spazio di lavoro",
+    "importFromNotion": "Importa da Notion",
+    "learnMore": "Saperne di più",
     "reset": "Ripristina lo spazio di lavoro",
     "renameWorkspace": "Rinomina workspace",
+    "workspaceNameCannotBeEmpty": "Il nome dello spazio di lavoro non può essere vuoto",
     "resetWorkspacePrompt": "Il ripristino dello spazio di lavoro eliminerà tutte le pagine e i dati al suo interno. Sei sicuro di voler ripristinare lo spazio di lavoro? In alternativa, puoi contattare il team di supporto per ristabilire lo spazio di lavoro",
     "hint": "spazio di lavoro",
     "notFoundError": "Spazio di lavoro non trovato",
@@ -86,6 +93,7 @@
       "exportLogFiles": "Esporta i file di log",
       "reachOut": "Contattaci su Discord"
     },
+    "menuTitle": "Spazi di lavoro",
     "deleteWorkspaceHintText": "Sei sicuro di voler cancellare la workspace? Questa azione non è reversibile, e ogni pagina che hai pubblicato sarà rimossa.",
     "createSuccess": "Workspace creata con successo",
     "createFailed": "Creazione workspace fallita",
@@ -107,6 +115,7 @@
     "buttonText": "Condividi",
     "workInProgress": "Prossimamente",
     "markdown": "Markdown",
+    "html": "HTML",
     "clipboard": "Copia",
     "csv": "CSV",
     "copyLink": "Copia Link",
@@ -117,7 +126,16 @@
     "visitSite": "Visita sito",
     "exportAsTab": "Esporta come",
     "publishTab": "Pubblica",
-    "shareTab": "Condividi"
+    "shareTab": "Condividi",
+    "publishOnAppFlowy": "Pubblica su AppFlowy",
+    "shareTabTitle": "Invita a collaborare",
+    "shareTabDescription": "Per una facile collaborazione con chiunque",
+    "copyLinkSuccess": "Collegamento copiato negli appunti",
+    "copyShareLink": "Copia il link di condivisione",
+    "copyLinkFailed": "Impossibile copiare il collegamento negli appunti",
+    "copyLinkToBlockSuccess": "Copiato il collegamento del blocco negli appunti",
+    "copyLinkToBlockFailed": "Impossibile copiare il collegamento del blocco negli appunti",
+    "manageAllSites": "Gestisci tutti i siti"
   },
   "moreAction": {
     "small": "piccolo",
@@ -136,6 +154,7 @@
     "textAndMarkdown": "Testo e markdown",
     "documentFromV010": "Documento dalla v0.1.0",
     "databaseFromV010": "Database dalla v0.1.0",
+    "notionZip": "File zip esportato da Notion",
     "csv": "CSV",
     "database": "Banca dati"
   },
@@ -187,6 +206,7 @@
   "trash": {
     "text": "Cestino",
     "restoreAll": "Ripristina Tutto",
+    "restore": "Ripristina",
     "deleteAll": "Elimina Tutto",
     "pageHeader": {
       "fileName": "Nome file",
@@ -201,6 +221,10 @@
       "title": "Sei sicuro di ripristinare tutte le pagine nel Cestino?",
       "caption": "Questa azione non può essere annullata."
     },
+    "restorePage": {
+      "title": "Ripristina: {}",
+      "caption": "Sei sicuro di voler ripristinare questa pagina?"
+    },
     "mobile": {
       "actions": "Azioni del cestino",
       "empty": "Il cestino è vuoto",
@@ -213,7 +237,8 @@
   "deletePagePrompt": {
     "text": "Questa pagina è nel Cestino",
     "restore": "Ripristina pagina",
-    "deletePermanent": "Elimina definitivamente"
+    "deletePermanent": "Elimina definitivamente",
+    "deletePermanentDescription": "Sei sicuro di voler eliminare questa pagina in modo permanente? Questa operazione è irreversibile."
   },
   "dialogCreatePageNameHint": "Nome pagina",
   "questionBubble": {
@@ -270,6 +295,7 @@
     "openSidebar": "Open sidebar",
     "personal": "Personale",
     "private": "Privato",
+    "workspace": "Spazio di lavoro",
     "favorites": "Preferiti",
     "clickToHidePrivate": "Clicca per nascondere l'area privata\nLe pagine create qui sono visibili solo a te",
     "clickToHideWorkspace": "Clicca per nascondere la workspace\nLe pagine che crei qui sono visibili a ogni membro",
@@ -282,6 +308,7 @@
     "today": "Oggi",
     "thisWeek": "Questa settimana",
     "others": "Preferiti precedenti",
+    "earlier": "Prima",
     "justNow": "poco fa",
     "minutesAgo": "{count} minuti fa",
     "lastViewed": "Visto per ultimo",
@@ -298,8 +325,20 @@
     "upgradeToPro": "Aggiorna a Pro",
     "upgradeToAIMax": "Sblocca AI illimitata",
     "storageLimitDialogTitle": "Hai esaurito lo spazio d'archiviazione gratuito. Aggiorna per avere spazio d'archiviazione illimitato!",
+    "storageLimitDialogTitleIOS": "Hai esaurito lo spazio di archiviazione gratuito.",
     "aiResponseLimitTitle": "Hai esaurito le risposte AI gratuite. Aggiorna al Piano Pro per acquistare un add-on AI per avere risposte illimitate",
-    "aiResponseLimitDialogTitle": "Numero di riposte AI raggiunto"
+    "aiResponseLimitTitleIOS": "Hai esaurito le risposte AI gratuite.",
+    "aiResponseLimitDialogTitle": "Numero di riposte AI raggiunto",
+    "aiResponseLimit": "Hai esaurito le risposte AI gratuite.\nVai su Impostazioni -> Piano -> Fai clic su AI Max o Pro Plan per ottenere più risposte AI",
+    "askOwnerToUpgradeToPro": "Il tuo spazio di lavoro sta esaurendo lo spazio di archiviazione gratuito. Chiedi al proprietario del tuo spazio di lavoro di effettuare l'upgrade al piano Pro",
+    "askOwnerToUpgradeToProIOS": "Lo spazio di archiviazione gratuito nel tuo spazio di lavoro sta esaurendo.",
+    "askOwnerToUpgradeToAIMax": "Il tuo spazio di lavoro sta esaurendo le risposte AI gratuite. Chiedi al proprietario del tuo spazio di lavoro di aggiornare il piano o di acquistare componenti aggiuntivi AI",
+    "askOwnerToUpgradeToAIMaxIOS": "Il tuo spazio di lavoro sta esaurendo le risposte AI gratuite.",
+    "purchaseStorageSpace": "Acquista spazio di archiviazione",
+    "purchaseAIResponse": "Acquista",
+    "askOwnerToUpgradeToLocalAI": "Chiedi al proprietario dell'area di lavoro di abilitare l'intelligenza artificiale sul dispositivo",
+    "upgradeToAILocal": "Esegui modelli locali sul tuo dispositivo per la massima privacy",
+    "upgradeToAILocalDesc": "Chatta con i PDF, migliora la tua scrittura e compila automaticamente le tabelle utilizzando l'intelligenza artificiale locale"
   },
   "notifications": {
     "export": {
@@ -315,6 +354,7 @@
   },
   "button": {
     "ok": "OK",
+    "confirm": "Conferma",
     "done": "Fatto",
     "cancel": "Annulla",
     "signIn": "Accedi",
@@ -337,13 +377,39 @@
     "update": "Aggiorna",
     "share": "Condividi",
     "removeFromFavorites": "Rimuovi dai preferiti",
+    "removeFromRecent": "Rimuovi da Recenti",
     "addToFavorites": "Aggiungi ai preferiti",
+    "favoriteSuccessfully": "Preferito salvato con successo",
+    "unfavoriteSuccessfully": "Preferito cancellato con successo",
+    "duplicateSuccessfully": "Duplicato con successo",
     "rename": "Rinomina",
     "helpCenter": "Centro assistenza",
     "add": "Aggiungi",
     "yes": "SÌ",
+    "no": "No",
+    "clear": "Pulisci",
     "remove": "Rimuovi",
-    "dontRemove": "Non rimuovere"
+    "dontRemove": "Non rimuovere",
+    "copyLink": "Copia collegamento",
+    "align": "Allineare",
+    "login": "Login",
+    "logout": "Esci",
+    "deleteAccount": "Elimina account",
+    "back": "Indietro",
+    "signInGoogle": "Continua con Google",
+    "signInGithub": "Continua con GitHub",
+    "signInDiscord": "Continua con Discord",
+    "more": "Di più",
+    "create": "Creare",
+    "close": "Chiudi",
+    "next": "Avanti",
+    "previous": "Indietro",
+    "submit": "Invia",
+    "download": "Download",
+    "backToHome": "Torna alla Home",
+    "viewing": "Visualizzazione",
+    "editing": "Modifica",
+    "gotIt": "Fatto"
   },
   "label": {
     "welcome": "Benvenuto!",
@@ -367,6 +433,52 @@
   },
   "settings": {
     "title": "Impostazioni",
+    "popupMenuItem": {
+      "settings": "Impostazioni",
+      "members": "Membri",
+      "trash": "Cestino",
+      "helpAndSupport": "Aiuto e supporto"
+    },
+    "sites": {
+      "title": "Siti",
+      "namespaceTitle": "Namespace",
+      "namespaceDescription": "Gestisci i tuoi Namespace e la tua homepage",
+      "namespaceHeader": "Namespace",
+      "homepageHeader": "Homepage",
+      "updateNamespace": "Aggiorna namespace",
+      "removeHomepage": "Rimuovi Homepage",
+      "selectHomePage": "Seleziona una pagina",
+      "namespace": {
+        "description": "Questa modifica verrà applicata a tutte le pagine pubblicate attive su questo namespace",
+        "tooltip": "Ci riserviamo il diritto di rimuovere qualsiasi namespace inappropriato",
+        "updateExistingNamespace": "Aggiorna il namespace esistente",
+        "upgradeToPro": "Passa al piano Pro per impostare una homepage",
+        "redirectToPayment": "Reindirizzamento alla pagina di pagamento...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Solo il proprietario dell'area di lavoro può impostare una homepage"
+      },
+      "publishedPage": {
+        "title": "Tutte le pagine pubblicate",
+        "description": "Gestisci le tue pagine pubblicate",
+        "page": "pagina",
+        "pathName": "Nome del percorso",
+        "date": "Data di pubblicazione",
+        "emptyHinText": "Non hai pagine pubblicate in questo spazio di lavoro",
+        "noPublishedPages": "Nessuna pagina pubblicata",
+        "settings": "Impostazioni di pubblicazione"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Impossibile generare il collegamento di pagamento per il piano pro",
+        "failedToUpdateNamespace": "Impossibile aggiornare lo spazio dei nomi",
+        "proPlanLimitation": "È necessario eseguire l'upgrade al piano Pro per aggiornare il namespace",
+        "namespaceAlreadyInUse": "Questo namespace è già stato preso, provane un altro",
+        "invalidNamespace": "Namespace non valido, provane un altro",
+        "namespaceLengthAtLeast2Characters": "Il namespace deve essere lungo almeno 2 caratteri",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Solo il proprietario dell'area di lavoro può aggiornare il namespace",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Solo il proprietario dell'area di lavoro può rimuovere la homepage",
+        "setHomepageFailed": "Impossibile impostare la home page",
+        "namespaceTooLong": "il namespace è troppo lungo, provane un altro"
+      }
+    },
     "menu": {
       "appearance": "Aspetto",
       "language": "Lingua",
