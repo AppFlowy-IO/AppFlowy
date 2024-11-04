@@ -133,7 +133,10 @@
     "shareTabDescription": "与任何人轻松协作",
     "copyLinkSuccess": "链接已复制到剪贴板",
     "copyShareLink": "复制分享链接",
-    "copyLinkFailed": "无法将链接复制到剪贴板"
+    "copyLinkFailed": "无法将链接复制到剪贴板",
+    "copyLinkToBlockSuccess": "区块链接已复制到剪贴板",
+    "copyLinkToBlockFailed": "无法将区块链接复制到剪贴板",
+    "manageAllSites": "管理所有站点"
   },
   "moreAction": {
     "small": "小",
@@ -152,6 +155,7 @@
     "textAndMarkdown": "文本 和 Markdown",
     "documentFromV010": "来自 v0.1.0 的文档",
     "databaseFromV010": "来自 v0.1.0 的数据库",
+    "notionZip": "Notion 导出的 Zip 文件",
     "csv": "CSV",
     "database": "数据库"
   },
@@ -190,11 +194,20 @@
     "question4": "使用现有食材制定一份菜谱",
     "aiMistakePrompt": "AI 可能出错，请验证重要信息",
     "chatWithFilePrompt": "你想与文件对话吗？",
-    "questionDetail": "{} 你好！我能怎么帮到你？"
+    "indexFileSuccess": "文件索引成功",
+    "inputActionNoPages": "无页面结果",
+    "referenceSource": "找到 {} 个来源",
+    "referenceSources": "找到 {} 个来源",
+    "clickToMention": "点击以提及页面",
+    "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
+    "questionTitle": "想法",
+    "questionDetail": "{} 你好！我能怎么帮到你？",
+    "indexingFile": "正在索引 {}"
   },
   "trash": {
     "text": "回收站",
     "restoreAll": "全部恢复",
+    "restore": "恢复",
     "deleteAll": "全部删除",
     "pageHeader": {
       "fileName": "文件名",
@@ -209,6 +222,10 @@
       "title": "您确定要恢复回收站中的所有页面吗？",
       "caption": "此操作无法撤消。"
     },
+    "restorePage": {
+      "title": "恢复：{}",
+      "caption": "你确定要恢复此页面吗？"
+    },
     "mobile": {
       "actions": "垃圾桶操作",
       "empty": "垃圾桶是空的",
@@ -221,7 +238,8 @@
   "deletePagePrompt": {
     "text": "此页面已被移动至垃圾桶",
     "restore": "恢复页面",
-    "deletePermanent": "彻底删除"
+    "deletePermanent": "彻底删除",
+    "deletePermanentDescription": "你确定要永久删除此页面吗？此操作无法撤销。"
   },
   "dialogCreatePageNameHint": "页面名称",
   "questionBubble": {
@@ -293,17 +311,37 @@
     "today": "今日",
     "thisWeek": "本周",
     "others": "其他",
+    "earlier": "更早",
     "justNow": "现在",
     "minutesAgo": "{count} 分钟以前",
     "lastViewed": "最近一次查看",
     "favoriteAt": "已收藏",
+    "emptyRecent": "没有最近页面",
+    "emptyRecentDescription": "在你查看页面时，它们会出现在这里，方便检索。",
     "emptyFavorite": "无收藏页面",
+    "emptyFavoriteDescription": "将页面收藏起来——它们会列在这里，方便快速访问！",
     "removePageFromRecent": "从最近页移除此页面吗？",
     "removeSuccess": "成功移除",
     "favoriteSpace": "收藏",
     "RecentSpace": "最近",
     "Spaces": "空间",
-    "upgradeToPro": "升级至专业版"
+    "upgradeToPro": "升级至专业版",
+    "upgradeToAIMax": "解锁无限制 AI",
+    "storageLimitDialogTitle": "你已用尽免费存储。升级以解锁无限制存储",
+    "storageLimitDialogTitleIOS": "你已用尽免费存储。",
+    "aiResponseLimitTitle": "你已用尽免费 AI 回应。升级到专业版或者购买 AI 插件来解锁无限制回应",
+    "aiResponseLimitTitleIOS": "你已用尽免费 AI 回应。",
+    "aiResponseLimitDialogTitle": "已达到 AI 回应限额",
+    "aiResponseLimit": "你已用尽了免费 AI 回应。\n\n转到“设置 -> 计划 -> 点击 AI Max 或 Pro 计划”获取更多 AI 回应",
+    "askOwnerToUpgradeToPro": "你的工作区即将用尽免费存储。请联系工作区所有者升级到专业版计划",
+    "askOwnerToUpgradeToProIOS": "你的工作区即将用尽免费存储。",
+    "askOwnerToUpgradeToAIMax": "你的工作区即将用尽免费 AI 回应。请联系工作区所有者升级计划或购买 AI 插件",
+    "askOwnerToUpgradeToAIMaxIOS": "你的工作区即将用尽免费 AI 回应限额。",
+    "purchaseStorageSpace": "购买存储空间",
+    "purchaseAIResponse": "购买",
+    "askOwnerToUpgradeToLocalAI": "联系工作区所有者启用设备上 AI",
+    "upgradeToAILocal": "在你的设备上运行本地模型，极致保护隐私",
+    "upgradeToAILocalDesc": "使用本地 AI 用 PDF 聊天、改善写作、自动填充表格"
   },
   "notifications": {
     "export": {
@@ -342,7 +380,11 @@
     "update": "更新",
     "share": "分享",
     "removeFromFavorites": "从收藏夹中",
+    "removeFromRecent": "从最近页移除",
     "addToFavorites": "添加到收藏夹",
+    "favoriteSuccessfully": "收藏成功",
+    "unfavoriteSuccessfully": "取消收藏成功",
+    "duplicateSuccessfully": "副本创建成功",
     "rename": "重命名",
     "helpCenter": "帮助中心",
     "add": "添加",
