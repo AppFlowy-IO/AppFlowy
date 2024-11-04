@@ -160,7 +160,7 @@ pub fn make_test_grid() -> DatabaseData {
       },
       FieldType::Media => {
         let type_option = MediaTypeOption {
-          hide_file_names: false,
+          hide_file_names: true,
         };
 
         let media_field = FieldBuilder::new(field_type, type_option)
