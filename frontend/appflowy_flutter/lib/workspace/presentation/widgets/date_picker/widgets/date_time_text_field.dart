@@ -7,7 +7,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../appflowy_date_picker.dart';
+import '../desktop_date_picker.dart';
 import 'date_picker.dart';
 
 class DateTimeTextField extends StatefulWidget {
@@ -21,6 +21,7 @@ class DateTimeTextField extends StatefulWidget {
     this.popoverMutex,
     this.isTabPressed,
     this.refreshTextController,
+    required this.showHint,
   }) : assert(includeTime && timeFormat != null || !includeTime);
 
   final DateTime? dateTime;
@@ -31,6 +32,7 @@ class DateTimeTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
   final ValueNotifier<bool>? isTabPressed;
   final RefreshDateTimeTextFieldController? refreshTextController;
+  final bool showHint;
 
   @override
   State<DateTimeTextField> createState() => _DateTimeTextFieldState();
@@ -47,6 +49,9 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
   final statesController = WidgetStatesController();
 
   bool justSubmitted = false;
+
+  DateFormat get dateFormat => DateFormat(widget.dateFormat.pattern);
+  DateFormat get timeFormat => DateFormat(widget.timeFormat?.pattern);
 
   @override
   void initState() {
@@ -166,9 +171,6 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
       return;
     }
 
-    final dateFormat = DateFormat(widget.dateFormat.pattern);
-    final timeFormat = DateFormat(widget.timeFormat?.pattern);
-
     dateTextController.text = dateFormat.format(widget.dateTime!);
     timeTextController.text = timeFormat.format(widget.dateTime!);
   }
@@ -196,39 +198,32 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
   }
 
   void onTimeTextFieldSubmitted() {
-    final adjustedTimeStr = "Jan 01, 2000 ${timeTextController.text.trim()}";
-    DateTime? dateTime = parseDateTimeStr(adjustedTimeStr);
+    // this happens in the middle of a date range selection
+    if (widget.dateTime == null) {
+      widget.refreshTextController?.refresh();
+      statesController.update(WidgetState.error, true);
+      return;
+    }
+    final adjustedTimeStr =
+        "${dateTextController.text} ${timeTextController.text.trim()}";
+    final dateTime = parseDateTimeStr(adjustedTimeStr);
 
     if (dateTime == null) {
       statesController.update(WidgetState.error, true);
       return;
     }
     statesController.update(WidgetState.error, false);
-    final dateComponent = widget.dateTime ?? DateTime.now();
-    final timeComponent = Duration(
-      hours: dateTime.hour,
-      minutes: dateTime.minute,
-      seconds: dateTime.second,
-    );
-    dateTime = DateTime(
-      dateComponent.year,
-      dateComponent.month,
-      dateComponent.day,
-    ).add(timeComponent);
     widget.onSubmitted?.call(dateTime);
   }
 
   DateTime? parseDateTimeStr(String string) {
     final locale = context.locale.toLanguageTag();
     final parser = AnyDate.fromLocale(locale);
-    late DateTime? result;
-    try {
-      result = parser.parse(string);
-      if (result.isBefore(kFirstDay) || result.isAfter(kLastDay)) {
-        result = null;
-      }
-    } catch (err) {
-      result = null;
+    final result = parser.tryParse(string);
+    if (result == null ||
+        result.isBefore(kFirstDay) ||
+        result.isAfter(kLastDay)) {
+      return null;
     }
     return result;
   }
@@ -248,6 +243,9 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final hintDate = DateTime(now.year, now.month, 1, 9);
+
     return Focus(
       focusNode: focusNode,
       skipTraversal: true,
@@ -283,6 +281,7 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
                         style: Theme.of(context).textTheme.bodyMedium,
                         decoration: getInputDecoration(
                           const EdgeInsetsDirectional.fromSTEB(12, 6, 6, 6),
+                          dateFormat.format(hintDate),
                         ),
                         onSubmitted: (value) {
                           justSubmitted = true;
@@ -304,6 +303,7 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
                         style: Theme.of(context).textTheme.bodyMedium,
                         decoration: getInputDecoration(
                           const EdgeInsetsDirectional.fromSTEB(6, 6, 12, 6),
+                          timeFormat.format(hintDate),
                         ),
                         onSubmitted: (value) {
                           justSubmitted = true;
@@ -321,6 +321,7 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
                     style: Theme.of(context).textTheme.bodyMedium,
                     decoration: getInputDecoration(
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      dateFormat.format(hintDate),
                     ),
                     onSubmitted: (value) {
                       justSubmitted = true;
@@ -348,12 +349,20 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
     );
   }
 
-  InputDecoration getInputDecoration(EdgeInsetsGeometry padding) {
+  InputDecoration getInputDecoration(
+    EdgeInsetsGeometry padding,
+    String? hintText,
+  ) {
     return InputDecoration(
       border: InputBorder.none,
       contentPadding: padding,
       isCollapsed: true,
       isDense: true,
+      hintText: widget.showHint ? hintText : null,
+      hintStyle: Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.copyWith(color: Theme.of(context).hintColor),
     );
   }
 }

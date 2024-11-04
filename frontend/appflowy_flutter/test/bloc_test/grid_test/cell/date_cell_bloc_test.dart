@@ -2,8 +2,7 @@ import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:time/time.dart';
 
@@ -61,19 +60,18 @@ void main() {
       await gridResponseFuture();
 
       final now = DateTime.now();
-      final expected = DateTime(now.year, now.month, now.day);
-      bloc.add(const DateCellEditorEvent.setIncludeTime(true));
+      bloc.add(DateCellEditorEvent.setIncludeTime(true, now, null));
       await gridResponseFuture();
 
       expect(bloc.state.includeTime, true);
-      expect(bloc.state.dateTime!.isAtSameMinuteAs(expected), true);
+      expect(bloc.state.dateTime!.isAtSameMinuteAs(now), true);
       expect(bloc.state.endDateTime, null);
 
-      bloc.add(const DateCellEditorEvent.setIncludeTime(false));
+      bloc.add(const DateCellEditorEvent.setIncludeTime(false, null, null));
       await gridResponseFuture();
 
       expect(bloc.state.includeTime, false);
-      expect(bloc.state.dateTime!.isAtSameMinuteAs(expected), true);
+      expect(bloc.state.dateTime!.isAtSameMinuteAs(now), true);
       expect(bloc.state.endDateTime, null);
     });
 
@@ -97,14 +95,14 @@ void main() {
       expect(bloc.state.dateTime!.isAtSameMinuteAs(now), true);
       expect(bloc.state.endDateTime, null);
 
-      bloc.add(const DateCellEditorEvent.setIsRange(true));
+      bloc.add(const DateCellEditorEvent.setIsRange(true, null, null));
       await gridResponseFuture();
 
       expect(bloc.state.isRange, true);
       expect(bloc.state.dateTime!.isAtSameMinuteAs(now), true);
       expect(bloc.state.endDateTime!.isAtSameMinuteAs(now), true);
 
-      bloc.add(const DateCellEditorEvent.setIsRange(false));
+      bloc.add(const DateCellEditorEvent.setIsRange(false, null, null));
       await gridResponseFuture();
 
       expect(bloc.state.isRange, false);
@@ -125,20 +123,67 @@ void main() {
       expect(bloc.state.endDateTime, null);
 
       final now = DateTime.now();
-      final expected = DateTime(now.year, now.month, now.day);
-      bloc.add(const DateCellEditorEvent.setIsRange(true));
+      bloc.add(DateCellEditorEvent.setIsRange(true, now, now));
       await gridResponseFuture();
 
       expect(bloc.state.isRange, true);
-      expect(bloc.state.dateTime!.isAtSameMinuteAs(expected), true);
-      expect(bloc.state.endDateTime!.isAtSameMinuteAs(expected), true);
+      expect(bloc.state.dateTime!.isAtSameDayAs(now), true);
+      expect(bloc.state.endDateTime!.isAtSameDayAs(now), true);
 
-      bloc.add(const DateCellEditorEvent.setIsRange(false));
+      bloc.add(const DateCellEditorEvent.setIsRange(false, null, null));
       await gridResponseFuture();
 
       expect(bloc.state.isRange, false);
-      expect(bloc.state.dateTime!.isAtSameMinuteAs(expected), true);
+      expect(bloc.state.dateTime!.isAtSameDayAs(now), true);
       expect(bloc.state.endDateTime, null);
+    });
+
+    test('end time unexpected null', () async {
+      final reminderBloc = ReminderBloc();
+      final bloc = DateCellEditorBloc(
+        cellController: cellController,
+        reminderBloc: reminderBloc,
+      );
+      await gridResponseFuture();
+
+      expect(bloc.state.isRange, false);
+      expect(bloc.state.dateTime, null);
+      expect(bloc.state.endDateTime, null);
+
+      final now = DateTime.now();
+      // pass in unexpected null as end date time
+      bloc.add(DateCellEditorEvent.setIsRange(true, now, null));
+      await gridResponseFuture();
+
+      // no changes
+      expect(bloc.state.isRange, false);
+      expect(bloc.state.dateTime, null);
+      expect(bloc.state.endDateTime, null);
+    });
+
+    test('end time unexpected end', () async {
+      final reminderBloc = ReminderBloc();
+      final bloc = DateCellEditorBloc(
+        cellController: cellController,
+        reminderBloc: reminderBloc,
+      );
+      await gridResponseFuture();
+
+      expect(bloc.state.isRange, false);
+      expect(bloc.state.dateTime, null);
+      expect(bloc.state.endDateTime, null);
+
+      final now = DateTime.now();
+      bloc.add(DateCellEditorEvent.setIsRange(true, now, now));
+      await gridResponseFuture();
+
+      bloc.add(DateCellEditorEvent.setIsRange(false, now, now));
+      await gridResponseFuture();
+
+      // no change
+      expect(bloc.state.isRange, true);
+      expect(bloc.state.dateTime!.isAtSameDayAs(now), true);
+      expect(bloc.state.endDateTime!.isAtSameDayAs(now), true);
     });
 
     test('clear date', () async {
@@ -150,16 +195,15 @@ void main() {
       await gridResponseFuture();
 
       final now = DateTime.now();
-      final expected = DateTime(now.year, now.month, now.day);
-      bloc.add(const DateCellEditorEvent.setIsRange(true));
+      bloc.add(DateCellEditorEvent.setIsRange(true, now, now));
       await gridResponseFuture();
-      bloc.add(const DateCellEditorEvent.setIncludeTime(true));
+      bloc.add(DateCellEditorEvent.setIncludeTime(true, now, now));
       await gridResponseFuture();
 
       expect(bloc.state.isRange, true);
       expect(bloc.state.includeTime, true);
-      expect(bloc.state.dateTime!.isAtSameMinuteAs(expected), true);
-      expect(bloc.state.endDateTime!.isAtSameMinuteAs(expected), true);
+      expect(bloc.state.dateTime!.isAtSameMinuteAs(now), true);
+      expect(bloc.state.endDateTime!.isAtSameMinuteAs(now), true);
 
       bloc.add(const DateCellEditorEvent.clearDate());
       await gridResponseFuture();

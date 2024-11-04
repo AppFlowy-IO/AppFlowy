@@ -5,7 +5,7 @@ import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -93,11 +93,19 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             onRangeSelected: (start, end) {
               dateCellBloc.add(DateCellEditorEvent.updateDateRange(start, end));
             },
-            onIsRangeChanged: (value) {
-              dateCellBloc.add(DateCellEditorEvent.setIsRange(value));
+            onIsRangeChanged: (value, dateTime, endDateTime) {
+              dateCellBloc.add(
+                DateCellEditorEvent.setIsRange(value, dateTime, endDateTime),
+              );
             },
-            onIncludeTimeChanged: (value) {
-              dateCellBloc.add(DateCellEditorEvent.setIncludeTime(value));
+            onIncludeTimeChanged: (value, dateTime, endDateTime) {
+              dateCellBloc.add(
+                DateCellEditorEvent.setIncludeTime(
+                  value,
+                  dateTime,
+                  endDateTime,
+                ),
+              );
             },
             onClearDate: () {
               dateCellBloc.add(const DateCellEditorEvent.clearDate());
