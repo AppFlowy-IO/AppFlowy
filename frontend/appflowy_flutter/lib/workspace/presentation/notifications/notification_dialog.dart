@@ -63,7 +63,12 @@ class _NotificationDialogState extends State<NotificationDialog>
         builder: (context, filterState) =>
             BlocBuilder<ReminderBloc, ReminderState>(
           builder: (context, state) {
-            final pastReminders = state.pastReminders.sortByScheduledAt();
+            List<ReminderPB> pastReminders =
+                state.pastReminders.sortByScheduledAt();
+            if (filterState.showUnreadsOnly) {
+              pastReminders = pastReminders.where((r) => !r.isRead).toList();
+            }
+
             final upcomingReminders =
                 state.upcomingReminders.sortByScheduledAt();
             final hasUnreads = pastReminders.any((r) => !r.isRead);
