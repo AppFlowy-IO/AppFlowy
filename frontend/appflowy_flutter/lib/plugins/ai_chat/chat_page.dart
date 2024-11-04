@@ -35,11 +35,7 @@ import 'presentation/message/ai_text_message.dart';
 import 'presentation/message/user_text_message.dart';
 
 class AIChatUILayout {
-  static EdgeInsets get welcomePagePadding => UniversalPlatform.isMobile
-      ? EdgeInsets.zero
-      : const EdgeInsets.symmetric(horizontal: 50);
-
-  static double get messageWidthRatio => 0.85;
+  static double get messageWidthRatio => 0.94; // Chat adds extra 0.06
 
   static EdgeInsets safeAreaInsets(BuildContext context) {
     final query = MediaQuery.of(context);
@@ -203,19 +199,14 @@ class _ChatContentPageState extends State<_ChatContentPage> {
   }
 
   Widget buildChatSidePanel() {
-    if (UniversalPlatform.isDesktop) {
-      return BlocBuilder<ChatSidePanelBloc, ChatSidePanelState>(
-        builder: (context, state) {
-          if (state.metadata == null) {
-            return const SizedBox.shrink();
-          }
-          return const ChatSidePanel();
-        },
-      );
-    } else {
-      // TODO(lucas): implement mobile chat side panel
-      return const SizedBox.shrink();
-    }
+    return BlocBuilder<ChatSidePanelBloc, ChatSidePanelState>(
+      builder: (context, state) {
+        if (state.metadata == null) {
+          return const SizedBox.shrink();
+        }
+        return const ChatSidePanel();
+      },
+    );
   }
 
   Widget buildChatWidget() {
@@ -223,6 +214,7 @@ class _ChatContentPageState extends State<_ChatContentPage> {
       builder: (blocContext, state) => Chat(
         key: ValueKey(widget.view.id),
         messages: state.messages,
+        dateHeaderBuilder: (_) => const SizedBox.shrink(),
         onSendPressed: (_) {
           // We use custom bottom widget for chat input, so
           // do not need to handle this event.
@@ -396,60 +388,13 @@ class _ChatContentPageState extends State<_ChatContentPage> {
                 );
         },
       ),
-      // Opacity(
-      //   opacity: 0.6,
-      //   child: FlowyText(
-      //     LocaleKeys.chat_aiMistakePrompt.tr(),
-      //     fontSize: 12,
-      //   ),
-      // ),
     );
   }
 }
 
 AFDefaultChatTheme buildTheme(BuildContext context) {
   return AFDefaultChatTheme(
-    backgroundColor: AFThemeExtension.of(context).background,
     primaryColor: Theme.of(context).colorScheme.primary,
     secondaryColor: AFThemeExtension.of(context).tint1,
-    receivedMessageDocumentIconColor: Theme.of(context).primaryColor,
-    receivedMessageCaptionTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    receivedMessageBodyTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    receivedMessageLinkTitleTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    receivedMessageBodyLinkTextStyle: const TextStyle(
-      color: Colors.lightBlue,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    sentMessageBodyTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    sentMessageBodyLinkTextStyle: const TextStyle(
-      color: Colors.blue,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    inputElevation: 2,
-    bubbleMargin: EdgeInsets.zero,
   );
 }
