@@ -3,6 +3,7 @@ import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { getBlock, getBlockEntry, getSharedRoot, getText } from '@/application/slate-yjs/utils/yjsOperations';
 import {
+  BlockData,
   BlockType,
   HeadingBlockData,
   NumberedListBlockData,
@@ -66,7 +67,7 @@ function getNodeType (editor: YjsEditor) {
 function getBlockData (editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
 
-  return node.data;
+  return node.data as BlockData;
 }
 
 function isEmptyLine (editor: YjsEditor, offset: number) {
@@ -94,9 +95,40 @@ const rules: Rule[] = [
     transform: (editor, match) => {
       const level = match[1].length;
       const [node] = getBlockEntry(editor);
+      const blockType = getNodeType(editor);
+
+      // If the current block is a toggle list block, we don't need to change the block type
+      if (blockType === BlockType.ToggleListBlock) {
+        CustomEditor.setBlockData(editor, node.blockId as string, { level });
+        deletePrefix(editor, level);
+        return;
+      }
 
       CustomEditor.turnToBlock<HeadingBlockData>(editor, node.blockId as string, BlockType.HeadingBlock, { level });
       deletePrefix(editor, level);
+    },
+  },
+  {
+    type: 'block',
+    match: /^>\s/,
+    format: BlockType.ToggleListBlock,
+    filter: (editor) => {
+      return getNodeType(editor) === BlockType.ToggleListBlock;
+    },
+    transform: (editor) => {
+      const type = getNodeType(editor);
+      let level: number | undefined;
+
+      // If the current block is a heading block, we need to get the level of the heading block
+      if (type === BlockType.HeadingBlock) {
+        level = (getBlockData(editor) as HeadingBlockData).level;
+      }
+
+      CustomEditor.turnToBlock<ToggleListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.ToggleListBlock, {
+        collapsed: false,
+        level,
+      });
+      deletePrefix(editor, 1);
     },
   },
   {
@@ -130,19 +162,7 @@ const rules: Rule[] = [
       deletePrefix(editor, match[0].length - 1);
     },
   },
-  {
-    type: 'block',
-    match: /^>\s/,
-    format: BlockType.ToggleListBlock,
-    filter: (editor) => {
-      return getNodeType(editor) === BlockType.ToggleListBlock;
-    },
-    transform: (editor) => {
-      CustomEditor.turnToBlock<ToggleListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.ToggleListBlock, { collapsed: false });
-      deletePrefix(editor, 1);
 
-    },
-  },
   {
     type: 'block',
     match: /^(`){3,}$/,
@@ -178,7 +198,7 @@ const rules: Rule[] = [
       const blockType = getNodeType(editor);
       const blockData = getBlockData(editor);
 
-      return blockType === BlockType.HeadingBlock || (blockType === BlockType.NumberedListBlock && (blockData as NumberedListBlockData).number === start);
+      return ('level' in blockData && (blockData as HeadingBlockData).level > 0) || (blockType === BlockType.NumberedListBlock && (blockData as NumberedListBlockData).number === start);
     },
     transform: (editor, match) => {
       const start = parseInt(match[1]);
