@@ -77,9 +77,13 @@
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",
+    "defaultName": "我的工作区",
     "create": "新建工作区",
+    "importFromNotion": "从 Notion 导入",
+    "learnMore": "了解更多",
     "reset": "重置工作区",
     "renameWorkspace": "重命名工作区",
+    "workspaceNameCannotBeEmpty": "工作区名称不可为空",
     "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？您也可以联系技术支持团队来恢复工作区",
     "hint": "工作区",
     "notFoundError": "找不到工作区",
@@ -123,7 +127,13 @@
     "visitSite": "访问网站",
     "exportAsTab": "导出为",
     "publishTab": "发布",
-    "shareTab": "分享"
+    "shareTab": "分享",
+    "publishOnAppFlowy": "在 AppFlowy 发布",
+    "shareTabTitle": "邀请他人来协作",
+    "shareTabDescription": "与任何人轻松协作",
+    "copyLinkSuccess": "链接已复制到剪贴板",
+    "copyShareLink": "复制分享链接",
+    "copyLinkFailed": "无法将链接复制到剪贴板"
   },
   "moreAction": {
     "small": "小",
@@ -288,8 +298,12 @@
     "lastViewed": "最近一次查看",
     "favoriteAt": "已收藏",
     "emptyFavorite": "无收藏页面",
+    "removePageFromRecent": "从最近页移除此页面吗？",
     "removeSuccess": "成功移除",
-    "favoriteSpace": "收藏"
+    "favoriteSpace": "收藏",
+    "RecentSpace": "最近",
+    "Spaces": "空间",
+    "upgradeToPro": "升级至专业版"
   },
   "notifications": {
     "export": {
@@ -346,7 +360,9 @@
     "signInGithub": "使用 Github 账户登录",
     "signInDiscord": "使用 Discord 账户登录",
     "more": "更多",
+    "close": "关闭",
     "download": "下载",
+    "gotIt": "我知道了",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -1721,5 +1737,39 @@
     "continueWithGoogle": "使用 Google 账户登录",
     "continueWithGithub": "使用 GitHub 账户登录",
     "continueWithDiscord": "使用 Discord 账户登录"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "seconds": {
+      "one": "1 秒",
+      "other": "{count} 秒"
+    },
+    "minutes": {
+      "one": "1 分钟",
+      "other": "{count} 分钟"
+    },
+    "hours": {
+      "one": "1 小时",
+      "other": "{count} 小时"
+    },
+    "days": {
+      "one": "1 天",
+      "other": "{count} 天"
+    },
+    "weeks": {
+      "one": "1 周",
+      "other": "{count} 周"
+    },
+    "months": {
+      "one": "1 月",
+      "other": "{count} 月"
+    },
+    "years": {
+      "one": "1 年",
+      "other": "{count} 年"
+    },
+    "ago": "前",
+    "yesterday": "昨天",
+    "today": "今天"
   }
 }
