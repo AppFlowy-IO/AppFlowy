@@ -42,7 +42,7 @@ pub(crate) async fn get_encode_collab_handler(
   let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let state = manager.get_encoded_collab_with_view_id(&doc_id)?;
+  let state = manager.get_encoded_collab_with_view_id(&doc_id).await?;
   data_result_ok(EncodedCollabPB {
     state_vector: Vec::from(state.state_vector),
     doc_state: Vec::from(state.doc_state),
