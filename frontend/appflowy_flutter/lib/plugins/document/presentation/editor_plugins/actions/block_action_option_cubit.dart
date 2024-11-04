@@ -213,11 +213,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     }
 
     final insertedNode = <Node>[];
-
     for (final node in selectedNodes) {
-      Log.info(
-        'Turn into block: from ${node.type} to $type',
-      );
+      Log.info('Turn into block: from ${node.type} to $type');
 
       Node afterNode = node.copyWith(
         type: type,
@@ -238,9 +235,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       // heading block and callout block should not have children
       if ([HeadingBlockKeys.type, CalloutBlockKeys.type, QuoteBlockKeys.type]
           .contains(toType)) {
-        afterNode = afterNode.copyWith(
-          children: [],
-        );
+        afterNode = afterNode.copyWith(children: []);
+        afterNode = await _handleSubPageNode(afterNode, node);
         insertedNode.add(afterNode);
         insertedNode.addAll(node.children.map((e) => e.copyWith()));
       } else if (!EditorOptionActionType.turnInto.supportTypes
@@ -248,6 +244,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         afterNode = node.copyWith();
         insertedNode.add(afterNode);
       } else {
+        afterNode = await _handleSubPageNode(afterNode, node);
         insertedNode.add(afterNode);
       }
     }
@@ -261,6 +258,43 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     await editorState.apply(transaction);
 
     return true;
+  }
+
+  /// Takes the new [Node] and the Node which is a SubPageBlock.
+  ///
+  /// Returns the altered [Node] with the delta as the Views' name.
+  ///
+  Future<Node> _handleSubPageNode(Node node, Node subPageNode) async {
+    if (subPageNode.type != SubPageBlockKeys.type) {
+      return node;
+    }
+
+    final delta = await _deltaFromSubPageNode(subPageNode);
+    return node.copyWith(
+      attributes: {
+        ...node.attributes,
+        blockComponentDelta: (delta ?? Delta()).toJson(),
+      },
+    );
+  }
+
+  /// Returns the [Delta] from a SubPage [Node], where the
+  /// [Delta] is the views' name.
+  ///
+  Future<Delta?> _deltaFromSubPageNode(Node node) async {
+    if (node.type != SubPageBlockKeys.type) {
+      return null;
+    }
+
+    final viewId = node.attributes[SubPageBlockKeys.viewId];
+    final viewOrFailure = await ViewBackendService.getView(viewId);
+    final view = viewOrFailure.toNullable();
+    if (view != null) {
+      return Delta(operations: [TextInsert(view.name)]);
+    }
+
+    Log.error("Failed to get view by id($viewId)");
+    return null;
   }
 
   // turn a single node into toggle heading block
@@ -321,6 +355,11 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       'Turn into block: from ${node.type} to $type',
     );
 
+    Delta newDelta = delta ?? Delta();
+    if (delta == null && node.type == SubPageBlockKeys.type) {
+      newDelta = await _deltaFromSubPageNode(node) ?? Delta();
+    }
+
     final afterNode = node.copyWith(
       type: type,
       attributes: {
@@ -331,7 +370,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
             node.attributes[blockComponentBackgroundColor],
         blockComponentTextDirection:
             node.attributes[blockComponentTextDirection],
-        blockComponentDelta: (delta ?? node.delta ?? Delta()).toJson(),
+        blockComponentDelta: newDelta.toJson(),
       },
       children: [
         ...node.children,
