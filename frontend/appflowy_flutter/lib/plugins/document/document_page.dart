@@ -231,7 +231,6 @@ class _DocumentPageState extends State<DocumentPage>
 
     final Path? path = _getPathFromAction(action, editorState);
     if (path != null) {
-      debugPrint('jump to block: $path');
       editorState.updateSelectionWithReason(
         Selection.collapsed(Position(path: path)),
       );

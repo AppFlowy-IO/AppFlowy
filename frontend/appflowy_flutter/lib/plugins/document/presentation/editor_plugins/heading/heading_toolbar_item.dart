@@ -62,7 +62,6 @@ final headingsToolbarItem = ToolbarItem(
 
         if (type == HeadingBlockKeys.type) {
           // from paragraph to heading
-          debugPrint('from paragraph to heading, newLevel: $newLevel');
           final newNode = node.copyWith(
             type: type,
             attributes: {
@@ -85,7 +84,6 @@ final headingsToolbarItem = ToolbarItem(
           await editorState.apply(transaction);
         } else {
           // from heading to paragraph
-          debugPrint('from heading to paragraph, newLevel: $newLevel');
           await editorState.formatNode(
             selection,
             (node) => node.copyWith(
