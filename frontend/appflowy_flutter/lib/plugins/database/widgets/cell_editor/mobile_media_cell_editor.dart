@@ -1,5 +1,7 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_media_upload.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
@@ -10,7 +12,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/image_render.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -25,10 +29,6 @@ class MobileMediaCellEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
       constraints: const BoxConstraints.tightFor(height: 420),
       child: BlocProvider.value(
         value: context.read<MediaCellBloc>(),
@@ -47,10 +47,28 @@ class MobileMediaCellEditor extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    const Positioned(
+                    Positioned(
                       top: 8,
                       right: 18,
-                      child: FlowySvg(FlowySvgs.add_m, size: Size.square(28)),
+                      child: GestureDetector(
+                        onTap: () => showMobileBottomSheet(
+                          context,
+                          title: LocaleKeys.grid_media_addFileMobile.tr(),
+                          showHeader: true,
+                          showCloseButton: true,
+                          showDragHandle: true,
+                          builder: (dContext) => BlocProvider.value(
+                            value: context.read<MediaCellBloc>(),
+                            child: MobileMediaUploadSheetContent(
+                              dialogContext: dContext,
+                            ),
+                          ),
+                        ),
+                        child: const FlowySvg(
+                          FlowySvgs.add_m,
+                          size: Size.square(28),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -60,33 +78,6 @@ class MobileMediaCellEditor extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.all(8),
-                      //   child: FlowyButton(
-                      //     margin: const EdgeInsets.all(12),
-                      //     onTap: () => showMobileBottomSheet(
-                      //       context,
-                      //       title: LocaleKeys.grid_media_addFileMobile.tr(),
-                      //       showHeader: true,
-                      //       showCloseButton: true,
-                      //       showDragHandle: true,
-                      //       builder: (dContext) =>
-                      //           MobileMediaUploadSheetContent(
-                      //         dialogContext: dContext,
-                      //       ),
-                      //     ),
-                      //     text: const Row(
-                      //       children: [
-                      //         FlowySvg(
-                      //           FlowySvgs.add_s,
-                      //           size: Size.square(20),
-                      //         ),
-                      //         HSpace(8),
-                      //         FlowyText('Add a file or image', fontSize: 15),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                       if (state.files.isNotEmpty) const Divider(height: .5),
                       ...state.files.map(
                         (file) => Padding(
@@ -115,27 +106,41 @@ class _FileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondaryContainer,
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
         title: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: file.fileType == MediaFileTypePB.Image
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             if (file.fileType != MediaFileTypePB.Image) ...[
-              FlowySvg(file.fileType.icon, size: const Size.square(24)),
-              const HSpace(12),
-              Expanded(
-                child: FlowyText(
-                  file.name,
-                  overflow: TextOverflow.ellipsis,
+              Flexible(
+                child: GestureDetector(
+                  onTap: () => afLaunchUrlString(file.url),
+                  child: Row(
+                    children: [
+                      FlowySvg(file.fileType.icon, size: const Size.square(24)),
+                      const HSpace(12),
+                      Expanded(
+                        child: FlowyText(
+                          file.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ] else ...[
               Expanded(
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
                   alignment: Alignment.centerLeft,
-                  constraints: const BoxConstraints(maxHeight: 125),
+                  constraints: const BoxConstraints(maxHeight: 96),
                   child: GestureDetector(
                     onTap: () => openInteractiveViewer(context),
                     child: ImageRender(
@@ -153,13 +158,14 @@ class _FileItem extends StatelessWidget {
               ),
             ],
             FlowyIconButton(
-              width: 40,
+              width: 20,
               icon: const FlowySvg(
                 FlowySvgs.three_dots_s,
                 size: Size.square(20),
               ),
               onPressed: () => showMobileBottomSheet(
                 context,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 showDragHandle: true,
                 builder: (_) => BlocProvider.value(
                   value: context.read<MediaCellBloc>(),
@@ -189,10 +195,10 @@ class _EditFileSheet extends StatefulWidget {
   final MediaFilePB file;
 
   @override
-  State<_EditFileSheet> createState() => __EditFileSheetState();
+  State<_EditFileSheet> createState() => _EditFileSheetState();
 }
 
-class __EditFileSheetState extends State<_EditFileSheet> {
+class _EditFileSheetState extends State<_EditFileSheet> {
   late final controller = TextEditingController(text: widget.file.name);
   Loading? loader;
 
@@ -211,15 +217,9 @@ class __EditFileSheetState extends State<_EditFileSheet> {
       child: Column(
         children: [
           const VSpace(16),
-          // _FileTextField(
-          //   file: file,
-          //   controller: controller,
-          //   onChanged: (name) =>
-          //       context.read<MediaCellBloc>().renameFile(file.id, name),
-          // ),
-          const VSpace(20),
-          if (file.fileType == MediaFileTypePB.Image)
+          if (file.fileType == MediaFileTypePB.Image) ...[
             FlowyOptionTile.text(
+              showTopBorder: false,
               text: LocaleKeys.grid_media_expand.tr(),
               leftIcon: const FlowySvg(
                 FlowySvgs.full_view_s,
@@ -227,28 +227,62 @@ class __EditFileSheetState extends State<_EditFileSheet> {
               ),
               onTap: () => openInteractiveViewer(context),
             ),
+            FlowyOptionTile.text(
+              showTopBorder: false,
+              text: LocaleKeys.grid_media_setAsCover.tr(),
+              leftIcon: const FlowySvg(
+                FlowySvgs.cover_s,
+                size: Size.square(20),
+              ),
+              onTap: () => context.read<MediaCellBloc>().add(
+                    MediaCellEvent.setCover(
+                      RowCoverPB(
+                        data: file.url,
+                        uploadType: file.uploadType,
+                        coverType: CoverTypePB.FileCover,
+                      ),
+                    ),
+                  ),
+            ),
+          ],
           FlowyOptionTile.text(
-            text: file.fileType == MediaFileTypePB.Link
-                ? LocaleKeys.grid_media_expand.tr()
-                : LocaleKeys.grid_media_download.tr(),
-            leftIcon: FlowySvg(
-              file.fileType == MediaFileTypePB.Link
-                  ? FlowySvgs.m_link_m
-                  : FlowySvgs.import_s,
-              size: const Size.square(20),
+            showTopBorder: file.fileType == MediaFileTypePB.Image,
+            text: LocaleKeys.grid_media_openInBrowser.tr(),
+            leftIcon: const FlowySvg(
+              FlowySvgs.open_in_browser_s,
+              size: Size.square(20),
             ),
-            onTap: () async => downloadMediaFile(
-              context,
-              widget.file,
-              userProfile: context.read<MediaCellBloc>().state.userProfile,
-              onDownloadBegin: () {
-                loader?.stop();
-                loader = Loading(context);
-                loader?.start();
-              },
-              onDownloadEnd: () => loader?.stop(),
-            ),
+            onTap: () => afLaunchUrlString(file.url),
           ),
+          // TODO(Mathias): Rename interaction need design
+          // FlowyOptionTile.text(
+          //   text: LocaleKeys.grid_media_rename.tr(),
+          //   leftIcon: const FlowySvg(
+          //     FlowySvgs.rename_s,
+          //     size: Size.square(20),
+          //   ),
+          //   onTap: () {},
+          // ),
+          if (widget.file.uploadType == FileUploadTypePB.CloudFile) ...[
+            FlowyOptionTile.text(
+              onTap: () async => downloadMediaFile(
+                context,
+                file,
+                userProfile: context.read<MediaCellBloc>().state.userProfile,
+                onDownloadBegin: () {
+                  loader?.stop();
+                  loader = Loading(context);
+                  loader?.start();
+                },
+                onDownloadEnd: () => loader?.stop(),
+              ),
+              text: LocaleKeys.button_download.tr(),
+              leftIcon: const FlowySvg(
+                FlowySvgs.save_as_s,
+                size: Size.square(20),
+              ),
+            ),
+          ],
           FlowyOptionTile.text(
             text: LocaleKeys.grid_media_delete.tr(),
             textColor: Theme.of(context).colorScheme.error,
