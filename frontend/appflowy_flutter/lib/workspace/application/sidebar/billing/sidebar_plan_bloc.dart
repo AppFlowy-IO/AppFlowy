@@ -167,6 +167,10 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
           ),
         );
       },
+      changedWorkspace: (workspaceId) {
+        emit(state.copyWith(workspaceId: workspaceId));
+        _checkWorkspaceUsage();
+      },
     );
   }
 
@@ -200,6 +204,10 @@ class SidebarPlanEvent with _$SidebarPlanEvent {
     SidebarToastTierIndicator indicator,
   ) = _UpdateTierIndicator;
   const factory SidebarPlanEvent.receiveError(FlowyError error) = _ReceiveError;
+
+  const factory SidebarPlanEvent.changedWorkspace({
+    required String workspaceId,
+  }) = _ChangedWorkspace;
 }
 
 @freezed
@@ -216,7 +224,6 @@ class SidebarPlanState with _$SidebarPlanState {
 
 @freezed
 class SidebarToastTierIndicator with _$SidebarToastTierIndicator {
-  // when start downloading the model
   const factory SidebarToastTierIndicator.storageLimitHit() = _StorageLimitHit;
   const factory SidebarToastTierIndicator.aiMaxiLimitHit() = _aiMaxLimitHit;
   const factory SidebarToastTierIndicator.loading() = _Loading;
