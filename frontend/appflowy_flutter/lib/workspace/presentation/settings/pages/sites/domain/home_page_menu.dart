@@ -65,28 +65,19 @@ class _SelectHomePageMenuState extends State<SelectHomePageMenu> {
           onSearch: (context, value) => _onSearch(value),
         ),
         const VSpace(10),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...views.map(
-                  (view) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: PublishInfoViewItem(
-                      publishInfoView: view,
-                      useIntrinsicWidth: false,
-                      onTap: () {
-                        context.read<SettingsSitesBloc>().add(
-                              SettingsSitesEvent.setHomePage(view.info.viewId),
-                            );
+        ...views.map(
+          (view) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: PublishInfoViewItem(
+              publishInfoView: view,
+              useIntrinsicWidth: false,
+              onTap: () {
+                context.read<SettingsSitesBloc>().add(
+                      SettingsSitesEvent.setHomePage(view.info.viewId),
+                    );
 
-                        PopoverContainer.of(context).close();
-                      },
-                    ),
-                  ),
-                ),
-              ],
+                PopoverContainer.of(context).close();
+              },
             ),
           ),
         ),

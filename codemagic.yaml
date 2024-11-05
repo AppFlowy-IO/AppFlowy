@@ -19,7 +19,19 @@ workflows:
     scripts:
       - name: Build Flutter
         script: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source "$HOME/.cargo/env"
+          rustc --version
+          cargo --version
+
           cd frontend
+
+          rustup target install aarch64-apple-ios-sim
+          cargo install cargo-make
+          cargo install --force duckscript_cli
+          cargo install cargo-lipo
+
+          cargo make appflowy-flutter-deps-tools
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
           cargo make --profile development-ios-arm64-sim code_generation
 
