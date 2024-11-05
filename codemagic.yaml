@@ -30,7 +30,8 @@ workflows:
       - name: iOS integration tests
         script: |
           cd frontend/appflowy_flutter
-          flutter test integration_test/runner.dart
+          flutter emulators --launch apple_ios_simulator
+          flutter -d iPhone test integration_test/runner.dart
 
     artifacts:
       - build/ios/ipa/*.ipa
