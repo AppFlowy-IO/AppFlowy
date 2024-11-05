@@ -171,7 +171,10 @@ class DateCellEditorBloc
               final reminderId = nanoid();
               await _updateDateData(
                 reminderId: reminderId,
-                date: state.dateTime ?? DateTime.now().withoutTime,
+                date: state.dateTime ??
+                    (state.includeTime
+                        ? DateTime.now()
+                        : DateTime.now().withoutTime),
               );
             } else if (state.dateTime != null) {
               // Update reminder
