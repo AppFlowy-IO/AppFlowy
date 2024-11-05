@@ -1,0 +1,50 @@
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: com.appflowy.appflowy
+
+      vars:
+        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Build Flutter
+        script: |
+          cd frontend
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+
+      - name: Build iOS
+        script: |
+          cd appflowy_flutter
+          flutter build ios --release --no-codesign
+
+      - name: iOS integration tests
+        script: |
+          flutter test integration_test/runner.dart
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+
+    publishing:
+      email:
+        recipients:
+          - lucas.xu@appflowy.io
+        notify:
+          success: true
+          failure: true
