@@ -481,11 +481,7 @@ class _MentionPageBlockContent extends StatelessWidget {
                     optimizeEmojiAlign: true,
                     color: AFThemeExtension.of(context).strongText,
                   )
-                : FlowySvg(
-                    view.layout.icon,
-                    size: Size.square(iconSize + 2.0),
-                    color: AFThemeExtension.of(context).strongText,
-                  ),
+                : view.defaultIcon(size: Size.square(iconSize + 2.0)),
             if (!isChildPage) ...[
               const Positioned(
                 right: 0,

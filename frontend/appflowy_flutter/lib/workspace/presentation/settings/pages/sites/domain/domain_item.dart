@@ -5,11 +5,13 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/colors.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/publish_info_view_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -40,7 +42,11 @@ class DomainItem extends StatelessWidget {
         ),
         // Homepage
         Expanded(
-          child: _buildHomepage(context),
+          child: Padding(
+            padding: const EdgeInsets.only(
+                left: SettingsPageSitesConstants.alignPadding,),
+            child: _buildHomepage(context),
+          ),
         ),
         // ... button
         DomainMoreAction(namespace: namespace),
@@ -91,6 +97,11 @@ class _HomePageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsSitesState = context.watch<SettingsSitesBloc>().state;
+    if (settingsSitesState.isLoading) {
+      return const SizedBox.shrink();
+    }
+
     final isOwner = context
             .watch<UserWorkspaceBloc>()
             .state
@@ -98,8 +109,8 @@ class _HomePageButton extends StatelessWidget {
             ?.role
             .isOwner ??
         false;
-    final homePageView = context.watch<SettingsSitesBloc>().state.homePageView;
 
+    final homePageView = settingsSitesState.homePageView;
     Widget child = homePageView == null
         ? _defaultHomePageButton(context)
         : PublishInfoViewItem(
@@ -108,43 +119,84 @@ class _HomePageButton extends StatelessWidget {
           );
 
     if (isOwner) {
-      child = AppFlowyPopover(
-        direction: PopoverDirection.bottomWithCenterAligned,
-        constraints: const BoxConstraints(
-          maxWidth: 260,
-          maxHeight: 345,
-        ),
-        margin: const EdgeInsets.symmetric(
-          horizontal: 14.0,
-          vertical: 12.0,
-        ),
-        popupBuilder: (_) {
-          final bloc = context.read<SettingsSitesBloc>();
-          return BlocProvider.value(
-            value: bloc,
-            child: SelectHomePageMenu(
-              userProfile: bloc.user,
-              workspaceId: bloc.workspaceId,
-              onSelected: (view) {},
-            ),
-          );
-        },
+      child = _buildHomePageButtonForOwner(
+        context,
+        homePageView: homePageView,
         child: child,
       );
     } else {
-      child = FlowyTooltip(
-        message: LocaleKeys
-            .settings_sites_namespace_onlyWorkspaceOwnerCanSetHomePage
-            .tr(),
-        child: IgnorePointer(
-          child: child,
-        ),
-      );
+      child = _buildHomePageButtonForNonOwner(context, child);
     }
 
     return Container(
       alignment: Alignment.centerLeft,
       child: child,
+    );
+  }
+
+  Widget _buildHomePageButtonForOwner(
+    BuildContext context, {
+    required PublishInfoViewPB? homePageView,
+    required Widget child,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppFlowyPopover(
+          direction: PopoverDirection.bottomWithCenterAligned,
+          constraints: const BoxConstraints(
+            maxWidth: 260,
+            maxHeight: 345,
+          ),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 14.0,
+            vertical: 12.0,
+          ),
+          popupBuilder: (_) {
+            final bloc = context.read<SettingsSitesBloc>();
+            return BlocProvider.value(
+              value: bloc,
+              child: SelectHomePageMenu(
+                userProfile: bloc.user,
+                workspaceId: bloc.workspaceId,
+                onSelected: (view) {},
+              ),
+            );
+          },
+          child: child,
+        ),
+        if (homePageView != null)
+          FlowyTooltip(
+            message: LocaleKeys.settings_sites_clearHomePage.tr(),
+            child: FlowyButton(
+              margin: const EdgeInsets.all(4.0),
+              useIntrinsicWidth: true,
+              onTap: () {
+                context.read<SettingsSitesBloc>().add(
+                      const SettingsSitesEvent.removeHomePage(),
+                    );
+              },
+              text: const FlowySvg(
+                FlowySvgs.close_m,
+                size: Size.square(18.0),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildHomePageButtonForNonOwner(
+    BuildContext context,
+    Widget child,
+  ) {
+    return FlowyTooltip(
+      message: LocaleKeys
+          .settings_sites_namespace_onlyWorkspaceOwnerCanSetHomePage
+          .tr(),
+      child: IgnorePointer(
+        child: child,
+      ),
     );
   }
 
@@ -168,6 +220,13 @@ class _FreePlanUpgradeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isOwner = context
+            .watch<UserWorkspaceBloc>()
+            .state
+            .currentWorkspaceMember
+            ?.role
+            .isOwner ??
+        false;
     return Container(
       alignment: Alignment.centerLeft,
       child: FlowyTooltip(
@@ -186,16 +245,26 @@ class _FreePlanUpgradeButton extends StatelessWidget {
           ),
           hoverColor: context.proSecondaryColor.withOpacity(0.9),
           onTap: () {
-            showToastNotification(
-              context,
-              message:
-                  LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
-              type: ToastificationType.info,
-            );
+            if (isOwner) {
+              showToastNotification(
+                context,
+                message:
+                    LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
+                type: ToastificationType.info,
+              );
 
-            context.read<SettingsSitesBloc>().add(
-                  const SettingsSitesEvent.upgradeSubscription(),
-                );
+              context.read<SettingsSitesBloc>().add(
+                    const SettingsSitesEvent.upgradeSubscription(),
+                  );
+            } else {
+              showToastNotification(
+                context,
+                message: LocaleKeys
+                    .settings_sites_namespace_pleaseAskOwnerToSetHomePage
+                    .tr(),
+                type: ToastificationType.info,
+              );
+            }
           },
         ),
       ),

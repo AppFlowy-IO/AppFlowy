@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.d
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -51,18 +50,9 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
       popupBuilder: (builderContext) {
         return BlocProvider.value(
           value: context.read<SettingsSitesBloc>(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildUpdateNamespaceButton(
-                context,
-                builderContext,
-              ),
-              _buildRemoveHomePageButton(
-                context,
-                builderContext,
-              ),
-            ],
+          child: _buildUpdateNamespaceButton(
+            context,
+            builderContext,
           ),
         );
       },
@@ -79,48 +69,16 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
       type: _ActionType.updateNamespace,
     );
 
-    return _onlyOwnerCanDoWidget(
-      context,
-      tooltipMessage: LocaleKeys
-          .settings_sites_error_onlyWorkspaceOwnerCanUpdateNamespace
-          .tr(),
-      child: child,
-    );
-  }
-
-  Widget _buildRemoveHomePageButton(
-    BuildContext context,
-    BuildContext builderContext,
-  ) {
     final plan = context.read<SettingsSitesBloc>().state.subscriptionInfo?.plan;
-    final homePageView = context.read<SettingsSitesBloc>().state.homePageView;
 
-    if (plan == null ||
-        plan == WorkspacePlanPB.FreePlan ||
-        homePageView == null) {
-      return const SizedBox.shrink();
+    if (plan != WorkspacePlanPB.ProPlan) {
+      return _buildForbiddenActionButton(
+        context,
+        tooltipMessage: LocaleKeys.settings_sites_namespace_upgradeToPro.tr(),
+        child: child,
+      );
     }
 
-    final child = _buildActionButton(
-      context,
-      builderContext,
-      type: _ActionType.removeHomePage,
-    );
-
-    return _onlyOwnerCanDoWidget(
-      context,
-      tooltipMessage: LocaleKeys
-          .settings_sites_error_onlyWorkspaceOwnerCanRemoveHomepage
-          .tr(),
-      child: child,
-    );
-  }
-
-  Widget _onlyOwnerCanDoWidget(
-    BuildContext context, {
-    required String tooltipMessage,
-    required Widget child,
-  }) {
     final isOwner = context
             .watch<UserWorkspaceBloc>()
             .state
@@ -130,19 +88,33 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
         false;
 
     if (!isOwner) {
-      return Opacity(
-        opacity: 0.5,
-        child: FlowyTooltip(
-          message: tooltipMessage,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.forbidden,
-            child: IgnorePointer(child: child),
-          ),
-        ),
+      return _buildForbiddenActionButton(
+        context,
+        tooltipMessage: LocaleKeys
+            .settings_sites_error_onlyWorkspaceOwnerCanUpdateNamespace
+            .tr(),
+        child: child,
       );
     }
 
     return child;
+  }
+
+  Widget _buildForbiddenActionButton(
+    BuildContext context, {
+    required String tooltipMessage,
+    required Widget child,
+  }) {
+    return Opacity(
+      opacity: 0.5,
+      child: FlowyTooltip(
+        message: tooltipMessage,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.forbidden,
+          child: IgnorePointer(child: child),
+        ),
+      ),
+    );
   }
 
   Widget _buildActionButton(

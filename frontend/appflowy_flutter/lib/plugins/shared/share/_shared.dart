@@ -21,39 +21,46 @@ class ShareMenuButton extends StatelessWidget {
     final shareBloc = context.read<ShareBloc>();
     final databaseBloc = context.read<DatabaseTabBarBloc?>();
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    return SizedBox(
-      height: 32.0,
-      child: IntrinsicWidth(
-        child: AppFlowyPopover(
-          direction: PopoverDirection.bottomWithRightAligned,
-          constraints: const BoxConstraints(
-            maxWidth: 500,
-          ),
-          offset: const Offset(0, 8),
-          onOpen: () {
-            context
-                .read<ShareBloc>()
-                .add(const ShareEvent.updatePublishStatus());
-          },
-          popupBuilder: (context) => MultiBlocProvider(
-            providers: [
-              if (databaseBloc != null)
-                BlocProvider.value(
-                  value: databaseBloc,
-                ),
-              BlocProvider.value(value: shareBloc),
-              BlocProvider.value(value: userWorkspaceBloc),
-            ],
-            child: ShareMenu(
-              tabs: tabs,
+    return BlocBuilder<ShareBloc, ShareState>(
+      builder: (context, state) {
+        return SizedBox(
+          height: 32.0,
+          child: IntrinsicWidth(
+            child: AppFlowyPopover(
+              direction: PopoverDirection.bottomWithRightAligned,
+              constraints: const BoxConstraints(
+                maxWidth: 500,
+              ),
+              offset: const Offset(0, 8),
+              onOpen: () {
+                context
+                    .read<ShareBloc>()
+                    .add(const ShareEvent.updatePublishStatus());
+              },
+              popupBuilder: (_) {
+                return MultiBlocProvider(
+                  providers: [
+                    if (databaseBloc != null)
+                      BlocProvider.value(
+                        value: databaseBloc,
+                      ),
+                    BlocProvider.value(value: shareBloc),
+                    BlocProvider.value(value: userWorkspaceBloc),
+                  ],
+                  child: ShareMenu(
+                    tabs: tabs,
+                    viewName: state.viewName,
+                  ),
+                );
+              },
+              child: PrimaryRoundedButton(
+                text: LocaleKeys.shareAction_buttonText.tr(),
+                figmaLineHeight: 16,
+              ),
             ),
           ),
-          child: PrimaryRoundedButton(
-            text: LocaleKeys.shareAction_buttonText.tr(),
-            figmaLineHeight: 16,
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

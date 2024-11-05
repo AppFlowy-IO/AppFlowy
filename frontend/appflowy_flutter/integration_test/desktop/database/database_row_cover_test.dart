@@ -62,9 +62,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
+      await tester.tapFileUploadHint();
 
       // Expect one file
       expect(find.byType(RenderMedia), findsOneWidget);

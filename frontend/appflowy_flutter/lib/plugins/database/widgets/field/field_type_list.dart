@@ -14,16 +14,16 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.SingleSelect,
   FieldType.MultiSelect,
   FieldType.DateTime,
+  FieldType.Media,
+  FieldType.URL,
   FieldType.Checkbox,
   FieldType.Checklist,
-  FieldType.URL,
   FieldType.LastEditedTime,
   FieldType.CreatedTime,
   FieldType.Relation,
   FieldType.Summary,
-  // FieldType.Time,
   FieldType.Translate,
-  FieldType.Media,
+  // FieldType.Time,
 ];
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
