@@ -16,9 +16,9 @@ import {
 import { nanoid } from 'nanoid';
 import Delta, { Op } from 'quill-delta';
 import {
+  BasePoint,
   BaseRange,
   Descendant,
-  Text,
   Editor,
   Element,
   Node,
@@ -26,8 +26,8 @@ import {
   Path,
   Point,
   Range,
+  Text,
   Transforms,
-  BasePoint,
 } from 'slate';
 import { ReactEditor } from 'slate-react';
 import * as Y from 'yjs';
@@ -180,12 +180,12 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
   const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
 
   if (yText.length === 0) {
+    const point = Editor.start(editor, at);
+
     if (blockType !== BlockType.Paragraph) {
-      handleNonParagraphBlockBackspaceAndEnterWithTxn(sharedRoot, block);
+      handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
       return;
     }
-
-    const point = Editor.start(editor, at);
 
     if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
       return;
@@ -293,6 +293,46 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
 
   // delete source block
   deleteBlock(sharedRoot, sourceBlock.get(YjsEditorKey.block_id));
+
+  // turn to toggle heading
+  if (type === BlockType.ToggleListBlock && (data as unknown as ToggleListBlockData).level) {
+    const nextSiblings = getNextSiblings(sharedRoot, newBlock);
+
+    if (!nextSiblings || nextSiblings.length === 0) return;
+    // find the next sibling with the same or higher level
+    const index = nextSiblings.findIndex((id) => {
+      const block = getBlock(id, sharedRoot);
+      const blockData = dataStringTOJson(block.get(YjsEditorKey.block_data));
+
+      if ('level' in blockData && (blockData as {
+        level: number
+      }).level <= ((data as unknown as ToggleListBlockData).level as number)) {
+        return true;
+      }
+
+      return false;
+    });
+
+    const nodes = index > -1 ? nextSiblings.slice(0, index) : nextSiblings;
+
+    // if not found, return. Otherwise, indent the block
+    nodes.forEach((id) => {
+      const block = getBlock(id, sharedRoot);
+
+      indentBlock(sharedRoot, block);
+    });
+  }
+}
+
+function getNextSiblings (sharedRoot: YSharedRoot, block: YBlock) {
+  const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
+
+  if (!parent) return;
+
+  const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
+  const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
+
+  return parentChildren.toArray().slice(index + 1);
 }
 
 function getSplitBlockOperations (sharedRoot: YSharedRoot, block: YBlock, offset: number): {
@@ -822,10 +862,26 @@ export function getBlockEntry (editor: YjsEditor, point?: Point) {
   return blockEntry as NodeEntry<Element>;
 }
 
-export function handleNonParagraphBlockBackspaceAndEnterWithTxn (sharedRoot: YSharedRoot, block: YBlock) {
+export function handleNonParagraphBlockBackspaceAndEnterWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: BasePoint) {
+  const data = dataStringTOJson(block.get(YjsEditorKey.block_data));
+  const blockType = block.get(YjsEditorKey.block_type);
+
+  if (blockType === BlockType.ToggleListBlock && (data as ToggleListBlockData).level) {
+    const [, path] = getBlockEntry(editor, point);
+
+    Transforms.setNodes(editor, {
+      data: {
+        ...data,
+        level: null,
+      },
+    }, { at: path });
+    return;
+  }
+
   const operations: (() => void)[] = [];
 
   operations.push(() => {
+
     turnToBlock(sharedRoot, block, BlockType.Paragraph, {});
   });
   executeOperations(sharedRoot, operations, 'turnToBlock');
