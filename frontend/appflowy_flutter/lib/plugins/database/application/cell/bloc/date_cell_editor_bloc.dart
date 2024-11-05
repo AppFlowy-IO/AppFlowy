@@ -59,10 +59,10 @@ class DateCellEditorBloc
             if (dateCellData.dateTime != null &&
                 state.reminderId.isEmpty &&
                 _reminderBloc.state.reminders
-                    .none((e) => e.id == cellReminderId)) {
-              final date = state.reminderOption.withoutTime
-                  ? dateCellData.dateTime!.withoutTime
-                  : dateCellData.dateTime!;
+                    .none((r) => r.id == cellReminderId)) {
+              final date = dateCellData.includeTime
+                  ? dateCellData.dateTime!
+                  : dateCellData.dateTime!.withoutTime;
 
               // Add Reminder
               _reminderBloc.add(
@@ -70,7 +70,8 @@ class DateCellEditorBloc
                   reminderId: cellReminderId,
                   objectId: cellController.viewId,
                   meta: {
-                    ReminderMetaKeys.includeTime: true.toString(),
+                    ReminderMetaKeys.includeTime:
+                        dateCellData.includeTime.toString(),
                     ReminderMetaKeys.rowId: cellController.rowId,
                   },
                   scheduledAt: Int64(
@@ -81,6 +82,18 @@ class DateCellEditorBloc
                   ),
                 ),
               );
+
+              emit(
+                state.copyWith(
+                  dateTime: dateCellData.dateTime,
+                  endDateTime: dateCellData.endDateTime,
+                  includeTime: dateCellData.includeTime,
+                  isRange: dateCellData.isRange,
+                  reminderId: dateCellData.reminderId,
+                  reminderOption: state.reminderOption,
+                ),
+              );
+              return;
             }
 
             ReminderOption option = state.reminderOption;
@@ -158,24 +171,17 @@ class DateCellEditorBloc
 
             await _clearDate();
           },
-          setReminderOption: (
-            ReminderOption option,
-          ) async {
+          setReminderOption: (ReminderOption option) async {
             if (option == ReminderOption.none && state.reminderId.isNotEmpty) {
-              _reminderBloc.add(
-                ReminderEvent.remove(reminderId: state.reminderId),
-              );
+              _reminderBloc
+                  .add(ReminderEvent.remove(reminderId: state.reminderId));
               await _updateDateData(reminderId: "");
             } else if (state.reminderId.isEmpty) {
               // New Reminder
               final reminderId = nanoid();
-              await _updateDateData(
-                reminderId: reminderId,
-                date: state.dateTime ??
-                    (state.includeTime
-                        ? DateTime.now()
-                        : DateTime.now().withoutTime),
-              );
+
+              emit(state.copyWith(reminderOption: option));
+              await _updateDateData(reminderId: reminderId);
             } else if (state.dateTime != null) {
               // Update reminder
               final scheduledAt =
