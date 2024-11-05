@@ -3,6 +3,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DesktopAppearance extends BaseAppearance {
   @override
@@ -48,7 +49,9 @@ class DesktopAppearance extends BaseAppearance {
 
     // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
     return ThemeData(
-      visualDensity: VisualDensity.standard,
+      visualDensity: UniversalPlatform.isMacOS || UniversalPlatform.isMobile
+          ? VisualDensity.standard
+          : VisualDensity.compact,
       useMaterial3: false,
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
