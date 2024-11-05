@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 /// Convert '# ' to bulleted list
@@ -35,6 +36,7 @@ CharacterShortcutEvent customFormatSignToHeading = CharacterShortcutEvent(
             level: numberOfSign,
             delta: delta.compose(Delta()..delete(numberOfSign)),
             collapsed: collapsed ?? false,
+            children: node.children.map((child) => child.copyWith()),
           ),
         ];
       }

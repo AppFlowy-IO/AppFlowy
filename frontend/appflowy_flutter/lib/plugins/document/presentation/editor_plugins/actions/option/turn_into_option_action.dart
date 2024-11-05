@@ -15,11 +15,13 @@ class TurnIntoOptionAction extends CustomActionCell {
   TurnIntoOptionAction({
     required this.editorState,
     required this.blockComponentBuilder,
+    required this.mutex,
   });
 
   final EditorState editorState;
   final Map<String, BlockComponentBuilder> blockComponentBuilder;
   final PopoverController innerController = PopoverController();
+  final PopoverMutex mutex;
 
   @override
   Widget buildWithContext(
@@ -27,21 +29,54 @@ class TurnIntoOptionAction extends CustomActionCell {
     PopoverController controller,
     PopoverMutex? mutex,
   ) {
+    return TurnInfoButton(
+      editorState: editorState,
+      blockComponentBuilder: blockComponentBuilder,
+      mutex: this.mutex,
+    );
+  }
+}
+
+class TurnInfoButton extends StatefulWidget {
+  const TurnInfoButton({
+    super.key,
+    required this.editorState,
+    required this.blockComponentBuilder,
+    required this.mutex,
+  });
+
+  final EditorState editorState;
+  final Map<String, BlockComponentBuilder> blockComponentBuilder;
+  final PopoverMutex mutex;
+
+  @override
+  State<TurnInfoButton> createState() => _TurnInfoButtonState();
+}
+
+class _TurnInfoButtonState extends State<TurnInfoButton> {
+  final PopoverController innerController = PopoverController();
+  bool isOpen = false;
+
+  @override
+  Widget build(BuildContext context) {
     return AppFlowyPopover(
       asBarrier: true,
       controller: innerController,
-      mutex: mutex,
-      popupBuilder: (context) => BlocProvider<BlockActionOptionCubit>(
-        create: (_) => BlockActionOptionCubit(
-          editorState: editorState,
-          blockComponentBuilder: blockComponentBuilder,
-        ),
-        child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
-          builder: (context, _) => _buildTurnIntoOptionMenu(context),
-        ),
-      ),
+      mutex: widget.mutex,
+      popupBuilder: (context) {
+        isOpen = true;
+        return BlocProvider<BlockActionOptionCubit>(
+          create: (context) => BlockActionOptionCubit(
+            editorState: widget.editorState,
+            blockComponentBuilder: widget.blockComponentBuilder,
+          ),
+          child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
+            builder: (context, _) => _buildTurnIntoOptionMenu(context),
+          ),
+        );
+      },
+      onClose: () => isOpen = false,
       direction: PopoverDirection.rightWithCenterAligned,
-      offset: const Offset(10, 0),
       animationDuration: Durations.short3,
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
@@ -50,13 +85,17 @@ class TurnIntoOptionAction extends CustomActionCell {
         // todo(lucas): replace the svg with the correct one
         leftIcon: const FlowySvg(FlowySvgs.turninto_s),
         name: LocaleKeys.document_plugins_optionAction_turnInto.tr(),
-        onTap: innerController.show,
+        onTap: () {
+          if (!isOpen) {
+            innerController.show();
+          }
+        },
       ),
     );
   }
 
   Widget _buildTurnIntoOptionMenu(BuildContext context) {
-    final selection = editorState.selection?.normalized;
+    final selection = widget.editorState.selection?.normalized;
     // the selection may not be collapsed, for example, if a block contains some children,
     // the selection will be the start from the current block and end at the last child block.
     // we should take care of this case:
@@ -66,7 +105,7 @@ class TurnIntoOptionAction extends CustomActionCell {
       return const SizedBox.shrink();
     }
 
-    final node = editorState.getNodeAtPath(selection.start.path);
+    final node = widget.editorState.getNodeAtPath(selection.start.path);
     if (node == null) {
       return const SizedBox.shrink();
     }
@@ -78,7 +117,7 @@ class TurnIntoOptionAction extends CustomActionCell {
   }
 
   bool _hasNonSupportedTypes(Selection selection) {
-    final nodes = editorState.getNodesInSelection(selection);
+    final nodes = widget.editorState.getNodesInSelection(selection);
     if (nodes.isEmpty) {
       return false;
     }

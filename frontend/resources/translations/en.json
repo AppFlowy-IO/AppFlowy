@@ -2495,7 +2495,7 @@
     "spaceIcon": "Icon",
     "dangerZone": "Danger Zone",
     "unableToDeleteLastSpace": "Unable to delete the last Space",
-    "unableToDeleteSpaceNotCreatedByYou": "Unable to delete Spaces created by others",
+    "unableToDeleteSpaceNotCreatedByYou": "Unable to delete spaces created by others",
     "enableSpacesForYourWorkspace": "Enable Spaces for your workspace",
     "title": "Spaces",
     "defaultSpaceName": "General",
