@@ -300,7 +300,7 @@ class DateCellEditorBloc
       typeOptionData: newDateTypeOption.writeToBuffer(),
     );
 
-    result.fold((_) => {}, (err) => Log.error(err));
+    result.onFailure(Log.error);
   }
 }
 
