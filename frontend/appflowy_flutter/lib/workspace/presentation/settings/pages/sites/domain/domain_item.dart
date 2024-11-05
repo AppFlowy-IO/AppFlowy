@@ -42,11 +42,7 @@ class DomainItem extends StatelessWidget {
         ),
         // Homepage
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(
-                left: SettingsPageSitesConstants.alignPadding,),
-            child: _buildHomepage(context),
-          ),
+          child: _buildHomepage(context),
         ),
         // ... button
         DomainMoreAction(namespace: namespace),
@@ -85,7 +81,12 @@ class DomainItem extends StatelessWidget {
 
     final isFreePlan = plan == WorkspacePlanPB.FreePlan;
     if (isFreePlan) {
-      return const _FreePlanUpgradeButton();
+      return const Padding(
+        padding: EdgeInsets.only(
+          left: SettingsPageSitesConstants.alignPadding,
+        ),
+        child: _FreePlanUpgradeButton(),
+      );
     }
 
     return const _HomePageButton();

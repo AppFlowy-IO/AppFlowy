@@ -445,7 +445,7 @@
       "removeHomepage": "Remove homepage",
       "selectHomePage": "Select a page",
       "clearHomePage": "Clear the home page for this namespace",
-      "customUrl": "Custom url",
+      "customUrl": "Custom URL",
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
