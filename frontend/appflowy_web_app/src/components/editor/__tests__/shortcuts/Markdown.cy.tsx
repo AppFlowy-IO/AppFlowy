@@ -544,6 +544,37 @@ describe('Markdown editing', () => {
     cy.wait(500);
     cy.get('@editor').realPress('ArrowRight');
     cy.get('@editor').realPress('Enter');
+    cy.get('@editor').realPress(['Shift', 'Tab']);
+
+    // Test 8: Link
+    cy.get('@editor').type('Link: [Click here](https://example.com');
+    cy.get('@editor').realPress(')');
+    assertJSON([
+      ...expectedJson,
+      {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Link: ' }, {
+          insert: 'Click here',
+          attributes: { href: 'https://example.com' },
+        }],
+        children: [],
+      },
+    ]);
+    cy.get('@editor').type('link anchor');
+    expectedJson = [
+      ...expectedJson,
+      {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Link: ' }, {
+          insert: 'Click here',
+          attributes: { href: 'https://example.com' },
+        }, { insert: 'link anchor' }],
+        children: [],
+      },
+    ];
+    assertJSON(expectedJson);
     cy.get('@editor').realPress('Enter');
     //
     // Last test: Divider
