@@ -58,8 +58,8 @@ class DateCellEditorBloc
 
             if (dateCellData.dateTime != null &&
                 state.reminderId.isEmpty &&
-                !_reminderBloc.state.reminders
-                    .any((e) => e.id == cellReminderId)) {
+                _reminderBloc.state.reminders
+                    .none((e) => e.id == cellReminderId)) {
               final date = state.reminderOption.withoutTime
                   ? dateCellData.dateTime!.withoutTime
                   : dateCellData.dateTime!;
