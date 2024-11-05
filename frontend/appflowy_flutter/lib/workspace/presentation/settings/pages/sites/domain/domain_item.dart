@@ -54,20 +54,23 @@ class DomainItem extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.only(right: 12.0),
-      child: FlowyButton(
-        useIntrinsicWidth: true,
-        text: FlowyText(
-          namespaceUrl,
-          fontSize: 14.0,
-          overflow: TextOverflow.ellipsis,
+      child: FlowyTooltip(
+        message: '${LocaleKeys.shareAction_visitSite.tr()}\n$namespaceUrl',
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          text: FlowyText(
+            namespaceUrl,
+            fontSize: 14.0,
+            overflow: TextOverflow.ellipsis,
+          ),
+          onTap: () {
+            final namespaceUrl = ShareConstants.buildNamespaceUrl(
+              nameSpace: namespace,
+              withHttps: true,
+            );
+            afLaunchUrlString(namespaceUrl);
+          },
         ),
-        onTap: () {
-          final namespaceUrl = ShareConstants.buildNamespaceUrl(
-            nameSpace: namespace,
-            withHttps: true,
-          );
-          afLaunchUrlString(namespaceUrl);
-        },
       ),
     );
   }
@@ -179,7 +182,7 @@ class _HomePageButton extends StatelessWidget {
               },
               text: const FlowySvg(
                 FlowySvgs.close_m,
-                size: Size.square(18.0),
+                size: Size.square(19.0),
               ),
             ),
           ),
