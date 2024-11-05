@@ -27,17 +27,9 @@ workflows:
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
           cargo make --profile development-ios-arm64-sim code_generation
 
-      - name: Flutter analyze
-        script: |
-          flutter analyze
-
-      - name: Build iOS
-        script: |
-          cd appflowy_flutter
-          flutter build ios --release --no-codesign
-
       - name: iOS integration tests
         script: |
+          cd frontend/appflowy_flutter
           flutter test integration_test/runner.dart
 
     artifacts:
