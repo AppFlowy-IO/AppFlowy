@@ -4,14 +4,6 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 30
     environment:
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: com.appflowy.appflowy
-
-      vars:
-        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
-        XCODE_SCHEME: "Runner"
-
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -27,9 +19,9 @@ workflows:
           cd frontend
 
           rustup target install aarch64-apple-ios-sim
-          cargo install cargo-make
+          cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo install cargo-lipo
+          cargo install --force cargo-lipo
 
           cargo make appflowy-flutter-deps-tools
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
