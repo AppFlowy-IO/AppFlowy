@@ -180,11 +180,14 @@ pub fn select_upload_parts(
 pub fn batch_select_upload_file(
   mut conn: DBConnection,
   limit: i32,
+  is_finish: bool,
 ) -> FlowyResult<Vec<UploadFileTable>> {
   let results = upload_file_table::dsl::upload_file_table
+    .filter(upload_file_table::is_finish.eq(is_finish))
     .order(upload_file_table::created_at.desc())
     .limit(limit.into())
-    .load::<UploadFileTable>(&mut conn)?;
+    .load::<UploadFileTable>(&mut *conn)?;
+
   Ok(results)
 }
 

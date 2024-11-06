@@ -37,7 +37,7 @@ class FileStorageService {
         final fileProgress = FileProgress.fromJsonString(event);
         if (fileProgress != null) {
           Log.debug(
-            "Upload progress: file: ${fileProgress.fileUrl} ${fileProgress.progress}",
+            "FileStorageService upload file: ${fileProgress.fileUrl} ${fileProgress.progress}",
           );
           final notifier = _notifierList[fileProgress.fileUrl];
           if (notifier != null) {
