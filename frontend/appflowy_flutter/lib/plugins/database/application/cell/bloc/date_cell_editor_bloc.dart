@@ -62,11 +62,8 @@ class DateCellEditorBloc
               final reminder = _reminderBloc.state.reminders
                   .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
               if (reminder != null) {
-                final eventDate = dateCellData.includeTime
-                    ? dateCellData.dateTime!
-                    : dateCellData.dateTime!.withoutTime;
                 reminderOption = ReminderOption.fromDateDifference(
-                  eventDate,
+                  dateCellData.dateTime!,
                   reminder.scheduledAt.toDateTime(),
                 );
               }
@@ -122,10 +119,7 @@ class DateCellEditorBloc
             await _clearDate();
           },
           setReminderOption: (ReminderOption option) async {
-            for (final reminder in _reminderBloc.state.reminders) {
-              _reminderBloc.add(ReminderEvent.remove(reminderId: reminder.id));
-            }
-            // await _setReminderOption(option);
+            await _setReminderOption(option);
           },
         );
       },
