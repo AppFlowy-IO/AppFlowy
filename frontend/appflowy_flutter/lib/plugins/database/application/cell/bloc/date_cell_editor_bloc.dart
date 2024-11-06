@@ -208,9 +208,7 @@ class DateCellEditorBloc
             ReminderMetaKeys.rowId: cellController.rowId,
           },
           scheduledAt: Int64(
-            state.reminderOption
-                    .getNotificationDateTime(dateTime)
-                    .millisecondsSinceEpoch ~/
+            option.getNotificationDateTime(dateTime).millisecondsSinceEpoch ~/
                 1000,
           ),
         ),
@@ -262,7 +260,7 @@ class DateCellEditorBloc
         ReminderUpdate(
           id: state.reminderId,
           scheduledAt: scheduledAt,
-          includeTime: true,
+          includeTime: state.includeTime,
         ),
       ),
     );
