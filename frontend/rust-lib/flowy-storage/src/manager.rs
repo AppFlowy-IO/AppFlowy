@@ -107,7 +107,7 @@ impl StorageManager {
       while let Ok(progress) = rx.recv().await {
         if let Some(notifiers) = weak_notifier.upgrade() {
           if let Some(mut notifier) = notifiers.get_mut(&progress.file_id) {
-            if progress.progress == 1.0 {
+            if progress.progress >= 1.0 {
               let finish = FileUploadState::Finished {
                 file_id: progress.file_id,
               };
@@ -119,6 +119,9 @@ impl StorageManager {
               notifier.notify(progress).await;
             }
           }
+        } else {
+          info!("progress notifiers is dropped");
+          break;
         }
       }
     });
@@ -603,7 +606,11 @@ async fn start_upload(
     .await
     {
       Ok(resp) => {
-        let progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
+        let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
+        // The 0.1 is reserved for the complete_upload progress
+        if progress_value >= 0.9 {
+          progress_value = 0.9;
+        }
         let progress =
           FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
         trace!("[File] upload progress: {}", progress);
@@ -751,11 +758,6 @@ async fn complete_upload(
   parts: Vec<CompletedPartRequest>,
   global_notifier: &GlobalNotifier,
 ) -> Result<(), FlowyError> {
-  trace!(
-    "[File]: completing file upload: {}, num parts: {}",
-    upload_file.file_id,
-    parts.len()
-  );
   let file_url = cloud_service
     .get_object_url_v1(
       &upload_file.workspace_id,
@@ -764,6 +766,12 @@ async fn complete_upload(
     )
     .await?;
 
+  info!(
+    "[File]: completing file upload: {}, num parts: {}, url:{}",
+    upload_file.file_id,
+    parts.len(),
+    file_url
+  );
   match cloud_service
     .complete_upload(
       &upload_file.workspace_id,
@@ -796,6 +804,8 @@ async fn complete_upload(
       }
     },
     Err(err) => {
+      error!("[File] complete upload failed: {}", err);
+
       let progress =
         FileProgress::new_error(file_url, upload_file.file_id.clone(), err.msg.clone());
       if let Err(send_err) = global_notifier.send(progress) {
