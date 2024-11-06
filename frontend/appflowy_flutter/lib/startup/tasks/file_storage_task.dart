@@ -19,10 +19,7 @@ class FileStorageTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    context.getIt.registerSingleton(
-      FileStorageService(),
-      dispose: (service) async => service.dispose(),
-    );
+    context.getIt.registerSingleton(FileStorageService());
   }
 
   @override
@@ -131,6 +128,10 @@ class FileProgress {
   final double progress;
   final String fileUrl;
   final String? error;
+
+  @override
+  String toString() =>
+      'FileProgress(progress: $progress, fileUrl: $fileUrl, error: $error)';
 }
 
 class AutoRemoveNotifier<T> extends ValueNotifier<T> {

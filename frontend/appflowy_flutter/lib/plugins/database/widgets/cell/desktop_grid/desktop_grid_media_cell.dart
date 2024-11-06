@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_media_upl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -42,19 +43,25 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
     Widget child = BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {
         final wrapContent = context.read<MediaCellBloc>().wrapContent;
-        final List<Widget> children = state.files
-            .map<Widget>(
-              (file) => GestureDetector(
-                onTap: () => _openOrExpandFile(context, file, state.files),
-                child: Padding(
-                  padding: wrapContent
-                      ? const EdgeInsets.only(right: 4)
-                      : EdgeInsets.zero,
-                  child: _FilePreviewRender(file: file),
+        final List<Widget> children = state.files.map<Widget>(
+          (file) {
+            final fileUploadProgress = state.uploadProgress
+                .firstWhereOrNull((u) => u.fileId == file.id);
+
+            return GestureDetector(
+              onTap: () => _openOrExpandFile(context, file, state.files),
+              child: Padding(
+                padding: wrapContent
+                    ? const EdgeInsets.only(right: 4)
+                    : EdgeInsets.zero,
+                child: _FilePreviewRender(
+                  file: file,
+                  progress: fileUploadProgress,
                 ),
               ),
-            )
-            .toList();
+            );
+          },
+        ).toList();
 
         if (isMobileRowDetail && state.files.isEmpty) {
           children.add(
@@ -221,12 +228,36 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
 }
 
 class _FilePreviewRender extends StatelessWidget {
-  const _FilePreviewRender({required this.file});
+  const _FilePreviewRender({required this.file, this.progress});
 
   final MediaFilePB file;
+  final MediaUploadProgress? progress;
 
   @override
   Widget build(BuildContext context) {
+    if (progress != null &&
+        progress!.uploadState != MediaUploadState.completed) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        height: 24,
+        width: 24,
+        child: Stack(
+          children: [
+            CircularProgressIndicator(
+              value: progress!.fileProgress.progress,
+              strokeWidth: 1.5,
+            ),
+            Center(
+              child: FlowyText(
+                '${progress!.fileProgress.progress.floor() * 100}%',
+                fontSize: 8,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (file.fileType != MediaFileTypePB.Image) {
       return FlowyTooltip(
         message: file.name,
