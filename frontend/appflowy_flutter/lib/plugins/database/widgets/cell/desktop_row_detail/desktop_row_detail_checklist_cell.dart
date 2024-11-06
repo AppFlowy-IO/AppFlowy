@@ -346,7 +346,7 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
               focusNode: focusNode,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 10,
-                vertical: 10,
+                vertical: 8,
               ),
             ),
           ),
