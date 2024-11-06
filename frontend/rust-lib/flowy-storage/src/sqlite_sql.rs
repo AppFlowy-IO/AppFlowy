@@ -137,6 +137,14 @@ pub fn delete_upload_file(mut conn: DBConnection, upload_id: &str) -> FlowyResul
   Ok(())
 }
 
+pub fn delete_all_upload_parts(mut conn: DBConnection, upload_id: &str) -> FlowyResult<()> {
+  diesel::delete(
+    upload_file_part::dsl::upload_file_part.filter(upload_file_part::upload_id.eq(upload_id)),
+  )
+  .execute(&mut *conn)?;
+  Ok(())
+}
+
 pub fn insert_upload_part(
   mut conn: DBConnection,
   upload_part: &UploadFilePartTable,
