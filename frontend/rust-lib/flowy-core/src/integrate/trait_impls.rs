@@ -348,7 +348,7 @@ impl FolderCloudService for ServerProvider {
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,
-    new_namespace: &str,
+    new_namespace: String,
   ) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server

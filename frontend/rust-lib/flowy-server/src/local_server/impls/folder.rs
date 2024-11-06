@@ -98,7 +98,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
   async fn set_publish_namespace(
     &self,
     _workspace_id: &str,
-    _new_namespace: &str,
+    _new_namespace: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }

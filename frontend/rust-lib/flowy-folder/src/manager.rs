@@ -1298,11 +1298,11 @@ impl FolderManager {
   /// Get the namespace of the current workspace.
   /// The namespace is used to generate the URL of the published view.
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn set_publish_namespace(&self, namespace: String) -> FlowyResult<()> {
+  pub async fn set_publish_namespace(&self, new_namespace: String) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
     self
       .cloud_service
-      .set_publish_namespace(workspace_id.as_str(), namespace.as_str())
+      .set_publish_namespace(workspace_id.as_str(), new_namespace)
       .await?;
     Ok(())
   }

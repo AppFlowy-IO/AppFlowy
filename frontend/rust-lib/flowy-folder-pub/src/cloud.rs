@@ -72,7 +72,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,
-    new_namespace: &str,
+    new_namespace: String,
   ) -> Result<(), FlowyError>;
 
   async fn list_published_views(

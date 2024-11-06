@@ -268,13 +268,12 @@ where
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,
-    new_namespace: &str,
+    new_namespace: String,
   ) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
-    let namespace = new_namespace.to_string();
     let try_get_client = self.inner.try_get_client();
     try_get_client?
-      .set_workspace_publish_namespace(&workspace_id, &namespace)
+      .set_workspace_publish_namespace(&workspace_id, new_namespace)
       .await?;
     Ok(())
   }
