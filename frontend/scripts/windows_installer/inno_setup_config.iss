@@ -14,7 +14,7 @@ VersionInfoVersion={#AppVersion}
 UsePreviousAppDir=no
 
 [Files]
-Source: "AppFlowy\AppFlowy.exe";DestDir: "{app}";DestName: "AppFlowy.exe"
+Source: "AppFlowy\AppFlowy.exe"; DestDir: "{app}"; DestName: "AppFlowy.exe"; Flags: ignoreversion
 Source: "AppFlowy\*";DestDir: "{app}"
 Source: "AppFlowy\data\*";DestDir: "{app}\data\"; Flags: recursesubdirs
 
