@@ -57,11 +57,9 @@ void main() {
           .single
           .widget as AppFlowyEditorPage;
       return editorPage.styleCustomizer
-              .style()
-              .textStyleConfiguration
-              .text
-              .height ??
-          PageStyleLineHeightLayout.normal.lineHeight;
+          .style()
+          .textStyleConfiguration
+          .lineHeight;
     }
 
     testWidgets('change font size in page style settings', (tester) async {
@@ -87,21 +85,24 @@ void main() {
       await tester.openPage(gettingStarted);
       // click the layout button
       await tester.tapButton(find.byType(MobileViewPageLayoutButton));
+      var lineHeight = getCurrentEditorLineHeight();
       expect(
-        getCurrentEditorLineHeight(),
+        lineHeight,
         PageStyleLineHeightLayout.normal.lineHeight,
       );
       // change line height from normal to large
       await tester.tapSvgButton(FlowySvgs.m_layout_large_s);
       await tester.pumpAndSettle();
+      lineHeight = getCurrentEditorLineHeight();
       expect(
-        getCurrentEditorLineHeight(),
+        lineHeight,
         PageStyleLineHeightLayout.large.lineHeight,
       );
       // change line height from large to small
       await tester.tapSvgButton(FlowySvgs.m_layout_small_s);
+      lineHeight = getCurrentEditorLineHeight();
       expect(
-        getCurrentEditorLineHeight(),
+        lineHeight,
         PageStyleLineHeightLayout.small.lineHeight,
       );
     });
