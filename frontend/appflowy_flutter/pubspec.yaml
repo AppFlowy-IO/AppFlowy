@@ -50,7 +50,7 @@ dependencies:
   envied: ^0.5.2
   equatable: ^2.0.5
   expandable: ^5.0.1
-  extended_text_field: ^15.0.0
+  extended_text_field: ^16.0.0
   extended_text_library: ^12.0.0
   file: ^7.0.0
   fixnum: ^1.1.0
