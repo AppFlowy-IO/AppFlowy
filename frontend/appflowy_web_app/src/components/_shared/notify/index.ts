@@ -1,19 +1,19 @@
 import { InfoProps } from '@/components/_shared/notify/InfoSnackbar';
-import { lazy } from 'react';
+import React, { lazy } from 'react';
 
 export const InfoSnackbar = lazy(() => import('./InfoSnackbar'));
 
 export const notify = {
-  success: (message: string) => {
+  success: (message: string | React.ReactNode) => {
     window.toast.success(message);
   },
-  error: (message: string) => {
+  error: (message: string | React.ReactNode) => {
     window.toast.error(message);
   },
-  default: (message: string) => {
+  default: (message: string | React.ReactNode) => {
     window.toast.default(message);
   },
-  warning: (message: string) => {
+  warning: (message: string | React.ReactNode) => {
     window.toast.warning(message);
   },
   info: (props: InfoProps) => {

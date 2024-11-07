@@ -32,7 +32,7 @@ import {
   DatabaseRelations,
   DuplicatePublishView,
   SubscriptionInterval, SubscriptionPlan,
-  Types,
+  Types, UpdatePagePayload, ViewLayout,
   YjsEditorKey,
 } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
@@ -380,8 +380,8 @@ export class AFClientService implements AFService {
     return APIService.deleteTemplateCreator(creatorId);
   }
 
-  async uploadFileToCDN (file: File) {
-    return APIService.uploadFileToCDN(file);
+  async uploadTemplateAvatar (file: File) {
+    return APIService.uploadTemplateAvatar(file);
   }
 
   async getPageDoc (workspaceId: string, viewId: string, errorCallback?: (error: {
@@ -478,5 +478,29 @@ export class AFClientService implements AFService {
     const task = await APIService.createImportTask(file);
 
     await APIService.uploadImportFile(task.presignedUrl, file, onProgress);
+  }
+
+  async addAppPage (workspaceId: string, parentViewId: string, layout: ViewLayout) {
+    return APIService.addAppPage(workspaceId, parentViewId, layout);
+  }
+
+  async updateAppPage (workspaceId: string, viewId: string, data: UpdatePagePayload) {
+    return APIService.updatePage(workspaceId, viewId, data);
+  }
+
+  async deleteTrash (workspaceId: string, viewId?: string) {
+    return APIService.deleteTrash(workspaceId, viewId);
+  }
+
+  async moveToTrash (workspaceId: string, viewId: string) {
+    return APIService.moveToTrash(workspaceId, viewId);
+  }
+
+  async restoreFromTrash (workspaceId: string, viewId?: string) {
+    return APIService.restorePage(workspaceId, viewId);
+  }
+
+  async movePage (workspaceId: string, viewId: string, parentId: string) {
+    return APIService.movePageTo(workspaceId, viewId, parentId);
   }
 }

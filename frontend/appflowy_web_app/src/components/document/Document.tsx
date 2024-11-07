@@ -1,4 +1,4 @@
-import { CreateRowDoc, LoadView, LoadViewMeta, YDoc, YjsEditorKey } from '@/application/types';
+import { CreateRowDoc, LoadView, LoadViewMeta, UpdatePagePayload, YDoc, YjsEditorKey } from '@/application/types';
 import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
 import { EditorVariant } from '@/components/editor/EditorContext';
@@ -17,6 +17,7 @@ export interface DocumentProps {
   isTemplateThumb?: boolean;
   variant?: EditorVariant;
   onRendered?: () => void;
+  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
 }
 
 export const Document = ({
@@ -30,6 +31,7 @@ export const Document = ({
   isTemplateThumb,
   variant,
   onRendered,
+  updatePage,
 }: DocumentProps) => {
   const [search, setSearch] = useSearchParams();
   const blockId = search.get('blockId') || undefined;
@@ -51,7 +53,10 @@ export const Document = ({
       }}
       className={'flex h-full w-full flex-col items-center'}
     >
-      <ViewMetaPreview {...viewMeta} />
+      <ViewMetaPreview
+        {...viewMeta} readOnly={readOnly}
+        updatePage={updatePage}
+      />
       <Suspense fallback={<EditorSkeleton />}>
         <div className={'flex justify-center w-full'}>
           <Editor

@@ -1609,6 +1609,7 @@
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "Creating...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "Select a Board to link to",
@@ -2617,7 +2618,10 @@
     "importSuccess": "Uploaded successfully",
     "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
     "importFailed": "Import failed, please check the file format",
-    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse"
+    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse",
+    "error": {
+      "pageNameIsEmpty": "The page name is empty, please try another one"
+    }
   },
   "globalComment": {
     "comments": "Comments",

@@ -156,7 +156,6 @@ export function Favorite () {
         onClose={() => setMoreOpened(false)}
       >
         <div className={'flex w-[240px] flex-col gap-2 px-2 py-2'}>
-
           {groupByViews}
         </div>
       </Popover>

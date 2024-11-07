@@ -9,7 +9,7 @@ function SideBarBottom () {
 
   return (
     <div
-      className={'flex border-t border-line-divider py-4 px-4 gap-1 justify-between items-center sticky bottom-0 bg-bg-body'}
+      className={'flex border-t border-line-divider py-4 px-4 gap-1 justify-between items-center sticky bottom-0 bg-bg-base'}
     >
       <Button
         startIcon={<TemplateIcon className={'h-5 w-5'} />}
@@ -23,7 +23,10 @@ function SideBarBottom () {
       >
         {t('template.label')}
       </Button>
-      <Divider orientation={'vertical'} flexItem />
+      <Divider
+        orientation={'vertical'}
+        flexItem
+      />
       <Trash />
     </div>
   );

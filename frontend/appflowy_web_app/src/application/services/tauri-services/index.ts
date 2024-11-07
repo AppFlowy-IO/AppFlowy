@@ -170,7 +170,7 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
-  uploadFileToCDN (_file: File): Promise<string> {
+  uploadTemplateAvatar (_file: File): Promise<string> {
     return Promise.resolve('');
   }
 
@@ -263,6 +263,30 @@ export class AFClientService implements AFService {
   }
 
   importFile (_file: File, _onProgress: (progress: number) => void) {
+    return Promise.reject('Method not implemented');
+  }
+
+  addAppPage (): Promise<string> {
+    return Promise.reject('Method not implemented');
+  }
+
+  deleteTrash (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  movePage (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  moveToTrash (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  restoreFromTrash (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  updateAppPage (): Promise<void> {
     return Promise.reject('Method not implemented');
   }
 }

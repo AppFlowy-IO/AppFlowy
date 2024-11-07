@@ -1,5 +1,6 @@
 import { NormalModal } from '@/components/_shared/modal';
 import MoreActions from '@/components/_shared/more-actions/MoreActions';
+import { useAppViewId } from '@/components/app/app.hooks';
 import { openOrDownload } from '@/utils/open_schema';
 import { Button, Divider, Tooltip } from '@mui/material';
 import React from 'react';
@@ -11,11 +12,12 @@ import { ReactComponent as EditOutlined } from '@/assets/edit.svg';
 function RightMenu () {
   const { t } = useTranslation();
   const [comingSoon, setComingSoon] = React.useState(false);
+  const viewId = useAppViewId();
 
   return (
     <div className={'flex items-center gap-2'}>
       <MoreActions />
-      <ShareButton />
+      {viewId && <ShareButton viewId={viewId} />}
       <Button
         size={'small'}
         startIcon={<EditOutlined />}

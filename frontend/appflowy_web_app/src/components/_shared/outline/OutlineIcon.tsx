@@ -12,7 +12,8 @@ function OutlineIcon ({ isExpanded, setIsExpanded, level }: {
         style={{
           paddingLeft: 1.125 * level + 'em',
         }}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           setIsExpanded(false);
         }}
         className={'opacity-50 hover:opacity-100'}
@@ -28,7 +29,8 @@ function OutlineIcon ({ isExpanded, setIsExpanded, level }: {
         paddingLeft: 1.125 * level + 'em',
       }}
       className={'opacity-50 hover:opacity-100'}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         setIsExpanded(true);
       }}
     >

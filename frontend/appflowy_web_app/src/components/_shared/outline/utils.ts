@@ -58,6 +58,31 @@ export function filterOutViewsByLayout (views: View[], layout: ViewLayout): View
   return filterOut(views);
 }
 
+export function filterOutByCondition (views: View[], condition: (view: View) => {
+  remove: boolean;
+}): View[] {
+  const filterOut = (views: View[]): View[] => {
+    const result: View[] = [];
+
+    for (const view of views) {
+      const { remove } = condition(view);
+
+      if (remove) {
+        continue;
+      }
+
+      const newView = { ...view };
+
+      newView.children = filterOut(view.children);
+      result.push(newView);
+    }
+
+    return result;
+  };
+
+  return filterOut(views);
+}
+
 export function findAncestors (data: View[], targetId: string, currentPath: View[] = []): View[] | null {
   for (const item of data) {
     const newPath = [...currentPath, item];
@@ -94,4 +119,26 @@ export function findView (data: View[], targetId: string): View | null {
   }
 
   return null;
+}
+
+export function getOutlineExpands () {
+  const expandView = localStorage.getItem('outline_expanded');
+
+  try {
+    return JSON.parse(expandView || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+
+export function setOutlineExpands (viewId: string, isExpanded: boolean) {
+  const expands = getOutlineExpands();
+
+  if (isExpanded) {
+    expands[viewId] = true;
+  } else {
+    delete expands[viewId];
+  }
+
+  localStorage.setItem('outline_expanded', JSON.stringify(expands));
 }
