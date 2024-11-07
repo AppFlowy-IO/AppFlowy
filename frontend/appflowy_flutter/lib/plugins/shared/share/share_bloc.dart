@@ -51,7 +51,15 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
         unPublish: () async => _unpublish(emit),
         updatePublishStatus: () async => _updatePublishStatus(emit),
         updateViewName: (viewName, viewId) async {
-          emit(state.copyWith(viewName: viewName, viewId: viewId));
+          emit(
+            state.copyWith(
+              viewName: viewName,
+              viewId: viewId,
+              updatePathNameResult: null,
+              publishResult: null,
+              unpublishResult: null,
+            ),
+          );
         },
         setPublishStatus: (isPublished) {
           emit(

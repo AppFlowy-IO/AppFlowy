@@ -640,6 +640,7 @@ SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
     LocaleKeys.document_slashMenu_subPage_keyword5.tr(),
     LocaleKeys.document_slashMenu_subPage_keyword6.tr(),
     LocaleKeys.document_slashMenu_subPage_keyword7.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword8.tr(),
   ],
   updateSelection: (_, path, __, ___) =>
       Selection.collapsed(Position(path: path)),

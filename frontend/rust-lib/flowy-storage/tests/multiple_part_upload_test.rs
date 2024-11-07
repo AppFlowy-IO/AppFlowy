@@ -42,7 +42,7 @@ async fn test_insert_new_upload() {
 
   // select
   let conn = db.get_connection().unwrap();
-  let records = batch_select_upload_file(conn, 100).unwrap();
+  let records = batch_select_upload_file(conn, 100, false).unwrap();
 
   assert_eq!(records.len(), 5);
   // compare the upload id order is the same as upload_ids
@@ -55,7 +55,7 @@ async fn test_insert_new_upload() {
   }
 
   let conn = db.get_connection().unwrap();
-  let records = batch_select_upload_file(conn, 100).unwrap();
+  let records = batch_select_upload_file(conn, 100, false).unwrap();
   assert!(records.is_empty());
 }
 

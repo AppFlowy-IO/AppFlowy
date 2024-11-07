@@ -2,9 +2,9 @@ use crate::entities::FileStatePB;
 use crate::file_cache::FileTempStorage;
 use crate::notification::{make_notification, StorageNotification};
 use crate::sqlite_sql::{
-  batch_select_upload_file, delete_upload_file, insert_upload_file, insert_upload_part,
-  is_upload_completed, select_upload_file, select_upload_parts, update_upload_file_completed,
-  update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
+  batch_select_upload_file, delete_all_upload_parts, delete_upload_file, insert_upload_file,
+  insert_upload_part, is_upload_completed, select_upload_file, select_upload_parts,
+  update_upload_file_completed, update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
 };
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use allo_isolate::Isolate;
@@ -64,7 +64,7 @@ impl StorageManager {
       "{}/cache_files",
       user_service.get_application_root_dir()
     ));
-    let (global_notifier, _) = broadcast::channel(1000);
+    let (global_notifier, _) = broadcast::channel(2000);
     let temp_storage = Arc::new(FileTempStorage::new(temp_storage_path));
     let (notifier, notifier_rx) = watch::channel(Signal::Proceed);
     let task_queue = Arc::new(UploadTaskQueue::new(notifier));
@@ -97,6 +97,31 @@ impl StorageManager {
       if let Some(uploader) = weak_uploader.upgrade() {
         if let Err(err) = prepare_upload_task(uploader, cloned_user_service).await {
           error!("prepare upload task failed: {}", err);
+        }
+      }
+    });
+
+    let mut rx = global_notifier.subscribe();
+    let weak_notifier = Arc::downgrade(&progress_notifiers);
+    tokio::spawn(async move {
+      while let Ok(progress) = rx.recv().await {
+        if let Some(notifiers) = weak_notifier.upgrade() {
+          if let Some(mut notifier) = notifiers.get_mut(&progress.file_id) {
+            if progress.progress >= 1.0 {
+              let finish = FileUploadState::Finished {
+                file_id: progress.file_id,
+              };
+              notifier.notify(finish).await;
+            } else {
+              let progress = FileUploadState::Uploading {
+                progress: progress.progress,
+              };
+              notifier.notify(progress).await;
+            }
+          }
+        } else {
+          info!("progress notifiers is dropped");
+          break;
         }
       }
     });
@@ -139,6 +164,7 @@ impl StorageManager {
 
     if let Err(err) = self.global_notifier.send(FileProgress::new_progress(
       url.to_string(),
+      file_id.clone(),
       if is_finish { 1.0 } else { 0.0 },
     )) {
       error!("[File] send global notifier failed: {}", err);
@@ -194,7 +220,7 @@ async fn prepare_upload_task(
 ) -> FlowyResult<()> {
   let uid = user_service.user_id()?;
   let conn = user_service.sqlite_connection(uid)?;
-  let upload_files = batch_select_upload_file(conn, 100)?;
+  let upload_files = batch_select_upload_file(conn, 100, false)?;
   let tasks = upload_files
     .into_iter()
     .map(|upload_file| UploadTask::BackgroundTask {
@@ -205,7 +231,7 @@ async fn prepare_upload_task(
       retry_count: 0,
     })
     .collect::<Vec<_>>();
-  info!("prepare upload task: {}", tasks.len());
+  info!("[File] prepare upload task: {}", tasks.len());
   uploader.queue_tasks(tasks).await;
   Ok(())
 }
@@ -317,7 +343,6 @@ impl StorageService for StorageServiceImpl {
 
     // 1. create a file record and chunk the file
     let (chunks, record) = create_upload_record(workspace_id, parent_dir, local_file_path).await?;
-
     // 2. save the record to sqlite
     let conn = self
       .user_service
@@ -359,7 +384,7 @@ impl StorageService for StorageServiceImpl {
       },
       Err(err) => {
         if matches!(err.code, ErrorCode::DuplicateSqliteRecord) {
-          info!("upload record already exists, skip creating new upload task");
+          info!("[File] upload record already exists, skip creating new upload task");
           Ok::<_, FlowyError>((CreatedUpload { url, file_id }, None))
         } else {
           Err(err)
@@ -373,19 +398,16 @@ impl StorageService for StorageServiceImpl {
       FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
     })?;
 
-    if let Err(err) = start_upload(
+    start_upload(
       &self.cloud_service,
       &self.user_service,
       &self.temp_storage,
       chunks,
       file_record,
-      self.progress_notifiers.clone(),
       self.global_notifier.clone(),
     )
-    .await
-    {
-      error!("[File] start upload failed: {}", err);
-    }
+    .await?;
+
     Ok(())
   }
 
@@ -406,7 +428,6 @@ impl StorageService for StorageServiceImpl {
         &self.user_service,
         &self.temp_storage,
         upload_file,
-        self.progress_notifiers.clone(),
         self.global_notifier.clone(),
       )
       .await?;
@@ -462,6 +483,7 @@ async fn create_upload_record(
   let record = UploadFileTable {
     workspace_id,
     file_id,
+    // When the upload_id is empty string, we will create a new upload using [Self::start_upload] method
     upload_id: "".to_string(),
     parent_dir,
     local_file_path,
@@ -481,7 +503,6 @@ async fn start_upload(
   temp_storage: &Arc<FileTempStorage>,
   mut chunked_bytes: ChunkedBytes,
   upload_file: &UploadFileTable,
-  progress_notifiers: Arc<DashMap<String, ProgressNotifier>>,
   global_notifier: GlobalNotifier,
 ) -> FlowyResult<()> {
   // 4. gather existing completed parts
@@ -496,6 +517,7 @@ async fn start_upload(
     .collect::<Vec<_>>();
 
   let upload_offset = completed_parts.len() as i32;
+  let total_parts = chunked_bytes.iter().count();
   chunked_bytes.set_current_offset(upload_offset);
 
   info!(
@@ -504,68 +526,72 @@ async fn start_upload(
   );
 
   let mut upload_file = upload_file.clone();
-  if upload_file.upload_id.is_empty() {
-    // 1. create upload
-    trace!(
-      "[File] create upload for workspace: {}, parent_dir: {}, file_id: {}",
-      upload_file.workspace_id,
-      upload_file.parent_dir,
-      upload_file.file_id
-    );
+  // 1. create upload
+  trace!(
+    "[File] create upload for workspace: {}, parent_dir: {}, file_id: {}",
+    upload_file.workspace_id,
+    upload_file.parent_dir,
+    upload_file.file_id
+  );
 
-    let create_upload_resp_result = cloud_service
-      .create_upload(
-        &upload_file.workspace_id,
-        &upload_file.parent_dir,
-        &upload_file.file_id,
-        &upload_file.content_type,
-      )
-      .await;
-    if let Err(err) = create_upload_resp_result.as_ref() {
-      if err.is_file_limit_exceeded() {
-        make_notification(StorageNotification::FileStorageLimitExceeded)
-          .payload(err.clone())
-          .send();
-      }
-    }
-    let create_upload_resp = create_upload_resp_result?;
-
-    // 2. update upload_id
-    let conn = user_service.sqlite_connection(user_service.user_id()?)?;
-    update_upload_file_upload_id(
-      conn,
+  let create_upload_resp_result = cloud_service
+    .create_upload(
       &upload_file.workspace_id,
       &upload_file.parent_dir,
       &upload_file.file_id,
-      &create_upload_resp.upload_id,
-    )?;
-
-    trace!(
-      "[File] {} update upload_id: {}",
-      upload_file.file_id,
-      create_upload_resp.upload_id
-    );
-    // temporary store the upload_id
-    upload_file.upload_id = create_upload_resp.upload_id;
+      &upload_file.content_type,
+    )
+    .await;
+  if let Err(err) = create_upload_resp_result.as_ref() {
+    if err.is_file_limit_exceeded() {
+      make_notification(StorageNotification::FileStorageLimitExceeded)
+        .payload(err.clone())
+        .send();
+    }
   }
+  let create_upload_resp = create_upload_resp_result?;
+
+  // 2. update upload_id
+  let conn = user_service.sqlite_connection(user_service.user_id()?)?;
+  update_upload_file_upload_id(
+    conn,
+    &upload_file.workspace_id,
+    &upload_file.parent_dir,
+    &upload_file.file_id,
+    &create_upload_resp.upload_id,
+  )?;
+
+  trace!(
+    "[File] {} update upload_id: {}",
+    upload_file.file_id,
+    create_upload_resp.upload_id
+  );
+  upload_file.upload_id = create_upload_resp.upload_id;
 
   // 3. start uploading parts
-  trace!(
-    "[File] {} start uploading parts: {}",
+  info!(
+    "[File] {} start uploading parts:{}, offset:{}",
     upload_file.file_id,
-    chunked_bytes.iter().count()
+    chunked_bytes.iter().count(),
+    upload_offset,
   );
-  let total_parts = chunked_bytes.iter().count();
   let iter = chunked_bytes.iter().enumerate();
-
   for (index, chunk_bytes) in iter {
     let part_number = upload_offset + index as i32 + 1;
-    trace!(
+    info!(
       "[File] {} uploading {}th part, size:{}KB",
       upload_file.file_id,
       part_number,
       chunk_bytes.len() / 1000,
     );
+
+    let file_url = cloud_service
+      .get_object_url_v1(
+        &upload_file.workspace_id,
+        &upload_file.parent_dir,
+        &upload_file.file_id,
+      )
+      .await?;
     // start uploading parts
     match upload_part(
       cloud_service,
@@ -580,29 +606,17 @@ async fn start_upload(
     .await
     {
       Ok(resp) => {
-        let progress = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
-        trace!(
-          "[File] {} upload progress: {}",
-          upload_file.file_id,
-          progress
-        );
-
-        let file_url = cloud_service
-          .get_object_url_v1(
-            &upload_file.workspace_id,
-            &upload_file.parent_dir,
-            &upload_file.file_id,
-          )
-          .await?;
-
-        if let Err(err) = global_notifier.send(FileProgress::new_progress(file_url, progress)) {
-          error!("[File] send global notifier failed: {}", err);
+        let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
+        // The 0.1 is reserved for the complete_upload progress
+        if progress_value >= 0.9 {
+          progress_value = 0.9;
         }
+        let progress =
+          FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
+        trace!("[File] upload progress: {}", progress);
 
-        if let Some(mut notifier) = progress_notifiers.get_mut(&upload_file.file_id) {
-          notifier
-            .notify(FileUploadState::Uploading { progress })
-            .await;
+        if let Err(err) = global_notifier.send(progress) {
+          error!("[File] send global notifier failed: {}", err);
         }
 
         // gather completed part
@@ -618,7 +632,13 @@ async fn start_upload(
             .send();
         }
 
-        error!("[File] {} upload part failed: {}", upload_file.file_id, err);
+        if let Err(err) = global_notifier.send(FileProgress::new_error(
+          file_url,
+          upload_file.file_id.clone(),
+          err.msg.clone(),
+        )) {
+          error!("[File] send global notifier failed: {}", err);
+        }
         return Err(err);
       },
     }
@@ -631,7 +651,6 @@ async fn start_upload(
     temp_storage,
     &upload_file,
     completed_parts,
-    &progress_notifiers,
     &global_notifier,
   )
   .await;
@@ -641,9 +660,10 @@ async fn start_upload(
         .payload(err.clone())
         .send();
     }
+
+    return Err(err);
   }
 
-  trace!("[File] {} upload completed", upload_file.file_id);
   Ok(())
 }
 
@@ -653,7 +673,6 @@ async fn resume_upload(
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
   upload_file: UploadFileTable,
-  progress_notifiers: Arc<DashMap<String, ProgressNotifier>>,
   global_notifier: GlobalNotifier,
 ) -> FlowyResult<()> {
   trace!(
@@ -673,26 +692,22 @@ async fn resume_upload(
         temp_storage,
         chunked_bytes,
         &upload_file,
-        progress_notifiers,
         global_notifier,
       )
       .await?;
     },
-    Err(err) => {
-      //
-      match err.kind() {
-        ErrorKind::NotFound => {
-          error!("[File] file not found: {}", upload_file.local_file_path);
-          if let Ok(uid) = user_service.user_id() {
-            if let Ok(conn) = user_service.sqlite_connection(uid) {
-              delete_upload_file(conn, &upload_file.upload_id)?;
-            }
+    Err(err) => match err.kind() {
+      ErrorKind::NotFound => {
+        error!("[File] file not found: {}", upload_file.local_file_path);
+        if let Ok(uid) = user_service.user_id() {
+          if let Ok(conn) = user_service.sqlite_connection(uid) {
+            delete_upload_file(conn, &upload_file.upload_id)?;
           }
-        },
-        _ => {
-          error!("[File] read file failed: {}", err);
-        },
-      }
+        }
+      },
+      _ => {
+        error!("[File] read file failed: {}", err);
+      },
     },
   }
   Ok(())
@@ -741,13 +756,21 @@ async fn complete_upload(
   temp_storage: &Arc<FileTempStorage>,
   upload_file: &UploadFileTable,
   parts: Vec<CompletedPartRequest>,
-  progress_notifiers: &Arc<DashMap<String, ProgressNotifier>>,
   global_notifier: &GlobalNotifier,
 ) -> Result<(), FlowyError> {
-  trace!(
-    "[File]: completing file upload: {}, num parts: {}",
+  let file_url = cloud_service
+    .get_object_url_v1(
+      &upload_file.workspace_id,
+      &upload_file.parent_dir,
+      &upload_file.file_id,
+    )
+    .await?;
+
+  info!(
+    "[File]: completing file upload: {}, num parts: {}, url:{}",
     upload_file.file_id,
-    parts.len()
+    parts.len(),
+    file_url
   );
   match cloud_service
     .complete_upload(
@@ -761,27 +784,12 @@ async fn complete_upload(
   {
     Ok(_) => {
       info!("[File] completed upload file: {}", upload_file.file_id);
-      if let Some(mut notifier) = progress_notifiers.get_mut(&upload_file.file_id) {
-        notifier
-          .notify(FileUploadState::Finished {
-            file_id: upload_file.file_id.clone(),
-          })
-          .await;
-      }
-
-      let file_url = cloud_service
-        .get_object_url_v1(
-          &upload_file.workspace_id,
-          &upload_file.parent_dir,
-          &upload_file.file_id,
-        )
-        .await?;
-
-      let progress = FileProgress::new_progress(file_url, 1.0);
+      let progress = FileProgress::new_progress(file_url, upload_file.file_id.clone(), 1.0);
       info!(
         "[File]: notify upload progress:{}, {}",
         upload_file.file_id, progress
       );
+
       if let Err(err) = global_notifier.send(progress) {
         error!("[File] send global notifier failed: {}", err);
       }
@@ -797,6 +805,18 @@ async fn complete_upload(
     },
     Err(err) => {
       error!("[File] complete upload failed: {}", err);
+
+      let progress =
+        FileProgress::new_error(file_url, upload_file.file_id.clone(), err.msg.clone());
+      if let Err(send_err) = global_notifier.send(progress) {
+        error!("[File] send global notifier failed: {}", send_err);
+      }
+
+      let conn = user_service.sqlite_connection(user_service.user_id()?)?;
+      if let Err(err) = delete_all_upload_parts(conn, &upload_file.upload_id) {
+        error!("[File] delete all upload parts failed: {}", err);
+      }
+      return Err(err);
     },
   }
   Ok(())

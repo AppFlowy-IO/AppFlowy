@@ -444,23 +444,28 @@
       "updateNamespace": "Update namespace",
       "removeHomepage": "Remove homepage",
       "selectHomePage": "Select a page",
+      "clearHomePage": "Clear the home page for this namespace",
+      "customUrl": "Custom URL",
       "namespace": {
         "description": "This change will apply to all the published pages live on this namespace",
         "tooltip": "We reserve the rights to remove any inappropriate namespaces",
         "updateExistingNamespace": "Update existing namespace",
         "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
         "redirectToPayment": "Redirecting to payment page...",
-        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage"
+        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage",
+        "pleaseAskOwnerToSetHomePage": "Please ask the workspace owner to upgrade to Pro Plan"
       },
       "publishedPage": {
         "title": "All published pages",
         "description": "Manage your published pages",
-        "page": "page",
+        "page": "Page",
         "pathName": "Path name",
         "date": "Published date",
         "emptyHinText": "You have no published pages in this workspace",
         "noPublishedPages": "No published pages",
-        "settings": "Publish settings"
+        "settings": "Publish settings",
+        "clickToOpenPageInApp": "Open page in app",
+        "clickToOpenPageInBrowser": "Open page in browser"
       },
       "error": {
         "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
@@ -1396,8 +1401,8 @@
     },
     "field": {
       "label": "Property",
-      "hide": "Hide",
-      "show": "Show",
+      "hide": "Hide property",
+      "show": "Show property",
       "insertLeft": "Insert left",
       "insertRight": "Insert right",
       "duplicate": "Duplicate",
@@ -1570,21 +1575,20 @@
     "media": {
       "rename": "Rename",
       "download": "Download",
-      "open": "Open",
+      "expand": "Expand",
       "delete": "Delete",
       "moreFilesHint": "+{}",
-      "addFileOrImage": "Add a file, image, or link",
+      "addFileOrImage": "Add file or link",
       "attachmentsHint": "{}",
       "addFileMobile": "Add file",
-      "showFile": "Show 1 file",
-      "showFiles": "Show {} files",
-      "hideFile": "Hide 1 file",
-      "hideFiles": "Hide {} files",
+      "extraCount": "+{}",
       "deleteFileDescription": "Are you sure you want to delete this file? This action is irreversible.",
-      "hideFileNames": "Hide file names",
-      "downloadSuccess": "Successfully saved file",
+      "showFileNames": "Show file name",
+      "downloadSuccess": "File downloaded",
       "downloadFailedToken": "Failed to download file, user token unavailable",
-      "setAsCover": "Set as cover"
+      "setAsCover": "Set as cover",
+      "openInBrowser": "Open in browser",
+      "embedLink": "Embed file link"
     }
   },
   "document": {
@@ -1644,14 +1648,15 @@
         "file": "File"
       },
       "subPage": {
-        "name": "Insert page",
+        "name": "Document",
         "keyword1": "sub page",
         "keyword2": "page",
         "keyword3": "child page",
         "keyword4": "insert page",
         "keyword5": "embed page",
         "keyword6": "new page",
-        "keyword7": "create page"
+        "keyword7": "create page",
+        "keyword8": "document"
       }
     },
     "selectionMenu": {
@@ -1813,15 +1818,17 @@
       "file": {
         "name": "File",
         "uploadTab": "Upload",
-        "uploadMobile": "Pick from files",
+        "uploadMobile": "Choose a file",
+        "uploadMobileGallery": "From Photo Gallery",
         "networkTab": "Embed link",
         "placeholderText": "Upload or embed a file",
         "placeholderDragging": "Drop the file to upload",
-        "dropFileToUpload": "Drop the file to upload",
-        "fileUploadHint": "Drop a file here to upload\nor click to browse",
+        "dropFileToUpload": "Drop a file to upload",
+        "fileUploadHint": "Drag & drop a file or click to ",
+        "fileUploadHintSuffix": "Browse",
         "networkHint": "Paste a file link",
-        "networkUrlInvalid": "Invalid URL, please correct the URL and try again",
-        "networkAction": "Embed file link",
+        "networkUrlInvalid": "Invalid URL. Check the URL and try again.",
+        "networkAction": "Embed",
         "fileTooBigError": "File size is too big, please upload a file with size less than 10MB",
         "renameFile": {
           "title": "Rename file",
@@ -2489,7 +2496,7 @@
     "spaceIcon": "Icon",
     "dangerZone": "Danger Zone",
     "unableToDeleteLastSpace": "Unable to delete the last Space",
-    "unableToDeleteSpaceNotCreatedByYou": "Unable to delete Spaces created by others",
+    "unableToDeleteSpaceNotCreatedByYou": "Unable to delete spaces created by others",
     "enableSpacesForYourWorkspace": "Enable Spaces for your workspace",
     "title": "Spaces",
     "defaultSpaceName": "General",

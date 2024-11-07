@@ -13,10 +13,12 @@ const optionActionColorDefaultColor = 'appflowy_theme_default_color';
 class ColorOptionAction extends CustomActionCell {
   ColorOptionAction({
     required this.editorState,
+    required this.mutex,
   });
 
   final EditorState editorState;
   final PopoverController innerController = PopoverController();
+  final PopoverMutex mutex;
 
   @override
   Widget buildWithContext(
@@ -24,16 +26,49 @@ class ColorOptionAction extends CustomActionCell {
     PopoverController controller,
     PopoverMutex? mutex,
   ) {
+    return ColorOptionButton(
+      editorState: editorState,
+      mutex: this.mutex,
+      controller: controller,
+    );
+  }
+}
+
+class ColorOptionButton extends StatefulWidget {
+  const ColorOptionButton({
+    super.key,
+    required this.editorState,
+    required this.mutex,
+    required this.controller,
+  });
+
+  final EditorState editorState;
+  final PopoverMutex mutex;
+  final PopoverController controller;
+
+  @override
+  State<ColorOptionButton> createState() => _ColorOptionButtonState();
+}
+
+class _ColorOptionButtonState extends State<ColorOptionButton> {
+  final PopoverController innerController = PopoverController();
+  bool isOpen = false;
+
+  @override
+  Widget build(BuildContext context) {
     return AppFlowyPopover(
       asBarrier: true,
       controller: innerController,
-      mutex: mutex,
-      popupBuilder: (context) => _buildColorOptionMenu(
-        context,
-        controller,
-      ),
+      mutex: widget.mutex,
+      popupBuilder: (context) {
+        isOpen = true;
+        return _buildColorOptionMenu(
+          context,
+          widget.controller,
+        );
+      },
+      onClose: () => isOpen = false,
       direction: PopoverDirection.rightWithCenterAligned,
-      offset: const Offset(10, 0),
       animationDuration: Durations.short3,
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
@@ -45,7 +80,9 @@ class ColorOptionAction extends CustomActionCell {
         ),
         name: LocaleKeys.document_plugins_optionAction_color.tr(),
         onTap: () {
-          innerController.show();
+          if (!isOpen) {
+            innerController.show();
+          }
         },
       ),
     );
@@ -55,12 +92,12 @@ class ColorOptionAction extends CustomActionCell {
     BuildContext context,
     PopoverController controller,
   ) {
-    final selection = editorState.selection?.normalized;
+    final selection = widget.editorState.selection?.normalized;
     if (selection == null) {
       return const SizedBox.shrink();
     }
 
-    final node = editorState.getNodeAtPath(selection.start.path);
+    final node = widget.editorState.getNodeAtPath(selection.start.path);
     if (node == null) {
       return const SizedBox.shrink();
     }
@@ -73,11 +110,11 @@ class ColorOptionAction extends CustomActionCell {
     Node node,
     PopoverController controller,
   ) {
-    final selection = editorState.selection?.normalized;
+    final selection = widget.editorState.selection?.normalized;
     if (selection == null) {
       return const SizedBox.shrink();
     }
-    final node = editorState.getNodeAtPath(selection.start.path);
+    final node = widget.editorState.getNodeAtPath(selection.start.path);
     if (node == null) {
       return const SizedBox.shrink();
     }
@@ -110,11 +147,11 @@ class ColorOptionAction extends CustomActionCell {
         color: AFThemeExtension.of(context).onBackground,
       ),
       onTap: (option, index) async {
-        final transaction = editorState.transaction;
+        final transaction = widget.editorState.transaction;
         transaction.updateNode(node, {
           blockComponentBackgroundColor: option.id,
         });
-        await editorState.apply(transaction);
+        await widget.editorState.apply(transaction);
 
         innerController.close();
         controller.close();

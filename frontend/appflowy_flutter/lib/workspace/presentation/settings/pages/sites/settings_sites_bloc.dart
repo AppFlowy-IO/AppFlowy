@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -96,7 +97,10 @@ class SettingsSitesBloc extends Bloc<SettingsSitesEvent, SettingsSitesState> {
     final result = await UserBackendService.getWorkspaceSubscriptionInfo(
       workspaceId,
     );
-    return result.fold((s) => s, (_) => null);
+    return result.fold((s) => s, (f) {
+      Log.error('Failed to fetch user subscription info: $f');
+      return null;
+    });
   }
 
   Future<String> _fetchPublishNamespace() async {

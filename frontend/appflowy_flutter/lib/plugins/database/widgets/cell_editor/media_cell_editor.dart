@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
@@ -49,144 +50,166 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
             .where((file) => file.fileType == MediaFileTypePB.Image)
             .toList();
 
-        return Padding(
-          padding: const EdgeInsets.all(4),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (state.files.isNotEmpty) ...[
-                  ReorderableListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    buildDefaultDragHandles: false,
-                    itemBuilder: (_, index) => BlocProvider.value(
-                      key: Key(state.files[index].id),
-                      value: context.read<MediaCellBloc>(),
-                      child: RenderMedia(
-                        file: state.files[index],
-                        images: images,
-                        index: index,
-                        enableReordering: state.files.length > 1,
-                        mutex: itemMutex,
-                      ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (state.files.isNotEmpty) ...[
+              Flexible(
+                child: ReorderableListView.builder(
+                  padding: const EdgeInsets.all(6),
+                  physics: const ClampingScrollPhysics(),
+                  shrinkWrap: true,
+                  buildDefaultDragHandles: false,
+                  itemBuilder: (_, index) => BlocProvider.value(
+                    key: Key(state.files[index].id),
+                    value: context.read<MediaCellBloc>(),
+                    child: RenderMedia(
+                      file: state.files[index],
+                      images: images,
+                      index: index,
+                      enableReordering: state.files.length > 1,
+                      mutex: itemMutex,
                     ),
-                    itemCount: state.files.length,
-                    onReorder: (from, to) => context
+                  ),
+                  itemCount: state.files.length,
+                  onReorder: (from, to) {
+                    if (from < to) {
+                      to--;
+                    }
+
+                    context
                         .read<MediaCellBloc>()
-                        .add(MediaCellEvent.reorderFiles(from: from, to: to)),
-                    proxyDecorator: (child, index, animation) => Material(
-                      color: Colors.transparent,
-                      child: SizeTransition(
-                        sizeFactor: animation,
-                        child: child,
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 8),
-                ],
-                AppFlowyPopover(
-                  controller: addFilePopoverController,
-                  direction: PopoverDirection.bottomWithCenterAligned,
-                  offset: const Offset(0, 10),
-                  constraints: const BoxConstraints(
-                    minWidth: 250,
-                    maxWidth: 250,
-                  ),
-                  triggerActions: PopoverTriggerFlags.none,
-                  popupBuilder: (popoverContext) => FileUploadMenu(
-                    allowMultipleFiles: true,
-                    onInsertLocalFile: (files) async => insertLocalFiles(
-                      context,
-                      files,
-                      userProfile:
-                          context.read<MediaCellBloc>().state.userProfile,
-                      documentId: context.read<MediaCellBloc>().rowId,
-                      onUploadSuccess: (file, path, isLocalMode) {
-                        final mediaCellBloc = context.read<MediaCellBloc>();
-                        if (mediaCellBloc.isClosed) {
-                          return;
-                        }
-
-                        mediaCellBloc.add(
-                          MediaCellEvent.addFile(
-                            url: path,
-                            name: file.name,
-                            uploadType: isLocalMode
-                                ? FileUploadTypePB.LocalFile
-                                : FileUploadTypePB.CloudFile,
-                            fileType: file.fileType.toMediaFileTypePB(),
-                          ),
-                        );
-
-                        addFilePopoverController.close();
-                      },
-                    ),
-                    onInsertNetworkFile: (url) {
-                      if (url.isEmpty) return;
-
-                      final uri = Uri.tryParse(url);
-                      if (uri == null) {
-                        return;
-                      }
-
-                      final fakeFile = XFile(uri.path);
-                      MediaFileTypePB fileType =
-                          fakeFile.fileType.toMediaFileTypePB();
-                      fileType = fileType == MediaFileTypePB.Other
-                          ? MediaFileTypePB.Link
-                          : fileType;
-
-                      String name = uri.pathSegments.isNotEmpty
-                          ? uri.pathSegments.last
-                          : "";
-                      if (name.isEmpty && uri.pathSegments.length > 1) {
-                        name = uri.pathSegments[uri.pathSegments.length - 2];
-                      } else if (name.isEmpty) {
-                        name = uri.host;
-                      }
-
-                      context.read<MediaCellBloc>().add(
-                            MediaCellEvent.addFile(
-                              url: url,
-                              name: name,
-                              uploadType: FileUploadTypePB.NetworkFile,
-                              fileType: fileType,
-                            ),
-                          );
-
-                      addFilePopoverController.close();
-                    },
-                  ),
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: addFilePopoverController.show,
-                    child: FlowyHover(
-                      resetHoverOnRebuild: false,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Row(
-                          children: [
-                            const FlowySvg(
-                              FlowySvgs.add_s,
-                              size: Size.square(18),
-                            ),
-                            const HSpace(8),
-                            FlowyText(
-                              LocaleKeys.grid_media_addFileOrImage.tr(),
-                              lineHeight: 1.0,
-                            ),
-                          ],
-                        ),
-                      ),
+                        .add(MediaCellEvent.reorderFiles(from: from, to: to));
+                  },
+                  proxyDecorator: (child, index, animation) => Material(
+                    color: Colors.transparent,
+                    child: SizeTransition(
+                      sizeFactor: animation,
+                      child: child,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            ],
+            _AddButton(addFilePopoverController: addFilePopoverController),
+          ],
         );
       },
+    );
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  const _AddButton({required this.addFilePopoverController});
+
+  final PopoverController addFilePopoverController;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      controller: addFilePopoverController,
+      direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 10),
+      constraints: const BoxConstraints(maxWidth: 350),
+      triggerActions: PopoverTriggerFlags.none,
+      popupBuilder: (popoverContext) => FileUploadMenu(
+        allowMultipleFiles: true,
+        onInsertLocalFile: (files) async => insertLocalFiles(
+          context,
+          files,
+          userProfile: context.read<MediaCellBloc>().state.userProfile,
+          documentId: context.read<MediaCellBloc>().rowId,
+          onUploadSuccess: (file, path, isLocalMode) {
+            final mediaCellBloc = context.read<MediaCellBloc>();
+            if (mediaCellBloc.isClosed) {
+              return;
+            }
+
+            mediaCellBloc.add(
+              MediaCellEvent.addFile(
+                url: path,
+                name: file.name,
+                uploadType: isLocalMode
+                    ? FileUploadTypePB.LocalFile
+                    : FileUploadTypePB.CloudFile,
+                fileType: file.fileType.toMediaFileTypePB(),
+              ),
+            );
+
+            addFilePopoverController.close();
+          },
+        ),
+        onInsertNetworkFile: (url) {
+          if (url.isEmpty) return;
+
+          final uri = Uri.tryParse(url);
+          if (uri == null) {
+            return;
+          }
+
+          final fakeFile = XFile(uri.path);
+          MediaFileTypePB fileType = fakeFile.fileType.toMediaFileTypePB();
+          fileType = fileType == MediaFileTypePB.Other
+              ? MediaFileTypePB.Link
+              : fileType;
+
+          String name =
+              uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "";
+          if (name.isEmpty && uri.pathSegments.length > 1) {
+            name = uri.pathSegments[uri.pathSegments.length - 2];
+          } else if (name.isEmpty) {
+            name = uri.host;
+          }
+
+          context.read<MediaCellBloc>().add(
+                MediaCellEvent.addFile(
+                  url: url,
+                  name: name,
+                  uploadType: FileUploadTypePB.NetworkFile,
+                  fileType: fileType,
+                ),
+              );
+
+          addFilePopoverController.close();
+        },
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).dividerColor,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: addFilePopoverController.show,
+            child: FlowyHover(
+              resetHoverOnRebuild: false,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    FlowySvg(
+                      FlowySvgs.add_thin_s,
+                      size: const Size.square(14),
+                      color: AFThemeExtension.of(context).lightIconColor,
+                    ),
+                    const HSpace(8),
+                    FlowyText.regular(
+                      LocaleKeys.grid_media_addFileOrImage.tr(),
+                      figmaLineHeight: 20,
+                      fontSize: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -226,6 +249,8 @@ class _RenderMediaState extends State<RenderMedia> {
 
   MediaFilePB get file => widget.file;
 
+  late final controller = PopoverController();
+
   @override
   void initState() {
     super.initState();
@@ -240,12 +265,12 @@ class _RenderMediaState extends State<RenderMedia> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() => isHovering = false),
-      cursor: SystemMouseCursors.click,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovering = true),
+        onExit: (_) => setState(() => isHovering = false),
+        cursor: SystemMouseCursors.click,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
@@ -253,18 +278,27 @@ class _RenderMediaState extends State<RenderMedia> {
                 ? AFThemeExtension.of(context).greyHover
                 : Colors.transparent,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                ReorderableDragStartListener(
-                  index: widget.index,
-                  enabled: widget.enableReordering,
-                  child: const FlowySvg(FlowySvgs.drag_element_s),
+          child: Row(
+            crossAxisAlignment: widget.file.fileType == MediaFileTypePB.Image
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            children: [
+              ReorderableDragStartListener(
+                index: widget.index,
+                enabled: widget.enableReordering,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: FlowySvg(
+                    FlowySvgs.drag_element_s,
+                    color: AFThemeExtension.of(context).lightIconColor,
+                  ),
                 ),
-                const HSpace(8),
-                if (widget.file.fileType == MediaFileTypePB.Image) ...[
-                  Expanded(
+              ),
+              const HSpace(4),
+              if (widget.file.fileType == MediaFileTypePB.Image) ...[
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: _openInteractiveViewer(
                       context,
                       files: widget.images,
@@ -277,54 +311,66 @@ class _RenderMediaState extends State<RenderMedia> {
                       ),
                     ),
                   ),
-                ] else ...[
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => afLaunchUrlString(file.url),
-                      child: Row(
-                        children: [
-                          FlowySvg(
+                ),
+              ] else ...[
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => afLaunchUrlString(file.url),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: FlowySvg(
                             file.fileType.icon,
                             color: AFThemeExtension.of(context).strongText,
-                            size: const Size.square(18),
+                            size: const Size.square(12),
                           ),
-                          const HSpace(8),
-                          Flexible(
+                        ),
+                        const HSpace(8),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 1),
                             child: FlowyText(
                               file.name,
                               overflow: TextOverflow.ellipsis,
+                              fontSize: 14,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: AppFlowyPopover(
-                    mutex: widget.mutex,
-                    asBarrier: true,
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    direction: PopoverDirection.bottomWithRightAligned,
-                    popupBuilder: (popoverContext) => BlocProvider.value(
-                      value: context.read<MediaCellBloc>(),
-                      child: MediaItemMenu(
-                        file: file,
-                        closeContext: popoverContext,
-                      ),
-                    ),
-                    child: FlowyIconButton(
-                      width: 24,
-                      icon: FlowySvg(
-                        FlowySvgs.three_dots_s,
-                        color: AFThemeExtension.of(context).textColor,
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
-            ),
+              const HSpace(4),
+              AppFlowyPopover(
+                controller: controller,
+                mutex: widget.mutex,
+                asBarrier: true,
+                offset: const Offset(0, 4),
+                constraints: const BoxConstraints(maxWidth: 240),
+                direction: PopoverDirection.bottomWithLeftAligned,
+                popupBuilder: (popoverContext) => BlocProvider.value(
+                  value: context.read<MediaCellBloc>(),
+                  child: MediaItemMenu(
+                    file: file,
+                    images: widget.images,
+                    index: imageIndex ?? -1,
+                    closeContext: popoverContext,
+                    onAction: () => controller.close(),
+                  ),
+                ),
+                child: FlowyIconButton(
+                  hoverColor: Colors.transparent,
+                  width: 24,
+                  icon: FlowySvg(
+                    FlowySvgs.three_dots_s,
+                    size: const Size.square(16),
+                    color: AFThemeExtension.of(context).lightIconColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -357,11 +403,27 @@ class MediaItemMenu extends StatefulWidget {
   const MediaItemMenu({
     super.key,
     required this.file,
+    required this.images,
+    required this.index,
     this.closeContext,
+    this.onAction,
   });
 
+  /// The [MediaFilePB] this menu concerns
   final MediaFilePB file;
+
+  /// The list of [MediaFilePB] which are images
+  /// This is used to show the [InteractiveImageViewer]
+  final List<MediaFilePB> images;
+
+  /// The index of the [MediaFilePB] in the [images] list
+  final int index;
+
+  /// The [BuildContext] used to show the [InteractiveImageViewer]
   final BuildContext? closeContext;
+
+  /// Callback to be called when an action is performed
+  final VoidCallback? onAction;
 
   @override
   State<MediaItemMenu> createState() => _MediaItemMenuState();
@@ -383,117 +445,106 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
   @override
   Widget build(BuildContext context) {
     return SeparatedColumn(
-      separatorBuilder: () => const VSpace(4),
+      separatorBuilder: () => const VSpace(8),
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.file.fileType == MediaFileTypePB.Image) ...[
-          FlowyButton(
-            onTap: () => showDialog(
-              context: widget.closeContext ?? context,
-              builder: (_) => InteractiveImageViewer(
-                userProfile: context.read<MediaCellBloc>().state.userProfile,
-                imageProvider: AFBlockImageProvider(
-                  images: [
-                    ImageBlockData(
-                      url: widget.file.url,
-                      type: widget.file.uploadType.toCustomImageType(),
+          MediaMenuItem(
+            onTap: () {
+              widget.onAction?.call();
+              _showInteractiveViewer();
+            },
+            icon: FlowySvgs.full_view_s,
+            label: LocaleKeys.grid_media_expand.tr(),
+          ),
+          MediaMenuItem(
+            onTap: () {
+              context.read<MediaCellBloc>().add(
+                    MediaCellEvent.setCover(
+                      RowCoverPB(
+                        data: widget.file.url,
+                        uploadType: widget.file.uploadType,
+                        coverType: CoverTypePB.FileCover,
+                      ),
                     ),
-                  ],
-                  onDeleteImage: (_) =>
-                      context.read<MediaCellBloc>().deleteFile(widget.file.id),
-                ),
-              ),
-            ),
-            leftIcon: FlowySvg(
-              FlowySvgs.full_view_s,
-              color: Theme.of(context).iconTheme.color,
-              size: const Size.square(18),
-            ),
-            text: FlowyText.regular(
-              LocaleKeys.settings_files_open.tr(),
-              color: AFThemeExtension.of(context).textColor,
-            ),
-            leftIconSize: const Size(18, 18),
-            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+                  );
+              widget.onAction?.call();
+            },
+            icon: FlowySvgs.cover_s,
+            label: LocaleKeys.grid_media_setAsCover.tr(),
           ),
         ],
-        FlowyButton(
-          leftIcon: FlowySvg(
-            FlowySvgs.edit_s,
-            color: Theme.of(context).iconTheme.color,
-            size: const Size.square(18),
-          ),
-          leftIconSize: const Size(18, 18),
-          text: FlowyText.regular(
-            LocaleKeys.grid_media_rename.tr(),
-            color: AFThemeExtension.of(context).textColor,
-          ),
+        MediaMenuItem(
           onTap: () {
-            nameController.selection = TextSelection(
-              baseOffset: 0,
-              extentOffset: nameController.text.length,
-            );
-
-            showCustomConfirmDialog(
-              context: context,
-              title: LocaleKeys.document_plugins_file_renameFile_title.tr(),
-              description:
-                  LocaleKeys.document_plugins_file_renameFile_description.tr(),
-              closeOnConfirm: false,
-              builder: (dialogContext) {
-                renameContext = dialogContext;
-                return FileRenameTextField(
-                  nameController: nameController,
-                  errorMessage: errorMessage,
-                  onSubmitted: () => _saveName(context),
-                  disposeController: false,
-                );
-              },
-              confirmLabel: LocaleKeys.button_save.tr(),
-              onConfirm: () => _saveName(context),
-            );
+            widget.onAction?.call();
+            afLaunchUrlString(widget.file.url);
           },
+          icon: FlowySvgs.open_in_browser_s,
+          label: LocaleKeys.grid_media_openInBrowser.tr(),
         ),
-        FlowyButton(
-          onTap: () async => downloadMediaFile(
-            context,
-            widget.file,
-            userProfile: context.read<MediaCellBloc>().state.userProfile,
-          ),
-          leftIcon: FlowySvg(
-            FlowySvgs.download_s,
-            color: Theme.of(context).iconTheme.color,
-            size: const Size.square(18),
-          ),
-          text: FlowyText.regular(
-            LocaleKeys.button_download.tr(),
-            color: AFThemeExtension.of(context).textColor,
-          ),
-          leftIconSize: const Size(18, 18),
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        MediaMenuItem(
+          onTap: () async {
+            await _showRenameDialog();
+            widget.onAction?.call();
+          },
+          icon: FlowySvgs.rename_s,
+          label: LocaleKeys.grid_media_rename.tr(),
         ),
-        FlowyButton(
-          onTap: () => showConfirmDeletionDialog(
-            context: context,
-            name: widget.file.name,
-            description: LocaleKeys.grid_media_deleteFileDescription.tr(),
-            onConfirm: () => context
-                .read<MediaCellBloc>()
-                .add(MediaCellEvent.removeFile(fileId: widget.file.id)),
+        if (widget.file.uploadType == FileUploadTypePB.CloudFile) ...[
+          MediaMenuItem(
+            onTap: () async {
+              await downloadMediaFile(
+                context,
+                widget.file,
+                userProfile: context.read<MediaCellBloc>().state.userProfile,
+              );
+              widget.onAction?.call();
+            },
+            icon: FlowySvgs.save_as_s,
+            label: LocaleKeys.button_download.tr(),
           ),
-          leftIcon: FlowySvg(
-            FlowySvgs.delete_s,
-            color: Theme.of(context).colorScheme.error,
-            size: const Size.square(18),
-          ),
-          text: FlowyText.regular(
-            LocaleKeys.button_delete.tr(),
-            color: Theme.of(context).colorScheme.error,
-          ),
-          leftIconSize: const Size(18, 18),
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        ],
+        MediaMenuItem(
+          onTap: () async {
+            await showConfirmDeletionDialog(
+              context: context,
+              name: widget.file.name,
+              description: LocaleKeys.grid_media_deleteFileDescription.tr(),
+              onConfirm: () => context
+                  .read<MediaCellBloc>()
+                  .add(MediaCellEvent.removeFile(fileId: widget.file.id)),
+            );
+            widget.onAction?.call();
+          },
+          icon: FlowySvgs.trash_s,
+          label: LocaleKeys.button_delete.tr(),
         ),
       ],
+    );
+  }
+
+  Future<void> _showRenameDialog() async {
+    nameController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: nameController.text.length,
+    );
+
+    await showCustomConfirmDialog(
+      context: context,
+      title: LocaleKeys.document_plugins_file_renameFile_title.tr(),
+      description: LocaleKeys.document_plugins_file_renameFile_description.tr(),
+      closeOnConfirm: false,
+      builder: (dialogContext) {
+        renameContext = dialogContext;
+        return FileRenameTextField(
+          nameController: nameController,
+          errorMessage: errorMessage,
+          onSubmitted: () => _saveName(context),
+          disposeController: false,
+        );
+      },
+      confirmLabel: LocaleKeys.button_save.tr(),
+      onConfirm: () => _saveName(context),
     );
   }
 
@@ -514,5 +565,58 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
     if (renameContext != null) {
       Navigator.of(renameContext!).pop();
     }
+  }
+
+  void _showInteractiveViewer() {
+    showDialog(
+      context: widget.closeContext ?? context,
+      builder: (_) => InteractiveImageViewer(
+        userProfile: context.read<MediaCellBloc>().state.userProfile,
+        imageProvider: AFBlockImageProvider(
+          initialIndex: widget.index,
+          images: widget.images
+              .map(
+                (e) => ImageBlockData(
+                  url: e.url,
+                  type: e.uploadType.toCustomImageType(),
+                ),
+              )
+              .toList(),
+          onDeleteImage: (index) {
+            final deleteFile = widget.images[index];
+            context.read<MediaCellBloc>().deleteFile(deleteFile.id);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class MediaMenuItem extends StatelessWidget {
+  const MediaMenuItem({
+    super.key,
+    required this.onTap,
+    required this.icon,
+    required this.label,
+  });
+
+  final VoidCallback onTap;
+  final FlowySvgData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      onTap: onTap,
+      leftIcon: FlowySvg(icon),
+      text: Padding(
+        padding: const EdgeInsets.only(left: 4, top: 1, bottom: 1),
+        child: FlowyText.regular(
+          label,
+          figmaLineHeight: 20,
+        ),
+      ),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
+    );
   }
 }

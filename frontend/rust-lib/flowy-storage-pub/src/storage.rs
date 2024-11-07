@@ -7,7 +7,6 @@ use serde::Serialize;
 use std::fmt::Display;
 use std::ops::{Deref, DerefMut};
 use tokio::sync::broadcast;
-use tracing::warn;
 
 #[async_trait]
 pub trait StorageService: Send + Sync {
@@ -68,22 +67,25 @@ pub enum FileUploadState {
 #[derive(Clone, Debug, Serialize)]
 pub struct FileProgress {
   pub file_url: String,
+  pub file_id: String,
   pub progress: f64,
   pub error: Option<String>,
 }
 
 impl FileProgress {
-  pub fn new_progress(file_url: String, progress: f64) -> Self {
+  pub fn new_progress(file_url: String, file_id: String, progress: f64) -> Self {
     FileProgress {
       file_url,
-      progress,
+      file_id,
+      progress: (progress * 10.0).round() / 10.0,
       error: None,
     }
   }
 
-  pub fn new_error(file_url: String, error: String) -> Self {
+  pub fn new_error(file_url: String, file_id: String, error: String) -> Self {
     FileProgress {
       file_url,
+      file_id,
       progress: 0.0,
       error: Some(error),
     }
@@ -92,7 +94,7 @@ impl FileProgress {
 
 impl Display for FileProgress {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "FileProgress: {} - {}", self.file_url, self.progress)
+    write!(f, "FileProgress: {} - {}", self.file_id, self.progress)
   }
 }
 
@@ -122,9 +124,7 @@ impl ProgressNotifier {
 
   pub async fn notify(&mut self, progress: FileUploadState) {
     self.current_value = Some(progress.clone());
-    if let Err(err) = self.tx.send(progress) {
-      warn!("Failed to send progress notification: {:?}", err);
-    }
+    let _ = self.tx.send(progress);
   }
 }
 

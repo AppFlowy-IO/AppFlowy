@@ -49,5 +49,40 @@ void main() {
 
       editorState.dispose();
     });
+
+    testWidgets('convert block contains children to toggle list',
+        (tester) async {
+      const paragraph1 = '>paragraph 1';
+      const paragraph1_1 = 'paragraph 1.1';
+      const paragraph1_2 = 'paragraph 1.2';
+
+      final document = createDocument([
+        paragraphNode(
+          text: paragraph1,
+          children: [
+            paragraphNode(text: paragraph1_1),
+            paragraphNode(text: paragraph1_2),
+          ],
+        ),
+      ]);
+
+      final editorState = EditorState(document: document);
+      editorState.selection = Selection.collapsed(
+        Position(path: [0], offset: 1),
+      );
+
+      final result = await formatGreaterToToggleList.execute(editorState);
+      expect(result, true);
+
+      expect(editorState.document.root.children.length, 1);
+      final node = editorState.document.root.children[0];
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.delta!.toPlainText(), 'paragraph 1');
+      expect(node.children.length, 2);
+      expect(node.children[0].delta!.toPlainText(), paragraph1_1);
+      expect(node.children[1].delta!.toPlainText(), paragraph1_2);
+
+      editorState.dispose();
+    });
   });
 }

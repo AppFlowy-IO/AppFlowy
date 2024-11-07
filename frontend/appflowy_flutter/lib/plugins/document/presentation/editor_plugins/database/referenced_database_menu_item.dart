@@ -11,7 +11,7 @@ import 'package:easy_localization/easy_localization.dart';
 SelectionMenuItem referencedDocumentMenuItem = SelectionMenuItem(
   getName: LocaleKeys.document_plugins_referencedDocument.tr,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.document_s,
+    data: FlowySvgs.icon_document_s,
     isSelected: onSelected,
     style: style,
   ),

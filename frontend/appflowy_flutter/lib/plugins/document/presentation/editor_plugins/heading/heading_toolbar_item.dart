@@ -49,7 +49,7 @@ final headingsToolbarItem = ToolbarItem(
         ],
       ),
     );
-    return _HeadingPopup(
+    return HeadingPopup(
       currentLevel: isHighlight ? level : -1,
       highlightColor: highlightColor,
       child: child,
@@ -60,9 +60,9 @@ final headingsToolbarItem = ToolbarItem(
                 ? ParagraphBlockKeys.type
                 : HeadingBlockKeys.type;
 
-        await editorState.formatNode(
-          selection,
-          (node) => node.copyWith(
+        if (type == HeadingBlockKeys.type) {
+          // from paragraph to heading
+          final newNode = node.copyWith(
             type: type,
             attributes: {
               HeadingBlockKeys.level: newLevel,
@@ -72,15 +72,41 @@ final headingsToolbarItem = ToolbarItem(
                   node.attributes[blockComponentTextDirection],
               blockComponentDelta: delta,
             },
-          ),
-        );
+          );
+          final children = node.children.map((child) => child.copyWith());
+
+          final transaction = editorState.transaction;
+          transaction.insertNodes(
+            selection.start.path.next,
+            [newNode, ...children],
+          );
+          transaction.deleteNode(node);
+          await editorState.apply(transaction);
+        } else {
+          // from heading to paragraph
+          await editorState.formatNode(
+            selection,
+            (node) => node.copyWith(
+              type: type,
+              attributes: {
+                HeadingBlockKeys.level: newLevel,
+                blockComponentBackgroundColor:
+                    node.attributes[blockComponentBackgroundColor],
+                blockComponentTextDirection:
+                    node.attributes[blockComponentTextDirection],
+                blockComponentDelta: delta,
+              },
+            ),
+          );
+        }
       },
     );
   },
 );
 
-class _HeadingPopup extends StatelessWidget {
-  const _HeadingPopup({
+class HeadingPopup extends StatelessWidget {
+  const HeadingPopup({
+    super.key,
     required this.currentLevel,
     required this.highlightColor,
     required this.onLevelChanged,
@@ -144,7 +170,7 @@ class _HeadingButtons extends StatelessWidget {
             final svg = data.$1;
             final message = data.$2;
             return [
-              _HeadingButton(
+              HeadingButton(
                 icon: svg,
                 tooltip: message,
                 onTap: () => onLevelChanged(index + 1),
@@ -163,8 +189,9 @@ class _HeadingButtons extends StatelessWidget {
   }
 }
 
-class _HeadingButton extends StatelessWidget {
-  const _HeadingButton({
+class HeadingButton extends StatelessWidget {
+  const HeadingButton({
+    super.key,
     required this.icon,
     required this.tooltip,
     required this.onTap,

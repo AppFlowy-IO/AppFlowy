@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -106,6 +107,7 @@ class _RowEditor extends StatelessWidget {
                   viewId: view.id,
                   editorState: editorState,
                   isLocalMode: context.read<DocumentBloc>().isLocalMode,
+                  dropManagerState: context.read<EditorDropManagerState>(),
                   child: AppFlowyEditorPage(
                     shrinkWrap: true,
                     autoFocus: false,

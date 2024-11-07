@@ -149,7 +149,7 @@ export const CustomEditor = {
       const blockType = block.get(YjsEditorKey.block_type) as BlockType;
 
       if (blockType !== BlockType.Paragraph) {
-        handleNonParagraphBlockBackspaceAndEnterWithTxn(sharedRoot, block);
+        handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
         return;
       }
 

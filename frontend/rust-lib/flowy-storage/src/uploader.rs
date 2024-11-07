@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicBool, AtomicU8};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
-use tracing::{error, info, trace};
+use tracing::{error, info, instrument, trace, warn};
 
 #[derive(Clone)]
 pub enum Signal {
@@ -34,7 +34,7 @@ impl UploadTaskQueue {
   pub async fn queue_task(&self, task: UploadTask) {
     trace!("[File] Queued task: {}", task);
     self.tasks.write().await.push(task);
-    let _ = self.notifier.send(Signal::Proceed);
+    let _ = self.notifier.send_replace(Signal::Proceed);
   }
 }
 
@@ -104,6 +104,7 @@ impl FileUploader {
     let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(3));
   }
 
+  #[instrument(name = "[File]: process next", level = "debug", skip(self))]
   pub async fn process_next(&self) -> Option<()> {
     // Do not proceed if the uploader is paused.
     if self.pause_sync.load(std::sync::atomic::Ordering::Relaxed) {
@@ -125,6 +126,7 @@ impl FileUploader {
     {
       // If the current uploads count is greater than or equal to the max uploads, do not proceed.
       let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(10));
+      trace!("[File] max uploads reached, process_next after 10 seconds");
       return None;
     }
 
@@ -133,6 +135,7 @@ impl FileUploader {
       .load(std::sync::atomic::Ordering::SeqCst)
     {
       // If the storage limitation is enabled, do not proceed.
+      error!("[File] storage limit exceeded, uploader is disabled");
       return None;
     }
 
@@ -140,6 +143,7 @@ impl FileUploader {
     if task.retry_count() > 5 {
       // If the task has been retried more than 5 times, we should not retry it anymore.
       let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
+      warn!("[File] Task has been retried more than 5 times: {}", task);
       return None;
     }
 
@@ -166,12 +170,12 @@ impl FileUploader {
           .await
         {
           if err.is_file_limit_exceeded() {
-            error!("Failed to upload file: {}", err);
+            error!("[File] Failed to upload file: {}", err);
             self.disable_storage_write();
           }
 
           info!(
-            "Failed to upload file: {}, retry_count:{}",
+            "[File] Failed to upload file: {}, retry_count:{}",
             err, retry_count
           );
 
@@ -197,12 +201,12 @@ impl FileUploader {
           .await
         {
           if err.is_file_limit_exceeded() {
-            error!("Failed to upload file: {}", err);
+            error!("[File] failed to upload file: {}", err);
             self.disable_storage_write();
           }
 
           info!(
-            "Failed to resume upload file: {}, retry_count:{}",
+            "[File] failed to resume upload file: {}, retry_count:{}",
             err, retry_count
           );
           retry_count += 1;
@@ -216,10 +220,15 @@ impl FileUploader {
         }
       },
     }
+
     self
       .current_uploads
       .fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
-    let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
+    trace!("[File] process_next after 2 seconds");
+    self
+      .queue
+      .notifier
+      .send_replace(Signal::ProceedAfterSecs(2));
     None
   }
 }
