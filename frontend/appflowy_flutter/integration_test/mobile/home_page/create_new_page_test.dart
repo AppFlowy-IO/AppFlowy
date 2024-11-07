@@ -31,17 +31,17 @@ void main() {
 
   group('create new page', () {
     testWidgets('create document', (tester) async {
-      await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.local,
-      );
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
 
       // tap the create page button
       final createPageButton = find.byWidgetPredicate(
         (widget) =>
             widget is FlowySvg &&
-            widget.svg.path == FlowySvgs.m_home_unselected_m.path,
+            widget.svg.path == FlowySvgs.m_home_add_m.path,
       );
       await tester.tapButton(createPageButton);
+      await tester.pumpAndSettle();
       expect(find.byType(MobileDocumentScreen), findsOneWidget);
     });
   });
