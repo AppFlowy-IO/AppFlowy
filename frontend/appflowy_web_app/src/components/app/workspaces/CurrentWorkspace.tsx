@@ -8,10 +8,12 @@ function CurrentWorkspace ({
   userWorkspaceInfo,
   selectedWorkspace,
   onChangeWorkspace,
+  avatarSize = 32,
 }: {
   userWorkspaceInfo?: UserWorkspaceInfo;
   selectedWorkspace?: Workspace;
   onChangeWorkspace: (selectedId: string) => void;
+  avatarSize?: number;
 }) {
 
   if (!userWorkspaceInfo || !selectedWorkspace) {
@@ -32,8 +34,13 @@ function CurrentWorkspace ({
   return <div className={'flex items-center gap-2'}>
     <Avatar
       variant={'rounded'}
-      className={`w-8 h-8 flex items-center justify-center border p-1 border-line-divider rounded-[8px] ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}
+      className={`flex items-center justify-center border-none p-1 border-line-divider rounded-[8px] ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}
       {...getAvatarProps(selectedWorkspace)}
+      style={{
+        width: avatarSize,
+        height: avatarSize,
+        fontSize: avatarSize / 1.2,
+      }}
     />
     <div className={'text-text-title flex-1 truncate font-semibold'}>{selectedWorkspace.name}</div>
   </div>;

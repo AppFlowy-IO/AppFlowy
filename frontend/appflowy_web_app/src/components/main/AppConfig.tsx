@@ -79,16 +79,16 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     window.toast = {
-      success: (message: string) => {
+      success: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'success' });
       },
-      error: (message: string) => {
+      error: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'error' });
       },
-      warning: (message: string) => {
+      warning: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'warning' });
       },
-      default: (message: string) => {
+      default: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'default' });
       },
 

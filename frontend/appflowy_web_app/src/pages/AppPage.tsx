@@ -1,4 +1,12 @@
-import { AppendBreadcrumb, CreateRowDoc, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/types';
+import {
+  AppendBreadcrumb,
+  CreateRowDoc,
+  LoadView,
+  LoadViewMeta,
+  UpdatePagePayload,
+  ViewLayout,
+  YDoc,
+} from '@/application/types';
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
 import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
@@ -24,6 +32,7 @@ function AppPage () {
     loadView,
     appendBreadcrumb,
     onRendered,
+    updatePage,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -84,6 +93,7 @@ function AppPage () {
     viewMeta: ViewMetaProps;
     appendBreadcrumb?: AppendBreadcrumb;
     onRendered?: () => void;
+    updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
   }>;
 
   const viewMeta: ViewMetaProps | null = useMemo(() => {
@@ -94,6 +104,7 @@ function AppPage () {
       layout: view.layout,
       visibleViewIds: [],
       viewId: view.view_id,
+      extra: view.extra,
     } : null;
   }, [view]);
 
@@ -122,7 +133,7 @@ function AppPage () {
     return doc && viewMeta && View ? (
       <View
         doc={doc}
-        readOnly={true}
+        readOnly={false}
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}
@@ -130,9 +141,10 @@ function AppPage () {
         appendBreadcrumb={appendBreadcrumb}
         loadView={loadView}
         onRendered={onRendered}
+        updatePage={updatePage}
       />
     ) : skeleton;
-  }, [onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
+  }, [updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;

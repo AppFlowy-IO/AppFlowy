@@ -74,6 +74,7 @@ export function Workspaces () {
           userWorkspaceInfo={userWorkspaceInfo}
           selectedWorkspace={selectedWorkspace}
           onChangeWorkspace={handleChange}
+          avatarSize={20}
         />
 
         {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'} />}

@@ -41,6 +41,7 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
       PaperProps={{
         sx: {
           borderRadius: 0,
+          background: variant === 'publish' ? 'var(--bg-body)' : 'var(--bg-base)',
         },
       }}
     >
@@ -49,7 +50,8 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
         <div
           style={{
             backdropFilter: 'blur(4px)',
-          }} className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between'}
+          }}
+          className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between'}
         >
           {header ? header : <div
             className={'flex p-4 cursor-pointer items-center gap-1 text-text-title'}
@@ -68,7 +70,10 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
               </div>
             }
           >
-            <IconButton onClick={onClose} className={'m-4'}>
+            <IconButton
+              onClick={onClose}
+              className={'m-4'}
+            >
               <SideOutlined className={'h-4 w-4 text-text-caption rotate-180 transform'} />
             </IconButton>
           </Tooltip>
@@ -80,7 +85,10 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
 
 
       </div>
-      <Resizer drawerWidth={width} onResize={onResizeWidth} />
+      <Resizer
+        drawerWidth={width}
+        onResize={onResizeWidth}
+      />
 
     </Drawer>
   );

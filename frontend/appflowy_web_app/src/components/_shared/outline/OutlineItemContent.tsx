@@ -6,6 +6,7 @@ import { renderColor } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function OutlineItemContent ({
   item,
@@ -24,6 +25,7 @@ function OutlineItemContent ({
   const { icon, layout, name, view_id, extra } = item;
   const [hovered, setHovered] = React.useState(false);
   const isSpace = extra?.is_space;
+  const { t } = useTranslation();
 
   return (
     <div
@@ -75,7 +77,7 @@ function OutlineItemContent ({
         enterDelay={1000}
         enterNextDelay={1000}
       >
-        <div className={'flex-1 truncate'}>{name}</div>
+        <div className={'flex-1 truncate'}>{name || t('menuAppHeader.defaultNewPageName')}</div>
       </Tooltip>
       {hovered && variant === UIVariant.Publish && <PublishIcon
         variant={variant}

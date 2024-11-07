@@ -1,13 +1,20 @@
+import {
+  CoverType,
+  UpdatePagePayload,
+  ViewExtra,
+  ViewIconType,
+  ViewLayout,
+  ViewMetaCover,
+  ViewMetaIcon,
+} from '@/application/types';
+import { notify } from '@/components/_shared/notify';
+import TitleEditable from '@/components/view-meta/TitleEditable';
 import ViewCover from '@/components/view-meta/ViewCover';
 import { isFlagEmoji } from '@/utils/emoji';
-import React, { useMemo } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CoverType, ViewLayout, ViewMetaIcon } from '@/application/types';
 
-export interface ViewMetaCover {
-  type: CoverType;
-  value: string;
-}
+const AddIconCover = lazy(() => import('@/components/view-meta/AddIconCover'));
 
 export interface ViewMetaProps {
   icon?: ViewMetaIcon;
@@ -16,9 +23,14 @@ export interface ViewMetaProps {
   viewId?: string;
   layout?: ViewLayout;
   visibleViewIds?: string[];
+  extra?: ViewExtra | null;
+  readOnly?: boolean;
+  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
 }
 
-export function ViewMetaPreview ({ icon, cover, name }: ViewMetaProps) {
+export function ViewMetaPreview ({ icon, cover, name, extra, readOnly = true, viewId, updatePage }: ViewMetaProps) {
+  const [iconAnchorEl, setIconAnchorEl] = React.useState<null | HTMLElement>(null);
+
   const coverType = useMemo(() => {
     if (cover && [CoverType.NormalColor, CoverType.GradientColor].includes(cover.type)) {
       return 'color';
@@ -52,28 +64,125 @@ export function ViewMetaPreview ({ icon, cover, name }: ViewMetaProps) {
   const isFlag = useMemo(() => {
     return icon ? isFlagEmoji(icon.value) : false;
   }, [icon]);
+  const [isHover, setIsHover] = React.useState(false);
+
+  const handleUpdateIcon = React.useCallback(async (icon: { ty: ViewIconType, value: string }) => {
+    if (!updatePage || !viewId) return;
+    try {
+      await updatePage(viewId, {
+        icon,
+        name: name || '',
+        extra: extra || {},
+      });
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    }
+  }, [updatePage, viewId, name, extra]);
+
+  const handleUpdateName = React.useCallback(async (newName: string) => {
+    if (!updatePage || !viewId) return;
+    try {
+      if (name === newName) return;
+      await updatePage(viewId, {
+        icon: icon || {
+          ty: ViewIconType.Emoji,
+          value: '',
+        },
+        name: newName,
+        extra: extra || {},
+      });
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    }
+  }, [name, updatePage, viewId, icon, extra]);
+
+  const handleUpdateCover = React.useCallback(async (cover?: {
+    type: CoverType;
+    value: string;
+  }) => {
+    if (!updatePage || !viewId) return;
+    try {
+      await updatePage(viewId, {
+        icon: icon || {
+          ty: ViewIconType.Emoji,
+          value: '',
+        },
+        name: name || '',
+        extra: {
+          ...extra,
+          cover: cover,
+        },
+      });
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    }
+  }, [extra, icon, name, updatePage, viewId]);
 
   return (
     <div className={'flex w-full flex-col items-center'}>
       {cover && <ViewCover
+        onUpdateCover={handleUpdateCover}
         coverType={coverType}
         coverValue={coverValue}
+        onRemoveCover={handleUpdateCover}
+        readOnly={readOnly}
       />}
       <div
-        className={`relative mb-6 mt-[52px] max-md:mt-[38px] px-6 w-[964px] min-w-0 max-w-full overflow-visible`}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+        className={'flex mt-2 flex-col relative'}
       >
-        <h1
-          className={
-            'flex gap-4 overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
-          }
-        >
-          {icon?.value ? <div className={`view-icon ${isFlag ? 'icon' : ''}`}>{icon?.value}</div> : null}
+        <div className={'relative max-sm:h-[38px] h-[52px] w-full'}>
+          {isHover && !readOnly && <Suspense><AddIconCover
+            hasIcon={!!icon?.value}
+            hasCover={!!cover?.value}
+            onUpdateIcon={handleUpdateIcon}
+            onAddCover={() => {
+              void handleUpdateCover({
+                type: CoverType.BuildInImage,
+                value: '1',
+              });
+            }}
+            iconAnchorEl={iconAnchorEl}
+            setIconAnchorEl={setIconAnchorEl}
+          /></Suspense>}
+        </div>
+        <div
 
-          <div className={'relative'}>
-            {name || <span className={'text-text-placeholder'}>{t('menuAppHeader.defaultNewPageName')}</span>}
-          </div>
-        </h1>
+          className={`relative mb-6 max-sm:px-6 px-24 w-[988px] min-w-0 max-w-full overflow-visible`}
+        >
+          <h1
+            className={
+              'flex w-full gap-4 overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
+            }
+          >
+            {icon?.value ?
+              <div
+                onClick={e => {
+                  if (readOnly) return;
+                  setIconAnchorEl(e.currentTarget);
+                }}
+                className={`view-icon ${readOnly ? '' : 'cursor-pointer hover:bg-fill-list-hover pb-1'} ${isFlag ? 'icon' : ''}`}
+              >{icon?.value}</div> : null}
+            {!readOnly ? <TitleEditable
+                name={name || ''}
+                onUpdateName={handleUpdateName}
+              /> :
+              <div
+                className={'relative flex-1 cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
+                data-placeholder={t('menuAppHeader.defaultNewPageName')}
+                contentEditable={false}
+              >
+                {name}
+              </div>}
+          </h1>
+        </div>
       </div>
+
+
     </div>
   );
 }
