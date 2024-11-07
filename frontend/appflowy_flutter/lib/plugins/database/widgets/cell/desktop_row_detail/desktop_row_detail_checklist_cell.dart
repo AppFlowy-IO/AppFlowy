@@ -55,6 +55,14 @@ class ChecklistRowDetailCell extends StatefulWidget {
 }
 
 class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
+  final phantomTextController = TextEditingController();
+
+  @override
+  void dispose() {
+    phantomTextController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -69,6 +77,7 @@ class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
           ),
           const VSpace(2.0),
           _ChecklistItems(
+            phantomTextController: phantomTextController,
             onStartCreatingTaskAfter: (index) {
               context
                   .read<ChecklistCellBloc>()
@@ -80,6 +89,7 @@ class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
             onTap: () {
               final bloc = context.read<ChecklistCellBloc>();
               if (bloc.state.phantomIndex == null) {
+                phantomTextController.clear();
                 bloc.add(
                   ChecklistCellEvent.updatePhantomIndex(
                     bloc.state.showIncompleteOnly
@@ -87,6 +97,13 @@ class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
                             .where((task) => !task.isSelected)
                             .length
                         : bloc.state.tasks.length,
+                  ),
+                );
+              } else {
+                bloc.add(
+                  ChecklistCellEvent.createNewTask(
+                    phantomTextController.text,
+                    index: bloc.state.phantomIndex,
                   ),
                 );
               }
@@ -153,9 +170,11 @@ class ProgressAndHideCompleteButton extends StatelessWidget {
 
 class _ChecklistItems extends StatelessWidget {
   const _ChecklistItems({
+    required this.phantomTextController,
     required this.onStartCreatingTaskAfter,
   });
 
+  final TextEditingController phantomTextController;
   final void Function(int index) onStartCreatingTaskAfter;
 
   @override
@@ -165,6 +184,7 @@ class _ChecklistItems extends StatelessWidget {
         _CancelCreatingFromPhantomIntent:
             CallbackAction<_CancelCreatingFromPhantomIntent>(
           onInvoke: (_CancelCreatingFromPhantomIntent intent) {
+            phantomTextController.clear();
             context
                 .read<ChecklistCellBloc>()
                 .add(const ChecklistCellEvent.updatePhantomIndex(null));
@@ -240,7 +260,10 @@ class _ChecklistItems extends StatelessWidget {
         Padding(
           key: const ValueKey('new_checklist_cell_task'),
           padding: const EdgeInsets.symmetric(vertical: 2.0),
-          child: PhantomChecklistItem(index: state.phantomIndex!),
+          child: PhantomChecklistItem(
+            index: state.phantomIndex!,
+            textController: phantomTextController,
+          ),
         ),
       );
     }
@@ -268,16 +291,17 @@ class PhantomChecklistItem extends StatefulWidget {
   const PhantomChecklistItem({
     super.key,
     required this.index,
+    required this.textController,
   });
 
   final int index;
+  final TextEditingController textController;
 
   @override
   State<PhantomChecklistItem> createState() => _PhantomChecklistItemState();
 }
 
 class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
-  TextEditingController textController = TextEditingController();
   final focusNode = FocusNode();
 
   bool isComposing = false;
@@ -285,18 +309,19 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
   @override
   void initState() {
     super.initState();
-    textController.addListener(_onTextChanged);
+    widget.textController.addListener(_onTextChanged);
     focusNode.addListener(_onFocusChanged);
     WidgetsBinding.instance
         .addPostFrameCallback((_) => focusNode.requestFocus());
   }
 
-  void _onTextChanged() =>
-      setState(() => isComposing = !textController.value.composing.isCollapsed);
+  void _onTextChanged() => setState(
+        () => isComposing = !widget.textController.value.composing.isCollapsed,
+      );
 
   void _onFocusChanged() {
     if (!focusNode.hasFocus) {
-      textController.clear();
+      widget.textController.clear();
       Actions.maybeInvoke(
         context,
         const _CancelCreatingFromPhantomIntent(),
@@ -306,8 +331,7 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
 
   @override
   void dispose() {
-    textController.removeListener(_onTextChanged);
-    textController.dispose();
+    widget.textController.removeListener(_onTextChanged);
     focusNode.removeListener(_onFocusChanged);
     focusNode.dispose();
     super.dispose();
@@ -319,15 +343,13 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
       actions: {
         _SubmitPhantomTaskIntent: CallbackAction<_SubmitPhantomTaskIntent>(
           onInvoke: (_SubmitPhantomTaskIntent intent) {
-            if (intent.taskDescription.isNotEmpty) {
-              context.read<ChecklistCellBloc>().add(
-                    ChecklistCellEvent.createNewTask(
-                      intent.taskDescription,
-                      index: intent.index,
-                    ),
-                  );
-            }
-            textController.clear();
+            context.read<ChecklistCellBloc>().add(
+                  ChecklistCellEvent.createNewTask(
+                    intent.taskDescription,
+                    index: intent.index,
+                  ),
+                );
+            widget.textController.clear();
             return;
           },
         ),
@@ -342,7 +364,7 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
           ),
           child: Center(
             child: ChecklistCellTextfield(
-              textController: textController,
+              textController: widget.textController,
               focusNode: focusNode,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 10,
@@ -361,7 +383,7 @@ class _PhantomChecklistItemState extends State<PhantomChecklistItem> {
         : {
             const SingleActivator(LogicalKeyboardKey.enter):
                 _SubmitPhantomTaskIntent(
-              taskDescription: textController.text,
+              taskDescription: widget.textController.text,
               index: widget.index,
             ),
             const SingleActivator(LogicalKeyboardKey.escape):
@@ -386,39 +408,41 @@ class ChecklistItemControl extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: cellNotifer,
       child: Consumer<CellContainerNotifier>(
-        builder: (buildContext, notifier, _) => GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 0),
-            height: 12,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: notifier.isHover
-                  ? FlowyTooltip(
-                      message: LocaleKeys.grid_checklist_addNew.tr(),
-                      child: Row(
-                        children: [
-                          const Flexible(child: Center(child: Divider())),
-                          const HSpace(12.0),
-                          FilledButton(
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size.square(12),
-                              maximumSize: const Size.square(12),
-                              padding: EdgeInsets.zero,
+        builder: (buildContext, notifier, _) => TextFieldTapRegion(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 0),
+              height: 12,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                child: notifier.isHover
+                    ? FlowyTooltip(
+                        message: LocaleKeys.grid_checklist_addNew.tr(),
+                        child: Row(
+                          children: [
+                            const Flexible(child: Center(child: Divider())),
+                            const HSpace(12.0),
+                            FilledButton(
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.square(12),
+                                maximumSize: const Size.square(12),
+                                padding: EdgeInsets.zero,
+                              ),
+                              onPressed: onTap,
+                              child: FlowySvg(
+                                FlowySvgs.add_s,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
                             ),
-                            onPressed: onTap,
-                            child: FlowySvg(
-                              FlowySvgs.add_s,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                          const HSpace(12.0),
-                          const Flexible(child: Center(child: Divider())),
-                        ],
-                      ),
-                    )
-                  : const SizedBox.expand(),
+                            const HSpace(12.0),
+                            const Flexible(child: Center(child: Divider())),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.expand(),
+              ),
             ),
           ),
         ),
