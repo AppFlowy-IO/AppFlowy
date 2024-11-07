@@ -5,12 +5,14 @@ import {
   DatabaseRelations,
   LoadView,
   LoadViewMeta, Types,
+  UpdatePagePayload,
   UserWorkspaceInfo,
   View,
   ViewLayout, YjsDatabaseKey, YjsEditorKey, YSharedRoot,
 } from '@/application/types';
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
+import ViewModal from '@/components/app/ViewModal';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
 import { uniqBy } from 'lodash-es';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -39,6 +41,14 @@ export interface AppContextType {
   onRendered?: () => void;
   notFound?: boolean;
   viewHasBeenDeleted?: boolean;
+  addPage?: (parentId: string, layout: ViewLayout) => Promise<string>;
+  deletePage?: (viewId: string) => Promise<void>;
+  updatePage?: (viewId: string, payload: UpdatePagePayload) => Promise<void>;
+  deleteTrash?: (viewId?: string) => Promise<void>;
+  restorePage?: (viewId?: string) => Promise<void>;
+  movePage?: (viewId: string, parentId: string) => Promise<void>;
+  openPageModal?: (viewId: string) => void;
+  openPageModalViewId?: string;
 }
 
 const USER_NO_ACCESS_CODE = [1024, 1012];
@@ -54,6 +64,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (id && !uuidValidate(id)) return;
     return id;
   }, [params.viewId]);
+  const [openModalViewId, setOpenModalViewId] = useState<string | undefined>(undefined);
   const [userWorkspaceInfo, setUserWorkspaceInfo] = useState<UserWorkspaceInfo | undefined>(undefined);
   const currentWorkspaceId = useMemo(() => params.workspaceId || userWorkspaceInfo?.selectedWorkspace.id, [params.workspaceId, userWorkspaceInfo?.selectedWorkspace.id]);
   const [workspaceDatabases, setWorkspaceDatabases] = useState<DatabaseRelations | undefined>(undefined);
@@ -403,11 +414,106 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     await service.openWorkspace(workspaceId);
+    await loadUserWorkspaceInfo();
     localStorage.removeItem('last_view_id');
     setOutline(undefined);
     navigate(`/app/${workspaceId}`);
 
-  }, [navigate, service, userWorkspaceInfo]);
+  }, [navigate, service, userWorkspaceInfo, loadUserWorkspaceInfo]);
+
+  const addPage = useCallback(async (parentViewId: string, layout: ViewLayout) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      const viewId = await service.addAppPage(currentWorkspaceId, parentViewId, layout);
+
+      void loadOutline(currentWorkspaceId);
+      return viewId;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
+  const openPageModal = useCallback((viewId: string) => {
+    setOpenModalViewId(viewId);
+  }, []);
+
+  const deletePage = useCallback(async (viewId: string) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      await service.moveToTrash(currentWorkspaceId, viewId);
+
+      void loadOutline(currentWorkspaceId);
+      return;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
+  const deleteTrash = useCallback(async (viewId?: string) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      await service.deleteTrash(currentWorkspaceId, viewId);
+
+      void loadOutline(currentWorkspaceId);
+      return;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
+  const restorePage = useCallback(async (viewId?: string) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      await service.restoreFromTrash(currentWorkspaceId, viewId);
+
+      void loadOutline(currentWorkspaceId);
+      return;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
+  const updatePage = useCallback(async (viewId: string, payload: UpdatePagePayload) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      await service.updateAppPage(currentWorkspaceId, viewId, payload);
+
+      void loadOutline(currentWorkspaceId);
+      return;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
+  const movePage = useCallback(async (viewId: string, parentId: string) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      await service.movePage(currentWorkspaceId, viewId, parentId);
+
+      void loadOutline(currentWorkspaceId);
+      return;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
 
   return <AppContext.Provider
     value={{
@@ -432,9 +538,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       onRendered,
       notFound: viewNotFound,
       viewHasBeenDeleted,
+      addPage,
+      openPageModal,
+      openPageModalViewId: openModalViewId,
+      deletePage,
+      deleteTrash,
+      updatePage,
+      movePage,
+      restorePage,
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
+    {openModalViewId && <ViewModal
+      open={!!openModalViewId}
+      viewId={openModalViewId}
+      onClose={() => {
+        setOpenModalViewId(undefined);
+      }}
+    />}
   </AppContext.Provider>;
 };
 
@@ -491,16 +612,24 @@ export function useAppViewId () {
   return context.viewId;
 }
 
-export function useAppView () {
-  const viewId = useAppViewId();
-  const outline = useAppOutline();
-  const view = useMemo(() => viewId ? findView(outline || [], viewId) : null, [outline, viewId]);
+export function useOpenModalViewId () {
+  const context = useContext(AppContext);
 
-  if (!viewId || !outline) {
-    return;
+  if (!context) {
+    throw new Error('useOpenModalViewId must be used within an AppProvider');
   }
 
-  return view;
+  return context.openPageModalViewId;
+}
+
+export function useAppView (viewId: string) {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    throw new Error('useAppView must be used within an AppProvider');
+  }
+
+  return findView(context.outline || [], viewId);
 }
 
 export function useCurrentWorkspaceId () {
@@ -528,6 +657,13 @@ export function useAppHandlers () {
     appendBreadcrumb: context.appendBreadcrumb,
     onChangeWorkspace: context.onChangeWorkspace,
     onRendered: context.onRendered,
+    addPage: context.addPage,
+    openPageModal: context.openPageModal,
+    deletePage: context.deletePage,
+    deleteTrash: context.deleteTrash,
+    restorePage: context.restorePage,
+    updatePage: context.updatePage,
+    movePage: context.movePage,
   };
 }
 

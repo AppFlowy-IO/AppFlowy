@@ -82,6 +82,14 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
                   opacity: 0.3,
                   color: 'var(--content-on-fill)',
                 },
+                '&.MuiButton-containedInherit': {
+                  color: 'var(--text-title)',
+                  backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+                  '&:hover': {
+                    backgroundColor: 'var(--bg-body)',
+                    boxShadow: 'var(--shadow)',
+                  },
+                },
               },
               outlined: {
                 '&.MuiButton-outlinedInherit': {

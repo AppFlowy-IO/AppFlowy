@@ -6,7 +6,14 @@ import {
   UserWorkspaceInfo,
   View,
   Workspace,
-  YDoc, DatabaseRelations, GetRequestAccessInfoResponse, Subscriptions, SubscriptionPlan, SubscriptionInterval, Types,
+  YDoc,
+  DatabaseRelations,
+  GetRequestAccessInfoResponse,
+  Subscriptions,
+  SubscriptionPlan,
+  SubscriptionInterval,
+  Types,
+  ViewLayout, UpdatePagePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -55,7 +62,7 @@ export interface AppService {
   getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;
   getCurrentUser: () => Promise<User>;
   getUserWorkspaceInfo: () => Promise<UserWorkspaceInfo>;
-  uploadFileToCDN: (file: File) => Promise<string>;
+  uploadTemplateAvatar: (file: File) => Promise<string>;
   getInvitation: (invitationId: string) => Promise<Invitation>;
   acceptInvitation: (invitationId: string) => Promise<void>;
   getRequestAccessInfo: (requestId: string) => Promise<GetRequestAccessInfoResponse>;
@@ -68,6 +75,12 @@ export interface AppService {
     workspaceId: string, objectId: string, collabType: Types
   }) => void;
   importFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
+  addAppPage: (workspaceId: string, parentViewId: string, layout: ViewLayout) => Promise<string>;
+  updateAppPage: (workspaceId: string, viewId: string, data: UpdatePagePayload) => Promise<void>;
+  deleteTrash: (workspaceId: string, viewId?: string) => Promise<void>;
+  moveToTrash: (workspaceId: string, viewId: string) => Promise<void>;
+  restoreFromTrash: (workspaceId: string, viewId?: string) => Promise<void>;
+  movePage: (workspaceId: string, viewId: string, parentId: string) => Promise<void>;
 }
 
 export interface TemplateService {

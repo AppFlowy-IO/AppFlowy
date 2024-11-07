@@ -68,6 +68,7 @@ export function NormalModal ({
           <Button
             color={'inherit'}
             variant={'outlined'}
+            size={'small'}
             onClick={() => {
               if (onCancel) {
                 onCancel();
@@ -80,7 +81,7 @@ export function NormalModal ({
           <Button
             color={danger ? 'error' : 'primary'}
             variant={'contained'}
-
+            size={'small'}
             onClick={() => {
               if (okLoading) return;
               onOk?.();

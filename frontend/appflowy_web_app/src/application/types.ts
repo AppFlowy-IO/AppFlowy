@@ -798,6 +798,11 @@ export interface ViewIcon {
   value: string;
 }
 
+export enum SpacePermission {
+  Public = 0,
+  Private = 1,
+}
+
 export interface ViewExtra {
   is_space: boolean;
   space_created_at?: number;
@@ -904,3 +909,17 @@ export interface Subscription {
 }
 
 export type Subscriptions = Subscription[];
+
+export interface UpdatePagePayload {
+  name: string;
+  icon: {
+    ty: ViewIconType,
+    value: string,
+  };
+  extra: Partial<ViewExtra>;
+}
+
+export interface ViewMetaCover {
+  type: CoverType;
+  value: string;
+}

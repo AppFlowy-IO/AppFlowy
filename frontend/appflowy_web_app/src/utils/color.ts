@@ -161,3 +161,22 @@ export function stringAvatar (name: string, colorArray: string[] = colorDefaultA
     children: `${name.split('')[0]}`,
   };
 }
+
+export const IconColors = [
+  '0xFFA34AFD',
+  '0xFFFB006D',
+  '0xFF00C8FF',
+  '0xFFFFBA00',
+  '0xFFF254BC',
+  '0xFF2AC985',
+  '0xFFAAD93D',
+  '0xFF535CE4',
+  '0xFF808080',
+  '0xFFD2515F',
+  '0xFF409BF8',
+  '0xFFFF8933',
+];
+
+export function randomColor (colors: string[]): string {
+  return colors[Math.floor(Math.random() * colors.length)];
+}

@@ -6,13 +6,13 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as TemplateIcon } from '@/assets/template.svg';
 
-function AsTemplateButton () {
+function AsTemplateButton ({ viewId }: { viewId: string }) {
   const { t } = useTranslation();
 
   const {
     url: publishUrl,
-  } = useLoadPublishInfo();
-  const view = useAppView();
+  } = useLoadPublishInfo(viewId);
+  const view = useAppView(viewId);
 
   const handleClick = useCallback(() => {
 

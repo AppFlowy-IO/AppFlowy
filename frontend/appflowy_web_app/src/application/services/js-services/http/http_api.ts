@@ -14,7 +14,7 @@ import {
   Subscriptions,
   SubscriptionPlan,
   SubscriptionInterval,
-  RequestAccessInfoStatus, ViewInfo,
+  RequestAccessInfoStatus, ViewInfo, UpdatePagePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -1007,7 +1007,7 @@ export async function deleteTemplateCreator (creatorId: string) {
   return Promise.reject(response?.data.message);
 }
 
-export async function uploadFileToCDN (file: File) {
+export async function uploadTemplateAvatar (file: File) {
   const url = '/api/template-center/avatar';
   const formData = new FormData();
 
@@ -1236,3 +1236,95 @@ export async function uploadImportFile (presignedUrl: string, file: File, onProg
   });
 }
 
+export async function addAppPage (workspaceId: string, parentViewId: string, layout: ViewLayout) {
+  const url = `/api/workspace/${workspaceId}/page-view`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    data: {
+      view_id: string;
+    };
+    message: string;
+  }>(url, {
+    parent_view_id: parentViewId,
+    layout,
+  });
+
+  if (response?.data.code === 0) {
+    return response?.data.data.view_id;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function updatePage (workspaceId: string, viewId: string, data: UpdatePagePayload) {
+  const url = `/api/workspace/${workspaceId}/page-view/${viewId}`;
+
+  const res = await axiosInstance?.patch<{
+    code: number;
+    message: string;
+  }>(url, data);
+
+  if (res?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function deleteTrash (workspaceId: string, viewId?: string) {
+  const url = `/api/workspace/${workspaceId}/page-view/trash/${viewId}`;
+  const response = await axiosInstance?.delete<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function moveToTrash (workspaceId: string, viewId: string) {
+  const url = `/api/workspace/${workspaceId}/page-view/${viewId}/move-to-trash`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function movePageTo (workspaceId: string, viewId: string, parentViewId: string) {
+  const url = `/api/workspace/${workspaceId}/page-view/${viewId}/move`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    parent_view_id: parentViewId,
+  });
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function restorePage (workspaceId: string, viewId?: string) {
+  const url = viewId ? `/api/workspace/${workspaceId}/page-view/${viewId}/restore-from-trash` : `/api/workspace/${workspaceId}/restore-all-pages-from-trash`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}

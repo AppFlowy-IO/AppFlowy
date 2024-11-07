@@ -13,9 +13,9 @@ enum TabKey {
   TEMPLATE = 'template',
 }
 
-function ShareTabs () {
+function ShareTabs ({ viewId }: { viewId: string }) {
   const { t } = useTranslation();
-  const view = useAppView();
+  const view = useAppView(viewId);
   const [value, setValue] = React.useState<TabKey>(TabKey.PUBLISH);
   const currentUser = useCurrentUser();
 
@@ -34,7 +34,7 @@ function ShareTabs () {
       value: TabKey;
       label: string;
       icon?: React.JSX.Element;
-      Panel: React.FC
+      Panel: React.FC<{ viewId: string }>
     }[];
 
   }, [currentUser?.email, t, view?.is_published]);
@@ -45,10 +45,16 @@ function ShareTabs () {
 
   return (
     <>
-      <ViewTabs className={'border-b border-line-divider'} onChange={onChange} value={value}>
+      <ViewTabs
+        className={'border-b border-line-divider'}
+        onChange={onChange}
+        value={value}
+      >
         {options.map((option) => (
           <ViewTab
-            className={'flex items-center flex-row justify-center gap-1.5'} key={option.value} value={option.value}
+            className={'flex items-center flex-row justify-center gap-1.5'}
+            key={option.value}
+            value={option.value}
             label={option.label}
             icon={option.icon}
           />
@@ -57,9 +63,12 @@ function ShareTabs () {
       <div className={'p-2'}>
         {options.map((option) => (
           <TabPanel
-            className={'min-w-[360px] max-sm:min-w-[80vw]'} key={option.value} index={option.value} value={value}
+            className={'min-w-[360px] max-sm:min-w-[80vw]'}
+            key={option.value}
+            index={option.value}
+            value={value}
           >
-            <option.Panel />
+            <option.Panel viewId={viewId} />
           </TabPanel>
         ))}
       </div>
