@@ -36,7 +36,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('document page style', () {
+  group('document page style:', () {
     double getCurrentEditorFontSize() {
       final editorPage = find
           .byType(AppFlowyEditorPage)
@@ -93,6 +93,7 @@ void main() {
       );
       // change line height from normal to large
       await tester.tapSvgButton(FlowySvgs.m_layout_large_s);
+      await tester.pumpAndSettle();
       expect(
         getCurrentEditorLineHeight(),
         PageStyleLineHeightLayout.large.lineHeight,

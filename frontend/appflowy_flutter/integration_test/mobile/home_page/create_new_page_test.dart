@@ -29,10 +29,9 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('create new page', () {
+  group('create new page in home page:', () {
     testWidgets('create document', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
+      await tester.launchInAnonymousMode();
 
       // tap the create page button
       final createPageButton = find.byWidgetPredicate(

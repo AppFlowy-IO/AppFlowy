@@ -25,10 +25,9 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('anonymous sign in on mobile', () {
+  group('anonymous sign in on mobile:', () {
     testWidgets('anon user and then sign in', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
+      await tester.launchInAnonymousMode();
 
       // expect to see the home page
       expect(find.byType(MobileHomeScreen), findsOneWidget);
