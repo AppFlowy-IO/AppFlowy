@@ -25,7 +25,6 @@ class FindAndReplaceMenuWidget extends StatefulWidget {
 }
 
 class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
-  String queriedPattern = '';
   late bool showReplaceMenu = widget.showReplaceMenu;
 
   final findFocusNode = FocusNode();
