@@ -214,5 +214,6 @@ fn make_user_workspace() -> UserWorkspace {
     created_at: Default::default(),
     workspace_database_id: uuid::Uuid::new_v4().to_string(),
     icon: "".to_string(),
+    member_count: 0,
   }
 }

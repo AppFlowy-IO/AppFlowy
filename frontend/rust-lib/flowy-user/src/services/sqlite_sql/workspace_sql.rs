@@ -16,6 +16,7 @@ pub struct UserWorkspaceTable {
   pub created_at: i64,
   pub database_storage_id: String,
   pub icon: String,
+  pub member_count: i64,
 }
 
 pub fn get_user_workspace_op(workspace_id: &str, mut conn: DBConnection) -> Option<UserWorkspace> {
@@ -92,6 +93,7 @@ impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
       created_at: value.1.created_at.timestamp(),
       database_storage_id: value.1.workspace_database_id.clone(),
       icon: value.1.icon.clone(),
+      member_count: value.1.member_count,
     })
   }
 }
@@ -107,6 +109,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
         .unwrap_or_default(),
       workspace_database_id: value.database_storage_id,
       icon: value.icon,
+      member_count: value.member_count,
     }
   }
 }
