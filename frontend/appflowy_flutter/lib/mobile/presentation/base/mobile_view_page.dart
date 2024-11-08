@@ -65,7 +65,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void dispose() {
     _appBarOpacity.dispose();
-    _scrollNotificationObserver?.removeListener(_onScrollNotification);
+
+    // there's no need to remove the listener, because the observer will be disposed when the widget is unmounted.
+    // inside the observer, the listener will be removed automatically.
+    // _scrollNotificationObserver?.removeListener(_onScrollNotification);
     _scrollNotificationObserver = null;
 
     super.dispose();
