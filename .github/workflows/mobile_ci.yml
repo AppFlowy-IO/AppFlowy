@@ -1,0 +1,108 @@
+name: Mobile-CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build"
+        required: true
+        default: "main"
+      workflow_id:
+        description: "Codemagic workflow ID"
+        required: true
+        default: "ios-workflow"
+        type: choice
+        options:
+          - ios-workflow
+          - android-workflow
+
+env:
+  CODEMAGIC_API_TOKEN: 3G8VZRVsbYPb5-RuFjw-xqqlyA7y-nfue-rmybupLZw
+  APP_ID: "64cb77ba5da3347bf6d22fba"
+
+jobs:
+  trigger-mobile-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Codemagic Build
+        id: trigger_build
+        run: |
+          RESPONSE=$(curl -X POST \
+            --header "Content-Type: application/json" \
+            --header "x-auth-token: $CODEMAGIC_API_TOKEN" \
+            --data '{
+              "appId": "${{ env.APP_ID }}",
+              "workflowId": "${{ github.event.inputs.workflow_id }}",
+              "branch": "${{ github.event.inputs.branch }}"
+            }' \
+            https://api.codemagic.io/builds)
+
+          BUILD_ID=$(echo $RESPONSE | jq -r '.buildId')
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for build and check status
+        id: check_status
+        run: |
+          while true; do
+            RESPONSE=$(curl -X GET \
+              --header "Content-Type: application/json" \
+              --header "x-auth-token: $CODEMAGIC_API_TOKEN" \
+              https://api.codemagic.io/builds/${{ steps.trigger_build.outputs.build_id }})
+
+            STATUS=$(echo $RESPONSE | jq -r '.status')
+
+            if [ "$STATUS" = "finished" ]; then
+              SUCCESS=$(echo $RESPONSE | jq -r '.success')
+              BUILD_URL=$(echo $RESPONSE | jq -r '.buildUrl')
+              echo "status=$STATUS" >> $GITHUB_OUTPUT
+              echo "success=$SUCCESS" >> $GITHUB_OUTPUT
+              echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
+              break
+            elif [ "$STATUS" = "failed" ]; then
+              echo "status=failed" >> $GITHUB_OUTPUT
+              break
+            fi
+
+            sleep 60
+          done
+
+      - name: Send Slack Notification
+        if: always()
+        run: |
+          BUILD_STATUS="${{ steps.check_status.outputs.status }}"
+          SUCCESS="${{ steps.check_status.outputs.success }}"
+          BUILD_URL="${{ steps.check_status.outputs.build_url }}"
+
+          if [ "$SUCCESS" = "true" ]; then
+            COLOR="#36a64f"
+            STATUS_TEXT="✅ Success"
+          else
+            COLOR="#ff0000"
+            STATUS_TEXT="❌ Failed"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [
+                {
+                  \"color\": \"$COLOR\",
+                  \"blocks\": [
+                    {
+                      \"type\": \"section\",
+                      \"text\": {
+                        \"type\": \"mrkdwn\",
+                        \"text\": \"*Mobile CI Build Result*\n$STATUS_TEXT\"
+                      }
+                    },
+                    {
+                      \"type\": \"section\",
+                      \"text\": {
+                        \"type\": \"mrkdwn\",
+                        \"text\": \"*Branch:* ${{ github.event.inputs.branch }}\n*Workflow:* ${{ github.event.inputs.workflow_id }}\n*Build URL:* $BUILD_URL\"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }" \
+            ${{ secrets.RELEASE_SLACK_WEBHOOK }}

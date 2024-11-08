@@ -97,21 +97,25 @@ jobs:
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
           cargo make --profile development-ios-arm64-sim code_generation
 
-      # - uses: futureware-tech/simulator-action@v3
-      #   id: simulator-action
-      #   with:
-      #     model: "iPhone 15"
-      #     shutdown_after_job: false
+      - uses: futureware-tech/simulator-action@v3
+        id: simulator-action
+        with:
+          model: "iPhone 15"
+          shutdown_after_job: false
 
-      # - name: Run AppFlowy on simulator
-      #   working-directory: frontend/appflowy_flutter
-      #   run: |
-      #     flutter run -d ${{ steps.simulator-action.outputs.udid }} &
-      #     pid=$!
-      #     sleep 500
-      #     kill $pid
-      #   continue-on-error: true
+      - name: Run AppFlowy on simulator
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter run -d ${{ steps.simulator-action.outputs.udid }} &
+          pid=$!
+          sleep 500
+          kill $pid
+        continue-on-error: true
 
-      # - name: Run integration tests
-      #   working-directory: frontend/appflowy_flutter
-      #   run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+      - name: Run integration tests
+        working-directory: frontend/appflowy_flutter
+        # The integration tests are flaky and sometimes fail with "Connection timed out":
+        # Don't block the CI. If the tests fail, the CI will still pass.
+        # Instead, we're using Code Magic to re-run the tests to check if they pass.
+        continue-on-error: true
+        run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
