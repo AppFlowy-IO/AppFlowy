@@ -935,9 +935,11 @@
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
         "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
-        "tooltipSeven": "Allows you to customize part of the URL for your workspace"
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL"
       },
       "freeLabels": {
         "itemOne": "Charged per workspace",
