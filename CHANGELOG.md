@@ -1,4 +1,18 @@
 # Release Notes
+## Version 0.7.3 - 07/11/2024
+### New Features
+- Enable custom URLs for published pages
+- Support toggling headings
+- Create a subpage by typing in the document
+- Turn selected blocks into a subpage
+- Add a manual date picker for the Date property
+
+### Bug Fixes
+- Fixed an issue where the workspace owner was unable to delete spaces created by others
+- Fixed cursor height inconsistencies with text height
+- Fixed editing issues in Kanban cards
+- Fixed an issue preventing images or files from being dropped into empty paragraphs
+
 ## Version 0.7.2 - 22/10/2024
 ### New Features
 - Copy link to block
