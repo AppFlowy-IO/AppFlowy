@@ -70,6 +70,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleFocusNode
       ..onKeyEvent = null
       ..removeListener(_onFocusChanged);
+    titleTextController.removeListener(_onViewNameChanged);
     titleTextController.dispose();
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
     super.dispose();
