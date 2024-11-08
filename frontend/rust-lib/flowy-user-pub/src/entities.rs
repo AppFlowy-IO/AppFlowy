@@ -143,6 +143,7 @@ pub struct UserWorkspace {
   pub workspace_database_id: String,
   #[serde(default)]
   pub icon: String,
+  pub member_count: i64,
 }
 
 impl UserWorkspace {
@@ -153,6 +154,7 @@ impl UserWorkspace {
       created_at: Utc::now(),
       workspace_database_id: Uuid::new_v4().to_string(),
       icon: "".to_string(),
+      member_count: 1,
     }
   }
 }
