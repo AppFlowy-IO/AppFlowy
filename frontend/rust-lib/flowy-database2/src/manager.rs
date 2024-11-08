@@ -870,7 +870,8 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     let collab_db = self.collab_db()?;
     let collab = self
       .collab_builder
-      .build_collab(&object, &collab_db, data_source)?;
+      .build_collab(&object, &collab_db, data_source)
+      .await?;
     Ok(collab)
   }
 

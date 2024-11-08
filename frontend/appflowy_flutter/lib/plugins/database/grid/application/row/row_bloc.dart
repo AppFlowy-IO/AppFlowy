@@ -70,14 +70,13 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     );
   }
 
-  void _startListening() {
-    _rowController.addListener(
-      onRowChanged: (cells, reason) {
-        if (!isClosed) {
-          add(RowEvent.didReceiveCells(cells, reason));
-        }
-      },
-    );
+  void _startListening() =>
+      _rowController.addListener(onRowChanged: _onRowChanged);
+
+  void _onRowChanged(List<CellContext> cells, ChangedReason reason) {
+    if (!isClosed) {
+      add(RowEvent.didReceiveCells(cells, reason));
+    }
   }
 
   void _init() {

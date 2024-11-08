@@ -60,7 +60,7 @@ extension MinimalViewExtension on FolderViewMinimalPB {
           ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
           ViewLayoutPB.Document => FlowySvgs.icon_document_s,
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
-          _ => FlowySvgs.document_s,
+          _ => FlowySvgs.icon_document_s,
         },
         size: size,
       );
@@ -77,7 +77,7 @@ extension ViewExtension on ViewPB {
           ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
           ViewLayoutPB.Document => FlowySvgs.icon_document_s,
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
-          _ => FlowySvgs.document_s,
+          _ => FlowySvgs.icon_document_s,
         },
         size: size,
       );
@@ -293,12 +293,12 @@ extension ViewExtension on ViewPB {
 
 extension ViewLayoutExtension on ViewLayoutPB {
   FlowySvgData get icon => switch (this) {
-        ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Board => FlowySvgs.board_s,
-        ViewLayoutPB.Calendar => FlowySvgs.calendar_s,
-        ViewLayoutPB.Document => FlowySvgs.document_s,
+        ViewLayoutPB.Board => FlowySvgs.icon_board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
+        ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
+        ViewLayoutPB.Document => FlowySvgs.icon_document_s,
         ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
-        _ => throw Exception('Unknown layout type'),
+        _ => FlowySvgs.icon_document_s,
       };
 
   bool get isDocumentView => switch (this) {

@@ -81,7 +81,7 @@ impl From<PublishInfo> for PublishInfoResponsePB {
     Self {
       view_id: info.view_id.to_string(),
       publish_name: info.publish_name,
-      namespace: info.namespace,
+      namespace: Some(info.namespace),
       publisher_email: info.publisher_email,
       publish_timestamp_sec: info.publish_timestamp.timestamp(),
     }

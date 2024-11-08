@@ -69,7 +69,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Summary => const Color(0xFFBECCFF),
         FieldType.Time => const Color(0xFFFDEDA7),
         FieldType.Translate => const Color(0xFFBECCFF),
-        FieldType.Media => const Color(0xFFFCBEBE),
+        FieldType.Media => const Color(0xFF91EBF5),
         _ => throw UnimplementedError(),
       };
 
@@ -89,7 +89,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Summary => const Color(0xFF6859A7),
         FieldType.Time => const Color(0xFFFDEDA7),
         FieldType.Translate => const Color(0xFF6859A7),
-        FieldType.Media => const Color(0xFFBE9090),
+        FieldType.Media => const Color(0xFF91EBF5),
         _ => throw UnimplementedError(),
       };
 

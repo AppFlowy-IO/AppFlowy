@@ -59,10 +59,6 @@ void main() {
       // expect to see unpublish, visit site and manage all sites button
       expect(unpublishButton, findsOneWidget);
       expect(find.text(LocaleKeys.shareAction_visitSite.tr()), findsOneWidget);
-      expect(
-        find.text(LocaleKeys.shareAction_manageAllSites.tr()),
-        findsOneWidget,
-      );
 
       // unpublish the document
       await tester.tapButton(unpublishButton);

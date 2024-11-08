@@ -8,6 +8,7 @@ import 'document_with_file_test.dart' as document_with_file_test;
 import 'document_with_image_block_test.dart' as document_with_image_block_test;
 import 'document_with_multi_image_block_test.dart'
     as document_with_multi_image_block_test;
+import 'document_block_option_test.dart' as document_block_option_test;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,5 @@ void main() {
   document_more_actions_test.main();
   document_with_file_test.main();
   document_shortcuts_test.main();
-
-  // Disable subPage test temporarily, enable it in version 0.7.2
-  // document_sub_page_test.main();
+  document_block_option_test.main();
 }

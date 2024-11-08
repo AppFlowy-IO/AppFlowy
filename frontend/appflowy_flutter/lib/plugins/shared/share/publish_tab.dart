@@ -9,10 +9,7 @@ import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -25,7 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PublishTab extends StatelessWidget {
-  const PublishTab({super.key});
+  const PublishTab({
+    super.key,
+    required this.viewName,
+  });
+
+  final String viewName;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,7 @@ class PublishTab extends StatelessWidget {
               final id = context.read<ShareBloc>().view.id;
               final publishName = await generatePublishName(
                 id,
-                state.viewName,
+                viewName,
               );
 
               if (selectedViews.isNotEmpty) {
@@ -188,7 +190,6 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildManageSiteButton(),
             const Spacer(),
             UnPublishButton(
               onUnPublish: widget.onUnPublish,
@@ -198,33 +199,6 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildManageSiteButton() {
-    return SizedBox(
-      width: 128,
-      height: 36,
-      child: FlowyButton(
-        radius: BorderRadius.circular(10),
-        text: FlowyText.regular(
-          lineHeight: 1.0,
-          LocaleKeys.shareAction_manageAllSites.tr(),
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-        ),
-        onTap: () {
-          PopoverContainer.of(context).close();
-
-          // open settings sites page
-          showSettingsDialog(
-            context,
-            context.read<UserWorkspaceBloc>().userProfile,
-            context.read<UserWorkspaceBloc>(),
-            SettingsPage.sites,
-          );
-        },
-      ),
     );
   }
 
@@ -402,18 +376,15 @@ class _PublishUrlState extends State<_PublishUrl> {
   @override
   void initState() {
     super.initState();
-
-    focusNode.addListener(() {
-      setState(() {
-        showSaveButton = focusNode.hasFocus;
-      });
-    });
+    focusNode.addListener(_onFocusChanged);
   }
+
+  void _onFocusChanged() => setState(() => showSaveButton = focusNode.hasFocus);
 
   @override
   void dispose() {
+    focusNode.removeListener(_onFocusChanged);
     focusNode.dispose();
-
     super.dispose();
   }
 
@@ -539,12 +510,7 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
   void initState() {
     super.initState();
 
-    _databaseStatus.addListener(() {
-      final selectedDatabases =
-          _databaseStatus.value.where((e) => e.$2).map((e) => e.$1).toList();
-      widget.onSelected(selectedDatabases);
-    });
-
+    _databaseStatus.addListener(_onDatabaseStatusChanged);
     _databaseStatus.value = context
         .read<DatabaseTabBarBloc>()
         .state
@@ -553,8 +519,15 @@ class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
         .toList();
   }
 
+  void _onDatabaseStatusChanged() {
+    final selectedDatabases =
+        _databaseStatus.value.where((e) => e.$2).map((e) => e.$1).toList();
+    widget.onSelected(selectedDatabases);
+  }
+
   @override
   void dispose() {
+    _databaseStatus.removeListener(_onDatabaseStatusChanged);
     _databaseStatus.dispose();
     super.dispose();
   }

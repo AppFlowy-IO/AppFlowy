@@ -82,13 +82,15 @@ impl DocumentManager {
   }
 
   /// Get the encoded collab of the document.
-  pub fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+  pub async fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
     let doc_state =
       CollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid, workspace_id)
         .into_data_source();
-    let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
+    let collab = self
+      .collab_for_document(uid, doc_id, doc_state, false)
+      .await?;
     let encoded_collab = collab
       .try_read()
       .unwrap()
@@ -167,7 +169,7 @@ impl DocumentManager {
     }
   }
 
-  fn collab_for_document(
+  async fn collab_for_document(
     &self,
     uid: i64,
     doc_id: &str,
@@ -180,13 +182,16 @@ impl DocumentManager {
       self
         .collab_builder
         .collab_object(&workspace_id, uid, doc_id, CollabType::Document)?;
-    let document = self.collab_builder.create_document(
-      collab_object,
-      data_source,
-      db,
-      CollabBuilderConfig::default().sync_enable(sync_enable),
-      None,
-    )?;
+    let document = self
+      .collab_builder
+      .create_document(
+        collab_object,
+        data_source,
+        db,
+        CollabBuilderConfig::default().sync_enable(sync_enable),
+        None,
+      )
+      .await?;
     Ok(document)
   }
 
@@ -243,7 +248,9 @@ impl DocumentManager {
       doc_id,
       self.user_service.workspace_id()
     );
-    let result = self.collab_for_document(uid, doc_id, doc_state, enable_sync);
+    let result = self
+      .collab_for_document(uid, doc_id, doc_state, enable_sync)
+      .await;
     match result {
       Ok(document) => {
         // Only push the document to the cache if the sync is enabled.

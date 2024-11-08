@@ -534,7 +534,9 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
               color: Theme.of(context).hintColor,
             ),
             onTap: () {
-              setState(() => _isCreating = true);
+              context
+                  .read<BoardActionsCubit>()
+                  .startCreateBottomRow(widget.columnData.id);
             },
           ),
         ),

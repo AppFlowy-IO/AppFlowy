@@ -60,10 +60,8 @@ export function useShortcuts (editor: ReactEditor) {
 
     // Do not process shortcuts if editor is read-only or no selection
     if (readOnly || !selection) return;
-    const [point, endPoint] = editor.edges(selection);
+    const [point] = editor.edges(selection);
     const node = getBlockEntry(yjsEditor, point);
-    const endNode = getBlockEntry(yjsEditor, endPoint);
-    const isSameBlock = node[0].blockId === endNode[0].blockId;
 
     // Add more cases here for editing shortcuts
     switch (!readOnly) {
@@ -86,13 +84,12 @@ export function useShortcuts (editor: ReactEditor) {
       case createHotkey(HOT_KEY_NAME.INDENT_BLOCK)(e):
         event.preventDefault();
 
-        if (!isSameBlock) return;
         if (SOFT_BREAK_TYPES.includes(node[0]?.type as BlockType)) {
           editor.insertText('\t');
           break;
         }
 
-        CustomEditor.tabForward(yjsEditor, point);
+        CustomEditor.tabEvent(yjsEditor, e);
         break;
       /**
        * Outdent block: Shift+Tab
@@ -100,8 +97,13 @@ export function useShortcuts (editor: ReactEditor) {
        */
       case createHotkey(HOT_KEY_NAME.OUTDENT_BLOCK)(e):
         event.preventDefault();
-        if (!isSameBlock) return;
-        CustomEditor.tabBackward(yjsEditor, point);
+
+        if (SOFT_BREAK_TYPES.includes(node[0]?.type as BlockType)) {
+          editor.deleteBackward('character');
+          break;
+        }
+        
+        CustomEditor.tabEvent(yjsEditor, e);
         break;
       /**
        * Split block: Enter

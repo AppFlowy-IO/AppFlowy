@@ -101,8 +101,8 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
         className={'text-text-title ml-0.5'}
       />}
       {type === MentionType.PageRef &&
-        <span className={`absolute -right-0.5 bottom-0`}>
-          <NorthEast className={'w-3 h-3 text-content-blue-900'} />
+        <span className={`absolute ${icon?.value ? 'right-0 bottom-0' : '-right-[1px] -bottom-[1px]'}`}>
+          <NorthEast className={'w-[0.7em] h-[0.7em] text-content-blue-900'} />
         </span>
       }
     </>;

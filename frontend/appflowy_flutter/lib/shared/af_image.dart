@@ -15,6 +15,7 @@ class AFImage extends StatelessWidget {
     this.width,
     this.fit = BoxFit.cover,
     this.userProfile,
+    this.borderRadius,
   }) : assert(
           uploadType != FileUploadTypePB.CloudFile || userProfile != null,
           'userProfile must be provided for accessing files from AF Cloud',
@@ -26,6 +27,7 @@ class AFImage extends StatelessWidget {
   final double? width;
   final BoxFit fit;
   final UserProfilePB? userProfile;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,7 @@ class AFImage extends StatelessWidget {
         height: height,
         width: width,
         fit: fit,
+        isAntiAlias: true,
         errorBuilder: (context, error, stackTrace) {
           return const SizedBox.shrink();
         },
@@ -50,6 +53,7 @@ class AFImage extends StatelessWidget {
         height: height,
         width: width,
         fit: fit,
+        isAntiAlias: true,
         errorBuilder: (context, error, stackTrace) {
           return const SizedBox.shrink();
         },
@@ -63,6 +67,14 @@ class AFImage extends StatelessWidget {
         errorWidgetBuilder: (context, url, error) {
           return const SizedBox.shrink();
         },
+      );
+    }
+
+    if (borderRadius != null) {
+      child = ClipRRect(
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        borderRadius: borderRadius!,
+        child: child,
       );
     }
 

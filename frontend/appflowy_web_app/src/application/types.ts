@@ -69,6 +69,7 @@ export interface TodoListBlockData extends BlockData {
 
 export interface ToggleListBlockData extends BlockData {
   collapsed: boolean;
+  level?: number;
 }
 
 export interface CodeBlockData extends BlockData {

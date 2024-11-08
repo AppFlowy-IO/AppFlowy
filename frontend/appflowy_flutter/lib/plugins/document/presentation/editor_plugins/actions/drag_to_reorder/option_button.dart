@@ -30,8 +30,10 @@ class OptionButton extends StatefulWidget {
 }
 
 class _OptionButtonState extends State<OptionButton> {
+  late final registerKey =
+      _interceptorKey + widget.blockComponentContext.node.id;
   late final gestureInterceptor = SelectionGestureInterceptor(
-    key: _interceptorKey,
+    key: registerKey,
     canTap: (details) => !_isTapInBounds(details.globalPosition),
   );
 
@@ -52,7 +54,7 @@ class _OptionButtonState extends State<OptionButton> {
   @override
   void dispose() {
     widget.editorState.service.selectionService.unregisterGestureInterceptor(
-      _interceptorKey,
+      registerKey,
     );
 
     super.dispose();

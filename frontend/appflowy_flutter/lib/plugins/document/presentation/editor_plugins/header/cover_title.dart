@@ -62,13 +62,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       ..onKeyEvent = _onKeyEvent
       ..addListener(_onFocusChanged);
 
-    editorState.selectionNotifier.addListener(() {
-      // if title is focused and the selection is not null, clear the selection
-      if (editorState.selection != null && titleFocusNode.hasFocus) {
-        Log.info('title is focused, clear the editor selection');
-        editorState.selection = null;
-      }
-    });
+    editorState.selectionNotifier.addListener(_onSelectionChanged);
   }
 
   @override
@@ -77,8 +71,16 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       ..onKeyEvent = null
       ..removeListener(_onFocusChanged);
     titleTextController.dispose();
-
+    editorState.selectionNotifier.removeListener(_onSelectionChanged);
     super.dispose();
+  }
+
+  void _onSelectionChanged() {
+    // if title is focused and the selection is not null, clear the selection
+    if (editorState.selection != null && titleFocusNode.hasFocus) {
+      Log.info('title is focused, clear the editor selection');
+      editorState.selection = null;
+    }
   }
 
   @override

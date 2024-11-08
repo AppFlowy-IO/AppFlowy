@@ -83,7 +83,8 @@ class _IconOrEmoji extends StatelessWidget {
                       return hasDocument
                           ? Padding(
                               padding:
-                                  const EdgeInsetsDirectional.only(end: 6.0),
+                                  const EdgeInsetsDirectional.only(end: 6.0)
+                                      .add(const EdgeInsets.all(1)),
                               child: FlowySvg(
                                 FlowySvgs.notes_s,
                                 color: Theme.of(context).hintColor,

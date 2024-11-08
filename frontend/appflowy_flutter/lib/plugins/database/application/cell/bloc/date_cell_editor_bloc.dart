@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/remi
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart'
@@ -54,59 +55,18 @@ class DateCellEditorBloc
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final dateCellData = DateCellData.fromPB(cellData);
 
-            ReminderOption option = state.reminderOption;
-            final cellReminderId = dateCellData.reminderId;
+            ReminderOption reminderOption = ReminderOption.none;
 
-            if (dateCellData.dateTime != null &&
-                state.reminderId.isEmpty &&
-                state.reminderOption != ReminderOption.none &&
-                cellReminderId.isNotEmpty) {
-              final date = state.reminderOption.withoutTime
-                  ? dateCellData.dateTime!.withoutTime
-                  : dateCellData.dateTime!;
-
-              // Add Reminder
-              _reminderBloc.add(
-                ReminderEvent.addById(
-                  reminderId: dateCellData.reminderId,
-                  objectId: cellController.viewId,
-                  meta: {
-                    ReminderMetaKeys.includeTime: true.toString(),
-                    ReminderMetaKeys.rowId: cellController.rowId,
-                  },
-                  scheduledAt: Int64(
-                    state.reminderOption
-                            .getNotificationDateTime(date)
-                            .millisecondsSinceEpoch ~/
-                        1000,
-                  ),
-                ),
-              );
-            }
-
-            if (cellReminderId.isNotEmpty && dateCellData.dateTime != null) {
-              if (option.requiresNoTime && dateCellData.includeTime) {
-                option = ReminderOption.atTimeOfEvent;
-              } else if (!option.withoutTime && !dateCellData.includeTime) {
-                option = ReminderOption.onDayOfEvent;
+            if (dateCellData.reminderId.isNotEmpty &&
+                dateCellData.dateTime != null) {
+              final reminder = _reminderBloc.state.reminders
+                  .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
+              if (reminder != null) {
+                reminderOption = ReminderOption.fromDateDifference(
+                  dateCellData.dateTime!,
+                  reminder.scheduledAt.toDateTime(),
+                );
               }
-
-              final date = option.withoutTime
-                  ? dateCellData.dateTime!.withoutTime
-                  : dateCellData.dateTime!;
-
-              final scheduledAt = option.getNotificationDateTime(date);
-
-              // Update Reminder
-              _reminderBloc.add(
-                ReminderEvent.update(
-                  ReminderUpdate(
-                    id: dateCellData.reminderId,
-                    scheduledAt: scheduledAt,
-                    includeTime: true,
-                  ),
-                ),
-              );
             }
 
             emit(
@@ -116,7 +76,7 @@ class DateCellEditorBloc
                 includeTime: dateCellData.includeTime,
                 isRange: dateCellData.isRange,
                 reminderId: dateCellData.reminderId,
-                reminderOption: option,
+                reminderOption: reminderOption,
               ),
             );
           },
@@ -137,11 +97,11 @@ class DateCellEditorBloc
             }
             await _updateDateData(date: start, endDate: end);
           },
-          setIncludeTime: (includeTime) async {
-            await _updateIncludeTime(includeTime);
+          setIncludeTime: (includeTime, dateTime, endDateTime) async {
+            await _updateIncludeTime(includeTime, dateTime, endDateTime);
           },
-          setIsRange: (isRange) async {
-            await _updateIsRange(isRange);
+          setIsRange: (isRange, dateTime, endDateTime) async {
+            await _updateIsRange(isRange, dateTime, endDateTime);
           },
           setDateFormat: (DateFormatPB dateFormat) async {
             await _updateTypeOption(emit, dateFormat: dateFormat);
@@ -158,83 +118,152 @@ class DateCellEditorBloc
 
             await _clearDate();
           },
-          setReminderOption: (
-            ReminderOption option,
-          ) async {
-            if (option == ReminderOption.none && state.reminderId.isNotEmpty) {
-              _reminderBloc.add(
-                ReminderEvent.remove(reminderId: state.reminderId),
-              );
-              await _updateDateData(reminderId: "");
-            } else if (state.reminderId.isEmpty) {
-              // New Reminder
-              final reminderId = nanoid();
-              await _updateDateData(
-                reminderId: reminderId,
-                date: state.dateTime ?? DateTime.now().withoutTime,
-              );
-            } else if (state.dateTime != null) {
-              // Update reminder
-              final scheduledAt =
-                  option.getNotificationDateTime(state.dateTime!);
-              _reminderBloc.add(
-                ReminderEvent.update(
-                  ReminderUpdate(
-                    id: state.reminderId,
-                    scheduledAt: scheduledAt,
-                    includeTime: true,
-                  ),
-                ),
-              );
-            }
-          },
-          removeReminder: () async {
-            await _updateDateData(reminderId: "");
+          setReminderOption: (ReminderOption option) async {
+            await _setReminderOption(option);
           },
         );
       },
     );
   }
 
-  Future<void> _updateDateData({
+  Future<FlowyResult<void, FlowyError>> _updateDateData({
     DateTime? date,
     DateTime? endDate,
-    String? reminderId,
+    bool updateReminderIfNecessary = true,
   }) async {
     final result = await _dateCellBackendService.update(
       date: date,
       endDate: endDate,
-      reminderId: reminderId,
     );
-    result.onFailure(Log.error);
+    if (updateReminderIfNecessary) {
+      result.onSuccess((_) => _updateReminderIfNecessary(date));
+    }
+    return result;
   }
 
-  Future<void> _updateIsRange(bool isRange) async {
-    final dateTime = state.dateTime == null ? DateTime.now().withoutTime : null;
-    final endDateTime = dateTime;
-
-    final result = await _dateCellBackendService.update(
-      date: dateTime,
-      endDate: endDateTime,
-      isRange: isRange,
-    );
-    result.onFailure(Log.error);
+  Future<void> _updateIsRange(
+    bool isRange,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) {
+    return _dateCellBackendService
+        .update(
+          date: dateTime,
+          endDate: endDateTime,
+          isRange: isRange,
+        )
+        .fold((s) => _updateReminderIfNecessary(dateTime), Log.error);
   }
 
-  Future<void> _updateIncludeTime(bool includeTime) async {
-    final dateTime = state.dateTime ?? DateTime.now().withoutTime;
-    final endDateTime = state.isRange ? state.endDateTime ?? dateTime : null;
-    final result = await _dateCellBackendService.update(
-      date: dateTime,
-      endDate: endDateTime,
-      includeTime: includeTime,
-    );
-    result.onFailure(Log.error);
+  Future<void> _updateIncludeTime(
+    bool includeTime,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) {
+    return _dateCellBackendService
+        .update(
+          date: dateTime,
+          endDate: endDateTime,
+          includeTime: includeTime,
+        )
+        .fold((s) => _updateReminderIfNecessary(dateTime), Log.error);
   }
 
   Future<void> _clearDate() async {
     final result = await _dateCellBackendService.clear();
     result.onFailure(Log.error);
+  }
+
+  Future<void> _setReminderOption(ReminderOption option) async {
+    if (state.reminderId.isEmpty) {
+      if (option == ReminderOption.none) {
+        // do nothing
+        return;
+      }
+      // if no date, fill it first
+      final fillerDateTime =
+          state.includeTime ? DateTime.now() : DateTime.now().withoutTime;
+      if (state.dateTime == null) {
+        final result = await _updateDateData(
+          date: fillerDateTime,
+          endDate: state.isRange ? fillerDateTime : null,
+          updateReminderIfNecessary: false,
+        );
+        // return if filling date is unsuccessful
+        if (result.isFailure) {
+          return;
+        }
+      }
+
+      // create a reminder
+      final reminderId = nanoid();
+      await _updateCellReminderId(reminderId);
+      final dateTime = state.dateTime ?? fillerDateTime;
+      _reminderBloc.add(
+        ReminderEvent.addById(
+          reminderId: reminderId,
+          objectId: cellController.viewId,
+          meta: {
+            ReminderMetaKeys.includeTime: state.includeTime.toString(),
+            ReminderMetaKeys.rowId: cellController.rowId,
+          },
+          scheduledAt: Int64(
+            option.getNotificationDateTime(dateTime).millisecondsSinceEpoch ~/
+                1000,
+          ),
+        ),
+      );
+    } else {
+      if (option == ReminderOption.none) {
+        // remove reminder from reminder bloc and cell data
+        _reminderBloc.add(ReminderEvent.remove(reminderId: state.reminderId));
+        await _updateCellReminderId("");
+      } else {
+        // Update reminder
+        final scheduledAt = option.getNotificationDateTime(state.dateTime!);
+        _reminderBloc.add(
+          ReminderEvent.update(
+            ReminderUpdate(
+              id: state.reminderId,
+              scheduledAt: scheduledAt,
+              includeTime: state.includeTime,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _updateCellReminderId(
+    String reminderId,
+  ) async {
+    final result = await _dateCellBackendService.update(
+      reminderId: reminderId,
+    );
+    result.onFailure(Log.error);
+  }
+
+  void _updateReminderIfNecessary(
+    DateTime? dateTime,
+  ) {
+    if (state.reminderId.isEmpty ||
+        state.reminderOption == ReminderOption.none ||
+        dateTime == null) {
+      return;
+    }
+
+    final scheduledAt = state.reminderOption.getNotificationDateTime(dateTime);
+
+    // Update Reminder
+    _reminderBloc.add(
+      ReminderEvent.update(
+        ReminderUpdate(
+          id: state.reminderId,
+          scheduledAt: scheduledAt,
+          includeTime: state.includeTime,
+        ),
+      ),
+    );
   }
 
   String timeFormatPrompt(FlowyError error) {
@@ -297,7 +326,7 @@ class DateCellEditorBloc
       typeOptionData: newDateTypeOption.writeToBuffer(),
     );
 
-    result.fold((_) => {}, (err) => Log.error(err));
+    result.onFailure(Log.error);
   }
 }
 
@@ -320,15 +349,20 @@ class DateCellEditorEvent with _$DateCellEditorEvent {
     DateTime end,
   ) = _UpdateDateRange;
 
-  const factory DateCellEditorEvent.setIncludeTime(bool includeTime) =
-      _IncludeTime;
+  const factory DateCellEditorEvent.setIncludeTime(
+    bool includeTime,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) = _IncludeTime;
 
-  const factory DateCellEditorEvent.setIsRange(bool isRange) = _SetIsRange;
+  const factory DateCellEditorEvent.setIsRange(
+    bool isRange,
+    DateTime? dateTime,
+    DateTime? endDateTime,
+  ) = _SetIsRange;
 
   const factory DateCellEditorEvent.setReminderOption(ReminderOption option) =
       _SetReminderOption;
-
-  const factory DateCellEditorEvent.removeReminder() = _RemoveReminder;
 
   // date field type options are modified
   const factory DateCellEditorEvent.setTimeFormat(TimeFormatPB timeFormat) =

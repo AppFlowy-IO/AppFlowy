@@ -13,16 +13,22 @@ class PublishInfoViewItem extends StatelessWidget {
     this.onTap,
     this.useIntrinsicWidth = true,
     this.margin,
+    this.extraTooltipMessage,
   });
 
   final PublishInfoViewPB publishInfoView;
   final VoidCallback? onTap;
   final bool useIntrinsicWidth;
   final EdgeInsets? margin;
+  final String? extraTooltipMessage;
 
   @override
   Widget build(BuildContext context) {
-    final name = publishInfoView.view.name;
+    final name = publishInfoView.view.name.orDefault(
+      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+    );
+    final tooltipMessage =
+        extraTooltipMessage != null ? '$extraTooltipMessage\n$name' : name;
     return Container(
       alignment: Alignment.centerLeft,
       child: FlowyButton(
@@ -30,13 +36,14 @@ class PublishInfoViewItem extends StatelessWidget {
         useIntrinsicWidth: useIntrinsicWidth,
         mainAxisAlignment: MainAxisAlignment.start,
         leftIcon: _buildIcon(),
-        text: FlowyText.regular(
-          name.orDefault(
-            LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        text: FlowyTooltip(
+          message: tooltipMessage,
+          child: FlowyText.regular(
+            name,
+            fontSize: 14.0,
+            figmaLineHeight: 18.0,
+            overflow: TextOverflow.ellipsis,
           ),
-          fontSize: 14.0,
-          figmaLineHeight: 18.0,
-          overflow: TextOverflow.ellipsis,
         ),
         onTap: onTap,
       ),

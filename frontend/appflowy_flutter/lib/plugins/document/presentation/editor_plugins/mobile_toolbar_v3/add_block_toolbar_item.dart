@@ -236,7 +236,7 @@ class _AddBlockMenu extends StatelessWidget {
         value: ParagraphBlockKeys.type,
         backgroundColor: colorMap[MentionBlockKeys.type]!,
         text: LocaleKeys.editor_page.tr(),
-        icon: FlowySvgs.document_s,
+        icon: FlowySvgs.icon_document_s,
         onTap: (_, __) async {
           AppGlobals.rootNavKey.currentContext?.pop(true);
 
