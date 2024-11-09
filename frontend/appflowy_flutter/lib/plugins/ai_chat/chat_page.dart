@@ -217,6 +217,30 @@ class _ChatContentPage extends StatelessWidget {
                       required showName,
                     }) =>
                         _buildTextMessage(context, textMessage, state),
+                    customMessageBuilder: (message, {required messageWidth}) {
+                      final messageType = onetimeMessageTypeFromMeta(
+                        message.metadata,
+                      );
+
+                      if (messageType == OnetimeShotType.invalidSendMesssage) {
+                        return ChatInvalidUserMessage(
+                          message: message,
+                        );
+                      }
+                      if (messageType == OnetimeShotType.relatedQuestion) {
+                        return RelatedQuestionList(
+                          relatedQuestions: state.relatedQuestions,
+                          onQuestionSelected: (question) {
+                            final bloc = context.read<ChatBloc>();
+                            bloc
+                              ..add(ChatEvent.sendMessage(message: question))
+                              ..add(const ChatEvent.clearRelatedQuestions());
+                          },
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
                     bubbleBuilder: (
                       child, {
                       required message,
@@ -257,28 +281,6 @@ class _ChatContentPage extends StatelessWidget {
       final questionId = message.metadata?[messageQuestionIdKey];
       final refSourceJsonString =
           message.metadata?[messageRefSourceJsonStringKey] as String?;
-
-      final messageType = onetimeMessageTypeFromMeta(
-        message.metadata,
-      );
-
-      if (messageType == OnetimeShotType.invalidSendMesssage) {
-        return ChatInvalidUserMessage(
-          message: message,
-        );
-      }
-
-      if (messageType == OnetimeShotType.relatedQuestion) {
-        return RelatedQuestionList(
-          relatedQuestions: state.relatedQuestions,
-          onQuestionSelected: (question) {
-            final bloc = context.read<ChatBloc>();
-            bloc
-              ..add(ChatEvent.sendMessage(message: question))
-              ..add(const ChatEvent.clearRelatedQuestions());
-          },
-        );
-      }
 
       return BlocSelector<ChatBloc, ChatState, bool>(
         selector: (state) {
