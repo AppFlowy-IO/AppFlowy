@@ -9,6 +9,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ChatUserMessageBubble extends StatelessWidget {
   const ChatUserMessageBubble({
@@ -37,23 +38,28 @@ class ChatUserMessageBubble extends StatelessWidget {
       ),
       child: BlocBuilder<ChatUserMessageBubbleBloc, ChatUserMessageBubbleState>(
         builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (state.files.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.only(right: 32),
-                  child: _MessageFileList(files: state.files),
+          return Padding(
+            padding: UniversalPlatform.isMobile
+                ? const EdgeInsets.symmetric(horizontal: 16)
+                : EdgeInsets.zero,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (state.files.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 32),
+                    child: _MessageFileList(files: state.files),
+                  ),
+                  const VSpace(6),
+                ],
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: getChildren(context),
                 ),
-                const VSpace(6),
               ],
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: getChildren(context),
-              ),
-            ],
+            ),
           );
         },
       ),
@@ -91,7 +97,9 @@ class ChatUserMessageBubble extends StatelessWidget {
   Widget _buildBubble(BuildContext context) {
     return Flexible(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 440),
+        constraints: BoxConstraints(
+          maxWidth: UniversalPlatform.isDesktop ? 440 : 224,
+        ),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(16.0)),
           color: Theme.of(context).colorScheme.surfaceContainerHighest,

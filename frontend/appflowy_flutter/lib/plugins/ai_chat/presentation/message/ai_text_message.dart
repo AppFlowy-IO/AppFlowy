@@ -54,46 +54,51 @@ class ChatAIMessageWidget extends StatelessWidget {
       ),
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
-          return state.messageState.when(
-            loading: () {
-              return ChatAIMessageBubble(
-                message: message,
-                showActions: false,
-                child: const ChatAILoading(),
-              );
-            },
-            ready: () {
-              return state.text.isEmpty
-                  ? const SizedBox.shrink()
-                  : ChatAIMessageBubble(
-                      message: message,
-                      isLastMessage: isLastMessage,
-                      showActions: stream == null && state.text.isNotEmpty,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AIMarkdownText(markdown: state.text),
-                          if (state.sources.isNotEmpty)
-                            AIMessageMetadata(
-                              sources: state.sources,
-                              onSelectedMetadata: onSelectedMetadata,
-                            ),
-                        ],
-                      ),
-                    );
-            },
-            onError: (err) {
-              return StreamingError(
-                onRetry: () {
-                  context
-                      .read<ChatAIMessageBloc>()
-                      .add(const ChatAIMessageEvent.retry());
-                },
-              );
-            },
-            onAIResponseLimit: () {
-              return const AIResponseLimitReachedError();
-            },
+          return Padding(
+            padding: UniversalPlatform.isMobile
+                ? const EdgeInsets.symmetric(horizontal: 16)
+                : EdgeInsets.zero,
+            child: state.messageState.when(
+              loading: () {
+                return ChatAIMessageBubble(
+                  message: message,
+                  showActions: false,
+                  child: const ChatAILoading(),
+                );
+              },
+              ready: () {
+                return state.text.isEmpty
+                    ? const SizedBox.shrink()
+                    : ChatAIMessageBubble(
+                        message: message,
+                        isLastMessage: isLastMessage,
+                        showActions: stream == null && state.text.isNotEmpty,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AIMarkdownText(markdown: state.text),
+                            if (state.sources.isNotEmpty)
+                              AIMessageMetadata(
+                                sources: state.sources,
+                                onSelectedMetadata: onSelectedMetadata,
+                              ),
+                          ],
+                        ),
+                      );
+              },
+              onError: (err) {
+                return StreamingError(
+                  onRetry: () {
+                    context
+                        .read<ChatAIMessageBloc>()
+                        .add(const ChatAIMessageEvent.retry());
+                  },
+                );
+              },
+              onAIResponseLimit: () {
+                return const AIResponseLimitReachedError();
+              },
+            ),
           );
         },
       ),

@@ -53,7 +53,7 @@ class MobileAppearance extends BaseAppearance {
             //Snack bar
             surface: Colors.white,
             onSurface: _onSurfaceColor, // text/body color
-            surfaceContainerHighest: const Color.fromARGB(255, 216, 216, 216),
+            surfaceContainerHighest: theme.sidebarBg,
           )
         : ColorScheme(
             brightness: brightness,
@@ -69,6 +69,7 @@ class MobileAppearance extends BaseAppearance {
             //Snack bar
             surface: const Color(0xFF171A1F),
             onSurface: const Color(0xffC5C6C7), // text/body color
+            surfaceContainerHighest: theme.sidebarBg,
           );
     final hintColor = brightness == Brightness.light
         ? const Color(0x991F2329)
