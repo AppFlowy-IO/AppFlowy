@@ -16,15 +16,18 @@ class FloatingAIEntry extends StatelessWidget {
       scaleFactor: 0.99,
       onTapUp: () => mobileCreateNewAIChatNotifier.value =
           mobileCreateNewAIChatNotifier.value + 1,
-      child: DecoratedBox(
-        decoration: _buildShadowDecoration(context),
-        child: Container(
-          decoration: _buildWrapperDecoration(context),
-          height: 48,
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 18),
-            child: _buildHintText(context),
+      child: Hero(
+        tag: "ai_chat_prompt",
+        child: DecoratedBox(
+          decoration: _buildShadowDecoration(context),
+          child: Container(
+            decoration: _buildWrapperDecoration(context),
+            height: 48,
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 18),
+              child: _buildHintText(context),
+            ),
           ),
         ),
       ),

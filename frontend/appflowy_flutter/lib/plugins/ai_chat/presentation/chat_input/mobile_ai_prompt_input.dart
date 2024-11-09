@@ -83,53 +83,57 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.outline),
+    return Hero(
+      tag: "ai_chat_prompt",
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Theme.of(context).colorScheme.outline),
+          ),
+          color: Theme.of(context).colorScheme.surface,
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 4.0,
+              offset: Offset(0, -2),
+              color: Color.fromRGBO(0, 0, 0, 0.05),
+            ),
+          ],
+          borderRadius: MobileAIPromptSizes.promptFrameRadius,
         ),
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: const [
-          BoxShadow(
-            blurRadius: 4.0,
-            offset: Offset(0, -2),
-            color: Color.fromRGBO(0, 0, 0, 0.05),
-          ),
-        ],
-        borderRadius: MobileAIPromptSizes.promptFrameRadius,
-      ),
-      child: Column(
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MobileAIPromptSizes.attachedFilesBarPadding.vertical +
-                  MobileAIPromptSizes.attachedFilesPreviewHeight,
-            ),
-            child: ChatInputFile(
-              chatId: widget.chatId,
-              onDeleted: (file) => context
-                  .read<AIPromptInputBloc>()
-                  .add(AIPromptInputEvent.deleteFile(file)),
-            ),
-          ),
-          Container(
-            constraints: const BoxConstraints(
-              minHeight: MobileAIPromptSizes.textFieldMinHeight,
-              maxHeight: 220,
-            ),
-            padding: const EdgeInsetsDirectional.fromSTEB(0, 8.0, 12.0, 8.0),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  Expanded(child: _inputTextField(context)),
-                  _mentionButton(),
-                  const HSpace(6.0),
-                  _sendButton(),
-                ],
+        child: Column(
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight:
+                    MobileAIPromptSizes.attachedFilesBarPadding.vertical +
+                        MobileAIPromptSizes.attachedFilesPreviewHeight,
+              ),
+              child: ChatInputFile(
+                chatId: widget.chatId,
+                onDeleted: (file) => context
+                    .read<AIPromptInputBloc>()
+                    .add(AIPromptInputEvent.deleteFile(file)),
               ),
             ),
-          ),
-        ],
+            Container(
+              constraints: const BoxConstraints(
+                minHeight: MobileAIPromptSizes.textFieldMinHeight,
+                maxHeight: 220,
+              ),
+              padding: const EdgeInsetsDirectional.fromSTEB(0, 8.0, 12.0, 8.0),
+              child: IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(child: _inputTextField(context)),
+                    _mentionButton(),
+                    const HSpace(6.0),
+                    _sendButton(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
