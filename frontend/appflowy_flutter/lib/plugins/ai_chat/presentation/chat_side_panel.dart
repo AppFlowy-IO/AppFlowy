@@ -24,26 +24,23 @@ class ChatSidePanel extends StatelessWidget {
             final pluginContext = PluginContext();
             final child = plugin.widgetBuilder
                 .buildWidget(context: pluginContext, shrinkWrap: false);
-            return Container(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: FlowyIconButton(
-                      icon: const FlowySvg(FlowySvgs.show_menu_s),
-                      onPressed: () {
-                        context
-                            .read<ChatSidePanelBloc>()
-                            .add(const ChatSidePanelEvent.close());
-                      },
-                    ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FlowyIconButton(
+                    icon: const FlowySvg(FlowySvgs.show_menu_s),
+                    onPressed: () {
+                      context
+                          .read<ChatSidePanelBloc>()
+                          .add(const ChatSidePanelEvent.close());
+                    },
                   ),
-                  const VSpace(6),
-                  Expanded(child: child),
-                ],
-              ),
+                ),
+                const VSpace(6),
+                Expanded(child: child),
+              ],
             );
           },
         );

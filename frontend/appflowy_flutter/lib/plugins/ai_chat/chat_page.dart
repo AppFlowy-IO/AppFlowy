@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
@@ -107,46 +105,36 @@ class _ChatContentPage extends StatelessWidget {
         builder: (context, isShowPanel) {
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              final double chatOffsetX = isShowPanel
-                  ? 60
-                  : (constraints.maxWidth > 784
-                      ? (constraints.maxWidth - 784) / 2.0
-                      : 60);
+              final sidePanelRatio = isShowPanel ? 0.4 : 0.0;
+              final chatWidth = constraints.maxWidth * (1 - sidePanelRatio);
+              final sidePanelWidth =
+                  constraints.maxWidth * sidePanelRatio - 1.0;
 
-              final double width = isShowPanel
-                  ? (constraints.maxWidth - chatOffsetX * 2) * 0.46
-                  : min(constraints.maxWidth - chatOffsetX * 2, 784);
-
-              final double sidePanelOffsetX = chatOffsetX + width;
-
-              return Stack(
-                alignment: AlignmentDirectional.centerStart,
+              return Row(
                 children: [
-                  buildChatWidget()
-                      .constrained(width: width)
-                      .positioned(
-                        top: 0,
-                        bottom: 0,
-                        left: chatOffsetX,
-                        animate: true,
-                      )
-                      .animate(
-                        const Duration(milliseconds: 200),
-                        Curves.easeOut,
-                      ),
-                  if (isShowPanel)
-                    buildChatSidePanel()
-                        .positioned(
-                          left: sidePanelOffsetX,
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          animate: true,
+                  Center(
+                    child: buildChatWidget()
+                        .constrained(
+                          maxWidth: 784,
                         )
+                        .padding(horizontal: 16)
                         .animate(
                           const Duration(milliseconds: 200),
                           Curves.easeOut,
                         ),
+                  ).constrained(width: chatWidth),
+                  if (isShowPanel) ...[
+                    const VerticalDivider(
+                      width: 1.0,
+                      thickness: 1.0,
+                    ),
+                    buildChatSidePanel()
+                        .constrained(width: sidePanelWidth)
+                        .animate(
+                          const Duration(milliseconds: 200),
+                          Curves.easeOut,
+                        ),
+                  ],
                 ],
               );
             },
