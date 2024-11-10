@@ -2,19 +2,18 @@ import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/chat_popmenu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -69,14 +68,9 @@ class ChatAIMessageBubble extends StatelessWidget {
   }
 
   Widget _wrapPopMenu(Widget child) {
-    return ChatPopupMenu(
-      onAction: (action) {
-        if (action == ChatMessageAction.copy && message is TextMessage) {
-          Clipboard.setData(ClipboardData(text: (message as TextMessage).text));
-          showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
-        }
-      },
-      builder: (context) => child,
+    return ChatAIMessagePopup(
+      message: message,
+      child: child,
     );
   }
 }
@@ -364,6 +358,68 @@ class CopyButton extends StatelessWidget {
             );
           }
         },
+      ),
+    );
+  }
+}
+
+class ChatAIMessagePopup extends StatelessWidget {
+  const ChatAIMessagePopup({
+    super.key,
+    required this.child,
+    required this.message,
+  });
+
+  final Widget child;
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () {
+        showMobileBottomSheet(
+          context,
+          showDragHandle: true,
+          backgroundColor: AFThemeExtension.of(context).background,
+          builder: (bottomSheetContext) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MobileQuickActionButton(
+                  onTap: () async {
+                    if (message is! TextMessage) {
+                      return;
+                    }
+                    final textMessage = message as TextMessage;
+                    final document = customMarkdownToDocument(textMessage.text);
+                    await getIt<ClipboardService>().setData(
+                      ClipboardServiceData(
+                        plainText: textMessage.text,
+                        inAppJson: jsonEncode(document.toJson()),
+                      ),
+                    );
+                    if (bottomSheetContext.mounted) {
+                      Navigator.of(bottomSheetContext).pop();
+                    }
+                    if (context.mounted) {
+                      showToastNotification(
+                        context,
+                        message: LocaleKeys.grid_url_copiedNotification.tr(),
+                      );
+                    }
+                  },
+                  icon: FlowySvgs.copy_s,
+                  iconSize: const Size.square(20),
+                  text: LocaleKeys.button_copy.tr(),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: IgnorePointer(
+        child: child,
       ),
     );
   }
