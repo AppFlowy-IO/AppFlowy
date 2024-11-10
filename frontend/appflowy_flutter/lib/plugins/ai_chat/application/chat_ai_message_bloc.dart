@@ -59,8 +59,8 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     }
 
     on<ChatAIMessageEvent>(
-      (event, emit) async {
-        await event.when(
+      (event, emit) {
+        event.when(
           updateText: (newText) {
             emit(
               state.copyWith(
