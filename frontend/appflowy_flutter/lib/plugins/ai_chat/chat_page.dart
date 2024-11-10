@@ -105,7 +105,7 @@ class _ChatContentPage extends StatelessWidget {
         builder: (context, isShowPanel) {
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              final sidePanelRatio = isShowPanel ? 0.4 : 0.0;
+              final sidePanelRatio = isShowPanel ? 0.33 : 0.0;
               final chatWidth = constraints.maxWidth * (1 - sidePanelRatio);
               final sidePanelWidth =
                   constraints.maxWidth * sidePanelRatio - 1.0;
@@ -271,6 +271,7 @@ class _ChatContentPage extends StatelessWidget {
           message.metadata?[messageRefSourceJsonStringKey] as String?;
 
       return BlocSelector<ChatBloc, ChatState, bool>(
+        key: ValueKey(message.id),
         selector: (state) {
           final messages = state.messages.where((e) {
             final oneTimeMessageType = onetimeMessageTypeFromMeta(e.metadata);
@@ -289,7 +290,6 @@ class _ChatContentPage extends StatelessWidget {
         },
         builder: (context, isLastMessage) {
           return ChatAIMessageWidget(
-            key: ValueKey(message.id),
             user: message.author,
             messageUserId: message.id,
             message: message,
@@ -326,6 +326,7 @@ class _ChatContentPage extends StatelessWidget {
         child: child,
       );
     } else {
+      // The bubble is rendered in the child already
       return child;
     }
   }

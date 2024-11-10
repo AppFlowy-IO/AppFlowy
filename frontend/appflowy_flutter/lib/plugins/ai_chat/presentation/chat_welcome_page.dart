@@ -212,7 +212,7 @@ class _AutoScrollingSampleQuestionsState
   void initState() {
     super.initState();
     scrollController = ScrollController(
-      onAttach: onAttach,
+      onAttach: (_) => startScroll(),
       initialScrollOffset: widget.offset,
     );
   }
@@ -265,10 +265,6 @@ class _AutoScrollingSampleQuestionsState
         ),
       ),
     );
-  }
-
-  void onAttach(ScrollPosition position) {
-    startScroll();
   }
 
   void startScroll() {

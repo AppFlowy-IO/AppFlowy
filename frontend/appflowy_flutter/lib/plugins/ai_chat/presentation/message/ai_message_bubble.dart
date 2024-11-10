@@ -19,6 +19,11 @@ import 'package:universal_platform/universal_platform.dart';
 
 import '../layout_define.dart';
 
+/// Wraps an AI response message with the avatar and actions. On desktop,
+/// the actions will be displayed below the response if the response is the
+/// last message in the chat. For other AI responses, the actions will be shown
+/// on hover. On mobile, the actions will be displayed in a bottom sheet on
+/// long press.
 class ChatAIMessageBubble extends StatelessWidget {
   const ChatAIMessageBubble({
     super.key,

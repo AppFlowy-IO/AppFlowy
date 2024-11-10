@@ -18,6 +18,11 @@ import 'package:universal_platform/universal_platform.dart';
 import 'ai_message_bubble.dart';
 import 'ai_metadata.dart';
 
+/// [ChatAIMessageWidget] includes both the text of the AI response as well as
+/// the avatar, decorations and hover effects that are also rendered. This is
+/// different from [ChatUserMessageWidget] which only contains the message and
+/// has to be separately wrapped with a bubble since the hover effects need to
+/// know the current streaming status of the message.
 class ChatAIMessageWidget extends StatelessWidget {
   const ChatAIMessageWidget({
     super.key,
