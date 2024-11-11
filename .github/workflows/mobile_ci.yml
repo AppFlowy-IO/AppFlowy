@@ -18,7 +18,7 @@ on:
 
 env:
   CODEMAGIC_API_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
-  APP_ID: "64cb77ba5da3347bf6d22fba"
+  APP_ID: "6731d2f427e7c816080c3674"
 
 jobs:
   trigger-mobile-build:
