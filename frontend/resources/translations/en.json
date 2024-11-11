@@ -2489,7 +2489,7 @@
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
     "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
-    "permission": "Permission",
+    "permission": "Space permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",
     "privatePermission": "Private",
@@ -2511,7 +2511,17 @@
     "movePageToSpace": "Move page to space",
     "cannotMovePageToDatabase": "Cannot move page to database",
     "switchSpace": "Switch space",
-    "spaceNameCannotBeEmpty": "Space name cannot be empty"
+    "spaceNameCannotBeEmpty": "Space name cannot be empty",
+    "success": {
+      "deleteSpace": "Space deleted successfully",
+      "renameSpace": "Space renamed successfully",
+      "duplicateSpace": "Space duplicated successfully"
+    },
+    "error": {
+      "deleteSpace": "Failed to delete space",
+      "renameSpace": "Failed to rename space",
+      "duplicateSpace": "Failed to duplicate space"
+    }
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",

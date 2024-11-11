@@ -196,6 +196,7 @@ class FlowyButton extends StatelessWidget {
 
     if (Platform.isIOS || Platform.isAndroid) {
       return InkWell(
+        splashFactory: Platform.isIOS ? NoSplash.splashFactory : null,
         onTap: disable ? null : onTap,
         onSecondaryTap: disable ? null : onSecondaryTap,
         borderRadius: radius ?? Corners.s6Border,
