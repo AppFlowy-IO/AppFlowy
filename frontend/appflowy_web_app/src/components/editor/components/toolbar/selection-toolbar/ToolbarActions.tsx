@@ -69,18 +69,23 @@ function ToolbarActions () {
     <Paragraph />
     <Heading />
     <Divider
-      className={'my-1.5 bg-line-on-toolbar opacity-80'}
+      className={'my-1.5 bg-line-on-toolbar'}
       orientation={'vertical'}
       flexItem={true}
     />
   </>;
 
   const groupThree = <>
+    <Divider
+      className={'my-1.5 bg-line-on-toolbar'}
+      orientation={'vertical'}
+      flexItem={true}
+    />
     <Quote />
     <BulletedList />
     <NumberedList />
     <Divider
-      className={'my-1.5 bg-line-on-toolbar opacity-40'}
+      className={'my-1.5 bg-line-on-toolbar'}
       orientation={'vertical'}
       flexItem={true}
     />

@@ -1,4 +1,4 @@
-export const supportLanguage = [
+export const supportLanguages = [
   {
     id: 'bash',
     title: 'Bash',
