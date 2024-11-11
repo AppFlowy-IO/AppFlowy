@@ -281,7 +281,7 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
 
   void _showMoreOptions(BuildContext context) {
     final actions = [
-      // SpaceMoreActionType.rename,
+      SpaceMoreActionType.rename,
       SpaceMoreActionType.duplicate,
       SpaceMoreActionType.manage,
       SpaceMoreActionType.delete,
@@ -343,10 +343,12 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
   }
 
   void _showRenameSpaceBottomSheet(BuildContext context) {
+    Navigator.of(context).pop();
+
     showMobileBottomSheet(
       context,
       showHeader: true,
-      title: LocaleKeys.workspace_renameWorkspace.tr(),
+      title: LocaleKeys.space_renameSpace.tr(),
       showCloseButton: true,
       showDragHandle: true,
       showDivider: false,

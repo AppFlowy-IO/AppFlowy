@@ -151,7 +151,14 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await ViewBackendService.deleteView(viewId: deletedSpace.id);
           },
           rename: (space, name) async {
-            add(SpaceEvent.update(name: name));
+            add(
+              SpaceEvent.update(
+                name: name,
+                icon: space.spaceIcon,
+                iconColor: space.spaceIconColor,
+                permission: space.spacePermission,
+              ),
+            );
           },
           changeIcon: (icon, iconColor) async {
             add(SpaceEvent.update(icon: icon, iconColor: iconColor));

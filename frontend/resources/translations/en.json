@@ -2525,7 +2525,8 @@
       "updateSpace": "Failed to update space"
     },
     "createSpace": "Create space",
-    "manageSpace": "Manage space"
+    "manageSpace": "Manage space",
+    "renameSpace": "Rename space"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
