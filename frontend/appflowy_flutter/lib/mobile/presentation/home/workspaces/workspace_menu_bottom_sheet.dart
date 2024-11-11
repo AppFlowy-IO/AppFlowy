@@ -234,6 +234,7 @@ class _WorkspaceMenuItemContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final memberCount = workspace.memberCount.toInt();
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: Column(
@@ -247,10 +248,10 @@ class _WorkspaceMenuItemContent extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           FlowyText(
-            context.read<WorkspaceMemberBloc>().state.isLoading
+            memberCount == 0
                 ? ''
                 : LocaleKeys.settings_appearance_members_membersCount.plural(
-                    context.read<WorkspaceMemberBloc>().state.members.length,
+                    memberCount,
                   ),
             fontSize: 10.0,
             color: Theme.of(context).hintColor,
