@@ -34,6 +34,8 @@ import 'package:universal_platform/universal_platform.dart';
 
 import 'prelude.dart';
 
+const _windowsRestorationScopeId = 'appflowy_windows_restoration_scope_id';
+
 class InitAppWidgetTask extends LaunchTask {
   const InitAppWidgetTask();
 
@@ -217,6 +219,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
               dispose: (_, state) => state.dispose(),
               child: ToastificationWrapper(
                 child: MaterialApp.router(
+                  restorationScopeId: UniversalPlatform.isWindows
+                      ? _windowsRestorationScopeId
+                      : null,
                   builder: (context, child) => MediaQuery(
                     // use the 1.0 as the textScaleFactor to avoid the text size
                     //  affected by the system setting.
