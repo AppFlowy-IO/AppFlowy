@@ -5,7 +5,7 @@ import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
 import React, { forwardRef, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactEditor, useSlateStatic } from 'slate-react';
+import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
 
 export const CodeBlock = memo(
@@ -15,6 +15,8 @@ export const CodeBlock = memo(
     const { t } = useTranslation();
     const editor = useSlateStatic();
 
+    const readOnly = useReadOnly();
+
     return (
       <div
         className={'relative w-full'}
@@ -23,22 +25,23 @@ export const CodeBlock = memo(
         }}
         onMouseLeave={() => setShowToolbar(false)}
       >
-        <div
+        {showToolbar && <div
           contentEditable={false}
-          className={'absolute mt-2  flex h-20 w-full select-none items-center px-6'}
+          className={'absolute flex h-12 w-full select-none items-center px-2'}
         >
           <LanguageSelect
-            readOnly
+            readOnly={readOnly}
             language={language}
             onChangeLanguage={handleChangeLanguage}
           />
-        </div>
+        </div>}
+
         <div {...attributes} ref={ref}
-             className={`${attributes.className ?? ''} flex w-full bg-bg-body py-2`}
+             className={`${attributes.className ?? ''} flex w-full bg-bg-body pb-2`}
         >
           <pre
             spellCheck={false}
-            className={`flex w-full overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-5 pt-20`}
+            className={`flex w-full overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-5 pt-12`}
           >
             <code>{children}</code>
           </pre>
