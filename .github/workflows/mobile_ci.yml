@@ -17,7 +17,7 @@ on:
           - android-workflow
 
 env:
-  CODEMAGIC_API_TOKEN: 3G8VZRVsbYPb5-RuFjw-xqqlyA7y-nfue-rmybupLZw
+  CODEMAGIC_API_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
   APP_ID: "64cb77ba5da3347bf6d22fba"
 
 jobs:
@@ -67,47 +67,16 @@ jobs:
             sleep 60
           done
 
-      - name: Send Slack Notification
+      - name: Slack Notification
+        uses: 8398a7/action-slack@v3
         if: always()
-        run: |
-          BUILD_STATUS="${{ steps.check_status.outputs.status }}"
-          SUCCESS="${{ steps.check_status.outputs.success }}"
-          BUILD_URL="${{ steps.check_status.outputs.build_url }}"
-
-          if [ "$SUCCESS" = "true" ]; then
-            COLOR="#36a64f"
-            STATUS_TEXT="✅ Success"
-          else
-            COLOR="#ff0000"
-            STATUS_TEXT="❌ Failed"
-          fi
-
-          echo "build_status=$BUILD_STATUS"
-          echo "success=$SUCCESS"
-          echo "build_url=$BUILD_URL"
-
-          curl -X POST -H 'Content-type: application/json' \
-            --data "{
-              \"attachments\": [
-                {
-                  \"color\": \"$COLOR\",
-                  \"blocks\": [
-                    {
-                      \"type\": \"section\",
-                      \"text\": {
-                        \"type\": \"mrkdwn\",
-                        \"text\": \"*Mobile CI Build Result*\n$STATUS_TEXT\"
-                      }
-                    },
-                    {
-                      \"type\": \"section\",
-                      \"text\": {
-                        \"type\": \"mrkdwn\",
-                        \"text\": \"*Branch:* ${{ github.event.inputs.branch }}\n*Workflow:* ${{ github.event.inputs.workflow_id }}\n*Build URL:* $BUILD_URL\"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }" \
-            ${{ secrets.RELEASE_SLACK_WEBHOOK }}
+        with:
+          status: ${{ steps.check_status.outputs.success == 'true' && 'success' || 'failure' }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          text: |
+            Mobile CI Build Result
+            Branch: ${{ github.event.inputs.branch }}
+            Workflow: ${{ github.event.inputs.workflow_id }}
+            Build URL: ${{ steps.check_status.outputs.build_url }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.RELEASE_SLACK_WEBHOOK }}
