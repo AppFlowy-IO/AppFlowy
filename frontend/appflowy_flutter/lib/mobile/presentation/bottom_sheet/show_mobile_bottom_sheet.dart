@@ -47,6 +47,7 @@ Future<T?> showMobileBottomSheet<T>(
   Color? barrierColor,
   double? elevation,
   bool showDoneButton = false,
+  void Function(BuildContext context)? onDone,
   bool enableDraggableScrollable = false,
   bool enableScrollable = false,
   // this field is only used if showDragHandle is true
@@ -112,6 +113,7 @@ Future<T?> showMobileBottomSheet<T>(
             showRemoveButton: showRemoveButton,
             title: title,
             onRemove: onRemove,
+            onDone: onDone,
           ),
         );
 
@@ -208,6 +210,7 @@ class BottomSheetHeader extends StatelessWidget {
     required this.title,
     required this.showDoneButton,
     this.onRemove,
+    this.onDone,
   });
 
   final bool showBackButton;
@@ -216,6 +219,7 @@ class BottomSheetHeader extends StatelessWidget {
   final String title;
   final bool showDoneButton;
   final VoidCallback? onRemove;
+  final void Function(BuildContext context)? onDone;
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +261,13 @@ class BottomSheetHeader extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: BottomSheetDoneButton(
-                  onDone: () => Navigator.pop(context),
+                  onDone: () {
+                    if (onDone != null) {
+                      onDone?.call(context);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
                 ),
               ),
           ],

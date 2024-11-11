@@ -1,45 +1,30 @@
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
-import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 
 import '_widgets.dart';
 
-class ManageSpaceWidget extends StatefulWidget {
-  const ManageSpaceWidget({
-    super.key,
-  });
-
-  @override
-  State<ManageSpaceWidget> createState() => _ManageSpaceWidgetState();
+enum ManageSpaceType {
+  create,
+  edit,
 }
 
-class _ManageSpaceWidgetState extends State<ManageSpaceWidget> {
-  final controller = TextEditingController();
-  final permission = ValueNotifier<SpacePermission>(
-    SpacePermission.publicToAll,
-  );
-  final selectedColor = ValueNotifier<String>(
-    builtInSpaceColors.first,
-  );
-  final selectedIcon = ValueNotifier<Icon?>(
-    kIconGroups?.first.icons.first,
-  );
+class ManageSpaceWidget extends StatelessWidget {
+  const ManageSpaceWidget({
+    super.key,
+    required this.controller,
+    required this.permission,
+    required this.selectedColor,
+    required this.selectedIcon,
+    required this.type,
+  });
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    permission.dispose();
-
-    super.dispose();
-  }
+  final TextEditingController controller;
+  final ValueNotifier<SpacePermission> permission;
+  final ValueNotifier<String> selectedColor;
+  final ValueNotifier<Icon?> selectedIcon;
+  final ManageSpaceType type;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +32,10 @@ class _ManageSpaceWidgetState extends State<ManageSpaceWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        ManageSpaceNameOption(controller: controller),
+        ManageSpaceNameOption(
+          controller: controller,
+          type: type,
+        ),
         ManageSpacePermissionOption(permission: permission),
         ManageSpaceIconOption(
           selectedColor: selectedColor,

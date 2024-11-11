@@ -4,8 +4,14 @@ part 'icon.g.dart';
 
 @JsonSerializable()
 class IconGroup {
-  factory IconGroup.fromJson(Map<String, dynamic> json) =>
-      _$IconGroupFromJson(json);
+  factory IconGroup.fromJson(Map<String, dynamic> json) {
+    final group = _$IconGroupFromJson(json);
+    // Set the iconGroup reference for each icon
+    for (final icon in group.icons) {
+      icon._iconGroup = group;
+    }
+    return group;
+  }
 
   factory IconGroup.fromMapEntry(MapEntry<String, dynamic> entry) =>
       IconGroup.fromJson({
@@ -16,7 +22,12 @@ class IconGroup {
   IconGroup({
     required this.name,
     required this.icons,
-  });
+  }) {
+    // Set the iconGroup reference for each icon
+    for (final icon in icons) {
+      icon._iconGroup = this;
+    }
+  }
 
   final String name;
   final List<Icon> icons;
@@ -55,6 +66,11 @@ class Icon {
   final String name;
   final List<String> keywords;
   final String content;
+
+  // Add reference to parent IconGroup
+  IconGroup? _iconGroup;
+
+  IconGroup? get iconGroup => _iconGroup;
 
   String get displayName => name.replaceAll('-', ' ');
 

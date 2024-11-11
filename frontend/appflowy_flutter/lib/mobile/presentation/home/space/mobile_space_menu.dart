@@ -5,18 +5,22 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/space/space_menu_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/create_workspace_menu.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/util/navigator_context_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'manage_space_widget.dart';
@@ -109,8 +113,34 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
   }
 }
 
-class _CreateSpaceButton extends StatelessWidget {
+class _CreateSpaceButton extends StatefulWidget {
   const _CreateSpaceButton();
+
+  @override
+  State<_CreateSpaceButton> createState() => _CreateSpaceButtonState();
+}
+
+class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
+  final controller = TextEditingController();
+  final permission = ValueNotifier<SpacePermission>(
+    SpacePermission.publicToAll,
+  );
+  final selectedColor = ValueNotifier<String>(
+    builtInSpaceColors.first,
+  );
+  final selectedIcon = ValueNotifier<Icon?>(
+    kIconGroups?.first.icons.first,
+  );
+
+  @override
+  void dispose() {
+    controller.dispose();
+    permission.dispose();
+    selectedColor.dispose();
+    selectedIcon.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,24 +159,65 @@ class _CreateSpaceButton extends StatelessWidget {
     );
   }
 
-  void _showCreateSpaceDialog(BuildContext context) {
-    showMobileBottomSheet(
+  Future<void> _showCreateSpaceDialog(BuildContext context) async {
+    await showMobileBottomSheet(
       context,
       showHeader: true,
-      title: 'Create space',
+      title: LocaleKeys.space_createSpace.tr(),
       showCloseButton: true,
       showDivider: false,
       showDoneButton: true,
       enableScrollable: true,
       showDragHandle: true,
       bottomSheetPadding: context.bottomSheetPadding(),
+      onDone: (bottomSheetContext) {
+        String iconName = '';
+        final icon = selectedIcon.value;
+        final iconGroup = icon?.iconGroup;
+        final iconId = icon?.name;
+        if (icon != null && iconGroup != null) {
+          iconName = '${iconGroup.name}/$iconId';
+        }
+        Log.info(
+          'create space on mobile, name: ${controller.text}, permission: ${permission.value}, color: ${selectedColor.value}, icon: $iconName',
+        );
+        context.read<SpaceBloc>().add(
+              SpaceEvent.create(
+                name: controller.text.orDefault(
+                  LocaleKeys.space_defaultSpaceName.tr(),
+                ),
+                permission: permission.value,
+                iconColor: selectedColor.value,
+                icon: iconName,
+                createNewPageByDefault: true,
+                openAfterCreate: false,
+              ),
+            );
+        Navigator.pop(bottomSheetContext);
+        Navigator.pop(context);
+      },
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      builder: (bottomSheetContext) => const ManageSpaceWidget(),
+      builder: (bottomSheetContext) => ManageSpaceWidget(
+        controller: controller,
+        permission: permission,
+        selectedColor: selectedColor,
+        selectedIcon: selectedIcon,
+        type: ManageSpaceType.create,
+      ),
     );
+
+    _resetState();
+  }
+
+  void _resetState() {
+    controller.clear();
+    permission.value = SpacePermission.publicToAll;
+    selectedColor.value = builtInSpaceColors.first;
+    selectedIcon.value = kIconGroups?.first.icons.first;
   }
 }
 
-class _SpaceMenuItemTrailing extends StatelessWidget {
+class _SpaceMenuItemTrailing extends StatefulWidget {
   const _SpaceMenuItemTrailing({
     required this.space,
     this.currentSpace,
@@ -156,13 +227,39 @@ class _SpaceMenuItemTrailing extends StatelessWidget {
   final ViewPB? currentSpace;
 
   @override
+  State<_SpaceMenuItemTrailing> createState() => _SpaceMenuItemTrailingState();
+}
+
+class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
+  final controller = TextEditingController();
+  final permission = ValueNotifier<SpacePermission>(
+    SpacePermission.publicToAll,
+  );
+  final selectedColor = ValueNotifier<String>(
+    builtInSpaceColors.first,
+  );
+  final selectedIcon = ValueNotifier<Icon?>(
+    kIconGroups?.first.icons.first,
+  );
+
+  @override
+  void dispose() {
+    controller.dispose();
+    permission.dispose();
+    selectedColor.dispose();
+    selectedIcon.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     const iconSize = Size.square(20);
     return Row(
       children: [
         const HSpace(12.0),
         // show the check icon if the space is the current space
-        if (space.id == currentSpace?.id)
+        if (widget.space.id == widget.currentSpace?.id)
           const FlowySvg(
             FlowySvgs.m_blue_check_s,
             size: iconSize,
@@ -220,6 +317,7 @@ class _SpaceMenuItemTrailing extends StatelessWidget {
         _duplicateSpace(context, bottomSheetContext);
         break;
       case SpaceMoreActionType.manage:
+        _showManageSpaceBottomSheet(context);
         break;
       case SpaceMoreActionType.delete:
         _deleteSpace(context, bottomSheetContext);
@@ -231,7 +329,7 @@ class _SpaceMenuItemTrailing extends StatelessWidget {
   }
 
   void _duplicateSpace(BuildContext context, BuildContext bottomSheetContext) {
-    Log.info('duplicate the space: ${space.name}');
+    Log.info('duplicate the space: ${widget.space.name}');
 
     context.read<SpaceBloc>().add(const SpaceEvent.duplicate());
 
@@ -241,6 +339,7 @@ class _SpaceMenuItemTrailing extends StatelessWidget {
     );
 
     Navigator.of(bottomSheetContext).pop();
+    Navigator.of(context).pop();
   }
 
   void _showRenameSpaceBottomSheet(BuildContext context) {
@@ -255,16 +354,84 @@ class _SpaceMenuItemTrailing extends StatelessWidget {
       builder: (bottomSheetContext) {
         return EditWorkspaceNameBottomSheet(
           type: EditWorkspaceNameType.edit,
-          workspaceName: space.name,
+          workspaceName: widget.space.name,
           onSubmitted: (name) {
             // rename the workspace
             Log.info('rename the space: $name');
             bottomSheetContext.popToHome();
 
-            context.read<SpaceBloc>().add(SpaceEvent.rename(space, name));
+            context
+                .read<SpaceBloc>()
+                .add(SpaceEvent.rename(widget.space, name));
           },
         );
       },
+    );
+  }
+
+  Future<void> _showManageSpaceBottomSheet(BuildContext context) async {
+    controller.text = widget.space.name;
+    permission.value = widget.space.spacePermission;
+    selectedColor.value =
+        widget.space.spaceIconColor ?? builtInSpaceColors.first;
+    final spaceIcon = widget.space.spaceIcon;
+    if (spaceIcon != null) {
+      final icon = spaceIcon.split('/').last;
+      selectedIcon.value = Icon(
+        content: icon,
+        name: icon,
+        keywords: [],
+      );
+    }
+
+    await showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: LocaleKeys.space_manageSpace.tr(),
+      showCloseButton: true,
+      showDivider: false,
+      showDoneButton: true,
+      enableScrollable: true,
+      showDragHandle: true,
+      bottomSheetPadding: context.bottomSheetPadding(),
+      onDone: (bottomSheetContext) {
+        String iconName = '';
+        final icon = selectedIcon.value;
+        final iconGroup = icon?.iconGroup;
+        final iconId = icon?.name;
+        if (icon != null && iconGroup != null) {
+          iconName = '${iconGroup.name}/$iconId';
+        }
+        Log.info(
+          'update space on mobile, name: ${controller.text}, permission: ${permission.value}, color: ${selectedColor.value}, icon: $iconName',
+        );
+        context.read<SpaceBloc>().add(
+              SpaceEvent.update(
+                name: controller.text.orDefault(
+                  LocaleKeys.space_defaultSpaceName.tr(),
+                ),
+                permission: permission.value,
+                iconColor: selectedColor.value,
+                icon: iconName,
+              ),
+            );
+
+        showToastNotification(
+          context,
+          message: LocaleKeys.space_success_updateSpace.tr(),
+        );
+
+        Navigator.pop(bottomSheetContext);
+        Navigator.pop(context);
+      },
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      builder: (bottomSheetContext) => ManageSpaceWidget(
+        controller: controller,
+        permission: permission,
+        selectedColor: selectedColor,
+        selectedIcon: selectedIcon,
+        type: ManageSpaceType.edit,
+      ),
     );
   }
 
@@ -276,11 +443,11 @@ class _SpaceMenuItemTrailing extends StatelessWidget {
 
     _showConfirmDialog(
       context,
-      '${LocaleKeys.space_delete.tr()}: ${space.name}',
+      '${LocaleKeys.space_delete.tr()}: ${widget.space.name}',
       LocaleKeys.space_deleteConfirmationDescription.tr(),
       LocaleKeys.button_delete.tr(),
       (_) async {
-        context.read<SpaceBloc>().add(SpaceEvent.delete(space));
+        context.read<SpaceBloc>().add(SpaceEvent.delete(widget.space));
 
         showToastNotification(
           context,

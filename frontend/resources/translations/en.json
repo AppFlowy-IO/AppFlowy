@@ -2515,13 +2515,17 @@
     "success": {
       "deleteSpace": "Space deleted successfully",
       "renameSpace": "Space renamed successfully",
-      "duplicateSpace": "Space duplicated successfully"
+      "duplicateSpace": "Space duplicated successfully",
+      "updateSpace": "Space updated successfully"
     },
     "error": {
       "deleteSpace": "Failed to delete space",
       "renameSpace": "Failed to rename space",
-      "duplicateSpace": "Failed to duplicate space"
-    }
+      "duplicateSpace": "Failed to duplicate space",
+      "updateSpace": "Failed to update space"
+    },
+    "createSpace": "Create space",
+    "manageSpace": "Manage space"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",

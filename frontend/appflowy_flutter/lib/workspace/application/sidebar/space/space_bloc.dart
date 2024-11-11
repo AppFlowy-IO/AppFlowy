@@ -111,6 +111,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             iconColor,
             permission,
             createNewPageByDefault,
+            openAfterCreate,
           ) async {
             final space = await _createSpace(
               name: name,
@@ -129,10 +130,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
               if (createNewPageByDefault) {
                 add(
-                  const SpaceEvent.createPage(
+                  SpaceEvent.createPage(
                     name: '',
                     index: 0,
                     layout: ViewLayoutPB.Document,
+                    openAfterCreate: openAfterCreate,
                   ),
                 );
               }
@@ -258,7 +260,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _setSpaceExpandStatus(space, isExpanded);
             emit(state.copyWith(isExpanded: isExpanded));
           },
-          createPage: (name, layout, index) async {
+          createPage: (name, layout, index, openAfterCreate) async {
             final parentViewId = state.currentSpace?.id;
             if (parentViewId == null) {
               return;
@@ -269,12 +271,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               layoutType: layout,
               parentViewId: parentViewId,
               index: index,
+              openAfterCreate: openAfterCreate,
             );
             result.fold(
               (view) {
                 emit(
                   state.copyWith(
-                    lastCreatedPage: view,
+                    lastCreatedPage: openAfterCreate ? view : null,
                     createPageResult: FlowyResult.success(null),
                   ),
                 );
@@ -711,6 +714,7 @@ class SpaceEvent with _$SpaceEvent {
     required String iconColor,
     required SpacePermission permission,
     required bool createNewPageByDefault,
+    required bool openAfterCreate,
   }) = _Create;
   const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
   const factory SpaceEvent.changeIcon(
@@ -730,6 +734,7 @@ class SpaceEvent with _$SpaceEvent {
     required String name,
     required ViewLayoutPB layout,
     int? index,
+    required bool openAfterCreate,
   }) = _CreatePage;
   const factory SpaceEvent.delete(ViewPB? space) = _Delete;
   const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;

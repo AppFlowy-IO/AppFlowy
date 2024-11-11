@@ -101,6 +101,7 @@ class MobileSpace extends StatelessWidget {
                     name: layout.defaultName,
                     layout: layout,
                     index: 0,
+                    openAfterCreate: true,
                   ),
                 );
             context.read<SpaceBloc>().add(

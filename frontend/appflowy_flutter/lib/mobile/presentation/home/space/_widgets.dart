@@ -11,15 +11,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 
+import 'manage_space_widget.dart';
 import 'space_permission_bottom_sheet.dart';
 
 class ManageSpaceNameOption extends StatelessWidget {
   const ManageSpaceNameOption({
     super.key,
     required this.controller,
+    required this.type,
   });
 
   final TextEditingController controller;
+  final ManageSpaceType type;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +41,7 @@ class ManageSpaceNameOption extends StatelessWidget {
         ),
         FlowyOptionTile.textField(
           controller: controller,
+          autofocus: type == ManageSpaceType.create ? true : false,
           textFieldHintText: LocaleKeys.space_spaceNamePlaceholder.tr(),
         ),
         const VSpace(16),
@@ -209,7 +213,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
                       children: icons.map((icon) {
                         return _SpaceIconItem(
                           icon: icon,
-                          isSelected: selectedIcon == icon,
+                          isSelected: selectedIcon?.name == icon.name,
                           selectedColor: selectedColor,
                           onSelectedIcon: (icon) =>
                               widget.selectedIcon.value = icon,
