@@ -1,6 +1,8 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/space/manage_space_widget.dart';
+import 'package:appflowy/mobile/presentation/home/space/mobile_space_header.dart';
 import 'package:appflowy/mobile/presentation/home/space/mobile_space_menu.dart';
 import 'package:appflowy/mobile/presentation/home/space/widgets.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
@@ -27,8 +29,9 @@ void main() {
 
       // create a new space
       // click the space menu
-      final spaceMenu = find.byType(MobileSpaceMenu);
-      await tester.tapButton(spaceMenu);
+      final spaceHeader = find.byType(MobileSpaceHeader);
+      await tester.tapButton(spaceHeader);
+      await tester.pumpUntilFound(find.byType(MobileSpaceMenu));
 
       // click the create a new space button
       final createNewSpaceButton = find.text(
@@ -78,7 +81,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // click the done button
-      final doneButton = find.text(LocaleKeys.button_done.tr());
+      final doneButton = find.descendant(
+        of: find.byWidgetPredicate(
+          (w) =>
+              w is BottomSheetHeader &&
+              w.title == LocaleKeys.space_createSpace.tr(),
+        ),
+        matching: find.text(LocaleKeys.button_done.tr()),
+      );
       await tester.tapButton(doneButton);
       await tester.pumpAndSettle();
 
@@ -86,7 +96,8 @@ void main() {
       await tester.wait(100);
 
       // verify the space is created
-      await tester.tapButton(spaceMenu);
+      await tester.tapButton(spaceHeader);
+      await tester.pumpUntilFound(find.byType(MobileSpaceMenu));
       final spaceItems = find.byType(MobileSpaceMenuItem);
       // expect to see 3 space items, 2 are built-in, 1 is the new space
       expect(spaceItems, findsNWidgets(3));
