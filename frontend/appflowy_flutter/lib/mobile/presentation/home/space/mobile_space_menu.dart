@@ -102,6 +102,7 @@ class _SidebarSpaceMenuItem extends StatelessWidget {
       ),
       leftIconSize: const Size.square(24),
       rightIcon: _SpaceMenuItemTrailing(
+        key: ValueKey('${space.id}_space_menu_item_trailing'),
         space: space,
         currentSpace: context.read<SpaceBloc>().state.currentSpace,
       ),
@@ -219,6 +220,7 @@ class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
 
 class _SpaceMenuItemTrailing extends StatefulWidget {
   const _SpaceMenuItemTrailing({
+    super.key,
     required this.space,
     this.currentSpace,
   });
@@ -361,14 +363,20 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
         return EditWorkspaceNameBottomSheet(
           type: EditWorkspaceNameType.edit,
           workspaceName: widget.space.name,
+          hintText: LocaleKeys.space_spaceNamePlaceholder.tr(),
           onSubmitted: (name) {
             // rename the workspace
-            Log.info('rename the space: $name');
+            Log.info('rename the space, from: ${widget.space.name}, to: $name');
             bottomSheetContext.popToHome();
 
             context
                 .read<SpaceBloc>()
-                .add(SpaceEvent.rename(widget.space, name));
+                .add(SpaceEvent.rename(space: widget.space, name: name));
+
+            showToastNotification(
+              context,
+              message: LocaleKeys.space_success_renameSpace.tr(),
+            );
           },
         );
       },
@@ -418,6 +426,7 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
         );
         context.read<SpaceBloc>().add(
               SpaceEvent.update(
+                space: widget.space,
                 name: controller.text.orDefault(
                   LocaleKeys.space_defaultSpaceName.tr(),
                 ),

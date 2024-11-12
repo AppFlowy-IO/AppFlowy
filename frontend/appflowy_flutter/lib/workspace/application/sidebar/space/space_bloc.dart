@@ -119,6 +119,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               iconColor: iconColor,
               permission: permission,
             );
+
+            Log.info('create space: $space');
+
             if (space != null) {
               emit(
                 state.copyWith(
@@ -127,6 +130,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 ),
               );
               add(SpaceEvent.open(space));
+              Log.info('open space: ${space.name}(${space.id})');
 
               if (createNewPageByDefault) {
                 add(
@@ -137,6 +141,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                     openAfterCreate: openAfterCreate,
                   ),
                 );
+                Log.info('create page: ${space.name}(${space.id})');
               }
             }
           },
@@ -144,15 +149,20 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             if (state.spaces.length <= 1) {
               return;
             }
+
             final deletedSpace = space ?? state.currentSpace;
             if (deletedSpace == null) {
               return;
             }
+
             await ViewBackendService.deleteView(viewId: deletedSpace.id);
+
+            Log.info('delete space: ${deletedSpace.name}(${deletedSpace.id})');
           },
           rename: (space, name) async {
             add(
               SpaceEvent.update(
+                space: space,
                 name: name,
                 icon: space.spaceIcon,
                 iconColor: space.spaceIconColor,
@@ -160,12 +170,19 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               ),
             );
           },
-          changeIcon: (icon, iconColor) async {
-            add(SpaceEvent.update(icon: icon, iconColor: iconColor));
+          changeIcon: (space, icon, iconColor) async {
+            add(
+              SpaceEvent.update(
+                space: space,
+                icon: icon,
+                iconColor: iconColor,
+              ),
+            );
           },
-          update: (name, icon, iconColor, permission) async {
-            final space = state.currentSpace;
+          update: (space, name, icon, iconColor, permission) async {
+            space ??= state.currentSpace;
             if (space == null) {
+              Log.error('update space failed, space is null');
               return;
             }
 
@@ -194,6 +211,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                   viewId: space.id,
                   extra: jsonEncode(merged),
                 );
+
+                Log.info(
+                  'update space: ${space.name}(${space.id}), merged: $merged',
+                );
               } catch (e) {
                 Log.error('Failed to migrating cover: $e');
               }
@@ -208,6 +229,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 await ViewBackendService.updateView(
                   viewId: space.id,
                   extra: jsonEncode(current),
+                );
+
+                Log.info(
+                  'update space: ${space.name}(${space.id}), current: $current',
                 );
               } catch (e) {
                 Log.error('Failed to migrating cover: $e');
@@ -341,14 +366,18 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final nextSpace = spaces[nextIndex];
             add(SpaceEvent.open(nextSpace));
           },
-          duplicate: () async {
-            final currentSpace = state.currentSpace;
-            if (currentSpace == null) {
+          duplicate: (space) async {
+            space ??= state.currentSpace;
+            if (space == null) {
+              Log.error('duplicate space failed, space is null');
               return;
             }
+
+            Log.info('duplicate space: ${space.name}(${space.id})');
+
             emit(state.copyWith(isDuplicatingSpace: true));
 
-            final newSpace = await _duplicateSpace(currentSpace);
+            final newSpace = await _duplicateSpace(space);
             // open the duplicated space
             if (newSpace != null) {
               add(const SpaceEvent.didReceiveSpaceUpdate());
@@ -723,13 +752,20 @@ class SpaceEvent with _$SpaceEvent {
     required bool createNewPageByDefault,
     required bool openAfterCreate,
   }) = _Create;
-  const factory SpaceEvent.rename(ViewPB space, String name) = _Rename;
-  const factory SpaceEvent.changeIcon(
+  const factory SpaceEvent.rename({
+    required ViewPB space,
+    required String name,
+  }) = _Rename;
+  const factory SpaceEvent.changeIcon({
+    ViewPB? space,
     String? icon,
     String? iconColor,
-  ) = _ChangeIcon;
-  const factory SpaceEvent.duplicate() = _Duplicate;
+  }) = _ChangeIcon;
+  const factory SpaceEvent.duplicate({
+    ViewPB? space,
+  }) = _Duplicate;
   const factory SpaceEvent.update({
+    ViewPB? space,
     String? name,
     String? icon,
     String? iconColor,
