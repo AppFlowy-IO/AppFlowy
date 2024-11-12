@@ -6,6 +6,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -707,10 +708,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   Future<ViewPB?> _duplicateSpace(ViewPB space) async {
     // if the space is not duplicated, try to create a new space
-    final icon = space.icon.value.isNotEmpty
-        ? space.icon.value
-        : builtInSpaceIcons.first;
-    final iconColor = space.spaceIconColor ?? builtInSpaceColors.first;
+    final icon = space.spaceIcon.orDefault(builtInSpaceIcons.first);
+    final iconColor = space.spaceIconColor.orDefault(builtInSpaceColors.first);
     final newSpace = await _createSpace(
       name: '${space.name} (copy)',
       icon: icon,

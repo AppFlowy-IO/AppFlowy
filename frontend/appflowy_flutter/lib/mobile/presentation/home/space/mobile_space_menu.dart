@@ -103,7 +103,7 @@ class MobileSpaceMenuItem extends StatelessWidget {
         cornerRadius: 6.0,
       ),
       leftIconSize: const Size.square(24),
-      rightIcon: _SpaceMenuItemTrailing(
+      rightIcon: SpaceMenuItemTrailing(
         key: ValueKey('${space.id}_space_menu_item_trailing'),
         space: space,
         currentSpace: context.read<SpaceBloc>().state.currentSpace,
@@ -215,8 +215,8 @@ class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
   }
 }
 
-class _SpaceMenuItemTrailing extends StatefulWidget {
-  const _SpaceMenuItemTrailing({
+class SpaceMenuItemTrailing extends StatefulWidget {
+  const SpaceMenuItemTrailing({
     super.key,
     required this.space,
     this.currentSpace,
@@ -226,10 +226,10 @@ class _SpaceMenuItemTrailing extends StatefulWidget {
   final ViewPB? currentSpace;
 
   @override
-  State<_SpaceMenuItemTrailing> createState() => _SpaceMenuItemTrailingState();
+  State<SpaceMenuItemTrailing> createState() => _SpaceMenuItemTrailingState();
 }
 
-class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
+class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
   final controller = TextEditingController();
   final permission = ValueNotifier<SpacePermission>(
     SpacePermission.publicToAll,
