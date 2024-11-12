@@ -158,7 +158,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: builtInSpaceColors.map((color) {
-                    return _SpaceColorItem(
+                    return SpaceColorItem(
                       color: color,
                       selectedColor: selectedColor,
                       onSelected: (color) => widget.selectedColor.value = color,
@@ -247,7 +247,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
                 spacing: 10.0,
                 runSpacing: 8.0,
                 children: iconGroup.icons.map((icon) {
-                  return _SpaceIconItem(
+                  return SpaceIconItem(
                     icon: icon,
                     isSelected: selectedIcon?.name == icon.name,
                     selectedColor: selectedColor,
@@ -267,8 +267,9 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
   }
 }
 
-class _SpaceIconItem extends StatelessWidget {
-  const _SpaceIconItem({
+class SpaceIconItem extends StatelessWidget {
+  const SpaceIconItem({
+    super.key,
     required this.icon,
     required this.onSelectedIcon,
     required this.isSelected,
@@ -317,8 +318,9 @@ class _SpaceIconItem extends StatelessWidget {
   }
 }
 
-class _SpaceColorItem extends StatelessWidget {
-  const _SpaceColorItem({
+class SpaceColorItem extends StatelessWidget {
+  const SpaceColorItem({
+    super.key,
     required this.color,
     required this.selectedColor,
     required this.onSelected,

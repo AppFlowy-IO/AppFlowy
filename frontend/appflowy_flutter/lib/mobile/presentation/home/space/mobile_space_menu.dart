@@ -43,7 +43,7 @@ class MobileSpaceMenu extends StatelessWidget {
               for (final space in state.spaces)
                 SizedBox(
                   height: SpaceUIConstants.itemHeight,
-                  child: _SidebarSpaceMenuItem(
+                  child: MobileSpaceMenuItem(
                     space: space,
                     isSelected: state.currentSpace?.id == space.id,
                   ),
@@ -66,8 +66,9 @@ class MobileSpaceMenu extends StatelessWidget {
   }
 }
 
-class _SidebarSpaceMenuItem extends StatelessWidget {
-  const _SidebarSpaceMenuItem({
+class MobileSpaceMenuItem extends StatelessWidget {
+  const MobileSpaceMenuItem({
+    super.key,
     required this.space,
     required this.isSelected,
   });
