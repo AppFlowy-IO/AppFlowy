@@ -17,6 +17,7 @@ interface EditorInlineAttributes {
     type: string;
     // inline page ref id
     page_id?: string;
+    block_id?: string;
     // reminder date ref id
     date?: string;
     reminder_id?: string;

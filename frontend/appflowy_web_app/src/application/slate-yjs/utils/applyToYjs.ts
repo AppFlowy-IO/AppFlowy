@@ -114,11 +114,11 @@ function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, 
   const { path, node } = op;
 
   if (!Text.isText(node)) return;
-  const text = node.text;
+  const { text, ...attributes } = node;
   const offset = 0;
 
   insertText(ydoc, editor, {
-    path, offset, text, type: 'insert_text', attributes: {},
+    path, offset, text, type: 'insert_text', attributes: attributes || {},
   }, slateContent);
 }
 

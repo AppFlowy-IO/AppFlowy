@@ -22,6 +22,7 @@ export default defineConfig({
     },
     supportFile: 'cypress/support/component.ts',
   },
+  chromeWebSecurity: false,
   retries: {
     // Configure retry attempts for `cypress run`
     // Default is 0
