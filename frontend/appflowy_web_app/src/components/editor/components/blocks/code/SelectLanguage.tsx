@@ -6,20 +6,6 @@ import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { Popover } from '@/components/_shared/popover';
 import { ReactComponent as SelectedIcon } from '@/assets/selected.svg';
 
-const initialOrigin: {
-  transformOrigin: PopoverOrigin;
-  anchorOrigin: PopoverOrigin;
-} = {
-  transformOrigin: {
-    vertical: 'top',
-    horizontal: 'left',
-  },
-  anchorOrigin: {
-    vertical: 'bottom',
-    horizontal: 'left',
-  },
-};
-
 function SelectLanguage ({
   readOnly,
   language = 'Auto',
@@ -86,7 +72,6 @@ function SelectLanguage ({
       <Popover
         disableAutoFocus={true}
         disableRestoreFocus={true}
-        {...initialOrigin}
         anchorEl={ref.current}
         open={open}
         onClose={handleClose}

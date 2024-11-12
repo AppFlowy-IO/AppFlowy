@@ -79,8 +79,6 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
         }
       }
 
-      case BlockType.Page:
-        return t('document.title.placeholder');
       case BlockType.CalloutBlock:
       case BlockType.CodeBlock:
         return t('editor.typeSomething');
@@ -97,16 +95,16 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
     switch (block?.type) {
       case BlockType.HeadingBlock:
         return unSelectedPlaceholder;
-      case BlockType.Page:
-        return t('document.title.placeholder');
-      case BlockType.GridBlock:
-      case BlockType.EquationBlock:
-      case BlockType.CodeBlock:
-      case BlockType.DividerBlock:
-        return '';
+      case  BlockType.ToggleListBlock:
+      case  BlockType.TodoListBlock:
+      case  BlockType.Paragraph:
+      case  BlockType.QuoteBlock:
+      case  BlockType.BulletedListBlock:
+      case  BlockType.NumberedListBlock:
+        return t('editor.slashPlaceHolder');
 
       default:
-        return t('editor.slashPlaceHolder');
+        return '';
     }
   }, [block?.data, block?.type, t, unSelectedPlaceholder]);
 

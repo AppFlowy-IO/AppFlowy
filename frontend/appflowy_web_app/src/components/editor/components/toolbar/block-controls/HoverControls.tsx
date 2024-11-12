@@ -7,13 +7,16 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as AddSvg } from '@/assets/add.svg';
 import { ReactComponent as DragSvg } from '@/assets/drag_element.svg';
 
-export function HoverControls () {
+export function HoverControls ({ onAdded }: {
+  onAdded: (blockId: string) => void;
+}) {
   const { setSelectedBlockId } = useEditorContext();
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const openMenu = Boolean(menuAnchorEl);
 
   const { ref, cssProperty, onClickAdd, hoveredBlockId } = useHoverControls({
     disabled: openMenu,
+    onAdded,
   });
   const { t } = useTranslation();
 

@@ -303,34 +303,40 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
   // delete source block
   deleteBlock(sharedRoot, sourceBlock.get(YjsEditorKey.block_id));
 
-  // turn to toggle heading
-  if (type === BlockType.ToggleListBlock && (data as unknown as ToggleListBlockData).level) {
-    const nextSiblings = getNextSiblings(sharedRoot, newBlock);
+  extendNextSiblingsToToggleHeading(sharedRoot, newBlock);
+}
 
-    if (!nextSiblings || nextSiblings.length === 0) return;
-    // find the next sibling with the same or higher level
-    const index = nextSiblings.findIndex((id) => {
-      const block = getBlock(id, sharedRoot);
-      const blockData = dataStringTOJson(block.get(YjsEditorKey.block_data));
+function extendNextSiblingsToToggleHeading (sharedRoot: YSharedRoot, block: YBlock) {
+  const type = block.get(YjsEditorKey.block_type);
+  const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as ToggleListBlockData;
 
-      if ('level' in blockData && (blockData as {
-        level: number
-      }).level <= ((data as unknown as ToggleListBlockData).level as number)) {
-        return true;
-      }
+  if (type !== BlockType.ToggleListBlock || !data.level) return;
 
-      return false;
-    });
+  const nextSiblings = getNextSiblings(sharedRoot, block);
 
-    const nodes = index > -1 ? nextSiblings.slice(0, index) : nextSiblings;
+  if (!nextSiblings || nextSiblings.length === 0) return;
+  // find the next sibling with the same or higher level
+  const index = nextSiblings.findIndex((id) => {
+    const block = getBlock(id, sharedRoot);
+    const blockData = dataStringTOJson(block.get(YjsEditorKey.block_data));
 
-    // if not found, return. Otherwise, indent the block
-    nodes.forEach((id) => {
-      const block = getBlock(id, sharedRoot);
+    if ('level' in blockData && (blockData as {
+      level: number
+    }).level <= ((data as unknown as ToggleListBlockData).level as number)) {
+      return true;
+    }
 
-      indentBlock(sharedRoot, block);
-    });
-  }
+    return false;
+  });
+
+  const nodes = index > -1 ? nextSiblings.slice(0, index) : nextSiblings;
+
+  // if not found, return. Otherwise, indent the block
+  nodes.forEach((id) => {
+    const block = getBlock(id, sharedRoot);
+
+    indentBlock(sharedRoot, block);
+  });
 }
 
 function getNextSiblings (sharedRoot: YSharedRoot, block: YBlock) {
@@ -1361,9 +1367,11 @@ export function addBlock (editor: YjsEditor, {
 }: {
   ty: BlockType,
   data: BlockData,
-}, parent: YBlock, index: number) {
+}, parent: YBlock, index: number): string | undefined {
   const sharedRoot = getSharedRoot(editor);
   const operations: (() => void)[] = [];
+
+  let newBlockId: string | undefined;
 
   operations.push(() => {
     const newBlock = createBlock(sharedRoot, {
@@ -1371,8 +1379,14 @@ export function addBlock (editor: YjsEditor, {
       data,
     });
 
+    newBlockId = newBlock.get(YjsEditorKey.block_id);
+
     updateBlockParent(sharedRoot, newBlock, parent, index);
+
+    extendNextSiblingsToToggleHeading(sharedRoot, newBlock);
   });
 
   executeOperations(sharedRoot, operations, 'addBlock');
+
+  return newBlockId;
 }

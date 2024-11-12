@@ -18,9 +18,11 @@ function ChangeIconPopover ({
   popoverProps = {},
   onSelectIcon,
   removeIcon,
+  anchorPosition,
 }: {
   open: boolean,
-  anchorEl: HTMLElement | null,
+  anchorEl?: HTMLElement | null,
+  anchorPosition?: PopoverProps['anchorPosition'],
   onClose: () => void,
   defaultType: 'emoji' | 'icon',
   emojiEnabled?: boolean,
@@ -38,6 +40,8 @@ function ChangeIconPopover ({
       open={open}
       anchorEl={anchorEl}
       {...popoverProps}
+      anchorPosition={anchorPosition}
+      anchorReference={anchorPosition ? 'anchorPosition' : 'anchorEl'}
     >
       <div className={'border-b border-line-divider px-4 pt-2 flex items-center justify-between'}>
         <ViewTabs

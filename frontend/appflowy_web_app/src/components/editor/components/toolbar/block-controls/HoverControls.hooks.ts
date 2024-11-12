@@ -1,13 +1,14 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { CONTAINER_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Editor, Element, Range } from 'slate';
+import { Editor, Element, Range, Transforms } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { findEventNode, getBlockActionsPosition, getBlockCssProperty } from './utils';
 
-export function useHoverControls ({ disabled }: { disabled: boolean }) {
+export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; onAdded: (blockId: string) => void; }) {
   const editor = useSlateStatic() as YjsEditor;
   const ref = useRef<HTMLDivElement>(null);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
@@ -40,7 +41,6 @@ export function useHoverControls ({ disabled }: { disabled: boolean }) {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      console.log('handleMouseMove');
       const el = ref.current;
 
       if (!el) return;
@@ -147,16 +147,30 @@ export function useHoverControls ({ disabled }: { disabled: boolean }) {
   }, [close, editor, hoveredBlockId]);
 
   const onClickAdd = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     if (!hoveredBlockId) return;
+    const [node, path] = findSlateEntryByBlockId(editor, hoveredBlockId);
+    const start = editor.start(path);
+
+    ReactEditor.focus(editor);
+    Transforms.select(editor, start);
+
+    const type = node.type as BlockType;
+
+    if (CustomEditor.getBlockTextContent(node, 2) === '' && [...CONTAINER_BLOCK_TYPES, BlockType.HeadingBlock].includes(type)) {
+      onAdded(hoveredBlockId);
+      return;
+    }
+
+    let newBlockId: string | undefined = '';
 
     if (e.altKey) {
-      CustomEditor.addAboveBlock(editor, hoveredBlockId, BlockType.Paragraph, {});
+      newBlockId = CustomEditor.addAboveBlock(editor, hoveredBlockId, BlockType.Paragraph, {});
     } else {
-      CustomEditor.addBelowBlock(editor, hoveredBlockId, BlockType.Paragraph, {});
+      newBlockId = CustomEditor.addBelowBlock(editor, hoveredBlockId, BlockType.Paragraph, {});
     }
-  }, [editor, hoveredBlockId]);
+
+    onAdded(newBlockId || '');
+  }, [editor, hoveredBlockId, onAdded]);
 
   return {
     hoveredBlockId,
