@@ -54,6 +54,96 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Install Docker
+        run: |
+          brew install docker
+          brew install colima
+          brew install docker-compose
+
+      - name: Start Colima with stable configuration
+        run: |
+          # Start Colima with minimal configuration and x86_64 architecture
+          colima start --cpu 2 --memory 4 --arch x86_64 --vm-type vz
+
+          # Give it some time to fully initialize
+          sleep 30
+
+      - name: Wait for Docker
+        run: |
+          # Wait for Docker socket to be available
+          for i in {1..30}; do
+            if docker info > /dev/null 2>&1; then
+              echo "Docker is ready"
+              break
+            fi
+            echo "Waiting for Docker to be ready... ($i/30)"
+            sleep 2
+          done
+
+      - name: Verify Docker
+        run: |
+          docker version
+          docker info
+          docker compose version
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          # log level
+          cp deploy.env .env
+          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i '' 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i '' 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
+          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
+        run: |
+          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
+          if [ -z "$container_id" ]; then
+            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
+            docker compose pull
+            docker compose up -d
+            echo "Waiting for the container to be ready..."
+            sleep 10
+          else
+            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
+            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
+              echo "AppFlowy-Cloud is running with an incorrect version. Restarting with the correct version..."
+              # Remove all containers if any exist
+              if [ "$(docker ps -aq)" ]; then
+                docker rm -f $(docker ps -aq)
+              else
+                echo "No containers to remove."
+              fi
+
+              # Remove all volumes if any exist
+              if [ "$(docker volume ls -q)" ]; then
+                docker volume rm $(docker volume ls -q)
+              else
+                echo "No volumes to remove."
+              fi
+              docker compose pull
+              docker compose up -d
+              echo "Waiting for the container to be ready..."
+              sleep 10
+              docker ps -a
+              docker compose logs
+            else
+              echo "AppFlowy-Cloud is running with the correct version."
+            fi
+          fi
+
       - name: Checkout source code
         uses: actions/checkout@v4
 
@@ -112,6 +202,7 @@ jobs:
           kill $pid
         continue-on-error: true
 
+      # Integration tests
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter
         # The integration tests are flaky and sometimes fail with "Connection timed out":
@@ -119,3 +210,10 @@ jobs:
         # Instead, we're using Code Magic to re-run the tests to check if they pass.
         continue-on-error: true
         run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+
+      # Cloud integration tests
+      - name: Run Flutter integration tests
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter test integration_test/mobile/cloud/cloud_runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+        shell: bash
