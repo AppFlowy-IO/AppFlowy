@@ -40,8 +40,10 @@ export const Element = ({
   const {
     jumpBlockId,
     onJumpedBlockId,
+    selectedBlockId,
   } = useEditorContext();
 
+  const selected = selectedBlockId === node.blockId;
   const editor = useSlateStatic();
   const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
 
@@ -130,9 +132,18 @@ export const Element = ({
   const className = useMemo(() => {
     const data = (node.data as BlockData) || {};
     const align = data.align;
+    const classList = ['block-element relative flex rounded-[8px]'];
 
-    return `block-element relative flex rounded-[8px] ${align ? `block-align-${align}` : ''}`;
-  }, [node.data]);
+    if (selected) {
+      classList.push('selected');
+    }
+
+    if (align) {
+      classList.push(`block-align-${align}`);
+    }
+
+    return classList.join(' ');
+  }, [node.data, selected]);
 
   const style = useMemo(() => {
     const data = (node.data as BlockData) || {};

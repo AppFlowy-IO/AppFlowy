@@ -48,6 +48,8 @@ export interface EditorContextState {
   decorateState?: Record<string, Decorate>;
   addDecorate?: (range: BaseRange, class_name: string, type: string) => void;
   removeDecorate?: (type: string) => void;
+  selectedBlockId?: string;
+  setSelectedBlockId?: (blockId?: string) => void;
 }
 
 export const EditorContext = createContext<EditorContextState>({
@@ -59,6 +61,7 @@ export const EditorContext = createContext<EditorContextState>({
 
 export const EditorContextProvider = ({ children, ...props }: EditorContextState & { children: React.ReactNode }) => {
   const [decorateState, setDecorateState] = useState<Record<string, Decorate>>({});
+  const [selectedBlockId, setSelectedBlockId] = useState<string | undefined>(undefined);
 
   const addDecorate = useCallback((range: BaseRange, class_name: string, type: string) => {
     setDecorateState((prev) => ({
@@ -89,6 +92,8 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
       decorateState,
       addDecorate,
       removeDecorate,
+      selectedBlockId,
+      setSelectedBlockId,
     }}
   >{children}</EditorContext.Provider>;
 };

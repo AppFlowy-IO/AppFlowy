@@ -1,4 +1,4 @@
-import { Path } from 'slate';
+import { Editor, Element, Path } from 'slate';
 
 export function findIndentPath (originalStart: Path, originalEnd: Path, newStart: Path): Path {
   // Find the common ancestor path
@@ -23,4 +23,13 @@ export function findLiftPath (originalStart: Path, originalEnd: Path, newStart: 
   const newCommonAncestor = newStart.slice(0, newStart.length - startToCommonLevels);
 
   return [...newCommonAncestor, ...endRelativePath];
+}
+
+export function findSlateEntryByBlockId (editor: Editor, blockId: string) {
+  const [node] = Editor.nodes(editor, {
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
+    at: [],
+  });
+
+  return node;
 }

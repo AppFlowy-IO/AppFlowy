@@ -70,9 +70,22 @@ export const initialEditorTest = () => {
     });
   };
 
+  const getFinalJSON = () => {
+    return documentTest.toJSON();
+  };
+
   return {
     initializeEditor,
     assertJSON,
+    getFinalJSON,
   };
 
+};
+
+export const getModKey = () => {
+  if (Cypress.platform === 'darwin') {
+    return 'Meta';
+  } else {
+    return 'Control';
+  }
 };

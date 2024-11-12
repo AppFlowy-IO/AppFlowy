@@ -1,4 +1,4 @@
-import { initialEditorTest } from '@/components/editor/__tests__/mount';
+import { initialEditorTest, getModKey } from '@/components/editor/__tests__/mount';
 import { FromBlockJSON } from 'cypress/support/document';
 
 const { assertJSON, initializeEditor } = initialEditorTest();
@@ -54,14 +54,6 @@ const initialData: FromBlockJSON[] = [
     children: [],
   },
 ];
-
-const getModKey = () => {
-  if (Cypress.platform === 'darwin') {
-    return 'Meta';
-  } else {
-    return 'Control';
-  }
-};
 
 describe('BIUS.cy', () => {
   beforeEach(() => {

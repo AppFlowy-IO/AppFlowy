@@ -1,13 +1,20 @@
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { findIndentPath, findLiftPath } from '@/application/slate-yjs/utils/slateUtils';
+import { findIndentPath, findLiftPath, findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 
 import {
+  addBlock,
   dataStringTOJson,
-  executeOperations, findSlateEntryByBlockId, getAffectedBlocks,
+  deepCopyBlock,
+  deleteBlock,
+  executeOperations,
+  getAffectedBlocks,
   getBlock,
   getBlockEntry,
-  getSelectionOrThrow, getSelectionTexts,
+  getBlockIndex,
+  getParent,
+  getSelectionOrThrow,
+  getSelectionTexts,
   getSharedRoot,
   handleCollapsedBreakWithTxn,
   handleDeleteEntireDocumentWithTxn,
@@ -15,9 +22,14 @@ import {
   handleMergeBlockBackwardWithTxn,
   handleMergeBlockForwardWithTxn,
   handleNonParagraphBlockBackspaceAndEnterWithTxn,
-  handleRangeBreak, indentBlock, liftBlock, preventIndentNode, preventLiftNode,
+  handleRangeBreak,
+  indentBlock,
+  liftBlock,
+  preventIndentNode,
+  preventLiftNode,
   removeRangeWithTxn,
   turnToBlock,
+  updateBlockParent,
 } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
@@ -402,4 +414,119 @@ export const CustomEditor = {
 
     return marks ? !!marks[key] : false;
   },
+
+  addBelowBlock (editor: YjsEditor, blockId: string, type: BlockType, data: BlockData) {
+    const parent = getParent(blockId, editor.sharedRoot);
+    const index = getBlockIndex(blockId, editor.sharedRoot);
+
+    if (!parent) return;
+
+    addBlock(editor, {
+      ty: type,
+      data,
+    }, parent, index + 1);
+
+    const [, path] = findSlateEntryByBlockId(editor, blockId);
+
+    try {
+      const next = editor.next({
+        at: path,
+        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+      });
+
+      if (next) {
+        ReactEditor.focus(editor);
+        Transforms.select(editor, next[1]);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+  },
+
+  addAboveBlock (editor: YjsEditor, blockId: string, type: BlockType, data: BlockData) {
+    const parent = getParent(blockId, editor.sharedRoot);
+    const index = getBlockIndex(blockId, editor.sharedRoot);
+
+    if (!parent) return;
+
+    addBlock(editor, {
+      ty: type,
+      data,
+    }, parent, index);
+
+    const [, path] = findSlateEntryByBlockId(editor, blockId);
+
+    try {
+      const prev = editor.previous({
+        at: path,
+        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+      });
+
+      if (prev) {
+        ReactEditor.focus(editor);
+        Transforms.select(editor, prev[1]);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
+
+  deleteBlock (editor: YjsEditor, blockId: string) {
+    const sharedRoot = getSharedRoot(editor);
+    const parent = getParent(blockId, sharedRoot);
+
+    if (!parent) {
+      console.warn('Parent block not found');
+      return;
+    }
+
+    executeOperations(sharedRoot, [() => {
+      deleteBlock(sharedRoot, blockId);
+    }], 'deleteBlock');
+    const children = editor.children;
+
+    if (children.length === 0) {
+      addBlock(editor, {
+        ty: BlockType.Paragraph,
+        data: {},
+      }, parent, 0);
+    }
+
+    ReactEditor.focus(editor);
+    Transforms.select(editor, [0, 0]);
+    editor.collapse({
+      edge: 'start',
+    });
+  },
+
+  duplicateBlock (editor: YjsEditor, blockId: string) {
+    const sharedRoot = getSharedRoot(editor);
+    const block = getBlock(blockId, sharedRoot);
+    const blockIndex = getBlockIndex(blockId, sharedRoot);
+    const parent = getParent(blockId, sharedRoot);
+
+    if (!parent) {
+      console.warn('Parent block not found');
+      return;
+    }
+
+    let newBlockId: string | null = null;
+
+    executeOperations(sharedRoot, [() => {
+      newBlockId = deepCopyBlock(sharedRoot, block);
+
+      if (!newBlockId) {
+        console.warn('Copied block not found');
+        return;
+      }
+
+      const copiedBlock = getBlock(newBlockId, sharedRoot);
+
+      updateBlockParent(sharedRoot, copiedBlock, parent, blockIndex + 1);
+    }], 'duplicateBlock');
+
+    return newBlockId;
+  },
+
 };
