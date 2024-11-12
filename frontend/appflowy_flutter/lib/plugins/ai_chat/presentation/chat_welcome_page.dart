@@ -174,8 +174,9 @@ class WelcomeSampleQuestion extends StatelessWidget {
         ),
         child: FlowyText(
           question,
-          fontSize: 14,
-          color: Theme.of(context).hintColor,
+          color: isLightMode
+              ? Theme.of(context).hintColor
+              : const Color(0xFF666D76),
         ),
       ),
     );

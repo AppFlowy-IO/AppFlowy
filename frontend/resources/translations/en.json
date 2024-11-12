@@ -178,7 +178,7 @@
     "inputMessageHint": "Ask @:appName AI",
     "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
-    "relatedQuestion": "Related",
+    "relatedQuestion": "Suggested",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
     "aiServerUnavailable": "Connection lost. Please check your internet and",
     "retry": "Retry",

@@ -62,13 +62,14 @@ class RelatedQuestionItem extends StatelessWidget {
     return FlowyButton(
       text: FlowyText(
         question.content,
+        lineHeight: 1.4,
       ),
       margin: UniversalPlatform.isMobile
           ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
           : const EdgeInsets.all(8.0),
       leftIcon: FlowySvg(
         FlowySvgs.ai_chat_outlined_s,
-        color: Theme.of(context).primaryColor,
+        color: Theme.of(context).colorScheme.primary,
         size: const Size.square(16.0),
       ),
       onTap: () => onQuestionSelected(question.content),
