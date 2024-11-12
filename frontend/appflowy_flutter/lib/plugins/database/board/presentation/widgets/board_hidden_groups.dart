@@ -278,25 +278,33 @@ class HiddenGroupButtonContent extends StatelessWidget {
                                 index: index,
                               ),
                               const HSpace(4),
-                              FlowyText(
-                                group
-                                    .generateGroupName(bloc.databaseController),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const HSpace(6),
                               Expanded(
-                                child: FlowyText(
-                                  group.rows.length.toString(),
-                                  overflow: TextOverflow.ellipsis,
-                                  color: Theme.of(context).hintColor,
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: FlowyText(
+                                        group.generateGroupName(
+                                          bloc.databaseController,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const HSpace(6),
+                                    FlowyText(
+                                      group.rows.length.toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                  ],
                                 ),
                               ),
                               if (isHovering) ...[
+                                const HSpace(6),
                                 FlowyIconButton(
                                   width: 20,
-                                  icon: FlowySvg(
+                                  icon: const FlowySvg(
                                     FlowySvgs.show_m,
-                                    color: Theme.of(context).hintColor,
+                                    size: Size.square(16),
                                   ),
                                   onPressed: () =>
                                       context.read<BoardBloc>().add(
