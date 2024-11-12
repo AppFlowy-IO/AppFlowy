@@ -55,7 +55,7 @@ class SidebarTemplateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SidebarFooterButton(
-      leftIconSize: const Size.square(18.0),
+      leftIconSize: const Size.square(16.0),
       leftIcon: const FlowySvg(
         FlowySvgs.icon_template_s,
       ),
