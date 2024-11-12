@@ -8,21 +8,6 @@ export function getRangeRect () {
 
   const domRange = rangeCount > 0 ? domSelection.getRangeAt(0) : undefined;
 
-  // const anchorNode = domSelection.anchorNode;
-  // const focusNode = domSelection.focusNode;
-  // const focusOffset = domSelection.focusOffset;
-  // const anchorTop = anchorNode?.parentElement?.getBoundingClientRect().top;
-  // const focusTop = focusNode?.parentElement?.getBoundingClientRect().top;
-  // const diff = Math.abs((anchorTop || 0) - (focusTop || 0));
-  //
-  // if (focusNode && anchorNode && diff > 20) {
-  //   const newRange = document.createRange();
-  //
-  //   newRange.setStart(focusNode, focusOffset);
-  //
-  //   domRange = newRange;
-  // }
-
   return domRange?.getBoundingClientRect();
 }
 

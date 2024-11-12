@@ -415,61 +415,38 @@ export const CustomEditor = {
     return marks ? !!marks[key] : false;
   },
 
-  addBelowBlock (editor: YjsEditor, blockId: string, type: BlockType, data: BlockData) {
+  addBlock (editor: YjsEditor, blockId: string, direction: 'below' | 'above', type: BlockType, data: BlockData) {
     const parent = getParent(blockId, editor.sharedRoot);
     const index = getBlockIndex(blockId, editor.sharedRoot);
 
     if (!parent) return;
 
-    addBlock(editor, {
+    const newBlockId = addBlock(editor, {
       ty: type,
       data,
-    }, parent, index + 1);
-
-    const [, path] = findSlateEntryByBlockId(editor, blockId);
+    }, parent, direction === 'below' ? index + 1 : index);
 
     try {
-      const next = editor.next({
-        at: path,
-        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
-      });
+      const [, path] = findSlateEntryByBlockId(editor, newBlockId);
 
-      if (next) {
+      if (path) {
         ReactEditor.focus(editor);
-        Transforms.select(editor, next[1]);
+        const point = editor.start(path);
+
+        Transforms.select(editor, point);
+        return newBlockId;
       }
     } catch (e) {
       console.error(e);
     }
+  },
 
+  addBelowBlock (editor: YjsEditor, blockId: string, type: BlockType, data: BlockData) {
+    return CustomEditor.addBlock(editor, blockId, 'below', type, data);
   },
 
   addAboveBlock (editor: YjsEditor, blockId: string, type: BlockType, data: BlockData) {
-    const parent = getParent(blockId, editor.sharedRoot);
-    const index = getBlockIndex(blockId, editor.sharedRoot);
-
-    if (!parent) return;
-
-    addBlock(editor, {
-      ty: type,
-      data,
-    }, parent, index);
-
-    const [, path] = findSlateEntryByBlockId(editor, blockId);
-
-    try {
-      const prev = editor.previous({
-        at: path,
-        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
-      });
-
-      if (prev) {
-        ReactEditor.focus(editor);
-        Transforms.select(editor, prev[1]);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    return CustomEditor.addBlock(editor, blockId, 'above', type, data);
   },
 
   deleteBlock (editor: YjsEditor, blockId: string) {

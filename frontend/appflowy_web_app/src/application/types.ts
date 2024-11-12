@@ -94,10 +94,10 @@ export enum FieldURLType {
 }
 
 export interface FileBlockData extends BlockData {
-  name: string;
-  uploaded_at: number;
-  url: string;
-  url_type: FieldURLType;
+  name?: string;
+  uploaded_at?: number;
+  url?: string;
+  url_type?: FieldURLType;
 }
 
 export enum ImageType {

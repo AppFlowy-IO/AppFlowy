@@ -52,9 +52,13 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
   }, [editor]);
 
   return (
-    <Slate editor={editor} initialValue={defaultInitialValue}>
+    <Slate
+      editor={editor}
+      initialValue={defaultInitialValue}
+    >
       <EditorEditable />
     </Slate>
+
   );
 }
 
