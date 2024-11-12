@@ -68,8 +68,6 @@ class Log {
       return;
     }
 
-    debugPrint(msg);
-
     _log(Level.info, 0, msg, error, stackTrace);
   }
 

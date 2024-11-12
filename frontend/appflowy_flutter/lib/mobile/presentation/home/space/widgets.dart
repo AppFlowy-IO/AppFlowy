@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
@@ -12,6 +13,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 
+import 'constants.dart';
 import 'manage_space_widget.dart';
 import 'space_permission_bottom_sheet.dart';
 
@@ -77,7 +79,7 @@ class ManageSpacePermissionOption extends StatelessWidget {
         ValueListenableBuilder(
           valueListenable: permission,
           builder: (context, value, child) => FlowyOptionTile.text(
-            height: 52,
+            height: SpaceUIConstants.itemHeight,
             text: value.i18n,
             leftIcon: FlowySvg(value.icon),
             trailing: const FlowySvg(
@@ -139,7 +141,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
       Padding(
         padding: const EdgeInsets.only(left: 16, bottom: 4),
         child: FlowyText(
-          'Space icon color',
+          LocaleKeys.space_mSpaceIconColor.tr(),
           fontSize: 14,
           figmaLineHeight: 20.0,
           fontWeight: FontWeight.w400,
@@ -177,7 +179,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
       Padding(
         padding: const EdgeInsets.only(left: 16, bottom: 4),
         child: FlowyText(
-          'Space icon',
+          LocaleKeys.space_mSpaceIcon.tr(),
           fontSize: 14,
           figmaLineHeight: 20.0,
           fontWeight: FontWeight.w400,
@@ -221,10 +223,15 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
     String selectedColor,
     Icon? selectedIcon,
   ) {
+    final iconGroups = kIconGroups;
+    if (iconGroups == null) {
+      return const SizedBox.shrink();
+    }
+
     return ListView.builder(
-      itemCount: kIconGroups!.length,
+      itemCount: iconGroups.length,
       itemBuilder: (context, index) {
-        final iconGroup = kIconGroups![index];
+        final iconGroup = iconGroups[index];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -250,7 +257,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
               ),
             ),
             const VSpace(12.0),
-            if (index == kIconGroups!.length - 1) ...[
+            if (index == iconGroups.length - 1) ...[
               const StreamlinePermit(),
             ],
           ],
@@ -275,8 +282,8 @@ class _SpaceIconItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onSelectedIcon(icon),
+    return AnimatedGestureDetector(
+      onTapUp: () => onSelectedIcon(icon),
       child: Container(
         width: 36,
         height: 36,
@@ -324,42 +331,37 @@ class _SpaceColorItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = Center(
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => onSelected(color),
-        child: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: Color(int.parse(color)),
-            borderRadius: BorderRadius.circular(14),
-          ),
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: Color(int.parse(color)),
+          borderRadius: BorderRadius.circular(14),
         ),
       ),
     );
 
-    if (color != selectedColor) {
-      return SizedBox(
+    final decoration = color != selectedColor
+        ? null
+        : ShapeDecoration(
+            color: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1.50,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              borderRadius: BorderRadius.circular(21),
+            ),
+          );
+
+    return AnimatedGestureDetector(
+      onTapUp: () => onSelected(color),
+      child: Container(
         width: 36,
         height: 36,
+        decoration: decoration,
         child: child,
-      );
-    }
-
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: ShapeDecoration(
-        color: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1.50,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          borderRadius: BorderRadius.circular(21),
-        ),
       ),
-      child: child,
     );
   }
 }

@@ -73,4 +73,11 @@ class Icon {
   String get displayName => name.replaceAll('-', ' ');
 
   Map<String, dynamic> toJson() => _$IconToJson(this);
+
+  String get iconPath {
+    if (iconGroup == null) {
+      return '';
+    }
+    return '${iconGroup!.name}/$name';
+  }
 }

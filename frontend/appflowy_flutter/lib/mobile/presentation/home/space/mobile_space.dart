@@ -23,8 +23,7 @@ class MobileSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SpaceBloc, SpaceState>(
-      listener: _onListen,
+    return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
         if (state.spaces.isEmpty) {
           return const SizedBox.shrink();
@@ -112,8 +111,6 @@ class MobileSpace extends StatelessWidget {
       },
     );
   }
-
-  void _onListen(BuildContext context, SpaceState state) {}
 }
 
 class _Pages extends StatelessWidget {

@@ -5,6 +5,8 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ac
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import 'constants.dart';
+
 class SpaceMenuMoreOptions extends StatelessWidget {
   const SpaceMenuMoreOptions({
     super.key,
@@ -35,7 +37,7 @@ class SpaceMenuMoreOptions extends StatelessWidget {
       case SpaceMoreActionType.rename:
         return FlowyOptionTile.text(
           text: LocaleKeys.button_rename.tr(),
-          height: 52.0,
+          height: SpaceUIConstants.itemHeight,
           leftIcon: const FlowySvg(
             FlowySvgs.view_item_rename_s,
             size: Size.square(18),
@@ -49,7 +51,7 @@ class SpaceMenuMoreOptions extends StatelessWidget {
       case SpaceMoreActionType.delete:
         return FlowyOptionTile.text(
           text: LocaleKeys.button_delete.tr(),
-          height: 52.0,
+          height: SpaceUIConstants.itemHeight,
           textColor: Theme.of(context).colorScheme.error,
           leftIcon: FlowySvg(
             FlowySvgs.trash_s,
@@ -65,7 +67,7 @@ class SpaceMenuMoreOptions extends StatelessWidget {
       case SpaceMoreActionType.manage:
         return FlowyOptionTile.text(
           text: LocaleKeys.space_manage.tr(),
-          height: 52.0,
+          height: SpaceUIConstants.itemHeight,
           leftIcon: const FlowySvg(
             FlowySvgs.settings_s,
             size: Size.square(18),
@@ -79,7 +81,7 @@ class SpaceMenuMoreOptions extends StatelessWidget {
       case SpaceMoreActionType.duplicate:
         return FlowyOptionTile.text(
           text: SpaceMoreActionType.duplicate.name,
-          height: 52.0,
+          height: SpaceUIConstants.itemHeight,
           leftIcon: const FlowySvg(
             FlowySvgs.duplicate_s,
             size: Size.square(18),

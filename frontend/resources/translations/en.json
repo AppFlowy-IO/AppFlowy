@@ -2526,7 +2526,9 @@
     },
     "createSpace": "Create space",
     "manageSpace": "Manage space",
-    "renameSpace": "Rename space"
+    "renameSpace": "Rename space",
+    "mSpaceIconColor": "Space icon color",
+    "mSpaceIcon": "Space icon"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",

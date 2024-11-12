@@ -23,6 +23,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'constants.dart';
 import 'manage_space_widget.dart';
 
 class MobileSpaceMenu extends StatelessWidget {
@@ -41,7 +42,7 @@ class MobileSpaceMenu extends StatelessWidget {
               const VSpace(4.0),
               for (final space in state.spaces)
                 SizedBox(
-                  height: 52,
+                  height: SpaceUIConstants.itemHeight,
                   child: _SidebarSpaceMenuItem(
                     space: space,
                     isSelected: state.currentSpace?.id == space.id,
@@ -54,7 +55,7 @@ class MobileSpaceMenu extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 52,
+                height: SpaceUIConstants.itemHeight,
                 child: _CreateSpaceButton(),
               ),
             ],
@@ -172,16 +173,7 @@ class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
       showDragHandle: true,
       bottomSheetPadding: context.bottomSheetPadding(),
       onDone: (bottomSheetContext) {
-        String iconName = '';
-        final icon = selectedIcon.value;
-        final iconGroup = icon?.iconGroup;
-        final iconId = icon?.name;
-        if (icon != null && iconGroup != null) {
-          iconName = '${iconGroup.name}/$iconId';
-        }
-        Log.info(
-          'create space on mobile, name: ${controller.text}, permission: ${permission.value}, color: ${selectedColor.value}, icon: $iconName',
-        );
+        final iconPath = selectedIcon.value?.iconPath ?? '';
         context.read<SpaceBloc>().add(
               SpaceEvent.create(
                 name: controller.text.orDefault(
@@ -189,13 +181,17 @@ class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
                 ),
                 permission: permission.value,
                 iconColor: selectedColor.value,
-                icon: iconName,
+                icon: iconPath,
                 createNewPageByDefault: true,
                 openAfterCreate: false,
               ),
             );
         Navigator.pop(bottomSheetContext);
         Navigator.pop(context);
+
+        Log.info(
+          'create space on mobile, name: ${controller.text}, permission: ${permission.value}, color: ${selectedColor.value}, icon: $iconPath',
+        );
       },
       padding: const EdgeInsets.symmetric(horizontal: 16),
       builder: (bottomSheetContext) => ManageSpaceWidget(
@@ -388,20 +384,7 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
     permission.value = widget.space.spacePermission;
     selectedColor.value =
         widget.space.spaceIconColor ?? builtInSpaceColors.first;
-    final spaceIcon = widget.space.spaceIcon;
-    final values = spaceIcon?.split('/');
-    if (values != null && values.length == 2) {
-      final iconGroup = values.first;
-      final icon = values.last;
-      selectedIcon.value = Icon(
-        content: icon,
-        name: icon,
-        keywords: [],
-      )..iconGroup = IconGroup(
-          name: iconGroup,
-          icons: [],
-        );
-    }
+    selectedIcon.value = widget.space.spaceIcon?.icon;
 
     await showMobileBottomSheet(
       context,
