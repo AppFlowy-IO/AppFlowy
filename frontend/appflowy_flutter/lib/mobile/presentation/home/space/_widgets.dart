@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/shared/icon_emoji_picker/colors.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
@@ -86,7 +87,7 @@ class ManageSpacePermissionOption extends StatelessWidget {
               showMobileBottomSheet(
                 context,
                 showHeader: true,
-                title: 'Space permission',
+                title: LocaleKeys.space_permission.tr(),
                 showCloseButton: true,
                 showDivider: false,
                 showDragHandle: true,
@@ -172,15 +173,6 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
   }
 
   List<Widget> _buildSpaceIconOption(BuildContext context) {
-    final icons = [];
-
-    if (kIconGroups != null) {
-      // only take the first group temporarily
-      for (final group in kIconGroups!.take(1)) {
-        icons.addAll(group.icons);
-      }
-    }
-
     return [
       Padding(
         padding: const EdgeInsets.only(left: 16, bottom: 4),
@@ -192,43 +184,79 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
           color: Theme.of(context).hintColor,
         ),
       ),
-      SizedBox(
-        width: double.infinity,
-        child: ValueListenableBuilder(
-          valueListenable: widget.selectedColor,
-          builder: (context, selectedColor, child) {
-            return ValueListenableBuilder(
-              valueListenable: widget.selectedIcon,
-              builder: (context, selectedIcon, child) {
-                return FlowyOptionDecorateBox(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
+      Expanded(
+        child: SizedBox(
+          width: double.infinity,
+          child: ValueListenableBuilder(
+            valueListenable: widget.selectedColor,
+            builder: (context, selectedColor, child) {
+              return ValueListenableBuilder(
+                valueListenable: widget.selectedIcon,
+                builder: (context, selectedIcon, child) {
+                  return FlowyOptionDecorateBox(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      child: _buildIconGroups(
+                        context,
+                        selectedColor,
+                        selectedIcon,
+                      ),
                     ),
-                    child: Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      spacing: 8,
-                      runSpacing: 12,
-                      children: icons.map((icon) {
-                        return _SpaceIconItem(
-                          icon: icon,
-                          isSelected: selectedIcon?.name == icon.name,
-                          selectedColor: selectedColor,
-                          onSelectedIcon: (icon) =>
-                              widget.selectedIcon.value = icon,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
       const VSpace(16),
     ];
+  }
+
+  Widget _buildIconGroups(
+    BuildContext context,
+    String selectedColor,
+    Icon? selectedIcon,
+  ) {
+    return ListView.builder(
+      itemCount: kIconGroups!.length,
+      itemBuilder: (context, index) {
+        final iconGroup = kIconGroups![index];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlowyText(
+              iconGroup.displayName.capitalize(),
+              fontSize: 12,
+              figmaLineHeight: 18.0,
+              color: context.pickerTextColor,
+            ),
+            const VSpace(4.0),
+            Center(
+              child: Wrap(
+                spacing: 10.0,
+                runSpacing: 8.0,
+                children: iconGroup.icons.map((icon) {
+                  return _SpaceIconItem(
+                    icon: icon,
+                    isSelected: selectedIcon?.name == icon.name,
+                    selectedColor: selectedColor,
+                    onSelectedIcon: (icon) => widget.selectedIcon.value = icon,
+                  );
+                }).toList(),
+              ),
+            ),
+            const VSpace(12.0),
+            if (index == kIconGroups!.length - 1) ...[
+              const StreamlinePermit(),
+            ],
+          ],
+        );
+      },
+    );
   }
 }
 

@@ -296,7 +296,11 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
       builder: (bottomSheetContext) {
         return SpaceMenuMoreOptions(
           actions: actions,
-          onAction: (action) => _onActions(context, bottomSheetContext, action),
+          onAction: (action) => _onActions(
+            context,
+            bottomSheetContext,
+            action,
+          ),
         );
       },
     );
@@ -377,13 +381,18 @@ class _SpaceMenuItemTrailingState extends State<_SpaceMenuItemTrailing> {
     selectedColor.value =
         widget.space.spaceIconColor ?? builtInSpaceColors.first;
     final spaceIcon = widget.space.spaceIcon;
-    if (spaceIcon != null) {
-      final icon = spaceIcon.split('/').last;
+    final values = spaceIcon?.split('/');
+    if (values != null && values.length == 2) {
+      final iconGroup = values.first;
+      final icon = values.last;
       selectedIcon.value = Icon(
         content: icon,
         name: icon,
         keywords: [],
-      );
+      )..iconGroup = IconGroup(
+          name: iconGroup,
+          icons: [],
+        );
     }
 
     await showMobileBottomSheet(

@@ -8,7 +8,7 @@ class IconGroup {
     final group = _$IconGroupFromJson(json);
     // Set the iconGroup reference for each icon
     for (final icon in group.icons) {
-      icon._iconGroup = group;
+      icon.iconGroup = group;
     }
     return group;
   }
@@ -25,7 +25,7 @@ class IconGroup {
   }) {
     // Set the iconGroup reference for each icon
     for (final icon in icons) {
-      icon._iconGroup = this;
+      icon.iconGroup = this;
     }
   }
 
@@ -68,9 +68,7 @@ class Icon {
   final String content;
 
   // Add reference to parent IconGroup
-  IconGroup? _iconGroup;
-
-  IconGroup? get iconGroup => _iconGroup;
+  IconGroup? iconGroup;
 
   String get displayName => name.replaceAll('-', ' ');
 

@@ -37,11 +37,16 @@ class ManageSpaceWidget extends StatelessWidget {
           type: type,
         ),
         ManageSpacePermissionOption(permission: permission),
-        ManageSpaceIconOption(
-          selectedColor: selectedColor,
-          selectedIcon: selectedIcon,
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 560,
+          ),
+          child: ManageSpaceIconOption(
+            selectedColor: selectedColor,
+            selectedIcon: selectedIcon,
+          ),
         ),
-        const VSpace(200),
+        const VSpace(60),
       ],
     );
   }
