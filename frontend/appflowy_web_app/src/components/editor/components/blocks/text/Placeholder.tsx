@@ -1,12 +1,12 @@
-import { BlockType } from '@/application/types';
-import { HeadingNode } from '@/components/editor/editor.type';
+import { BlockType, ToggleListBlockData } from '@/application/types';
+import { HeadingNode, ToggleListNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { ReactEditor, useSelected, useSlate } from 'slate-react';
 import { Editor, Element, Range } from 'slate';
 import { useTranslation } from 'react-i18next';
 
-function Placeholder({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
+function Placeholder ({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
   const { readOnly } = useEditorContext();
   const editor = useSlate();
@@ -41,8 +41,21 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
         return '';
       }
 
-      case BlockType.ToggleListBlock:
-        return t('blockPlaceholders.bulletList');
+      case BlockType.ToggleListBlock: {
+        const level = (block as ToggleListNode).data.level;
+
+        switch (level) {
+          case 1:
+            return t('editor.mobileHeading1');
+          case 2:
+            return t('editor.mobileHeading2');
+          case 3:
+            return t('editor.mobileHeading3');
+          default:
+            return t('blockPlaceholders.bulletList');
+        }
+      }
+
       case BlockType.QuoteBlock:
         return t('blockPlaceholders.quote');
       case BlockType.TodoListBlock:
@@ -77,6 +90,10 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
   }, [readOnly, block, t, editor.children.length]);
 
   const selectedPlaceholder = useMemo(() => {
+    if (block?.type === BlockType.ToggleListBlock && (block?.data as ToggleListBlockData).level) {
+      return unSelectedPlaceholder;
+    }
+
     switch (block?.type) {
       case BlockType.HeadingBlock:
         return unSelectedPlaceholder;
@@ -91,7 +108,7 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
       default:
         return t('editor.slashPlaceHolder');
     }
-  }, [block?.type, t, unSelectedPlaceholder]);
+  }, [block?.data, block?.type, t, unSelectedPlaceholder]);
 
   useEffect(() => {
     if (!selected) return;

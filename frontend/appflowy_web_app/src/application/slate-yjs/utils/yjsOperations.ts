@@ -1,4 +1,5 @@
 import { CONTAINER_BLOCK_TYPES, ListBlockTypes } from '@/application/slate-yjs/command/const';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import {
   BlockData,
   BlockType,
@@ -120,6 +121,14 @@ export function getBlock (blockId: string, sharedRoot: YSharedRoot) {
 
 export function generateBlockId () {
   return nanoid(8);
+}
+
+export function getBlockIndex (blockId: string, sharedRoot: YSharedRoot) {
+  const block = getBlock(blockId, sharedRoot);
+  const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
+  const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
+
+  return parentChildren.toArray().findIndex((id) => id === blockId);
 }
 
 export function createBlock (sharedRoot: YSharedRoot, {
@@ -402,15 +411,6 @@ function moveToNextLine (editor: Editor, block: YBlock, at: BaseRange, blockId: 
   }
 
   Transforms.move(editor, { distance: 1, unit: 'line' });
-}
-
-export function findSlateEntryByBlockId (editor: Editor, blockId: string) {
-  const [node] = Editor.nodes(editor, {
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
-    at: [],
-  });
-
-  return node;
 }
 
 export function getNextSiblingBlockPath (editor: Editor, blockId: string) {
@@ -1341,4 +1341,38 @@ export function getSlatePointFromOffset (editor: YjsEditor, range: { offset: num
   const start = calculatePointFromParentOffset(textNode, path, range.offset);
 
   return start;
+}
+
+export function getParent (blockId: string, sharedRoot: YSharedRoot) {
+  const block = getBlock(blockId, sharedRoot);
+
+  if (!block) {
+    return;
+  }
+
+  const parentId = block.get(YjsEditorKey.block_parent);
+
+  return getBlock(parentId, sharedRoot);
+}
+
+export function addBlock (editor: YjsEditor, {
+  ty,
+  data,
+}: {
+  ty: BlockType,
+  data: BlockData,
+}, parent: YBlock, index: number) {
+  const sharedRoot = getSharedRoot(editor);
+  const operations: (() => void)[] = [];
+
+  operations.push(() => {
+    const newBlock = createBlock(sharedRoot, {
+      ty,
+      data,
+    });
+
+    updateBlockParent(sharedRoot, newBlock, parent, index);
+  });
+
+  executeOperations(sharedRoot, operations, 'addBlock');
 }

@@ -7,10 +7,11 @@ import {
   getChildrenArray,
   getSharedRoot,
 } from '@/application/slate-yjs/utils/yjsOperations';
-import { YjsEditorKey } from '@/application/types';
+import { MentionType, YjsEditorKey } from '@/application/types';
 import { deserializeHTML } from '@/components/editor/utils/fragment';
 import { BasePoint, Range, Transforms, Node } from 'slate';
 import { ReactEditor } from 'slate-react';
+import isURL from 'validator/lib/isURL';
 
 export const withPasted = (editor: ReactEditor) => {
 
@@ -27,7 +28,34 @@ export const withPasted = (editor: ReactEditor) => {
         return insertHtmlData(editor, data);
       }
 
-      console.log('insertTextData', text);
+      const isUrl = isURL(text, {
+        host_whitelist: ['localhost', 'appflowy.com', '*.appflowy.com'],
+      });
+
+      console.log('insertTextData', {
+        text, isUrl,
+      });
+
+      if (isUrl) {
+        const url = new URL(text);
+        const blockId = url.searchParams.get('blockId');
+
+        if (blockId) {
+          const pageId = url.pathname.split('/').pop();
+          const point = editor.selection?.anchor as BasePoint;
+
+          Transforms.insertNodes(editor, {
+            text: '@', mention: {
+              type: MentionType.PageRef,
+              page_id: pageId,
+              block_id: blockId,
+            },
+          }, { at: point, select: true, voids: false });
+
+        }
+
+        return true;
+      }
 
       for (const line of lines) {
         const point = editor.selection?.anchor as BasePoint;

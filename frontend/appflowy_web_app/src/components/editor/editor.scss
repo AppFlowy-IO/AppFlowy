@@ -4,6 +4,10 @@
   @apply my-[4px];
 }
 
+.block-element.selected {
+  @apply bg-content-blue-100;
+}
+
 .block-element .block-element:not([data-block-type="table/cell"]) {
   @apply mb-0;
   margin-left: 24px;

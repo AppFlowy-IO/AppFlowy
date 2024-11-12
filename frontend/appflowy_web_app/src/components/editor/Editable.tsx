@@ -2,7 +2,7 @@ import { useDecorate } from '@/components/editor/components/blocks/code/useDecor
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { useShortcuts } from '@/components/editor/shortcut.hooks';
-import React, { lazy, Suspense, useCallback } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect } from 'react';
 import { BaseRange, Editor, NodeEntry, Range } from 'slate';
 import { Editable, RenderElementProps, useSlate } from 'slate-react';
 import { Element } from './components/element';
@@ -11,7 +11,7 @@ import { Skeleton } from '@mui/material';
 const Toolbars = lazy(() => import('./components/toolbar'));
 
 const EditorEditable = () => {
-  const { readOnly, decorateState } = useEditorContext();
+  const { readOnly, decorateState, setSelectedBlockId } = useEditorContext();
   const editor = useSlate();
 
   const codeDecorate = useDecorate(editor);
@@ -64,6 +64,26 @@ const EditorEditable = () => {
       editor.delete();
     }
   }, [editor]);
+
+  useEffect(() => {
+    const { onChange } = editor;
+
+    editor.onChange = () => {
+      const operations = editor.operations;
+
+      const isSelectionChange = operations.some((operation) => operation.type === 'set_selection');
+
+      if (isSelectionChange) {
+        setSelectedBlockId?.(undefined);
+      }
+
+      onChange();
+    };
+
+    return () => {
+      editor.onChange = onChange;
+    };
+  }, [editor, setSelectedBlockId]);
 
   return (
     <>
