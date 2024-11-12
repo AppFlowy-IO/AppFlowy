@@ -253,7 +253,8 @@
     "moreButtonToolTip": "Remove, rename, and more...",
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
-    "renameDialog": "Rename"
+    "renameDialog": "Rename",
+    "copy": "Copy"
   },
   "noPagesInside": "No pages inside",
   "toolbar": {
