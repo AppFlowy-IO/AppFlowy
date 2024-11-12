@@ -29,6 +29,7 @@
     "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@floating-ui/react": "^0.26.27",
     "@jest/globals": "^29.7.0",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "6.0.0-alpha.2",

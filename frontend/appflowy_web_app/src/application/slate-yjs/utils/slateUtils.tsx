@@ -1,4 +1,4 @@
-import { Editor, Element, Path } from 'slate';
+import { Editor, Element, NodeEntry, Path } from 'slate';
 
 export function findIndentPath (originalStart: Path, originalEnd: Path, newStart: Path): Path {
   // Find the common ancestor path
@@ -31,5 +31,5 @@ export function findSlateEntryByBlockId (editor: Editor, blockId: string) {
     at: [],
   });
 
-  return node;
+  return node as NodeEntry<Element>;
 }

@@ -1,3 +1,4 @@
+import { BlockPopoverProvider } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import { useDecorate } from '@/components/editor/components/blocks/code/useDecorate';
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
@@ -7,8 +8,9 @@ import { BaseRange, Editor, NodeEntry, Range } from 'slate';
 import { Editable, RenderElementProps, useSlate } from 'slate-react';
 import { Element } from './components/element';
 import { Skeleton } from '@mui/material';
+import { PanelProvider } from '@/components/editor/components/panels/PanelsContext';
 
-const Toolbars = lazy(() => import('./components/toolbar'));
+const EditorOverlay = lazy(() => import('@/components/editor/EditorOverlay'));
 
 const EditorEditable = () => {
   const { readOnly, decorateState, setSelectedBlockId } = useEditorContext();
@@ -86,32 +88,31 @@ const EditorEditable = () => {
   }, [editor, setSelectedBlockId]);
 
   return (
-    <>
+    <PanelProvider editor={editor}>
+      <BlockPopoverProvider editor={editor}>
+        <Editable
+          role={'textbox'}
+          decorate={(entry: NodeEntry) => {
+            const codeDecoration = codeDecorate?.(entry);
+            const decoration = decorate(entry);
 
-      <Editable
-        role={'textbox'}
-        decorate={(entry: NodeEntry) => {
-          const codeDecoration = codeDecorate?.(entry);
-          const decoration = decorate(entry);
-
-          return [...codeDecoration, ...decoration];
-        }}
-        className={'outline-none mb-36 w-[988px] min-w-0 max-w-full max-sm:px-6 px-24 focus:outline-none'}
-        renderLeaf={Leaf}
-        renderElement={renderElement}
-        readOnly={readOnly}
-        spellCheck={false}
-        autoCorrect={'off'}
-        autoComplete={'off'}
-        onCompositionStart={onCompositionStart}
-        onKeyDown={onKeyDown}
-      />
-      {!readOnly &&
-        <Suspense>
-          <Toolbars />
-        </Suspense>
-      }
-    </>
+            return [...codeDecoration, ...decoration];
+          }}
+          className={'outline-none mb-36 w-[988px] min-w-0 max-w-full max-sm:px-6 px-24 focus:outline-none'}
+          renderLeaf={Leaf}
+          renderElement={renderElement}
+          readOnly={readOnly}
+          spellCheck={false}
+          autoCorrect={'off'}
+          autoComplete={'off'}
+          onCompositionStart={onCompositionStart}
+          onKeyDown={onKeyDown}
+        />
+        {!readOnly &&
+          <Suspense><EditorOverlay /></Suspense>
+        }
+      </BlockPopoverProvider>
+    </PanelProvider>
   );
 };
 
