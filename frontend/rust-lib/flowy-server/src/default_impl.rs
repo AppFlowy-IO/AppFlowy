@@ -1,5 +1,5 @@
 use client_api::entity::ai_dto::{CompletionType, LocalAIConfig, RepeatedRelatedQuestion};
-use client_api::entity::{ChatMessageType, MessageCursor, RepeatedChatMessage};
+use client_api::entity::chat_dto::{ChatMessageType, MessageCursor, RepeatedChatMessage};
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, StreamAnswer, StreamComplete,
   SubscriptionPlan,

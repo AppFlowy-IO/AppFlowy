@@ -9,6 +9,7 @@ edition = "2021"
 lib-infra = { workspace = true }
 flowy-error = { workspace = true }
 client-api = { workspace = true }
+client-api-entity = { workspace = true }
 bytes.workspace = true
 futures.workspace = true
 serde_json.workspace = true

@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 pub use client_api::entity::billing_dto::RecurringInterval;
+use client_api::entity::AFRole;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::*;
@@ -143,11 +144,14 @@ pub struct UserWorkspace {
   pub workspace_database_id: String,
   #[serde(default)]
   pub icon: String,
+  #[serde(default)]
   pub member_count: i64,
+  #[serde(default)]
+  pub role: Option<Role>,
 }
 
 impl UserWorkspace {
-  pub fn new(workspace_id: &str, _uid: i64) -> Self {
+  pub fn new_local(workspace_id: &str, _uid: i64) -> Self {
     Self {
       id: workspace_id.to_string(),
       name: "".to_string(),
@@ -155,6 +159,7 @@ impl UserWorkspace {
       workspace_database_id: Uuid::new_v4().to_string(),
       icon: "".to_string(),
       member_count: 1,
+      role: None,
     }
   }
 }
@@ -415,6 +420,16 @@ impl From<Role> for i32 {
       Role::Owner => 0,
       Role::Member => 1,
       Role::Guest => 2,
+    }
+  }
+}
+
+impl From<AFRole> for Role {
+  fn from(value: AFRole) -> Self {
+    match value {
+      AFRole::Owner => Role::Owner,
+      AFRole::Member => Role::Member,
+      AFRole::Guest => Role::Guest,
     }
   }
 }

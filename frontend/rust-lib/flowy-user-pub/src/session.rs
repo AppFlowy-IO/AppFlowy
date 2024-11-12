@@ -75,7 +75,8 @@ impl<'de> Visitor<'de> for SessionVisitor {
           // For historical reasons, the database_storage_id is constructed by the user_id.
           workspace_database_id: STANDARD.encode(format!("{}:user:database", user_id)),
           icon: "".to_owned(),
-          member_count: 0,
+          member_count: 1,
+          role: None,
         })
       }
     }
