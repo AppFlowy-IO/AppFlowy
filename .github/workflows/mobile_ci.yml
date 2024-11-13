@@ -45,16 +45,17 @@ jobs:
         id: check_status
         run: |
           while true; do
-            RESPONSE=$(curl -X GET \
+            curl -X GET \
               --header "Content-Type: application/json" \
               --header "x-auth-token: $CODEMAGIC_API_TOKEN" \
-              https://api.codemagic.io/builds/${{ steps.trigger_build.outputs.build_id }})
+              https://api.codemagic.io/builds/${{ steps.trigger_build.outputs.build_id }} > /tmp/response.json
 
-            STATUS=$(echo $RESPONSE | jq -r '.build.status')
+            RESPONSE_WITHOUT_COMMAND=$(cat /tmp/response.json | jq 'walk(if type == "object" and has("subactions") then .subactions |= map(del(.command)) else . end)')
+            STATUS=$(echo $RESPONSE_WITHOUT_COMMAND | jq -r '.build.status')
 
             if [ "$STATUS" = "finished" ]; then
-              SUCCESS=$(echo $RESPONSE | jq -r '.success')
-              BUILD_URL=$(echo $RESPONSE | jq -r '.buildUrl')
+              SUCCESS=$(echo $RESPONSE_WITHOUT_COMMAND | jq -r '.success')
+              BUILD_URL=$(echo $RESPONSE_WITHOUT_COMMAND | jq -r '.buildUrl')
               echo "status=$STATUS" >> $GITHUB_OUTPUT
               echo "success=$SUCCESS" >> $GITHUB_OUTPUT
               echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT

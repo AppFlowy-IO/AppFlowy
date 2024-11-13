@@ -7,10 +7,10 @@ final hrefRegex = RegExp(_hrefPattern);
 
 /// This pattern allows for both HTTP and HTTPS Scheme
 /// It allows for query parameters
-/// It only allows the following image extensions: .png, .jpg, .gif, .webm
+/// It only allows the following image extensions: .png, .jpg, .jpeg, .gif, .webm, .webp, .bmp
 ///
 const _imgUrlPattern =
-    r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm)(\?[^\s[",><]*)?';
+    r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.jpeg|.gif|.webm|.webp|.bmp)(\?[^\s[",><]*)?';
 final imgUrlRegex = RegExp(_imgUrlPattern);
 
 /// This pattern allows for both HTTP and HTTPS Scheme
