@@ -1,16 +1,21 @@
 import { EditorElementProps, DividerNode as DividerBlock } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
+import { useReadOnly } from 'slate-react';
 
 export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerBlock>>(
     ({ node: _node, children: children, ...attributes }, ref) => {
+      const readOnly = useReadOnly();
       const className = useMemo(() => {
         return `${attributes.className ?? ''} divider-node relative w-full rounded`;
       }, [attributes.className]);
 
       return (
-        <div {...attributes} contentEditable={false}
-             className={className}
+        <div
+          {...attributes}
+          contentEditable={readOnly ? false : undefined}
+          ref={ref}
+          className={className}
         >
           <div
             contentEditable={false}
@@ -19,7 +24,6 @@ export const DividerNode = memo(
             <hr className={'border-line-border'} />
           </div>
           <div
-            ref={ref}
             className={`absolute h-full w-full caret-transparent`}
           >
             {children}

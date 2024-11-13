@@ -14,3 +14,7 @@ export const CONTAINER_BLOCK_TYPES = [
   BlockType.Page,
 ];
 export const SOFT_BREAK_TYPES = [BlockType.CalloutBlock, BlockType.CodeBlock];
+
+export const isEmbedBlockTypes = (type: BlockType) => {
+  return ![...ListBlockTypes, ...CONTAINER_BLOCK_TYPES, ...SOFT_BREAK_TYPES, BlockType.HeadingBlock].includes(type);
+};

@@ -3,6 +3,7 @@ import { CustomEditor } from '@/application/slate-yjs/command';
 import { CONTAINER_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
+import { getScrollParent } from '@/components/global-comment/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Editor, Element, Range, Transforms } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
@@ -45,36 +46,30 @@ export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; on
 
       if (!el) return;
 
-      const target = e.target as HTMLElement;
-
-      if (target.closest(`[contenteditable="false"]`)) {
-        return;
-      }
-
       let range: Range | null = null;
       let node: Element | null = null;
 
       try {
         range = ReactEditor.findEventRange(editor, e);
+        if (!range) {
+          throw new Error('No range found');
+        }
       } catch {
         const editorDom = ReactEditor.toDOMNode(editor, editor);
         const rect = editorDom.getBoundingClientRect();
-        const isOverLeftBoundary = e.clientX < rect.left + 64;
-        const isOverRightBoundary = e.clientX > rect.right - 64;
+        const isOverLeftBoundary = e.clientX > rect.left;
+        const isOverRightBoundary = e.clientX > rect.right - 96 && e.clientX < rect.right;
         let newX = e.clientX;
 
-        if (isOverLeftBoundary) {
-          newX = rect.left + 64;
-        }
-
-        if (isOverRightBoundary) {
-          newX = rect.right - 64;
+        if (isOverLeftBoundary || isOverRightBoundary) {
+          newX = rect.left + editorDom.clientWidth / 2;
         }
 
         node = findEventNode(editor, {
           x: newX,
           y: e.clientY,
         });
+
       }
 
       if (!range && !node) {
@@ -104,12 +99,25 @@ export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; on
       const blockElement = ReactEditor.toDOMNode(editor, node);
 
       if (!blockElement) return;
-      recalculatePosition(blockElement);
-      el.style.opacity = '1';
-      el.style.pointerEvents = 'auto';
+      const tableElement = blockElement.closest('[data-block-type="table"]') as HTMLElement;
 
-      setCssProperty(getBlockCssProperty(node));
-      setHoveredBlockId(node.blockId as string);
+      if (tableElement) {
+        recalculatePosition(tableElement);
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+        const tableNode = ReactEditor.toSlateNode(editor, tableElement) as Element;
+
+        setCssProperty(getBlockCssProperty(tableNode));
+        setHoveredBlockId(tableNode.blockId as string);
+      } else {
+        recalculatePosition(blockElement);
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+
+        setCssProperty(getBlockCssProperty(node));
+        setHoveredBlockId(node.blockId as string);
+      }
+
     };
 
     const dom = ReactEditor.toDOMNode(editor, editor);
@@ -117,11 +125,13 @@ export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; on
     if (!disabled) {
       dom.addEventListener('mousemove', handleMouseMove);
       dom.parentElement?.addEventListener('mouseleave', close);
+      getScrollParent(dom)?.addEventListener('scroll', close);
     }
 
     return () => {
       dom.removeEventListener('mousemove', handleMouseMove);
       dom.parentElement?.removeEventListener('mouseleave', close);
+      getScrollParent(dom)?.removeEventListener('scroll', close);
     };
   }, [close, editor, ref, recalculatePosition, disabled]);
 

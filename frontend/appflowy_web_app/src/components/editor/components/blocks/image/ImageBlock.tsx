@@ -1,7 +1,9 @@
-import { AlignType } from '@/application/types';
+import { AlignType, BlockType } from '@/application/types';
+import { notify } from '@/components/_shared/notify';
+import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import { EditorElementProps, ImageBlockNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useCallback, useMemo, useRef, useState } from 'react';
-import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
+import { ReactEditor, useReadOnly, useSelected, useSlateStatic } from 'slate-react';
 import ImageEmpty from './ImageEmpty';
 import ImageRender from './ImageRender';
 
@@ -9,11 +11,12 @@ export const ImageBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ImageBlockNode>>(({
     node,
     children,
-    className,
     ...attributes
   }, ref) => {
+    const { blockId, data } = node;
+    const readOnly = useReadOnly();
     const selected = useSelected();
-    const { url, align } = useMemo(() => node.data || {}, [node.data]);
+    const { url, align } = useMemo(() => data || {}, [data]);
     const containerRef = useRef<HTMLDivElement>(null);
     const editor = useSlateStatic();
     const onFocusNode = useCallback(() => {
@@ -23,34 +26,69 @@ export const ImageBlock = memo(
       editor.select(path);
     }, [editor, node]);
 
+    const className = useMemo(() => {
+      const classList = ['w-full bg-bg-body py-2'];
+
+      if (url) {
+        classList.push('cursor-pointer');
+      } else {
+        classList.push('text-text-caption');
+      }
+
+      if (attributes.className) {
+        classList.push(attributes.className);
+      }
+
+      if (!readOnly) {
+        classList.push('cursor-pointer');
+      }
+
+      return classList.join(' ');
+    }, [attributes.className, readOnly, url]);
+
     const alignCss = useMemo(() => {
       if (!align) return '';
 
       return align === AlignType.Center ? 'justify-center' : align === AlignType.Right ? 'justify-end' : 'justify-start';
     }, [align]);
     const [showToolbar, setShowToolbar] = useState(false);
+    const {
+      openPopover,
+    } = usePopoverContext();
+
+    const handleClick = useCallback(async () => {
+      try {
+        if (!url) {
+          if (containerRef.current && !readOnly) {
+            openPopover(blockId, BlockType.ImageBlock, containerRef.current);
+          }
+
+          return;
+        }
+
+        // eslint-disable-next-line
+      } catch (e: any) {
+        notify.error(e.message);
+      }
+    }, [url, readOnly, openPopover, blockId]);
 
     return (
       <div
         {...attributes}
         ref={containerRef}
-        contentEditable={false}
+        contentEditable={readOnly ? false : undefined}
         onMouseEnter={() => {
           if (!url) return;
           setShowToolbar(true);
         }}
         onMouseLeave={() => setShowToolbar(false)}
-        className={`${className || ''} image-block relative w-full cursor-default`}
+        className={className}
+        onClick={handleClick}
       >
-        <div
-          ref={ref}
-          className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}
-        >
-          {children}
-        </div>
+
         <div
           contentEditable={false}
-          className={`flex w-full select-none overflow-hidden ${url ? '' : 'rounded-[8px] border border-line-divider'} ${alignCss}`}
+          className={`embed-block ${alignCss} ${url ? '!bg-transparent !border-none !rounded-none' : 'p-4'}`}
         >
           {url ? (
             <ImageRender
@@ -65,6 +103,12 @@ export const ImageBlock = memo(
               containerRef={containerRef}
             />
           )}
+        </div>
+        <div
+          ref={ref}
+          className={'absolute left-0 top-0 h-full w-full select-none caret-transparent'}
+        >
+          {children}
         </div>
       </div>
     );

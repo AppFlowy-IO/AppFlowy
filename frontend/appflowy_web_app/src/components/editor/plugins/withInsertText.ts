@@ -19,6 +19,12 @@ export const withInsertText = (editor: ReactEditor) => {
         return Text.isText(n);
       },
     });
+
+    if (!textEntry) {
+      insertText(text, options);
+      return;
+    }
+
     const [textNode] = textEntry as NodeEntry<Text>;
 
     // If the text node is a formula or mention, split the node and insert the text

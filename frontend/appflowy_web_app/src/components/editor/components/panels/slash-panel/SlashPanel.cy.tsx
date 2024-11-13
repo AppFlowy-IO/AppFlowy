@@ -1,4 +1,4 @@
-import { getModKey, initialEditorTest, moveCursor } from '@/components/editor/__tests__/mount';
+import { initialEditorTest, moveCursor } from '@/components/editor/__tests__/mount';
 import { FromBlockJSON } from 'cypress/support/document';
 
 const initialData: FromBlockJSON[] = [{

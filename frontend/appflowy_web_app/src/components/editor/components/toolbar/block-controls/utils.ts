@@ -22,16 +22,23 @@ export function getBlockActionsPosition (editor: ReactEditor, blockElement: HTML
 export function getBlockCssProperty (node: Element) {
   switch (node.type) {
     case BlockType.HeadingBlock:
-      return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-1`;
+      return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-[3px]`;
     case BlockType.CodeBlock:
+    case BlockType.GridBlock:
+    case BlockType.TableBlock:
       return 'my-3';
+    case BlockType.OutlineBlock:
+    case BlockType.GalleryBlock:
+      return 'my-4';
     case BlockType.CalloutBlock:
       return 'my-5';
     case BlockType.EquationBlock:
-    case BlockType.GridBlock:
-      return 'my-3';
+    case BlockType.FileBlock:
+    case BlockType.ImageBlock:
+
+      return 'my-6';
     case BlockType.DividerBlock:
-      return 'my-0';
+      return 'my-[-4px]';
     default:
       return 'pt-[3px]';
   }

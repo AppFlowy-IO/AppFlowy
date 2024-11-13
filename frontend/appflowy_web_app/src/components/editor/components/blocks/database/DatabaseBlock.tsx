@@ -7,6 +7,7 @@ import { Tooltip } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useReadOnly } from 'slate-react';
 
 export const DatabaseBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DatabaseNode>>(({ node, children, ...attributes }, ref) => {
@@ -102,12 +103,13 @@ export const DatabaseBlock = memo(
       },
       [variant, viewId],
     );
+    const readOnly = useReadOnly();
 
     return (
       <>
         <div
           {...attributes}
-          contentEditable={false}
+          contentEditable={readOnly ? false : undefined}
           className={`relative w-full cursor-pointer py-2`}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}

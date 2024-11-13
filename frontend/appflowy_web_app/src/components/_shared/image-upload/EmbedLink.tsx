@@ -5,14 +5,16 @@ import Button from '@mui/material/Button';
 
 const urlPattern = /^(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm|.webp|.svg)(\?[^\s[",><]*)?$/;
 
-export function EmbedLink({
+export function EmbedLink ({
   onDone,
   onEscape,
   defaultLink,
+  placeholder,
 }: {
   defaultLink?: string;
   onDone?: (value: string) => void;
   onEscape?: () => void;
+  placeholder?: string;
 }) {
   const { t } = useTranslation();
 
@@ -26,7 +28,7 @@ export function EmbedLink({
       setValue(value);
       setError(!urlPattern.test(value));
     },
-    [setValue, setError]
+    [setValue, setError],
   );
 
   const handleKeyDown = useCallback(
@@ -38,16 +40,18 @@ export function EmbedLink({
       }
 
       if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
         onEscape?.();
       }
     },
-    [error, onDone, onEscape, value]
+    [error, onDone, onEscape, value],
   );
 
   return (
-    <div tabIndex={0} onKeyDown={handleKeyDown} className={'flex flex-col items-center gap-4 px-4 pb-4'}>
+    <div
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className={'flex flex-col items-center gap-4 px-4 pb-4'}
+    >
       <TextField
         error={error}
         autoFocus
@@ -57,10 +61,15 @@ export function EmbedLink({
         onChange={handleChange}
         helperText={error ? t('editor.incorrectLink') : ''}
         value={value}
-        placeholder={t('document.imageBlock.embedLink.placeholder')}
+        placeholder={placeholder || t('document.imageBlock.embedLink.placeholder')}
         fullWidth
       />
-      <Button variant={'contained'} className={'w-3/5'} onClick={() => onDone?.(value)} disabled={error || !value}>
+      <Button
+        variant={'contained'}
+        className={'w-full'}
+        onClick={() => onDone?.(value)}
+        disabled={error || !value}
+      >
         {t('document.imageBlock.embedLink.label')}
       </Button>
     </div>

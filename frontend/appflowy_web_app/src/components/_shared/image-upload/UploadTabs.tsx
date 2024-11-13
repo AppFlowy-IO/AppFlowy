@@ -76,11 +76,6 @@ export function UploadTabs ({
       open={popoverProps?.open ?? false}
       disableAutoFocus={false}
       onKeyDown={onKeyDown}
-      PaperProps={{
-        style: {
-          padding: 0,
-        },
-      }}
     >
       <div
         style={containerStyle}

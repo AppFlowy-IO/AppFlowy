@@ -41,8 +41,6 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
         onEscape?.();
       }
     },
