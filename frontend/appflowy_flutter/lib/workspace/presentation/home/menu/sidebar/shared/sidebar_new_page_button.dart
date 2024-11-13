@@ -73,6 +73,7 @@ class _SidebarNewPageButtonState extends State<SidebarNewPageButton> {
                   name: '',
                   index: 0,
                   layout: ViewLayoutPB.Document,
+                  openAfterCreate: true,
                 ),
               );
         } else {
