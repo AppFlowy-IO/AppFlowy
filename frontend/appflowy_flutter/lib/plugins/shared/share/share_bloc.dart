@@ -188,39 +188,47 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
       (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
       (p) => false,
     );
+
+    Log.info(
+      'get publish info: $publishInfo for view: ${view.name}(${view.id})',
+    );
+
     String workspaceId = state.workspaceId;
     if (workspaceId.isEmpty) {
-      workspaceId = await UserBackendService.getCurrentWorkspace()
-          .fold((s) => s.id, (f) => '');
+      workspaceId = await UserBackendService.getCurrentWorkspace().fold(
+        (s) => s.id,
+        (f) => '',
+      );
     }
-    publishInfo.fold((s) {
-      emit(
-        state.copyWith(
-          isPublished: true,
-          namespace: s.namespace,
-          pathName: s.publishName,
-          url: ShareConstants.buildPublishUrl(
+
+    final (isPublished, namespace, pathName, url) = publishInfo.fold(
+      (s) {
+        return (
+          // if the unpublishedAtTimestampSec is not set, it means the view is not unpublished.
+          !s.hasUnpublishedAtTimestampSec(),
+          s.namespace,
+          s.publishName,
+          ShareConstants.buildPublishUrl(
             nameSpace: s.namespace,
             publishName: s.publishName,
           ),
-          viewName: view.name,
-          enablePublish: enablePublish,
-          workspaceId: workspaceId,
-          viewId: view.id,
-        ),
-      );
-    }, (f) {
-      emit(
-        state.copyWith(
-          isPublished: false,
-          url: '',
-          viewName: view.name,
-          enablePublish: enablePublish,
-          workspaceId: workspaceId,
-          viewId: view.id,
-        ),
-      );
-    });
+        );
+      },
+      (f) => (false, '', '', ''),
+    );
+
+    emit(
+      state.copyWith(
+        isPublished: isPublished,
+        namespace: namespace,
+        pathName: pathName,
+        url: url,
+        viewName: view.name,
+        enablePublish: enablePublish,
+        workspaceId: workspaceId,
+        viewId: view.id,
+      ),
+    );
   }
 
   Future<void> _updatePathName(
