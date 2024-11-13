@@ -1,10 +1,16 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/tabs/tab_menu_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
@@ -12,63 +18,173 @@ class FlowyTab extends StatefulWidget {
     super.key,
     required this.pageManager,
     required this.isCurrent,
+    required this.onTap,
   });
 
   final PageManager pageManager;
   final bool isCurrent;
+  final VoidCallback onTap;
 
   @override
   State<FlowyTab> createState() => _FlowyTabState();
 }
 
 class _FlowyTabState extends State<FlowyTab> {
+  final controller = PopoverController();
+
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
-      isSelected: () => widget.isCurrent,
-      style: const HoverStyle(
+      resetHoverOnRebuild: false,
+      style: HoverStyle(
         borderRadius: BorderRadius.zero,
+        backgroundColor: widget.isCurrent
+            ? Theme.of(context).colorScheme.surface
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        hoverColor:
+            widget.isCurrent ? Theme.of(context).colorScheme.surface : null,
       ),
-      builder: (context, onHover) {
-        return ChangeNotifierProvider.value(
-          value: widget.pageManager.notifier,
-          child: Consumer<PageNotifier>(
-            builder: (context, value, child) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: SizedBox(
-                width: HomeSizes.tabBarWidth,
-                height: HomeSizes.tabBarHeight,
-                child: Row(
+      builder: (context, isHovering) => AppFlowyPopover(
+        controller: controller,
+        offset: const Offset(4, 4),
+        triggerActions: PopoverTriggerFlags.secondaryClick,
+        showAtCursor: true,
+        popupBuilder: (_) => BlocProvider.value(
+          value: context.read<TabsBloc>(),
+          child: BlocProvider<TabMenuBloc>(
+            create: (_) => TabMenuBloc(
+              viewId: widget.pageManager.plugin.id,
+            ),
+            child: BlocBuilder<TabMenuBloc, TabMenuState>(
+              builder: (context, state) {
+                if (state.maybeMap(
+                  isLoading: (_) => true,
+                  orElse: () => false,
+                )) {
+                  return const SizedBox.shrink();
+                }
+
+                final disableFavoriteOption = state.maybeWhen(
+                  isReady: (_) => false,
+                  orElse: () => true,
+                );
+
+                return SeparatedColumn(
+                  separatorBuilder: () => const VSpace(4),
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: widget.pageManager.notifier
-                          .tabBarWidget(widget.pageManager.plugin.id),
+                    FlowyButton(
+                      text: FlowyText.regular(LocaleKeys.tabMenu_close.tr()),
+                      onTap: () => _closeTab(context),
                     ),
-                    Visibility(
-                      visible: onHover,
-                      child: SizedBox(
-                        width: 26,
-                        height: 26,
-                        child: FlowyIconButton(
-                          onPressed: _closeTab,
-                          icon: const FlowySvg(
-                            FlowySvgs.close_s,
-                            size: Size.square(22),
+                    FlowyButton(
+                      text: FlowyText.regular(
+                        LocaleKeys.tabMenu_closeOthers.tr(),
+                      ),
+                      onTap: () => _closeOtherTabs(context),
+                    ),
+                    const Divider(height: 1),
+                    _favoriteDisabledTooltip(
+                      showTooltip: disableFavoriteOption,
+                      child: FlowyButton(
+                        disable: disableFavoriteOption,
+                        text: FlowyText.regular(
+                          state.maybeWhen(
+                            isReady: (isFavorite) => isFavorite
+                                ? LocaleKeys.tabMenu_unfavorite.tr()
+                                : LocaleKeys.tabMenu_favorite.tr(),
+                            orElse: () => LocaleKeys.tabMenu_favorite.tr(),
                           ),
+                          color: disableFavoriteOption
+                              ? Theme.of(context).hintColor
+                              : null,
                         ),
+                        onTap: () => _toggleFavorite(context),
                       ),
                     ),
                   ],
+                );
+              },
+            ),
+          ),
+        ),
+        child: ChangeNotifierProvider.value(
+          value: widget.pageManager.notifier,
+          child: Consumer<PageNotifier>(
+            builder: (context, value, _) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              // We use a Listener to avoid gesture detector onPanStart debounce
+              child: Listener(
+                onPointerDown: (event) {
+                  if (event.buttons == kPrimaryButton) {
+                    widget.onTap();
+                  }
+                },
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  // Stop move window detector
+                  onPanStart: (_) {},
+                  child: Container(
+                    constraints: const BoxConstraints(
+                      maxWidth: HomeSizes.tabBarWidth,
+                      minWidth: 100,
+                    ),
+                    height: HomeSizes.tabBarHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: widget.pageManager.notifier
+                              .tabBarWidget(widget.pageManager.plugin.id),
+                        ),
+                        Visibility(
+                          visible: isHovering,
+                          child: SizedBox(
+                            width: 26,
+                            height: 26,
+                            child: FlowyIconButton(
+                              onPressed: () => _closeTab(context),
+                              icon: const FlowySvg(
+                                FlowySvgs.close_s,
+                                size: Size.square(22),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  void _closeTab([TapUpDetails? details]) => context
+  void _closeTab(BuildContext context) => context
       .read<TabsBloc>()
       .add(TabsEvent.closeTab(widget.pageManager.plugin.id));
+
+  void _closeOtherTabs(BuildContext context) => context
+      .read<TabsBloc>()
+      .add(TabsEvent.closeOtherTabs(widget.pageManager.plugin.id));
+
+  void _toggleFavorite(BuildContext context) =>
+      context.read<TabMenuBloc>().add(const TabMenuEvent.toggleFavorite());
+
+  Widget _favoriteDisabledTooltip({
+    required bool showTooltip,
+    required Widget child,
+  }) {
+    if (showTooltip) {
+      return FlowyTooltip(
+        message: LocaleKeys.tabMenu_favoriteDisabledHint.tr(),
+        child: child,
+      );
+    }
+
+    return child;
+  }
 }
