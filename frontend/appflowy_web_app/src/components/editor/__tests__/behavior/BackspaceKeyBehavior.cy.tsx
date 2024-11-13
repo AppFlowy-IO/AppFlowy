@@ -212,6 +212,7 @@ describe('Backspace key behavior', () => {
       // Optional: Add visual regression test
       // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-maintain-structure-when-deleting-partial-content');
     });
+
   });
 
   describe('backspace key behavior with cursor selections', () => {

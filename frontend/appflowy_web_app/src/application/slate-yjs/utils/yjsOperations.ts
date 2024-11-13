@@ -1,4 +1,4 @@
-import { CONTAINER_BLOCK_TYPES, ListBlockTypes } from '@/application/slate-yjs/command/const';
+import { CONTAINER_BLOCK_TYPES, isEmbedBlockTypes, ListBlockTypes } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import {
   BlockData,
@@ -186,6 +186,7 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
   }
 
   const blockType = block.get(YjsEditorKey.block_type);
+
   const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
 
   if (yText.length === 0) {
@@ -282,12 +283,17 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
     ty: type,
     data,
   });
+  const newBlockId = newBlock.get(YjsEditorKey.block_id);
 
-  copyBlockText(sharedRoot, sourceBlock, newBlock);
+  if (!isEmbedBlockTypes(type)) {
+    copyBlockText(sharedRoot, sourceBlock, newBlock);
+  }
 
   const parent = getBlock(sourceBlock.get(YjsEditorKey.block_parent), sharedRoot);
 
-  if (!parent) return;
+  if (!parent) {
+    return newBlockId;
+  }
 
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
   const index = parentChildren.toArray().findIndex((id) => id === sourceBlock.get(YjsEditorKey.block_id));
@@ -304,6 +310,8 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
   deleteBlock(sharedRoot, sourceBlock.get(YjsEditorKey.block_id));
 
   extendNextSiblingsToToggleHeading(sharedRoot, newBlock);
+
+  return newBlockId;
 }
 
 function extendNextSiblingsToToggleHeading (sharedRoot: YSharedRoot, block: YBlock) {
@@ -337,6 +345,17 @@ function extendNextSiblingsToToggleHeading (sharedRoot: YSharedRoot, block: YBlo
 
     indentBlock(sharedRoot, block);
   });
+}
+
+export function getPreviousSiblingBlock (sharedRoot: YSharedRoot, block: YBlock) {
+  const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
+
+  if (!parent) return;
+
+  const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
+  const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
+
+  return parentChildren.get(index - 1);
 }
 
 function getNextSiblings (sharedRoot: YSharedRoot, block: YBlock) {

@@ -1,3 +1,4 @@
+import { CONTAINER_BLOCK_TYPES, SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { BlockData, BlockType, YjsEditorKey } from '@/application/types';
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
@@ -28,7 +29,7 @@ import { FileBlock } from '@/components/editor/components/blocks/file';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { FC, useEffect, useMemo } from 'react';
-import { ReactEditor, RenderElementProps, useSlateStatic } from 'slate-react';
+import { ReactEditor, RenderElementProps, useSelected, useSlateStatic } from 'slate-react';
 
 export const Element = ({
   element: node,
@@ -42,8 +43,20 @@ export const Element = ({
     onJumpedBlockId,
     selectedBlockId,
   } = useEditorContext();
+  const { blockId, type } = node;
+  const isSelected = useSelected();
+  const selected = useMemo(() => {
+    if (selectedBlockId === blockId) return true;
+    if ([
+      ...CONTAINER_BLOCK_TYPES,
+      ...SOFT_BREAK_TYPES,
+      BlockType.HeadingBlock,
+      BlockType.TableBlock,
+      BlockType.TableCell,
+    ].includes(type as BlockType)) return false;
+    return selectedBlockId === blockId || isSelected;
+  }, [selectedBlockId, blockId, type, isSelected]);
 
-  const selected = selectedBlockId === node.blockId;
   const editor = useSlateStatic();
   const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
 
@@ -79,7 +92,7 @@ export const Element = ({
     };
   }, []);
   const Component = useMemo(() => {
-    switch (node.type) {
+    switch (type) {
       case BlockType.HeadingBlock:
         return Heading;
       case BlockType.TodoListBlock:
@@ -127,7 +140,7 @@ export const Element = ({
       default:
         return UnSupportedBlock;
     }
-  }, [node.type]) as FC<EditorElementProps>;
+  }, [type]) as FC<EditorElementProps>;
 
   const className = useMemo(() => {
     const data = (node.data as BlockData) || {};
@@ -154,7 +167,7 @@ export const Element = ({
     };
   }, [node.data]);
 
-  if (node.type === YjsEditorKey.text) {
+  if (type === YjsEditorKey.text) {
     return (
       <Text {...attributes} node={node as TextNode}>
         {children}
@@ -164,8 +177,10 @@ export const Element = ({
 
   return (
     <ErrorBoundary fallbackRender={ElementFallbackRender}>
-      <div {...attributes} data-block-type={node.type}
-           className={className}
+      <div
+        {...attributes}
+        data-block-type={type}
+        className={className}
       >
         <Component
           style={style}

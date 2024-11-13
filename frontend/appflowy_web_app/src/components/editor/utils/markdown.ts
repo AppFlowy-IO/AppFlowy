@@ -1,6 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { getBlock, getBlockEntry, getSharedRoot, getText } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
@@ -227,10 +228,18 @@ const rules: Rule[] = [
 
       return (['--', '**', '__', '—'].every(t => t !== text)) || getNodeType(editor) === BlockType.DividerBlock;
     },
-    transform: (editor, match) => {
+    transform: (editor) => {
+      const newBlockId = CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.DividerBlock, {});
 
-      CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.DividerBlock, {});
-      deletePrefix(editor, match[0].length - 1);
+      if (!newBlockId) {
+        Transforms.move(editor, { distance: 1, reverse: true });
+      } else {
+        const entry = findSlateEntryByBlockId(editor, newBlockId);
+
+        if (entry) {
+          Transforms.select(editor, entry[1]);
+        }
+      }
     },
   },
 

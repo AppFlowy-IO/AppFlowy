@@ -12,7 +12,7 @@ import {
   getBlock,
   getBlockEntry,
   getBlockIndex,
-  getParent,
+  getParent, getPreviousSiblingBlock,
   getSelectionOrThrow,
   getSelectionTexts,
   getSharedRoot,
@@ -41,7 +41,7 @@ import {
 } from '@/application/types';
 import { renderDate } from '@/utils/time';
 import isEqual from 'lodash-es/isEqual';
-import { BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Text, Transforms } from 'slate';
+import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Text, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 export const CustomEditor = {
@@ -350,11 +350,14 @@ export const CustomEditor = {
       return;
     }
 
+    let newBlockId: string | undefined;
+
     operations.push(() => {
-      turnToBlock(sharedRoot, sourceBlock, type, data);
+      newBlockId = turnToBlock(sharedRoot, sourceBlock, type, data);
     });
 
     executeOperations(sharedRoot, operations, 'turnToBlock');
+    return newBlockId;
   },
 
   isBlockActive (editor: YjsEditor, type: BlockType) {
@@ -426,6 +429,10 @@ export const CustomEditor = {
       data,
     }, parent, direction === 'below' ? index + 1 : index);
 
+    if (!newBlockId) {
+      return;
+    }
+
     try {
       const [, path] = findSlateEntryByBlockId(editor, newBlockId);
 
@@ -458,6 +465,30 @@ export const CustomEditor = {
       return;
     }
 
+    try {
+      const prevBlockId = getPreviousSiblingBlock(sharedRoot, getBlock(blockId, sharedRoot));
+      let point: BasePoint | undefined;
+
+      if (!prevBlockId) {
+        const [, path] = findSlateEntryByBlockId(editor, parent.get(YjsEditorKey.block_id));
+
+        point = editor.start(path);
+      } else {
+        const [, path] = findSlateEntryByBlockId(editor, prevBlockId);
+
+        point = editor.end(path);
+      }
+
+      if (point) {
+        Transforms.select(editor, point);
+      } else {
+        Transforms.deselect(editor);
+      }
+
+    } catch (e) {
+      // do nothing
+    }
+
     executeOperations(sharedRoot, [() => {
       deleteBlock(sharedRoot, blockId);
     }], 'deleteBlock');
@@ -471,10 +502,6 @@ export const CustomEditor = {
     }
 
     ReactEditor.focus(editor);
-    Transforms.select(editor, [0, 0]);
-    editor.collapse({
-      edge: 'start',
-    });
   },
 
   duplicateBlock (editor: YjsEditor, blockId: string) {

@@ -1,6 +1,7 @@
 import MentionPage from '@/components/editor/components/leaf/mention/MentionPage';
 import { EditorElementProps, SubpageNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
+import { useReadOnly } from 'slate-react';
 
 export const SubPage = memo(
   forwardRef<HTMLDivElement, EditorElementProps<SubpageNode>>(({ node, children, ...attributes }, ref) => {
@@ -11,11 +12,12 @@ export const SubPage = memo(
     }, [attributes.className]);
 
     const pageId = node.data.view_id;
+    const readOnly = useReadOnly();
 
     return (
       <div
         {...attributes}
-        contentEditable={false}
+        contentEditable={readOnly ? false : undefined}
         className={className}
       >
         <div

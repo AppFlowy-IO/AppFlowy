@@ -1,19 +1,17 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import { AlignType, BlockData } from '@/application/types';
 import { ReactComponent as AlignCenterSvg } from '@/assets/toolbar_align_center.svg';
 import { ReactComponent as AlignLeftSvg } from '@/assets/toolbar_align_left.svg';
 import { ReactComponent as AlignRightSvg } from '@/assets/toolbar_align_right.svg';
 import { Popover } from '@/components/_shared/popover';
-import {
-  useSelectionToolbarContext,
-} from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
-
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 import ActionButton from './ActionButton';
 
 const popoverProps: Partial<PopoverProps> = {
@@ -32,17 +30,34 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-export function Align () {
+export function Align ({
+  blockId,
+  enabled = true,
+}: {
+  blockId?: string;
+  enabled?: boolean;
+}) {
   const [open, setOpen] = useState(false);
-  const {
-    visible: toolbarVisible,
-  } = useSelectionToolbarContext();
+
   const ref = useRef<HTMLButtonElement | null>(null);
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
+
+  const getNode = useCallback(() => {
+    let node: Element;
+
+    if (!blockId) {
+      node = getBlockEntry(editor)[0];
+    } else {
+      node = findSlateEntryByBlockId(editor, blockId)[0];
+    }
+
+    return node;
+  }, [editor, blockId]);
+
   const getAlign = useCallback(() => {
     try {
-      const [node] = getBlockEntry(editor);
+      const node = getNode();
 
       return (node.data as BlockData).align;
 
@@ -50,7 +65,7 @@ export function Align () {
       return;
     }
 
-  }, [editor]);
+  }, [editor, getNode]);
 
   const handleClose = useCallback(() => {
     setOpen(false);
@@ -79,7 +94,7 @@ export function Align () {
     (align: AlignType) => {
       return () => {
         try {
-          const [node] = getBlockEntry(editor);
+          const node = getNode();
 
           CustomEditor.setBlockData(editor, node.blockId as string, {
             align,
@@ -117,7 +132,7 @@ export function Align () {
         onClose={() => {
           setOpen(false);
         }}
-        open={open && toolbarVisible}
+        open={open && enabled}
         anchorEl={ref.current}
         {...popoverProps}
       >
