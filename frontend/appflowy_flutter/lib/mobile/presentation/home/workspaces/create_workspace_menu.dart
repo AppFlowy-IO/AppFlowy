@@ -32,6 +32,7 @@ class EditWorkspaceNameBottomSheet extends StatefulWidget {
     required this.type,
     required this.onSubmitted,
     required this.workspaceName,
+    this.hintText,
   });
 
   final EditWorkspaceNameType type;
@@ -39,6 +40,8 @@ class EditWorkspaceNameBottomSheet extends StatefulWidget {
 
   // if the workspace name is not empty, it will be used as the initial value of the text field.
   final String? workspaceName;
+
+  final String? hintText;
 
   @override
   State<EditWorkspaceNameBottomSheet> createState() =>
@@ -77,7 +80,8 @@ class _EditWorkspaceNameBottomSheetState
             controller: _textFieldController,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
-              hintText: LocaleKeys.workspace_defaultName.tr(),
+              hintText:
+                  widget.hintText ?? LocaleKeys.workspace_defaultName.tr(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {

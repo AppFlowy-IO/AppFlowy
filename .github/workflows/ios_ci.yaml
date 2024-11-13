@@ -112,6 +112,7 @@ jobs:
           kill $pid
         continue-on-error: true
 
+      # Integration tests
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter
         # The integration tests are flaky and sometimes fail with "Connection timed out":

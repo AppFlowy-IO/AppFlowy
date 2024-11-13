@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Icon;
 
 extension StringExtension on String {
   static const _specialCharacters = r'\/:*?"<>| ';
@@ -54,5 +57,30 @@ extension StringExtension on String {
 extension NullableStringExtension on String? {
   String orDefault(String defaultValue) {
     return this?.isEmpty ?? true ? defaultValue : this ?? '';
+  }
+}
+
+extension IconExtension on String {
+  Icon? get icon {
+    final values = split('/');
+    if (values.length != 2) {
+      return null;
+    }
+    final iconGroup = IconGroup(name: values.first, icons: []);
+    if (kDebugMode) {
+      // Ensure the icon group and icon exist
+      assert(kIconGroups!.any((group) => group.name == values.first));
+      assert(
+        kIconGroups!
+            .firstWhere((group) => group.name == values.first)
+            .icons
+            .any((icon) => icon.name == values.last),
+      );
+    }
+    return Icon(
+      content: values.last,
+      name: values.last,
+      keywords: [],
+    )..iconGroup = iconGroup;
   }
 }

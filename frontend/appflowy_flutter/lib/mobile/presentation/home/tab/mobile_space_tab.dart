@@ -182,6 +182,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
             SpaceEvent.createPage(
               name: layout.defaultName,
               layout: layout,
+              openAfterCreate: true,
             ),
           );
     } else if (layout == ViewLayoutPB.Document) {
