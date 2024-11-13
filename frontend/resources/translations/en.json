@@ -487,7 +487,8 @@
         "publishNameTooLong": "The path name is too long, please try another one",
         "publishNameAlreadyInUse": "The path name is already in use, please try another one",
         "namespaceContainsInvalidCharacters": "The namespace contains invalid character(s), please try another one",
-        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings"
+        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings",
+        "publishNameCannotBeEmpty": "The path name cannot be empty, please try another one"
       },
       "success": {
         "namespaceUpdated": "Updated namespace successfully",

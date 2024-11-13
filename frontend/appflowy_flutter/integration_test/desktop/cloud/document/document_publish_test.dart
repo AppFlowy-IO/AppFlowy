@@ -106,9 +106,21 @@ void main() {
       await tester.pumpUntilFound(errorToast2);
       await tester.pumpUntilNotFound(errorToast2);
 
+      // rename with empty name
       await tester.tap(inputField);
+      await tester.enterText(inputField, '');
+      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
+      await tester.pumpAndSettle();
+
+      // expect to see the toast with error message
+      final errorToast3 = find.text(
+        LocaleKeys.settings_sites_error_publishNameCannotBeEmpty.tr(),
+      );
+      await tester.pumpUntilFound(errorToast3);
+      await tester.pumpUntilNotFound(errorToast3);
 
       // input the new path name
+      await tester.tap(inputField);
       await tester.enterText(inputField, 'new-path-name');
       // click save button
       await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
@@ -134,6 +146,73 @@ void main() {
       final content = await Clipboard.getData(Clipboard.kTextPlain);
       expect(
         content?.text?.contains('new-path-name'),
+        isTrue,
+      );
+    });
+
+    testWidgets('re-publish the document', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      const pageName = 'Document';
+
+      await tester.createNewPageInSpace(
+        spaceName: Constants.generalSpaceName,
+        layout: ViewLayoutPB.Document,
+        pageName: pageName,
+      );
+
+      // open the publish menu
+      await tester.openPublishMenu();
+
+      // publish the document
+      final publishButton = find.byType(PublishButton);
+      await tester.tapButton(publishButton);
+
+      // rename the path name
+      final inputField = find.descendant(
+        of: find.byType(ShareMenu),
+        matching: find.byType(TextField),
+      );
+
+      // input the new path name
+      const newName = 'new-path-name';
+      await tester.enterText(inputField, newName);
+      // click save button
+      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
+      await tester.pumpAndSettle();
+
+      // expect to see the toast with success message
+      final successToast = find.text(
+        LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
+      );
+      await tester.pumpUntilNotFound(successToast);
+
+      // unpublish the document
+      final unpublishButton = find.byType(UnPublishButton);
+      await tester.tapButton(unpublishButton);
+
+      final unpublishSuccessToast = find.text(
+        LocaleKeys.publish_unpublishSuccessfully.tr(),
+      );
+      await tester.pumpUntilNotFound(unpublishSuccessToast);
+
+      // re-publish the document
+      await tester.tapButton(publishButton);
+
+      // expect to see the toast with success message
+      final rePublishSuccessToast = find.text(
+        LocaleKeys.publish_publishSuccessfully.tr(),
+      );
+      await tester.pumpUntilNotFound(rePublishSuccessToast);
+
+      // check the clipboard has the link
+      final content = await Clipboard.getData(Clipboard.kTextPlain);
+      expect(
+        content?.text?.contains(newName),
         isTrue,
       );
     });

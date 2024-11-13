@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -50,9 +51,12 @@ class PublishTab extends StatelessWidget {
           return _PublishWidget(
             onPublish: (selectedViews) async {
               final id = context.read<ShareBloc>().view.id;
-              final publishName = await generatePublishName(
-                id,
-                viewName,
+              final lastPublishName = context.read<ShareBloc>().state.pathName;
+              final publishName = lastPublishName.orDefault(
+                await generatePublishName(
+                  id,
+                  viewName,
+                ),
               );
 
               if (selectedViews.isNotEmpty) {
