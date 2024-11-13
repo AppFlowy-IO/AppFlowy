@@ -170,7 +170,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
     switch (inner) {
       case WorkspaceMoreAction.delete:
         return FlowySvg(
-          FlowySvgs.delete_s,
+          FlowySvgs.trash_s,
           color: onHover ? Theme.of(context).colorScheme.error : null,
         );
       case WorkspaceMoreAction.rename:
