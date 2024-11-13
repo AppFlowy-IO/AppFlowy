@@ -13,7 +13,7 @@ import '../../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('collaborative workspace: ', () {
+  group('collaborative workspace:', () {
     // combine the create and delete workspace test to reduce the time
     testWidgets('create a new workspace, open it and then delete it',
         (tester) async {
@@ -73,6 +73,33 @@ void main() {
           await tester.pumpUntilNotFound(success);
         },
       );
+    });
+
+    testWidgets('check the member count immediately after creating a workspace',
+        (tester) async {
+      // only run the test when the feature flag is on
+      if (!FeatureFlag.collaborativeWorkspace.isOn) {
+        return;
+      }
+
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      const name = 'AppFlowy.IO';
+      // the workspace will be opened after created
+      await tester.createCollaborativeWorkspace(name);
+
+      final loading = find.byType(Loading);
+      await tester.pumpUntilNotFound(loading);
+
+      await tester.openCollaborativeWorkspaceMenu();
+
+      // expect to see the member count
+      final memberCount = find.text('1 member');
+      expect(memberCount, findsNWidgets(2));
     });
   });
 }
