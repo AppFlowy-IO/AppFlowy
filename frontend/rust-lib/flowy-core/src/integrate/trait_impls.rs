@@ -2,7 +2,7 @@ use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use client_api::entity::workspace_dto::PublishInfoView;
-use client_api::entity::{ChatMessageType, PublishInfo};
+use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
@@ -21,8 +21,8 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, LocalAIConfig, MessageCursor,
-  RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig,
+  MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
