@@ -1,13 +1,14 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
-  AppFlowyOfflineAI, CompletionType, CreateTextChatContext, LLMModel, LocalAIConfig, ModelInfo,
+  AppFlowyOfflineAI, CompletionType, CreateChatContext, LLMModel, LocalAIConfig, ModelInfo,
   RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
-pub use client_api::entity::{
-  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataContentType,
-  ChatMetadataData, MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
+pub use client_api::entity::chat_dto::{
+  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader, MessageCursor,
+  RepeatedChatMessage,
 };
+pub use client_api::entity::QuestionStreamValue;
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;

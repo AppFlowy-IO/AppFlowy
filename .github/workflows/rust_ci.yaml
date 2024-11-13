@@ -15,8 +15,6 @@ on:
       - "main"
       - "develop"
       - "release/*"
-    paths:
-      - "frontend/rust-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
