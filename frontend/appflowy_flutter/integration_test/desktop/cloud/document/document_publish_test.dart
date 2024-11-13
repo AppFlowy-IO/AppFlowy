@@ -106,9 +106,21 @@ void main() {
       await tester.pumpUntilFound(errorToast2);
       await tester.pumpUntilNotFound(errorToast2);
 
+      // rename with empty name
       await tester.tap(inputField);
+      await tester.enterText(inputField, '');
+      await tester.tapButton(find.text(LocaleKeys.button_save.tr()));
+      await tester.pumpAndSettle();
+
+      // expect to see the toast with error message
+      final errorToast3 = find.text(
+        LocaleKeys.settings_sites_error_publishNameCannotBeEmpty.tr(),
+      );
+      await tester.pumpUntilFound(errorToast3);
+      await tester.pumpUntilNotFound(errorToast3);
 
       // input the new path name
+      await tester.tap(inputField);
       await tester.enterText(inputField, 'new-path-name');
       // click save button
       await tester.tapButton(find.text(LocaleKeys.button_save.tr()));

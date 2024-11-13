@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -240,6 +241,21 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
         updatePathNameResult: null,
       ),
     );
+
+    if (pathName.isEmpty) {
+      emit(
+        state.copyWith(
+          updatePathNameResult: FlowyResult.failure(
+            FlowyError(
+              code: ErrorCode.ViewNameInvalid,
+              msg: 'Path name is invalid',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
     final request = SetPublishNamePB()
       ..viewId = view.id
       ..newName = pathName;
