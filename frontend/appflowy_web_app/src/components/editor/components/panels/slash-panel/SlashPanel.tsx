@@ -1,17 +1,12 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import { BlockData, BlockType, CalloutBlockData, HeadingBlockData, ToggleListBlockData } from '@/application/types';
-import { Popover } from '@/components/_shared/popover';
-import { usePanelContext } from '@/components/editor/components/panels/Panels.hooks';
-import { PanelType } from '@/components/editor/components/panels/PanelsContext';
-import { getRangeRect } from '@/components/editor/components/toolbar/selection-toolbar/utils';
-import { Button } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ReactComponent as AIWriterIcon } from '@/assets/slash_menu_icon_ai_writer.svg';
 import { ReactComponent as BulletedListIcon } from '@/assets/slash_menu_icon_bulleted_list.svg';
 import { ReactComponent as CalloutIcon } from '@/assets/slash_menu_icon_callout.svg';
+import { ReactComponent as TodoListIcon } from '@/assets/slash_menu_icon_checkbox.svg';
 import { ReactComponent as CodeIcon } from '@/assets/slash_menu_icon_code.svg';
 import { ReactComponent as DividerIcon } from '@/assets/slash_menu_icon_divider.svg';
 import { ReactComponent as DocumentIcon } from '@/assets/slash_menu_icon_doc.svg';
@@ -26,11 +21,18 @@ import { ReactComponent as NumberedListIcon } from '@/assets/slash_menu_icon_num
 import { ReactComponent as OutlineIcon } from '@/assets/slash_menu_icon_outline.svg';
 import { ReactComponent as QuoteIcon } from '@/assets/slash_menu_icon_quote.svg';
 import { ReactComponent as TextIcon } from '@/assets/slash_menu_icon_text.svg';
-import { ReactComponent as TodoListIcon } from '@/assets/slash_menu_icon_checkbox.svg';
+import { ReactComponent as ToggleListIcon } from '@/assets/slash_menu_icon_toggle.svg';
 import { ReactComponent as ToggleHeading1Icon } from '@/assets/slash_menu_icon_toggle_heading1.svg';
 import { ReactComponent as ToggleHeading2Icon } from '@/assets/slash_menu_icon_toggle_heading2.svg';
 import { ReactComponent as ToggleHeading3Icon } from '@/assets/slash_menu_icon_toggle_heading3.svg';
-import { ReactComponent as ToggleListIcon } from '@/assets/slash_menu_icon_toggle.svg';
+import { Popover } from '@/components/_shared/popover';
+import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
+import { usePanelContext } from '@/components/editor/components/panels/Panels.hooks';
+import { PanelType } from '@/components/editor/components/panels/PanelsContext';
+import { getRangeRect } from '@/components/editor/components/toolbar/selection-toolbar/utils';
+import { Button } from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 
 export function SlashPanel ({
@@ -50,7 +52,9 @@ export function SlashPanel ({
   const editor = useSlateStatic() as YjsEditor;
   const [selectedOption, setSelectedOption] = React.useState<string | null>(null);
   const selectedOptionRef = React.useRef<string | null>(null);
-
+  const {
+    openPopover,
+  } = usePopoverContext();
   const open = useMemo(() => {
     return isPanelOpen(PanelType.Slash);
   }, [isPanelOpen]);
@@ -66,13 +70,29 @@ export function SlashPanel ({
     const block = getBlockEntry(editor);
     const blockId = block[0].blockId as string;
     const isEmpty = !CustomEditor.getBlockTextContent(block[0], 2);
+    let newBlockId: string | undefined;
 
     if (isEmpty) {
-      CustomEditor.turnToBlock(editor, blockId, type, data);
+      newBlockId = CustomEditor.turnToBlock(editor, blockId, type, data);
     } else {
-      CustomEditor.addBelowBlock(editor, blockId, type, data);
+      newBlockId = CustomEditor.addBelowBlock(editor, blockId, type, data);
     }
-  }, [editor]);
+
+    if (![BlockType.FileBlock, BlockType.ImageBlock].includes(type)) return;
+
+    setTimeout(() => {
+      if (!newBlockId) return;
+      const entry = findSlateEntryByBlockId(editor, newBlockId);
+
+      if (!entry) return;
+      const [node] = entry;
+      const dom = ReactEditor.toDOMNode(editor, node);
+
+      openPopover(newBlockId, type, dom);
+
+    }, 50);
+
+  }, [editor, openPopover]);
 
   const options: {
     label: string;
@@ -281,6 +301,7 @@ export function SlashPanel ({
       keywords: ['file', 'upload'],
       onClick: () => {
         turnInto(BlockType.FileBlock, {});
+
       },
     }, {
       label: t('document.menuName'),
@@ -293,7 +314,7 @@ export function SlashPanel ({
         return keyword.toLowerCase().includes(searchText.toLowerCase());
       });
     });
-  }, [t, turnInto, searchText, setEmojiPosition]);
+  }, [t, turnInto, setEmojiPosition, searchText]);
 
   const resultLength = options.length;
 

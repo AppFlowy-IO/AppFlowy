@@ -10,11 +10,11 @@ function ImageEmpty (_: { containerRef: React.RefObject<HTMLDivElement>; onEscap
     <>
       <div
         className={
-          'container-bg flex h-[48px] w-full cursor-pointer select-none items-center gap-[10px] bg-fill-list-active px-4 text-text-caption'
+          'flex w-full cursor-pointer select-none items-center gap-4 text-text-caption'
         }
       >
-        <ImageIcon />
-        {t('document.plugins.image.addAnImage')}
+        <ImageIcon className={'w-6 h-6'} />
+        {t('document.plugins.image.addAnImageDesktop')}
       </div>
     </>
   );

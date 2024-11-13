@@ -12,6 +12,7 @@ const TableCell = memo(
       <div
         ref={ref}
         {...attributes}
+        contentEditable={false}
         style={{
           fontSize: '15px',
           ...attributes.style,

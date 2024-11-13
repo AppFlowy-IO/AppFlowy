@@ -2,7 +2,7 @@ import { extractHeadings, nestHeadings } from '@/components/editor/components/bl
 import { EditorElementProps, HeadingNode, OutlineNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlate } from 'slate-react';
+import { useReadOnly, useSlate } from 'slate-react';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 export const Outline = memo(
@@ -10,6 +10,7 @@ export const Outline = memo(
     const editor = useSlate();
     const [root, setRoot] = useState<HeadingNode[]>([]);
     const { t } = useTranslation();
+    const readOnly = useReadOnly();
 
     useEffect(() => {
       const root = nestHeadings(extractHeadings(editor, node.data.depth || 6));
@@ -56,11 +57,13 @@ export const Outline = memo(
     );
 
     return (
-      <div {...attributes} contentEditable={false}
-           className={`outline-block relative my-2 px-1 ${className || ''}`}
+      <div
+        {...attributes}
+        contentEditable={readOnly ? false : undefined}
+        ref={ref}
+        className={`outline-block relative my-2 px-1 ${className || ''}`}
       >
         <div
-          ref={ref}
           className={'absolute left-0 top-0 select-none caret-transparent'}
         >
           {children}

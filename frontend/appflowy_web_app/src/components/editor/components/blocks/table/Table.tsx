@@ -86,15 +86,17 @@ const Table = memo(
         }}
       >
         <div
-          className={'h-full w-full overflow-x-auto overflow-y-hidden'} style={{
-          paddingLeft: offsetLeftRef.current + 'px',
-        }}
+          contentEditable={false}
+          className={'h-full w-full overflow-x-auto overflow-y-hidden'}
+          style={{
+            paddingLeft: offsetLeftRef.current + 'px',
+          }}
         >
           <Grid
             id={`table-${node.blockId}`}
-            rowGap='space.0'
-            autoFlow='column'
-            columnGap='space.0'
+            rowGap="space.0"
+            autoFlow="column"
+            columnGap="space.0"
             templateRows={templateRows}
             templateColumns={templateColumns}
           >

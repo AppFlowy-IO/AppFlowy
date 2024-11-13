@@ -18,7 +18,15 @@ export function withDelete (editor: ReactEditor) {
 
     if (!selection) return;
 
+    const [node] = getBlockEntry(editor as YjsEditor);
+
     if (Range.isCollapsed(selection)) {
+      if (editor.isElementReadOnly(node) && node.blockId) {
+
+        CustomEditor.deleteBlock(editor as YjsEditor, node.blockId);
+        return;
+      }
+
       deleteText(options);
       return;
     }
@@ -69,6 +77,19 @@ export function withDelete (editor: ReactEditor) {
 
     if (shouldUseDefaultBehavior) {
       deleteForward(unit);
+      return;
+    }
+
+    const after = editor.after(editor.end(selection), { unit: 'block' });
+
+    if (!after) {
+      return;
+    }
+
+    const nextBlock = getBlockEntry(editor as YjsEditor, after)[0];
+
+    if (editor.isElementReadOnly(nextBlock) && nextBlock.blockId) {
+      CustomEditor.deleteBlock(editor as YjsEditor, nextBlock.blockId);
       return;
     }
 

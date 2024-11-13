@@ -14,6 +14,9 @@ import NumberedList from '@/components/editor/components/toolbar/selection-toolb
 import Quote from '@/components/editor/components/toolbar/selection-toolbar/actions/Quote';
 import StrikeThrough from '@/components/editor/components/toolbar/selection-toolbar/actions/StrikeThrough';
 import Underline from '@/components/editor/components/toolbar/selection-toolbar/actions/Underline';
+import {
+  useSelectionToolbarContext,
+} from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { Divider } from '@mui/material';
 import { Editor, Element } from 'slate';
 import Paragraph from './actions/Paragraph';
@@ -91,8 +94,11 @@ function ToolbarActions () {
     />
     {/*<Href />*/}
   </>;
+  const {
+    visible: toolbarVisible,
+  } = useSelectionToolbarContext();
 
-  const groupFour = <><Align /></>;
+  const groupFour = <><Align enabled={toolbarVisible} /></>;
 
   return (
     <div

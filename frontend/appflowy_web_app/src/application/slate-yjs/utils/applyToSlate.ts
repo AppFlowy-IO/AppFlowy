@@ -137,20 +137,25 @@ function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string,
   const slateNode = blockToSlateNode(block.toJSON() as BlockJson);
   const textId = block.get(YjsEditorKey.block_external_id);
   const yText = getText(textId, editor.sharedRoot);
-  const delta = yText.toDelta();
-  const slateDelta = delta.flatMap(deltaInsertToSlateNode);
+  let textNode: Element | undefined;
 
-  if (slateDelta.length === 0) {
-    slateDelta.push({
-      text: '',
-    });
+  if (yText) {
+    const delta = yText?.toDelta();
+    const slateDelta = delta.flatMap(deltaInsertToSlateNode);
+
+    if (slateDelta.length === 0) {
+      slateDelta.push({
+        text: '',
+      });
+    }
+
+    textNode = {
+      textId,
+      type: YjsEditorKey.text,
+      children: slateDelta,
+    };
   }
 
-  const textNode: Element = {
-    textId,
-    type: YjsEditorKey.text,
-    children: slateDelta,
-  };
   let path = [index];
 
   if (parentId !== pageId) {
@@ -179,7 +184,7 @@ function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string,
     path,
     node: {
       ...slateNode,
-      children: [textNode],
+      children: textNode ? [textNode] : [],
     },
   });
 

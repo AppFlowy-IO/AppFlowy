@@ -6,33 +6,31 @@ import { copyTextToClipboard } from '@/utils/copy';
 import { ReactComponent as MathSvg } from '@/assets/math.svg';
 import React, { forwardRef, memo, Suspense, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useReadOnly } from 'slate-react';
 
 export const MathEquation = memo(
   forwardRef<HTMLDivElement, EditorElementProps<MathEquationNode>>(
     ({ node, children, className, ...attributes }, ref) => {
       const formula = node.data.formula;
+      const readOnly = useReadOnly();
       const { t } = useTranslation();
       const containerRef = useRef<HTMLDivElement>(null);
       const [showToolbar, setShowToolbar] = useState(false);
       const newClassName = useMemo(() => {
         const classList = [
           className,
-          'math-equation-block relative w-full container-bg w-full py-1 overflow-hidden select-none rounded-[8px]',
+          'w-full bg-bg-body py-2 math-equation-block',
         ];
 
-        if (formula) {
-          classList.push('border border-transparent hover:border-line-divider hover:bg-fill-list-active cursor-pointer');
-        }
-
         return classList.join(' ');
-      }, [formula, className]);
+      }, [className]);
 
       return (
         <>
           <div
             {...attributes}
             ref={containerRef}
-            contentEditable={false}
+            contentEditable={readOnly ? false : undefined}
             onMouseEnter={() => {
               if (!formula) return;
               setShowToolbar(true);
@@ -40,21 +38,29 @@ export const MathEquation = memo(
             onMouseLeave={() => setShowToolbar(false)}
             className={newClassName}
           >
-            {formula ? (
-              <Suspense fallback={formula}>
-                <KatexMath latex={formula} />
-              </Suspense>
-            ) : (
-              <div
-                className={
-                  'flex h-[48px] w-full items-center gap-[10px] rounded-[8px] border border-line-divider bg-fill-list-active px-4 text-text-caption'
-                }
-              >
-                <MathSvg className={'h-4 w-4'} />
-                {t('document.plugins.mathEquation.addMathEquation')}
-              </div>
-            )}
-            <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
+            <div
+              contentEditable={false}
+              className={`embed-block ${formula ? 'p-0.5' : 'p-4'}`}
+            >
+              {formula ? (
+                <div className={'flex items-center w-full justify-center'}>
+                  <Suspense fallback={formula}>
+                    <KatexMath latex={formula} />
+                  </Suspense>
+                </div>
+
+              ) : (
+                <div className={'flex items-center gap-4 text-text-caption'}>
+                  <MathSvg className={'h-6 w-6'} />
+                  {t('document.plugins.mathEquation.addMathEquation')}
+                </div>
+              )}
+            </div>
+
+            <div
+              ref={ref}
+              className={'absolute left-0 top-0 h-full w-full caret-transparent'}
+            >
               {children}
             </div>
             {showToolbar && (

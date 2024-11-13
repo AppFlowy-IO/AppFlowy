@@ -4,14 +4,32 @@
   @apply my-[4px];
 }
 
+.block-element {
+  .embed-block {
+    @apply z-[10] hover:bg-content-blue-50 flex relative w-full gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active;
+  }
+
+  .math-equation-block, .gallery-block {
+    .embed-block {
+      @apply hover:bg-fill-list-active;
+    }
+  }
+
+}
+
+
 .block-element.selected {
   @apply bg-content-blue-100;
+  .embed-block {
+    @apply bg-content-blue-50;
+  }
 }
 
 .block-element .block-element:not([data-block-type="table/cell"]) {
   @apply mb-0;
   margin-left: 24px;
 }
+
 
 .block-element[data-block-type="quote"] {
   .block-element {

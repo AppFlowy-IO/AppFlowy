@@ -1,6 +1,7 @@
 import { EditorElementProps, LinkPreviewNode } from '@/components/editor/editor.type';
 import axios from 'axios';
 import React, { forwardRef, memo, useEffect, useState } from 'react';
+import { useReadOnly } from 'slate-react';
 
 export const LinkPreview = memo(
   forwardRef<HTMLDivElement, EditorElementProps<LinkPreviewNode>>(({ node, children, ...attributes }, ref) => {
@@ -34,20 +35,23 @@ export const LinkPreview = memo(
         }
       })();
     }, [url]);
+    const readOnly = useReadOnly();
+
     return (
       <div
         onClick={() => {
           window.open(url, '_blank');
         }}
-        contentEditable={false}
+        contentEditable={readOnly ? false : undefined}
         {...attributes}
         ref={ref}
-        className={`link-preview-block relative w-full cursor-pointer py-1`}
+        className={`link-preview-block relative w-full cursor-pointer`}
       >
         <div
           className={
-            'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-3'
+            'embed-block p-4'
           }
+          contentEditable={false}
         >
           {notFound ? (
             <div className={'flex w-full items-center justify-center'}>

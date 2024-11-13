@@ -1,5 +1,6 @@
 import { notify } from '@/components/_shared/notify';
 import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
+import ImageToolbar from '@/components/editor/components/blocks/image/ImageToolbar';
 import { ImageBlockNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -9,7 +10,7 @@ import { ReactComponent as ErrorOutline } from '@/assets/error.svg';
 
 const MIN_WIDTH = 100;
 
-function ImageRender({
+function ImageRender ({
   selected,
   node,
   showToolbar,
@@ -78,21 +79,16 @@ function ImageRender({
       }}
       className={`image-render relative min-h-[48px] ${hasError ? 'w-full' : ''}`}
     >
-      <img loading={'lazy'} {...imageProps} alt={`image-${blockId}`} />
-      {showToolbar && url && (
-        <RightTopActionsToolbar
-          onCopy={async () => {
-            if (!url) return;
-            try {
-              await copyTextToClipboard(url);
-              notify.success(t('publish.copy.imageBlock'));
-            } catch (_) {
-              // do nothing
-            }
-          }}
-        />
-      )}
-      {hasError ? renderErrorNode() : loading ? <Skeleton variant='rounded' width={'100%'} height={200} /> : null}
+      <img
+        loading={'lazy'} {...imageProps}
+        alt={`image-${blockId}`}
+      />
+      {showToolbar && <ImageToolbar node={node} />}
+      {hasError ? renderErrorNode() : loading ? <Skeleton
+        variant="rounded"
+        width={'100%'}
+        height={200}
+      /> : null}
     </div>
   );
 }
