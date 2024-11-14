@@ -1,4 +1,12 @@
-import { CreateRowDoc, LoadView, LoadViewMeta, UpdatePagePayload, ViewLayout, YDoc } from '@/application/types';
+import {
+  CreateRowDoc,
+  LoadView,
+  LoadViewMeta,
+  UpdatePagePayload,
+  ViewComponentProps,
+  ViewLayout,
+  YDoc,
+} from '@/application/types';
 import { findView } from '@/components/_shared/outline/utils';
 import { Popover } from '@/components/_shared/popover';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
@@ -30,6 +38,9 @@ function ViewModal ({
     createRowDoc,
     loadView,
     updatePage,
+    addPage,
+    deletePage,
+    openPageModal,
   } = useAppHandlers();
   const outline = useAppOutline();
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
@@ -122,16 +133,7 @@ function ViewModal ({
       default:
         return null;
     }
-  }, [layout]) as React.FC<{
-    doc: YDoc;
-    readOnly: boolean;
-    navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-    loadViewMeta?: LoadViewMeta;
-    createRowDoc?: CreateRowDoc;
-    loadView?: LoadView;
-    viewMeta: ViewMetaProps;
-    updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
-  }>;
+  }, [layout]) as React.FC<ViewComponentProps>;
 
   const viewDom = useMemo(() => {
 
@@ -145,8 +147,11 @@ function ViewModal ({
       createRowDoc={createRowDoc}
       loadView={loadView}
       updatePage={updatePage}
+      addPage={addPage}
+      deletePage={deletePage}
+      openPageModal={openPageModal}
     />;
-  }, [doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage]);
+  }, [openPageModal, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
   const [paperVisible, setPaperVisible] = React.useState(false);
 
   return (

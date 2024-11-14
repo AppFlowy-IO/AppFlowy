@@ -3,7 +3,7 @@ import {
   CreateRowDoc,
   LoadView,
   LoadViewMeta,
-  UpdatePagePayload,
+  UpdatePagePayload, ViewComponentProps,
   ViewLayout,
   YDoc,
 } from '@/application/types';
@@ -33,6 +33,9 @@ function AppPage () {
     appendBreadcrumb,
     onRendered,
     updatePage,
+    addPage,
+    deletePage,
+    openPageModal,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -83,18 +86,7 @@ function AppPage () {
       default:
         return null;
     }
-  }, [view?.layout]) as React.FC<{
-    doc: YDoc;
-    readOnly: boolean;
-    navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-    loadViewMeta?: LoadViewMeta;
-    createRowDoc?: CreateRowDoc;
-    loadView?: LoadView;
-    viewMeta: ViewMetaProps;
-    appendBreadcrumb?: AppendBreadcrumb;
-    onRendered?: () => void;
-    updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
-  }>;
+  }, [view?.layout]) as React.FC<ViewComponentProps>;
 
   const viewMeta: ViewMetaProps | null = useMemo(() => {
     return view ? {
@@ -142,9 +134,12 @@ function AppPage () {
         loadView={loadView}
         onRendered={onRendered}
         updatePage={updatePage}
+        addPage={addPage}
+        deletePage={deletePage}
+        openPageModal={openPageModal}
       />
     ) : skeleton;
-  }, [updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
+  }, [addPage, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;

@@ -904,3 +904,33 @@ export interface ViewMetaCover {
   type: CoverType;
   value: string;
 }
+
+export interface ViewMetaProps {
+  icon?: ViewMetaIcon;
+  cover?: ViewMetaCover;
+  name?: string;
+  viewId?: string;
+  layout?: ViewLayout;
+  visibleViewIds?: string[];
+  extra?: ViewExtra | null;
+  readOnly?: boolean;
+  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
+}
+
+export interface ViewComponentProps {
+  doc: YDoc;
+  readOnly: boolean;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
+  loadViewMeta?: LoadViewMeta;
+  createRowDoc?: CreateRowDoc;
+  loadView?: LoadView;
+  viewMeta: ViewMetaProps;
+  appendBreadcrumb?: AppendBreadcrumb;
+  onRendered?: () => void;
+  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
+  addPage?: (parentId: string, layout: ViewLayout) => Promise<string>;
+  deletePage?: (viewId: string) => Promise<void>;
+  openPageModal?: (viewId: string) => void;
+  variant?: UIVariant;
+  isTemplateThumb?: boolean;
+}

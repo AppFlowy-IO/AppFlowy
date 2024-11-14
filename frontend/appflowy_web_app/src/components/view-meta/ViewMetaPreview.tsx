@@ -1,12 +1,4 @@
-import {
-  CoverType,
-  UpdatePagePayload,
-  ViewExtra,
-  ViewIconType,
-  ViewLayout,
-  ViewMetaCover,
-  ViewMetaIcon,
-} from '@/application/types';
+import { CoverType, ViewIconType, ViewMetaProps } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 import TitleEditable from '@/components/view-meta/TitleEditable';
 import ViewCover from '@/components/view-meta/ViewCover';
@@ -15,18 +7,6 @@ import React, { lazy, Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const AddIconCover = lazy(() => import('@/components/view-meta/AddIconCover'));
-
-export interface ViewMetaProps {
-  icon?: ViewMetaIcon;
-  cover?: ViewMetaCover;
-  name?: string;
-  viewId?: string;
-  layout?: ViewLayout;
-  visibleViewIds?: string[];
-  extra?: ViewExtra | null;
-  readOnly?: boolean;
-  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
-}
 
 export function ViewMetaPreview ({ icon, cover, name, extra, readOnly = true, viewId, updatePage }: ViewMetaProps) {
   const [iconAnchorEl, setIconAnchorEl] = React.useState<null | HTMLElement>(null);

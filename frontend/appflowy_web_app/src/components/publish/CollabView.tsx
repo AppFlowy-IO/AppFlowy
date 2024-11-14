@@ -1,8 +1,5 @@
 import {
-  AppendBreadcrumb,
-  CreateRowDoc,
-  LoadView,
-  LoadViewMeta,
+  UIVariant, ViewComponentProps,
   ViewLayout,
   YDoc,
 } from '@/application/types';
@@ -15,7 +12,6 @@ import { Document } from '@/components/document';
 import DatabaseView from '@/components/publish/DatabaseView';
 import { useViewMeta } from '@/components/publish/useViewMeta';
 import React, { useMemo, Suspense } from 'react';
-import { ViewMetaProps } from '@/components/view-meta';
 
 const ViewHelmet = React.lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
 
@@ -37,19 +33,7 @@ function CollabView ({ doc }: CollabViewProps) {
       default:
         return null;
     }
-  }, [layout]) as React.FC<{
-    doc: YDoc;
-    readOnly: boolean;
-    navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-    loadViewMeta?: LoadViewMeta;
-    createRowDoc?: CreateRowDoc;
-    loadView?: LoadView;
-    viewMeta: ViewMetaProps;
-    isTemplateThumb?: boolean;
-    appendBreadcrumb?: AppendBreadcrumb;
-    variant?: 'publish' | 'app';
-    onRendered?: () => void;
-  }>;
+  }, [layout]) as React.FC<ViewComponentProps>;
 
   const navigateToView = usePublishContext()?.toView;
   const loadViewMeta = usePublishContext()?.loadViewMeta;
@@ -117,7 +101,7 @@ function CollabView ({ doc }: CollabViewProps) {
           loadView={loadView}
           isTemplateThumb={isTemplateThumb}
           appendBreadcrumb={appendBreadcrumb}
-          variant={'publish'}
+          variant={UIVariant.Publish}
           onRendered={onRendered}
           viewMeta={{
             icon,
