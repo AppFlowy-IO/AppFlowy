@@ -477,7 +477,6 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
       content: FlowyText(
         content,
         fontSize: 14,
-        color: Theme.of(context).hintColor,
         maxLines: 10,
       ),
       leftButton: FlowyText(
