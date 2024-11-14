@@ -16,7 +16,7 @@ interface Position {
   left: number;
 }
 
-interface Origins {
+export interface Origins {
   anchorOrigin: PopoverOrigin;
   transformOrigin: PopoverOrigin;
 }

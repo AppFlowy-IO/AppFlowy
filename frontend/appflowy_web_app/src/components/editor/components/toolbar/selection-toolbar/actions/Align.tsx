@@ -8,7 +8,7 @@ import { ReactComponent as AlignLeftSvg } from '@/assets/toolbar_align_left.svg'
 import { ReactComponent as AlignRightSvg } from '@/assets/toolbar_align_right.svg';
 import { Popover } from '@/components/_shared/popover';
 import { PopoverProps } from '@mui/material/Popover';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { Element } from 'slate';
@@ -65,7 +65,7 @@ export function Align ({
       return;
     }
 
-  }, [editor, getNode]);
+  }, [getNode]);
 
   const handleClose = useCallback(() => {
     setOpen(false);
@@ -107,8 +107,14 @@ export function Align ({
 
       };
     },
-    [editor, handleClose],
+    [editor, handleClose, getNode],
   );
+
+  useEffect(() => {
+    if (!enabled) {
+      setOpen(false);
+    }
+  }, [enabled]);
 
   return (
     <>

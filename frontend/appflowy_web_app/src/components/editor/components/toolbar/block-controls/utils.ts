@@ -1,6 +1,6 @@
 import { BlockType } from '@/application/types';
 import { getHeadingCssProperty } from '@/components/editor/components/blocks/heading';
-import { HeadingNode } from '@/components/editor/editor.type';
+import { HeadingNode, ImageBlockNode } from '@/components/editor/editor.type';
 import { ReactEditor } from 'slate-react';
 import { Element } from 'slate';
 
@@ -24,19 +24,20 @@ export function getBlockCssProperty (node: Element) {
     case BlockType.HeadingBlock:
       return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-[3px]`;
     case BlockType.CodeBlock:
+    case BlockType.OutlineBlock:
+      return 'my-2';
     case BlockType.GridBlock:
     case BlockType.TableBlock:
       return 'my-3';
-    case BlockType.OutlineBlock:
     case BlockType.GalleryBlock:
       return 'my-4';
     case BlockType.CalloutBlock:
       return 'my-5';
     case BlockType.EquationBlock:
     case BlockType.FileBlock:
-    case BlockType.ImageBlock:
-
       return 'my-6';
+    case BlockType.ImageBlock:
+      return (node as ImageBlockNode).data?.url ? 'my-2' : 'my-6';
     case BlockType.DividerBlock:
       return 'my-[-4px]';
     default:

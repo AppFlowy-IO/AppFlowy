@@ -2,8 +2,7 @@ import React, { useCallback, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
-
-const urlPattern = /^(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm|.webp|.svg)(\?[^\s[",><]*)?$/;
+import isURL from 'validator/lib/isURL';
 
 export function EmbedLink ({
   onDone,
@@ -26,7 +25,7 @@ export function EmbedLink ({
       const value = e.target.value;
 
       setValue(value);
-      setError(!urlPattern.test(value));
+      setError(!isURL(value, { require_protocol: true }));
     },
     [setValue, setError],
   );

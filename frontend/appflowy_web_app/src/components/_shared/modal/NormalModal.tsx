@@ -44,6 +44,10 @@ export function NormalModal ({
         if (e.key === 'Escape' && closable) {
           onClose?.();
         }
+
+        if (e.key === 'Enter' && onOk) {
+          onOk();
+        }
       }}
       {...dialogProps}
     >

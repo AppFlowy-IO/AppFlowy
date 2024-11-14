@@ -86,6 +86,10 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
     });
   }, []);
 
+  const handleSetSelectedBlockId = useCallback((blockId?: string) => {
+    setSelectedBlockId(blockId);
+  }, []);
+
   return <EditorContext.Provider
     value={{
       ...props,
@@ -93,7 +97,7 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
       addDecorate,
       removeDecorate,
       selectedBlockId,
-      setSelectedBlockId,
+      setSelectedBlockId: handleSetSelectedBlockId,
     }}
   >{children}</EditorContext.Provider>;
 };
