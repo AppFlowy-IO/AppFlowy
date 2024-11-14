@@ -45,11 +45,10 @@ class _InnerCoverTitle extends StatefulWidget {
 
 class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleTextController = TextEditingController();
-  final titleFocusNode = FocusNode();
 
   late final editorContext = context.read<SharedEditorContext>();
   late final editorState = context.read<EditorState>();
-  bool isTitleFocused = false;
+  late final titleFocusNode = editorContext.coverTitleFocusNode;
   int lineCount = 1;
 
   @override
@@ -58,50 +57,29 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
     titleTextController.text = widget.view.name;
     titleTextController.addListener(_onViewNameChanged);
-    titleFocusNode.onKeyEvent = _onKeyEvent;
-    titleFocusNode.addListener(_onTitleFocusChanged);
+
+    titleFocusNode
+      ..onKeyEvent = _onKeyEvent
+      ..addListener(_onFocusChanged);
 
     editorState.selectionNotifier.addListener(_onSelectionChanged);
-    _requestFocusIfNeeded(widget.view, null);
-
-    editorContext.coverTitleFocusNode = titleFocusNode;
   }
 
   @override
   void dispose() {
-    editorContext.coverTitleFocusNode = null;
-    editorState.selectionNotifier.removeListener(_onSelectionChanged);
-
-    titleTextController.removeListener(_onViewNameChanged);
+    titleFocusNode
+      ..onKeyEvent = null
+      ..removeListener(_onFocusChanged);
     titleTextController.dispose();
-    titleFocusNode.removeListener(_onTitleFocusChanged);
-    titleFocusNode.dispose();
-
+    editorState.selectionNotifier.removeListener(_onSelectionChanged);
     super.dispose();
   }
 
   void _onSelectionChanged() {
     // if title is focused and the selection is not null, clear the selection
-    if (editorState.selection != null && isTitleFocused) {
+    if (editorState.selection != null && titleFocusNode.hasFocus) {
       Log.info('title is focused, clear the editor selection');
       editorState.selection = null;
-    }
-  }
-
-  void _onTitleFocusChanged() {
-    isTitleFocused = titleFocusNode.hasFocus;
-
-    if (titleFocusNode.hasFocus && editorState.selection != null) {
-      Log.info('cover title got focus, clear the editor selection');
-      editorState.selection = null;
-    }
-
-    if (isTitleFocused) {
-      Log.info('cover title got focus, disable keyboard service');
-      editorState.service.keyboardService?.disable();
-    } else {
-      Log.info('cover title lost focus, enable keyboard service');
-      editorState.service.keyboardService?.enable();
     }
   }
 
@@ -172,6 +150,21 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final shouldFocus = _shouldFocus(view, state);
     if (shouldFocus) {
       titleFocusNode.requestFocus();
+    }
+  }
+
+  void _onFocusChanged() {
+    if (titleFocusNode.hasFocus) {
+      if (editorState.selection != null) {
+        Log.info('cover title got focus, clear the editor selection');
+        editorState.selection = null;
+      }
+
+      Log.info('cover title got focus, disable keyboard service');
+      editorState.service.keyboardService?.disable();
+    } else {
+      Log.info('cover title lost focus, enable keyboard service');
+      editorState.service.keyboardService?.enable();
     }
   }
 
