@@ -41,6 +41,7 @@ function ViewModal ({
     addPage,
     deletePage,
     openPageModal,
+    loadViews,
   } = useAppHandlers();
   const outline = useAppOutline();
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
@@ -150,20 +151,17 @@ function ViewModal ({
       addPage={addPage}
       deletePage={deletePage}
       openPageModal={openPageModal}
+      loadViews={loadViews}
     />;
-  }, [openPageModal, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
-  const [paperVisible, setPaperVisible] = React.useState(false);
+  }, [openPageModal, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
       fullWidth={true}
-      onTransitionEnd={() => {
-        setPaperVisible(true);
-      }}
       PaperProps={{
-        className: `max-w-[70vw] flex flex-col h-[70vh] appflowy-scroller w-fit ${paperVisible ? 'visible' : 'hidden'}`,
+        className: `max-w-[70vw] w-[1188px] flex flex-col h-[70vh] appflowy-scroller`,
       }}
     >
       {modalTitle}

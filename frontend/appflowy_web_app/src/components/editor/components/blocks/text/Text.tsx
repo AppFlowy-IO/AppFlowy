@@ -30,7 +30,9 @@ export const Text = forwardRef<HTMLSpanElement, EditorElementProps<TextNode>>(
     }, [placeholder, isEmpty, children]);
 
     return (
-      <span {...attributes} ref={ref} className={className}>
+      <span {...attributes} ref={ref}
+            className={className}
+      >
         {renderIcon()}
         {content}
       </span>

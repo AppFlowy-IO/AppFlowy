@@ -7,7 +7,22 @@ import { Range } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 export function withInsertBreak (editor: ReactEditor) {
-  const { insertBreak } = editor;
+  const { insertBreak, insertSoftBreak } = editor;
+
+  editor.insertSoftBreak = () => {
+    const { selection } = editor;
+
+    if (!selection) return;
+
+    const [node] = getBlockEntry(editor as YjsEditor);
+
+    if (Range.isCollapsed(selection) && isEmbedBlockTypes(node.type as BlockType)) {
+      CustomEditor.addBelowBlock(editor as YjsEditor, node.blockId as string, BlockType.Paragraph, {});
+      return;
+    }
+
+    insertSoftBreak();
+  };
 
   editor.insertBreak = () => {
     if ((editor as YjsEditor).readOnly) {
