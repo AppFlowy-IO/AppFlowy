@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -6,6 +7,7 @@ import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -126,6 +128,15 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         commandShortcutEvents: [customCopyCommand],
         disableAutoScroll: true,
         editorState: editorState,
+        contextMenuItems: [
+          [
+            ContextMenuItem(
+              getName: LocaleKeys.document_plugins_contextMenu_copy.tr,
+              onPressed: (editorState) =>
+                  customCopyCommand.execute(editorState),
+            ),
+          ]
+        ],
       ),
     );
   }
