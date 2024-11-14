@@ -102,7 +102,7 @@ void main() {
       expect(memberCount, findsNWidgets(2));
     });
 
-    testWidgets('check the member count immediately after creating a workspace',
+    testWidgets('only display one menu item in the workspace menu',
         (tester) async {
       // only run the test when the feature flag is on
       if (!FeatureFlag.collaborativeWorkspace.isOn) {

@@ -52,7 +52,6 @@ class WorkspaceMoreActionList extends StatelessWidget {
       slideDistance: 2,
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
-      asBarrier: true,
       onClosed: () {
         isShowingMoreActions.value = false;
       },
