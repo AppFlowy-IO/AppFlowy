@@ -43,7 +43,9 @@ class FavoriteMoreActions extends StatelessWidget {
               NavigatorTextFieldDialog(
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
-                value: view.name,
+                value: view.name.isEmpty
+                    ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                    : view.name,
                 maxLength: 256,
                 onConfirm: (newValue, _) {
                   // can not use bloc here because it has been disposed.

@@ -236,7 +236,9 @@ class TabBarItemButton extends StatelessWidget {
           case TabBarViewAction.rename:
             NavigatorTextFieldDialog(
               title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-              value: view.name,
+              value: view.name.isEmpty
+                  ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                  : view.name,
               onConfirm: (newValue, _) {
                 context.read<DatabaseTabBarBloc>().add(
                       DatabaseTabBarEvent.renameView(view.id, newValue),
