@@ -2845,5 +2845,12 @@
     "one": "1 member",
     "many": "{count} members",
     "other": "{count} members"
+  },
+  "tabMenu": {
+    "close": "Close",
+    "closeOthers": "Close other tabs",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "favoriteDisabledHint": "Cannot favorite this view"
   }
 }

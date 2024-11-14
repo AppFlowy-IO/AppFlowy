@@ -4,6 +4,7 @@ part of 'tabs_bloc.dart';
 class TabsEvent with _$TabsEvent {
   const factory TabsEvent.moveTab() = _MoveTab;
   const factory TabsEvent.closeTab(String pluginId) = _CloseTab;
+  const factory TabsEvent.closeOtherTabs(String pluginId) = _CloseOtherTabs;
   const factory TabsEvent.closeCurrentTab() = _CloseCurrentTab;
   const factory TabsEvent.selectTab(int index) = _SelectTab;
   const factory TabsEvent.openTab({
