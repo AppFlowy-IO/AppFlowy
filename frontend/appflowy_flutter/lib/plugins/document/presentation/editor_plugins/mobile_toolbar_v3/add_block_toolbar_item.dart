@@ -215,7 +215,7 @@ class AddBlockMenu extends StatelessWidget {
       TypeOptionMenuItemValue(
         value: ToggleListBlockKeys.type,
         backgroundColor: colorMap[ToggleListBlockKeys.type]!,
-        text: LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
+        text: LocaleKeys.editor_toggleHeading1ShortForm.tr(),
         icon: FlowySvgs.toggle_heading1_s,
         iconPadding: const EdgeInsets.all(3),
         onTap: (_, __) => _insertBlock(toggleHeadingNode()),
@@ -223,7 +223,7 @@ class AddBlockMenu extends StatelessWidget {
       TypeOptionMenuItemValue(
         value: ToggleListBlockKeys.type,
         backgroundColor: colorMap[ToggleListBlockKeys.type]!,
-        text: LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
+        text: LocaleKeys.editor_toggleHeading2ShortForm.tr(),
         icon: FlowySvgs.toggle_heading2_s,
         iconPadding: const EdgeInsets.all(3),
         onTap: (_, __) => _insertBlock(toggleHeadingNode(level: 2)),
@@ -231,7 +231,7 @@ class AddBlockMenu extends StatelessWidget {
       TypeOptionMenuItemValue(
         value: ToggleListBlockKeys.type,
         backgroundColor: colorMap[ToggleListBlockKeys.type]!,
-        text: LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
+        text: LocaleKeys.editor_toggleHeading3ShortForm.tr(),
         icon: FlowySvgs.toggle_heading3_s,
         iconPadding: const EdgeInsets.all(3),
         onTap: (_, __) => _insertBlock(toggleHeadingNode(level: 3)),
