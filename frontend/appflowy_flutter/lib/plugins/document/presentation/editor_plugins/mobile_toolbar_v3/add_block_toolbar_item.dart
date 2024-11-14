@@ -104,7 +104,29 @@ class AddBlockMenu extends StatelessWidget {
     AppGlobals.rootNavKey.currentContext?.pop(true);
     Future.delayed(
       const Duration(milliseconds: 100),
-      () => editorState.insertBlockAfterCurrentSelection(selection, node),
+      () async {
+        // if current selected block is a empty paragraph block, replace it with the new block.
+        if (selection.isCollapsed) {
+          final currentNode = editorState.getNodeAtPath(selection.end.path);
+          final text = currentNode?.delta?.toPlainText();
+          if (currentNode != null && text != null && text.isEmpty) {
+            final transaction = editorState.transaction;
+            transaction.insertNode(
+              selection.end.path.next,
+              node,
+            );
+            transaction.deleteNode(currentNode);
+            transaction.afterSelection = Selection.collapsed(
+              Position(path: selection.end.path),
+            );
+            transaction.selectionExtraInfo = {};
+            await editorState.apply(transaction);
+            return;
+          }
+        }
+
+        await editorState.insertBlockAfterCurrentSelection(selection, node);
+      },
     );
   }
 

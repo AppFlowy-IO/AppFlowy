@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -19,38 +18,53 @@ void main() {
 
       final editorState = tester.editor.getCurrentEditorState();
       // focus on the editor
-      final selection = Selection.collapsed(Position(path: [0]));
-      editorState.selection = selection;
+      editorState.selection = Selection.collapsed(Position(path: [0]));
       await tester.pumpAndSettle();
 
-      // click the plus menu button
-      final plusMenuButton = find.byKey(addBlockToolbarItemKey);
-      final addMenuItem = find.byType(AddBlockMenu);
-      await tester.tapButton(plusMenuButton);
-      await tester.pumpUntilFound(addMenuItem);
-
-      final toggleHeading1 = find.byWidgetPredicate(
-        (widget) =>
-            widget is TypeOptionMenuItem &&
-            widget.value.text ==
-                LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
+      // open the plus menu and select the toggle heading block
+      await tester.openPlusMenuAndClickButton(
+        LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
       );
-      final scrollable = find.ancestor(
-        of: find.byType(TypeOptionGridView),
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(
-        toggleHeading1,
-        100,
-        scrollable: scrollable,
-      );
-      await tester.tapButton(toggleHeading1);
-      await tester.pumpUntilNotFound(addMenuItem);
 
       // check the block is inserted
-      final block = editorState.getNodeAtPath([1])!;
-      expect(block.type, equals(ToggleListBlockKeys.type));
-      expect(block.attributes[ToggleListBlockKeys.level], equals(1));
+      final block1 = editorState.getNodeAtPath([0])!;
+      expect(block1.type, equals(ToggleListBlockKeys.type));
+      expect(block1.attributes[ToggleListBlockKeys.level], equals(1));
+
+      // click the expand button won't cancel the selection
+      await tester.tapButton(find.byIcon(Icons.arrow_right));
+      expect(
+        editorState.selection,
+        equals(Selection.collapsed(Position(path: [0]))),
+      );
+
+      // focus on the next line
+      editorState.selection = Selection.collapsed(Position(path: [1]));
+      await tester.pumpAndSettle();
+
+      // open the plus menu and select the toggle heading block
+      await tester.openPlusMenuAndClickButton(
+        LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
+      );
+
+      // check the block is inserted
+      final block2 = editorState.getNodeAtPath([1])!;
+      expect(block2.type, equals(ToggleListBlockKeys.type));
+      expect(block2.attributes[ToggleListBlockKeys.level], equals(2));
+
+      // focus on the next line
+      editorState.selection = Selection.collapsed(Position(path: [2]));
+      await tester.pumpAndSettle();
+
+      // open the plus menu and select the toggle heading block
+      await tester.openPlusMenuAndClickButton(
+        LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
+      );
+
+      // check the block is inserted
+      final block3 = editorState.getNodeAtPath([2])!;
+      expect(block3.type, equals(ToggleListBlockKeys.type));
+      expect(block3.attributes[ToggleListBlockKeys.level], equals(3));
     });
   });
 }
