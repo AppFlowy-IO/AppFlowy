@@ -299,11 +299,11 @@ class _TurnInfoButton extends StatelessWidget {
     } else if (type == ToggleListBlockKeys.type) {
       switch (level) {
         case 1:
-          return FlowySvgs.slash_menu_icon_h1_s;
+          return FlowySvgs.toggle_heading1_s;
         case 2:
-          return FlowySvgs.slash_menu_icon_h2_s;
+          return FlowySvgs.toggle_heading2_s;
         case 3:
-          return FlowySvgs.slash_menu_icon_h3_s;
+          return FlowySvgs.toggle_heading3_s;
         default:
           return FlowySvgs.slash_menu_icon_toggle_s;
       }
