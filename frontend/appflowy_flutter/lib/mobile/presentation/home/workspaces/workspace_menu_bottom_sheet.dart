@@ -3,7 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
-import 'package:appflowy/util/navigator_context_exntesion.dart';
+import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -234,6 +234,7 @@ class _WorkspaceMenuItemContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final memberCount = workspace.memberCount.toInt();
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: Column(
@@ -247,10 +248,10 @@ class _WorkspaceMenuItemContent extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           FlowyText(
-            context.read<WorkspaceMemberBloc>().state.isLoading
+            memberCount == 0
                 ? ''
                 : LocaleKeys.settings_appearance_members_membersCount.plural(
-                    context.read<WorkspaceMemberBloc>().state.members.length,
+                    memberCount,
                   ),
             fontSize: 10.0,
             color: Theme.of(context).hintColor,

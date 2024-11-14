@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -97,9 +98,12 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
 
   Future<void> _publish(BuildContext context) async {
     final id = context.read<ShareBloc>().view.id;
-    final publishName = await generatePublishName(
-      id,
-      view.name,
+    final lastPublishName = context.read<ShareBloc>().state.pathName;
+    final publishName = lastPublishName.orDefault(
+      await generatePublishName(
+        id,
+        view.name,
+      ),
     );
     if (context.mounted) {
       context.read<ShareBloc>().add(

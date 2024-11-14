@@ -5,10 +5,9 @@ pub use client_api::entity::ai_dto::{
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
-  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor, QAChatMessage,
+  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader, MessageCursor,
   RepeatedChatMessage,
 };
-
 pub use client_api::entity::QuestionStreamValue;
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;

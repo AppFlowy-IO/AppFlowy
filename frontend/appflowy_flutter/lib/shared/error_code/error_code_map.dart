@@ -14,6 +14,8 @@ extension PublishNameErrorCodeMap on ErrorCode {
         LocaleKeys.settings_sites_error_publishNameTooLong.tr(),
       ErrorCode.UserUnauthorized =>
         LocaleKeys.settings_sites_error_publishPermissionDenied.tr(),
+      ErrorCode.ViewNameInvalid =>
+        LocaleKeys.settings_sites_error_publishNameCannotBeEmpty.tr(),
       _ => null,
     };
   }

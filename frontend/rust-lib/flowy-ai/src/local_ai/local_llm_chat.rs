@@ -8,7 +8,7 @@ use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
 use client_api_entity::chat_dto::ContextLoader;
 use flowy_ai_pub::cloud::{
-  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, LLMModel, LocalAIConfig,
+  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ContextLoader, LLMModel, LocalAIConfig,
   SubscriptionPlan,
 };
 use flowy_error::{FlowyError, FlowyResult};

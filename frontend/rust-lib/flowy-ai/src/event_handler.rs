@@ -7,8 +7,7 @@ use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
 use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
 use allo_isolate::Isolate;
-use client_api_entity::chat_dto::{ChatRAGData, ContextLoader};
-use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType};
+use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
@@ -55,7 +54,7 @@ pub(crate) async fn stream_chat_message_handler(
         id: metadata.id,
         name: metadata.name.clone(),
         source: metadata.source,
-        extra: None, // TODO(nathan): Check if this is intended
+        extra: None,
       }
     })
     .collect::<Vec<_>>();

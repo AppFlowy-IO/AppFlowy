@@ -160,9 +160,14 @@ class _SpaceState extends State<_Space> {
     ViewPB space,
     ViewLayoutPB layout,
   ) {
-    context
-        .read<SpaceBloc>()
-        .add(SpaceEvent.createPage(name: '', layout: layout, index: 0));
+    context.read<SpaceBloc>().add(
+          SpaceEvent.createPage(
+            name: '',
+            layout: layout,
+            index: 0,
+            openAfterCreate: true,
+          ),
+        );
 
     context.read<SpaceBloc>().add(SpaceEvent.expand(space, true));
   }
