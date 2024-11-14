@@ -6,7 +6,6 @@ use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, AppFlowyLocalAI};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
-use client_api_entity::chat_dto::ContextLoader;
 use flowy_ai_pub::cloud::{
   AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ContextLoader, LLMModel, LocalAIConfig,
   SubscriptionPlan,

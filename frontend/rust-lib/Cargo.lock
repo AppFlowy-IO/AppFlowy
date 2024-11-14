@@ -1999,7 +1999,6 @@ dependencies = [
  "arc-swap",
  "base64 0.21.5",
  "bytes",
- "client-api-entity",
  "dashmap 6.0.1",
  "dotenv",
  "flowy-ai-pub",
@@ -2041,7 +2040,6 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "client-api",
- "client-api-entity",
  "flowy-error",
  "futures",
  "lib-infra",
