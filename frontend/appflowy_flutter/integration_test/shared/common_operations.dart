@@ -787,6 +787,28 @@ extension CommonOperations on WidgetTester {
     await tap(finder);
     await pumpAndSettle(const Duration(seconds: 2));
   }
+
+  /// Create a new document on mobile
+  Future<void> createNewDocumentOnMobile(String name) async {
+    final createPageButton = find.byKey(
+      BottomNavigationBarItemType.add.valueKey,
+    );
+    await tapButton(createPageButton);
+    expect(find.byType(MobileDocumentScreen), findsOneWidget);
+
+    final title = editor.findDocumentTitle('');
+    expect(title, findsOneWidget);
+    final textField = widget<TextField>(title);
+    expect(textField.focusNode!.hasFocus, isTrue);
+
+    // input new name and press done button
+    await enterText(title, name);
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pumpAndSettle();
+    final newTitle = editor.findDocumentTitle(name);
+    expect(newTitle, findsOneWidget);
+    expect(textField.controller!.text, name);
+  }
 }
 
 extension SettingsFinder on CommonFinders {

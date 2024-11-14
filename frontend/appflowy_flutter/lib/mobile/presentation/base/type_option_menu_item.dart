@@ -47,7 +47,7 @@ class TypeOptionMenu<T> extends StatelessWidget {
       itemWidth: width * scaleFactor,
       children: values
           .map(
-            (value) => _TypeOptionMenuItem<T>(
+            (value) => TypeOptionMenuItem<T>(
               value: value,
               width: width,
               iconWidth: iconWidth,
@@ -60,8 +60,9 @@ class TypeOptionMenu<T> extends StatelessWidget {
   }
 }
 
-class _TypeOptionMenuItem<T> extends StatelessWidget {
-  const _TypeOptionMenuItem({
+class TypeOptionMenuItem<T> extends StatelessWidget {
+  const TypeOptionMenuItem({
+    super.key,
     required this.value,
     this.width = 94,
     this.iconWidth = 72,

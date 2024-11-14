@@ -20,9 +20,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+@visibleForTesting
+const addBlockToolbarItemKey = ValueKey('add_block_toolbar_item');
+
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      key: addBlockToolbarItemKey,
       editorState: editorState,
       icon: FlowySvgs.m_toolbar_add_m,
       onTap: () {
@@ -74,12 +78,13 @@ Future<bool?> showAddBlockMenu(
       enableDraggableScrollable: true,
       builder: (_) => Padding(
         padding: EdgeInsets.all(16 * context.scale),
-        child: _AddBlockMenu(selection: selection, editorState: editorState),
+        child: AddBlockMenu(selection: selection, editorState: editorState),
       ),
     );
 
-class _AddBlockMenu extends StatelessWidget {
-  const _AddBlockMenu({
+class AddBlockMenu extends StatelessWidget {
+  const AddBlockMenu({
+    super.key,
     required this.selection,
     required this.editorState,
   });
