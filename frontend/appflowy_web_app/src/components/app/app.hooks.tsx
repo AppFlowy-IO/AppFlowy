@@ -4,11 +4,16 @@ import {
   CreateRowDoc,
   DatabaseRelations,
   LoadView,
-  LoadViewMeta, Types,
+  LoadViewMeta,
+  Types,
+  UIVariant,
   UpdatePagePayload,
   UserWorkspaceInfo,
   View,
-  ViewLayout, YjsDatabaseKey, YjsEditorKey, YSharedRoot,
+  ViewLayout,
+  YjsDatabaseKey,
+  YjsEditorKey,
+  YSharedRoot,
 } from '@/application/types';
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
@@ -31,8 +36,8 @@ export interface AppContextType {
   userWorkspaceInfo?: UserWorkspaceInfo;
   breadcrumbs?: View[];
   appendBreadcrumb?: AppendBreadcrumb;
-  loadFavoriteViews?: () => Promise<void>;
-  loadRecentViews?: () => Promise<void>;
+  loadFavoriteViews?: () => Promise<View[] | undefined>;
+  loadRecentViews?: () => Promise<View[] | undefined>;
   loadTrash?: (workspaceId: string) => Promise<void>;
   favoriteViews?: View[];
   recentViews?: View[];
@@ -41,7 +46,7 @@ export interface AppContextType {
   onRendered?: () => void;
   notFound?: boolean;
   viewHasBeenDeleted?: boolean;
-  addPage?: (parentId: string, layout: ViewLayout) => Promise<string>;
+  addPage?: (parentId: string, layout: ViewLayout, name?: string) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   updatePage?: (viewId: string, payload: UpdatePagePayload) => Promise<void>;
   deleteTrash?: (viewId?: string) => Promise<void>;
@@ -49,6 +54,7 @@ export interface AppContextType {
   movePage?: (viewId: string, parentId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
   openPageModalViewId?: string;
+  loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
 }
 
 const USER_NO_ACCESS_CODE = [1024, 1012];
@@ -348,6 +354,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setFavoriteViews(res);
+      return res;
     } catch (e) {
       console.error('Favorite views not found');
     }
@@ -362,7 +369,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('Recent views not found');
       }
 
-      setRecentViews(uniqBy(res, 'view_id'));
+      const views = uniqBy(res, 'view_id');
+
+      setRecentViews(views);
+      return views;
     } catch (e) {
       console.error('Recent views not found');
     }
@@ -421,7 +431,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   }, [navigate, service, userWorkspaceInfo, loadUserWorkspaceInfo]);
 
-  const addPage = useCallback(async (parentViewId: string, layout: ViewLayout) => {
+  const addPage = useCallback(async (parentViewId: string, layout: ViewLayout, _name?: string) => {
     if (!currentWorkspaceId || !service) {
       throw new Error('No workspace or service found');
     }
@@ -430,6 +440,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const viewId = await service.addAppPage(currentWorkspaceId, parentViewId, layout);
 
       void loadOutline(currentWorkspaceId);
+
       return viewId;
     } catch (e) {
       return Promise.reject(e);
@@ -515,6 +526,30 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentWorkspaceId, service, loadOutline]);
 
+  const loadViews = useCallback(async (varient?: UIVariant) => {
+    if (!varient) {
+      return outline || [];
+    }
+
+    if (varient === UIVariant.Favorite) {
+      if (favoriteViews && favoriteViews.length > 0) {
+        return favoriteViews || [];
+      } else {
+        return loadFavoriteViews();
+      }
+    }
+
+    if (varient === UIVariant.Recent) {
+      if (recentViews && recentViews.length > 0) {
+        return recentViews || [];
+      } else {
+        return loadRecentViews();
+      }
+    }
+
+    return [];
+  }, [favoriteViews, loadFavoriteViews, loadRecentViews, outline, recentViews]);
+
   return <AppContext.Provider
     value={{
       currentWorkspaceId,
@@ -546,6 +581,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       updatePage,
       movePage,
       restorePage,
+      loadViews,
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
@@ -664,6 +700,7 @@ export function useAppHandlers () {
     restorePage: context.restorePage,
     updatePage: context.updatePage,
     movePage: context.movePage,
+    loadViews: context.loadViews,
   };
 }
 

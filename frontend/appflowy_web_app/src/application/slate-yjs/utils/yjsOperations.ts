@@ -212,7 +212,6 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
     Transforms.select(editor, Editor.start(editor, at));
   }
 
-  console.log('handleCollapsedBreakWithTxn', editor.selection);
 }
 
 export function removeRangeWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {

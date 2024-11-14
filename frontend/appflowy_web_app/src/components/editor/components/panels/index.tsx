@@ -3,6 +3,7 @@ import React from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { MentionPanel } from './mention-panel';
 import { SlashPanel } from './slash-panel';
+import { PageReferencePanel } from './page-reference-panel';
 
 function Panels () {
   const [emojiPosition, setEmojiPosition] = React.useState<{
@@ -16,6 +17,7 @@ function Panels () {
     <>
       <MentionPanel />
       <SlashPanel setEmojiPosition={setEmojiPosition} />
+      <PageReferencePanel />
       <ChangeIconPopover
         anchorPosition={emojiPosition || undefined}
         open={showEmoji}

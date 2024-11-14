@@ -3,7 +3,7 @@ import {
   FontLayout,
   LineHeightLayout,
   LoadView,
-  LoadViewMeta, UIVariant, ViewLayout,
+  LoadViewMeta, UIVariant, ViewLayout, View,
 } from '@/application/types';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { BaseRange } from 'slate';
@@ -45,9 +45,10 @@ export interface EditorContextState {
   removeDecorate?: (type: string) => void;
   selectedBlockId?: string;
   setSelectedBlockId?: (blockId?: string) => void;
-  addPage?: (parentId: string, layout: ViewLayout) => Promise<string>;
+  addPage?: (parentId: string, layout: ViewLayout, name?: string) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
+  loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
 }
 
 export const EditorContext = createContext<EditorContextState>({
