@@ -494,7 +494,8 @@
         "publishNameTooLong": "The path name is too long, please try another one",
         "publishNameAlreadyInUse": "The path name is already in use, please try another one",
         "namespaceContainsInvalidCharacters": "The namespace contains invalid character(s), please try another one",
-        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings"
+        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings",
+        "publishNameCannotBeEmpty": "The path name cannot be empty, please try another one"
       },
       "success": {
         "namespaceUpdated": "Updated namespace successfully",
@@ -2496,7 +2497,7 @@
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
     "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
-    "permission": "Permission",
+    "permission": "Space permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",
     "privatePermission": "Private",
@@ -2518,7 +2519,24 @@
     "movePageToSpace": "Move page to space",
     "cannotMovePageToDatabase": "Cannot move page to database",
     "switchSpace": "Switch space",
-    "spaceNameCannotBeEmpty": "Space name cannot be empty"
+    "spaceNameCannotBeEmpty": "Space name cannot be empty",
+    "success": {
+      "deleteSpace": "Space deleted successfully",
+      "renameSpace": "Space renamed successfully",
+      "duplicateSpace": "Space duplicated successfully",
+      "updateSpace": "Space updated successfully"
+    },
+    "error": {
+      "deleteSpace": "Failed to delete space",
+      "renameSpace": "Failed to rename space",
+      "duplicateSpace": "Failed to duplicate space",
+      "updateSpace": "Failed to update space"
+    },
+    "createSpace": "Create space",
+    "manageSpace": "Manage space",
+    "renameSpace": "Rename space",
+    "mSpaceIconColor": "Space icon color",
+    "mSpaceIcon": "Space icon"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
@@ -2834,5 +2852,12 @@
     "one": "1 member",
     "many": "{count} members",
     "other": "{count} members"
+  },
+  "tabMenu": {
+    "close": "Close",
+    "closeOthers": "Close other tabs",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "favoriteDisabledHint": "Cannot favorite this view"
   }
 }

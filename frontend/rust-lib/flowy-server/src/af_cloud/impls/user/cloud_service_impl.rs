@@ -202,6 +202,7 @@ where
     let workspaces = try_get_client?
       .get_workspaces_opt(QueryWorkspaceParam {
         include_member_count: Some(true),
+        include_role: Some(true),
       })
       .await?;
     to_user_workspaces(workspaces)

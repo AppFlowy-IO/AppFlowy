@@ -143,6 +143,7 @@ pub struct UserWorkspace {
   pub workspace_database_id: String,
   #[serde(default)]
   pub icon: String,
+  #[serde(default)]
   pub member_count: i64,
 }
 

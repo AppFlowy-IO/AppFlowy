@@ -179,8 +179,8 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
             : null;
         context.read<SpaceBloc>().add(
               SpaceEvent.changeIcon(
-                name,
-                iconColor,
+                icon: name,
+                iconColor: iconColor,
               ),
             );
         break;
@@ -211,7 +211,12 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       autoSelectAllText: true,
       hintText: LocaleKeys.space_spaceName.tr(),
       onConfirm: (name, _) {
-        context.read<SpaceBloc>().add(SpaceEvent.rename(widget.space, name));
+        context.read<SpaceBloc>().add(
+              SpaceEvent.rename(
+                space: widget.space,
+                name: name,
+              ),
+            );
       },
     ).show(context);
   }

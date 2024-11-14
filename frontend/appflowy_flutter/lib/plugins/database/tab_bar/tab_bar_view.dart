@@ -230,9 +230,7 @@ class DatabaseTabBarViewPlugin extends Plugin {
 const kDatabasePluginWidgetBuilderHorizontalPadding = 'horizontal_padding';
 
 class DatabasePluginWidgetBuilderSize {
-  const DatabasePluginWidgetBuilderSize({
-    required this.horizontalPadding,
-  });
+  const DatabasePluginWidgetBuilderSize({required this.horizontalPadding});
 
   final double horizontalPadding;
 }
