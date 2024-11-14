@@ -55,57 +55,7 @@ class _FlowyTabState extends State<FlowyTab> {
             create: (_) => TabMenuBloc(
               viewId: widget.pageManager.plugin.id,
             ),
-            child: BlocBuilder<TabMenuBloc, TabMenuState>(
-              builder: (context, state) {
-                if (state.maybeMap(
-                  isLoading: (_) => true,
-                  orElse: () => false,
-                )) {
-                  return const SizedBox.shrink();
-                }
-
-                final disableFavoriteOption = state.maybeWhen(
-                  isReady: (_) => false,
-                  orElse: () => true,
-                );
-
-                return SeparatedColumn(
-                  separatorBuilder: () => const VSpace(4),
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FlowyButton(
-                      text: FlowyText.regular(LocaleKeys.tabMenu_close.tr()),
-                      onTap: () => _closeTab(context),
-                    ),
-                    FlowyButton(
-                      text: FlowyText.regular(
-                        LocaleKeys.tabMenu_closeOthers.tr(),
-                      ),
-                      onTap: () => _closeOtherTabs(context),
-                    ),
-                    const Divider(height: 1),
-                    _favoriteDisabledTooltip(
-                      showTooltip: disableFavoriteOption,
-                      child: FlowyButton(
-                        disable: disableFavoriteOption,
-                        text: FlowyText.regular(
-                          state.maybeWhen(
-                            isReady: (isFavorite) => isFavorite
-                                ? LocaleKeys.tabMenu_unfavorite.tr()
-                                : LocaleKeys.tabMenu_favorite.tr(),
-                            orElse: () => LocaleKeys.tabMenu_favorite.tr(),
-                          ),
-                          color: disableFavoriteOption
-                              ? Theme.of(context).hintColor
-                              : null,
-                        ),
-                        onTap: () => _toggleFavorite(context),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+            child: TabMenu(pageId: widget.pageManager.plugin.id),
           ),
         ),
         child: ChangeNotifierProvider.value(
@@ -166,10 +116,74 @@ class _FlowyTabState extends State<FlowyTab> {
   void _closeTab(BuildContext context) => context
       .read<TabsBloc>()
       .add(TabsEvent.closeTab(widget.pageManager.plugin.id));
+}
 
-  void _closeOtherTabs(BuildContext context) => context
-      .read<TabsBloc>()
-      .add(TabsEvent.closeOtherTabs(widget.pageManager.plugin.id));
+@visibleForTesting
+class TabMenu extends StatelessWidget {
+  const TabMenu({super.key, required this.pageId});
+
+  final String pageId;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TabMenuBloc, TabMenuState>(
+      builder: (context, state) {
+        if (state.maybeMap(
+          isLoading: (_) => true,
+          orElse: () => false,
+        )) {
+          return const SizedBox.shrink();
+        }
+
+        final disableFavoriteOption = state.maybeWhen(
+          isReady: (_) => false,
+          orElse: () => true,
+        );
+
+        return SeparatedColumn(
+          separatorBuilder: () => const VSpace(4),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyButton(
+              text: FlowyText.regular(LocaleKeys.tabMenu_close.tr()),
+              onTap: () => _closeTab(context),
+            ),
+            FlowyButton(
+              text: FlowyText.regular(
+                LocaleKeys.tabMenu_closeOthers.tr(),
+              ),
+              onTap: () => _closeOtherTabs(context),
+            ),
+            const Divider(height: 1),
+            _favoriteDisabledTooltip(
+              showTooltip: disableFavoriteOption,
+              child: FlowyButton(
+                disable: disableFavoriteOption,
+                text: FlowyText.regular(
+                  state.maybeWhen(
+                    isReady: (isFavorite) => isFavorite
+                        ? LocaleKeys.tabMenu_unfavorite.tr()
+                        : LocaleKeys.tabMenu_favorite.tr(),
+                    orElse: () => LocaleKeys.tabMenu_favorite.tr(),
+                  ),
+                  color: disableFavoriteOption
+                      ? Theme.of(context).hintColor
+                      : null,
+                ),
+                onTap: () => _toggleFavorite(context),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _closeTab(BuildContext context) =>
+      context.read<TabsBloc>().add(TabsEvent.closeTab(pageId));
+
+  void _closeOtherTabs(BuildContext context) =>
+      context.read<TabsBloc>().add(TabsEvent.closeOtherTabs(pageId));
 
   void _toggleFavorite(BuildContext context) =>
       context.read<TabMenuBloc>().add(const TabMenuEvent.toggleFavorite());
