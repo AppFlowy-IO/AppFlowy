@@ -339,7 +339,9 @@ class _FindAndReplaceIcon extends StatelessWidget {
       height: 24,
       onPressed: onPressed,
       icon: iconBuilder?.call(context) ??
-          (icon != null ? FlowySvg(icon!) : const Placeholder()),
+          (icon != null
+              ? FlowySvg(icon!, color: Theme.of(context).iconTheme.color)
+              : const Placeholder()),
       tooltipText: tooltipText,
       isSelected: isSelected,
       iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
