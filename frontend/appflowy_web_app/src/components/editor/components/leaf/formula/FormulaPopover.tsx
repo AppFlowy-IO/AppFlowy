@@ -27,9 +27,7 @@ function FormulaPopover ({
     <Popover
       onClose={onClose}
       open={open}
-      disableAutoFocus={true}
-      disableEnforceFocus={true}
-      disableRestoreFocus={false}
+      disableRestoreFocus={true}
       anchorPosition={anchorPosition}
       anchorReference={'anchorPosition'}
       transformOrigin={{
