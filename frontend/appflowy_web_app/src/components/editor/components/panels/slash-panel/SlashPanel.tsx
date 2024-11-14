@@ -2,7 +2,14 @@ import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
-import { BlockData, BlockType, CalloutBlockData, HeadingBlockData, ToggleListBlockData } from '@/application/types';
+import {
+  BlockData,
+  BlockType,
+  CalloutBlockData,
+  HeadingBlockData,
+  ToggleListBlockData,
+  ViewLayout,
+} from '@/application/types';
 import { ReactComponent as AIWriterIcon } from '@/assets/slash_menu_icon_ai_writer.svg';
 import { ReactComponent as BulletedListIcon } from '@/assets/slash_menu_icon_bulleted_list.svg';
 import { ReactComponent as CalloutIcon } from '@/assets/slash_menu_icon_callout.svg';
@@ -10,6 +17,7 @@ import { ReactComponent as TodoListIcon } from '@/assets/slash_menu_icon_checkbo
 import { ReactComponent as CodeIcon } from '@/assets/slash_menu_icon_code.svg';
 import { ReactComponent as DividerIcon } from '@/assets/slash_menu_icon_divider.svg';
 import { ReactComponent as DocumentIcon } from '@/assets/slash_menu_icon_doc.svg';
+
 import { ReactComponent as EmojiIcon } from '@/assets/slash_menu_icon_emoji.svg';
 import { ReactComponent as FileIcon } from '@/assets/slash_menu_icon_file.svg';
 import { ReactComponent as GridIcon } from '@/assets/slash_menu_icon_grid.svg';
@@ -25,11 +33,13 @@ import { ReactComponent as ToggleListIcon } from '@/assets/slash_menu_icon_toggl
 import { ReactComponent as ToggleHeading1Icon } from '@/assets/slash_menu_icon_toggle_heading1.svg';
 import { ReactComponent as ToggleHeading2Icon } from '@/assets/slash_menu_icon_toggle_heading2.svg';
 import { ReactComponent as ToggleHeading3Icon } from '@/assets/slash_menu_icon_toggle_heading3.svg';
+import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
 import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import { usePanelContext } from '@/components/editor/components/panels/Panels.hooks';
 import { PanelType } from '@/components/editor/components/panels/PanelsContext';
 import { getRangeRect } from '@/components/editor/components/toolbar/selection-toolbar/utils';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import { Button } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -93,6 +103,12 @@ export function SlashPanel ({
     }, 50);
 
   }, [editor, openPopover]);
+
+  const {
+    addPage,
+    openPageModal,
+    viewId,
+  } = useEditorContext();
 
   const options: {
     label: string;
@@ -197,7 +213,22 @@ export function SlashPanel ({
       key: 'linkedDoc',
       icon: <DocumentIcon />,
       keywords: ['linked', 'doc'],
+    }, {
+      label: t('document.menuName'),
+      key: 'document',
+      icon: <DocumentIcon />,
+      keywords: ['document', 'doc', 'page'],
+      onClick: async () => {
+        if (!viewId || !addPage || !openPageModal) return;
+        try {
+          const newViewId = await addPage(viewId, ViewLayout.Document);
 
+          openPageModal(newViewId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (e: any) {
+          notify.error(e.message);
+        }
+      },
     }, {
       label: t('document.slashMenu.name.grid'),
       key: 'grid',
@@ -302,18 +333,13 @@ export function SlashPanel ({
       onClick: () => {
         turnInto(BlockType.FileBlock, {});
       },
-    }, {
-      label: t('document.menuName'),
-      key: 'document',
-      icon: <DocumentIcon />,
-      keywords: ['document', 'doc', 'page'],
     }].filter((option) => {
       if (!searchText) return true;
       return option.keywords.some((keyword: string) => {
         return keyword.toLowerCase().includes(searchText.toLowerCase());
       });
     });
-  }, [t, turnInto, setEmojiPosition, searchText]);
+  }, [t, turnInto, viewId, addPage, openPageModal, setEmojiPosition, searchText]);
 
   const resultLength = options.length;
 

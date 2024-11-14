@@ -3,7 +3,7 @@ import {
   FontLayout,
   LineHeightLayout,
   LoadView,
-  LoadViewMeta,
+  LoadViewMeta, UIVariant, ViewLayout,
 } from '@/application/types';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { BaseRange } from 'slate';
@@ -19,11 +19,6 @@ export const defaultLayoutStyle: EditorLayoutStyle = {
   font: '',
   lineHeightLayout: LineHeightLayout.normal,
 };
-
-export enum EditorVariant {
-  publish = 'publish',
-  app = 'app',
-}
 
 interface Decorate {
   range: BaseRange;
@@ -43,13 +38,16 @@ export interface EditorContextState {
   readSummary?: boolean;
   jumpBlockId?: string;
   onJumpedBlockId?: () => void;
-  variant?: EditorVariant;
+  variant?: UIVariant;
   onRendered?: () => void;
   decorateState?: Record<string, Decorate>;
   addDecorate?: (range: BaseRange, class_name: string, type: string) => void;
   removeDecorate?: (type: string) => void;
   selectedBlockId?: string;
   setSelectedBlockId?: (blockId?: string) => void;
+  addPage?: (parentId: string, layout: ViewLayout) => Promise<string>;
+  deletePage?: (viewId: string) => Promise<void>;
+  openPageModal?: (viewId: string) => void;
 }
 
 export const EditorContext = createContext<EditorContextState>({

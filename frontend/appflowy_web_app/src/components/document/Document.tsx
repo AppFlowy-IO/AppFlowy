@@ -1,39 +1,24 @@
-import { CreateRowDoc, LoadView, LoadViewMeta, UpdatePagePayload, YDoc, YjsEditorKey } from '@/application/types';
+import {
+  ViewComponentProps,
+  YjsEditorKey,
+} from '@/application/types';
 import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
-import { EditorVariant } from '@/components/editor/EditorContext';
 import React, { Suspense, useCallback } from 'react';
-import ViewMetaPreview, { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
+import ViewMetaPreview from '@/components/view-meta/ViewMetaPreview';
 import { useSearchParams } from 'react-router-dom';
 
-export interface DocumentProps {
-  doc: YDoc;
-  readOnly: boolean;
-  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-  loadViewMeta?: LoadViewMeta;
-  loadView?: LoadView;
-  createRowDoc?: CreateRowDoc;
-  viewMeta: ViewMetaProps;
-  isTemplateThumb?: boolean;
-  variant?: EditorVariant;
-  onRendered?: () => void;
-  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
-}
+export type DocumentProps = ViewComponentProps;
 
-export const Document = ({
-  doc,
-  readOnly,
-  loadView,
-  navigateToView,
-  loadViewMeta,
-  createRowDoc,
-  viewMeta,
-  isTemplateThumb,
-  variant,
-  onRendered,
-  updatePage,
-}: DocumentProps) => {
+export const Document = (props: DocumentProps) => {
   const [search, setSearch] = useSearchParams();
+  const {
+    doc,
+    readOnly,
+    viewMeta,
+    isTemplateThumb,
+    updatePage,
+  } = props;
   const blockId = search.get('blockId') || undefined;
 
   const onJumpedBlockId = useCallback(() => {
@@ -54,24 +39,18 @@ export const Document = ({
       className={'flex h-full w-full flex-col items-center'}
     >
       <ViewMetaPreview
-        {...viewMeta} readOnly={readOnly}
+        {...viewMeta}
+        readOnly={readOnly}
         updatePage={updatePage}
       />
       <Suspense fallback={<EditorSkeleton />}>
         <div className={'flex justify-center w-full'}>
           <Editor
             viewId={viewMeta.viewId}
-            loadView={loadView}
-            loadViewMeta={loadViewMeta}
-            navigateToView={navigateToView}
-            createRowDoc={createRowDoc}
             readSummary={isTemplateThumb}
-            doc={doc}
-            readOnly={readOnly}
             jumpBlockId={blockId}
             onJumpedBlockId={onJumpedBlockId}
-            variant={variant}
-            onRendered={onRendered}
+            {...props}
           />
         </div>
       </Suspense>

@@ -1,8 +1,8 @@
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
-import { BlockType, View, YDoc } from '@/application/types';
+import { BlockType, UIVariant, View, YDoc } from '@/application/types';
 import { Database } from '@/components/database';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
-import { EditorVariant, useEditorContext } from '@/components/editor/EditorContext';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import { Tooltip } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -139,7 +139,7 @@ export const DatabaseBlock = memo(
                   iidName={iidName}
                   visibleViewIds={visibleViewIds}
                   onChangeView={setSelectedViewId}
-                  hideConditions={variant === EditorVariant.publish}
+                  hideConditions={variant === UIVariant.Publish}
                 />
                 {isHovering && (
                   <div className={'absolute right-4 top-1'}>
