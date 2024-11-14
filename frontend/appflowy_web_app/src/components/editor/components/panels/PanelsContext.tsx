@@ -7,6 +7,7 @@ import { TextInsertTextOptions } from 'slate/dist/interfaces/transforms/text';
 export enum PanelType {
   Slash = 'slash',
   Mention = 'mention',
+  PageReference = 'pageReference',
 }
 
 export interface PanelContextType {
@@ -35,6 +36,8 @@ export const PanelContext = createContext({
   },
   isPanelOpen: () => false,
 } as PanelContextType);
+
+const panelTypeChars = ['/', '@', '+'];
 
 export const PanelProvider = ({ children, editor }: { children: React.ReactNode; editor: ReactEditor }) => {
   const [activePanel, setActivePanel] = useState<PanelType | undefined>(undefined);
@@ -90,18 +93,21 @@ export const PanelProvider = ({ children, editor }: { children: React.ReactNode;
 
     editor.insertText = (text: string, options?: TextInsertTextOptions) => {
       insertText(text, options);
+      const { selection } = editor;
 
-      if (text === '/' || text === '@') {
+      if (!selection) return;
+      if (activePanel !== undefined) return;
+
+      if (panelTypeChars.includes(text)) {
         const position = getRangeRect();
 
         if (!position) return;
 
-        const panelType = text === '/' ? PanelType.Slash : PanelType.Mention;
+        const panelType = { '/': PanelType.Slash, '+': PanelType.PageReference, '@': PanelType.Mention }[text];
+
+        if (!panelType) return;
 
         openPanel(panelType, { top: position.top, left: position.left });
-        const { selection } = editor;
-
-        if (!selection) return;
 
         startSelection.current = {
           anchor: {
@@ -114,12 +120,35 @@ export const PanelProvider = ({ children, editor }: { children: React.ReactNode;
         return;
       }
 
+      const rangeText = editor.string({
+        anchor: {
+          path: selection.anchor.path,
+          offset: selection.anchor.offset - 2,
+        },
+        focus: selection.focus,
+      });
+
+      if (rangeText === '[[') {
+        const position = getRangeRect();
+
+        if (!position) return;
+
+        openPanel(PanelType.PageReference, { top: position.top, left: position.left });
+        startSelection.current = {
+          anchor: {
+            path: selection.anchor.path,
+            offset: selection.anchor.offset - 2,
+          },
+          focus: selection.focus,
+        };
+        endSelection.current = editor.selection;
+      }
     };
 
     return () => {
       editor.insertText = insertText;
     };
-  }, [editor, openPanel]);
+  }, [activePanel, editor, openPanel]);
 
   useEffect(() => {
     const { onChange } = editor;

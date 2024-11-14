@@ -7,9 +7,11 @@ import {
   BlockType,
   CalloutBlockData,
   HeadingBlockData,
+  SubpageNodeData,
   ToggleListBlockData,
   ViewLayout,
 } from '@/application/types';
+import { ReactComponent as AddDocumentIcon } from '@/assets/slash_menu_icon_add_doc.svg';
 import { ReactComponent as AIWriterIcon } from '@/assets/slash_menu_icon_ai_writer.svg';
 import { ReactComponent as BulletedListIcon } from '@/assets/slash_menu_icon_bulleted_list.svg';
 import { ReactComponent as CalloutIcon } from '@/assets/slash_menu_icon_callout.svg';
@@ -109,6 +111,8 @@ export function SlashPanel ({
     openPageModal,
     viewId,
   } = useEditorContext();
+
+  const { openPanel } = usePanelContext();
 
   const options: {
     label: string;
@@ -213,15 +217,25 @@ export function SlashPanel ({
       key: 'linkedDoc',
       icon: <DocumentIcon />,
       keywords: ['linked', 'doc'],
+      onClick: () => {
+        const rect = getRangeRect();
+
+        if (!rect) return;
+        openPanel(PanelType.PageReference, { top: rect.top, left: rect.left });
+      },
     }, {
       label: t('document.menuName'),
       key: 'document',
-      icon: <DocumentIcon />,
+      icon: <AddDocumentIcon />,
       keywords: ['document', 'doc', 'page'],
       onClick: async () => {
         if (!viewId || !addPage || !openPageModal) return;
         try {
           const newViewId = await addPage(viewId, ViewLayout.Document);
+
+          turnInto(BlockType.SubpageBlock, {
+            view_id: newViewId,
+          } as SubpageNodeData);
 
           openPageModal(newViewId);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -339,12 +353,13 @@ export function SlashPanel ({
         return keyword.toLowerCase().includes(searchText.toLowerCase());
       });
     });
-  }, [t, turnInto, viewId, addPage, openPageModal, setEmojiPosition, searchText]);
+  }, [t, turnInto, openPanel, viewId, addPage, openPageModal, setEmojiPosition, searchText]);
 
   const resultLength = options.length;
 
   useEffect(() => {
     selectedOptionRef.current = selectedOption;
+    if (!selectedOption) return;
     const el = optionsRef.current?.querySelector(`[data-option-key="${selectedOption}"]`) as HTMLButtonElement | null;
 
     el?.scrollIntoView({
@@ -384,8 +399,8 @@ export function SlashPanel ({
 
       switch (key) {
         case 'Enter':
+          e.preventDefault();
           if (selectedOptionRef.current) {
-            e.preventDefault();
             handleSelectOption(selectedOptionRef.current);
             const item = options.find((option) => option.key === selectedOptionRef.current);
 
@@ -417,6 +432,11 @@ export function SlashPanel ({
       slateDom.removeEventListener('keydown', handleKeyDown);
     };
   }, [closePanel, editor, open, options, handleSelectOption]);
+
+  useEffect(() => {
+    if (options.length > 0) return;
+    setSelectedOption(null);
+  }, [options.length]);
 
   return (
     <Popover

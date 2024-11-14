@@ -33,7 +33,7 @@ import {
 } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
-  BlockType,
+  BlockType, Mention,
   MentionType,
   TodoListBlockData,
   ToggleListBlockData,
@@ -330,7 +330,7 @@ export const CustomEditor = {
   addMark (editor: ReactEditor, {
     key, value,
   }: {
-    key: EditorMarkFormat, value: boolean | string
+    key: EditorMarkFormat, value: boolean | string | Mention
   }) {
     editor.addMark(key, value);
   },

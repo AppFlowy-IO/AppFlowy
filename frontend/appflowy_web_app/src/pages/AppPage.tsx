@@ -36,6 +36,7 @@ function AppPage () {
     addPage,
     deletePage,
     openPageModal,
+    loadViews,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -137,9 +138,10 @@ function AppPage () {
         addPage={addPage}
         deletePage={deletePage}
         openPageModal={openPageModal}
+        loadViews={loadViews}
       />
     ) : skeleton;
-  }, [addPage, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
+  }, [addPage, loadViews, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;

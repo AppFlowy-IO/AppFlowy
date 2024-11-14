@@ -928,9 +928,10 @@ export interface ViewComponentProps {
   appendBreadcrumb?: AppendBreadcrumb;
   onRendered?: () => void;
   updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
-  addPage?: (parentId: string, layout: ViewLayout) => Promise<string>;
+  addPage?: (parentId: string, layout: ViewLayout, name?: string) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
   variant?: UIVariant;
   isTemplateThumb?: boolean;
+  loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
 }

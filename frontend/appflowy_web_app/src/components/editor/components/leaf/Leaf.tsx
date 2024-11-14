@@ -50,7 +50,7 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
     style['fontFamily'] = getFontFamily(leaf.font_family);
   }
 
-  if (leaf.mention || leaf.formula) {
+  if (text.text && (leaf.mention || leaf.formula)) {
     style['position'] = 'relative';
     const node = leaf.mention ? <MentionLeaf
       text={text}
@@ -71,8 +71,9 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
   }
 
   return (
-    <span {...attributes} style={style}
-          className={`${classList.join(' ')}`}
+    <span
+      {...attributes} style={style}
+      className={`${classList.join(' ')}`}
     >
       {newChildren}
     </span>

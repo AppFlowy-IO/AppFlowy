@@ -121,6 +121,20 @@ export function findView (data: View[], targetId: string): View | null {
   return null;
 }
 
+export function flattenViews (views: View[]): View[] {
+  const result: View[] = [];
+
+  for (const view of views) {
+    result.push(view);
+
+    if (view.children) {
+      result.push(...flattenViews(view.children));
+    }
+  }
+
+  return result;
+}
+
 export function getOutlineExpands () {
   const expandView = localStorage.getItem('outline_expanded');
 
