@@ -2,6 +2,7 @@
 
 import 'dart:ffi';
 import 'dart:io';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/foundation.dart' as Foundation;

@@ -81,7 +81,7 @@ final toggleHeading1SlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_h1_s,
+    data: FlowySvgs.toggle_heading1_s,
     isSelected: isSelected,
     style: style,
   ),
@@ -99,7 +99,7 @@ final toggleHeading2SlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_h2_s,
+    data: FlowySvgs.toggle_heading2_s,
     isSelected: isSelected,
     style: style,
   ),
@@ -117,7 +117,7 @@ final toggleHeading3SlashMenuItem = SelectionMenuItem(
   getName: () => LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_h3_s,
+    data: FlowySvgs.toggle_heading3_s,
     isSelected: isSelected,
     style: style,
   ),

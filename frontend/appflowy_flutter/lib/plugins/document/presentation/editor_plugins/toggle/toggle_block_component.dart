@@ -341,6 +341,7 @@ class _ToggleListBlockComponentWidgetState
       ..updateNode(node, {
         ToggleListBlockKeys.collapsed: !collapsed,
       });
+    transaction.afterSelection = editorState.selection;
     await editorState.apply(transaction);
   }
 }
