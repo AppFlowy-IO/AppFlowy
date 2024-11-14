@@ -123,7 +123,6 @@ dependencies:
   share_plus: ^10.0.2
   shared_preferences: ^2.2.2
   sheet:
-  shimmer: ^3.0.0
   sized_context: ^1.0.0+4
   string_validator: ^1.0.0
   styled_widget: ^0.4.1

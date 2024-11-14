@@ -1,28 +1,30 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bubble_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ChatUserMessageBubble extends StatelessWidget {
   const ChatUserMessageBubble({
     super.key,
     required this.message,
     required this.child,
+    this.isCurrentUser = true,
   });
 
   final Message message;
   final Widget child;
+  final bool isCurrentUser;
 
   @override
   Widget build(BuildContext context) {
-    const borderRadius = BorderRadius.all(Radius.circular(6));
-    final backgroundColor =
-        Theme.of(context).colorScheme.surfaceContainerHighest;
     if (context.read<ChatMemberBloc>().state.members[message.author.id] ==
         null) {
       context
@@ -36,57 +38,77 @@ class ChatUserMessageBubble extends StatelessWidget {
       ),
       child: BlocBuilder<ChatUserMessageBubbleBloc, ChatUserMessageBubbleState>(
         builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (state.files.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.only(right: defaultAvatarSize + 32),
-                  child: _MessageFileList(files: state.files),
-                ),
-                const VSpace(6),
-              ],
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: borderRadius,
-                        color: backgroundColor,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        child: child,
-                      ),
-                    ),
-                  ),
+          return Padding(
+            padding: UniversalPlatform.isMobile
+                ? const EdgeInsets.symmetric(horizontal: 16)
+                : EdgeInsets.zero,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (state.files.isNotEmpty) ...[
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: BlocConsumer<ChatMemberBloc, ChatMemberState>(
-                      listenWhen: (previous, current) =>
-                          previous.members[message.author.id] !=
-                          current.members[message.author.id],
-                      listener: (context, state) {},
-                      builder: (context, state) {
-                        final member = state.members[message.author.id];
-                        return ChatUserAvatar(
-                          iconUrl: member?.info.avatarUrl ?? "",
-                          name: member?.info.name ?? "",
-                        );
-                      },
-                    ),
+                    padding: const EdgeInsets.only(right: 32),
+                    child: _MessageFileList(files: state.files),
                   ),
+                  const VSpace(6),
                 ],
-              ),
-            ],
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: getChildren(context),
+                ),
+              ],
+            ),
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> getChildren(BuildContext context) {
+    if (isCurrentUser) {
+      return [
+        const Spacer(),
+        _buildBubble(context),
+        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        _buildAvatar(),
+      ];
+    } else {
+      return [
+        _buildAvatar(),
+        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        _buildBubble(context),
+        const Spacer(),
+      ];
+    }
+  }
+
+  Widget _buildAvatar() {
+    return BlocBuilder<ChatMemberBloc, ChatMemberState>(
+      builder: (context, state) {
+        final member = state.members[message.author.id];
+        return ChatUserAvatar(
+          iconUrl: member?.info.avatarUrl ?? "",
+          name: member?.info.name ?? "",
+        );
+      },
+    );
+  }
+
+  Widget _buildBubble(BuildContext context) {
+    return Flexible(
+      flex: 5,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
+        ),
+        child: child,
       ),
     );
   }
@@ -137,7 +159,11 @@ class _MessageFile extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox.square(dimension: 16, child: file.fileType.icon),
+            FlowySvg(
+              FlowySvgs.page_m,
+              size: const Size.square(16),
+              color: Theme.of(context).hintColor,
+            ),
             const HSpace(6),
             Flexible(
               child: ConstrainedBox(

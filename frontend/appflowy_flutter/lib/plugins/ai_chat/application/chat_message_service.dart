@@ -11,7 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:nanoid/nanoid.dart';
 
 /// Indicate file source from appflowy document
-const appflowySoruce = "appflowy";
+const appflowySource = "appflowy";
 
 List<ChatFile> fileListFromMessageMetadata(
   Map<String, dynamic>? map,
@@ -119,7 +119,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
                   name: view.name,
                   data: pb.text,
                   dataType: ChatMessageMetaTypePB.Txt,
-                  source: appflowySoruce,
+                  source: appflowySource,
                 ),
               );
             }, (err) {

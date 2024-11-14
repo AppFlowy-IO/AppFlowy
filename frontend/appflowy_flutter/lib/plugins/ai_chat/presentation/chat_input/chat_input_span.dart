@@ -65,9 +65,7 @@ class AtText extends SpecialText {
       style: textStyle,
       recognizer: (TapGestureRecognizer()
         ..onTap = () {
-          if (onTap != null) {
-            onTap!(atText);
-          }
+          onTap?.call(atText);
         }),
     );
   }
