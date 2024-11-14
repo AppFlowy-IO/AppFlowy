@@ -204,9 +204,12 @@ class _SidebarSwitchWorkspaceButtonState
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithLeftAligned,
+      direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 5),
       constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
       controller: _popoverController,
       triggerActions: PopoverTriggerFlags.none,
       onOpen: () {

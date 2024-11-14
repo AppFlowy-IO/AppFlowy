@@ -237,8 +237,8 @@ class _IconPickerState extends State<IconPicker> {
               ).toList(),
             ),
             const VSpace(12.0),
-            if (index == widget.iconGroups.length - 1) ...[
-              const _StreamlinePermit(),
+            if (index == kIconGroups!.length - 1) ...[
+              const StreamlinePermit(),
               const VSpace(12.0),
             ],
           ],
@@ -319,8 +319,10 @@ class _IconState extends State<_Icon> {
   }
 }
 
-class _StreamlinePermit extends StatelessWidget {
-  const _StreamlinePermit();
+class StreamlinePermit extends StatelessWidget {
+  const StreamlinePermit({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

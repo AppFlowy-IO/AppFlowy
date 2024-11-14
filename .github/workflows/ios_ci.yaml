@@ -22,7 +22,6 @@ on:
 env:
   FLUTTER_VERSION: "3.22.0"
   RUST_TOOLCHAIN: "1.80.1"
-  CLOUD_VERSION: 0.6.51
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -112,6 +111,7 @@ jobs:
           kill $pid
         continue-on-error: true
 
+      # Integration tests
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter
         # The integration tests are flaky and sometimes fail with "Connection timed out":

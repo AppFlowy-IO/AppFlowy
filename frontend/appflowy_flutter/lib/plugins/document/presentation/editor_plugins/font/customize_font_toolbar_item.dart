@@ -14,7 +14,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -23,6 +22,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const kFontToolbarItemId = 'editor.font';
+
+@visibleForTesting
+const kFontFamilyToolbarItemKey = ValueKey('FontFamilyToolbarItem');
 
 final customizeFontToolbarItem = ToolbarItem(
   id: kFontToolbarItemId,
@@ -40,7 +42,6 @@ final customizeFontToolbarItem = ToolbarItem(
       popoverController: popoverController,
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () => keepEditorFocusNotifier.decrease(),
-      showResetButton: true,
       onFontFamilyChanged: (fontFamily) async {
         popoverController.close();
         try {
@@ -57,6 +58,7 @@ final customizeFontToolbarItem = ToolbarItem(
             .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
       },
       child: FlowyButton(
+        key: kFontFamilyToolbarItemKey,
         useIntrinsicWidth: true,
         hoverColor: Colors.grey.withOpacity(0.3),
         onTap: () => popoverController.show(),
@@ -89,7 +91,7 @@ class ThemeFontFamilySetting extends StatefulWidget {
 
   final String currentFontFamily;
   static Key textFieldKey = const Key('FontFamilyTextField');
-  static Key resetButtonkey = const Key('FontFamilyResetButton');
+  static Key resetButtonKey = const Key('FontFamilyResetButton');
   static Key popoverKey = const Key('FontFamilyPopover');
 
   @override
@@ -101,7 +103,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   Widget build(BuildContext context) {
     return SettingListTile(
       label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
-      resetButtonKey: ThemeFontFamilySetting.resetButtonkey,
+      resetButtonKey: ThemeFontFamilySetting.resetButtonKey,
       onResetRequested: () {
         context.read<AppearanceSettingsCubit>().resetFontFamily();
         context
@@ -125,7 +127,6 @@ class FontFamilyDropDown extends StatefulWidget {
     this.child,
     this.popoverController,
     this.offset,
-    this.showResetButton = false,
     this.onResetFont,
   });
 
@@ -136,7 +137,6 @@ class FontFamilyDropDown extends StatefulWidget {
   final Widget? child;
   final PopoverController? popoverController;
   final Offset? offset;
-  final bool showResetButton;
   final VoidCallback? onResetFont;
 
   @override
@@ -174,11 +174,6 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         return CustomScrollView(
           shrinkWrap: true,
           slivers: [
-            if (widget.showResetButton)
-              SliverPersistentHeader(
-                delegate: _ResetFontButton(onPressed: widget.onResetFont),
-                pinned: true,
-              ),
             SliverPadding(
               padding: const EdgeInsets.only(right: 8),
               sliver: SliverToBoxAdapter(
@@ -269,38 +264,4 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
       ),
     );
   }
-}
-
-class _ResetFontButton extends SliverPersistentHeaderDelegate {
-  _ResetFontButton({this.onPressed});
-
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8, bottom: 8.0),
-      child: FlowyTextButton(
-        LocaleKeys.document_toolbar_resetToDefaultFont.tr(),
-        fontColor: AFThemeExtension.of(context).textColor,
-        fontHoverColor: Theme.of(context).colorScheme.onSurface,
-        fontSize: 12,
-        onPressed: onPressed,
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 35;
-
-  @override
-  double get minExtent => 35;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      true;
 }
