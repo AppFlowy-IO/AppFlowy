@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
@@ -19,6 +17,7 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
@@ -180,6 +179,32 @@ class _AddBlockMenu extends StatelessWidget {
         text: LocaleKeys.editor_toggleListShortForm.tr(),
         icon: FlowySvgs.m_add_block_toggle_s,
         onTap: (_, __) => _insertBlock(toggleListBlockNode()),
+      ),
+
+      // toggle headings
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
+        icon: FlowySvgs.toggle_heading1_s,
+        iconPadding: const EdgeInsets.all(3),
+        onTap: (_, __) => _insertBlock(toggleHeadingNode()),
+      ),
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
+        icon: FlowySvgs.toggle_heading2_s,
+        iconPadding: const EdgeInsets.all(3),
+        onTap: (_, __) => _insertBlock(toggleHeadingNode(level: 2)),
+      ),
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
+        icon: FlowySvgs.toggle_heading3_s,
+        iconPadding: const EdgeInsets.all(3),
+        onTap: (_, __) => _insertBlock(toggleHeadingNode(level: 3)),
       ),
 
       // image
