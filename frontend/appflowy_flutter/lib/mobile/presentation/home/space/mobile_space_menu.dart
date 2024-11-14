@@ -460,7 +460,7 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
           message: LocaleKeys.space_success_deleteSpace.tr(),
         );
 
-        context.popToHome();
+        Navigator.pop(context);
       },
     );
   }
