@@ -160,8 +160,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
 
   RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
 
-  late EditorDropManagerState dropManagerState =
-      context.read<EditorDropManagerState>();
+  late EditorDropManagerState? dropManagerState = UniversalPlatform.isMobile
+      ? null
+      : context.read<EditorDropManagerState>();
 
   final fileKey = GlobalKey();
   final showActionsNotifier = ValueNotifier<bool>(false);
@@ -176,7 +177,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
 
   @override
   void didChangeDependencies() {
-    dropManagerState = context.read<EditorDropManagerState>();
+    if (!UniversalPlatform.isMobile) {
+      dropManagerState = context.read<EditorDropManagerState>();
+    }
     super.didChangeDependencies();
   }
 
@@ -240,17 +243,17 @@ class FileBlockComponentState extends State<FileBlockComponent>
       if (url == null || url.isEmpty) {
         child = DropTarget(
           onDragEntered: (_) {
-            if (dropManagerState.isDropEnabled) {
+            if (dropManagerState?.isDropEnabled == true) {
               setState(() => isDragging = true);
             }
           },
           onDragExited: (_) {
-            if (dropManagerState.isDropEnabled) {
+            if (dropManagerState?.isDropEnabled == true) {
               setState(() => isDragging = false);
             }
           },
           onDragDone: (details) {
-            if (dropManagerState.isDropEnabled) {
+            if (dropManagerState?.isDropEnabled == true) {
               insertFileFromLocal(details.files);
             }
           },
@@ -263,8 +266,8 @@ class FileBlockComponentState extends State<FileBlockComponent>
               minHeight: 80,
             ),
             clickHandler: PopoverClickHandler.gestureDetector,
-            onOpen: () => dropManagerState.add(FileBlockKeys.type),
-            onClose: () => dropManagerState.remove(FileBlockKeys.type),
+            onOpen: () => dropManagerState?.add(FileBlockKeys.type),
+            onClose: () => dropManagerState?.remove(FileBlockKeys.type),
             popupBuilder: (_) => FileUploadMenu(
               onInsertLocalFile: insertFileFromLocal,
               onInsertNetworkFile: insertNetworkFile,
@@ -342,7 +345,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
   void _openMenu() {
     if (UniversalPlatform.isDesktopOrWeb) {
       controller.show();
-      dropManagerState.add(FileBlockKeys.type);
+      dropManagerState?.add(FileBlockKeys.type);
     } else {
       showUploadFileMobileMenu();
     }
@@ -502,7 +505,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
 
     // Remove the file block from the drop state manager
-    dropManagerState.remove(FileBlockKeys.type);
+    dropManagerState?.remove(FileBlockKeys.type);
 
     final transaction = editorState.transaction;
     transaction.updateNode(widget.node, {
@@ -524,7 +527,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
 
     // Remove the file block from the drop state manager
-    dropManagerState.remove(FileBlockKeys.type);
+    dropManagerState?.remove(FileBlockKeys.type);
 
     final uri = Uri.tryParse(url);
     if (uri == null) {
