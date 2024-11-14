@@ -41,7 +41,7 @@ class TypeOptionMenu<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _GridView(
+    return TypeOptionGridView(
       crossAxisCount: crossAxisCount,
       mainAxisSpacing: maxAxisSpacing * scaleFactor,
       itemWidth: width * scaleFactor,
@@ -120,8 +120,9 @@ class TypeOptionMenuItem<T> extends StatelessWidget {
   }
 }
 
-class _GridView extends StatelessWidget {
-  const _GridView({
+class TypeOptionGridView extends StatelessWidget {
+  const TypeOptionGridView({
+    super.key,
     required this.children,
     required this.crossAxisCount,
     required this.mainAxisSpacing,
