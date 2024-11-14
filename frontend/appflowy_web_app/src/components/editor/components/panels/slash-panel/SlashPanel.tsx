@@ -301,7 +301,6 @@ export function SlashPanel ({
       keywords: ['file', 'upload'],
       onClick: () => {
         turnInto(BlockType.FileBlock, {});
-
       },
     }, {
       label: t('document.menuName'),

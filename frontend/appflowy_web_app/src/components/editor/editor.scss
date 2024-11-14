@@ -7,7 +7,7 @@
 
 .block-element {
   .embed-block {
-    @apply z-[10] hover:bg-content-blue-50 flex relative w-full gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active;
+    @apply z-[1] hover:bg-content-blue-50 flex relative w-full gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active;
   }
 
   .math-equation-block, .gallery-block {

@@ -34,8 +34,14 @@ function FormulaLeaf ({ formula, text }: {
   }, [open, readonly, isSelected, isCursorAfter, isCursorBefore]);
 
   const handleClose = useCallback(() => {
+    window.getSelection()?.removeAllRanges();
+    const path = ReactEditor.findPath(editor, text);
+
+    editor.select(editor.end(path));
+    ReactEditor.focus(editor);
+
     setAnchorPosition(undefined);
-  }, []);
+  }, [editor, text]);
 
   const openPopover = useCallback(() => {
     if (readonly) return;
@@ -77,9 +83,7 @@ function FormulaLeaf ({ formula, text }: {
     <>
       <span
         ref={ref}
-        onClick={e => {
-          e.preventDefault();
-          e.stopPropagation();
+        onClick={() => {
           openPopover();
         }}
         contentEditable={false}

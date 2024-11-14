@@ -7,7 +7,7 @@ import {
   useSelectionToolbarContext,
 } from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { PopoverProps } from '@mui/material/Popover';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ActionButton from './ActionButton';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
@@ -113,6 +113,12 @@ export function Heading () {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement | null>(null);
 
+  useEffect(() => {
+    if (!toolbarVisible) {
+      setOpen(false);
+    }
+  }, [toolbarVisible]);
+
   return (
     <div className={'flex items-center justify-center'}>
       <ActionButton
@@ -130,14 +136,14 @@ export function Heading () {
         </div>
 
       </ActionButton>
-      <Popover
+      {toolbarVisible && <Popover
         disableAutoFocus={true}
         disableEnforceFocus={true}
         disableRestoreFocus={true}
         onClose={() => {
           setOpen(false);
         }}
-        open={open && toolbarVisible}
+        open={open}
         anchorEl={ref.current}
         {...popoverProps}
       >
@@ -164,7 +170,8 @@ export function Heading () {
             <Heading3Svg />
           </ActionButton>
         </div>
-      </Popover>
+      </Popover>}
+
 
     </div>
   );

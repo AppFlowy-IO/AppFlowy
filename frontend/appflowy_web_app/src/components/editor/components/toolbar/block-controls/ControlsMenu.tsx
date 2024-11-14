@@ -1,16 +1,20 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
+import { BlockType } from '@/application/types';
+import { ReactComponent as DuplicateIcon } from '@/assets/duplicate.svg';
+import { ReactComponent as CopyLinkIcon } from '@/assets/link.svg';
+import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
+import Depth from '@/components/editor/components/toolbar/block-controls/Depth';
+import { OutlineNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { copyTextToClipboard } from '@/utils/copy';
 import { Button } from '@mui/material';
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
-import { ReactComponent as DuplicateIcon } from '@/assets/duplicate.svg';
-import { ReactComponent as CopyLinkIcon } from '@/assets/link.svg';
 import { useSlateStatic } from 'slate-react';
 
 const popoverProps: Partial<PopoverProps> = {
@@ -38,6 +42,12 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
 
   const { setSelectedBlockId } = useEditorContext();
   const editor = useSlateStatic() as YjsEditor;
+  const node = useMemo(() => {
+    return findSlateEntryByBlockId(editor, blockId)[0];
+  }, [blockId, editor]);
+
+  const nodeType = node.type as BlockType;
+
   const { t } = useTranslation();
   const options = useMemo(() => {
     return [{
@@ -46,7 +56,6 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
       icon: <DeleteIcon />,
       onClick: () => {
         CustomEditor.deleteBlock(editor, blockId);
-
         setSelectedBlockId?.(undefined);
       },
     }, {
@@ -102,6 +111,10 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
             </Button>
           );
         })}
+
+        {nodeType === BlockType.OutlineBlock && (
+          <Depth node={node as OutlineNode} />
+        )}
       </div>
     </Popover>
   );

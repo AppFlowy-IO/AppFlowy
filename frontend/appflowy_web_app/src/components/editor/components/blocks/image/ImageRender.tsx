@@ -1,12 +1,14 @@
-import { notify } from '@/components/_shared/notify';
-import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
+import { YjsEditor } from '@/application/slate-yjs';
+import { CustomEditor } from '@/application/slate-yjs/command';
+import ImageResizer from '@/components/editor/components/blocks/image/ImageResizer';
 import ImageToolbar from '@/components/editor/components/blocks/image/ImageToolbar';
 import { ImageBlockNode } from '@/components/editor/editor.type';
-import { copyTextToClipboard } from '@/utils/copy';
+import { debounce } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@mui/material';
 import { ReactComponent as ErrorOutline } from '@/assets/error.svg';
+import { useSlateStatic } from 'slate-react';
 
 const MIN_WIDTH = 100;
 
@@ -21,13 +23,14 @@ function ImageRender ({
 }) {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const editor = useSlateStatic() as YjsEditor;
 
   const imgRef = useRef<HTMLImageElement>(null);
   const { url = '', width: imageWidth } = useMemo(() => node.data || {}, [node.data]);
   const { t } = useTranslation();
   const blockId = node.blockId;
   const [initialWidth, setInitialWidth] = useState<number | null>(null);
-  const [newWidth] = useState<number | null>(imageWidth ?? null);
+  const [newWidth, setNewWidth] = useState<number | null>(imageWidth ?? null);
 
   useEffect(() => {
     if (!loading && !hasError && initialWidth === null && imgRef.current) {
@@ -69,6 +72,22 @@ function ImageRender ({
     );
   }, [t]);
 
+  const debounceSubmitWidth = useMemo(() => {
+    return debounce((newWidth: number) => {
+      CustomEditor.setBlockData(editor, node.blockId, {
+        width: newWidth,
+      });
+    }, 300);
+  }, [editor, node]);
+
+  const handleWidthChange = useCallback(
+    (newWidth: number) => {
+      setNewWidth(newWidth);
+      debounceSubmitWidth(newWidth);
+    },
+    [debounceSubmitWidth],
+  );
+
   if (!url) return null;
 
   return (
@@ -83,6 +102,21 @@ function ImageRender ({
         loading={'lazy'} {...imageProps}
         alt={`image-${blockId}`}
       />
+      {initialWidth && (
+        <>
+          <ImageResizer
+            isLeft
+            minWidth={MIN_WIDTH}
+            width={imageWidth ?? initialWidth}
+            onWidthChange={handleWidthChange}
+          />
+          <ImageResizer
+            minWidth={MIN_WIDTH}
+            width={imageWidth ?? initialWidth}
+            onWidthChange={handleWidthChange}
+          />
+        </>
+      )}
       {showToolbar && <ImageToolbar node={node} />}
       {hasError ? renderErrorNode() : loading ? <Skeleton
         variant="rounded"

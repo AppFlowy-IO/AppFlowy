@@ -1,10 +1,9 @@
 import { BlockType } from '@/application/types';
 import { ReactComponent as FileIcon } from '@/assets/file_upload.svg';
 import { notify } from '@/components/_shared/notify';
-import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
+import FileToolbar from '@/components/editor/components/blocks/file/FileToolbar';
 import { EditorElementProps, FileNode } from '@/components/editor/editor.type';
-import { copyTextToClipboard } from '@/utils/copy';
 import { downloadFile } from '@/utils/download';
 import React, { forwardRef, memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -92,18 +91,7 @@ export const FileBlock = memo(
           </div>
 
           {showToolbar && url && (
-            <RightTopActionsToolbar
-              onDownload={handleClick}
-              onCopy={async () => {
-                if (!url) return;
-                try {
-                  await copyTextToClipboard(url);
-                  notify.success(t('publish.copy.fileBlock'));
-                } catch (_) {
-                  // do nothing
-                }
-              }}
-            />
+            <FileToolbar node={node} />
           )}
         </div>
         <div

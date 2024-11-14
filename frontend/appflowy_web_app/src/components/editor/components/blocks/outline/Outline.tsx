@@ -61,7 +61,7 @@ export const Outline = memo(
         {...attributes}
         contentEditable={readOnly ? false : undefined}
         ref={ref}
-        className={`outline-block relative my-2 px-1 ${className || ''}`}
+        className={`outline-block relative px-2 ${className || ''}`}
       >
         <div
           className={'absolute left-0 top-0 select-none caret-transparent'}
