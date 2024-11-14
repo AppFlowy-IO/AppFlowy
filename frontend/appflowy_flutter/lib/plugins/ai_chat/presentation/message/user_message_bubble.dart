@@ -69,6 +69,7 @@ class ChatUserMessageBubble extends StatelessWidget {
   List<Widget> getChildren(BuildContext context) {
     if (isCurrentUser) {
       return [
+        const Spacer(),
         _buildBubble(context),
         const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
         _buildAvatar(),
@@ -78,6 +79,7 @@ class ChatUserMessageBubble extends StatelessWidget {
         _buildAvatar(),
         const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
         _buildBubble(context),
+        const Spacer(),
       ];
     }
   }
@@ -96,10 +98,8 @@ class ChatUserMessageBubble extends StatelessWidget {
 
   Widget _buildBubble(BuildContext context) {
     return Flexible(
+      flex: 5,
       child: Container(
-        constraints: BoxConstraints(
-          maxWidth: UniversalPlatform.isDesktop ? 440 : 224,
-        ),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(16.0)),
           color: Theme.of(context).colorScheme.surfaceContainerHighest,

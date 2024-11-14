@@ -9,7 +9,8 @@ class AFDefaultChatTheme extends ChatTheme {
     required super.secondaryColor,
   }) : super(
           backgroundColor: Colors.transparent,
-          bubbleMargin: EdgeInsets.zero,
+          // TODO: think how to offset the default 12 pixels set by chat package
+          bubbleMargin: const EdgeInsets.symmetric(vertical: 4.0),
           messageMaxWidth: double.infinity,
           // unused
           dateDividerMargin: EdgeInsets.zero,
@@ -64,8 +65,8 @@ class AFDefaultChatTheme extends ChatTheme {
           ),
           typingIndicatorTheme: const TypingIndicatorTheme(
             animatedCirclesColor: neutral1,
-            animatedCircleSize: 5.0,
-            bubbleBorder: BorderRadius.all(Radius.circular(27.0)),
+            animatedCircleSize: 0.0,
+            bubbleBorder: BorderRadius.zero,
             bubbleColor: neutral7,
             countAvatarColor: primary,
             countTextColor: secondary,

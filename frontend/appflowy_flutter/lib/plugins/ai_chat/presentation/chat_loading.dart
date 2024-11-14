@@ -22,7 +22,7 @@ class ChatAILoading extends StatelessWidget {
         separatorBuilder: () => const HSpace(4),
         children: [
           Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8.0),
+            padding: const EdgeInsetsDirectional.only(end: 4.0),
             child: FlowyText(
               LocaleKeys.chat_generatingResponse.tr(),
               color: Theme.of(context).hintColor,

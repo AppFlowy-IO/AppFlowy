@@ -79,6 +79,7 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
                       radius: BorderRadius.circular(8.0),
                       text: FlowyText(
                         m.name,
+                        fontSize: 12,
                         overflow: TextOverflow.ellipsis,
                       ),
                       leftIcon: FlowySvg(

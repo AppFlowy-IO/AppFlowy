@@ -24,7 +24,10 @@ class RelatedQuestionList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: relatedQuestions.length + 1,
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 8.0) +
+          (UniversalPlatform.isMobile
+              ? const EdgeInsets.symmetric(horizontal: 16)
+              : EdgeInsets.zero),
       separatorBuilder: (context, index) => const VSpace(4.0),
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -63,6 +66,7 @@ class RelatedQuestionItem extends StatelessWidget {
       text: FlowyText(
         question.content,
         lineHeight: 1.4,
+        overflow: TextOverflow.ellipsis,
       ),
       margin: UniversalPlatform.isMobile
           ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
