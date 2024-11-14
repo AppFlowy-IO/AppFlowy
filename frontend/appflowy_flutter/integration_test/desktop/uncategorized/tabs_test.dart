@@ -25,13 +25,8 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
-      expect(
-        find.descendant(
-          of: find.byType(TabsManager),
-          matching: find.byType(TabBar),
-        ),
-        findsNothing,
-      );
+      // No tabs rendered yet
+      expect(find.byType(FlowyTab), findsNothing);
 
       await tester.createNewPageWithNameUnderParent(name: _documentName);
 
@@ -72,7 +67,7 @@ void main() {
 
       expect(
         find.descendant(
-          of: find.byType(TabBar),
+          of: find.byType(TabsManager),
           matching: find.byType(FlowyTab),
         ),
         findsNWidgets(2),
