@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -18,7 +20,12 @@ void main() {
 
       final editorState = tester.editor.getCurrentEditorState();
       // focus on the editor
-      editorState.selection = Selection.collapsed(Position(path: [0]));
+      unawaited(
+        editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: [0])),
+          reason: SelectionUpdateReason.uiEvent,
+        ),
+      );
       await tester.pumpAndSettle();
 
       // open the plus menu and select the toggle heading block
@@ -39,7 +46,12 @@ void main() {
       );
 
       // focus on the next line
-      editorState.selection = Selection.collapsed(Position(path: [1]));
+      unawaited(
+        editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: [1])),
+          reason: SelectionUpdateReason.uiEvent,
+        ),
+      );
       await tester.pumpAndSettle();
 
       // open the plus menu and select the toggle heading block
@@ -53,7 +65,6 @@ void main() {
       expect(block2.attributes[ToggleListBlockKeys.level], equals(2));
 
       // focus on the next line
-      editorState.selection = Selection.collapsed(Position(path: [2]));
       await tester.pumpAndSettle();
 
       // open the plus menu and select the toggle heading block
@@ -65,6 +76,14 @@ void main() {
       final block3 = editorState.getNodeAtPath([2])!;
       expect(block3.type, equals(ToggleListBlockKeys.type));
       expect(block3.attributes[ToggleListBlockKeys.level], equals(3));
+
+      // wait a few milliseconds to ensure the selection is updated
+      await Future.delayed(const Duration(milliseconds: 100));
+      // check the selection is collapsed
+      expect(
+        editorState.selection,
+        equals(Selection.collapsed(Position(path: [2]))),
+      );
     });
   });
 }

@@ -109,7 +109,10 @@ class AddBlockMenu extends StatelessWidget {
         if (selection.isCollapsed) {
           final currentNode = editorState.getNodeAtPath(selection.end.path);
           final text = currentNode?.delta?.toPlainText();
-          if (currentNode != null && text != null && text.isEmpty) {
+          if (currentNode != null &&
+              currentNode.type == ParagraphBlockKeys.type &&
+              text != null &&
+              text.isEmpty) {
             final transaction = editorState.transaction;
             transaction.insertNode(
               selection.end.path.next,
