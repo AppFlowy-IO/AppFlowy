@@ -3,6 +3,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ToggleListBlockKeys {
   const ToggleListBlockKeys._();
@@ -302,34 +303,36 @@ class _ToggleListBlockComponentWidgetState
   }
 
   Widget _buildExpandIcon() {
-    const buttonHeight = 22.0;
-    double top = 0.0;
+    double buttonHeight = UniversalPlatform.isDesktop ? 22.0 : 26.0;
 
     if (level != null) {
       // top padding * 2 + button height = height of the heading text
       final textStyle = widget.textStyleBuilder?.call(level ?? 1);
       final fontSize = textStyle?.fontSize;
       final lineHeight = textStyle?.height ?? 1.5;
+
       if (fontSize != null) {
-        top = (fontSize * lineHeight - buttonHeight) / 2;
+        buttonHeight = fontSize * lineHeight;
       }
     }
 
     return Container(
-      constraints: const BoxConstraints(
+      constraints: BoxConstraints(
         minWidth: 26,
         minHeight: buttonHeight,
       ),
-      padding: EdgeInsets.only(top: top, right: 4.0),
       child: FlowyIconButton(
         width: 20.0,
         onPressed: onCollapsed,
-        icon: AnimatedRotation(
-          turns: collapsed ? 0.0 : 0.25,
-          duration: const Duration(milliseconds: 200),
-          child: const Icon(
-            Icons.arrow_right,
-            size: 18.0,
+        icon: Container(
+          padding: const EdgeInsets.only(right: 4.0),
+          child: AnimatedRotation(
+            turns: collapsed ? 0.0 : 0.25,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(
+              Icons.arrow_right,
+              size: 18.0,
+            ),
           ),
         ),
       ),

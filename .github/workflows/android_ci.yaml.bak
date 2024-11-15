@@ -1,126 +1,197 @@
-# name: Android CI
+name: Android CI
 
-# on:
-#   push:
-#     branches:
-#       - "main"
-#     paths:
-#       - ".github/workflows/mobile_ci.yaml"
-#       - "frontend/**"
-#       - "!frontend/appflowy_tauri/**"
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/mobile_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
-#   pull_request:
-#     branches:
-#       - "main"
-#     paths:
-#       - ".github/workflows/mobile_ci.yaml"
-#       - "frontend/**"
-#       - "!frontend/appflowy_tauri/**"
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/mobile_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
-# env:
-#   CARGO_TERM_COLOR: always
-#   FLUTTER_VERSION: "3.22.0"
-#   RUST_TOOLCHAIN: "1.77.2"
-#   CARGO_MAKE_VERSION: "0.36.6"
+env:
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.22.3"
+  RUST_TOOLCHAIN: "1.80.1"
+  CARGO_MAKE_VERSION: "0.37.18"
+  CLOUD_VERSION: 0.6.54-amd64
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
-# jobs:
-#   build:
-#     if: github.event.pull_request.draft != true
-#     strategy:
-#       fail-fast: true
-#       matrix:
-#         os: [macos-14]
-#     runs-on: ${{ matrix.os }}
+jobs:
+  build:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
 
-#     steps:
-#       - name: Check storage space
-#         run: df -h
+    steps:
+      - name: Check storage space
+        run:
+          df -h
 
-#           # the following step is required to avoid running out of space
-#       - name: Maximize build space
-#         if: matrix.os == 'ubuntu-latest'
-#         run: |
-#           sudo rm -rf /usr/share/dotnet
-#           sudo rm -rf /opt/ghc
-#           sudo rm -rf "/usr/local/share/boost"
-#           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-#           sudo docker image prune --all --force
-#           sudo rm -rf /opt/hostedtoolcache/codeQL
-#           sudo rm -rf ${GITHUB_WORKSPACE}/.git
-#           sudo rm -rf $ANDROID_HOME/ndk
+          # the following step is required to avoid running out of space
+      - name: Maximize build space
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
 
-#       - name: Check storage space
-#         run: df -h
+      - name: Check storage space
+        run: df -h
 
-#       - name: Checkout source code
-#         uses: actions/checkout@v4
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v4
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
 
-#       - uses: actions/setup-java@v4
-#         with:
-#           distribution: temurin
-#           java-version: 11
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          # log level
+          cp deploy.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
+          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
-#       - name: Install Rust toolchain
-#         id: rust_toolchain
-#         uses: actions-rs/toolchain@v1
-#         with:
-#           toolchain: ${{ env.RUST_TOOLCHAIN }}
-#           override: true
-#           profile: minimal
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        env:
+          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
+          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
+        run: |
+          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
+          if [ -z "$container_id" ]; then
+            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
+            docker compose pull
+            docker compose up -d
+            echo "Waiting for the container to be ready..."
+            sleep 10
+          else
+            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
+            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
+              echo "AppFlowy-Cloud is running with an incorrect version. Restarting with the correct version..."
+              # Remove all containers if any exist
+              if [ "$(docker ps -aq)" ]; then
+                docker rm -f $(docker ps -aq)
+              else
+                echo "No containers to remove."
+              fi
 
-#       - name: Install flutter
-#         id: flutter
-#         uses: subosito/flutter-action@v2
-#         with:
-#           channel: "stable"
-#           flutter-version: ${{ env.FLUTTER_VERSION }}
+              # Remove all volumes if any exist
+              if [ "$(docker volume ls -q)" ]; then
+                docker volume rm $(docker volume ls -q)
+              else
+                echo "No volumes to remove."
+              fi
+              docker compose pull
+              docker compose up -d
+              echo "Waiting for the container to be ready..."
+              sleep 10
+              docker ps -a
+              docker compose logs
+            else
+              echo "AppFlowy-Cloud is running with the correct version."
+            fi
+          fi
 
-#       - uses: gradle/gradle-build-action@v3
-#         with:
-#           gradle-version: 7.4.2
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-#       - uses: davidB/rust-cargo-make@v1
-#         with:
-#           version: "0.36.6"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
 
-#       - name: Install prerequisites
-#         working-directory: frontend
-#         run: |
-#           rustup target install aarch64-linux-android
-#           rustup target install x86_64-linux-android
-#           cargo install --force duckscript_cli
-#           cargo install cargo-ndk
-#           if [ "$RUNNER_OS" == "Linux" ]; then
-#             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-#             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-#             sudo apt-get update
-#             sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-#             sudo apt-get install keybinder-3.0 libnotify-dev
-#             sudo apt-get install gcc-multilib
-#           elif [ "$RUNNER_OS" == "Windows" ]; then
-#             vcpkg integrate install
-#           elif [ "$RUNNER_OS" == "macOS" ]; then
-#             echo 'do nothing'
-#           fi
-#           cargo make appflowy-flutter-deps-tools
-#         shell: bash
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          profile: minimal
 
-#       - name: Build AppFlowy
-#         working-directory: frontend
-#         run: |
-#           cargo make --profile development-android appflowy-android-dev-ci
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
+      - uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 8.10
 
-#       - name: Run integration tests
-#         # https://github.com/ReactiveCircus/android-emulator-runner
-#         uses: reactivecircus/android-emulator-runner@v2
-#         with:
-#           api-level: 32
-#           arch: arm64-v8a
-#           disk-size: 2048M
-#           working-directory: frontend/appflowy_flutter
-#           script: flutter test integration_test/runner.dart
+      - uses: davidB/rust-cargo-make@v1
+        with:
+          version: ${{ env.CARGO_MAKE_VERSION }}
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          rustup target install aarch64-linux-android
+          rustup target install x86_64-linux-android
+          rustup target add armv7-linux-androideabi
+          cargo install --force duckscript_cli
+          cargo install cargo-ndk
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+            sudo apt-get install keybinder-3.0 libnotify-dev
+            sudo apt-get install gcc-multilib
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            vcpkg integrate install
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo 'do nothing'
+          fi
+          cargo make appflowy-flutter-deps-tools
+        shell: bash
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile development-android appflowy-core-dev-android
+          cargo make --profile development-android code_generation
+          cd rust-lib
+          cargo clean
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run integration tests
+        # https://github.com/ReactiveCircus/android-emulator-runner
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          disk-size: 2048M
+          working-directory: frontend/appflowy_flutter
+          disable-animations: true
+          force-avd-creation: false
+          target: google_apis
+          script: flutter test integration_test/mobile/cloud/cloud_runner.dart

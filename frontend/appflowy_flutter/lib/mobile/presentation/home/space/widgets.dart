@@ -199,7 +199,6 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 14,
                       ),
                       child: _buildIconGroups(
                         context,
@@ -235,6 +234,7 @@ class _ManageSpaceIconOptionState extends State<ManageSpaceIconOption> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const VSpace(12.0),
             FlowyText(
               iconGroup.displayName.capitalize(),
               fontSize: 12,
