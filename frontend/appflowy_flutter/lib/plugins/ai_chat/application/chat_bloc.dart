@@ -86,7 +86,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           // Loading messages
           startLoadingPrevMessage: () async {
             Int64? beforeMessageId;
-            final oldestMessage = _getOlderstMessage();
+            final oldestMessage = _getOldestMessage();
             if (oldestMessage != null) {
               try {
                 beforeMessageId = Int64.parseInt(oldestMessage.id);
@@ -107,8 +107,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             Log.debug("did load previous messages: ${messages.length}");
             final onetimeMessages = _getOnetimeMessages();
             final allMessages = _permanentMessages();
-            final uniqueMessages = {...allMessages, ...messages}.toList()
-              ..sort((a, b) => b.id.compareTo(a.id));
+            final uniqueMessages = {...allMessages, ...messages}.toList();
 
             uniqueMessages.insertAll(0, onetimeMessages);
 
@@ -123,8 +122,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           didLoadLatestMessages: (List<Message> messages) {
             final onetimeMessages = _getOnetimeMessages();
             final allMessages = _permanentMessages();
-            final uniqueMessages = {...allMessages, ...messages}.toList()
-              ..sort((a, b) => b.id.compareTo(a.id));
+            final uniqueMessages = {...allMessages, ...messages}.toList();
             uniqueMessages.insertAll(0, onetimeMessages);
             emit(
               state.copyWith(
@@ -351,7 +349,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     return messages;
   }
 
-  Message? _getOlderstMessage() {
+  Message? _getOldestMessage() {
     // get the last message that is not a one-time message
     final message = state.messages.lastWhereOrNull((element) {
       return !(element.metadata?.containsKey(onetimeShotType) == true);
