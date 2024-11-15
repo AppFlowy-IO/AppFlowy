@@ -74,6 +74,13 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
           pathName,
           emit,
         ),
+        clearPathNameResult: () async {
+          emit(
+            state.copyWith(
+              updatePathNameResult: null,
+            ),
+          );
+        },
       );
     });
   }
@@ -381,6 +388,7 @@ class ShareEvent with _$ShareEvent {
   const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
   const factory ShareEvent.updatePathName(String pathName) = _UpdatePathName;
+  const factory ShareEvent.clearPathNameResult() = _ClearPathNameResult;
 }
 
 @freezed

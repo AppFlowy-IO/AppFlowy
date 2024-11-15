@@ -16,8 +16,11 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -226,10 +229,10 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     }
   }
 
-  void _updatePathName(BuildContext context) {
+  void _updatePathName(BuildContext context) async {
     final shareBloc = context.read<ShareBloc>();
     final pathName = shareBloc.state.pathName;
-    showMobileBottomSheet(
+    await showMobileBottomSheet(
       context,
       showHeader: true,
       title: LocaleKeys.shareAction_updatePathName.tr(),
@@ -238,11 +241,49 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
       showDivider: false,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       builder: (bottomSheetContext) {
+        FlowyResult<void, FlowyError>? previousUpdatePathNameResult;
         return EditWorkspaceNameBottomSheet(
           type: EditWorkspaceNameType.edit,
           workspaceName: pathName,
           hintText: '',
           validator: (value) => null,
+          validatorBuilder: (context) {
+            return BlocProvider.value(
+              value: shareBloc,
+              child: BlocBuilder<ShareBloc, ShareState>(
+                builder: (context, state) {
+                  final updatePathNameResult = state.updatePathNameResult;
+
+                  if (updatePathNameResult == null &&
+                      previousUpdatePathNameResult == null) {
+                    return const SizedBox.shrink();
+                  }
+
+                  if (updatePathNameResult != null) {
+                    previousUpdatePathNameResult = updatePathNameResult;
+                  }
+
+                  final widget = previousUpdatePathNameResult?.fold(
+                        (value) => const SizedBox.shrink(),
+                        (error) => FlowyText(
+                          error.code.publishErrorMessage.orDefault(
+                            LocaleKeys.settings_sites_error_updatePathNameFailed
+                                .tr(),
+                          ),
+                          maxLines: 3,
+                          fontSize: 12,
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.ellipsis,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ) ??
+                      const SizedBox.shrink();
+
+                  return widget;
+                },
+              ),
+            );
+          },
           onSubmitted: (name) {
             // rename the path name
             Log.info('rename the path name, from: $pathName, to: $name');
@@ -252,6 +293,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         );
       },
     );
+    shareBloc.add(const ShareEvent.clearPathNameResult());
   }
 
   void _showToast(BuildContext context, ShareState state) {
@@ -281,7 +323,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         ),
       );
     } else if (state.updatePathNameResult != null) {
-      state.updatePathNameResult!.fold(
+      state.updatePathNameResult!.onSuccess(
         (value) {
           showToastNotification(
             context,
@@ -290,18 +332,6 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
           );
 
           context.pop();
-        },
-        (error) {
-          Log.error('update path name failed: $error');
-
-          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom + 18;
-          showToastNotification(
-            context,
-            message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
-            type: ToastificationType.error,
-            description: error.code.publishErrorMessage,
-            bottomPadding: keyboardHeight,
-          );
         },
       );
     }
