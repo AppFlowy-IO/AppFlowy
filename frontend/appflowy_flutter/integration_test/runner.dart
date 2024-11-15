@@ -8,6 +8,7 @@ import 'desktop_runner_5.dart';
 import 'desktop_runner_6.dart';
 import 'desktop_runner_7.dart';
 import 'desktop_runner_8.dart';
+import 'desktop_runner_9.dart';
 import 'mobile_runner_1.dart';
 
 /// The main task runner for all integration tests in AppFlowy.
@@ -27,6 +28,7 @@ Future<void> main() async {
     await runIntegration6OnDesktop();
     await runIntegration7OnDesktop();
     await runIntegration8OnDesktop();
+    await runIntegration9OnDesktop();
   } else if (Platform.isIOS || Platform.isAndroid) {
     await runIntegration1OnMobile();
   } else {

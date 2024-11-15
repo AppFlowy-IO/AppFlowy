@@ -9,12 +9,14 @@ class TypeOptionMenuItemValue<T> {
     required this.text,
     required this.backgroundColor,
     required this.onTap,
+    this.iconPadding,
   });
 
   final T value;
   final FlowySvgData icon;
   final String text;
   final Color backgroundColor;
+  final EdgeInsets? iconPadding;
   final void Function(BuildContext context, T value) onTap;
 }
 
@@ -22,7 +24,7 @@ class TypeOptionMenu<T> extends StatelessWidget {
   const TypeOptionMenu({
     super.key,
     required this.values,
-    this.width = 94,
+    this.width = 98,
     this.iconWidth = 72,
     this.scaleFactor = 1.0,
     this.maxAxisSpacing = 18,
@@ -39,17 +41,18 @@ class TypeOptionMenu<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _GridView(
+    return TypeOptionGridView(
       crossAxisCount: crossAxisCount,
       mainAxisSpacing: maxAxisSpacing * scaleFactor,
       itemWidth: width * scaleFactor,
       children: values
           .map(
-            (value) => _TypeOptionMenuItem<T>(
+            (value) => TypeOptionMenuItem<T>(
               value: value,
               width: width,
               iconWidth: iconWidth,
               scaleFactor: scaleFactor,
+              iconPadding: value.iconPadding,
             ),
           )
           .toList(),
@@ -57,18 +60,21 @@ class TypeOptionMenu<T> extends StatelessWidget {
   }
 }
 
-class _TypeOptionMenuItem<T> extends StatelessWidget {
-  const _TypeOptionMenuItem({
+class TypeOptionMenuItem<T> extends StatelessWidget {
+  const TypeOptionMenuItem({
+    super.key,
     required this.value,
     this.width = 94,
     this.iconWidth = 72,
     this.scaleFactor = 1.0,
+    this.iconPadding,
   });
 
   final TypeOptionMenuItemValue<T> value;
   final double iconWidth;
   final double width;
   final double scaleFactor;
+  final EdgeInsets? iconPadding;
 
   double get scaledIconWidth => iconWidth * scaleFactor;
   double get scaledWidth => width * scaleFactor;
@@ -88,7 +94,8 @@ class _TypeOptionMenuItem<T> extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24 * scaleFactor),
               ),
             ),
-            padding: EdgeInsets.all(21 * scaleFactor),
+            padding: EdgeInsets.all(21 * scaleFactor) +
+                (iconPadding ?? EdgeInsets.zero),
             child: FlowySvg(
               value.icon,
             ),
@@ -113,8 +120,9 @@ class _TypeOptionMenuItem<T> extends StatelessWidget {
   }
 }
 
-class _GridView extends StatelessWidget {
-  const _GridView({
+class TypeOptionGridView extends StatelessWidget {
+  const TypeOptionGridView({
+    super.key,
     required this.children,
     required this.crossAxisCount,
     required this.mainAxisSpacing,

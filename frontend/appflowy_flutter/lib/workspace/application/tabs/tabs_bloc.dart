@@ -58,6 +58,18 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
               _setLatestOpenView(view);
             }
           },
+          closeOtherTabs: (String pluginId) {
+            final pagesToClose = [
+              ...state._pageManagers.where((pm) => pm.plugin.id != pluginId),
+            ];
+
+            final newstate = state;
+            for (final pm in pagesToClose) {
+              newstate.closeView(pm.plugin.id);
+            }
+            emit(newstate.copyWith(newIndex: 0));
+            _setLatestOpenView();
+          },
         );
       },
     );
@@ -69,7 +81,8 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     } else {
       final pageManager = state.currentPageManager;
       final notifier = pageManager.plugin.notifier;
-      if (notifier is ViewPluginNotifier) {
+      if (notifier is ViewPluginNotifier &&
+          menuSharedState.latestOpenView?.id != notifier.view.id) {
         menuSharedState.latestOpenView = notifier.view;
       }
     }

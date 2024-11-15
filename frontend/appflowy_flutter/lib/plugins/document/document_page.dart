@@ -161,7 +161,16 @@ class _DocumentPageState extends State<DocumentPage>
     }
 
     return Provider(
-      create: (_) => SharedEditorContext(),
+      create: (_) {
+        final context = SharedEditorContext();
+        if (widget.view.name.isEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.coverTitleFocusNode.requestFocus();
+          });
+        }
+        return context;
+      },
+      dispose: (buildContext, editorContext) => editorContext.dispose(),
       child: EditorTransactionService(
         viewId: widget.view.id,
         editorState: state.editorState!,

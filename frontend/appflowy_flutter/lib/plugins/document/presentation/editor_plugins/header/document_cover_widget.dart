@@ -103,8 +103,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   late final ViewListener viewListener;
   int retryCount = 0;
 
-  final titleTextController = TextEditingController();
-  final titleFocusNode = FocusNode();
   final isCoverTitleHovered = ValueNotifier<bool>(false);
 
   late final gestureInterceptor = SelectionGestureInterceptor(
@@ -120,7 +118,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     viewIcon = value.isNotEmpty ? value : icon ?? '';
     cover = widget.view.cover;
     view = widget.view;
-    titleTextController.text = view.name;
     widget.node.addListener(_reload);
     widget.editorState.service.selectionService
         .registerGestureInterceptor(gestureInterceptor);
@@ -128,9 +125,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     viewListener = ViewListener(viewId: widget.view.id)
       ..start(
         onViewUpdated: (view) {
-          if (titleTextController.text != view.name) {
-            titleTextController.text = view.name;
-          }
           setState(() {
             viewIcon = view.icon.value;
             cover = view.cover;
@@ -144,8 +138,6 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   void dispose() {
     viewListener.stop();
     widget.node.removeListener(_reload);
-    titleTextController.dispose();
-    titleFocusNode.dispose();
     isCoverTitleHovered.dispose();
     widget.editorState.service.selectionService
         .unregisterGestureInterceptor(_interceptorKey);

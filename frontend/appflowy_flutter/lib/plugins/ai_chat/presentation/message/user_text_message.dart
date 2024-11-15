@@ -22,24 +22,20 @@ class ChatUserMessageWidget extends StatelessWidget {
         ..add(const ChatUserMessageEvent.initial()),
       child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
         builder: (context, state) {
-          final List<Widget> children = [];
-          children.add(
-            Flexible(
-              child: TextMessageText(
-                text: state.text,
-              ),
-            ),
-          );
-
-          if (!state.messageState.isFinish) {
-            children.add(const HSpace(6));
-            children.add(const CircularProgressIndicator.adaptive());
-          }
-
           return Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
-            children: children,
+            children: [
+              Flexible(
+                child: TextMessageText(
+                  text: state.text,
+                ),
+              ),
+              if (!state.messageState.isFinish) ...[
+                const HSpace(6),
+                const CircularProgressIndicator.adaptive(),
+              ],
+            ],
           );
         },
       ),
@@ -61,8 +57,7 @@ class TextMessageText extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyText(
       text,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
+      lineHeight: 1.4,
       maxLines: null,
       selectable: true,
       color: AFThemeExtension.of(context).textColor,
