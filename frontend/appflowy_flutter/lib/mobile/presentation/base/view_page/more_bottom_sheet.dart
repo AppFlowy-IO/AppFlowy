@@ -56,17 +56,17 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   ) async {
     switch (action) {
       case MobileViewBottomSheetBodyAction.duplicate:
-        context.read<ViewBloc>().add(const ViewEvent.duplicate());
-        context.pop();
+        _duplicate(context);
         break;
       case MobileViewBottomSheetBodyAction.delete:
         context.read<ViewBloc>().add(const ViewEvent.delete());
         context.pop();
         break;
       case MobileViewBottomSheetBodyAction.addToFavorites:
+        _addFavorite(context);
+        break;
       case MobileViewBottomSheetBodyAction.removeFromFavorites:
-        context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-        context.pop();
+        _removeFavorite(context);
         break;
       case MobileViewBottomSheetBodyAction.undo:
         EditorNotification.undo().post();
@@ -128,6 +128,39 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
             ),
           );
     }
+  }
+
+  void _duplicate(BuildContext context) {
+    context.read<ViewBloc>().add(const ViewEvent.duplicate());
+    context.pop();
+
+    showToastNotification(
+      context,
+      message: LocaleKeys.button_duplicateSuccessfully.tr(),
+    );
+  }
+
+  void _addFavorite(BuildContext context) {
+    _toggleFavorite(context);
+
+    showToastNotification(
+      context,
+      message: LocaleKeys.button_favoriteSuccessfully.tr(),
+    );
+  }
+
+  void _removeFavorite(BuildContext context) {
+    _toggleFavorite(context);
+
+    showToastNotification(
+      context,
+      message: LocaleKeys.button_unfavoriteSuccessfully.tr(),
+    );
+  }
+
+  void _toggleFavorite(BuildContext context) {
+    context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
+    context.pop();
   }
 
   void _unpublish(BuildContext context) {
