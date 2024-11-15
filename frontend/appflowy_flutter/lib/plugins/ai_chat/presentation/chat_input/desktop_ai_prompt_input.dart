@@ -12,8 +12,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'ai_prompt_buttons.dart';
@@ -25,7 +23,6 @@ class DesktopAIPromptInput extends StatefulWidget {
     super.key,
     required this.chatId,
     required this.indicateFocus,
-    this.options = const InputOptions(),
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
@@ -33,10 +30,9 @@ class DesktopAIPromptInput extends StatefulWidget {
 
   final String chatId;
   final bool indicateFocus;
-  final InputOptions options;
   final bool isStreaming;
   final void Function() onStopStreaming;
-  final void Function(types.PartialText) onSubmitted;
+  final void Function(String, Map<String, dynamic>) onSubmitted;
 
   @override
   State<DesktopAIPromptInput> createState() => _DesktopAIPromptInputState();
@@ -56,7 +52,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
   void initState() {
     super.initState();
 
-    _textController = InputTextFieldController()
+    _textController = TextEditingController()
       ..addListener(_handleTextControllerChange);
 
     _inputFocusNode = FocusNode(
@@ -118,6 +114,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
         borderRadius: DesktopAIPromptSizes.promptFrameRadius,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(
@@ -209,11 +206,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
       ..addAll(mentionPageMetadata)
       ..addAll(fileMetadata);
 
-    final partialText = types.PartialText(
-      text: trimmedText,
-      metadata: metadata,
-    );
-    widget.onSubmitted(partialText);
+    widget.onSubmitted(trimmedText, metadata);
   }
 
   void _handleTextControllerChange() {

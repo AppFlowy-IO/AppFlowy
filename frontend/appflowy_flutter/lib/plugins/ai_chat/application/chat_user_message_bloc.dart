@@ -9,11 +9,7 @@ class ChatUserMessageBloc
     extends Bloc<ChatUserMessageEvent, ChatUserMessageState> {
   ChatUserMessageBloc({
     required dynamic message,
-  }) : super(
-          ChatUserMessageState.initial(
-            message,
-          ),
-        ) {
+  }) : super(ChatUserMessageState.initial(message)) {
     on<ChatUserMessageEvent>(
       (event, emit) {
         event.when(

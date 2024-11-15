@@ -3,7 +3,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 class ChatUserMessageWidget extends StatelessWidget {
   const ChatUserMessageWidget({
@@ -22,20 +22,11 @@ class ChatUserMessageWidget extends StatelessWidget {
         ..add(const ChatUserMessageEvent.initial()),
       child: BlocBuilder<ChatUserMessageBloc, ChatUserMessageState>(
         builder: (context, state) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Flexible(
-                child: TextMessageText(
-                  text: state.text,
-                ),
-              ),
-              if (!state.messageState.isFinish) ...[
-                const HSpace(6),
-                const CircularProgressIndicator.adaptive(),
-              ],
-            ],
+          return Opacity(
+            opacity: state.messageState.isFinish ? 1.0 : 0.8,
+            child: TextMessageText(
+              text: state.text,
+            ),
           );
         },
       ),
