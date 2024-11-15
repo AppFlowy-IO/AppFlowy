@@ -73,8 +73,9 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
             <IconButton
               onClick={onClose}
               className={'m-4'}
+              size={'small'}
             >
-              <SideOutlined className={'h-4 w-4 text-text-caption rotate-180 transform'} />
+              <SideOutlined className={'text-text-caption w-4 h-4 rotate-180 transform'} />
             </IconButton>
           </Tooltip>
         </div>

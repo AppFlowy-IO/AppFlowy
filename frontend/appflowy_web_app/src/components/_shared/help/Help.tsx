@@ -1,8 +1,10 @@
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
+import { ThemeModeContext } from '@/components/main/useAppThemeMode';
 import { copyTextToClipboard } from '@/utils/copy';
 import { Button, Divider, Portal, Tooltip } from '@mui/material';
 import { PopoverProps } from '@mui/material/Popover';
+import { useContext } from 'react';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { ReactComponent as SpeedDialIcon } from '@/assets/help.svg';
@@ -11,6 +13,8 @@ import { ReactComponent as WhatsNewIcon } from '@/assets/star.svg';
 import { ReactComponent as SupportIcon } from '@/assets/message_support.svg';
 import { ReactComponent as DebugIcon } from '@/assets/debug.svg';
 import { ReactComponent as FeedbackIcon } from '@/assets/report.svg';
+import { ReactComponent as MoonIcon } from '@/assets/moon.svg';
+import { ReactComponent as SunIcon } from '@/assets/sun.svg';
 
 const popoverProps: Partial<PopoverProps> = {
   anchorOrigin: {
@@ -27,6 +31,7 @@ export default function Help () {
   const ref = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
   const { t } = useTranslation();
+  const { isDark, setDark } = useContext(ThemeModeContext) || {};
 
   return (
     <Portal>
@@ -55,6 +60,15 @@ export default function Help () {
           onClose={() => setOpen(false)}
         >
           <div className={'flex flex-col gap-1 w-[240px] h-fit p-2'}>
+            <Button
+              color={'inherit'}
+              variant={'text'}
+              className={'justify-start'}
+              startIcon={isDark ? <SunIcon /> : <MoonIcon />}
+              onClick={() => setDark?.(!isDark)}
+            >
+              {isDark ? t('settings.appearance.themeMode.light') : t('settings.appearance.themeMode.dark')}
+            </Button>
             <Button
               component={'a'}
               target="_blank"
@@ -103,6 +117,7 @@ export default function Help () {
               variant={'text'}
             >{t('questionBubble.feedback')}
             </Button>
+            
             <Divider />
             <Button
               size={'small'}

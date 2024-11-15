@@ -4,6 +4,7 @@ import { withYjs, YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import EditorEditable from '@/components/editor/Editable';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { withPlugins } from '@/components/editor/plugins';
+import { getTextCount } from '@/utils/word';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createEditor, Descendant } from 'slate';
 import { Slate, withReact } from 'slate-react';
@@ -15,11 +16,17 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
   const readSummary = context.readSummary;
   const readOnly = context.readOnly;
+  const viewId = context.viewId;
+  const onWordCountChange = context.onWordCountChange;
   const localOrigin = CollabOrigin.Local;
   const [, setClock] = useState(0);
-  const onContentChange = useCallback(() => {
+  const onContentChange = useCallback((content: Descendant[]) => {
+    const wordCount = getTextCount(content);
+
+    onWordCountChange?.(viewId, wordCount);
     setClock((prev) => prev + 1);
-  }, []);
+  }, [onWordCountChange, viewId]);
+  
   const editor = useMemo(
     () =>
       doc &&

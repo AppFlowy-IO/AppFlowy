@@ -43,7 +43,7 @@ function ViewCover ({ coverValue, coverType, onUpdateCover, onRemoveCover, readO
   const showPopover = Boolean(anchorPosition);
   const actionRef = useRef<HTMLDivElement>(null);
 
-  const handleClickChange = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+  const handleClickChange = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (readOnly) return;
     setAnchorPosition({
       top: event.clientY,

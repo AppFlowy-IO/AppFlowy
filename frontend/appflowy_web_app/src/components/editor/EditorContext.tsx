@@ -5,6 +5,7 @@ import {
   LoadView,
   LoadViewMeta, UIVariant, ViewLayout, View,
 } from '@/application/types';
+import { TextCount } from '@/utils/word';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { BaseRange } from 'slate';
 
@@ -49,6 +50,7 @@ export interface EditorContextState {
   deletePage?: (viewId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
+  onWordCountChange?: (viewId: string, props: TextCount) => void;
 }
 
 export const EditorContext = createContext<EditorContextState>({

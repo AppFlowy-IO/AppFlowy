@@ -3,7 +3,9 @@ import { useDecorate } from '@/components/editor/components/blocks/code/useDecor
 import { Leaf } from '@/components/editor/components/leaf';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { useShortcuts } from '@/components/editor/shortcut.hooks';
-import React, { lazy, Suspense, useCallback, useEffect } from 'react';
+import { getTextCount } from '@/utils/word';
+import { debounce } from 'lodash-es';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { BaseRange, Editor, NodeEntry, Range } from 'slate';
 import { Editable, RenderElementProps, useSlate } from 'slate-react';
 import { Element } from './components/element';
@@ -13,7 +15,7 @@ import { PanelProvider } from '@/components/editor/components/panels/PanelsConte
 const EditorOverlay = lazy(() => import('@/components/editor/EditorOverlay'));
 
 const EditorEditable = () => {
-  const { readOnly, decorateState, setSelectedBlockId } = useEditorContext();
+  const { readOnly, decorateState, setSelectedBlockId, onWordCountChange, viewId } = useEditorContext();
   const editor = useSlate();
 
   const codeDecorate = useDecorate(editor);
@@ -67,6 +69,14 @@ const EditorEditable = () => {
     }
   }, [editor]);
 
+  const debounceCalculateWordCount = useMemo(() => {
+    return debounce(() => {
+      const wordCount = getTextCount(editor.children);
+
+      onWordCountChange?.(viewId, wordCount);
+    }, 300);
+  }, [onWordCountChange, viewId, editor]);
+
   useEffect(() => {
     const { onChange } = editor;
 
@@ -80,12 +90,13 @@ const EditorEditable = () => {
       }
 
       onChange();
+      debounceCalculateWordCount();
     };
 
     return () => {
       editor.onChange = onChange;
     };
-  }, [editor, setSelectedBlockId]);
+  }, [editor, debounceCalculateWordCount, setSelectedBlockId]);
 
   return (
     <PanelProvider editor={editor}>
