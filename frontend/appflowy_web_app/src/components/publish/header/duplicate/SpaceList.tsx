@@ -2,7 +2,6 @@ import { SpaceView } from '@/application/types';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckIcon } from '@/assets/selected.svg';
-import { renderColor } from '@/utils/color';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { Button, CircularProgress, Tooltip } from '@mui/material';
 import { ReactComponent as LockSvg } from '@/assets/lock.svg';
@@ -37,17 +36,12 @@ function SpaceList ({ loading, spaceList, value, onChange }: SpaceListProps) {
 
       return (
         <div className={'flex items-center gap-[10px] overflow-hidden text-sm'}>
-          <span
+          <SpaceIcon
+            value={extraObj.space_icon || ''}
+            char={extraObj.space_icon ? undefined : space.name.slice(0, 1)}
+            bgColor={extraObj.space_icon_color}
             className={'icon h-5 w-5'}
-            style={{
-              backgroundColor: extraObj.space_icon_color ? renderColor(extraObj.space_icon_color) : 'rgb(163, 74, 253)',
-              borderRadius: '8px',
-            }}
-          >
-            <SpaceIcon value={extraObj.space_icon || ''}
-                       char={extraObj.space_icon ? undefined : space.name.slice(0, 1)}
-            />
-          </span>
+          />
           <div className={'flex flex-1 items-center gap-2 truncate'}>
             {space.name}
             {space.isPrivate && <LockSvg className={'h-3.5 w-3.5 text-icon-primary'} />}
@@ -71,7 +65,13 @@ function SpaceList ({ loading, spaceList, value, onChange }: SpaceListProps) {
             const isSelected = value === space.id;
 
             return (
-              <Tooltip title={space.name} key={space.id} placement={'bottom'} enterDelay={1000} enterNextDelay={1000}>
+              <Tooltip
+                title={space.name}
+                key={space.id}
+                placement={'bottom'}
+                enterDelay={1000}
+                enterNextDelay={1000}
+              >
                 <Button
                   variant={'text'}
                   color={'inherit'}

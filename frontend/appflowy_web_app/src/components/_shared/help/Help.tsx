@@ -38,14 +38,21 @@ export default function Help () {
           <div
             ref={ref}
             onClick={() => setOpen(!open)}
-            className={'w-9 h-9 rounded-full flex items-center justify-center border border-line-border bg-bg-body hover:bg-fill-list-hover cursor-pointer shadow-md'}
+            className={'py-2'}
           >
-            <SpeedDialIcon className={'w-4 h-4'} />
+            <div
+              className={'w-9 h-9 rounded-full flex items-center justify-center border border-line-border bg-bg-body hover:bg-fill-list-hover cursor-pointer shadow-md'}
+            >
+              <SpeedDialIcon className={'w-4 h-4'} />
+            </div>
+
           </div>
         </Tooltip>
-        <Popover {...popoverProps} open={open}
-                 anchorEl={ref.current}
-                 onClose={() => setOpen(false)}
+        <Popover
+          {...popoverProps}
+          open={open}
+          anchorEl={ref.current}
+          onClose={() => setOpen(false)}
         >
           <div className={'flex flex-col gap-1 w-[240px] h-fit p-2'}>
             <Button

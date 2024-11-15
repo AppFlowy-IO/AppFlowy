@@ -1,6 +1,7 @@
+import { appendFirstEmptyParagraph } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   ViewComponentProps,
-  YjsEditorKey,
+  YjsEditorKey, YSharedRoot,
 } from '@/application/types';
 import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
@@ -29,6 +30,13 @@ export const Document = (props: DocumentProps) => {
   }, [setSearch]);
   const document = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.document);
 
+  const handleEnter = useCallback((text: string) => {
+    if (!doc) return;
+    const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+
+    appendFirstEmptyParagraph(sharedRoot, text);
+  }, [doc]);
+
   if (!document || !viewMeta.viewId) return null;
 
   return (
@@ -42,6 +50,7 @@ export const Document = (props: DocumentProps) => {
         {...viewMeta}
         readOnly={readOnly}
         updatePage={updatePage}
+        onEnter={readOnly ? undefined : handleEnter}
       />
       <Suspense fallback={<EditorSkeleton />}>
         <div className={'flex justify-center w-full'}>

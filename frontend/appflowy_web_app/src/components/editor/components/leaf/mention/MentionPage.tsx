@@ -57,8 +57,9 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
 
             if (entry) {
               const [node] = entry;
+              const text = CustomEditor.getBlockTextContent(node, 2);
 
-              setContent(CustomEditor.getBlockTextContent(node, 2));
+              setContent(text || pageName);
               return;
             }
 
@@ -74,7 +75,9 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
 
               if (!node) return;
 
-              setContent(`${pageName} - ${CustomEditor.getBlockTextContent(node, 2)}`);
+              const text = CustomEditor.getBlockTextContent(node, 2);
+
+              setContent(`${pageName}${text ? ` - ${text}` : ''}`);
               return;
 
             } catch (e) {
