@@ -127,19 +127,11 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
               [view.id],
             ),
           );
-      showToastNotification(
-        context,
-        message: LocaleKeys.publish_publishSuccessfully.tr(),
-      );
     }
   }
 
   void _unpublish(BuildContext context) {
     context.read<ShareBloc>().add(const ShareEvent.unPublish());
-    showToastNotification(
-      context,
-      message: LocaleKeys.publish_unpublishSuccessfully.tr(),
-    );
   }
 
   void _copyPublishLink(BuildContext context) {
@@ -219,10 +211,10 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
           hintText: '',
           validator: (value) => null,
           onSubmitted: (name) {
-            shareBloc.add(ShareEvent.updatePathName(name));
-
             // rename the path name
             Log.info('rename the path name, from: $pathName, to: $name');
+
+            shareBloc.add(ShareEvent.updatePathName(name));
           },
         );
       },
@@ -230,7 +222,32 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   }
 
   void _showToast(BuildContext context, ShareState state) {
-    if (state.updatePathNameResult != null) {
+    if (state.publishResult != null) {
+      state.publishResult!.fold(
+        (value) => showToastNotification(
+          context,
+          message: LocaleKeys.publish_publishSuccessfully.tr(),
+        ),
+        (error) => showToastNotification(
+          context,
+          message: '${LocaleKeys.publish_publishFailed.tr()}: ${error.code}',
+          type: ToastificationType.error,
+        ),
+      );
+    } else if (state.unpublishResult != null) {
+      state.unpublishResult!.fold(
+        (value) => showToastNotification(
+          context,
+          message: LocaleKeys.publish_unpublishSuccessfully.tr(),
+        ),
+        (error) => showToastNotification(
+          context,
+          message: LocaleKeys.publish_unpublishFailed.tr(),
+          description: error.msg,
+          type: ToastificationType.error,
+        ),
+      );
+    } else if (state.updatePathNameResult != null) {
       state.updatePathNameResult!.fold(
         (value) {
           showToastNotification(
