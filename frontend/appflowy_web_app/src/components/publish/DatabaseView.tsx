@@ -7,6 +7,7 @@ import {
   ViewLayout,
   YDatabase,
   YDoc,
+  ViewMetaProps,
   YjsEditorKey,
 } from '@/application/types';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
@@ -16,7 +17,6 @@ import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
 import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { Database } from '@/components/database';
 import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
-import { ViewMetaProps } from '@/components/view-meta';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 

@@ -2,22 +2,20 @@ import {
   ViewComponentProps,
   ViewLayout,
   YDoc,
+  ViewMetaProps,
 } from '@/application/types';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { findAncestors, findView } from '@/components/_shared/outline/utils';
-import { Popover } from '@/components/_shared/popover';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
-import MorePageActions from '@/components/app/view-actions/MorePageActions';
+import MoreActions from '@/components/app/header/MoreActions';
 import MovePagePopover from '@/components/app/view-actions/MovePagePopover';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
-import { ViewMetaProps } from '@/components/view-meta';
 import { Button, Dialog, Divider, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
-import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import ShareButton from 'src/components/app/share/ShareButton';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as ArrowRightIcon } from '@/assets/arrow_right.svg';
@@ -42,6 +40,7 @@ function ViewModal ({
     deletePage,
     openPageModal,
     loadViews,
+    setWordCount,
   } = useAppHandlers();
   const outline = useAppOutline();
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
@@ -86,7 +85,6 @@ function ViewModal ({
     } : null;
   }, [view]);
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [movePopoverAnchorEl, setMovePopoverAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const onMoved = useCallback(() => {
@@ -135,16 +133,8 @@ function ViewModal ({
 
         <div className={'flex items-center gap-4'}>
           <ShareButton viewId={viewId} />
-          <Tooltip title={t('moreAction.moreOptions')}>
-            <IconButton
-              size={'small'}
-              onClick={e => {
-                setAnchorEl(e.currentTarget);
-              }}
-            >
-              <MoreIcon />
-            </IconButton>
-          </Tooltip>
+          <MoreActions viewId={viewId} />
+
           <Divider
             orientation={'vertical'}
             className={'h-4'}
@@ -192,8 +182,9 @@ function ViewModal ({
       deletePage={deletePage}
       openPageModal={openPageModal}
       loadViews={loadViews}
+      onWordCountChange={setWordCount}
     />;
-  }, [openPageModal, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
+  }, [openPageModal, setWordCount, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
 
   return (
     <Dialog
@@ -212,22 +203,6 @@ function ViewModal ({
           {viewDom}
         </div>
       )}
-      {view && <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
-      >
-        <MorePageActions
-          view={view}
-          onDeleted={() => {
-            setAnchorEl(null);
-            onClose();
-          }}
-          onMoved={() => {
-            setAnchorEl(null);
-          }}
-        />
-      </Popover>}
       <MovePagePopover
         viewId={viewId}
         open={Boolean(movePopoverAnchorEl)}

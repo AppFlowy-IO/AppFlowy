@@ -6,6 +6,7 @@ import './editor.scss';
 
 export interface EditorProps extends EditorContextState {
   doc: YDoc;
+
 }
 
 export const Editor = memo(({ doc, layoutStyle = defaultLayoutStyle, onRendered, ...props }: EditorProps) => {

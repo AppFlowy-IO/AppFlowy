@@ -145,7 +145,10 @@
     "charCount": "Character count: {}",
     "createdAt": "Created: {}",
     "deleteView": "Delete",
-    "duplicateView": "Duplicate"
+    "duplicateView": "Duplicate",
+    "wordCountLabel": "Word count: ",
+    "charCountLabel": "Character count: ",
+    "createdAtLabel": "Created: "
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",

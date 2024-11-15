@@ -50,10 +50,10 @@ function MovePagePopover ({
     ><IconButton
       size={'small'}
       className={'move-to-icon mx-2'}
-      onClick={async () => {
+      onClick={async (e) => {
         try {
           await movePage?.(viewId, view.view_id);
-          props.onClose?.();
+          props.onClose?.(e, 'backdropClick');
           onMoved?.();
           // eslint-disable-next-line
         } catch (e: any) {

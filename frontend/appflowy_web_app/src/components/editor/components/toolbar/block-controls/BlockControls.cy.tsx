@@ -93,13 +93,13 @@ describe('BlockControls', () => {
     cy.get('@duplicate').click();
 
     let expectedJson: FromBlockJSON[] = initialData;
+
     expectedJson = [expectedJson[0], expectedJson[0]];
 
     assertJSON(expectedJson);
   });
 
   it('should copy link to block when clicking on the copy link to block option', () => {
-    let expectedJson: FromBlockJSON[] = initialData;
     openControlsMenu();
     cy.get('@menu').get('[data-testid="copyLinkToBlock"]').as('copyLinkToBlock');
     cy.get('@copyLinkToBlock').click();
@@ -113,10 +113,12 @@ describe('BlockControls', () => {
     cy.realPress(['Enter']);
     cy.wait(100);
     const meta = getModKey();
+
     cy.realPress([meta, 'v']);
 
     cy.wrap(null).then(() => {
       const finalJson = getFinalJSON();
+
       expect(finalJson).to.have.length(2);
       expect(finalJson[1].type).to.equal('paragraph');
       expect(finalJson[1].data).to.deep.equal({});

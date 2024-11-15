@@ -18,6 +18,7 @@ import {
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
+import { TextCount } from '@/utils/word';
 import { sortBy, uniqBy } from 'lodash-es';
 import React, { createContext, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -32,6 +33,8 @@ export interface AppContextType {
   loadView: LoadView;
   outline?: View[];
   viewId?: string;
+  wordCount?: Record<string, TextCount>;
+  setWordCount?: (viewId: string, count: TextCount) => void;
   currentWorkspaceId?: string;
   onChangeWorkspace?: (workspaceId: string) => Promise<void>;
   userWorkspaceInfo?: UserWorkspaceInfo;
@@ -72,6 +75,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return id;
   }, [params.viewId]);
   const [openModalViewId, setOpenModalViewId] = useState<string | undefined>(undefined);
+  const wordCountRef = useRef<Record<string, TextCount>>({});
+  const setWordCount = useCallback((viewId: string, count: TextCount) => {
+    wordCountRef.current[viewId] = count;
+  }, []);
+
   const [userWorkspaceInfo, setUserWorkspaceInfo] = useState<UserWorkspaceInfo | undefined>(undefined);
   const currentWorkspaceId = useMemo(() => params.workspaceId || userWorkspaceInfo?.selectedWorkspace.id, [params.workspaceId, userWorkspaceInfo?.selectedWorkspace.id]);
   const [workspaceDatabases, setWorkspaceDatabases] = useState<DatabaseRelations | undefined>(undefined);
@@ -584,6 +592,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       movePage,
       restorePage,
       loadViews,
+      wordCount: wordCountRef.current,
+      setWordCount,
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
@@ -650,6 +660,20 @@ export function useAppViewId () {
   return context.viewId;
 }
 
+export function useAppWordCount (viewId?: string | null) {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    throw new Error('useAppWordCount must be used within an AppProvider');
+  }
+
+  if (!viewId) {
+    return;
+  }
+
+  return context.wordCount?.[viewId];
+}
+
 export function useOpenModalViewId () {
   const context = useContext(AppContext);
 
@@ -660,11 +684,15 @@ export function useOpenModalViewId () {
   return context.openPageModalViewId;
 }
 
-export function useAppView (viewId: string) {
+export function useAppView (viewId?: string) {
   const context = useContext(AppContext);
 
   if (!context) {
     throw new Error('useAppView must be used within an AppProvider');
+  }
+
+  if (!viewId) {
+    return;
   }
 
   return findView(context.outline || [], viewId);
@@ -703,6 +731,7 @@ export function useAppHandlers () {
     updatePage: context.updatePage,
     movePage: context.movePage,
     loadViews: context.loadViews,
+    setWordCount: context.setWordCount,
   };
 }
 
