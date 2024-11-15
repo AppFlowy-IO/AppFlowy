@@ -3,7 +3,6 @@ import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
 import { notify } from '@/components/_shared/notify';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
-import { renderColor } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
@@ -51,18 +50,12 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
       }}
     >
       {extra && extra.is_space ? (
-        <span
+        <SpaceIcon
           className={'icon h-4 w-4 shrink-0'}
-          style={{
-            backgroundColor: extra.space_icon_color ? renderColor(extra.space_icon_color) : 'rgb(163, 74, 253)',
-            borderRadius: '4px',
-          }}
-        >
-            <SpaceIcon
-              value={extra.space_icon || ''}
-              char={extra.space_icon ? undefined : name.slice(0, 1)}
-            />
-          </span>
+          bgColor={extra.space_icon_color}
+          value={extra.space_icon || ''}
+          char={extra.space_icon ? undefined : name.slice(0, 1)}
+        />
       ) : (
         <span className={`${isFlag ? 'icon' : ''} flex h-5 w-5 min-w-5 items-center justify-center`}>
             {icon?.value || <ViewIcon

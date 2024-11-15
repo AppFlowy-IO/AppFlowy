@@ -1,26 +1,26 @@
 import {
-  CreateRowDoc,
-  LoadView,
-  LoadViewMeta,
-  UpdatePagePayload,
   ViewComponentProps,
   ViewLayout,
   YDoc,
 } from '@/application/types';
-import { findView } from '@/components/_shared/outline/utils';
+import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
+import { findAncestors, findView } from '@/components/_shared/outline/utils';
 import { Popover } from '@/components/_shared/popover';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import MorePageActions from '@/components/app/view-actions/MorePageActions';
+import MovePagePopover from '@/components/app/view-actions/MovePagePopover';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
 import { ViewMetaProps } from '@/components/view-meta';
-import { Dialog, IconButton, Tooltip } from '@mui/material';
+import { Button, Dialog, Divider, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import ShareButton from 'src/components/app/share/ShareButton';
+import { ReactComponent as CloseIcon } from '@/assets/close.svg';
+import { ReactComponent as ArrowRightIcon } from '@/assets/arrow_right.svg';
 
 function ViewModal ({
   viewId,
@@ -87,22 +87,52 @@ function ViewModal ({
   }, [view]);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [movePopoverAnchorEl, setMovePopoverAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const onMoved = useCallback(() => {
+    setMovePopoverAnchorEl(null);
+  }, []);
 
   const modalTitle = useMemo(() => {
+    const space = findAncestors(outline || [], viewId)?.find(item => item.extra?.is_space);
+
     return (
       <div className={'w-full bg-bg-body z-[10] px-4 py-4 sticky top-0 flex items-center justify-between gap-2'}>
-        <Tooltip title={t('tooltip.openAsPage')}>
-          <IconButton
-            size={'small'}
-            onClick={() => {
-              onClose();
+        <div className={'flex items-center gap-4'}>
+          <Tooltip title={t('tooltip.openAsPage')}>
+            <IconButton
+              size={'small'}
+              onClick={() => {
+                onClose();
 
-              void toView(viewId);
-            }}
-          >
-            <ExpandMoreIcon className={'text-text-title'} />
-          </IconButton>
-        </Tooltip>
+                void toView(viewId);
+              }}
+            >
+              <ExpandMoreIcon className={'text-text-title opacity-80 h-5 w-5'} />
+            </IconButton>
+          </Tooltip>
+          <Divider
+            orientation={'vertical'}
+            className={'h-4'}
+          />
+          {space && (
+            <Button
+              onClick={(e) => {
+                setMovePopoverAnchorEl(e.currentTarget);
+              }}
+              size={'small'}
+              startIcon={<SpaceIcon
+                bgColor={space.extra?.space_icon_color}
+                value={space.extra?.space_icon || ''}
+                char={space.extra?.space_icon ? undefined : space.name.slice(0, 1)}
+              />}
+              color={'inherit'}
+              className={'justify-start px-1.5'}
+              endIcon={<ArrowRightIcon className={'transform rotate-90'} />}
+            >{space.name}</Button>
+          )}
+        </div>
+
         <div className={'flex items-center gap-4'}>
           <ShareButton viewId={viewId} />
           <Tooltip title={t('moreAction.moreOptions')}>
@@ -115,11 +145,21 @@ function ViewModal ({
               <MoreIcon />
             </IconButton>
           </Tooltip>
+          <Divider
+            orientation={'vertical'}
+            className={'h-4'}
+          />
+          <IconButton
+            size={'small'}
+            onClick={onClose}
+          >
+            <CloseIcon />
+          </IconButton>
         </div>
 
       </div>
     );
-  }, [onClose, t, toView, viewId]);
+  }, [onClose, outline, t, toView, viewId]);
 
   const layout = view?.layout || ViewLayout.Document;
 
@@ -161,7 +201,7 @@ function ViewModal ({
       onClose={onClose}
       fullWidth={true}
       PaperProps={{
-        className: `max-w-[70vw] w-[1188px] flex flex-col h-[70vh] appflowy-scroller`,
+        className: `max-w-[70vw] w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,
       }}
     >
       {modalTitle}
@@ -181,13 +221,20 @@ function ViewModal ({
           view={view}
           onDeleted={() => {
             setAnchorEl(null);
+            onClose();
           }}
           onMoved={() => {
             setAnchorEl(null);
           }}
         />
       </Popover>}
-
+      <MovePagePopover
+        viewId={viewId}
+        open={Boolean(movePopoverAnchorEl)}
+        anchorEl={movePopoverAnchorEl}
+        onClose={() => setMovePopoverAnchorEl(null)}
+        onMoved={onMoved}
+      />
     </Dialog>
   );
 }

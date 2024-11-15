@@ -13,12 +13,24 @@ const isCursorAtEnd = (el: HTMLDivElement) => {
   return range.startOffset === text.length;
 };
 
+const getCursorOffset = () => {
+  const selection = window.getSelection();
+
+  if (!selection) return 0;
+
+  const range = selection.getRangeAt(0);
+
+  return range.startOffset;
+};
+
 function TitleEditable ({
   name,
   onUpdateName,
+  onEnter,
 }: {
   name: string;
   onUpdateName: (name: string) => void;
+  onEnter?: (text: string) => void;
 }) {
   const { t } = useTranslation();
   const debounceUpdateName = useMemo(() => {
@@ -47,7 +59,7 @@ function TitleEditable ({
       data-placeholder={t('menuAppHeader.defaultNewPageName')}
       contentEditable={true}
       aria-readonly={false}
-      onBlur={() => {
+      onInput={() => {
         if (!contentRef.current) return;
         debounceUpdateName(contentRef.current.textContent || '');
       }}
@@ -55,9 +67,22 @@ function TitleEditable ({
         if (!contentRef.current) return;
         if (e.key === 'Enter' || e.key === 'Escape') {
           e.preventDefault();
-          if (!contentRef.current) return;
-          onUpdateName(contentRef.current.textContent || '');
-          focusdTextbox();
+          if (e.key === 'Enter') {
+            const offset = getCursorOffset();
+            const beforeText = contentRef.current.textContent?.slice(0, offset) || '';
+            const afterText = contentRef.current.textContent?.slice(offset) || '';
+
+            contentRef.current.textContent = beforeText;
+            onUpdateName(beforeText);
+            onEnter?.(afterText);
+
+            setTimeout(() => {
+              focusdTextbox();
+            }, 0);
+
+          } else {
+            onUpdateName(contentRef.current.textContent || '');
+          }
         } else if (e.key === 'ArrowDown' || (e.key === 'ArrowRight' && isCursorAtEnd(contentRef.current))) {
           e.preventDefault();
           focusdTextbox();

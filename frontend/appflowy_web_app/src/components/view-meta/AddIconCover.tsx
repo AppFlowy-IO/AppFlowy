@@ -26,12 +26,6 @@ function AddIconCover ({
 
   return (
     <div className={'gap-2 flex w-full justify-start items-center px-24 max-sm:hidden'}>
-      {!hasCover && <Button
-        size={'small'}
-        color={'inherit'}
-        onClick={onAddCover}
-        startIcon={<AddCover />}
-      >{t('document.plugins.cover.addCover')}</Button>}
       {!hasIcon && <Button
         color={'inherit'}
         size={'small'}
@@ -40,6 +34,12 @@ function AddIconCover ({
         }}
         startIcon={<AddIcon />}
       >{t('document.plugins.cover.addIcon')}</Button>}
+      {!hasCover && <Button
+        size={'small'}
+        color={'inherit'}
+        onClick={onAddCover}
+        startIcon={<AddCover />}
+      >{t('document.plugins.cover.addCover')}</Button>}
       <ChangeIconPopover
         open={Boolean(iconAnchorEl)}
         anchorEl={iconAnchorEl}

@@ -17,12 +17,13 @@ import {
 } from '@/application/types';
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
-import ViewModal from '@/components/app/ViewModal';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
-import { uniqBy } from 'lodash-es';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { sortBy, uniqBy } from 'lodash-es';
+import React, { createContext, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { validate as uuidValidate } from 'uuid';
+
+const ViewModal = React.lazy(() => import('@/components/app/ViewModal'));
 
 export interface AppContextType {
   toView: (viewId: string, blockId?: string, keepSearch?: boolean) => Promise<void>;
@@ -285,7 +286,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [service]);
 
-  const loadOutline = useCallback(async (workspaceId: string) => {
+  const loadOutline = useCallback(async (workspaceId: string, force = true) => {
 
     if (!service) return;
     try {
@@ -296,6 +297,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setOutline(res);
+      if (!force) return;
 
       const firstView = findViewByLayout(res, [ViewLayout.Document, ViewLayout.Board, ViewLayout.Grid, ViewLayout.Calendar]);
 
@@ -388,7 +390,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('App trash not found');
       }
 
-      setTrashList(res);
+      setTrashList(sortBy(res, 'last_edited_time').reverse());
     } catch (e) {
       return Promise.reject('App trash not found');
     }
@@ -439,7 +441,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const viewId = await service.addAppPage(currentWorkspaceId, parentViewId, layout);
 
-      void loadOutline(currentWorkspaceId);
+      void loadOutline(currentWorkspaceId, false);
 
       return viewId;
     } catch (e) {
@@ -451,20 +453,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setOpenModalViewId(viewId);
   }, []);
 
-  const deletePage = useCallback(async (viewId: string) => {
+  const deletePage = useCallback(async (id: string) => {
     if (!currentWorkspaceId || !service) {
       throw new Error('No workspace or service found');
     }
 
     try {
-      await service.moveToTrash(currentWorkspaceId, viewId);
-
-      void loadOutline(currentWorkspaceId);
+      await service.moveToTrash(currentWorkspaceId, id);
+      void loadTrash(currentWorkspaceId);
+      void loadOutline(currentWorkspaceId, false);
       return;
     } catch (e) {
       return Promise.reject(e);
     }
-  }, [currentWorkspaceId, service, loadOutline]);
+  }, [currentWorkspaceId, service, loadTrash, loadOutline]);
 
   const deleteTrash = useCallback(async (viewId?: string) => {
     if (!currentWorkspaceId || !service) {
@@ -474,7 +476,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await service.deleteTrash(currentWorkspaceId, viewId);
 
-      void loadOutline(currentWorkspaceId);
+      void loadOutline(currentWorkspaceId, false);
       return;
     } catch (e) {
       return Promise.reject(e);
@@ -489,7 +491,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await service.restoreFromTrash(currentWorkspaceId, viewId);
 
-      void loadOutline(currentWorkspaceId);
+      void loadOutline(currentWorkspaceId, false);
       return;
     } catch (e) {
       return Promise.reject(e);
@@ -504,7 +506,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await service.updateAppPage(currentWorkspaceId, viewId, payload);
 
-      void loadOutline(currentWorkspaceId);
+      void loadOutline(currentWorkspaceId, false);
       return;
     } catch (e) {
       return Promise.reject(e);
@@ -519,7 +521,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await service.movePage(currentWorkspaceId, viewId, parentId);
 
-      void loadOutline(currentWorkspaceId);
+      void loadOutline(currentWorkspaceId, false);
       return;
     } catch (e) {
       return Promise.reject(e);
@@ -585,13 +587,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
-    {openModalViewId && <ViewModal
+    {openModalViewId && <Suspense><ViewModal
       open={!!openModalViewId}
       viewId={openModalViewId}
       onClose={() => {
         setOpenModalViewId(undefined);
       }}
-    />}
+    /></Suspense>}
   </AppContext.Provider>;
 };
 

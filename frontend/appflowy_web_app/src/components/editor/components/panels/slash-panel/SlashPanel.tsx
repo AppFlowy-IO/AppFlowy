@@ -440,6 +440,7 @@ export function SlashPanel ({
 
   return (
     <Popover
+      adjustOrigins={true}
       data-testid={'slash-panel'}
       open={open}
       onClose={closePanel}
@@ -450,7 +451,7 @@ export function SlashPanel ({
       disableEnforceFocus={true}
       transformOrigin={{
         vertical: -32,
-        horizontal: -8,
+        horizontal: 'left',
       }}
       onMouseDown={e => e.preventDefault()}
     >

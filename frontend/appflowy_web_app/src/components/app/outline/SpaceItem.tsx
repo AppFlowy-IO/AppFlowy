@@ -1,6 +1,5 @@
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import ViewItem from '@/components/app/outline/ViewItem';
-import { renderColor } from '@/utils/color';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { View } from '@/application/types';
@@ -48,18 +47,12 @@ function SpaceItem ({
           'flex items-center px-1 truncate cursor-pointer min-h-[34px] w-full gap-0.5 rounded-[8px] py-1.5  text-sm hover:bg-fill-list-hover focus:bg-content-blue-50 focus:outline-none'
         }
       >
-        <span
-          className={'icon h-5 mr-1.5 w-5'}
-          style={{
-            backgroundColor: extra?.space_icon_color ? renderColor(extra.space_icon_color) : 'rgb(163, 74, 253)',
-            borderRadius: '4px',
-          }}
-        >
         <SpaceIcon
+          className={'icon h-5 mr-1.5 w-5'}
+          bgColor={extra?.space_icon_color}
           value={extra?.space_icon || ''}
           char={extra?.space_icon ? undefined : name.slice(0, 1)}
         />
-        </span>
         <Tooltip
           title={name}
           disableInteractive={true}

@@ -101,7 +101,7 @@ function TrashPage () {
         </Tooltip>
       </div>;
     } else if (column.id === 'created_at' || column.id === 'last_edited_time') {
-      content = dayjs(value).format('MM/DD/YYYY hh:mm A');
+      content = dayjs(value).format('MMM D, YYYY h:mm A');
     } else {
       content = value || t('menuAppHeader.defaultNewPageName');
     }
