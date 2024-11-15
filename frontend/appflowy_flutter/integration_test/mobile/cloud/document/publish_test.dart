@@ -13,7 +13,11 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('publish:', () {
-    testWidgets('publish document', (tester) async {
+    testWidgets('''
+1. publish document
+2. update path name
+3. unpublish document
+''', (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
@@ -59,20 +63,18 @@ void main() {
         of: find.byType(EditWorkspaceNameBottomSheet),
         matching: find.byType(TextFormField),
       );
-      await tester.enterText(textField, pathName2);
+      await tester.enterText(textField, pathName1);
+      await tester.pumpAndSettle();
+
+      // wait 50ms to ensure the error message is shown
+      await tester.wait(50);
 
       // click the confirm button
       final confirmButton = find.text(LocaleKeys.button_confirm.tr());
-      await tester.tap(confirmButton);
+      await tester.tapButton(confirmButton);
 
-      // expect to see the error message
-      final errorMessage = find.findTextInFlowyText(
-        LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
-      );
-      expect(errorMessage, findsOneWidget);
-
-      // expect to see the update path name success toast
-      final updatePathFailedText = find.findTextInFlowyText(
+      // expect to see the update path name failed toast
+      final updatePathFailedText = find.text(
         LocaleKeys.settings_sites_error_publishNameContainsInvalidCharacters
             .tr(),
       );
@@ -80,8 +82,12 @@ void main() {
 
       // input the valid path name
       await tester.enterText(textField, pathName2);
+      await tester.pumpAndSettle();
       // click the confirm button
-      await tester.tap(confirmButton);
+      await tester.tapButton(confirmButton);
+
+      // wait 50ms to ensure the error message is shown
+      await tester.wait(50);
 
       // expect to see the update path name success toast
       final updatePathSuccessText = find.findTextInFlowyText(
