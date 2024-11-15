@@ -40,62 +40,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         },
         child: ViewPageBottomSheet(
           view: view,
-          onAction: (action) async {
-            switch (action) {
-              case MobileViewBottomSheetBodyAction.duplicate:
-                context.read<ViewBloc>().add(const ViewEvent.duplicate());
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.delete:
-                context.read<ViewBloc>().add(const ViewEvent.delete());
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.addToFavorites:
-              case MobileViewBottomSheetBodyAction.removeFromFavorites:
-                context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.undo:
-                EditorNotification.undo().post();
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.redo:
-                EditorNotification.redo().post();
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.helpCenter:
-                // unimplemented
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.publish:
-                await _publish(context);
-                if (context.mounted) {
-                  context.pop();
-                }
-                break;
-              case MobileViewBottomSheetBodyAction.unpublish:
-                _unpublish(context);
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.copyPublishLink:
-                _copyPublishLink(context);
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.visitSite:
-                _visitPublishedSite(context);
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.copyShareLink:
-                _copyShareLink(context);
-                context.pop();
-                break;
-              case MobileViewBottomSheetBodyAction.updatePathName:
-                _updatePathName(context);
-              case MobileViewBottomSheetBodyAction.rename:
-                // no need to implement, rename is handled by the onRename callback.
-                throw UnimplementedError();
-            }
-          },
+          onAction: (action) async => _onAction(context, action),
           onRename: (name) {
             _onRename(context, name);
             context.pop();
@@ -103,6 +48,66 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _onAction(
+    BuildContext context,
+    MobileViewBottomSheetBodyAction action,
+  ) async {
+    switch (action) {
+      case MobileViewBottomSheetBodyAction.duplicate:
+        context.read<ViewBloc>().add(const ViewEvent.duplicate());
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.delete:
+        context.read<ViewBloc>().add(const ViewEvent.delete());
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.addToFavorites:
+      case MobileViewBottomSheetBodyAction.removeFromFavorites:
+        context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.undo:
+        EditorNotification.undo().post();
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.redo:
+        EditorNotification.redo().post();
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.helpCenter:
+        // unimplemented
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.publish:
+        await _publish(context);
+        if (context.mounted) {
+          context.pop();
+        }
+        break;
+      case MobileViewBottomSheetBodyAction.unpublish:
+        _unpublish(context);
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.copyPublishLink:
+        _copyPublishLink(context);
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.visitSite:
+        _visitPublishedSite(context);
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.copyShareLink:
+        _copyShareLink(context);
+        context.pop();
+        break;
+      case MobileViewBottomSheetBodyAction.updatePathName:
+        _updatePathName(context);
+      case MobileViewBottomSheetBodyAction.rename:
+        // no need to implement, rename is handled by the onRename callback.
+        throw UnimplementedError();
+    }
   }
 
   Future<void> _publish(BuildContext context) async {
