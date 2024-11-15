@@ -1,11 +1,8 @@
 import {
-  AppendBreadcrumb,
-  CreateRowDoc,
-  LoadView,
-  LoadViewMeta,
-  UpdatePagePayload, ViewComponentProps,
+  ViewComponentProps,
   ViewLayout,
   YDoc,
+  ViewMetaProps,
 } from '@/application/types';
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
@@ -17,7 +14,6 @@ import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/compo
 import DatabaseView from '@/components/app/DatabaseView';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
-import { ViewMetaProps } from '@/components/view-meta';
 import React, { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 
 const ViewHelmet = lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
@@ -37,6 +33,7 @@ function AppPage () {
     deletePage,
     openPageModal,
     loadViews,
+    setWordCount,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -139,9 +136,10 @@ function AppPage () {
         deletePage={deletePage}
         openPageModal={openPageModal}
         loadViews={loadViews}
+        onWordCountChange={setWordCount}
       />
     ) : skeleton;
-  }, [addPage, loadViews, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
+  }, [addPage, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;

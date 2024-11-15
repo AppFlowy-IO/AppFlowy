@@ -75,10 +75,7 @@ function PageActions ({ view }: {
       >
         {popoverType === 'more' ? <MorePageActions
           view={view}
-          onDeleted={() => {
-            handleClosePopover();
-          }}
-          onMoved={() => {
+          onClose={() => {
             handleClosePopover();
           }}
         /> : <AddPageActions view={view} />}

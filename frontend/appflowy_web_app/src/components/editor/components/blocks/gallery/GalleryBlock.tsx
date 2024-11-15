@@ -7,7 +7,7 @@ import GalleryToolbar from '@/components/editor/components/blocks/gallery/Galler
 import ImageGallery from '@/components/editor/components/blocks/gallery/ImageGallery';
 import { EditorElementProps, GalleryBlockNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
-import React, { forwardRef, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, Suspense, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useReadOnly } from 'slate-react';
 

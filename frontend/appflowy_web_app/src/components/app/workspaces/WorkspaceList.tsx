@@ -41,10 +41,9 @@ function WorkspaceList ({
       {workspaces.map((workspace) => {
         return <Button
           key={workspace.id}
-          className={'flex relative text-[1em] items-center justify-between gap-4 p-2 cursor-pointer'}
+          className={'flex relative text-[1em] items-center justify-between gap-[10px] p-2 cursor-pointer'}
           onClick={async () => {
             if (workspace.id === currentWorkspaceId) return;
-
             void onChange(workspace.id);
           }}
         >

@@ -2,7 +2,6 @@ import { supportLanguages } from '@/components/editor/components/blocks/code/con
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Button, TextField } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { Popover } from '@/components/_shared/popover';
 import { ReactComponent as SelectedIcon } from '@/assets/selected.svg';
 

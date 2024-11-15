@@ -1,24 +1,20 @@
 import { View, ViewIconType } from '@/application/types';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
-import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
-import { ReactComponent as DuplicateIcon } from '@/assets/duplicate.svg';
 import { ReactComponent as ChangeIcon } from '@/assets/change_icon.svg';
-import { ReactComponent as MoveToIcon } from '@/assets/move_to.svg';
 import { ReactComponent as OpenInBrowserIcon } from '@/assets/open_in_browser.svg';
 import { notify } from '@/components/_shared/notify';
+import { Origins } from '@/components/_shared/popover';
 import { useAppHandlers, useCurrentWorkspaceId } from '@/components/app/app.hooks';
-import DeletePageConfirm from '@/components/app/view-actions/DeletePageConfirm';
-import MovePagePopover from '@/components/app/view-actions/MovePagePopover';
+import MoreActionsContent from '@/components/app/header/MoreActionsContent';
 import RenameModal from '@/components/app/view-actions/RenameModal';
 
 import { Button, Divider } from '@mui/material';
-import { PopoverProps } from '@mui/material/Popover';
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ChangeIconPopover = lazy(() => import('@/components/_shared/view-icon/ChangeIconPopover'));
 
-const popoverProps: Partial<PopoverProps> = {
+const popoverProps: Origins = {
   transformOrigin: {
     vertical: 'top',
     horizontal: 'left',
@@ -29,10 +25,9 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-function MorePageActions ({ view, onDeleted, onMoved }: {
+function MorePageActions ({ view, onClose }: {
   view: View;
-  onDeleted?: () => void;
-  onMoved?: () => void;
+  onClose?: () => void;
 }) {
   const currentWorkspaceId = useCurrentWorkspaceId();
 
@@ -40,8 +35,7 @@ function MorePageActions ({ view, onDeleted, onMoved }: {
   const openIconPopover = Boolean(iconPopoverAnchorEl);
 
   const [renameModalOpen, setRenameModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [movePopoverAnchorEl, setMovePopoverAnchorEl] = useState<null | HTMLElement>(null);
+
   const {
     updatePage,
   } = useAppHandlers();
@@ -79,25 +73,6 @@ function MorePageActions ({ view, onDeleted, onMoved }: {
       onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
         setIconPopoverAnchorEl(e.currentTarget);
       },
-    }, {
-      label: t('button.duplicate'),
-      icon: <DuplicateIcon />,
-      onClick: () => {
-        //
-      },
-    }, {
-      label: t('disclosureAction.moveTo'),
-      icon: <MoveToIcon />,
-      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-        setMovePopoverAnchorEl(e.currentTarget);
-      },
-    }, {
-      label: t('button.delete'),
-      icon: <DeleteIcon />,
-      danger: true,
-      onClick: () => {
-        setDeleteModalOpen(true);
-      },
     }];
   }, [t]);
 
@@ -108,13 +83,18 @@ function MorePageActions ({ view, onDeleted, onMoved }: {
           key={action.label}
           size={'small'}
           onClick={action.onClick}
-          className={`px-3 py-1 justify-start ${action.danger ? 'hover:text-function-error' : ''}`}
+          className={`px-3 py-1 justify-start `}
           color={'inherit'}
           startIcon={action.icon}
         >
           {action.label}
         </Button>
       ))}
+      <MoreActionsContent
+        itemClicked={onClose}
+        viewId={view.view_id}
+        movePopoverOrigins={popoverProps}
+      />
       <Divider className={'w-full'} />
       <Button
         size={'small'}
@@ -147,19 +127,6 @@ function MorePageActions ({ view, onDeleted, onMoved }: {
         open={renameModalOpen}
         onClose={() => setRenameModalOpen(false)}
         viewId={view.view_id}
-      />
-      <DeletePageConfirm
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        viewId={view.view_id}
-        onDeleted={onDeleted}
-      />
-      <MovePagePopover
-        {...popoverProps} viewId={view.view_id}
-        open={Boolean(movePopoverAnchorEl)}
-        anchorEl={movePopoverAnchorEl}
-        onClose={() => setMovePopoverAnchorEl(null)}
-        onMoved={onMoved}
       />
     </div>
   );

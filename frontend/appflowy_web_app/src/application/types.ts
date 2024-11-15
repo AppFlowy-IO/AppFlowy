@@ -1,3 +1,4 @@
+import { TextCount } from '@/utils/word';
 import * as Y from 'yjs';
 
 export type BlockId = string;
@@ -935,4 +936,5 @@ export interface ViewComponentProps {
   variant?: UIVariant;
   isTemplateThumb?: boolean;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
+  onWordCountChange?: (viewId: string, props: TextCount) => void;
 }

@@ -7,7 +7,7 @@ function ViewCoverActions (
   { show, onRemove, onClick }: {
     show: boolean;
     onRemove: () => void;
-    onClick: (e: React.MouseEvent<HTMLDivElement>) => void
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
   },
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
