@@ -1,6 +1,8 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -37,6 +39,10 @@ void main() {
     await tester.openWorkspaceMenu();
     await tester.changeWorkspaceIcon(icon);
     await tester.changeWorkspaceName(name);
+
+    await tester.pumpUntilNotFound(
+      find.text(LocaleKeys.workspace_renameSuccess.tr()),
+    );
 
     workspaceIcon = tester.widget<WorkspaceIcon>(
       find.byType(WorkspaceIcon),

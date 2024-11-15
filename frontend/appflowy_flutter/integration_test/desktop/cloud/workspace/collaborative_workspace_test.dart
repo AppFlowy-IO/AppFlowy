@@ -101,5 +101,52 @@ void main() {
       final memberCount = find.text('1 member');
       expect(memberCount, findsNWidgets(2));
     });
+
+    testWidgets('only display one menu item in the workspace menu',
+        (tester) async {
+      // only run the test when the feature flag is on
+      if (!FeatureFlag.collaborativeWorkspace.isOn) {
+        return;
+      }
+
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      const name = 'AppFlowy.IO';
+      // the workspace will be opened after created
+      await tester.createCollaborativeWorkspace(name);
+
+      final loading = find.byType(Loading);
+      await tester.pumpUntilNotFound(loading);
+
+      await tester.openCollaborativeWorkspaceMenu();
+
+      // hover on the workspace and click the more button
+      final workspaceItem = find.byWidgetPredicate(
+        (w) => w is WorkspaceMenuItem && w.workspace.name == name,
+      );
+      await tester.hoverOnWidget(
+        workspaceItem,
+        onHover: () async {
+          final moreButton = find.byWidgetPredicate(
+            (w) => w is WorkspaceMoreActionList && w.workspace.name == name,
+          );
+          expect(moreButton, findsOneWidget);
+          await tester.tapButton(moreButton);
+
+          // click it again
+          await tester.tapButton(moreButton);
+
+          // nothing should happen
+          expect(
+            find.text(LocaleKeys.button_rename.tr()),
+            findsOneWidget,
+          );
+        },
+      );
+    });
   });
 }
