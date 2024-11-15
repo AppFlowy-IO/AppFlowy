@@ -3,16 +3,19 @@ import 'dart:async';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/home/workspaces/create_workspace_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/plugins/shared/share/publish_name_generator.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/shared/error_code/error_code_map.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -24,74 +27,80 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   const MobileViewPageMoreBottomSheet({super.key, required this.view});
 
   final ViewPB view;
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ViewBloc, ViewState>(
-      listener: (context, state) {
-        if (state.successOrFailure.isSuccess && state.isDeleted) {
-          context.go('/home');
-        }
-      },
-      child: ViewPageBottomSheet(
-        view: view,
-        onAction: (action) async {
-          switch (action) {
-            case MobileViewBottomSheetBodyAction.duplicate:
-              context.read<ViewBloc>().add(const ViewEvent.duplicate());
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.delete:
-              context.read<ViewBloc>().add(const ViewEvent.delete());
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.addToFavorites:
-            case MobileViewBottomSheetBodyAction.removeFromFavorites:
-              context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.undo:
-              EditorNotification.undo().post();
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.redo:
-              EditorNotification.redo().post();
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.helpCenter:
-              // unimplemented
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.publish:
-              await _publish(context);
-              if (context.mounted) {
-                context.pop();
-              }
-              break;
-            case MobileViewBottomSheetBodyAction.unpublish:
-              _unpublish(context);
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.copyPublishLink:
-              _copyPublishLink(context);
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.visitSite:
-              _visitPublishedSite(context);
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.copyShareLink:
-              _copyShareLink(context);
-              context.pop();
-              break;
-            case MobileViewBottomSheetBodyAction.rename:
-              // no need to implement, rename is handled by the onRename callback.
-              throw UnimplementedError();
+    return BlocListener<ShareBloc, ShareState>(
+      listener: (context, state) => _showToast(context, state),
+      child: BlocListener<ViewBloc, ViewState>(
+        listener: (context, state) {
+          if (state.successOrFailure.isSuccess && state.isDeleted) {
+            context.go('/home');
           }
         },
-        onRename: (name) {
-          _onRename(context, name);
-          context.pop();
-        },
+        child: ViewPageBottomSheet(
+          view: view,
+          onAction: (action) async {
+            switch (action) {
+              case MobileViewBottomSheetBodyAction.duplicate:
+                context.read<ViewBloc>().add(const ViewEvent.duplicate());
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.delete:
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.addToFavorites:
+              case MobileViewBottomSheetBodyAction.removeFromFavorites:
+                context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.undo:
+                EditorNotification.undo().post();
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.redo:
+                EditorNotification.redo().post();
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.helpCenter:
+                // unimplemented
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.publish:
+                await _publish(context);
+                if (context.mounted) {
+                  context.pop();
+                }
+                break;
+              case MobileViewBottomSheetBodyAction.unpublish:
+                _unpublish(context);
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.copyPublishLink:
+                _copyPublishLink(context);
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.visitSite:
+                _visitPublishedSite(context);
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.copyShareLink:
+                _copyShareLink(context);
+                context.pop();
+                break;
+              case MobileViewBottomSheetBodyAction.updatePathName:
+                _updatePathName(context);
+              case MobileViewBottomSheetBodyAction.rename:
+                // no need to implement, rename is handled by the onRename callback.
+                throw UnimplementedError();
+            }
+          },
+          onRename: (name) {
+            _onRename(context, name);
+            context.pop();
+          },
+        ),
       ),
     );
   }
@@ -184,6 +193,62 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   void _onRename(BuildContext context, String name) {
     if (name != view.name) {
       context.read<ViewBloc>().add(ViewEvent.rename(name));
+    }
+  }
+
+  void _updatePathName(BuildContext context) {
+    final shareBloc = context.read<ShareBloc>();
+    final pathName = shareBloc.state.pathName;
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: LocaleKeys.shareAction_updatePathName.tr(),
+      showCloseButton: true,
+      showDragHandle: true,
+      showDivider: false,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      builder: (bottomSheetContext) {
+        return EditWorkspaceNameBottomSheet(
+          type: EditWorkspaceNameType.edit,
+          workspaceName: pathName,
+          hintText: '',
+          validator: (value) => null,
+          onSubmitted: (name) {
+            shareBloc.add(ShareEvent.updatePathName(name));
+
+            // rename the path name
+            Log.info('rename the path name, from: $pathName, to: $name');
+          },
+        );
+      },
+    );
+  }
+
+  void _showToast(BuildContext context, ShareState state) {
+    if (state.updatePathNameResult != null) {
+      state.updatePathNameResult!.fold(
+        (value) {
+          showToastNotification(
+            context,
+            message:
+                LocaleKeys.settings_sites_success_updatePathNameSuccess.tr(),
+          );
+
+          context.pop();
+        },
+        (error) {
+          Log.error('update path name failed: $error');
+
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom + 18;
+          showToastNotification(
+            context,
+            message: LocaleKeys.settings_sites_error_updatePathNameFailed.tr(),
+            type: ToastificationType.error,
+            description: error.code.publishErrorMessage,
+            bottomPadding: keyboardHeight,
+          );
+        },
+      );
     }
   }
 }

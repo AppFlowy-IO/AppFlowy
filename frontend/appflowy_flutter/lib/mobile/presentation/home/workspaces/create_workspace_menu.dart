@@ -33,6 +33,7 @@ class EditWorkspaceNameBottomSheet extends StatefulWidget {
     required this.onSubmitted,
     required this.workspaceName,
     this.hintText,
+    this.validator,
   });
 
   final EditWorkspaceNameType type;
@@ -42,6 +43,8 @@ class EditWorkspaceNameBottomSheet extends StatefulWidget {
   final String? workspaceName;
 
   final String? hintText;
+
+  final String? Function(String?)? validator;
 
   @override
   State<EditWorkspaceNameBottomSheet> createState() =>
@@ -83,12 +86,13 @@ class _EditWorkspaceNameBottomSheetState
               hintText:
                   widget.hintText ?? LocaleKeys.workspace_defaultName.tr(),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return LocaleKeys.workspace_workspaceNameCannotBeEmpty.tr();
-              }
-              return null;
-            },
+            validator: widget.validator ??
+                (value) {
+                  if (value == null || value.isEmpty) {
+                    return LocaleKeys.workspace_workspaceNameCannotBeEmpty.tr();
+                  }
+                  return null;
+                },
             onEditingComplete: _onSubmit,
           ),
         ),
