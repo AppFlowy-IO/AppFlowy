@@ -87,7 +87,10 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       redoCommand.execute(widget.editorState);
     } else if (type == EditorNotificationType.exitEditing &&
         widget.editorState.selection != null) {
-      widget.editorState.selection = null;
+      // If the editor is disposed, we don't need to reset the selection.
+      if (!widget.editorState.isDisposed) {
+        widget.editorState.selection = null;
+      }
     }
   }
 
