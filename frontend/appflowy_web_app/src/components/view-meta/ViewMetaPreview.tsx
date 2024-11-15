@@ -8,7 +8,16 @@ import { useTranslation } from 'react-i18next';
 
 const AddIconCover = lazy(() => import('@/components/view-meta/AddIconCover'));
 
-export function ViewMetaPreview ({ icon, cover, name, extra, readOnly = true, viewId, updatePage }: ViewMetaProps) {
+export function ViewMetaPreview ({
+  icon,
+  cover,
+  name,
+  extra,
+  readOnly = true,
+  viewId,
+  updatePage,
+  onEnter,
+}: ViewMetaProps) {
   const [iconAnchorEl, setIconAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const coverType = useMemo(() => {
@@ -150,6 +159,7 @@ export function ViewMetaPreview ({ icon, cover, name, extra, readOnly = true, vi
             {!readOnly ? <TitleEditable
                 name={name || ''}
                 onUpdateName={handleUpdateName}
+                onEnter={onEnter}
               /> :
               <div
                 className={'relative flex-1 cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}

@@ -1,4 +1,5 @@
 import { ThemeModeContext } from '@/components/main/useAppThemeMode';
+import { renderColor } from '@/utils/color';
 import { getIconSvgEncodedContent } from '@/utils/emoji';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ReactComponent as SpaceIcon1 } from '@/assets/space_icon/space_icon_1.svg';
@@ -56,7 +57,12 @@ export const getIconComponent = (icon: string) => {
   }
 };
 
-function SpaceIcon ({ value, char }: { value: string, char?: string }) {
+function SpaceIcon ({ value, char, bgColor, className }: {
+  value: string,
+  char?: string,
+  bgColor?: string,
+  className?: string
+}) {
   const IconComponent = getIconComponent(value);
   const [iconEncodeContent, setIconEncodeContent] = useState<string | null>(null);
   const isDark = useContext(ThemeModeContext)?.isDark || false;
@@ -84,19 +90,29 @@ function SpaceIcon ({ value, char }: { value: string, char?: string }) {
     />;
   }, [iconEncodeContent, value]);
 
-  if (char) {
-    return (
-      <span className={'text-content-on-fill font-medium h-full w-full flex items-center justify-center'}>
+  const content = useMemo(() => {
+    if (char) {
+      return (
+        <span className={'text-content-on-fill font-medium h-full w-full flex items-center justify-center'}>
         {char}
       </span>
-    );
-  }
+      );
+    }
 
-  if (!IconComponent) {
-    return customIcon;
-  }
+    if (!IconComponent) {
+      return customIcon;
+    }
 
-  return <IconComponent className={'h-full w-full'} />;
+    return <IconComponent className={'h-full w-full'} />;
+  }, [IconComponent, char, customIcon]);
+
+  return <span
+    className={className ? className : 'icon h-[1.2em] w-[1.2em] shrink-0'}
+    style={{
+      backgroundColor: bgColor ? renderColor(bgColor) : 'rgb(163, 74, 253)',
+      borderRadius: '4px',
+    }}
+  >{content}</span>;
 }
 
 export default SpaceIcon;

@@ -144,8 +144,6 @@ export function createBlock (sharedRoot: YSharedRoot, {
   block.set(YjsEditorKey.block_id, id);
   block.set(YjsEditorKey.block_type, ty);
   block.set(YjsEditorKey.block_children, id);
-  block.set(YjsEditorKey.block_external_id, id);
-  block.set(YjsEditorKey.block_external_type, 'text');
   block.set(YjsEditorKey.block_data, JSON.stringify(data));
 
   const document = getDocument(sharedRoot);
@@ -155,10 +153,16 @@ export function createBlock (sharedRoot: YSharedRoot, {
 
   const meta = document.get(YjsEditorKey.meta) as YMeta;
   const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
-  const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
 
   childrenMap.set(id, new Y.Array());
-  textMap.set(id, new Y.Text());
+
+  if (!isEmbedBlockTypes(ty)) {
+    block.set(YjsEditorKey.block_external_id, id);
+    block.set(YjsEditorKey.block_external_type, 'text');
+    const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
+
+    textMap.set(id, new Y.Text());
+  }
 
   return block as YBlock;
 }
@@ -1407,4 +1411,22 @@ export function addBlock (editor: YjsEditor, {
   executeOperations(sharedRoot, operations, 'addBlock');
 
   return newBlockId;
+}
+
+export function appendFirstEmptyParagraph (sharedRoot: YSharedRoot, defaultText: string) {
+  const pageId = getPageId(sharedRoot);
+  const page = getBlock(pageId, sharedRoot);
+
+  executeOperations(sharedRoot, [() => {
+    const newBlock = createBlock(sharedRoot, {
+      ty: BlockType.Paragraph,
+      data: {},
+    });
+
+    const newBlockText = getText(newBlock.get(YjsEditorKey.block_external_id), sharedRoot);
+
+    newBlockText.insert(0, defaultText);
+
+    updateBlockParent(sharedRoot, newBlock, page, 0);
+  }], 'appendFirstEmptyParagraph');
 }

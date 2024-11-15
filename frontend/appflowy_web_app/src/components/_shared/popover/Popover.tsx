@@ -108,8 +108,11 @@ export function Popover ({
   anchorOrigin = DEFAULT_ORIGINS.anchorOrigin,
   anchorPosition,
   anchorEl,
+  adjustOrigins = false,
   ...props
-}: PopoverComponentProps) {
+}: PopoverComponentProps & {
+  adjustOrigins?: boolean
+}) {
   const [origins, setOrigins] = useState<Origins>({
     transformOrigin,
     anchorOrigin,
@@ -150,7 +153,7 @@ export function Popover ({
       anchorEl={anchorEl}
       anchorPosition={anchorPosition}
       TransitionProps={{
-        onEntered: handleEntered,
+        onEntered: adjustOrigins ? handleEntered : undefined,
       }}
       anchorOrigin={origins.anchorOrigin}
       transformOrigin={origins.transformOrigin}

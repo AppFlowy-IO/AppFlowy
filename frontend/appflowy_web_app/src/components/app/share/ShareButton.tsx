@@ -26,6 +26,14 @@ export function ShareButton ({ viewId }: { viewId: string }) {
         open={opened}
         anchorEl={ref.current}
         onClose={() => setOpened(false)}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
       >
         <div className={'flex flex-col gap-2 w-fit p-2'}>
           <ShareTabs viewId={viewId} />

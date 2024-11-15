@@ -2,7 +2,6 @@ import { UIVariant, View, ViewLayout } from '@/application/types';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
-import { renderColor } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { memo } from 'react';
@@ -50,18 +49,11 @@ function OutlineItemContent ({
       className={`flex flex-1 select-none items-center gap-1.5 overflow-hidden`}
     >
       {isSpace && extra ?
-        <span
-          className={'icon h-[1.2em] w-[1.2em]'}
-          style={{
-            backgroundColor: extra.space_icon_color ? renderColor(extra.space_icon_color) : 'rgb(163, 74, 253)',
-            borderRadius: '4px',
-          }}
-        >
-          <SpaceIcon
-            value={extra.space_icon || ''}
-            char={extra.space_icon ? undefined : name.slice(0, 1)}
-          />
-        </span> :
+        <SpaceIcon
+          bgColor={extra.space_icon_color}
+          value={extra.space_icon || ''}
+          char={extra.space_icon ? undefined : name.slice(0, 1)}
+        /> :
         <div
           className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}
         >
