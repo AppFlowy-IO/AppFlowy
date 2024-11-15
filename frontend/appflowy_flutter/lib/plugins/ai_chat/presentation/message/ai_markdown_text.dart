@@ -106,6 +106,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         shrinkWrap: true,
         // the editor is not editable in the chat
         editable: false,
+        disableKeyboardService: true,
         editorStyle: editorStyle,
         editorScrollController: scrollController,
         blockComponentBuilders: blockBuilders,

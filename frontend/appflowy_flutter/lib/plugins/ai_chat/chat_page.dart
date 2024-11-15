@@ -192,11 +192,13 @@ class _ChatContentPage extends StatelessWidget {
                             .add(const ChatEvent.startLoadingPrevMessage());
                       }
                     },
-                    emptyState: ChatWelcomePage(
-                      userProfile: userProfile,
-                      onSelectedQuestion: (question) => context
-                          .read<ChatBloc>()
-                          .add(ChatEvent.sendMessage(message: question)),
+                    emptyState: TextFieldTapRegion(
+                      child: ChatWelcomePage(
+                        userProfile: userProfile,
+                        onSelectedQuestion: (question) => context
+                            .read<ChatBloc>()
+                            .add(ChatEvent.sendMessage(message: question)),
+                      ),
                     ),
                     messageWidthRatio: AIChatUILayout.messageWidthRatio,
                     textMessageBuilder: (

@@ -124,7 +124,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
               child: IntrinsicHeight(
                 child: Row(
                   children: [
-                    const HSpace(6.0),
+                    const HSpace(8.0),
                     Expanded(child: _inputTextField(context)),
                     _mentionButton(),
                     const HSpace(6.0),
