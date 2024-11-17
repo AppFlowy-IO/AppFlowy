@@ -6,19 +6,11 @@ import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TabsManager extends StatefulWidget {
-  const TabsManager({
-    super.key,
-    required this.onIndexChanged,
-  });
+class TabsManager extends StatelessWidget {
+  const TabsManager({super.key, required this.onIndexChanged});
 
   final void Function(int) onIndexChanged;
 
-  @override
-  State<TabsManager> createState() => _TabsManagerState();
-}
-
-class _TabsManagerState extends State<TabsManager> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TabsBloc>.value(
@@ -26,7 +18,7 @@ class _TabsManagerState extends State<TabsManager> {
       child: BlocListener<TabsBloc, TabsState>(
         listenWhen: (prev, curr) =>
             prev.currentIndex != curr.currentIndex || prev.pages != curr.pages,
-        listener: (context, state) => widget.onIndexChanged(state.currentIndex),
+        listener: (context, state) => onIndexChanged(state.currentIndex),
         child: BlocBuilder<TabsBloc, TabsState>(
           builder: (context, state) {
             if (state.pages == 1) {
@@ -54,7 +46,7 @@ class _TabsManagerState extends State<TabsManager> {
                           onTap: () {
                             if (state.currentPageManager != pm) {
                               final index = state.pageManagers.indexOf(pm);
-                              widget.onIndexChanged(index);
+                              onIndexChanged(index);
                             }
                           },
                         ),

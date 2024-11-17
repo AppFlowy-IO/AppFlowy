@@ -85,9 +85,8 @@ class _HomeStackState extends State<HomeStack> {
               ),
             ),
             Expanded(
-              child: FadingIndexedStack(
+              child: IndexedStack(
                 index: selectedIndex,
-                duration: const Duration(milliseconds: 350),
                 children: state.pageManagers
                     .map(
                       (pm) => Column(
