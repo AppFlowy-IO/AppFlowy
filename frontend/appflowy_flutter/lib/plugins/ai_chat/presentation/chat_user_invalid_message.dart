@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
@@ -22,9 +23,11 @@ class ChatInvalidUserMessage extends StatelessWidget {
             ? const BoxConstraints(maxWidth: 480)
             : const BoxConstraints(),
         padding: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
-          color: Color(0x80FFE7EE),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).isLightMode
+              ? const Color(0x80FFE7EE)
+              : const Color(0x80591734),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
