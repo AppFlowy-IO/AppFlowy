@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -147,9 +148,11 @@ class _StreamingErrorState extends State<StreamingError> {
       child: Container(
         margin: const EdgeInsets.only(top: 16.0, bottom: 24.0),
         padding: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
-          color: Color(0x80FFE7EE),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).isLightMode
+              ? const Color(0x80FFE7EE)
+              : const Color(0x80591734),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         ),
         constraints: _errorConstraints(),
         child: Row(
@@ -204,9 +207,11 @@ class AIResponseLimitReachedError extends StatelessWidget {
         margin: const EdgeInsets.only(top: 16.0, bottom: 24.0),
         constraints: _errorConstraints(),
         padding: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
-          color: Color(0x80FFE7EE),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).isLightMode
+              ? const Color(0x80FFE7EE)
+              : const Color(0x80591734),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
