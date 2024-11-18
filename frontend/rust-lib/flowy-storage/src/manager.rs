@@ -330,15 +330,17 @@ impl StorageService for StorageServiceImpl {
       return Err(FlowyError::file_storage_limit());
     }
 
-    let local_file_path = self
-      .temp_storage
-      .create_temp_file_from_existing(Path::new(&file_path))
-      .await
-      .map_err(|err| {
-        error!("[File] create temp file failed: {}", err);
-        FlowyError::internal()
-          .with_context(format!("create temp file for upload file failed: {}", err))
-      })?;
+    let local_file_path = file_path;
+    // skip copy the file, upload from source
+    // let local_file_path = self
+    //     .temp_storage
+    //     .create_temp_file_from_existing(Path::new(&file_path))
+    //     .await
+    //     .map_err(|err| {
+    //       error!("[File] create temp file failed: {}", err);
+    //       FlowyError::internal()
+    //           .with_context(format!("create temp file for upload file failed: {}", err))
+    //     })?;
 
     // 1. create a file record and chunk the file
     let record = create_upload_record(workspace_id, parent_dir, local_file_path.clone()).await?;
@@ -590,30 +592,8 @@ async fn start_upload(
     chunked_bytes.total_chunks(),
     upload_offset,
   );
-  let mut part_number = upload_offset + 1; // Start part number
-  while let Some(chunk_result) = chunked_bytes.next_chunk().await {
-    match chunk_result {
-      Ok(chunk_bytes) => {
-        info!(
-          "[File] {} uploading {}th part, size:{}KB",
-          upload_file.file_id,
-          part_number,
-          chunk_bytes.len() / 1000
-        );
-        part_number += 1; // Increment part number
-      },
-      Err(e) => {
-        error!(
-          "[File] {} failed to read chunk: {:?}",
-          upload_file.file_id, e
-        );
-        break; // Stop iteration on error
-      },
-    }
-  }
 
   let mut part_number = upload_offset + 1;
-
   while let Some(chunk_result) = chunked_bytes.next_chunk().await {
     match chunk_result {
       Ok(chunk_bytes) => {
@@ -645,6 +625,11 @@ async fn start_upload(
         .await
         {
           Ok(resp) => {
+            trace!(
+              "[File] {} part {} uploaded",
+              upload_file.file_id,
+              part_number
+            );
             let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
             // The 0.1 is reserved for the complete_upload progress
             if progress_value >= 0.9 {
@@ -665,8 +650,11 @@ async fn start_upload(
             });
           },
           Err(err) => {
+            error!(
+              "[File] {} failed to upload part: {}",
+              upload_file.file_id, err
+            );
             handle_upload_error(user_service, &err, &upload_file.upload_id);
-
             if let Err(err) = global_notifier.send(FileProgress::new_error(
               file_url,
               upload_file.file_id.clone(),
@@ -845,11 +833,12 @@ async fn complete_upload(
 
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
       update_upload_file_completed(conn, &upload_file.upload_id)?;
+
       if let Err(err) = temp_storage
         .delete_temp_file(&upload_file.local_file_path)
         .await
       {
-        error!("[File] delete temp file failed: {}", err);
+        trace!("[File] delete temp file failed: {}", err);
       }
     },
     Err(err) => {

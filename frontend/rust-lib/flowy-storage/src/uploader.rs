@@ -180,8 +180,6 @@ impl FileUploader {
               record,
               retry_count,
             });
-          } else {
-            let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
           }
         }
       },
@@ -215,8 +213,6 @@ impl FileUploader {
               created_at,
               retry_count,
             });
-          } else {
-            let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
           }
         }
       },
@@ -247,6 +243,10 @@ impl FileUploaderRunner {
 
       if let Some(uploader) = weak_uploader.upgrade() {
         let value = notifier.borrow().clone();
+        trace!(
+          "[File]: Uploader runner received signal, thread_id: {:?}",
+          std::thread::current().id()
+        );
         match value {
           Signal::Stop => {
             info!("[File]:Uploader runner stopped, stop signal received");

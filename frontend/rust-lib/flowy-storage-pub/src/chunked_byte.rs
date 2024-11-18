@@ -45,23 +45,28 @@ impl ChunkedBytes {
   /// Read the next chunk from the file.
   pub async fn next_chunk(&mut self) -> Option<Result<Bytes, io::Error>> {
     if self.current_offset >= self.file_size {
-      return None;
+      return None; // End of file
     }
 
     let mut buffer = vec![0u8; self.chunk_size];
-    self
-      .file
-      .seek(SeekFrom::Start(self.current_offset))
-      .await
-      .ok()?;
-    let bytes_read = match self.file.read(&mut buffer).await {
-      Ok(0) => return None,
-      Ok(n) => n,
-      Err(e) => return Some(Err(e)),
-    };
+    let mut total_bytes_read = 0;
 
-    self.current_offset += bytes_read as u64;
-    Some(Ok(Bytes::from(buffer[..bytes_read].to_vec())))
+    // Loop to ensure the buffer is filled or EOF is reached
+    while total_bytes_read < self.chunk_size {
+      let read_result = self.file.read(&mut buffer[total_bytes_read..]).await;
+      match read_result {
+        Ok(0) => break, // EOF
+        Ok(n) => total_bytes_read += n,
+        Err(e) => return Some(Err(e)),
+      }
+    }
+
+    if total_bytes_read == 0 {
+      return None; // EOF
+    }
+
+    self.current_offset += total_bytes_read as u64;
+    Some(Ok(Bytes::from(buffer[..total_bytes_read].to_vec())))
   }
 
   /// Set the offset for the next chunk to be read.
@@ -118,6 +123,7 @@ pub fn calculate_offsets(data_len: usize, chunk_size: usize) -> Vec<(usize, usiz
 
   offsets
 }
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -257,6 +263,154 @@ mod tests {
     // Try setting an invalid offset
     let result = chunked_bytes.set_offset(10 * 1024 * 1024).await;
     assert!(result.is_err()); // Offset out of range
+
+    tokio::fs::remove_file(file_path).await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_exact_multiple_chunk_file() {
+    // Create a file of 10 MB (exact multiple of 5 MB)
+    let mut file_path = temp_dir();
+    file_path.push("test_exact_multiple_chunk_file");
+
+    let mut file = File::create(&file_path).await.unwrap();
+    file.write_all(&vec![0; 10 * 1024 * 1024]).await.unwrap(); // 10 MB
+    file.flush().await.unwrap();
+
+    // Create ChunkedBytes instance
+    let mut chunked_bytes = ChunkedBytes::from_file(&file_path, MIN_CHUNK_SIZE)
+      .await
+      .unwrap();
+
+    // Validate total chunks
+    let expected_offsets = calculate_offsets(10 * 1024 * 1024, MIN_CHUNK_SIZE);
+    assert_eq!(chunked_bytes.total_chunks(), expected_offsets.len()); // 2 chunks
+
+    // Read and validate all chunks
+    let mut chunk_sizes = vec![];
+    while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+      chunk_sizes.push(chunk_result.unwrap().len());
+    }
+    assert_eq!(chunk_sizes, vec![5 * 1024 * 1024, 5 * 1024 * 1024]); // 2 full chunks
+
+    tokio::fs::remove_file(file_path).await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_small_file_less_than_chunk_size() {
+    // Create a file of 2 MB (smaller than 5 MB)
+    let mut file_path = temp_dir();
+    file_path.push("test_small_file_less_than_chunk_size");
+
+    let mut file = File::create(&file_path).await.unwrap();
+    file.write_all(&vec![0; 2 * 1024 * 1024]).await.unwrap(); // 2 MB
+    file.flush().await.unwrap();
+
+    // Create ChunkedBytes instance
+    let mut chunked_bytes = ChunkedBytes::from_file(&file_path, MIN_CHUNK_SIZE)
+      .await
+      .unwrap();
+
+    // Validate total chunks
+    let expected_offsets = calculate_offsets(2 * 1024 * 1024, MIN_CHUNK_SIZE);
+    assert_eq!(chunked_bytes.total_chunks(), expected_offsets.len()); // 1 chunk
+
+    // Read and validate all chunks
+    let mut chunk_sizes = vec![];
+    while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+      chunk_sizes.push(chunk_result.unwrap().len());
+    }
+    assert_eq!(chunk_sizes, vec![2 * 1024 * 1024]); // 1 partial chunk
+
+    tokio::fs::remove_file(file_path).await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_file_slightly_larger_than_chunk_size() {
+    // Create a file of 5.5 MB (slightly larger than 1 chunk)
+    let mut file_path = temp_dir();
+    file_path.push("test_file_slightly_larger_than_chunk_size");
+
+    let mut file = File::create(&file_path).await.unwrap();
+    file
+      .write_all(&vec![0; 5 * 1024 * 1024 + 512 * 1024])
+      .await
+      .unwrap(); // 5.5 MB
+    file.flush().await.unwrap();
+
+    // Create ChunkedBytes instance
+    let mut chunked_bytes = ChunkedBytes::from_file(&file_path, MIN_CHUNK_SIZE)
+      .await
+      .unwrap();
+
+    // Validate total chunks
+    let expected_offsets = calculate_offsets(5 * 1024 * 1024 + 512 * 1024, MIN_CHUNK_SIZE);
+    assert_eq!(chunked_bytes.total_chunks(), expected_offsets.len()); // 2 chunks
+
+    // Read and validate all chunks
+    let mut chunk_sizes = vec![];
+    while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+      chunk_sizes.push(chunk_result.unwrap().len());
+    }
+    assert_eq!(chunk_sizes, vec![5 * 1024 * 1024, 512 * 1024]); // 1 full chunk, 1 partial chunk
+
+    tokio::fs::remove_file(file_path).await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_large_file_with_many_chunks() {
+    // Create a file of 50 MB (10 chunks of 5 MB)
+    let mut file_path = temp_dir();
+    file_path.push("test_large_file_with_many_chunks");
+
+    let mut file = File::create(&file_path).await.unwrap();
+    file.write_all(&vec![0; 50 * 1024 * 1024]).await.unwrap(); // 50 MB
+    file.flush().await.unwrap();
+
+    // Create ChunkedBytes instance
+    let mut chunked_bytes = ChunkedBytes::from_file(&file_path, MIN_CHUNK_SIZE)
+      .await
+      .unwrap();
+
+    // Validate total chunks
+    let expected_offsets = calculate_offsets(50 * 1024 * 1024, MIN_CHUNK_SIZE);
+    assert_eq!(chunked_bytes.total_chunks(), expected_offsets.len()); // 10 chunks
+
+    // Read and validate all chunks
+    let mut chunk_sizes = vec![];
+    while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+      chunk_sizes.push(chunk_result.unwrap().len());
+    }
+    assert_eq!(chunk_sizes, vec![5 * 1024 * 1024; 10]); // 10 full chunks
+
+    tokio::fs::remove_file(file_path).await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_file_with_exact_chunk_size() {
+    // Create a file of exactly 5 MB
+    let mut file_path = temp_dir();
+    file_path.push("test_file_with_exact_chunk_size");
+
+    let mut file = File::create(&file_path).await.unwrap();
+    file.write_all(&vec![0; 5 * 1024 * 1024]).await.unwrap(); // 5 MB
+    file.flush().await.unwrap();
+
+    // Create ChunkedBytes instance
+    let mut chunked_bytes = ChunkedBytes::from_file(&file_path, MIN_CHUNK_SIZE)
+      .await
+      .unwrap();
+
+    // Validate total chunks
+    let expected_offsets = calculate_offsets(5 * 1024 * 1024, MIN_CHUNK_SIZE);
+    assert_eq!(chunked_bytes.total_chunks(), expected_offsets.len()); // 1 chunk
+
+    // Read and validate all chunks
+    let mut chunk_sizes = vec![];
+    while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+      chunk_sizes.push(chunk_result.unwrap().len());
+    }
+    assert_eq!(chunk_sizes, vec![5 * 1024 * 1024]); // 1 full chunk
 
     tokio::fs::remove_file(file_path).await.unwrap();
   }

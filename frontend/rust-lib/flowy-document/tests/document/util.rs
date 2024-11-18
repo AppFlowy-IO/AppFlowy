@@ -21,7 +21,6 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage_pub::chunked_byte::ChunkedBytes;
 use flowy_storage_pub::storage::{CreatedUpload, FileProgressReceiver, StorageService};
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
