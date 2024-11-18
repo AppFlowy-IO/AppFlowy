@@ -546,18 +546,10 @@ CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
   EditorStyleCustomizer styleCustomizer,
 ) {
   return CodeBlockComponentBuilder(
-    configuration: configuration.copyWith(
-      textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
-      placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
-    ),
-    styleBuilder: () => CodeBlockStyle(
-      backgroundColor: AFThemeExtension.of(context).calloutBGColor,
-      foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
-    ),
+    styleBuilder: styleCustomizer.codeBlockStyleBuilder,
     padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     languagePickerBuilder: codeBlockLanguagePickerBuilder,
     copyButtonBuilder: codeBlockCopyBuilder,
-    showLineNumbers: false,
   );
 }
 
