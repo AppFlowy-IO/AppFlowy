@@ -830,6 +830,13 @@ export enum CoverType {
   None = 'none',
 }
 
+export enum RowCoverType {
+  ColorCover = 0,
+  FileCover = 1,
+  AssetCover = 2,
+  GradientCover = 3,
+}
+
 export enum UIVariant {
   Publish = 'publish',
   App = 'app',

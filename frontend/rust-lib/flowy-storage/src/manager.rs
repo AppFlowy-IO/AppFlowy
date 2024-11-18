@@ -13,7 +13,7 @@ use collab_importer::util::FileId;
 use dashmap::DashMap;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
-use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
+use flowy_storage_pub::chunked_byte::{calculate_offsets, ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::{
   CompletedPartRequest, CreatedUpload, FileProgress, FileProgressReceiver, FileUploadState,
@@ -22,7 +22,6 @@ use flowy_storage_pub::storage::{
 use lib_infra::box_any::BoxAny;
 use lib_infra::isolate_stream::{IsolateSink, SinkExt};
 use lib_infra::util::timestamp;
-use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
@@ -342,7 +341,7 @@ impl StorageService for StorageServiceImpl {
       })?;
 
     // 1. create a file record and chunk the file
-    let (chunks, record) = create_upload_record(workspace_id, parent_dir, local_file_path).await?;
+    let record = create_upload_record(workspace_id, parent_dir, local_file_path.clone()).await?;
     // 2. save the record to sqlite
     let conn = self
       .user_service
@@ -359,7 +358,7 @@ impl StorageService for StorageServiceImpl {
           self
             .task_queue
             .queue_task(UploadTask::ImmediateTask {
-              chunks,
+              local_file_path,
               record,
               retry_count: 3,
             })
@@ -368,7 +367,7 @@ impl StorageService for StorageServiceImpl {
           self
             .task_queue
             .queue_task(UploadTask::Task {
-              chunks,
+              local_file_path,
               record,
               retry_count: 0,
             })
@@ -393,7 +392,7 @@ impl StorageService for StorageServiceImpl {
     }
   }
 
-  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, record: &BoxAny) -> Result<(), FlowyError> {
     let file_record = record.downcast_ref::<UploadFileTable>().ok_or_else(|| {
       FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
     })?;
@@ -402,7 +401,6 @@ impl StorageService for StorageServiceImpl {
       &self.cloud_service,
       &self.user_service,
       &self.temp_storage,
-      chunks,
       file_record,
       self.global_notifier.clone(),
     )
@@ -468,18 +466,18 @@ async fn create_upload_record(
   workspace_id: String,
   parent_dir: String,
   local_file_path: String,
-) -> FlowyResult<(ChunkedBytes, UploadFileTable)> {
-  // read file and chunk it base on CHUNK_SIZE. We use MIN_CHUNK_SIZE as the minimum chunk size
-  let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE as i32).await?;
-  let ext = Path::new(&local_file_path)
-    .extension()
-    .and_then(std::ffi::OsStr::to_str)
-    .unwrap_or("")
-    .to_owned();
-  let content_type = mime_guess::from_path(&local_file_path)
+) -> FlowyResult<UploadFileTable> {
+  let file_path = Path::new(&local_file_path);
+  let file = tokio::fs::File::open(&file_path).await?;
+  let metadata = file.metadata().await?;
+  let file_size = metadata.len() as usize;
+
+  // Calculate the total number of chunks
+  let num_chunk = calculate_offsets(file_size, MIN_CHUNK_SIZE).len();
+  let content_type = mime_guess::from_path(&file_path)
     .first_or_octet_stream()
     .to_string();
-  let file_id = FileId::from_bytes(&chunked_bytes.data, ext);
+  let file_id = FileId::from_path(&file_path.to_path_buf()).await?;
   let record = UploadFileTable {
     workspace_id,
     file_id,
@@ -488,12 +486,12 @@ async fn create_upload_record(
     parent_dir,
     local_file_path,
     content_type,
-    chunk_size: chunked_bytes.chunk_size,
-    num_chunk: chunked_bytes.offsets.len() as i32,
+    chunk_size: MIN_CHUNK_SIZE as i32,
+    num_chunk: num_chunk as i32,
     created_at: timestamp(),
     is_finish: false,
   };
-  Ok((chunked_bytes, record))
+  Ok(record)
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -501,7 +499,6 @@ async fn start_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
-  mut chunked_bytes: ChunkedBytes,
   upload_file: &UploadFileTable,
   global_notifier: GlobalNotifier,
 ) -> FlowyResult<()> {
@@ -515,10 +512,32 @@ async fn start_upload(
       part_number: part.part_num,
     })
     .collect::<Vec<_>>();
+  let upload_offset = completed_parts.len() as u64;
 
-  let upload_offset = completed_parts.len() as i32;
-  let total_parts = chunked_bytes.iter().count();
-  chunked_bytes.set_current_offset(upload_offset);
+  let file_path = Path::new(&upload_file.local_file_path);
+  if !file_path.exists() {
+    error!("[File] file not found: {}", upload_file.local_file_path);
+    if let Ok(uid) = user_service.user_id() {
+      if let Ok(conn) = user_service.sqlite_connection(uid) {
+        delete_upload_file(conn, &upload_file.upload_id)?;
+      }
+    }
+  }
+
+  let mut chunked_bytes =
+    ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE).await?;
+  let total_parts = chunked_bytes.total_chunks();
+  if let Err(err) = chunked_bytes.set_offset(upload_offset).await {
+    error!(
+      "[File] set offset failed: {} for file: {}",
+      err, upload_file.local_file_path
+    );
+    if let Ok(uid) = user_service.user_id() {
+      if let Ok(conn) = user_service.sqlite_connection(uid) {
+        delete_upload_file(conn, &upload_file.upload_id)?;
+      }
+    }
+  }
 
   info!(
     "[File] start upload: workspace: {}, parent_dir: {}, file_id: {}, chunk: {}",
@@ -543,11 +562,7 @@ async fn start_upload(
     )
     .await;
   if let Err(err) = create_upload_resp_result.as_ref() {
-    if err.is_file_limit_exceeded() {
-      make_notification(StorageNotification::FileStorageLimitExceeded)
-        .payload(err.clone())
-        .send();
-    }
+    handle_upload_error(user_service, &err, &upload_file.upload_id);
   }
   let create_upload_resp = create_upload_resp_result?;
 
@@ -572,74 +587,90 @@ async fn start_upload(
   info!(
     "[File] {} start uploading parts:{}, offset:{}",
     upload_file.file_id,
-    chunked_bytes.iter().count(),
+    chunked_bytes.total_chunks(),
     upload_offset,
   );
-  let iter = chunked_bytes.iter().enumerate();
-  for (index, chunk_bytes) in iter {
-    let part_number = upload_offset + index as i32 + 1;
-    info!(
-      "[File] {} uploading {}th part, size:{}KB",
-      upload_file.file_id,
-      part_number,
-      chunk_bytes.len() / 1000,
-    );
 
-    let file_url = cloud_service
-      .get_object_url_v1(
-        &upload_file.workspace_id,
-        &upload_file.parent_dir,
-        &upload_file.file_id,
-      )
-      .await?;
-    // start uploading parts
-    match upload_part(
-      cloud_service,
-      user_service,
-      &upload_file.workspace_id,
-      &upload_file.parent_dir,
-      &upload_file.upload_id,
-      &upload_file.file_id,
-      part_number as i32,
-      chunk_bytes.to_vec(),
-    )
-    .await
-    {
-      Ok(resp) => {
-        let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
-        // The 0.1 is reserved for the complete_upload progress
-        if progress_value >= 0.9 {
-          progress_value = 0.9;
+  let mut part_number = upload_offset + 1;
+  while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+    match chunk_result {
+      Ok(chunk_bytes) => {
+        info!(
+          "[File] {} uploading {}th part, size:{}KB",
+          upload_file.file_id,
+          part_number,
+          chunk_bytes.len() / 1000,
+        );
+
+        let file_url = cloud_service
+          .get_object_url_v1(
+            &upload_file.workspace_id,
+            &upload_file.parent_dir,
+            &upload_file.file_id,
+          )
+          .await?;
+        // start uploading parts
+        match upload_part(
+          cloud_service,
+          user_service,
+          &upload_file.workspace_id,
+          &upload_file.parent_dir,
+          &upload_file.upload_id,
+          &upload_file.file_id,
+          part_number as i32,
+          chunk_bytes.to_vec(),
+        )
+        .await
+        {
+          Ok(resp) => {
+            trace!(
+              "[File] {} part {} uploaded",
+              upload_file.file_id,
+              part_number
+            );
+            let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
+            // The 0.1 is reserved for the complete_upload progress
+            if progress_value >= 0.9 {
+              progress_value = 0.9;
+            }
+            let progress =
+              FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
+            trace!("[File] upload progress: {}", progress);
+
+            if let Err(err) = global_notifier.send(progress) {
+              error!("[File] send global notifier failed: {}", err);
+            }
+
+            // gather completed part
+            completed_parts.push(CompletedPartRequest {
+              e_tag: resp.e_tag,
+              part_number: resp.part_num,
+            });
+          },
+          Err(err) => {
+            error!(
+              "[File] {} failed to upload part: {}",
+              upload_file.file_id, err
+            );
+            handle_upload_error(user_service, &err, &upload_file.upload_id);
+            if let Err(err) = global_notifier.send(FileProgress::new_error(
+              file_url,
+              upload_file.file_id.clone(),
+              err.msg.clone(),
+            )) {
+              error!("[File] send global notifier failed: {}", err);
+            }
+            return Err(err);
+          },
         }
-        let progress =
-          FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
-        trace!("[File] upload progress: {}", progress);
-
-        if let Err(err) = global_notifier.send(progress) {
-          error!("[File] send global notifier failed: {}", err);
-        }
-
-        // gather completed part
-        completed_parts.push(CompletedPartRequest {
-          e_tag: resp.e_tag,
-          part_number: resp.part_num,
-        });
+        part_number += 1; // Increment part number
       },
-      Err(err) => {
-        if err.is_file_limit_exceeded() {
-          make_notification(StorageNotification::FileStorageLimitExceeded)
-            .payload(err.clone())
-            .send();
-        }
-
-        if let Err(err) = global_notifier.send(FileProgress::new_error(
-          file_url,
-          upload_file.file_id.clone(),
-          err.msg.clone(),
-        )) {
-          error!("[File] send global notifier failed: {}", err);
-        }
-        return Err(err);
+      Err(e) => {
+        error!(
+          "[File] {} failed to read chunk: {:?}",
+          upload_file.file_id, e
+        );
+        break;
       },
     }
   }
@@ -655,16 +686,38 @@ async fn start_upload(
   )
   .await;
   if let Err(err) = complete_upload_result {
-    if err.is_file_limit_exceeded() {
-      make_notification(StorageNotification::FileStorageLimitExceeded)
-        .payload(err.clone())
-        .send();
-    }
-
+    handle_upload_error(user_service, &err, &upload_file.upload_id);
     return Err(err);
   }
 
   Ok(())
+}
+
+fn handle_upload_error(
+  user_service: &Arc<dyn StorageUserService>,
+  err: &FlowyError,
+  upload_id: &str,
+) {
+  if err.is_file_limit_exceeded() {
+    make_notification(StorageNotification::FileStorageLimitExceeded)
+      .payload(err.clone())
+      .send();
+  }
+
+  if err.is_single_file_limit_exceeded() {
+    info!("[File] file exceed limit:{}", upload_id);
+    if let Ok(user_id) = user_service.user_id() {
+      if let Ok(db_conn) = user_service.sqlite_connection(user_id) {
+        if let Err(err) = delete_upload_file(db_conn, upload_id) {
+          error!("[File] delete upload file:{} error:{}", upload_id, err);
+        }
+      }
+    }
+
+    make_notification(StorageNotification::SingleFileLimitExceeded)
+      .payload(err.clone())
+      .send();
+  }
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -683,33 +736,15 @@ async fn resume_upload(
     upload_file.local_file_path
   );
 
-  match ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE as i32).await {
-    Ok(chunked_bytes) => {
-      // When there were any parts already uploaded, skip those parts by setting the current offset.
-      start_upload(
-        cloud_service,
-        user_service,
-        temp_storage,
-        chunked_bytes,
-        &upload_file,
-        global_notifier,
-      )
-      .await?;
-    },
-    Err(err) => match err.kind() {
-      ErrorKind::NotFound => {
-        error!("[File] file not found: {}", upload_file.local_file_path);
-        if let Ok(uid) = user_service.user_id() {
-          if let Ok(conn) = user_service.sqlite_connection(uid) {
-            delete_upload_file(conn, &upload_file.upload_id)?;
-          }
-        }
-      },
-      _ => {
-        error!("[File] read file failed: {}", err);
-      },
-    },
-  }
+  start_upload(
+    cloud_service,
+    user_service,
+    temp_storage,
+    &upload_file,
+    global_notifier,
+  )
+  .await?;
+
   Ok(())
 }
 
@@ -796,11 +831,12 @@ async fn complete_upload(
 
       let conn = user_service.sqlite_connection(user_service.user_id()?)?;
       update_upload_file_completed(conn, &upload_file.upload_id)?;
+
       if let Err(err) = temp_storage
         .delete_temp_file(&upload_file.local_file_path)
         .await
       {
-        error!("[File] delete temp file failed: {}", err);
+        trace!("[File] delete temp file failed: {}", err);
       }
     },
     Err(err) => {

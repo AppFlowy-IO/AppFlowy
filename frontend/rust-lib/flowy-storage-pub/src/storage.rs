@@ -1,4 +1,3 @@
-use crate::chunked_byte::ChunkedBytes;
 use async_trait::async_trait;
 pub use client_api_entity::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_error::{FlowyError, FlowyResult};
@@ -22,7 +21,7 @@ pub trait StorageService: Send + Sync {
     upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), FlowyError>;
 
-  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError>;
+  async fn start_upload(&self, record: &BoxAny) -> Result<(), FlowyError>;
 
   async fn resume_upload(
     &self,

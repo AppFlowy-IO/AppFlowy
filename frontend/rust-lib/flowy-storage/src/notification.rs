@@ -7,6 +7,8 @@ const OBSERVABLE_SOURCE: &str = "storage";
 pub(crate) enum StorageNotification {
   #[default]
   FileStorageLimitExceeded = 0,
+
+  SingleFileLimitExceeded = 1,
 }
 
 impl std::convert::From<StorageNotification> for i32 {
