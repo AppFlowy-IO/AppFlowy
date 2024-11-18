@@ -363,6 +363,7 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
           type: EditWorkspaceNameType.edit,
           workspaceName: widget.space.name,
           hintText: LocaleKeys.space_spaceNamePlaceholder.tr(),
+          validator: (value) => null,
           onSubmitted: (name) {
             // rename the workspace
             Log.info('rename the space, from: ${widget.space.name}, to: $name');

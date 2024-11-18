@@ -131,7 +131,8 @@
     "copyLinkFailed": "Failed to copy link to clipboard",
     "copyLinkToBlockSuccess": "Copied block link to clipboard",
     "copyLinkToBlockFailed": "Failed to copy block link to clipboard",
-    "manageAllSites": "Manage all sites"
+    "manageAllSites": "Manage all sites",
+    "updatePathName": "Update path name"
   },
   "moreAction": {
     "small": "small",
