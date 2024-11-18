@@ -6,8 +6,8 @@ function CalloutIcon({ node }: { node: CalloutNode }) {
 
   return (
     <>
-      <span contentEditable={false} ref={ref} className={`icon flex h-8 w-8 items-center p-1`}>
-        {node.data.icon}
+      <span contentEditable={false} ref={ref} className={`icon flex h-10 w-8 items-center p-1`}>
+        {node.data.icon || `📌`}
       </span>
     </>
   );

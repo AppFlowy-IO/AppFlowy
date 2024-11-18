@@ -13,6 +13,7 @@ export function ImageRender({ src, ...props }: ImageRenderProps) {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
+  console.log('ImageRender', src);
   return (
     <>
       {hasError ? (
