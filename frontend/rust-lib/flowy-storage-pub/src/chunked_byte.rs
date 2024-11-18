@@ -117,14 +117,19 @@ impl<'a> Iterator for ChunkedBytesIterator<'a> {
 }
 // Function to split input bytes into several chunks and return offsets
 pub fn split_into_chunks(data: &Bytes, chunk_size: usize) -> Vec<(usize, usize)> {
+  calculate_offsets(data.len(), chunk_size)
+}
+
+pub fn calculate_offsets(data_len: usize, chunk_size: usize) -> Vec<(usize, usize)> {
   let mut offsets = Vec::new();
   let mut start = 0;
 
-  while start < data.len() {
-    let end = std::cmp::min(start + chunk_size, data.len());
+  while start < data_len {
+    let end = std::cmp::min(start + chunk_size, data_len);
     offsets.push((start, end));
     start = end;
   }
+
   offsets
 }
 

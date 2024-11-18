@@ -1,6 +1,5 @@
 use crate::sqlite_sql::UploadFileTable;
 use crate::uploader::UploadTask::BackgroundTask;
-use flowy_storage_pub::chunked_byte::ChunkedBytes;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::box_any::BoxAny;
 use std::cmp::Ordering;
@@ -154,38 +153,36 @@ impl FileUploader {
 
     match task {
       UploadTask::ImmediateTask {
-        chunks,
+        local_file_path,
         record,
         mut retry_count,
       }
       | UploadTask::Task {
-        chunks,
+        local_file_path,
         record,
         mut retry_count,
       } => {
         let record = BoxAny::new(record);
-        if let Err(err) = self
-          .storage_service
-          .start_upload(chunks.clone(), &record)
-          .await
-        {
+        if let Err(err) = self.storage_service.start_upload(&record).await {
           if err.is_file_limit_exceeded() {
-            error!("[File] Failed to upload file: {}", err);
             self.disable_storage_write();
           }
 
-          info!(
-            "[File] Failed to upload file: {}, retry_count:{}",
-            err, retry_count
-          );
-
-          let record = record.unbox_or_error().unwrap();
-          retry_count += 1;
-          self.queue.tasks.write().await.push(UploadTask::Task {
-            chunks,
-            record,
-            retry_count,
-          });
+          if err.should_retry_upload() {
+            info!(
+              "[File] Failed to upload file: {}, retry_count:{}",
+              err, retry_count
+            );
+            let record = record.unbox_or_error().unwrap();
+            retry_count += 1;
+            self.queue.tasks.write().await.push(UploadTask::Task {
+              local_file_path,
+              record,
+              retry_count,
+            });
+          } else {
+            let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
+          }
         }
       },
       UploadTask::BackgroundTask {
@@ -205,18 +202,22 @@ impl FileUploader {
             self.disable_storage_write();
           }
 
-          info!(
-            "[File] failed to resume upload file: {}, retry_count:{}",
-            err, retry_count
-          );
-          retry_count += 1;
-          self.queue.tasks.write().await.push(BackgroundTask {
-            workspace_id,
-            parent_dir,
-            file_id,
-            created_at,
-            retry_count,
-          });
+          if err.should_retry_upload() {
+            info!(
+              "[File] failed to resume upload file: {}, retry_count:{}",
+              err, retry_count
+            );
+            retry_count += 1;
+            self.queue.tasks.write().await.push(BackgroundTask {
+              workspace_id,
+              parent_dir,
+              file_id,
+              created_at,
+              retry_count,
+            });
+          } else {
+            let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(2));
+          }
         }
       },
     }
@@ -273,12 +274,12 @@ impl FileUploaderRunner {
 
 pub enum UploadTask {
   ImmediateTask {
-    chunks: ChunkedBytes,
+    local_file_path: String,
     record: UploadFileTable,
     retry_count: u8,
   },
   Task {
-    chunks: ChunkedBytes,
+    local_file_path: String,
     record: UploadFileTable,
     retry_count: u8,
   },

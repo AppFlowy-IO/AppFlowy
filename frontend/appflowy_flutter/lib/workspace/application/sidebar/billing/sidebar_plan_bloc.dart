@@ -110,6 +110,12 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
               tierIndicator: const SidebarToastTierIndicator.storageLimitHit(),
             ),
           );
+        } else if (error.code == ErrorCode.SingleUploadLimitExceeded) {
+          emit(
+            state.copyWith(
+              tierIndicator: const SidebarToastTierIndicator.singleFileLimitHit(),
+            ),
+          );
         } else {
           Log.error("Unhandle Unexpected error: $error");
         }
@@ -225,6 +231,7 @@ class SidebarPlanState with _$SidebarPlanState {
 @freezed
 class SidebarToastTierIndicator with _$SidebarToastTierIndicator {
   const factory SidebarToastTierIndicator.storageLimitHit() = _StorageLimitHit;
+  const factory SidebarToastTierIndicator.singleFileLimitHit() = _SingleFileLimitHit;
   const factory SidebarToastTierIndicator.aiMaxiLimitHit() = _aiMaxLimitHit;
   const factory SidebarToastTierIndicator.loading() = _Loading;
 }

@@ -22,7 +22,7 @@ pub trait StorageService: Send + Sync {
     upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), FlowyError>;
 
-  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError>;
+  async fn start_upload(&self, record: &BoxAny) -> Result<(), FlowyError>;
 
   async fn resume_upload(
     &self,

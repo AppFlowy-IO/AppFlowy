@@ -205,7 +205,7 @@ impl StorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  async fn start_upload(&self, _chunks: ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, _record: &BoxAny) -> Result<(), FlowyError> {
     todo!()
   }
 

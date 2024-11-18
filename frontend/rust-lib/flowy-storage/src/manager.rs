@@ -13,7 +13,7 @@ use collab_importer::util::FileId;
 use dashmap::DashMap;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
-use flowy_storage_pub::chunked_byte::{ChunkedBytes, MIN_CHUNK_SIZE};
+use flowy_storage_pub::chunked_byte::{calculate_offsets, ChunkedBytes, MIN_CHUNK_SIZE};
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_storage_pub::storage::{
   CompletedPartRequest, CreatedUpload, FileProgress, FileProgressReceiver, FileUploadState,
@@ -22,7 +22,6 @@ use flowy_storage_pub::storage::{
 use lib_infra::box_any::BoxAny;
 use lib_infra::isolate_stream::{IsolateSink, SinkExt};
 use lib_infra::util::timestamp;
-use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
@@ -342,7 +341,7 @@ impl StorageService for StorageServiceImpl {
       })?;
 
     // 1. create a file record and chunk the file
-    let (chunks, record) = create_upload_record(workspace_id, parent_dir, local_file_path).await?;
+    let record = create_upload_record(workspace_id, parent_dir, local_file_path.clone()).await?;
     // 2. save the record to sqlite
     let conn = self
       .user_service
@@ -359,7 +358,7 @@ impl StorageService for StorageServiceImpl {
           self
             .task_queue
             .queue_task(UploadTask::ImmediateTask {
-              chunks,
+              local_file_path,
               record,
               retry_count: 3,
             })
@@ -368,7 +367,7 @@ impl StorageService for StorageServiceImpl {
           self
             .task_queue
             .queue_task(UploadTask::Task {
-              chunks,
+              local_file_path,
               record,
               retry_count: 0,
             })
@@ -393,7 +392,7 @@ impl StorageService for StorageServiceImpl {
     }
   }
 
-  async fn start_upload(&self, chunks: ChunkedBytes, record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, record: &BoxAny) -> Result<(), FlowyError> {
     let file_record = record.downcast_ref::<UploadFileTable>().ok_or_else(|| {
       FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
     })?;
@@ -402,7 +401,6 @@ impl StorageService for StorageServiceImpl {
       &self.cloud_service,
       &self.user_service,
       &self.temp_storage,
-      chunks,
       file_record,
       self.global_notifier.clone(),
     )
@@ -468,18 +466,18 @@ async fn create_upload_record(
   workspace_id: String,
   parent_dir: String,
   local_file_path: String,
-) -> FlowyResult<(ChunkedBytes, UploadFileTable)> {
-  // read file and chunk it base on CHUNK_SIZE. We use MIN_CHUNK_SIZE as the minimum chunk size
-  let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE as i32).await?;
-  let ext = Path::new(&local_file_path)
-    .extension()
-    .and_then(std::ffi::OsStr::to_str)
-    .unwrap_or("")
-    .to_owned();
-  let content_type = mime_guess::from_path(&local_file_path)
+) -> FlowyResult<UploadFileTable> {
+  let file_path = Path::new(&local_file_path);
+  let file = tokio::fs::File::open(&file_path).await?;
+  let metadata = file.metadata().await?;
+  let file_size = metadata.len() as usize;
+
+  // Calculate the total number of chunks
+  let num_chunk = calculate_offsets(file_size, MIN_CHUNK_SIZE).len();
+  let content_type = mime_guess::from_path(&file_path)
     .first_or_octet_stream()
     .to_string();
-  let file_id = FileId::from_bytes(&chunked_bytes.data, ext);
+  let file_id = FileId::from_path(&file_path.to_path_buf()).await?;
   let record = UploadFileTable {
     workspace_id,
     file_id,
@@ -488,12 +486,12 @@ async fn create_upload_record(
     parent_dir,
     local_file_path,
     content_type,
-    chunk_size: chunked_bytes.chunk_size,
-    num_chunk: chunked_bytes.offsets.len() as i32,
+    chunk_size: MIN_CHUNK_SIZE as i32,
+    num_chunk: num_chunk as i32,
     created_at: timestamp(),
     is_finish: false,
   };
-  Ok((chunked_bytes, record))
+  Ok(record)
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -501,7 +499,6 @@ async fn start_upload(
   cloud_service: &Arc<dyn StorageCloudService>,
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
-  mut chunked_bytes: ChunkedBytes,
   upload_file: &UploadFileTable,
   global_notifier: GlobalNotifier,
 ) -> FlowyResult<()> {
@@ -515,9 +512,24 @@ async fn start_upload(
       part_number: part.part_num,
     })
     .collect::<Vec<_>>();
-
   let upload_offset = completed_parts.len() as i32;
-  let total_parts = chunked_bytes.iter().count();
+
+  let file_path = Path::new(&upload_file.local_file_path);
+  if !file_path.exists() {
+    error!("[File] file not found: {}", upload_file.local_file_path);
+    if let Ok(uid) = user_service.user_id() {
+      if let Ok(conn) = user_service.sqlite_connection(uid) {
+        delete_upload_file(conn, &upload_file.upload_id)?;
+      }
+    }
+  }
+
+  let file = tokio::fs::File::open(&file_path).await?;
+  let metadata = file.metadata().await?;
+  let file_size = metadata.len() as usize;
+  let total_parts = calculate_offsets(file_size, MIN_CHUNK_SIZE).len();
+  let mut chunked_bytes =
+    ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE as i32).await?;
   chunked_bytes.set_current_offset(upload_offset);
 
   info!(
@@ -543,11 +555,7 @@ async fn start_upload(
     )
     .await;
   if let Err(err) = create_upload_resp_result.as_ref() {
-    if err.is_file_limit_exceeded() {
-      make_notification(StorageNotification::FileStorageLimitExceeded)
-        .payload(err.clone())
-        .send();
-    }
+    handle_upload_error(user_service, &err, &upload_file.upload_id);
   }
   let create_upload_resp = create_upload_resp_result?;
 
@@ -626,11 +634,7 @@ async fn start_upload(
         });
       },
       Err(err) => {
-        if err.is_file_limit_exceeded() {
-          make_notification(StorageNotification::FileStorageLimitExceeded)
-            .payload(err.clone())
-            .send();
-        }
+        handle_upload_error(user_service, &err, &upload_file.upload_id);
 
         if let Err(err) = global_notifier.send(FileProgress::new_error(
           file_url,
@@ -655,16 +659,38 @@ async fn start_upload(
   )
   .await;
   if let Err(err) = complete_upload_result {
-    if err.is_file_limit_exceeded() {
-      make_notification(StorageNotification::FileStorageLimitExceeded)
-        .payload(err.clone())
-        .send();
-    }
-
+    handle_upload_error(user_service, &err, &upload_file.upload_id);
     return Err(err);
   }
 
   Ok(())
+}
+
+fn handle_upload_error(
+  user_service: &Arc<dyn StorageUserService>,
+  err: &FlowyError,
+  upload_id: &str,
+) {
+  if err.is_file_limit_exceeded() {
+    make_notification(StorageNotification::FileStorageLimitExceeded)
+      .payload(err.clone())
+      .send();
+  }
+
+  if err.is_single_file_limit_exceeded() {
+    info!("[File] file exceed limit:{}", upload_id);
+    if let Ok(user_id) = user_service.user_id() {
+      if let Ok(db_conn) = user_service.sqlite_connection(user_id) {
+        if let Err(err) = delete_upload_file(db_conn, upload_id) {
+          error!("[File] delete upload file:{} error:{}", upload_id, err);
+        }
+      }
+    }
+
+    make_notification(StorageNotification::SingleFileLimitExceeded)
+      .payload(err.clone())
+      .send();
+  }
 }
 
 #[instrument(level = "debug", skip_all, err)]
@@ -683,33 +709,15 @@ async fn resume_upload(
     upload_file.local_file_path
   );
 
-  match ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE as i32).await {
-    Ok(chunked_bytes) => {
-      // When there were any parts already uploaded, skip those parts by setting the current offset.
-      start_upload(
-        cloud_service,
-        user_service,
-        temp_storage,
-        chunked_bytes,
-        &upload_file,
-        global_notifier,
-      )
-      .await?;
-    },
-    Err(err) => match err.kind() {
-      ErrorKind::NotFound => {
-        error!("[File] file not found: {}", upload_file.local_file_path);
-        if let Ok(uid) = user_service.user_id() {
-          if let Ok(conn) = user_service.sqlite_connection(uid) {
-            delete_upload_file(conn, &upload_file.upload_id)?;
-          }
-        }
-      },
-      _ => {
-        error!("[File] read file failed: {}", err);
-      },
-    },
-  }
+  start_upload(
+    cloud_service,
+    user_service,
+    temp_storage,
+    &upload_file,
+    global_notifier,
+  )
+  .await?;
+
   Ok(())
 }
 
