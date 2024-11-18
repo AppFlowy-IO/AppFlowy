@@ -10,9 +10,9 @@ function MentionDate ({ date, reminder }: { date: string; reminder?: { id: strin
 
   return (
     <span className={'mention-inline'}>
-      {reminder ? <ReminderSvg className={'mention-icon'} /> : <DateSvg className={'mention-icon'} />}
+      <span className={'mention-content mr-[1.5em]'}>@{dateFormat}</span>
+      {reminder ? <ReminderSvg className={'mention-icon right-1'} /> : <DateSvg className={'mention-icon right-1'} />}
 
-      <span className={'mention-content'}>{dateFormat}</span>
     </span>
   );
 }
