@@ -930,11 +930,27 @@ export interface ViewComponentProps {
   appendBreadcrumb?: AppendBreadcrumb;
   onRendered?: () => void;
   updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
-  addPage?: (parentId: string, layout: ViewLayout, name?: string) => Promise<string>;
+  addPage?: (parentId: string, payload: CreatePagePayload) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
   variant?: UIVariant;
   isTemplateThumb?: boolean;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
   onWordCountChange?: (viewId: string, props: TextCount) => void;
+}
+
+export interface CreatePagePayload {
+  layout: ViewLayout;
+  name?: string;
+}
+
+export interface CreateSpacePayload {
+  name?: string;
+  space_icon?: string;
+  space_icon_color?: string;
+  space_permission?: SpacePermission, // 0 for public space, 1 for private space
+}
+
+export interface UpdateSpacePayload extends CreateSpacePayload {
+  view_id: string;
 }
