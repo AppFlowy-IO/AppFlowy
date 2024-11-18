@@ -199,10 +199,12 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   }
 
   (_OutlineBlockStatus, Iterable<Node>) getHeadingNodes() {
-    final children = editorState.document.root.children;
-    final int level =
-        node.attributes[OutlineBlockKeys.depth] ?? maxVisibleDepth;
-    var headings = children.where(
+    final nodes = NodeIterator(
+      document: editorState.document,
+      startNode: editorState.document.root,
+    ).toList();
+    final level = node.attributes[OutlineBlockKeys.depth] ?? maxVisibleDepth;
+    var headings = nodes.where(
       (e) => _isHeadingNode(e),
     );
     if (headings.isEmpty) {
