@@ -1,4 +1,3 @@
-use crate::chunked_byte::ChunkedBytes;
 use async_trait::async_trait;
 pub use client_api_entity::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use flowy_error::{FlowyError, FlowyResult};

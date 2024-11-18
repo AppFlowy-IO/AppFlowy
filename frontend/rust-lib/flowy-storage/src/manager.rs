@@ -512,7 +512,7 @@ async fn start_upload(
       part_number: part.part_num,
     })
     .collect::<Vec<_>>();
-  let upload_offset = completed_parts.len() as i32;
+  let upload_offset = completed_parts.len() as u64;
 
   let file_path = Path::new(&upload_file.local_file_path);
   if !file_path.exists() {
@@ -524,13 +524,20 @@ async fn start_upload(
     }
   }
 
-  let file = tokio::fs::File::open(&file_path).await?;
-  let metadata = file.metadata().await?;
-  let file_size = metadata.len() as usize;
-  let total_parts = calculate_offsets(file_size, MIN_CHUNK_SIZE).len();
   let mut chunked_bytes =
-    ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE as i32).await?;
-  chunked_bytes.set_current_offset(upload_offset);
+    ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE).await?;
+  let total_parts = chunked_bytes.total_chunks();
+  if let Err(err) = chunked_bytes.set_offset(upload_offset).await {
+    error!(
+      "[File] set offset failed: {} for file: {}",
+      err, upload_file.local_file_path
+    );
+    if let Ok(uid) = user_service.user_id() {
+      if let Ok(conn) = user_service.sqlite_connection(uid) {
+        delete_upload_file(conn, &upload_file.upload_id)?;
+      }
+    }
+  }
 
   info!(
     "[File] start upload: workspace: {}, parent_dir: {}, file_id: {}, chunk: {}",
@@ -580,70 +587,104 @@ async fn start_upload(
   info!(
     "[File] {} start uploading parts:{}, offset:{}",
     upload_file.file_id,
-    chunked_bytes.iter().count(),
+    chunked_bytes.total_chunks(),
     upload_offset,
   );
-  let iter = chunked_bytes.iter().enumerate();
-  for (index, chunk_bytes) in iter {
-    let part_number = upload_offset + index as i32 + 1;
-    info!(
-      "[File] {} uploading {}th part, size:{}KB",
-      upload_file.file_id,
-      part_number,
-      chunk_bytes.len() / 1000,
-    );
-
-    let file_url = cloud_service
-      .get_object_url_v1(
-        &upload_file.workspace_id,
-        &upload_file.parent_dir,
-        &upload_file.file_id,
-      )
-      .await?;
-    // start uploading parts
-    match upload_part(
-      cloud_service,
-      user_service,
-      &upload_file.workspace_id,
-      &upload_file.parent_dir,
-      &upload_file.upload_id,
-      &upload_file.file_id,
-      part_number as i32,
-      chunk_bytes.to_vec(),
-    )
-    .await
-    {
-      Ok(resp) => {
-        let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
-        // The 0.1 is reserved for the complete_upload progress
-        if progress_value >= 0.9 {
-          progress_value = 0.9;
-        }
-        let progress =
-          FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
-        trace!("[File] upload progress: {}", progress);
-
-        if let Err(err) = global_notifier.send(progress) {
-          error!("[File] send global notifier failed: {}", err);
-        }
-
-        // gather completed part
-        completed_parts.push(CompletedPartRequest {
-          e_tag: resp.e_tag,
-          part_number: resp.part_num,
-        });
+  let mut part_number = upload_offset + 1; // Start part number
+  while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+    match chunk_result {
+      Ok(chunk_bytes) => {
+        info!(
+          "[File] {} uploading {}th part, size:{}KB",
+          upload_file.file_id,
+          part_number,
+          chunk_bytes.len() / 1000
+        );
+        part_number += 1; // Increment part number
       },
-      Err(err) => {
-        handle_upload_error(user_service, &err, &upload_file.upload_id);
+      Err(e) => {
+        error!(
+          "[File] {} failed to read chunk: {:?}",
+          upload_file.file_id, e
+        );
+        break; // Stop iteration on error
+      },
+    }
+  }
 
-        if let Err(err) = global_notifier.send(FileProgress::new_error(
-          file_url,
-          upload_file.file_id.clone(),
-          err.msg.clone(),
-        )) {
-          error!("[File] send global notifier failed: {}", err);
+  let mut part_number = upload_offset + 1;
+
+  while let Some(chunk_result) = chunked_bytes.next_chunk().await {
+    match chunk_result {
+      Ok(chunk_bytes) => {
+        info!(
+          "[File] {} uploading {}th part, size:{}KB",
+          upload_file.file_id,
+          part_number,
+          chunk_bytes.len() / 1000,
+        );
+
+        let file_url = cloud_service
+          .get_object_url_v1(
+            &upload_file.workspace_id,
+            &upload_file.parent_dir,
+            &upload_file.file_id,
+          )
+          .await?;
+        // start uploading parts
+        match upload_part(
+          cloud_service,
+          user_service,
+          &upload_file.workspace_id,
+          &upload_file.parent_dir,
+          &upload_file.upload_id,
+          &upload_file.file_id,
+          part_number as i32,
+          chunk_bytes.to_vec(),
+        )
+        .await
+        {
+          Ok(resp) => {
+            let mut progress_value = (part_number as f64 / total_parts as f64).clamp(0.0, 1.0);
+            // The 0.1 is reserved for the complete_upload progress
+            if progress_value >= 0.9 {
+              progress_value = 0.9;
+            }
+            let progress =
+              FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
+            trace!("[File] upload progress: {}", progress);
+
+            if let Err(err) = global_notifier.send(progress) {
+              error!("[File] send global notifier failed: {}", err);
+            }
+
+            // gather completed part
+            completed_parts.push(CompletedPartRequest {
+              e_tag: resp.e_tag,
+              part_number: resp.part_num,
+            });
+          },
+          Err(err) => {
+            handle_upload_error(user_service, &err, &upload_file.upload_id);
+
+            if let Err(err) = global_notifier.send(FileProgress::new_error(
+              file_url,
+              upload_file.file_id.clone(),
+              err.msg.clone(),
+            )) {
+              error!("[File] send global notifier failed: {}", err);
+            }
+            return Err(err);
+          },
         }
-        return Err(err);
+        part_number += 1; // Increment part number
+      },
+      Err(e) => {
+        error!(
+          "[File] {} failed to read chunk: {:?}",
+          upload_file.file_id, e
+        );
+        break;
       },
     }
   }
