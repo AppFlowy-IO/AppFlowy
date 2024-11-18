@@ -1,13 +1,13 @@
 import { invalidToken } from '@/application/session/token';
 import {
-  AppendBreadcrumb,
-  CreateRowDoc,
+  AppendBreadcrumb, CreatePagePayload,
+  CreateRowDoc, CreateSpacePayload,
   DatabaseRelations,
   LoadView,
   LoadViewMeta,
   Types,
   UIVariant,
-  UpdatePagePayload,
+  UpdatePagePayload, UpdateSpacePayload,
   UserWorkspaceInfo,
   View,
   ViewLayout,
@@ -50,7 +50,7 @@ export interface AppContextType {
   onRendered?: () => void;
   notFound?: boolean;
   viewHasBeenDeleted?: boolean;
-  addPage?: (parentId: string, layout: ViewLayout, name?: string) => Promise<string>;
+  addPage?: (parentId: string, payload: CreatePagePayload) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   updatePage?: (viewId: string, payload: UpdatePagePayload) => Promise<void>;
   deleteTrash?: (viewId?: string) => Promise<void>;
@@ -59,6 +59,8 @@ export interface AppContextType {
   openPageModal?: (viewId: string) => void;
   openPageModalViewId?: string;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
+  createSpace?: (payload: CreateSpacePayload) => Promise<string>;
+  updateSpace?: (payload: UpdateSpacePayload) => Promise<void>;
 }
 
 const USER_NO_ACCESS_CODE = [1024, 1012];
@@ -441,13 +443,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   }, [navigate, service, userWorkspaceInfo, loadUserWorkspaceInfo]);
 
-  const addPage = useCallback(async (parentViewId: string, layout: ViewLayout, _name?: string) => {
+  const addPage = useCallback(async (parentViewId: string, payload: CreatePagePayload) => {
     if (!currentWorkspaceId || !service) {
       throw new Error('No workspace or service found');
     }
 
     try {
-      const viewId = await service.addAppPage(currentWorkspaceId, parentViewId, layout);
+      const viewId = await service.addAppPage(currentWorkspaceId, parentViewId, payload);
 
       void loadOutline(currentWorkspaceId, false);
 
@@ -560,6 +562,36 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return [];
   }, [favoriteViews, loadFavoriteViews, loadRecentViews, outline, recentViews]);
 
+  const createSpace = useCallback(async (payload: CreateSpacePayload) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      const res = await service.createSpace(currentWorkspaceId, payload);
+
+      void loadOutline(currentWorkspaceId, false);
+      return res;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
+  const updateSpace = useCallback(async (payload: UpdateSpacePayload) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      const res = await service.updateSpace(currentWorkspaceId, payload);
+
+      void loadOutline(currentWorkspaceId, false);
+      return res;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service, loadOutline]);
+
   return <AppContext.Provider
     value={{
       currentWorkspaceId,
@@ -594,6 +626,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       loadViews,
       wordCount: wordCountRef.current,
       setWordCount,
+      createSpace,
+      updateSpace,
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
@@ -732,6 +766,8 @@ export function useAppHandlers () {
     movePage: context.movePage,
     loadViews: context.loadViews,
     setWordCount: context.setWordCount,
+    createSpace: context.createSpace,
+    updateSpace: context.updateSpace,
   };
 }
 

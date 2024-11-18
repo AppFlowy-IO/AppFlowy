@@ -150,7 +150,7 @@ export function MentionPanel () {
   const handleAddPage = useCallback(async (type = MentionType.PageRef) => {
     if (!addPage || !viewId) return;
     try {
-      const newViewId = await addPage(viewId, ViewLayout.Document, searchText);
+      const newViewId = await addPage(viewId, { name: searchText, layout: ViewLayout.Document });
 
       handleSelectedPage(newViewId, type);
     } catch (e) {

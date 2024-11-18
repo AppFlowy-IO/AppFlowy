@@ -1,5 +1,7 @@
 import { SpacePermission } from '@/application/types';
 import { NormalModal } from '@/components/_shared/modal';
+import { notify } from '@/components/_shared/notify';
+import { useAppHandlers } from '@/components/app/app.hooks';
 import SpaceIconButton from '@/components/app/view-actions/SpaceIconButton';
 import SpacePermissionButton from '@/components/app/view-actions/SpacePermissionButton';
 import { OutlinedInput } from '@mui/material';
@@ -14,9 +16,26 @@ function CreateSpaceModal ({ open, onClose }: {
   const [spaceIcon, setSpaceIcon] = React.useState<string>('');
   const [spaceIconColor, setSpaceIconColor] = React.useState<string>('');
   const [spacePermission, setSpacePermission] = React.useState<SpacePermission>(SpacePermission.Public);
+  const [loading, setLoading] = React.useState<boolean>(false);
   const { t } = useTranslation();
-  const handleOk = () => {
-    //
+  const { createSpace } = useAppHandlers();
+  const handleOk = async () => {
+    if (!createSpace) return;
+    setLoading(true);
+    try {
+      await createSpace({
+        name: spaceName,
+        space_icon: spaceIcon,
+        space_icon_color: spaceIconColor,
+        space_permission: spacePermission,
+      });
+      onClose();
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,6 +48,7 @@ function CreateSpaceModal ({ open, onClose }: {
       title={
         t('space.createNewSpace')
       }
+      okLoading={loading}
       onOk={handleOk}
       PaperProps={{
         className: 'w-[600px] max-w-[70vw]',

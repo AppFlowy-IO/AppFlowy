@@ -231,7 +231,9 @@ export function SlashPanel ({
       onClick: async () => {
         if (!viewId || !addPage || !openPageModal) return;
         try {
-          const newViewId = await addPage(viewId, ViewLayout.Document);
+          const newViewId = await addPage(viewId, {
+            layout: ViewLayout.Document,
+          });
 
           turnInto(BlockType.SubpageBlock, {
             view_id: newViewId,

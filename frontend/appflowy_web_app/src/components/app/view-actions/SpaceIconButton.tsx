@@ -1,6 +1,5 @@
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import ChangeIconPopover from '@/components/_shared/view-icon/ChangeIconPopover';
-import { renderColor } from '@/utils/color';
 import { Avatar } from '@mui/material';
 import { PopoverProps } from '@mui/material/Popover';
 import React from 'react';
@@ -40,19 +39,18 @@ function SpaceIconButton ({
     <>
       <Avatar
         variant={'rounded'}
-        className={`${size ? `w-[${size}px] h-[${size}px]` : 'w-10 h-10'} p-1.5 rounded-[30%]`}
+        className={`${size ? `w-[${size}px] h-[${size}px]` : 'w-10 h-10'} rounded-[30%]`}
         onMouseEnter={() => setSpaceIconEditing(true)}
         onMouseLeave={() => setSpaceIconEditing(false)}
         onClick={e => {
           setSpaceIconEditing(false);
           setIconAnchorEl(e.currentTarget);
         }}
-        sx={{
-          bgcolor: spaceIconColor ? renderColor(spaceIconColor) : 'rgb(163, 74, 253)',
-        }}
       >
         <SpaceIcon
+          bgColor={spaceIconColor}
           value={spaceIcon || ''}
+          className={'rounded-full w-full h-full p-0.5'}
           char={spaceIcon ? undefined : spaceName.slice(0, 1)}
         />
         {spaceIconEditing &&

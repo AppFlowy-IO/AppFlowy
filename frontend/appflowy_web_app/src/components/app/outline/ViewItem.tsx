@@ -1,11 +1,26 @@
-import { View, ViewLayout } from '@/application/types';
+import { View, ViewIconType, ViewLayout } from '@/application/types';
+import { notify } from '@/components/_shared/notify';
 import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
+import { Origins } from '@/components/_shared/popover';
 import { ViewIcon } from '@/components/_shared/view-icon';
-import { useAppViewId } from '@/components/app/app.hooks';
+import { useAppHandlers, useAppViewId } from '@/components/app/app.hooks';
 import { isFlagEmoji } from '@/utils/emoji';
-import React, { useCallback, useMemo } from 'react';
+import React, { lazy, Suspense, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from '@mui/material';
+
+const ChangeIconPopover = lazy(() => import('@/components/_shared/view-icon/ChangeIconPopover'));
+
+const popoverProps: Origins = {
+  transformOrigin: {
+    vertical: 'top',
+    horizontal: 'left',
+  },
+  anchorOrigin: {
+    vertical: 'top',
+    horizontal: 'right',
+  },
+};
 
 function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpand, onClickView }: {
   view: View;
@@ -26,9 +41,12 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
   const selectedViewId = useAppViewId();
   const viewId = view.view_id;
   const selected = selectedViewId === viewId;
+  const { updatePage } = useAppHandlers();
 
   const isExpanded = expandIds.includes(viewId);
   const [hovered, setHovered] = React.useState<boolean>(false);
+  const [iconPopoverAnchorEl, setIconPopoverAnchorEl] = React.useState<HTMLDivElement | null>(null);
+  const openIconPopover = Boolean(iconPopoverAnchorEl);
 
   const getIcon = useCallback(() => {
     return <span className={'text-sm h-full flex items-center justify-center pl-0.5'}><OutlineIcon
@@ -62,6 +80,10 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
       >
         {view.children?.length ? getIcon() : null}
         <div
+          onClick={e => {
+            e.stopPropagation();
+            setIconPopoverAnchorEl(e.currentTarget);
+          }}
           className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}
         >
           {icon?.value || <ViewIcon
@@ -107,6 +129,26 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
     }</div>;
   }, [toggleExpand, onClickView, isExpanded, expandIds, level, renderExtra, view?.children, width]);
 
+  const handleChangeIcon = useCallback(async (icon: { ty: ViewIconType, value: string }) => {
+
+    try {
+      await updatePage?.(view.view_id, {
+        icon: icon,
+        name: view.name,
+        extra: view.extra || {},
+      });
+      setIconPopoverAnchorEl(null);
+
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e);
+    }
+  }, [updatePage, view.extra, view.name, view.view_id]);
+
+  const handleRemoveIcon = useCallback(() => {
+    void handleChangeIcon({ ty: 0, value: '' });
+  }, [handleChangeIcon]);
+
   return (
     <div
       style={{
@@ -116,6 +158,20 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
     >
       {renderItem}
       {renderChildren}
+      <Suspense fallback={null}>
+        <ChangeIconPopover
+          iconEnabled={false}
+          defaultType={'emoji'}
+          open={openIconPopover}
+          anchorEl={iconPopoverAnchorEl}
+          onClose={() => {
+            setIconPopoverAnchorEl(null);
+          }}
+          popoverProps={popoverProps}
+          onSelectIcon={handleChangeIcon}
+          removeIcon={handleRemoveIcon}
+        />
+      </Suspense>
     </div>
   );
 }

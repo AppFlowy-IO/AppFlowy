@@ -1,6 +1,7 @@
 import { SpacePermission } from '@/application/types';
 import { NormalModal } from '@/components/_shared/modal';
-import { useAppView } from '@/components/app/app.hooks';
+import { notify } from '@/components/_shared/notify';
+import { useAppHandlers, useAppView } from '@/components/app/app.hooks';
 import SpaceIconButton from '@/components/app/view-actions/SpaceIconButton';
 import SpacePermissionButton from '@/components/app/view-actions/SpacePermissionButton';
 import { OutlinedInput } from '@mui/material';
@@ -18,10 +19,28 @@ function ManageSpace ({ open, onClose, viewId }: {
   const [spaceIconColor, setSpaceIconColor] = React.useState<string>(view?.extra?.space_icon_color || '');
   const [spacePermission, setSpacePermission] = React.useState<SpacePermission>(view?.is_private ? SpacePermission.Private : SpacePermission.Public);
 
+  const [loading, setLoading] = React.useState<boolean>(false);
   const { t } = useTranslation();
+  const { updateSpace } = useAppHandlers();
 
-  const handleOk = () => {
-    //
+  const handleOk = async () => {
+    if (!updateSpace) return;
+    setLoading(true);
+    try {
+      await updateSpace({
+        view_id: viewId,
+        name: spaceName,
+        space_icon: spaceIcon,
+        space_icon_color: spaceIconColor,
+        space_permission: spacePermission,
+      });
+      onClose();
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!view) return null;
@@ -35,6 +54,7 @@ function ManageSpace ({ open, onClose, viewId }: {
       title={
         t('space.manage')
       }
+      okLoading={loading}
       onOk={handleOk}
       PaperProps={{
         className: 'w-[500px] max-w-[70vw]',

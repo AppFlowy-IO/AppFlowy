@@ -40,7 +40,9 @@ function NewPage () {
     if (!addPage || !openPageModal || !selectedSpaceId) return;
     setLoading(true);
     try {
-      const viewId = await addPage(selectedSpaceId, ViewLayout.Document);
+      const viewId = await addPage(selectedSpaceId, {
+        layout: ViewLayout.Document,
+      });
 
       openPageModal(viewId);
       onClose();

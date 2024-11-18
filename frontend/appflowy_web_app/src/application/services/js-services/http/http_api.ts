@@ -14,7 +14,7 @@ import {
   Subscriptions,
   SubscriptionPlan,
   SubscriptionInterval,
-  RequestAccessInfoStatus, ViewInfo, UpdatePagePayload,
+  RequestAccessInfoStatus, ViewInfo, UpdatePagePayload, CreatePagePayload, CreateSpacePayload, UpdateSpacePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -1236,7 +1236,10 @@ export async function uploadImportFile (presignedUrl: string, file: File, onProg
   });
 }
 
-export async function addAppPage (workspaceId: string, parentViewId: string, layout: ViewLayout) {
+export async function addAppPage (workspaceId: string, parentViewId: string, {
+  layout,
+  name,
+}: CreatePagePayload) {
   const url = `/api/workspace/${workspaceId}/page-view`;
   const response = await axiosInstance?.post<{
     code: number;
@@ -1247,6 +1250,7 @@ export async function addAppPage (workspaceId: string, parentViewId: string, lay
   }>(url, {
     parent_view_id: parentViewId,
     layout,
+    name,
   });
 
   if (response?.data.code === 0) {
@@ -1321,6 +1325,38 @@ export async function restorePage (workspaceId: string, viewId?: string) {
     code: number;
     message: string;
   }>(url);
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function createSpace (workspaceId: string, payload: CreateSpacePayload) {
+  const url = `/api/workspace/${workspaceId}/space`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    data: {
+      view_id: string;
+    };
+    message: string;
+  }>(url, payload);
+
+  if (response?.data.code === 0) {
+    return response?.data.data.view_id;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function updateSpace (workspaceId: string, payload: UpdateSpacePayload) {
+  const url = `/api/workspace/${workspaceId}/space/${payload.view_id}`;
+
+  const response = await axiosInstance?.patch<{
+    code: number;
+    message: string;
+  }>(url, payload);
 
   if (response?.data.code === 0) {
     return;

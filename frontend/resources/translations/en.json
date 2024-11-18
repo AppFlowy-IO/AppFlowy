@@ -148,7 +148,8 @@
     "duplicateView": "Duplicate",
     "wordCountLabel": "Word count: ",
     "charCountLabel": "Character count: ",
-    "createdAtLabel": "Created: "
+    "createdAtLabel": "Created: ",
+    "syncedAtLabel": "Synced: "
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
