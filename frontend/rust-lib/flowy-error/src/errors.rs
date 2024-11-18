@@ -74,7 +74,17 @@ impl FlowyError {
 
   pub fn is_file_limit_exceeded(&self) -> bool {
     self.code == ErrorCode::FileStorageLimitExceeded
-      || self.code == ErrorCode::SingleUploadLimitExceeded
+  }
+
+  pub fn is_single_file_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::SingleUploadLimitExceeded
+  }
+
+  pub fn should_retry_upload(&self) -> bool {
+    !matches!(
+      self.code,
+      ErrorCode::FileStorageLimitExceeded | ErrorCode::SingleUploadLimitExceeded
+    )
   }
 
   pub fn is_ai_response_limit_exceeded(&self) -> bool {
