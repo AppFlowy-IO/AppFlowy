@@ -330,17 +330,15 @@ impl StorageService for StorageServiceImpl {
       return Err(FlowyError::file_storage_limit());
     }
 
-    let local_file_path = file_path;
-    // skip copy the file, upload from source
-    // let local_file_path = self
-    //     .temp_storage
-    //     .create_temp_file_from_existing(Path::new(&file_path))
-    //     .await
-    //     .map_err(|err| {
-    //       error!("[File] create temp file failed: {}", err);
-    //       FlowyError::internal()
-    //           .with_context(format!("create temp file for upload file failed: {}", err))
-    //     })?;
+    let local_file_path = self
+      .temp_storage
+      .create_temp_file_from_existing(Path::new(&file_path))
+      .await
+      .map_err(|err| {
+        error!("[File] create temp file failed: {}", err);
+        FlowyError::internal()
+          .with_context(format!("create temp file for upload file failed: {}", err))
+      })?;
 
     // 1. create a file record and chunk the file
     let record = create_upload_record(workspace_id, parent_dir, local_file_path.clone()).await?;
