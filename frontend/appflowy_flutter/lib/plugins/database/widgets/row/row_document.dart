@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
@@ -13,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class RowDocument extends StatelessWidget {
   const RowDocument({
@@ -103,26 +105,34 @@ class _RowEditor extends StatelessWidget {
             child: IntrinsicHeight(
               child: Container(
                 constraints: const BoxConstraints(minHeight: 300),
-                child: EditorDropHandler(
-                  viewId: view.id,
-                  editorState: editorState,
-                  isLocalMode: context.read<DocumentBloc>().isLocalMode,
-                  dropManagerState: context.read<EditorDropManagerState>(),
-                  child: EditorTransactionService(
+                child: Provider(
+                  create: (_) {
+                    final context = SharedEditorContext();
+                    context.isInDatabaseRowPage = true;
+                    return context;
+                  },
+                  dispose: (_, editorContext) => editorContext.dispose(),
+                  child: EditorDropHandler(
                     viewId: view.id,
                     editorState: editorState,
-                    child: AppFlowyEditorPage(
-                      shrinkWrap: true,
-                      autoFocus: false,
+                    isLocalMode: context.read<DocumentBloc>().isLocalMode,
+                    dropManagerState: context.read<EditorDropManagerState>(),
+                    child: EditorTransactionService(
+                      viewId: view.id,
                       editorState: editorState,
-                      styleCustomizer: EditorStyleCustomizer(
-                        context: context,
-                        padding: const EdgeInsets.only(left: 16, right: 54),
+                      child: AppFlowyEditorPage(
+                        shrinkWrap: true,
+                        autoFocus: false,
+                        editorState: editorState,
+                        styleCustomizer: EditorStyleCustomizer(
+                          context: context,
+                          padding: const EdgeInsets.only(left: 16, right: 54),
+                        ),
+                        showParagraphPlaceholder: (editorState, _) =>
+                            editorState.document.isEmpty,
+                        placeholderText: (_) =>
+                            LocaleKeys.cardDetails_notesPlaceholder.tr(),
                       ),
-                      showParagraphPlaceholder: (editorState, _) =>
-                          editorState.document.isEmpty,
-                      placeholderText: (_) =>
-                          LocaleKeys.cardDetails_notesPlaceholder.tr(),
                     ),
                   ),
                 ),

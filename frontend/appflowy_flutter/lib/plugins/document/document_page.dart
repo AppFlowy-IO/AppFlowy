@@ -164,6 +164,7 @@ class _DocumentPageState extends State<DocumentPage>
       create: (_) {
         final context = SharedEditorContext();
         if (widget.view.name.isEmpty) {
+          context.requestCoverTitleFocus = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.coverTitleFocusNode.requestFocus();
           });

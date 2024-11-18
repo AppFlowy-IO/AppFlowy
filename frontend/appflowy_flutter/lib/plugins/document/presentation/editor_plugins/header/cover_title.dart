@@ -63,6 +63,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       ..addListener(_onFocusChanged);
 
     editorState.selectionNotifier.addListener(_onSelectionChanged);
+
+    if (editorContext.requestCoverTitleFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        debugPrint('titleFocusNode.hasFocus: ${titleFocusNode.hasFocus}');
+        titleFocusNode.requestFocus();
+        editorContext.requestCoverTitleFocus = false;
+      });
+    }
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // text menu item
 final textSlashMenuItem = SelectionMenuItem(
@@ -642,8 +644,17 @@ SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
     LocaleKeys.document_slashMenu_subPage_keyword7.tr(),
     LocaleKeys.document_slashMenu_subPage_keyword8.tr(),
   ],
-  updateSelection: (_, path, __, ___) =>
-      Selection.collapsed(Position(path: path)),
+  updateSelection: (editorState, path, __, ___) {
+    final context = editorState.document.root.context;
+    if (context != null) {
+      final isInDatabase =
+          context.read<SharedEditorContext>().isInDatabaseRowPage;
+      if (isInDatabase) {
+        Navigator.of(context).pop();
+      }
+    }
+    return Selection.collapsed(Position(path: path));
+  },
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nodeBuilder: (_, __) => subPageNode(),
 );

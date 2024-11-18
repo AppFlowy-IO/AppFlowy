@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -224,14 +225,8 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                 ],
                 child: GestureDetector(
                   // TODO(Mathias): Handle mobile tap
-                  onTap: isHandlingPaste
-                      ? null
-                      : () => getIt<TabsBloc>().add(
-                            TabsEvent.openPlugin(
-                              plugin: view.plugin(),
-                              view: view,
-                            ),
-                          ),
+                  onTap:
+                      isHandlingPaste ? null : () => _openSubPage(view: view),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: isHovering
@@ -389,4 +384,21 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   @override
   Offset localToGlobal(Offset offset, {bool shiftWithBaseOffset = false}) =>
       _renderBox!.localToGlobal(offset);
+
+  void _openSubPage({
+    required ViewPB view,
+  }) {
+    final isInDatabase =
+        context.read<SharedEditorContext>().isInDatabaseRowPage;
+    if (isInDatabase) {
+      Navigator.of(context).pop();
+    }
+
+    getIt<TabsBloc>().add(
+      TabsEvent.openPlugin(
+        plugin: view.plugin(),
+        view: view,
+      ),
+    );
+  }
 }
