@@ -30,6 +30,11 @@ final CommandShortcutEvent customPasteCommand = CommandShortcutEvent(
 );
 
 CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
   doPaste(editorState).then((_) {
     final context = editorState.document.root.context;
     if (context != null && context.mounted) {
