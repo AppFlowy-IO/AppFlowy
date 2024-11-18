@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'database_document_title_bloc.dart';
@@ -192,6 +191,8 @@ class _TitleSkin extends IEditableTextCellSkin {
                         child: FlowyText.regular(
                           name,
                           overflow: TextOverflow.ellipsis,
+                          fontSize: 14.0,
+                          figmaLineHeight: 18.0,
                         ),
                       ),
                     ],
