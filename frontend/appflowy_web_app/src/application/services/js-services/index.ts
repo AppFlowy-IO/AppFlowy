@@ -29,10 +29,11 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 import {
+  CreatePagePayload, CreateSpacePayload,
   DatabaseRelations,
   DuplicatePublishView,
   SubscriptionInterval, SubscriptionPlan,
-  Types, UpdatePagePayload, ViewLayout,
+  Types, UpdatePagePayload, UpdateSpacePayload,
   YjsEditorKey,
 } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
@@ -472,6 +473,7 @@ export class AFClientService implements AFService {
     const sync = new SyncManager(doc, { userId, ...context });
 
     sync.initialize();
+    return sync;
   }
 
   async importFile (file: File, onProgress: (progress: number) => void) {
@@ -480,8 +482,16 @@ export class AFClientService implements AFService {
     await APIService.uploadImportFile(task.presignedUrl, file, onProgress);
   }
 
-  async addAppPage (workspaceId: string, parentViewId: string, layout: ViewLayout) {
-    return APIService.addAppPage(workspaceId, parentViewId, layout);
+  async createSpace (workspaceId: string, payload: CreateSpacePayload) {
+    return APIService.createSpace(workspaceId, payload);
+  }
+
+  async updateSpace (workspaceId: string, payload: UpdateSpacePayload) {
+    return APIService.updateSpace(workspaceId, payload);
+  }
+
+  async addAppPage (workspaceId: string, parentViewId: string, payload: CreatePagePayload) {
+    return APIService.addAppPage(workspaceId, parentViewId, payload);
   }
 
   async updateAppPage (workspaceId: string, viewId: string, data: UpdatePagePayload) {

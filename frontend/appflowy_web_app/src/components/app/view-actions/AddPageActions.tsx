@@ -25,7 +25,7 @@ function AddPageActions ({ view }: {
       </span>,
     );
     try {
-      const viewId = await addPage(view.view_id, layout);
+      const viewId = await addPage(view.view_id, { layout });
 
       openPageModal(viewId);
       notify.clear();

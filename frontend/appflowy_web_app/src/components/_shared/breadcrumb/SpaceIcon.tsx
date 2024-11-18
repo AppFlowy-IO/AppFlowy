@@ -57,7 +57,7 @@ export const getIconComponent = (icon: string) => {
   }
 };
 
-function SpaceIcon ({ value, char, bgColor, className }: {
+function SpaceIcon ({ value, char, bgColor, className: classNameProp }: {
   value: string,
   char?: string,
   bgColor?: string,
@@ -106,11 +106,20 @@ function SpaceIcon ({ value, char, bgColor, className }: {
     return <IconComponent className={'h-full w-full'} />;
   }, [IconComponent, char, customIcon]);
 
+  const className = useMemo(() => {
+    const classList = ['icon', 'h-[1.2em]', 'w-[1.2em]', 'shrink-0', 'rounded-[4px]'];
+
+    if (classNameProp) {
+      classList.push(classNameProp);
+    }
+
+    return classList.join(' ');
+  }, [classNameProp]);
+
   return <span
-    className={className ? className : 'icon h-[1.2em] w-[1.2em] shrink-0'}
+    className={className}
     style={{
       backgroundColor: bgColor ? renderColor(bgColor) : 'rgb(163, 74, 253)',
-      borderRadius: '4px',
     }}
   >{content}</span>;
 }

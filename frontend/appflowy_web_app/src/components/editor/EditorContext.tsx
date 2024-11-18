@@ -3,7 +3,7 @@ import {
   FontLayout,
   LineHeightLayout,
   LoadView,
-  LoadViewMeta, UIVariant, ViewLayout, View,
+  LoadViewMeta, UIVariant, View, CreatePagePayload,
 } from '@/application/types';
 import { TextCount } from '@/utils/word';
 import { createContext, useCallback, useContext, useState } from 'react';
@@ -46,7 +46,7 @@ export interface EditorContextState {
   removeDecorate?: (type: string) => void;
   selectedBlockId?: string;
   setSelectedBlockId?: (blockId?: string) => void;
-  addPage?: (parentId: string, layout: ViewLayout, name?: string) => Promise<string>;
+  addPage?: (parentId: string, payload: CreatePagePayload) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;

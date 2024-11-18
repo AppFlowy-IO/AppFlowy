@@ -1,3 +1,4 @@
+import { SyncManager } from '@/application/services/js-services/sync';
 import {
   Invitation,
   DuplicatePublishView,
@@ -13,7 +14,7 @@ import {
   SubscriptionPlan,
   SubscriptionInterval,
   Types,
-  ViewLayout, UpdatePagePayload,
+  UpdatePagePayload, CreatePagePayload, CreateSpacePayload, UpdateSpacePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -73,9 +74,11 @@ export interface AppService {
   getActiveSubscription: (workspaceId: string) => Promise<SubscriptionPlan[]>;
   registerDocUpdate: (doc: YDoc, context: {
     workspaceId: string, objectId: string, collabType: Types
-  }) => void;
+  }) => SyncManager;
   importFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
-  addAppPage: (workspaceId: string, parentViewId: string, layout: ViewLayout) => Promise<string>;
+  createSpace: (workspaceId: string, payload: CreateSpacePayload) => Promise<string>;
+  updateSpace: (workspaceId: string, payload: UpdateSpacePayload) => Promise<void>;
+  addAppPage: (workspaceId: string, parentViewId: string, payload: CreatePagePayload) => Promise<string>;
   updateAppPage: (workspaceId: string, viewId: string, data: UpdatePagePayload) => Promise<void>;
   deleteTrash: (workspaceId: string, viewId?: string) => Promise<void>;
   moveToTrash: (workspaceId: string, viewId: string) => Promise<void>;

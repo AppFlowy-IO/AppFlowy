@@ -1,10 +1,8 @@
-import { useAppView, useAppWordCount } from '@/components/app/app.hooks';
-import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
+import DocumentInfo from '@/components/app/header/DocumentInfo';
 import MoreActionsContent from './MoreActionsContent';
 import React from 'react';
 import { Popover } from '@/components/_shared/popover';
-import { Divider, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 
 function MoreActions ({
@@ -12,9 +10,7 @@ function MoreActions ({
 }: {
   viewId: string;
 }) {
-  const { t } = useTranslation();
-  const view = useAppView(viewId);
-  const wordCount = useAppWordCount(viewId);
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,21 +68,7 @@ function MoreActions ({
               },
             }}
           />
-          <Divider />
-          <div className={'flex flex-col gap-1 text-text-caption text-xs '}>
-            <div
-              className={'px-[10px]'}
-            >
-              {t('moreAction.wordCountLabel')}{wordCount?.words}
-            </div>
-            <div className={'px-[10px]'}>
-              {t('moreAction.charCountLabel')}{wordCount?.characters}
-            </div>
-            <div className={'px-[10px]'}>
-              {t('moreAction.createdAtLabel')}{dayjs(view?.created_at).format('MMM D, YYYY hh:mm')}
-            </div>
-          </div>
-
+          {open && <DocumentInfo viewId={viewId} />}
         </Popover>
       )}
     </>
