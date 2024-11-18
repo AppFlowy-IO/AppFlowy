@@ -65,8 +65,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     editorState.selectionNotifier.addListener(_onSelectionChanged);
 
     if (editorContext.requestCoverTitleFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        debugPrint('titleFocusNode.hasFocus: ${titleFocusNode.hasFocus}');
+      Future.delayed(Durations.short4, () {
+        titleFocusNode.canRequestFocus = true;
         titleFocusNode.requestFocus();
         editorContext.requestCoverTitleFocus = false;
       });
@@ -81,14 +81,6 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleTextController.dispose();
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
     super.dispose();
-  }
-
-  void _onSelectionChanged() {
-    // if title is focused and the selection is not null, clear the selection
-    if (editorState.selection != null && titleFocusNode.hasFocus) {
-      Log.info('title is focused, clear the editor selection');
-      editorState.selection = null;
-    }
   }
 
   @override
@@ -133,6 +125,14 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
         );
       },
     );
+  }
+
+  void _onSelectionChanged() {
+    // if title is focused and the selection is not null, clear the selection
+    if (editorState.selection != null && titleFocusNode.hasFocus) {
+      Log.info('title is focused, clear the editor selection');
+      editorState.selection = null;
+    }
   }
 
   void _onListen(BuildContext context, ViewState state) {

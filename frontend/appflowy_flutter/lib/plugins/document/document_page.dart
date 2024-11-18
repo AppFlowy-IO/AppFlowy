@@ -166,7 +166,7 @@ class _DocumentPageState extends State<DocumentPage>
         if (widget.view.name.isEmpty) {
           context.requestCoverTitleFocus = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.coverTitleFocusNode.requestFocus();
+            // context.coverTitleFocusNode.requestFocus();
           });
         }
         return context;

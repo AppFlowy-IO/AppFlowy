@@ -411,19 +411,60 @@ SelectionMenuItem calloutSlashMenuItem = SelectionMenuItem.node(
 );
 
 // outline menu item
-SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_slashMenu_name_outline.tr(),
-  nameBuilder: _slashMenuItemNameBuilder,
-  iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_outline_s,
-    isSelected: isSelected,
-    style: style,
-  ),
+SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem(
+  getName: LocaleKeys.document_selectionMenu_outline.tr,
+  icon: (editorState, onSelected, style) {
+    return Icon(
+      Icons.list_alt,
+      color: onSelected
+          ? style.selectionMenuItemSelectedIconColor
+          : style.selectionMenuItemIconColor,
+      size: 18.0,
+    );
+  },
   keywords: ['outline', 'table of contents'],
-  nodeBuilder: (editorState, _) => outlineBlockNode(),
-  replace: (_, node) => node.delta?.isEmpty ?? false,
-);
+  handler: (editorState, menuService, context) {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
 
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+
+    final transaction = editorState.transaction;
+    final bReplace = node.delta?.isEmpty ?? false;
+
+    //default insert after
+    var path = node.path.next;
+    if (bReplace) {
+      path = node.path;
+    }
+
+    final nextNode = editorState.getNodeAtPath(path.next);
+
+    transaction
+      ..insertNodes(
+        path,
+        [
+          outlineBlockNode(),
+          if (nextNode == null || nextNode.delta == null) paragraphNode(),
+        ],
+      )
+      ..afterSelection = Selection.collapsed(
+        Position(path: path.next),
+      );
+
+    if (bReplace) {
+      transaction.deleteNode(node);
+    }
+
+    editorState.apply(transaction);
+  },
+);
 // math equation
 SelectionMenuItem mathEquationSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_mathEquation.tr(),
