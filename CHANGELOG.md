@@ -1,4 +1,16 @@
 # Release Notes
+# Release Notes
+## Version 0.7.4 - 19/11/2024
+### New Features
+- Support uploading WebP and BMP images
+- Support managing workspaces on mobile
+- Support adding toggle headings on mobile
+- Improve the AI chat page UI
+### Bug Fixes
+- Optimized the workspace menu loading performance
+- Optimized tab switching performance
+- Fixed searching issues in Document page
+
 ## Version 0.7.3 - 07/11/2024
 ### New Features
 - Enable custom URLs for published pages
