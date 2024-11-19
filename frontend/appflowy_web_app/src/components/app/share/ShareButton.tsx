@@ -26,6 +26,11 @@ export function ShareButton ({ viewId }: { viewId: string }) {
         open={opened}
         anchorEl={ref.current}
         onClose={() => setOpened(false)}
+        sx={{
+          '& .MuiPopover-paper': {
+            margin: '8px 0',
+          },
+        }}
         transformOrigin={{
           vertical: 'top',
           horizontal: 'center',

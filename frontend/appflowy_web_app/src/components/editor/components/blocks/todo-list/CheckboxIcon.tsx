@@ -1,8 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { TodoListNode } from '@/components/editor/editor.type';
-import { debounce } from 'lodash-es';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { ReactComponent as CheckboxCheckSvg } from '$icons/16x/check_filled.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$icons/16x/uncheck.svg';
 import { useReadOnly, useSlateStatic } from 'slate-react';
@@ -12,21 +11,15 @@ function CheckboxIcon ({ block, className }: { block: TodoListNode; className: s
   const editor = useSlateStatic();
   const readOnly = useReadOnly();
 
-  const toggleChecked = useMemo(() => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     if (readOnly) {
       return;
     }
 
-    return debounce(() => {
-      CustomEditor.toggleTodoList(editor as YjsEditor, block.blockId);
-    }, 100);
-  }, [readOnly, editor, block.blockId]);
-
-  const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    toggleChecked?.();
-  }, [toggleChecked]);
+    CustomEditor.toggleTodoList(editor as YjsEditor, block.blockId, e.shiftKey);
+  }, [block.blockId, editor, readOnly]);
 
   return (
     <span

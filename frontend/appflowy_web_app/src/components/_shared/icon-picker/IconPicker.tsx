@@ -17,8 +17,10 @@ const CATEGORY_HEIGHT = 32;
 
 function IconPicker ({
   onSelect,
+  onEscape,
 }: {
   onSelect: (icon: { value: string, color: string }) => void;
+  onEscape?: () => void;
 }) {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -159,6 +161,11 @@ function IconPicker ({
             onChange={(e) => {
               setSearchValue(e.target.value);
             }}
+            onKeyUp={(e) => {
+              if (e.key === 'Escape' && onEscape) {
+                onEscape();
+              }
+            }}
             autoFocus={true}
             fullWidth={true}
             size={'small'}
@@ -234,6 +241,11 @@ function IconPicker ({
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={() => setAnchorEl(null)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            setAnchorEl(null);
+          }
+        }}
       >
         <div className={'grid grid-cols-6 gap-1 p-2'}>
           {IconColors.map((color) => (

@@ -11,9 +11,10 @@ export interface SpaceListProps {
   onChange?: (value: string) => void;
   spaceList: SpaceView[];
   loading?: boolean;
+  title?: React.ReactNode;
 }
 
-function SpaceList ({ loading, spaceList, value, onChange }: SpaceListProps) {
+function SpaceList ({ loading, spaceList, value, onChange, title }: SpaceListProps) {
   const { t } = useTranslation();
 
   const getExtraObj = useCallback((extra: string) => {
@@ -54,7 +55,7 @@ function SpaceList ({ loading, spaceList, value, onChange }: SpaceListProps) {
 
   return (
     <div className={'flex max-h-[280px] w-[360px] flex-col gap-2 overflow-hidden max-sm:w-full'}>
-      <div className={'text-sm text-text-caption'}>{t('publish.addTo')}</div>
+      {title || <div className={'text-sm text-text-caption'}>{t('publish.addTo')}</div>}
       {loading ? (
         <div className={'flex w-full items-center justify-center'}>
           <CircularProgress size={24} />

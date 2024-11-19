@@ -87,6 +87,7 @@ function ChangeIconPopover ({
         value={value}
       >
         <IconPicker
+          onEscape={onClose}
           onSelect={(icon) => {
             onSelectIcon?.({
               ty: ViewIconType.Icon,
@@ -107,6 +108,7 @@ function ChangeIconPopover ({
               value: emoji,
             });
           }}
+          onEscape={onClose}
           hideRemove
         />
       </TabPanel>}

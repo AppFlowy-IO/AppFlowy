@@ -54,6 +54,8 @@ function ManageSpace ({ open, onClose, viewId }: {
       title={
         t('space.manage')
       }
+      classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
+
       okLoading={loading}
       onOk={handleOk}
       PaperProps={{

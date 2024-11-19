@@ -1,5 +1,6 @@
 import { NormalModal } from '@/components/_shared/modal';
-import { useAppView } from '@/components/app/app.hooks';
+import { notify } from '@/components/_shared/notify';
+import { useAppHandlers, useAppView } from '@/components/app/app.hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,10 +11,24 @@ function DeleteSpaceConfirm ({ open, onClose, viewId }: {
 }) {
   const view = useAppView(viewId);
 
+  const [loading, setLoading] = React.useState(false);
+  const {
+    deletePage,
+  } = useAppHandlers();
   const { t } = useTranslation();
 
-  const handleOk = () => {
-    //
+  const handleOk = async () => {
+    if (!view) return;
+    setLoading(true);
+    try {
+      await deletePage?.(viewId);
+      onClose();
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,6 +39,7 @@ function DeleteSpaceConfirm ({ open, onClose, viewId }: {
       open={open}
       danger={true}
       onClose={onClose}
+      okLoading={loading}
       title={
         <div className={'flex font-semibold items-center w-full text-left'}>{`${t('button.delete')}: ${view?.name}`}</div>
       }

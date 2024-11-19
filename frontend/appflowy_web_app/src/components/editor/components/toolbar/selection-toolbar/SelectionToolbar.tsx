@@ -14,12 +14,21 @@ export function SelectionToolbar () {
     const el = ref.current;
 
     if (!el) return;
+
+    const onScroll = () => {
+      showToolbar(el);
+    };
+
     if (!visible) {
       hideToolbar(el);
-      return;
+    } else {
+      showToolbar(el);
+      window.addEventListener('scroll', onScroll, true);
     }
-
-    showToolbar(el);
+    
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+    };
   }, [hideToolbar, showToolbar, visible]);
 
   return (

@@ -1,4 +1,5 @@
-import { Editor, Element, NodeEntry, Path } from 'slate';
+import { Editor, Element, NodeEntry, Path, Range, Transforms } from 'slate';
+import { ReactEditor } from 'slate-react';
 
 export function findIndentPath (originalStart: Path, originalEnd: Path, newStart: Path): Path {
   // Find the common ancestor path
@@ -32,4 +33,22 @@ export function findSlateEntryByBlockId (editor: Editor, blockId: string) {
   });
 
   return node as NodeEntry<Element>;
+}
+
+export function beforePasted (editor: ReactEditor) {
+  const { selection } = editor;
+
+  if (!selection) {
+    return false;
+  }
+
+  if (Range.isExpanded(selection)) {
+    Transforms.collapse(editor, { edge: 'start' });
+
+    editor.delete({
+      at: selection,
+    });
+  }
+
+  return true;
 }

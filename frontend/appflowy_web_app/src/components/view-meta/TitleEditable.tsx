@@ -45,7 +45,19 @@ function TitleEditable ({
     // eslint-disable-next-line
   }, []);
 
-  const focusdTextbox = () => {
+  useEffect(() => {
+    if (contentRef.current) {
+      const activeElement = document.activeElement;
+
+      if (activeElement === contentRef.current) {
+        return;
+      }
+
+      contentRef.current.textContent = name;
+    }
+  }, [name]);
+
+  const focusedTextbox = () => {
     const textbox = document.querySelector('[role="textbox"]') as HTMLElement;
 
     textbox?.focus();
@@ -77,7 +89,7 @@ function TitleEditable ({
             onEnter?.(afterText);
 
             setTimeout(() => {
-              focusdTextbox();
+              focusedTextbox();
             }, 0);
 
           } else {
@@ -85,7 +97,7 @@ function TitleEditable ({
           }
         } else if (e.key === 'ArrowDown' || (e.key === 'ArrowRight' && isCursorAtEnd(contentRef.current))) {
           e.preventDefault();
-          focusdTextbox();
+          focusedTextbox();
         }
       }}
     />

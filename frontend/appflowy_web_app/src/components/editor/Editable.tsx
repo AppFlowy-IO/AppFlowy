@@ -109,7 +109,7 @@ const EditorEditable = () => {
 
             return [...codeDecoration, ...decoration];
           }}
-          className={'outline-none mb-36 w-[988px] min-w-0 max-w-full max-sm:px-6 px-24 focus:outline-none'}
+          className={'outline-none scroll-mb-[100px] scroll-mt-[300px] mb-36 w-[988px] min-w-0 max-w-full max-sm:px-6 px-24 focus:outline-none'}
           renderLeaf={Leaf}
           renderElement={renderElement}
           readOnly={readOnly}
