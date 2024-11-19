@@ -1,6 +1,11 @@
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { findIndentPath, findLiftPath, findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
+import {
+  beforePasted,
+  findIndentPath,
+  findLiftPath,
+  findSlateEntryByBlockId,
+} from '@/application/slate-yjs/utils/slateUtils';
 
 import {
   addBlock,
@@ -39,6 +44,7 @@ import {
   ToggleListBlockData,
   YjsEditorKey,
 } from '@/application/types';
+import { EditorInlineAttributes } from '@/slate-editor';
 import { renderDate } from '@/utils/time';
 import isEqual from 'lodash-es/isEqual';
 import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Text, Transforms } from 'slate';
@@ -306,13 +312,38 @@ export const CustomEditor = {
     }, node.blockId !== blockId);
   },
 
-  toggleTodoList (editor: YjsEditor, blockId: string) {
+  toggleTodoList (editor: YjsEditor, blockId: string, shiftKey: boolean) {
     const sharedRoot = getSharedRoot(editor);
-    const data = dataStringTOJson(getBlock(blockId, sharedRoot).get(YjsEditorKey.block_data)) as TodoListBlockData;
+    const block = getBlock(blockId, sharedRoot);
+    const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as TodoListBlockData;
+    const checked = data.checked;
 
-    CustomEditor.setBlockData(editor, blockId, {
-      checked: !data.checked,
-    }, false);
+    if (!shiftKey) {
+      CustomEditor.setBlockData(editor, blockId, {
+        checked: !checked,
+      }, false);
+      return;
+    }
+
+    const [, path] = findSlateEntryByBlockId(editor, blockId);
+    const [start, end] = editor.edges(path);
+
+    const toggleBlockNodes = Array.from(
+      Editor.nodes(editor, {
+        at: {
+          anchor: start,
+          focus: end,
+        },
+        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === BlockType.TodoListBlock,
+      }),
+    ) as unknown as NodeEntry<Element>[];
+
+    toggleBlockNodes.forEach(([node]) => {
+
+      CustomEditor.setBlockData(editor, node.blockId as string, {
+        checked: !checked,
+      }, false);
+    });
   },
 
   toggleMark (editor: ReactEditor, {
@@ -392,6 +423,29 @@ export const CustomEditor = {
     const marks = Editor.marks(editor) as Record<string, string | boolean> | null;
 
     return marks ? !!marks[key] : false;
+  },
+
+  getAllMarks (editor: ReactEditor) {
+    const selection = editor.selection;
+
+    if (!selection) return [];
+
+    const isExpanded = Range.isExpanded(selection);
+
+    if (isExpanded) {
+      const texts = getSelectionTexts(editor);
+
+      return texts.map((node) => {
+        const { text, ...attributes } = node;
+
+        if (!text) return {};
+        return attributes as EditorInlineAttributes;
+      });
+    }
+
+    const marks = Editor.marks(editor) as EditorInlineAttributes;
+
+    return [marks];
   },
 
   isMarkActive (editor: ReactEditor, key: string) {
@@ -533,4 +587,35 @@ export const CustomEditor = {
     return newBlockId;
   },
 
+  pastedText (editor: YjsEditor, text: string) {
+    if (!beforePasted(editor))
+      return;
+
+    const point = editor.selection?.anchor as BasePoint;
+
+    Transforms.insertNodes(editor, { text }, { at: point, select: true, voids: false });
+  },
+
+  highlight (editor: ReactEditor) {
+    const selection = editor.selection;
+
+    if (!selection) return;
+
+    const [start, end] = Range.edges(selection);
+
+    if (isEqual(start, end)) return;
+
+    const marks = CustomEditor.getAllMarks(editor);
+
+    marks.forEach((mark) => {
+      if (mark[EditorMarkFormat.BgColor]) {
+        CustomEditor.removeMark(editor, EditorMarkFormat.BgColor);
+      } else {
+        CustomEditor.addMark(editor, {
+          key: EditorMarkFormat.BgColor,
+          value: '#ffeb3b',
+        });
+      }
+    });
+  },
 };

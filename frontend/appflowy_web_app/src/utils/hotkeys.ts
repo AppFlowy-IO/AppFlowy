@@ -49,6 +49,12 @@ export enum HOT_KEY_NAME {
   SCROLL_TO_BOTTOM = 'scroll-to-bottom',
   FORMAT_LINK = 'format-link',
   FIND_REPLACE = 'find-replace',
+  POP_EMOJI_PICKER = 'pop-emoji-picker',
+  DELETE_LEFT_SENTENCE = 'delete-left-sentence',
+  DELETE_LEFT_WORD = 'delete-left-word',
+  DELETE_RIGHT_WORD = 'delete-right-word',
+  MOVE_CURSOR_TO_BOTTOM = 'move-cursor-to-bottom',
+  MOVE_CURSOR_TO_TOP = 'move-cursor-to-top',
   /**
    * Navigation
    */
@@ -83,7 +89,7 @@ const defaultHotKeys = {
   [HOT_KEY_NAME.HIGH_LIGHT]: ['mod+shift+h'],
   [HOT_KEY_NAME.EXTEND_DOCUMENT_BACKWARD]: ['mod+shift+up'],
   [HOT_KEY_NAME.EXTEND_DOCUMENT_FORWARD]: ['mod+shift+down'],
-  [HOT_KEY_NAME.SCROLL_TO_TOP]: ['home'],
+  [HOT_KEY_NAME.SCROLL_TO_TOP]: ['Home'],
   [HOT_KEY_NAME.SCROLL_TO_BOTTOM]: ['end'],
   [HOT_KEY_NAME.TOGGLE_THEME]: ['mod+shift+l'],
   [HOT_KEY_NAME.TOGGLE_SIDEBAR]: ['mod+.'],
@@ -94,6 +100,12 @@ const defaultHotKeys = {
   [HOT_KEY_NAME.DOWN]: ['down'],
   [HOT_KEY_NAME.FIND_REPLACE]: ['mod+f'],
   [HOT_KEY_NAME.CLEAR_CACHE]: ['mod+shift+r'],
+  [HOT_KEY_NAME.POP_EMOJI_PICKER]: ['mod+alt+e'],
+  [HOT_KEY_NAME.DELETE_LEFT_SENTENCE]: ['mod+alt+backspace'],
+  [HOT_KEY_NAME.DELETE_LEFT_WORD]: ['mod+backspace'],
+  [HOT_KEY_NAME.DELETE_RIGHT_WORD]: ['mod+delete'],
+  [HOT_KEY_NAME.MOVE_CURSOR_TO_BOTTOM]: ['mod+down'],
+  [HOT_KEY_NAME.MOVE_CURSOR_TO_TOP]: ['mod+up'],
 };
 
 const replaceModifier = (hotkey: string) => {

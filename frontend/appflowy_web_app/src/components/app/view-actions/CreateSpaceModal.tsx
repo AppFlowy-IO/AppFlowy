@@ -8,9 +8,10 @@ import { OutlinedInput } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-function CreateSpaceModal ({ open, onClose }: {
+function CreateSpaceModal ({ open, onClose, onCreated }: {
   open: boolean;
   onClose: () => void;
+  onCreated?: (spaceId: string) => void;
 }) {
   const [spaceName, setSpaceName] = React.useState<string>('');
   const [spaceIcon, setSpaceIcon] = React.useState<string>('');
@@ -23,13 +24,16 @@ function CreateSpaceModal ({ open, onClose }: {
     if (!createSpace) return;
     setLoading(true);
     try {
-      await createSpace({
+      const spaceId = await createSpace({
         name: spaceName,
         space_icon: spaceIcon,
         space_icon_color: spaceIconColor,
         space_permission: spacePermission,
       });
+
       onClose();
+
+      onCreated && onCreated(spaceId);
       // eslint-disable-next-line
     } catch (e: any) {
       notify.error(e.message);
@@ -48,6 +52,8 @@ function CreateSpaceModal ({ open, onClose }: {
       title={
         t('space.createNewSpace')
       }
+      classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
+
       okLoading={loading}
       onOk={handleOk}
       PaperProps={{

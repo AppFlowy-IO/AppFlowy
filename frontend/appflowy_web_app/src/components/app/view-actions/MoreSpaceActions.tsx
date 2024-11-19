@@ -12,8 +12,10 @@ import { ReactComponent as AddIcon } from '@/assets/add.svg';
 
 function MoreSpaceActions ({
   view,
+  onClose,
 }: {
-  view: View
+  view: View;
+  onClose: () => void;
 }) {
   const { t } = useTranslation();
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
@@ -75,17 +77,24 @@ function MoreSpaceActions ({
       </Button>
       <ManageSpace
         open={manageModalOpen}
-        onClose={() => setManageModalOpen(false)}
+        onClose={() => {
+          setManageModalOpen(false);
+          onClose();
+        }}
         viewId={view.view_id}
       />
       <CreateSpaceModal
+        onCreated={onClose}
         open={createSpaceModalOpen}
         onClose={() => setCreateSpaceModalOpen(false)}
       />
       <DeleteSpaceConfirm
         viewId={view.view_id}
         open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          onClose();
+        }}
       />
     </div>
   );

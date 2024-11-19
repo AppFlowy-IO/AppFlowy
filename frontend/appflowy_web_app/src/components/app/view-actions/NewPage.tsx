@@ -3,6 +3,7 @@ import { ReactComponent as Add } from '@/assets/add_circle.svg';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
+import CreateSpaceModal from '@/components/app/view-actions/CreateSpaceModal';
 import SpaceList from '@/components/publish/header/duplicate/SpaceList';
 import { Button } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
@@ -36,11 +37,13 @@ function NewPage () {
     openPageModal,
   } = useAppHandlers();
 
-  const handleAddPage = useCallback(async () => {
-    if (!addPage || !openPageModal || !selectedSpaceId) return;
+  const [createSpaceOpen, setCreateSpaceOpen] = React.useState(false);
+
+  const handleAddPage = useCallback(async (parentId: string) => {
+    if (!addPage || !openPageModal) return;
     setLoading(true);
     try {
-      const viewId = await addPage(selectedSpaceId, {
+      const viewId = await addPage(parentId, {
         layout: ViewLayout.Document,
       });
 
@@ -54,7 +57,7 @@ function NewPage () {
       setLoading(false);
 
     }
-  }, [addPage, openPageModal, selectedSpaceId, onClose]);
+  }, [addPage, openPageModal, onClose]);
 
   return (
     <div className={'w-full px-[10px]'}>
@@ -73,7 +76,9 @@ function NewPage () {
         open={open}
         onClose={onClose}
         classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
-        onOk={handleAddPage}
+        onOk={() => {
+          void handleAddPage(selectedSpaceId);
+        }}
         okLoading={loading}
       >
         <SpaceList
@@ -81,8 +86,26 @@ function NewPage () {
           spaceList={spaceList}
           value={selectedSpaceId}
           onChange={setSelectedSpaceId}
+          title={<div className={'flex items-center text-sm text-text-caption'}>
+            {t('publish.addTo')}
+            {` ${t('web.or')} `}
+            <Button
+              onClick={() => {
+                setCreateSpaceOpen(true);
+              }}
+              size={'small'}
+              className={'text-sm mx-1'}
+            >{t('space.createNewSpace')}</Button>
+          </div>}
         />
       </NormalModal>
+      <CreateSpaceModal
+        open={createSpaceOpen}
+        onClose={() => setCreateSpaceOpen(false)}
+        onCreated={(spaceId: string) => {
+          void handleAddPage(spaceId);
+        }}
+      />
     </div>
   );
 }

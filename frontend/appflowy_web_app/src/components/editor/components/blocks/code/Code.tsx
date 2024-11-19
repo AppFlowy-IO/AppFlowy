@@ -1,19 +1,14 @@
-import { notify } from '@/components/_shared/notify';
-import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { useCodeBlock } from '@/components/editor/components/blocks/code/Code.hooks';
+import CodeToolbar from './CodeToolbar';
 import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
-import { copyTextToClipboard } from '@/utils/copy';
 import React, { forwardRef, memo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
+import { useReadOnly } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
 
 export const CodeBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CodeNode>>(({ node, children, ...attributes }, ref) => {
     const { language, handleChangeLanguage } = useCodeBlock(node);
     const [showToolbar, setShowToolbar] = useState(false);
-    const { t } = useTranslation();
-    const editor = useSlateStatic();
 
     const readOnly = useReadOnly();
 
@@ -46,24 +41,7 @@ export const CodeBlock = memo(
             <code>{children}</code>
           </pre>
         </div>
-        {showToolbar && (
-          <RightTopActionsToolbar
-            style={{
-              top: '16px',
-            }}
-            onCopy={async () => {
-              try {
-                const at = ReactEditor.findPath(editor, node);
-                const text = editor.string(at);
-
-                await copyTextToClipboard(text);
-                notify.success(t('publish.copy.codeBlock'));
-              } catch (_) {
-                // do nothing
-              }
-            }}
-          />
-        )}
+        {showToolbar && <CodeToolbar node={node} />}
       </div>
     );
   }),
