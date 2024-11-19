@@ -19,7 +19,6 @@ import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -348,7 +347,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
             // if the last one isn't a empty node, insert a new empty node.
             await _focusOnLastEmptyParagraph();
           },
-          child: VSpace(UniversalPlatform.isDesktopOrWeb ? 200 : 400),
+          child: SizedBox(
+            width: double.infinity,
+            height: UniversalPlatform.isDesktopOrWeb ? 200 : 400,
+          ),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(
           color: Theme.of(context).colorScheme.primary.withOpacity(0.8),

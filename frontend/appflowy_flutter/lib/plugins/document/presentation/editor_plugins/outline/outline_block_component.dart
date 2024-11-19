@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -18,15 +18,6 @@ class OutlineBlockKeys {
   static const String depth = 'depth';
 }
 
-// defining the callout block menu item for selection
-SelectionMenuItem outlineItem = SelectionMenuItem.node(
-  getName: LocaleKeys.document_selectionMenu_outline.tr,
-  iconData: Icons.list_alt,
-  keywords: ['outline', 'table of contents'],
-  nodeBuilder: (editorState, _) => outlineBlockNode(),
-  replace: (_, node) => node.delta?.isEmpty ?? false,
-);
-
 Node outlineBlockNode() {
   return Node(
     type: OutlineBlockKeys.type,
@@ -38,6 +29,11 @@ enum _OutlineBlockStatus {
   noMatchHeadings,
   success;
 }
+
+final _availableBlockTypes = [
+  HeadingBlockKeys.type,
+  ToggleListBlockKeys.type,
+];
 
 class OutlineBlockComponentBuilder extends BlockComponentBuilder {
   OutlineBlockComponentBuilder({
@@ -203,21 +199,42 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   }
 
   (_OutlineBlockStatus, Iterable<Node>) getHeadingNodes() {
-    final children = editorState.document.root.children;
-    final int level =
-        node.attributes[OutlineBlockKeys.depth] ?? maxVisibleDepth;
-    var headings = children.where(
-      (e) => e.type == HeadingBlockKeys.type && e.delta?.isNotEmpty == true,
+    final nodes = NodeIterator(
+      document: editorState.document,
+      startNode: editorState.document.root,
+    ).toList();
+    final level = node.attributes[OutlineBlockKeys.depth] ?? maxVisibleDepth;
+    var headings = nodes.where(
+      (e) => _isHeadingNode(e),
     );
     if (headings.isEmpty) {
       return (_OutlineBlockStatus.noHeadings, []);
     }
-    headings =
-        headings.where((e) => e.attributes[HeadingBlockKeys.level] <= level);
+    headings = headings.where(
+      (e) =>
+          (e.type == HeadingBlockKeys.type &&
+              e.attributes[HeadingBlockKeys.level] <= level) ||
+          (e.type == ToggleListBlockKeys.type &&
+              e.attributes[ToggleListBlockKeys.level] <= level),
+    );
     if (headings.isEmpty) {
       return (_OutlineBlockStatus.noMatchHeadings, []);
     }
     return (_OutlineBlockStatus.success, headings);
+  }
+
+  bool _isHeadingNode(Node node) {
+    if (node.type == HeadingBlockKeys.type && node.delta?.isNotEmpty == true) {
+      return true;
+    }
+
+    if (node.type == ToggleListBlockKeys.type &&
+        node.delta?.isNotEmpty == true &&
+        node.attributes[ToggleListBlockKeys.level] != null) {
+      return true;
+    }
+
+    return false;
   }
 }
 
@@ -227,7 +244,7 @@ class OutlineItemWidget extends StatelessWidget {
     required this.node,
     required this.textDirection,
   }) {
-    assert(node.type == HeadingBlockKeys.type);
+    assert(_availableBlockTypes.contains(node.type));
   }
 
   final Node node;
@@ -238,31 +255,19 @@ class OutlineItemWidget extends StatelessWidget {
     final editorState = context.read<EditorState>();
     final textStyle = editorState.editorStyle.textStyleConfiguration;
     final style = textStyle.href.combine(textStyle.text);
-    return FlowyHover(
-      style: HoverStyle(
-        hoverColor: Theme.of(context).hoverColor,
-      ),
-      builder: (context, onHover) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => scrollToBlock(context),
-          child: Row(
+    return FlowyButton(
+      onTap: () => scrollToBlock(context),
+      text: Row(
+        textDirection: textDirection,
+        children: [
+          HSpace(node.leftIndent),
+          Text(
+            node.outlineItemText,
             textDirection: textDirection,
-            children: [
-              HSpace(node.leftIndent),
-              Text(
-                node.outlineItemText,
-                textDirection: textDirection,
-                style: style.copyWith(
-                  color: onHover
-                      ? Theme.of(context).colorScheme.onSecondary
-                      : null,
-                ),
-              ),
-            ],
+            style: style,
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -281,13 +286,20 @@ class OutlineItemWidget extends StatelessWidget {
 
 extension on Node {
   double get leftIndent {
-    assert(type == HeadingBlockKeys.type);
-    if (type != HeadingBlockKeys.type) {
+    assert(_availableBlockTypes.contains(type));
+
+    if (!_availableBlockTypes.contains(type)) {
       return 0.0;
     }
-    final level = attributes[HeadingBlockKeys.level];
-    final indent = (level - 1) * 15.0 + 10.0;
-    return indent;
+
+    final level = attributes[HeadingBlockKeys.level] ??
+        attributes[ToggleListBlockKeys.level];
+    if (level != null) {
+      final indent = (level - 1) * 15.0;
+      return indent;
+    }
+
+    return 0.0;
   }
 
   String get outlineItemText {
