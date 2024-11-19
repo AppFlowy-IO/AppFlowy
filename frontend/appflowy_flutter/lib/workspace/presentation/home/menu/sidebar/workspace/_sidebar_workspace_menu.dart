@@ -3,6 +3,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -297,12 +298,16 @@ class _WorkspaceInfo extends StatelessWidget {
 
   void _openWorkspace(BuildContext context) {
     if (!isSelected) {
+      // close the other tabs before opening another workspace.
+      getIt<TabsBloc>().add(const TabsEvent.closeOtherTabs(''));
+
       Log.info('open workspace: ${workspace.workspaceId}');
       context.read<UserWorkspaceBloc>().add(
             UserWorkspaceEvent.openWorkspace(
               workspace.workspaceId,
             ),
           );
+
       PopoverContainer.of(context).closeAll();
     }
   }
