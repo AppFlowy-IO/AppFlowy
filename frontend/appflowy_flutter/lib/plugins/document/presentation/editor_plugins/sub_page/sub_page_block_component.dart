@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
@@ -19,6 +20,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 Node subPageNode({String? viewId}) {
   return Node(
@@ -388,17 +390,21 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   void _openSubPage({
     required ViewPB view,
   }) {
-    final isInDatabase =
-        context.read<SharedEditorContext>().isInDatabaseRowPage;
-    if (isInDatabase) {
-      Navigator.of(context).pop();
-    }
+    if (UniversalPlatform.isDesktop) {
+      final isInDatabase =
+          context.read<SharedEditorContext>().isInDatabaseRowPage;
+      if (isInDatabase) {
+        Navigator.of(context).pop();
+      }
 
-    getIt<TabsBloc>().add(
-      TabsEvent.openPlugin(
-        plugin: view.plugin(),
-        view: view,
-      ),
-    );
+      getIt<TabsBloc>().add(
+        TabsEvent.openPlugin(
+          plugin: view.plugin(),
+          view: view,
+        ),
+      );
+    } else if (UniversalPlatform.isMobile) {
+      context.pushView(view);
+    }
   }
 }
