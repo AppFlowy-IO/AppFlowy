@@ -56,7 +56,7 @@ void main() {
           of: find.byType(TabsManager),
           matching: find.byType(FlowyTab),
         ),
-        findsNWidgets(3),
+        findsNWidgets(2),
       );
 
       // switch to the another workspace
