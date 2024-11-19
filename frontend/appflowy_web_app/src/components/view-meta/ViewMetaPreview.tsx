@@ -1,16 +1,16 @@
-import { CoverType, ViewIconType, ViewMetaProps } from '@/application/types';
+import { CoverType, ViewIconType, ViewMetaCover, ViewMetaIcon, ViewMetaProps } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 import TitleEditable from '@/components/view-meta/TitleEditable';
 import ViewCover from '@/components/view-meta/ViewCover';
 import { isFlagEmoji } from '@/utils/emoji';
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const AddIconCover = lazy(() => import('@/components/view-meta/AddIconCover'));
 
 export function ViewMetaPreview ({
-  icon,
-  cover,
+  icon: iconProp,
+  cover: coverProp,
   name,
   extra,
   readOnly = true,
@@ -19,6 +19,16 @@ export function ViewMetaPreview ({
   onEnter,
 }: ViewMetaProps) {
   const [iconAnchorEl, setIconAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [cover, setCover] = React.useState<ViewMetaCover | null>(coverProp || null);
+  const [icon, setIcon] = React.useState<ViewMetaIcon | null>(iconProp || null);
+
+  useEffect(() => {
+    setCover(coverProp || null);
+  }, [coverProp]);
+
+  useEffect(() => {
+    setIcon(iconProp || null);
+  }, [iconProp]);
 
   const coverType = useMemo(() => {
     if (cover && [CoverType.NormalColor, CoverType.GradientColor].includes(cover.type)) {
@@ -35,7 +45,7 @@ export function ViewMetaPreview ({
   }, [cover]);
 
   const coverValue = useMemo(() => {
-    if (coverType === 'built_in') {
+    if (coverType === CoverType.BuildInImage) {
       return {
         1: '/covers/m_cover_image_1.png',
         2: '/covers/m_cover_image_2.png',
@@ -57,6 +67,7 @@ export function ViewMetaPreview ({
 
   const handleUpdateIcon = React.useCallback(async (icon: { ty: ViewIconType, value: string }) => {
     if (!updatePage || !viewId) return;
+    setIcon(icon);
     try {
       await updatePage(viewId, {
         icon,
@@ -92,6 +103,8 @@ export function ViewMetaPreview ({
     value: string;
   }) => {
     if (!updatePage || !viewId) return;
+    setCover(cover ? cover : null);
+
     try {
       await updatePage(viewId, {
         icon: icon || {

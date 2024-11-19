@@ -3,6 +3,7 @@ import ViewItem from '@/components/app/outline/ViewItem';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { View } from '@/application/types';
+import { ReactComponent as PrivateIcon } from '@/assets/lock.svg';
 
 function SpaceItem ({
   view,
@@ -27,7 +28,7 @@ function SpaceItem ({
 }) {
   const [hovered, setHovered] = React.useState<boolean>(false);
   const isExpanded = expandIds.includes(view.view_id);
-
+  const isPrivate = view.is_private;
   const renderItem = useMemo(() => {
     if (!view) return null;
     const extra = view?.extra;
@@ -57,16 +58,21 @@ function SpaceItem ({
           title={name}
           disableInteractive={true}
         >
-          <div
-            className={'flex flex-1 overflow-hidden items-center gap-1 text-sm'}
-          >
-            <div className={'w-full truncate'}>{name}</div>
+          <div className={'items-center gap-1 text-sm flex-1 justify-start flex overflow-hidden'}>
+            <div className={'truncate w-auto'}>{name}</div>
+
+            {isPrivate &&
+              <div className={'h-4 w-4 text-base min-w-4 text-text-title opacity-80'}>
+                <PrivateIcon />
+              </div>
+            }
           </div>
         </Tooltip>
-        {renderExtra && renderExtra({ hovered, view })}
+        {
+          renderExtra && renderExtra({ hovered, view })}
       </div>
     );
-  }, [hovered, isExpanded, renderExtra, toggleExpand, view, width]);
+  }, [hovered, isExpanded, isPrivate, renderExtra, toggleExpand, view, width]);
 
   const renderChildren = useMemo(() => {
     return <div

@@ -3,11 +3,13 @@ import { CustomEditor } from '@/application/slate-yjs/command';
 import { SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
-import { BlockType } from '@/application/types';
+import { AlignType, BlockType } from '@/application/types';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
+import { openUrl } from '@/utils/url';
 import { KeyboardEvent, useCallback } from 'react';
 import { Editor, Text, Range, Transforms, BasePoint } from 'slate';
 import { ReactEditor, useReadOnly } from 'slate-react';
+import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 export function useShortcuts (editor: ReactEditor) {
   const yjsEditor = editor as YjsEditor;
@@ -31,31 +33,102 @@ export function useShortcuts (editor: ReactEditor) {
     }
 
     if (selection && Range.isCollapsed(selection)) {
-      if (
-        createHotkey(HOT_KEY_NAME.UP)(e)
-      ) {
-        const before = Editor.before(editor, selection, { unit: 'offset' });
-        const beforeText = findInlineTextNode(editor, before);
+      switch (true) {
+        case createHotkey(HOT_KEY_NAME.UP)(e): {
+          const before = Editor.before(editor, selection, { unit: 'offset' });
+          const beforeText = findInlineTextNode(editor, before);
 
-        if (before && beforeText) {
-          e.preventDefault();
-          Transforms.move(editor, { unit: 'line', reverse: true, distance: 2 });
-          return;
+          if (before && beforeText) {
+            e.preventDefault();
+            Transforms.move(editor, { unit: 'line', reverse: true, distance: 2 });
+            return;
+          }
+
+          break;
         }
+
+        case createHotkey(HOT_KEY_NAME.DOWN)(e): {
+          const after = Editor.after(editor, selection, { unit: 'offset' });
+          const afterText = findInlineTextNode(editor, after);
+
+          if (after && afterText) {
+            e.preventDefault();
+            Transforms.move(editor, { unit: 'line', distance: 2 });
+            return;
+          }
+
+          break;
+        }
+
+        case createHotkey(HOT_KEY_NAME.OPEN_LINK)(e): {
+          event.preventDefault();
+          const marks = CustomEditor.getAllMarks(editor);
+
+          const link = marks.find((mark) => !!mark[EditorMarkFormat.Href])?.[EditorMarkFormat.Href];
+
+          if (link) {
+            void openUrl(link, '_blank');
+            return;
+          }
+
+          break;
+        }
+
+        case createHotkey(HOT_KEY_NAME.DELETE_LEFT_SENTENCE)(e): {
+          event.preventDefault();
+          const focus = editor.start(selection);
+          const anchor = Editor.before(editor, focus, { unit: 'line' });
+
+          if (anchor) {
+            editor.delete({
+              at: {
+                anchor,
+                focus,
+              },
+            });
+          }
+
+          break;
+        }
+
+        case createHotkey(HOT_KEY_NAME.DELETE_LEFT_WORD)(e): {
+          event.preventDefault();
+          const focus = editor.start(selection);
+          const anchor = Editor.before(editor, focus, { unit: 'word' });
+
+          if (anchor) {
+            editor.delete({
+              at: {
+                anchor,
+                focus,
+              },
+            });
+          }
+
+          break;
+        }
+
+        case createHotkey(HOT_KEY_NAME.DELETE_RIGHT_WORD)(e): {
+          event.preventDefault();
+          const focus = editor.start(selection);
+          const anchor = Editor.after(editor, focus, { unit: 'word' });
+
+          if (anchor) {
+            editor.delete({
+              at: {
+                anchor,
+                focus,
+              },
+            });
+          }
+
+          break;
+        }
+
+        default:
+          break;
       }
 
-      if (
-        createHotkey(HOT_KEY_NAME.DOWN)(e)
-      ) {
-        const after = Editor.after(editor, selection, { unit: 'offset' });
-        const afterText = findInlineTextNode(editor, after);
-
-        if (after && afterText) {
-          e.preventDefault();
-          Transforms.move(editor, { unit: 'line', distance: 2 });
-          return;
-        }
-      }
     }
 
     // Do not process shortcuts if editor is read-only or no selection
@@ -102,7 +175,7 @@ export function useShortcuts (editor: ReactEditor) {
           editor.deleteBackward('character');
           break;
         }
-        
+
         CustomEditor.tabEvent(yjsEditor, e);
         break;
       /**
@@ -143,7 +216,7 @@ export function useShortcuts (editor: ReactEditor) {
         if (node[0].type === BlockType.ToggleListBlock) {
           CustomEditor.toggleToggleList(yjsEditor, node[0].blockId as string);
         } else if (node[0].type === BlockType.TodoListBlock) {
-          CustomEditor.toggleTodoList(yjsEditor, node[0].blockId as string);
+          CustomEditor.toggleTodoList(yjsEditor, node[0].blockId as string, false);
         }
 
         break;
@@ -197,6 +270,205 @@ export function useShortcuts (editor: ReactEditor) {
           value: true,
         });
         break;
+      /**
+       * Open link: Opt + SHIFT + Enter
+       */
+      case createHotkey(HOT_KEY_NAME.OPEN_LINKS)(e): {
+        event.preventDefault();
+        const marks = CustomEditor.getAllMarks(editor);
+        const links = marks.map((mark) => mark[EditorMarkFormat.Href]).filter(Boolean);
+
+        if (links.length === 0) break;
+        links.forEach((link) => {
+          if (link) void openUrl(link, '_blank');
+        });
+        break;
+      }
+
+      /**
+       * Extend document backward: Mod + Shift + Up
+       */
+      case createHotkey(HOT_KEY_NAME.EXTEND_DOCUMENT_BACKWARD)(e): {
+
+        event.preventDefault();
+        const { selection } = editor;
+
+        if (!selection) return;
+        const focus = editor.start(selection);
+        const anchor = editor.start([0, 0]);
+
+        editor.select({
+          anchor,
+          focus,
+        });
+        break;
+      }
+
+      /**
+       * Extend document forward: Mod + Shift + Down
+       */
+      case createHotkey(HOT_KEY_NAME.EXTEND_DOCUMENT_FORWARD)(e): {
+
+        event.preventDefault();
+        const { selection } = editor;
+
+        if (!selection) return;
+        const anchor = editor.end(selection);
+        const focus = editor.end([editor.children.length - 1, 0]);
+
+        editor.select({
+          anchor,
+          focus,
+        });
+        break;
+      }
+
+      /**
+       * Extend line backward: Opt + Shift + Left
+       */
+      case createHotkey(HOT_KEY_NAME.EXTEND_LINE_BACKWARD)(e):
+        event.preventDefault();
+        Transforms.move(editor, {
+          unit: 'word',
+          reverse: true,
+        });
+        break;
+      /**
+       * Extend line forward: Opt + Shift + Right
+       */
+      case createHotkey(HOT_KEY_NAME.EXTEND_LINE_FORWARD)(e):
+        event.preventDefault();
+        Transforms.move(editor, { unit: 'word' });
+        break;
+      /**
+       * Paste Text: Mod + Shift + V
+       */
+      case createHotkey(HOT_KEY_NAME.PASTE_PLAIN_TEXT)(e):
+        event.preventDefault();
+        void navigator.clipboard.readText().then((text) => {
+          CustomEditor.pastedText(yjsEditor, text);
+        });
+        break;
+      /**
+       * Highlight: Mod + Shift + H
+       */
+      case createHotkey(HOT_KEY_NAME.HIGH_LIGHT)(e):
+        event.preventDefault();
+        CustomEditor.highlight(editor);
+        break;
+
+      /**
+       * Scroll to top: Home
+       */
+      case createHotkey(HOT_KEY_NAME.SCROLL_TO_TOP)(e): {
+        event.preventDefault();
+        const dom = ReactEditor.toDOMNode(editor, editor);
+
+        void smoothScrollIntoViewIfNeeded(dom, {
+          behavior: 'smooth',
+          block: 'start',
+        });
+        break;
+      }
+
+      /**
+       * Scroll to bottom: End
+       */
+      case createHotkey(HOT_KEY_NAME.SCROLL_TO_BOTTOM)(e): {
+        event.preventDefault();
+        const dom = ReactEditor.toDOMNode(editor, editor);
+
+        void smoothScrollIntoViewIfNeeded(dom, {
+          behavior: 'smooth',
+          block: 'end',
+        });
+
+        break;
+      }
+
+      /**
+       * Align left: Control + Shift + L
+       */
+      case createHotkey(HOT_KEY_NAME.ALIGN_LEFT)(e): {
+
+        event.preventDefault();
+
+        const blockId = node[0].blockId as string;
+
+        CustomEditor.setBlockData(yjsEditor, blockId, {
+          align: AlignType.Left,
+        });
+        break;
+      }
+
+      /**
+       * Align center: Control + Shift + E
+       */
+      case createHotkey(HOT_KEY_NAME.ALIGN_CENTER)(e): {
+
+        event.preventDefault();
+
+        const blockId = node[0].blockId as string;
+
+        CustomEditor.setBlockData(yjsEditor, blockId, {
+          align: AlignType.Center,
+        });
+        break;
+      }
+
+      /**
+       * Align right: Control + Shift + R
+       */
+      case createHotkey(HOT_KEY_NAME.ALIGN_RIGHT)(e): {
+
+        event.preventDefault();
+
+        const blockId = node[0].blockId as string;
+
+        CustomEditor.setBlockData(yjsEditor, blockId, {
+          align: AlignType.Right,
+        });
+        break;
+      }
+
+      case createHotkey(HOT_KEY_NAME.MOVE_CURSOR_TO_BOTTOM)(e): {
+        event.preventDefault();
+        const point = Editor.end(editor, [editor.children.length - 1, 0]);
+
+        if (!point) return;
+        const dom = ReactEditor.toDOMNode(editor, editor);
+
+        void smoothScrollIntoViewIfNeeded(dom, {
+          behavior: 'smooth',
+          block: 'end',
+        });
+        editor.select({
+          anchor: point,
+          focus: point,
+        });
+
+        break;
+      }
+
+      case createHotkey(HOT_KEY_NAME.MOVE_CURSOR_TO_TOP)(e): {
+        event.preventDefault();
+        const point = Editor.start(editor, [0, 0]);
+
+        if (!point) return;
+        const dom = ReactEditor.toDOMNode(editor, editor);
+
+        void smoothScrollIntoViewIfNeeded(dom, {
+          behavior: 'smooth',
+          block: 'start',
+        });
+        editor.select({
+          anchor: point,
+          focus: point,
+        });
+
+        break;
+      }
+
       default:
         break;
     }

@@ -39,7 +39,7 @@ function SpaceIconButton ({
     <>
       <Avatar
         variant={'rounded'}
-        className={`${size ? `w-[${size}px] h-[${size}px]` : 'w-10 h-10'} rounded-[30%]`}
+        className={`${size ? `w-[${size}px] h-[${size}px]` : 'w-10 h-10'} rounded-[30%] bg-transparent`}
         onMouseEnter={() => setSpaceIconEditing(true)}
         onMouseLeave={() => setSpaceIconEditing(false)}
         onClick={e => {
@@ -50,7 +50,7 @@ function SpaceIconButton ({
         <SpaceIcon
           bgColor={spaceIconColor}
           value={spaceIcon || ''}
-          className={'rounded-full w-full h-full p-0.5'}
+          className={'w-full h-full p-0.5'}
           char={spaceIcon ? undefined : spaceName.slice(0, 1)}
         />
         {spaceIconEditing &&

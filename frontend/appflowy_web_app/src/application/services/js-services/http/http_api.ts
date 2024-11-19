@@ -30,6 +30,7 @@ import {
 } from '@/application/template.type';
 import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
+import { omit } from 'lodash-es';
 
 export * from './gotrue';
 
@@ -1352,11 +1353,11 @@ export async function createSpace (workspaceId: string, payload: CreateSpacePayl
 
 export async function updateSpace (workspaceId: string, payload: UpdateSpacePayload) {
   const url = `/api/workspace/${workspaceId}/space/${payload.view_id}`;
-
+  const data = omit(payload, ['view_id']);
   const response = await axiosInstance?.patch<{
     code: number;
     message: string;
-  }>(url, payload);
+  }>(url, data);
 
   if (response?.data.code === 0) {
     return;

@@ -33,7 +33,7 @@ function CalloutIcon ({ node }: { node: CalloutNode }) {
         }}
         contentEditable={false}
         ref={ref}
-        className={`icon ${readOnly ? '' : 'cursor-pointer'} flex h-10 w-8 items-center p-1`}
+        className={`icon ${readOnly ? '' : 'cursor-pointer'} flex h-9 w-8 items-center p-1`}
       >
         {node.data.icon || `📌`}
       </span>

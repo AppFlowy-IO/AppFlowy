@@ -1,5 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { slateContentInsertToYData } from '@/application/slate-yjs/utils/convert';
+import { beforePasted } from '@/application/slate-yjs/utils/slateUtils';
 import {
   assertDocExists,
   getBlock,
@@ -9,7 +10,7 @@ import {
 } from '@/application/slate-yjs/utils/yjsOperations';
 import { MentionType, YjsEditorKey } from '@/application/types';
 import { deserializeHTML } from '@/components/editor/utils/fragment';
-import { BasePoint, Range, Transforms, Node } from 'slate';
+import { BasePoint, Node, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 import isURL from 'validator/lib/isURL';
 
@@ -24,6 +25,9 @@ export const withPasted = (editor: ReactEditor) => {
 
       const lines = text.split(/\r\n|\r|\n/);
 
+      console.log('insertTextData', {
+        lines,
+      });
       if (lines.filter(Boolean).length > 1) {
         return insertHtmlData(editor, data);
       }
@@ -77,24 +81,6 @@ export const withPasted = (editor: ReactEditor) => {
 
   return editor;
 };
-
-function beforePasted (editor: ReactEditor) {
-  const { selection } = editor;
-
-  if (!selection) {
-    return false;
-  }
-
-  if (Range.isExpanded(selection)) {
-    Transforms.collapse(editor, { edge: 'start' });
-
-    editor.delete({
-      at: selection,
-    });
-  }
-
-  return true;
-}
 
 function insertHtmlData (editor: ReactEditor, data: DataTransfer) {
   const html = data.getData('text/html');

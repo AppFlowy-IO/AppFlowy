@@ -1,35 +1,20 @@
 import { View } from '@/application/types';
-import { Popover } from '@/components/_shared/popover';
-import AddPageActions from '@/components/app/view-actions/AddPageActions';
-import MoreSpaceActions from '@/components/app/view-actions/MoreSpaceActions';
 import { IconButton, Tooltip } from '@mui/material';
-import { PopoverProps } from '@mui/material/Popover';
 import React from 'react';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
 import { useTranslation } from 'react-i18next';
 
-const popoverProps: Partial<PopoverProps> = {
-  transformOrigin: {
-    vertical: 'top',
-    horizontal: 'left',
-  },
-  anchorOrigin: {
-    vertical: 'bottom',
-    horizontal: 'left',
-  },
-};
-
-function SpaceActions ({ view }: {
-  view: View
+function SpaceActions ({
+  onClickMore,
+  onClickAdd,
+}: {
+  view: View;
+  onClickAdd: (e: React.MouseEvent<HTMLElement>) => void;
+  onClickMore: (e: React.MouseEvent<HTMLElement>) => void;
 }) {
+
   const { t } = useTranslation();
-  const [popoverType, setPopoverType] = React.useState<'more' | 'add'>('more');
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClosePopover = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <div
@@ -43,8 +28,7 @@ function SpaceActions ({ view }: {
         <IconButton
           onClick={e => {
             e.stopPropagation();
-            setPopoverType('more');
-            setAnchorEl(e.currentTarget);
+            onClickMore(e);
           }}
           size={'small'}
         >
@@ -58,23 +42,13 @@ function SpaceActions ({ view }: {
         <IconButton
           onClick={e => {
             e.stopPropagation();
-            setPopoverType('add');
-            setAnchorEl(e.currentTarget);
+            onClickAdd(e);
           }}
           size={'small'}
         >
           <AddIcon />
         </IconButton>
       </Tooltip>
-      <Popover
-        {...popoverProps}
-        keepMounted={false}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClosePopover}
-      >
-        {popoverType === 'more' ? <MoreSpaceActions view={view} /> : <AddPageActions view={view} />}
-      </Popover>
     </div>
   );
 }

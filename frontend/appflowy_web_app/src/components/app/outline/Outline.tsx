@@ -22,8 +22,10 @@ export function Outline ({
     });
   }, []);
   const renderActions = useCallback(({ hovered, view }: { hovered: boolean; view: View }) => {
-    if (!hovered) return null;
-    return <Suspense><ViewActions view={view} /></Suspense>;
+    return <Suspense><ViewActions
+      hovered={hovered}
+      view={view}
+    /></Suspense>;
   }, []);
 
   const {
