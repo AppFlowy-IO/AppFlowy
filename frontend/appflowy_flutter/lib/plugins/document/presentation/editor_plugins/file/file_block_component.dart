@@ -347,6 +347,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       controller.show();
       dropManagerState?.add(FileBlockKeys.type);
     } else {
+      editorState.updateSelectionWithReason(null, extraInfo: {});
       showUploadFileMobileMenu();
     }
   }
