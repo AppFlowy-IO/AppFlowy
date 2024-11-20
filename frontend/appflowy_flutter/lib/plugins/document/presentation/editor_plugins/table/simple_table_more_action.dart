@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,39 +16,35 @@ enum SimpleTableMoreActionType {
     switch (this) {
       case SimpleTableMoreActionType.column:
         return [
-          SimpleTableMoreAction.addColumnBefore,
-          SimpleTableMoreAction.addColumnAfter,
+          SimpleTableMoreAction.addAbove,
+          SimpleTableMoreAction.addBelow,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContent,
           SimpleTableMoreAction.delete,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.align,
           SimpleTableMoreAction.backgroundColor,
-          SimpleTableMoreAction.divider,
-          SimpleTableMoreAction.enableHeaderColumn,
         ];
       case SimpleTableMoreActionType.row:
         return [
-          SimpleTableMoreAction.addRowBefore,
-          SimpleTableMoreAction.addRowAfter,
+          SimpleTableMoreAction.addLeft,
+          SimpleTableMoreAction.addRight,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContent,
           SimpleTableMoreAction.delete,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.align,
           SimpleTableMoreAction.backgroundColor,
-          SimpleTableMoreAction.divider,
-          SimpleTableMoreAction.enableHeaderRow,
         ];
     }
   }
 }
 
 enum SimpleTableMoreAction {
-  addColumnBefore,
-  addColumnAfter,
-  addRowBefore,
-  addRowAfter,
+  addLeft,
+  addRight,
+  addAbove,
+  addBelow,
   duplicate,
   clearContent,
   delete,
@@ -62,10 +60,10 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.backgroundColor => 'Color',
       SimpleTableMoreAction.enableHeaderColumn => 'Enable header column',
       SimpleTableMoreAction.enableHeaderRow => 'Enable header row',
-      SimpleTableMoreAction.addColumnBefore => 'Insert above',
-      SimpleTableMoreAction.addColumnAfter => 'Insert below',
-      SimpleTableMoreAction.addRowAfter => 'Insert left',
-      SimpleTableMoreAction.addRowBefore => 'Insert right',
+      SimpleTableMoreAction.addLeft => 'Insert left',
+      SimpleTableMoreAction.addRight => 'Insert right',
+      SimpleTableMoreAction.addBelow => 'Insert below',
+      SimpleTableMoreAction.addAbove => 'Insert above',
       SimpleTableMoreAction.clearContent => 'Clear content',
       SimpleTableMoreAction.delete => 'Delete',
       SimpleTableMoreAction.duplicate => 'Duplicate',
@@ -75,10 +73,10 @@ enum SimpleTableMoreAction {
 
   FlowySvgData get leftIconSvg {
     return switch (this) {
-      SimpleTableMoreAction.addColumnBefore => FlowySvgs.table_insert_above_s,
-      SimpleTableMoreAction.addColumnAfter => FlowySvgs.table_insert_below_s,
-      SimpleTableMoreAction.addRowBefore => FlowySvgs.table_insert_right_s,
-      SimpleTableMoreAction.addRowAfter => FlowySvgs.table_insert_left_s,
+      SimpleTableMoreAction.addLeft => FlowySvgs.table_insert_left_s,
+      SimpleTableMoreAction.addRight => FlowySvgs.table_insert_right_s,
+      SimpleTableMoreAction.addAbove => FlowySvgs.table_insert_above_s,
+      SimpleTableMoreAction.addBelow => FlowySvgs.table_insert_below_s,
       SimpleTableMoreAction.duplicate => FlowySvgs.duplicate_s,
       SimpleTableMoreAction.clearContent => FlowySvgs.table_clear_content_s,
       SimpleTableMoreAction.delete => FlowySvgs.delete_s,
@@ -148,9 +146,28 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
               direction: widget.type == SimpleTableMoreActionType.row
                   ? PopoverDirection.bottomWithCenterAligned
                   : PopoverDirection.rightWithCenterAligned,
-              popupBuilder: (context) => SimpleTableMoreActionList(
-                type: widget.type,
-              ),
+              popupBuilder: (_) {
+                final tableCellNode =
+                    context.read<SimpleTableContext>().hoveringTableNode.value;
+                if (tableCellNode == null) {
+                  return const SizedBox.shrink();
+                }
+                return MultiProvider(
+                  providers: [
+                    Provider.value(
+                      value: context.read<SimpleTableContext>(),
+                    ),
+                    Provider.value(
+                      value: context.read<EditorState>(),
+                    ),
+                  ],
+                  child: SimpleTableMoreActionList(
+                    type: widget.type,
+                    index: widget.index,
+                    tableCellNode: tableCellNode,
+                  ),
+                );
+              },
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: Container(
@@ -171,40 +188,79 @@ class SimpleTableMoreActionList extends StatelessWidget {
   const SimpleTableMoreActionList({
     super.key,
     required this.type,
+    required this.index,
+    required this.tableCellNode,
   });
 
   final SimpleTableMoreActionType type;
-
+  final int index;
+  final Node tableCellNode;
   @override
   Widget build(BuildContext context) {
+    final actions = type.actions;
+
+    if (index == 0) {
+      actions.addAll([
+        SimpleTableMoreAction.divider,
+        if (type == SimpleTableMoreActionType.column)
+          SimpleTableMoreAction.enableHeaderColumn,
+        if (type == SimpleTableMoreActionType.row)
+          SimpleTableMoreAction.enableHeaderRow,
+      ]);
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: type.actions
-          .map((action) => SimpleTableMoreActionItem(action: action))
+      children: actions
+          .map(
+            (action) => SimpleTableMoreActionItem(
+              type: type,
+              action: action,
+              tableCellNode: tableCellNode,
+            ),
+          )
           .toList(),
     );
   }
 }
 
-class SimpleTableMoreActionItem extends StatelessWidget {
+class SimpleTableMoreActionItem extends StatefulWidget {
   const SimpleTableMoreActionItem({
     super.key,
+    required this.type,
     required this.action,
+    required this.tableCellNode,
   });
 
+  final SimpleTableMoreActionType type;
   final SimpleTableMoreAction action;
+  final Node tableCellNode;
+
+  @override
+  State<SimpleTableMoreActionItem> createState() =>
+      _SimpleTableMoreActionItemState();
+}
+
+class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
+  ValueNotifier<bool> isEnableHeader = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isEnableHeader.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (action == SimpleTableMoreAction.divider) {
+    if (widget.action == SimpleTableMoreAction.divider) {
       return _buildDivider(context);
-    } else if (action == SimpleTableMoreAction.align) {
+    } else if (widget.action == SimpleTableMoreAction.align) {
       return _buildAlignMenu(context);
-    } else if (action == SimpleTableMoreAction.backgroundColor) {
+    } else if (widget.action == SimpleTableMoreAction.backgroundColor) {
       return _buildBackgroundColorMenu(context);
-    } else if (action == SimpleTableMoreAction.enableHeaderColumn) {
+    } else if (widget.action == SimpleTableMoreAction.enableHeaderColumn) {
       return _buildEnableHeaderButton(context);
-    } else if (action == SimpleTableMoreAction.enableHeaderRow) {
+    } else if (widget.action == SimpleTableMoreAction.enableHeaderRow) {
       return _buildEnableHeaderButton(context);
     }
 
@@ -224,7 +280,7 @@ class SimpleTableMoreActionItem extends StatelessWidget {
       height: SimpleTableConstants.moreActionHeight,
       padding: SimpleTableConstants.moreActionPadding,
       child: FlowyButton(
-        text: FlowyText.regular(action.name, fontSize: 14.0),
+        text: FlowyText.regular(widget.action.name, fontSize: 14.0),
         onTap: () {},
       ),
     );
@@ -235,7 +291,7 @@ class SimpleTableMoreActionItem extends StatelessWidget {
       height: SimpleTableConstants.moreActionHeight,
       padding: SimpleTableConstants.moreActionPadding,
       child: FlowyButton(
-        text: FlowyText.regular(action.name, fontSize: 14.0),
+        text: FlowyText.regular(widget.action.name, fontSize: 14.0),
         onTap: () {},
       ),
     );
@@ -246,13 +302,18 @@ class SimpleTableMoreActionItem extends StatelessWidget {
       height: SimpleTableConstants.moreActionHeight,
       padding: SimpleTableConstants.moreActionPadding,
       child: FlowyButton(
-        text: FlowyText.regular(action.name, fontSize: 14.0),
-        rightIcon: Toggle(
-          value: true,
-          onChanged: (value) {},
-          padding: EdgeInsets.zero,
+        text: FlowyText.regular(widget.action.name, fontSize: 14.0),
+        rightIcon: ValueListenableBuilder(
+          valueListenable: isEnableHeader,
+          builder: (context, isEnableHeader, child) {
+            return Toggle(
+              value: isEnableHeader,
+              onChanged: (value) => _toggleEnableHeader(),
+              padding: EdgeInsets.zero,
+            );
+          },
         ),
-        onTap: () {},
+        onTap: _toggleEnableHeader,
       ),
     );
   }
@@ -264,23 +325,133 @@ class SimpleTableMoreActionItem extends StatelessWidget {
       child: FlowyIconTextButton(
         margin: SimpleTableConstants.moreActionHorizontalMargin,
         leftIconBuilder: (onHover) => FlowySvg(
-          action.leftIconSvg,
-          color: action == SimpleTableMoreAction.delete && onHover
+          widget.action.leftIconSvg,
+          color: widget.action == SimpleTableMoreAction.delete && onHover
               ? Theme.of(context).colorScheme.error
               : null,
         ),
         iconPadding: 10.0,
         textBuilder: (onHover) => FlowyText.regular(
-          action.name,
+          widget.action.name,
           fontSize: 14.0,
           lineHeight: 1.0,
           figmaLineHeight: 18.0,
-          color: action == SimpleTableMoreAction.delete && onHover
+          color: widget.action == SimpleTableMoreAction.delete && onHover
               ? Theme.of(context).colorScheme.error
               : null,
         ),
-        onTap: () {},
+        onTap: _onAction,
       ),
     );
+  }
+
+  void _toggleEnableHeader() {
+    isEnableHeader.value = !isEnableHeader.value;
+  }
+
+  void _onAction() {
+    switch (widget.action) {
+      case SimpleTableMoreAction.delete:
+        switch (widget.type) {
+          case SimpleTableMoreActionType.column:
+            _deleteColumn();
+            break;
+          case SimpleTableMoreActionType.row:
+            _deleteRow();
+            break;
+        }
+        break;
+      case SimpleTableMoreAction.addLeft:
+        _insertColumnLeft();
+        break;
+      case SimpleTableMoreAction.addRight:
+        _insertColumnRight();
+        break;
+      case SimpleTableMoreAction.addAbove:
+        _insertRowAbove();
+        break;
+      case SimpleTableMoreAction.addBelow:
+        _insertRowBelow();
+        break;
+      default:
+        break;
+    }
+
+    PopoverContainer.of(context).close();
+  }
+
+  void _insertColumnLeft() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final rowIndex = cellPosition.$2;
+    final editorState = context.read<EditorState>();
+    editorState.insertColumnInTable(table, rowIndex);
+  }
+
+  void _insertColumnRight() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final rowIndex = cellPosition.$2;
+    final editorState = context.read<EditorState>();
+    editorState.insertColumnInTable(table, rowIndex + 1);
+  }
+
+  void _insertRowAbove() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final columnIndex = cellPosition.$1;
+    final editorState = context.read<EditorState>();
+    editorState.insertRowInTable(table, columnIndex);
+  }
+
+  void _insertRowBelow() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final columnIndex = cellPosition.$1;
+    final editorState = context.read<EditorState>();
+    editorState.insertRowInTable(table, columnIndex + 1);
+  }
+
+  void _deleteRow() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final rowIndex = cellPosition.$2;
+    final editorState = context.read<EditorState>();
+    editorState.deleteColumnInTable(table, rowIndex);
+  }
+
+  void _deleteColumn() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final columnIndex = cellPosition.$1;
+    final editorState = context.read<EditorState>();
+    editorState.deleteRowInTable(table, columnIndex);
+  }
+
+  (Node, Node, TableCellPosition)? _getTableAndTableCellAndCellPosition() {
+    final cell = widget.tableCellNode;
+    final table = cell.parent?.parent;
+    if (table == null || table.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+    return (table, cell, cell.cellPosition);
   }
 }
