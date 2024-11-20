@@ -73,6 +73,7 @@ class RelatedQuestionItem extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ),
+      expandText: false,
       margin: UniversalPlatform.isMobile
           ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
           : const EdgeInsets.all(8.0),

@@ -23,10 +23,10 @@ import 'presentation/animated_chat_list.dart';
 import 'presentation/chat_input/desktop_ai_prompt_input.dart';
 import 'presentation/chat_input/mobile_ai_prompt_input.dart';
 import 'presentation/chat_side_panel.dart';
-import 'presentation/chat_user_invalid_message.dart';
 import 'presentation/chat_welcome_page.dart';
 import 'presentation/layout_define.dart';
 import 'presentation/message/ai_text_message.dart';
+import 'presentation/message/error_text_message.dart';
 import 'presentation/message/user_text_message.dart';
 import 'presentation/scroll_to_bottom.dart';
 
@@ -218,9 +218,9 @@ class _ChatContentPage extends StatelessWidget {
       message.metadata,
     );
 
-    if (messageType == OnetimeShotType.invalidSendMesssage) {
-      return ChatInvalidUserMessage(
-        message: message,
+    if (messageType == OnetimeShotType.error) {
+      return ChatErrorMessageWidget(
+        errorMessage: message.metadata?[errorMessageTextKey] ?? "",
       );
     }
 
@@ -259,19 +259,8 @@ class _ChatContentPage extends StatelessWidget {
     return BlocSelector<ChatBloc, ChatState, bool>(
       selector: (state) {
         final chatController = context.read<ChatBloc>().chatController;
-        final messages = chatController.messages.where((e) {
-          final oneTimeMessageType = onetimeMessageTypeFromMeta(e.metadata);
-          if (oneTimeMessageType == null) {
-            return true;
-          }
-          if (oneTimeMessageType
-              case OnetimeShotType.relatedQuestion ||
-                  OnetimeShotType.sendingMessage ||
-                  OnetimeShotType.invalidSendMesssage) {
-            return false;
-          }
-          return true;
-        });
+        final messages = chatController.messages
+            .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
         return messages.isEmpty ? false : messages.last.id == message.id;
       },
       builder: (context, isLastMessage) {
