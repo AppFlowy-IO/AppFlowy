@@ -1,4 +1,28 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+
+class SimpleTableContext {
+  SimpleTableContext() {
+    isHoveringOnTable.addListener(_onHoveringOnTableChanged);
+    hoveringTableNode.addListener(_onHoveringTableNodeChanged);
+  }
+
+  final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
+  final ValueNotifier<Node?> hoveringTableNode = ValueNotifier(null);
+
+  void _onHoveringOnTableChanged() {
+    debugPrint('isHoveringOnTable: ${isHoveringOnTable.value}');
+  }
+
+  void _onHoveringTableNodeChanged() {
+    debugPrint('hoveringTableNode: ${hoveringTableNode.value}');
+  }
+
+  void dispose() {
+    isHoveringOnTable.dispose();
+    hoveringTableNode.dispose();
+  }
+}
 
 class SimpleTableConstants {
   static const defaultColumnWidth = 120.0;

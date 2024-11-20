@@ -7,16 +7,6 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SimpleTableContext {
-  final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
-  final ValueNotifier<Node?> hoveringTableNode = ValueNotifier(null);
-
-  void dispose() {
-    isHoveringOnTable.dispose();
-    hoveringTableNode.dispose();
-  }
-}
-
 class SimpleTableAddRowHoverButton extends StatelessWidget {
   const SimpleTableAddRowHoverButton({
     super.key,

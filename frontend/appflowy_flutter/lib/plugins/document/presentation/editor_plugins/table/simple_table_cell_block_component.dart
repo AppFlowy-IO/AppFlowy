@@ -78,22 +78,29 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: buildDecoration(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: node.children.map(buildCell).toList(),
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.opaque,
+      onEnter: (event) =>
+          context.read<SimpleTableContext>().hoveringTableNode.value = node,
+      onExit: (event) =>
+          context.read<SimpleTableContext>().hoveringTableNode.value = null,
+      child: DecoratedBox(
+        decoration: _buildDecoration(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: node.children.map(_buildCell).toList(),
+        ),
       ),
     );
   }
 
-  Widget buildCell(Node node) {
+  Widget _buildCell(Node node) {
     return Container(
       padding: SimpleTableConstants.cellEdgePadding,
       constraints: const BoxConstraints(
         minWidth: SimpleTableConstants.minimumColumnWidth,
       ),
-      width: getColumnWidth(),
+      width: _calculateColumnWidth(),
       child: IntrinsicWidth(
         child: IntrinsicHeight(
           child: editorState.renderer.build(context, node),
@@ -102,7 +109,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     );
   }
 
-  Decoration buildDecoration() {
+  Decoration _buildDecoration() {
     return SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
         ? BoxDecoration(
             border: Border.all(
@@ -113,7 +120,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         : const BoxDecoration();
   }
 
-  double getColumnWidth() {
+  double _calculateColumnWidth() {
     final table = node.parent?.parent;
     if (table == null || table.type != SimpleTableBlockKeys.type) {
       return SimpleTableConstants.defaultColumnWidth;
