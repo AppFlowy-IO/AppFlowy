@@ -8,6 +8,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/imag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -578,16 +581,33 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       return;
     }
 
-    final tableNode = TableNode.fromList([
-      ['', ''],
-      ['', ''],
-    ]);
+    // final tableNode = TableNode.fromList([
+    //   ['', ''],
+    //   ['', ''],
+    // ]);
+
+    final tableNode = simpleTableBlockNode(
+      children: [
+        simpleTableRowBlockNode(
+          children: [
+            simpleTableCellBlockNode(),
+            simpleTableCellBlockNode(),
+          ],
+        ),
+        simpleTableRowBlockNode(
+          children: [
+            simpleTableCellBlockNode(),
+            simpleTableCellBlockNode(),
+          ],
+        ),
+      ],
+    );
 
     final transaction = editorState.transaction;
     final delta = currentNode.delta;
     if (delta != null && delta.isEmpty) {
       transaction
-        ..insertNode(selection.end.path, tableNode.node)
+        ..insertNode(selection.end.path, tableNode)
         ..deleteNode(currentNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
@@ -595,7 +615,7 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
         ),
       );
     } else {
-      transaction.insertNode(selection.end.path.next, tableNode.node);
+      transaction.insertNode(selection.end.path.next, tableNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
           path: selection.end.path.next + [0, 0],

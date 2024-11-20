@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +59,7 @@ Node simpleTableBlockNode({
   assert(columnAligns.length == columnWidths.length);
   assert(rowAligns.length == rowColors.length);
 
-  assert(children.every((e) => e.type == SimpleTableCellBlockKeys.type));
+  assert(children.every((e) => e.type == SimpleTableRowBlockKeys.type));
 
   return Node(
     type: SimpleTableBlockKeys.type,
@@ -97,7 +97,7 @@ class SimpleTableBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  BlockComponentValidate get validate => (node) => node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.children.isNotEmpty;
 }
 
 class SimpleTableBlockWidget extends BlockComponentStatefulWidget {
@@ -129,6 +129,18 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.shrink();
+    return SizedBox(
+      height: 200,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: node.children
+            .map(
+              (e) => Expanded(
+                child: editorState.renderer.build(context, e),
+              ),
+            )
+            .toList(),
+      ),
+    );
   }
 }

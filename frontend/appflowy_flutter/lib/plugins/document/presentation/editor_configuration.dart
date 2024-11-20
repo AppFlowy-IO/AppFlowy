@@ -5,6 +5,9 @@ import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -286,6 +289,18 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
     ),
+    SimpleTableBlockKeys.type: _buildSimpleTableBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleTableRowBlockKeys.type: _buildSimpleTableRowBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleTableCellBlockKeys.type: _buildSimpleTableCellBlockComponentBuilder(
+      context,
+      configuration,
+    ),
   };
 
   final builders = {
@@ -294,6 +309,27 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   };
 
   return builders;
+}
+
+SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableBlockComponentBuilder(configuration: configuration);
+}
+
+SimpleTableRowBlockComponentBuilder _buildSimpleTableRowBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableRowBlockComponentBuilder(configuration: configuration);
+}
+
+SimpleTableCellBlockComponentBuilder _buildSimpleTableCellBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableCellBlockComponentBuilder(configuration: configuration);
 }
 
 ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(

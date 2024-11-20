@@ -2,30 +2,30 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SimpleTableCellBlockKeys {
-  const SimpleTableCellBlockKeys._();
+class SimpleTableRowBlockKeys {
+  const SimpleTableRowBlockKeys._();
 
-  static const String type = 'simple_table_cell';
+  static const String type = 'simple_table_row';
 }
 
-Node simpleTableCellBlockNode({
+Node simpleTableRowBlockNode({
   List<Node> children = const [],
 }) {
   return Node(
-    type: SimpleTableCellBlockKeys.type,
+    type: SimpleTableRowBlockKeys.type,
     children: children,
   );
 }
 
-class SimpleTableCellBlockComponentBuilder extends BlockComponentBuilder {
-  SimpleTableCellBlockComponentBuilder({
+class SimpleTableRowBlockComponentBuilder extends BlockComponentBuilder {
+  SimpleTableRowBlockComponentBuilder({
     super.configuration,
   });
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
-    return SimpleTableCellBlockWidget(
+    return SimpleTableRowBlockWidget(
       key: node.key,
       node: node,
       configuration: configuration,
@@ -38,11 +38,11 @@ class SimpleTableCellBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  BlockComponentValidate get validate => (node) => true;
+  BlockComponentValidate get validate => (node) => node.children.isNotEmpty;
 }
 
-class SimpleTableCellBlockWidget extends BlockComponentStatefulWidget {
-  const SimpleTableCellBlockWidget({
+class SimpleTableRowBlockWidget extends BlockComponentStatefulWidget {
+  const SimpleTableRowBlockWidget({
     super.key,
     required super.node,
     super.showActions,
@@ -51,11 +51,11 @@ class SimpleTableCellBlockWidget extends BlockComponentStatefulWidget {
   });
 
   @override
-  State<SimpleTableCellBlockWidget> createState() =>
-      _SimpleTableCellBlockWidgetState();
+  State<SimpleTableRowBlockWidget> createState() =>
+      _SimpleTableRowBlockWidgetState();
 }
 
-class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
+class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
     with
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
@@ -71,11 +71,11 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 100,
-      color: Colors.red.withOpacity(0.5),
-      child: const Text('cell'),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: node.children
+          .map((e) => editorState.renderer.build(context, e))
+          .toList(),
     );
   }
 }
