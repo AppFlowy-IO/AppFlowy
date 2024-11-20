@@ -4,18 +4,26 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class SimpleTableContext {
+  final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
+  final ValueNotifier<Node?> hoveringTableNode = ValueNotifier(null);
+
+  void dispose() {
+    isHoveringOnTable.dispose();
+    hoveringTableNode.dispose();
+  }
+}
 
 class SimpleTableAddRowHoverButton extends StatelessWidget {
   const SimpleTableAddRowHoverButton({
     super.key,
-    required this.isHovering,
     required this.editorState,
     required this.node,
   });
 
-  final ValueListenable<bool> isHovering;
   final EditorState editorState;
   final Node node;
 
@@ -28,7 +36,7 @@ class SimpleTableAddRowHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: isHovering,
+      valueListenable: context.read<SimpleTableContext>().isHoveringOnTable,
       builder: (context, value, child) {
         return value
             ? Positioned(
@@ -86,12 +94,10 @@ class SimpleTableAddRowButton extends StatelessWidget {
 class SimpleTableAddColumnHoverButton extends StatelessWidget {
   const SimpleTableAddColumnHoverButton({
     super.key,
-    required this.isHovering,
     required this.editorState,
     required this.node,
   });
 
-  final ValueListenable<bool> isHovering;
   final EditorState editorState;
   final Node node;
 
@@ -104,7 +110,7 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: isHovering,
+      valueListenable: context.read<SimpleTableContext>().isHoveringOnTable,
       builder: (context, value, child) {
         return value
             ? Positioned(
@@ -113,7 +119,6 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
                 right: 0,
                 child: SimpleTableAddColumnButton(
                   onTap: () {
-                    debugPrint('add column');
                     editorState.addColumnInTable(node);
                   },
                 ),
@@ -165,12 +170,10 @@ class SimpleTableAddColumnButton extends StatelessWidget {
 class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
   const SimpleTableAddColumnAndRowHoverButton({
     super.key,
-    required this.isHovering,
     required this.editorState,
     required this.node,
   });
 
-  final ValueListenable<bool> isHovering;
   final EditorState editorState;
   final Node node;
 
@@ -183,7 +186,7 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: isHovering,
+      valueListenable: context.read<SimpleTableContext>().isHoveringOnTable,
       builder: (context, value, child) {
         return value
             ? Positioned(

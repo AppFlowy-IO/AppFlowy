@@ -138,12 +138,12 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   final tableKey = GlobalKey();
 
-  final ValueNotifier<bool> isHovering = ValueNotifier(false);
+  final simpleTableContext = SimpleTableContext();
 
   @override
   void dispose() {
     super.dispose();
-    isHovering.dispose();
+    simpleTableContext.dispose();
   }
 
   @override
@@ -184,45 +184,45 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     const rightPadding = SimpleTableConstants.addColumnButtonWidth +
         2 * SimpleTableConstants.addColumnButtonPadding;
     // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
-    return MouseRegion(
-      onEnter: (event) => isHovering.value = true,
-      onExit: (event) => isHovering.value = false,
-      child: Stack(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: bottomPadding,
-                right: rightPadding,
-              ),
-              child: IntrinsicWidth(
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _buildRows(),
+    return Provider.value(
+      value: simpleTableContext,
+      child: MouseRegion(
+        onEnter: (event) => simpleTableContext.isHoveringOnTable.value = true,
+        onExit: (event) => simpleTableContext.isHoveringOnTable.value = false,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: bottomPadding,
+                  right: rightPadding,
+                ),
+                child: IntrinsicWidth(
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _buildRows(),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          SimpleTableAddColumnHoverButton(
-            isHovering: isHovering,
-            editorState: editorState,
-            node: node,
-          ),
-          SimpleTableAddRowHoverButton(
-            isHovering: isHovering,
-            editorState: editorState,
-            node: node,
-          ),
-          SimpleTableAddColumnAndRowHoverButton(
-            isHovering: isHovering,
-            editorState: editorState,
-            node: node,
-          ),
-        ],
+            SimpleTableAddColumnHoverButton(
+              editorState: editorState,
+              node: node,
+            ),
+            SimpleTableAddRowHoverButton(
+              editorState: editorState,
+              node: node,
+            ),
+            SimpleTableAddColumnAndRowHoverButton(
+              editorState: editorState,
+              node: node,
+            ),
+          ],
+        ),
       ),
     );
   }

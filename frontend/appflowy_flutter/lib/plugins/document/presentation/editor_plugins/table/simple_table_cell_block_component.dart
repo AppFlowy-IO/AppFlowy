@@ -79,35 +79,38 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration:
-          SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
-              ? BoxDecoration(
-                  border: Border.all(
-                    color: SimpleTableConstants.borderColor,
-                    strokeAlign: BorderSide.strokeAlignCenter,
-                  ),
-                )
-              : const BoxDecoration(),
+      decoration: buildDecoration(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: node.children
-            .map(
-              (e) => Container(
-                padding: SimpleTableConstants.cellEdgePadding,
-                constraints: const BoxConstraints(
-                  minWidth: SimpleTableConstants.minimumColumnWidth,
-                ),
-                width: getColumnWidth(),
-                child: IntrinsicWidth(
-                  child: IntrinsicHeight(
-                    child: editorState.renderer.build(context, e),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
+        children: node.children.map(buildCell).toList(),
       ),
     );
+  }
+
+  Widget buildCell(Node node) {
+    return Container(
+      padding: SimpleTableConstants.cellEdgePadding,
+      constraints: const BoxConstraints(
+        minWidth: SimpleTableConstants.minimumColumnWidth,
+      ),
+      width: getColumnWidth(),
+      child: IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: editorState.renderer.build(context, node),
+        ),
+      ),
+    );
+  }
+
+  Decoration buildDecoration() {
+    return SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
+        ? BoxDecoration(
+            border: Border.all(
+              color: SimpleTableConstants.borderColor,
+              strokeAlign: BorderSide.strokeAlignCenter,
+            ),
+          )
+        : const BoxDecoration();
   }
 
   double getColumnWidth() {
