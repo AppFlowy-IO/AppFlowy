@@ -11,8 +11,13 @@ class SimpleTableCellBlockKeys {
 }
 
 Node simpleTableCellBlockNode({
-  List<Node> children = const [],
+  List<Node>? children,
 }) {
+  // Default children is a paragraph node.
+  children ??= [
+    paragraphNode(),
+  ];
+
   return Node(
     type: SimpleTableCellBlockKeys.type,
     children: children,

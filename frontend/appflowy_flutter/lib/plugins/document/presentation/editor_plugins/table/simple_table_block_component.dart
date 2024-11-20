@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -189,17 +190,20 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
       onExit: (event) => isHovering.value = false,
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              bottom: bottomPadding,
-              right: rightPadding,
-            ),
-            child: IntrinsicWidth(
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _buildRows(),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: bottomPadding,
+                right: rightPadding,
+              ),
+              child: IntrinsicWidth(
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _buildRows(),
+                  ),
                 ),
               ),
             ),
@@ -215,6 +219,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
                       child: SimpleTableAddRowButton(
                         onTap: () {
                           debugPrint('add row');
+                          editorState.addRowInTable(node);
                         },
                       ),
                     )
@@ -232,6 +237,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
                       child: SimpleTableAddColumnButton(
                         onTap: () {
                           debugPrint('add column');
+                          editorState.addColumnInTable(node);
                         },
                       ),
                     )
