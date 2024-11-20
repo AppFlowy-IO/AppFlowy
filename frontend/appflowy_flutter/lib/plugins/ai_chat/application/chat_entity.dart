@@ -40,16 +40,11 @@ class ChatMessageRefSource {
   Map<String, dynamic> toJson() => _$ChatMessageRefSourceToJson(this);
 }
 
-@freezed
-class StreamingState with _$StreamingState {
-  const factory StreamingState.streaming() = _Streaming;
-  const factory StreamingState.done({FlowyError? error}) = _StreamDone;
-}
-
-@freezed
-class SendMessageState with _$SendMessageState {
-  const factory SendMessageState.sending() = _Sending;
-  const factory SendMessageState.done({FlowyError? error}) = _SendDone;
+enum PromptResponseState {
+  ready,
+  sendingQuestion,
+  awaitingAnswer,
+  streamingAnswer,
 }
 
 class ChatFile extends Equatable {
