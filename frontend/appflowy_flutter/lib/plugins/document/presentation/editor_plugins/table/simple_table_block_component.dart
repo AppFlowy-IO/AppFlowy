@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -208,41 +207,20 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
               ),
             ),
           ),
-          ValueListenableBuilder(
-            valueListenable: isHovering,
-            builder: (context, value, child) {
-              return value
-                  ? Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: rightPadding,
-                      child: SimpleTableAddRowButton(
-                        onTap: () {
-                          debugPrint('add row');
-                          editorState.addRowInTable(node);
-                        },
-                      ),
-                    )
-                  : const SizedBox.shrink();
-            },
+          SimpleTableAddColumnHoverButton(
+            isHovering: isHovering,
+            editorState: editorState,
+            node: node,
           ),
-          ValueListenableBuilder(
-            valueListenable: isHovering,
-            builder: (context, value, child) {
-              return value
-                  ? Positioned(
-                      top: 0,
-                      bottom: bottomPadding,
-                      right: 0,
-                      child: SimpleTableAddColumnButton(
-                        onTap: () {
-                          debugPrint('add column');
-                          editorState.addColumnInTable(node);
-                        },
-                      ),
-                    )
-                  : const SizedBox.shrink();
-            },
+          SimpleTableAddRowHoverButton(
+            isHovering: isHovering,
+            editorState: editorState,
+            node: node,
+          ),
+          SimpleTableAddColumnAndRowHoverButton(
+            isHovering: isHovering,
+            editorState: editorState,
+            node: node,
           ),
         ],
       ),

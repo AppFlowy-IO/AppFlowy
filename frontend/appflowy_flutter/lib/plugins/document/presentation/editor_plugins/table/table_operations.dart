@@ -16,7 +16,7 @@ extension TableOperations on EditorState {
     final rowLength = node.rowLength;
 
     Log.info('add row in table ${node.id}');
-    Log.info('column length: $columnLength, row length: $rowLength');
+    Log.info('current column length: $columnLength, row length: $rowLength');
 
     final newRow = simpleTableRowBlockNode(
       children: [
@@ -41,10 +41,10 @@ extension TableOperations on EditorState {
     final rowLength = node.rowLength;
 
     Log.info('add column in table ${node.id}');
-    Log.info('column length: $columnLength, row length: $rowLength');
+    Log.info('current column length: $columnLength, row length: $rowLength');
 
     final transaction = this.transaction;
-    for (var i = 0; i < rowLength; i++) {
+    for (var i = 0; i < columnLength; i++) {
       final row = node.children[i];
       transaction.insertNode(
         row.children.last.path.next,
@@ -52,6 +52,13 @@ extension TableOperations on EditorState {
       );
     }
     await apply(transaction);
+  }
+
+  Future<void> addColumnAndRowInTable(Node node) async {
+    assert(node.type == SimpleTableBlockKeys.type);
+
+    await addColumnInTable(node);
+    await addRowInTable(node);
   }
 }
 
