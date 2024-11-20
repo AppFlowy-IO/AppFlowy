@@ -30,6 +30,8 @@ export function findSlateEntryByBlockId (editor: Editor, blockId: string) {
   const [node] = Editor.nodes(editor, {
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
     at: [],
+    mode: 'all',
+    voids: true,
   });
 
   return node as NodeEntry<Element>;
@@ -52,3 +54,4 @@ export function beforePasted (editor: ReactEditor) {
 
   return true;
 }
+
