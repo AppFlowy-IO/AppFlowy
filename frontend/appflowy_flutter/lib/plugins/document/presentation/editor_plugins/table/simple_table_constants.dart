@@ -35,6 +35,9 @@ class SimpleTableConstants {
   static const minimumColumnWidth = 50.0;
   static const borderColor = Color(0xFFE4E5E5);
 
+  static const tableTopPadding = 8.0;
+  static const tableLeftPadding = 8.0;
+
   static const addRowButtonHeight = 16.0;
   static const addRowButtonPadding = 2.0;
   static const addRowButtonBackgroundColor = Color(0xFFF2F3F5);

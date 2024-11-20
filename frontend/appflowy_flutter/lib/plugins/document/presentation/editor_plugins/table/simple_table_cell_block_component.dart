@@ -86,7 +86,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       onExit: (event) =>
           context.read<SimpleTableContext>().hoveringTableNode.value = null,
       child: Stack(
-        alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
         children: [
           DecoratedBox(
             decoration: _buildDecoration(),
@@ -96,13 +96,13 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
             ),
           ),
           Positioned(
-            top: 0,
+            top: -SimpleTableConstants.tableTopPadding,
             child: _buildRowMoreActionButton(),
           ),
-          // Positioned(
-          //   top: 0,
-          //   child: _buildColumnMoreActionButton(),
-          // ),
+          Positioned(
+            left: -SimpleTableConstants.tableLeftPadding,
+            child: _buildColumnMoreActionButton(),
+          ),
         ],
       ),
     );
@@ -141,10 +141,13 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           return const SizedBox.shrink();
         }
 
-        return Container(
-          color: Colors.red,
-          width: 20,
-          height: 20,
+        return GestureDetector(
+          onTap: () => debugPrint('tap Row More Action Button'),
+          child: Container(
+            color: Colors.red,
+            width: 16,
+            height: 16,
+          ),
         );
       },
     );
@@ -153,6 +156,11 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   Widget _buildColumnMoreActionButton() {
     final cellPosition = node.cellPosition;
     final columnIndex = cellPosition.$1;
+    final rowIndex = cellPosition.$2;
+
+    if (rowIndex != 0) {
+      return const SizedBox.shrink();
+    }
 
     return ValueListenableBuilder(
       valueListenable: context.read<SimpleTableContext>().hoveringTableNode,
@@ -162,18 +170,14 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           'hoveringColumnIndex: $hoveringColumnIndex, columnIndex: $columnIndex',
         );
 
-        if (columnIndex != 0) {
-          return const SizedBox.shrink();
-        }
-
         if (hoveringColumnIndex != columnIndex) {
           return const SizedBox.shrink();
         }
 
         return Container(
           color: Colors.red,
-          width: 20,
-          height: 20,
+          width: 16,
+          height: 16,
         );
       },
     );

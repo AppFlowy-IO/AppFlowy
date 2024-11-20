@@ -196,6 +196,8 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
               scrollDirection: Axis.horizontal,
               child: Padding(
                 padding: const EdgeInsets.only(
+                  top: SimpleTableConstants.tableTopPadding,
+                  left: SimpleTableConstants.tableLeftPadding,
                   bottom: bottomPadding,
                   right: rightPadding,
                 ),
