@@ -71,11 +71,10 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 100,
-      color: Colors.red.withOpacity(0.5),
-      child: const Text('cell'),
+    return const Column(
+      children: [
+        Text('cell'),
+      ],
     );
   }
 }

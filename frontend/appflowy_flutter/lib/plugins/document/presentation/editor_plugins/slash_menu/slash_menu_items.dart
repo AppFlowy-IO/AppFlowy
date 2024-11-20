@@ -590,14 +590,30 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       children: [
         simpleTableRowBlockNode(
           children: [
-            simpleTableCellBlockNode(),
-            simpleTableCellBlockNode(),
+            simpleTableCellBlockNode(
+              children: [
+                paragraphNode(),
+              ],
+            ),
+            simpleTableCellBlockNode(
+              children: [
+                paragraphNode(),
+              ],
+            ),
           ],
         ),
         simpleTableRowBlockNode(
           children: [
-            simpleTableCellBlockNode(),
-            simpleTableCellBlockNode(),
+            simpleTableCellBlockNode(
+              children: [
+                paragraphNode(),
+              ],
+            ),
+            simpleTableCellBlockNode(
+              children: [
+                paragraphNode(),
+              ],
+            ),
           ],
         ),
       ],
