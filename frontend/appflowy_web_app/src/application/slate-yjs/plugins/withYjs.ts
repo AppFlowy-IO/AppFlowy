@@ -144,13 +144,7 @@ export function withYjs<T extends Editor> (
       });
       if (selection) {
         if (!ReactEditor.hasRange(editor, selection)) {
-          try {
-            Transforms.select(e, Editor.start(editor, [0]));
-
-          } catch (e) {
-            console.error(e);
-            editor.deselect();
-          }
+          editor.deselect();
         } else {
           e.select(selection);
         }

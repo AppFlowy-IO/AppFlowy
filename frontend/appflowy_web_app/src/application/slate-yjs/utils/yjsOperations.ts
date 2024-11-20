@@ -13,6 +13,7 @@ import {
   YSharedRoot,
   YTextMap,
 } from '@/application/types';
+import { uniq } from 'lodash-es';
 
 import { nanoid } from 'nanoid';
 import Delta, { Op } from 'quill-delta';
@@ -179,6 +180,72 @@ export function updateBlockParent (sharedRoot: YSharedRoot, block: YBlock, paren
   parentChildren.insert(index, [block.get(YjsEditorKey.block_id)]);
 }
 
+export function ensureBlockText (editor: YjsEditor) {
+  const { selection } = editor;
+
+  if (!selection) {
+    return;
+  }
+
+  const sharedRoot = editor.sharedRoot;
+
+  const [start, end] = editor.edges(selection);
+  const startNodeEntry = getBlockEntry(editor, start);
+  const [startNode] = startNodeEntry;
+  const endNodeEntry = getBlockEntry(editor, end);
+  const [endNode] = endNodeEntry;
+
+  const startBlockId = startNode.blockId;
+
+  const endBlockId = endNode.blockId;
+  const startBlockType = startNode.type as BlockType;
+  const endBlockType = endNode.type as BlockType;
+
+  if (!startBlockId || !endBlockId) {
+    return;
+  }
+
+  const compatibleBlocks: string[] = [];
+
+  if (!isEmbedBlockTypes(startBlockType)) {
+    compatibleBlocks.push(startBlockId);
+  }
+
+  if (!isEmbedBlockTypes(endBlockType)) {
+    compatibleBlocks.push(endBlockId);
+  }
+
+  uniq(compatibleBlocks).forEach((blockId) => {
+    const block = getBlock(blockId, sharedRoot);
+    const textId = block.get(YjsEditorKey.block_external_id);
+
+    if (!textId || !getText(textId, sharedRoot)) {
+      const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as BlockData;
+
+      compatibleDataDeltaToYText(sharedRoot, data.delta || [], blockId);
+    }
+  });
+}
+
+export function compatibleDataDeltaToYText (sharedRoot: YSharedRoot, ops: Op[], blockId: string) {
+  const yText = new Y.Text();
+
+  executeOperations(sharedRoot, [() => {
+
+    yText.applyDelta(ops);
+
+    const block = getBlock(blockId, sharedRoot);
+
+    block.set(YjsEditorKey.block_external_id, blockId);
+    block.set(YjsEditorKey.block_external_type, YjsEditorKey.text);
+    const textMap = getTextMap(sharedRoot);
+
+    textMap.set(blockId, yText);
+
+  }], 'compatibleDataDeltaToYText');
+  return yText;
+}
+
 export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, at: BaseRange) {
   const { startBlock, startOffset } = getBreakInfo(editor, sharedRoot, at);
   const [blockNode, path] = startBlock;
@@ -190,8 +257,16 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
   }
 
   const blockType = block.get(YjsEditorKey.block_type);
+  const textId = block.get(YjsEditorKey.block_external_id);
+  let yText = getText(textId, sharedRoot);
 
-  const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
+  if (!yText && !isEmbedBlockTypes(blockType)) {
+    const data = blockNode.data as BlockData;
+    const delta = new Delta(data.delta || []);
+
+    yText = compatibleDataDeltaToYText(sharedRoot, delta.ops, blockId);
+
+  }
 
   if (yText.length === 0) {
     const point = Editor.start(editor, at);
@@ -652,7 +727,15 @@ export function getBreakInfo (editor: YjsEditor, sharedRoot: YSharedRoot, at: Ba
     throw new Error('Block not found');
   }
 
-  const yText = getText(startTextId, sharedRoot);
+  let yText = getText(startTextId, sharedRoot);
+
+  if (!yText) {
+    const data = startBlock[0].data as BlockData;
+    const delta = new Delta(data.delta || []);
+
+    yText = compatibleDataDeltaToYText(sharedRoot, delta.ops, startBlock[0].blockId as string);
+  }
+
   const startOffset = Math.min(startPos.index, yText.length);
 
   return { startBlock, startOffset };

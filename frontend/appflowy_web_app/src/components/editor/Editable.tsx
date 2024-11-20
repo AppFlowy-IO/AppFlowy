@@ -1,3 +1,5 @@
+import { YjsEditor } from '@/application/slate-yjs';
+import { ensureBlockText } from '@/application/slate-yjs/utils/yjsOperations';
 import { BlockPopoverProvider } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import { useDecorate } from '@/components/editor/components/blocks/code/useDecorate';
 import { Leaf } from '@/components/editor/components/leaf';
@@ -78,6 +80,7 @@ const EditorEditable = () => {
   }, [onWordCountChange, viewId, editor]);
 
   useEffect(() => {
+    if (readOnly) return;
     const { onChange } = editor;
 
     editor.onChange = () => {
@@ -87,6 +90,7 @@ const EditorEditable = () => {
 
       if (isSelectionChange) {
         setSelectedBlockId?.(undefined);
+        ensureBlockText(editor as YjsEditor);
       }
 
       onChange();
@@ -96,7 +100,7 @@ const EditorEditable = () => {
     return () => {
       editor.onChange = onChange;
     };
-  }, [editor, debounceCalculateWordCount, setSelectedBlockId]);
+  }, [editor, debounceCalculateWordCount, setSelectedBlockId, readOnly]);
 
   return (
     <PanelProvider editor={editor}>
