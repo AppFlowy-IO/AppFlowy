@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -71,10 +73,46 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Text('cell'),
-      ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: node.children
+          .map(
+            (e) => Container(
+              decoration: const BoxDecoration(
+                  // border: Border.all(
+                  //   color: SimpleTableConstants.borderColor,
+                  //   strokeAlign: BorderSide.strokeAlignCenter,
+                  // ),
+                  ),
+              constraints: const BoxConstraints(
+                minWidth: SimpleTableConstants.minimumColumnWidth,
+              ),
+              width: getColumnWidth(),
+              child: IntrinsicWidth(
+                child: IntrinsicHeight(
+                  child: editorState.renderer.build(context, e),
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
+  }
+
+  double getColumnWidth() {
+    final table = node.parent?.parent;
+    if (table == null || table.type != SimpleTableBlockKeys.type) {
+      return SimpleTableConstants.defaultColumnWidth;
+    }
+
+    try {
+      final columnWidths = table.attributes[SimpleTableBlockKeys.columnWidths]
+          as SimpleTableColumnWidths?;
+      final index = node.parent?.path.last;
+      return columnWidths?[index.toString()] ??
+          SimpleTableConstants.defaultColumnWidth;
+    } catch (e) {
+      return SimpleTableConstants.defaultColumnWidth;
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -71,11 +72,32 @@ class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: node.children
-          .map((e) => editorState.renderer.build(context, e))
-          .toList(),
+    return IntrinsicHeight(
+      child: Row(
+        // mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildCells(),
+      ),
     );
+  }
+
+  List<Widget> _buildCells() {
+    final List<Widget> cells = [];
+    cells.add(
+      const VerticalDivider(
+        color: SimpleTableConstants.borderColor,
+        width: 1.0,
+      ),
+    );
+    for (final child in node.children) {
+      cells.add(editorState.renderer.build(context, child));
+      cells.add(
+        const VerticalDivider(
+          color: SimpleTableConstants.borderColor,
+          width: 1.0,
+        ),
+      );
+    }
+    return cells;
   }
 }

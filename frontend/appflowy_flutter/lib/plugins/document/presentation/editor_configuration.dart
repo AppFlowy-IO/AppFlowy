@@ -128,8 +128,9 @@ void _customBlockOptionActions(
     final actions = _buildOptionActions(context, entry.key);
 
     if (UniversalPlatform.isDesktop) {
-      builder.showActions =
-          (node) => node.parent?.type != TableCellBlockKeys.type;
+      builder.showActions = (node) =>
+          node.parent?.type != TableCellBlockKeys.type &&
+          node.parent?.type != SimpleTableCellBlockKeys.type;
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,

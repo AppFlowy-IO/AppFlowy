@@ -1,7 +1,10 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+typedef SimpleTableColumnWidths = Map<String, double>;
 
 class SimpleTableBlockKeys {
   const SimpleTableBlockKeys._();
@@ -39,27 +42,31 @@ class SimpleTableBlockKeys {
   static const String rowAligns = 'row_aligns';
 
   // column widths
-  // it's a list of double values
-  // the number of widths should be the same as the number of columns
+  // it's a `SimpleTableColumnWidths` value, {column_index: width, ...}
+
   static const String columnWidths = 'column_widths';
 }
 
 Node simpleTableBlockNode({
   bool enableHeaderRow = false,
   bool enableColumnHeader = false,
-  List<String> columnColors = const [],
-  List<String> rowColors = const [],
-  List<String> columnAligns = const [],
-  List<String> rowAligns = const [],
-  List<double> columnWidths = const [],
-  List<Node> children = const [],
+  Map<int, String>? columnColors,
+  Map<int, String>? rowColors,
+  Map<int, String>? columnAligns,
+  Map<int, String>? rowAligns,
+  SimpleTableColumnWidths? columnWidths,
+  required List<Node> children,
 }) {
-  assert(columnColors.length == columnWidths.length);
-  assert(rowColors.length == rowAligns.length);
-  assert(columnAligns.length == columnWidths.length);
-  assert(rowAligns.length == rowColors.length);
-
   assert(children.every((e) => e.type == SimpleTableRowBlockKeys.type));
+
+  // if the column widths is not provided, we will use the default value 100
+  columnWidths ??= Map.fromEntries(
+    Iterable.generate(
+      children.first.children.length,
+      (index) =>
+          MapEntry(index.toString(), SimpleTableConstants.defaultColumnWidth),
+    ),
+  );
 
   return Node(
     type: SimpleTableBlockKeys.type,
@@ -132,16 +139,14 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = IntrinsicHeight(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: node.children
-            .map(
-              (e) => Expanded(
-                child: editorState.renderer.build(context, e),
-              ),
-            )
-            .toList(),
+    // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
+    Widget child = IntrinsicWidth(
+      child: IntrinsicHeight(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _buildRows(),
+        ),
       ),
     );
 
@@ -171,6 +176,26 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     }
 
     return child;
+  }
+
+  List<Widget> _buildRows() {
+    final List<Widget> rows = [];
+    rows.add(
+      const Divider(
+        color: SimpleTableConstants.borderColor,
+        height: 1,
+      ),
+    );
+    for (final child in node.children) {
+      rows.add(editorState.renderer.build(context, child));
+      rows.add(
+        const Divider(
+          color: SimpleTableConstants.borderColor,
+          height: 1,
+        ),
+      );
+    }
+    return rows;
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
