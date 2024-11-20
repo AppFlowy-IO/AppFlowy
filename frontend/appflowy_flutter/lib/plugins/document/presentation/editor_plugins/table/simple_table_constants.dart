@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,7 @@ class SimpleTableContext {
 }
 
 class SimpleTableConstants {
+  // Table
   static const defaultColumnWidth = 120.0;
   static const minimumColumnWidth = 50.0;
   static const borderColor = Color(0xFFE4E5E5);
@@ -38,35 +40,51 @@ class SimpleTableConstants {
   static const tableTopPadding = 8.0;
   static const tableLeftPadding = 8.0;
 
+  // Add row button
   static const addRowButtonHeight = 16.0;
   static const addRowButtonPadding = 2.0;
-  static const addRowButtonBackgroundColor = Color(0xFFF2F3F5);
   static const addRowButtonRadius = 4.0;
   static const addRowButtonRightPadding =
       addColumnButtonWidth + addColumnButtonPadding * 2;
 
+  // Add column button
   static const addColumnButtonWidth = 16.0;
   static const addColumnButtonPadding = 2.0;
-  static const addColumnButtonBackgroundColor = addRowButtonBackgroundColor;
   static const addColumnButtonRadius = 4.0;
   static const addColumnButtonBottomPadding =
       addRowButtonHeight + addRowButtonPadding * 2;
 
+  // Add column and row button
   static const addColumnAndRowButtonWidth = addColumnButtonWidth;
   static const addColumnAndRowButtonHeight = addRowButtonHeight;
   static const addColumnAndRowButtonCornerRadius = addColumnButtonWidth / 2.0;
-  static const addColumnAndRowButtonBackgroundColor =
-      addColumnButtonBackgroundColor;
 
+  // Table cell
   static const cellEdgePadding = EdgeInsets.symmetric(
     horizontal: 8.0,
     vertical: 2.0,
   );
 
   static const borderType = SimpleTableBorderRenderType.table;
+
+  // Table more action
+  static const moreActionHeight = 34.0;
+  static const moreActionPadding = EdgeInsets.symmetric(vertical: 2.0);
+  static const moreActionHorizontalMargin =
+      EdgeInsets.symmetric(horizontal: 6.0);
 }
 
 enum SimpleTableBorderRenderType {
   cell,
   table,
+}
+
+extension SimpleTableColors on BuildContext {
+  Color get simpleTableDividerColor => Theme.of(this).isLightMode
+      ? const Color(0x141F2329)
+      : const Color(0xFF23262B).withOpacity(0.5);
+
+  Color get simpleTableMoreActionBackgroundColor => Theme.of(this).isLightMode
+      ? const Color(0xFFF2F3F5)
+      : const Color(0xFF2D3036);
 }

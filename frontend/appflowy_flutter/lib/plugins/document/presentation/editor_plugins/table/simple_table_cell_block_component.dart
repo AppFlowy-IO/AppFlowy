@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -83,8 +84,6 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       hitTestBehavior: HitTestBehavior.opaque,
       onEnter: (event) =>
           context.read<SimpleTableContext>().hoveringTableNode.value = node,
-      onExit: (event) =>
-          context.read<SimpleTableContext>().hoveringTableNode.value = null,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -97,10 +96,14 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           ),
           Positioned(
             top: -SimpleTableConstants.tableTopPadding,
+            left: 0,
+            right: 0,
             child: _buildRowMoreActionButton(),
           ),
           Positioned(
             left: -SimpleTableConstants.tableLeftPadding,
+            top: 0,
+            bottom: 0,
             child: _buildColumnMoreActionButton(),
           ),
         ],
@@ -132,24 +135,9 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return const SizedBox.shrink();
     }
 
-    return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().hoveringTableNode,
-      builder: (context, hoveringTableNode, child) {
-        final hoveringRowIndex = hoveringTableNode?.cellPosition.$2;
-
-        if (hoveringRowIndex != rowIndex) {
-          return const SizedBox.shrink();
-        }
-
-        return GestureDetector(
-          onTap: () => debugPrint('tap Row More Action Button'),
-          child: Container(
-            color: Colors.red,
-            width: 16,
-            height: 16,
-          ),
-        );
-      },
+    return SimpleTableMoreActionMenu(
+      index: rowIndex,
+      type: SimpleTableMoreActionType.row,
     );
   }
 
@@ -162,24 +150,9 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return const SizedBox.shrink();
     }
 
-    return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().hoveringTableNode,
-      builder: (context, hoveringTableNode, child) {
-        final hoveringColumnIndex = hoveringTableNode?.cellPosition.$1;
-        debugPrint(
-          'hoveringColumnIndex: $hoveringColumnIndex, columnIndex: $columnIndex',
-        );
-
-        if (hoveringColumnIndex != columnIndex) {
-          return const SizedBox.shrink();
-        }
-
-        return Container(
-          color: Colors.red,
-          width: 16,
-          height: 16,
-        );
-      },
+    return SimpleTableMoreActionMenu(
+      index: columnIndex,
+      type: SimpleTableMoreActionType.column,
     );
   }
 

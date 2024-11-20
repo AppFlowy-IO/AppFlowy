@@ -69,7 +69,7 @@ class SimpleTableAddRowButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 SimpleTableConstants.addRowButtonRadius,
               ),
-              color: SimpleTableConstants.addRowButtonBackgroundColor,
+              color: context.simpleTableMoreActionBackgroundColor,
             ),
             child: const FlowySvg(
               FlowySvgs.add_s,
@@ -145,7 +145,7 @@ class SimpleTableAddColumnButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 SimpleTableConstants.addColumnButtonRadius,
               ),
-              color: SimpleTableConstants.addColumnButtonBackgroundColor,
+              color: context.simpleTableMoreActionBackgroundColor,
             ),
             child: const FlowySvg(
               FlowySvgs.add_s,
@@ -216,7 +216,7 @@ class SimpleTableAddColumnAndRowButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 SimpleTableConstants.addColumnAndRowButtonCornerRadius,
               ),
-              color: SimpleTableConstants.addColumnAndRowButtonBackgroundColor,
+              color: context.simpleTableMoreActionBackgroundColor,
             ),
             child: const FlowySvg(
               FlowySvgs.add_s,

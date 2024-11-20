@@ -189,7 +189,10 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
       value: simpleTableContext,
       child: MouseRegion(
         onEnter: (event) => simpleTableContext.isHoveringOnTable.value = true,
-        onExit: (event) => simpleTableContext.isHoveringOnTable.value = false,
+        onExit: (event) {
+          simpleTableContext.isHoveringOnTable.value = false;
+          simpleTableContext.hoveringTableNode.value = null;
+        },
         child: Stack(
           children: [
             SingleChildScrollView(
