@@ -14,7 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../layout_define.dart';
@@ -341,7 +341,6 @@ class CopyButton extends StatelessWidget {
       child: FlowyIconButton(
         width: DesktopAIConvoSizes.actionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        fillColor: Theme.of(context).cardColor,
         radius: DesktopAIConvoSizes.actionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.copy_s,

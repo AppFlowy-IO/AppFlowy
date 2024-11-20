@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'chat_message_service.dart';

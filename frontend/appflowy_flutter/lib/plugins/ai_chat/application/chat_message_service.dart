@@ -7,7 +7,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:nanoid/nanoid.dart';
 
 /// Indicate file source from appflowy document
@@ -103,41 +103,44 @@ List<ChatMessageRefSource> messageReferenceSource(String? s) {
 Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
   Map<String, dynamic>? map,
 ) async {
+  if (map == null) return [];
+
   final List<ChatMessageMetaPB> metadata = [];
-  if (map != null) {
-    for (final entry in map.entries) {
-      if (entry.value is ViewActionPage) {
-        if (entry.value.page is ViewPB) {
-          final view = entry.value.page as ViewPB;
-          if (view.layout.isDocumentView) {
-            final payload = OpenDocumentPayloadPB(documentId: view.id);
-            final result = await DocumentEventGetDocumentText(payload).send();
-            result.fold((pb) {
-              metadata.add(
-                ChatMessageMetaPB(
-                  id: view.id,
-                  name: view.name,
-                  data: pb.text,
-                  dataType: ChatMessageMetaTypePB.Txt,
-                  source: appflowySource,
-                ),
-              );
-            }, (err) {
-              Log.error('Failed to get document text: $err');
-            });
-          }
-        }
-      } else if (entry.value is ChatFile) {
+
+  for (final value in map.values) {
+    switch (value) {
+      case ViewActionPage(view: final view) when view.layout.isDocumentView:
+        final payload = OpenDocumentPayloadPB(documentId: view.id);
+        await DocumentEventGetDocumentText(payload).send().fold(
+          (pb) {
+            metadata.add(
+              ChatMessageMetaPB(
+                id: view.id,
+                name: view.name,
+                data: pb.text,
+                dataType: ChatMessageMetaTypePB.Txt,
+                source: appflowySource,
+              ),
+            );
+          },
+          (err) => Log.error('Failed to get document text: $err'),
+        );
+        break;
+      case ChatFile(
+          filePath: final filePath,
+          fileName: final fileName,
+          fileType: final fileType,
+        ):
         metadata.add(
           ChatMessageMetaPB(
             id: nanoid(8),
-            name: entry.value.fileName,
-            data: entry.value.filePath,
-            dataType: entry.value.fileType,
-            source: entry.value.filePath,
+            name: fileName,
+            data: filePath,
+            dataType: fileType,
+            source: filePath,
           ),
         );
-      }
+        break;
     }
   }
 

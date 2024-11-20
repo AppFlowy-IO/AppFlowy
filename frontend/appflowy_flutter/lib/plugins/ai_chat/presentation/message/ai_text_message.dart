@@ -13,7 +13,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'ai_message_bubble.dart';
