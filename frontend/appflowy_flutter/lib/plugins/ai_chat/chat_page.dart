@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/user_message_bubble.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -233,27 +232,18 @@ class _ChatContentPage extends StatelessWidget {
     }
 
     if (message.author.id == userProfile.id.toString()) {
-      final stream = message.metadata?["$QuestionStream"];
-      return ChatUserMessageBubble(
-        key: ValueKey(message.id),
+      return ChatUserMessageWidget(
+        user: message.author,
         message: message,
-        child: ChatUserMessageWidget(
-          user: message.author,
-          message: stream is QuestionStream ? stream : message.text,
-        ),
+        isCurrentUser: true,
       );
     }
 
     if (isOtherUserMessage(message)) {
-      final stream = message.metadata?["$QuestionStream"];
-      return ChatUserMessageBubble(
-        key: ValueKey(message.id),
+      return ChatUserMessageWidget(
+        user: message.author,
         message: message,
         isCurrentUser: false,
-        child: ChatUserMessageWidget(
-          user: message.author,
-          message: stream is QuestionStream ? stream : message.text,
-        ),
       );
     }
 
@@ -263,7 +253,6 @@ class _ChatContentPage extends StatelessWidget {
         message.metadata?[messageRefSourceJsonStringKey] as String?;
 
     return BlocSelector<ChatBloc, ChatState, bool>(
-      key: ValueKey(message.id),
       selector: (state) {
         final chatController = context.read<ChatBloc>().chatController;
         final messages = chatController.messages.where((e) {
