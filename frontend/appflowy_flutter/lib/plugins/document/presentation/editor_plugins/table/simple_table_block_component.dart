@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -137,18 +138,17 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   final tableKey = GlobalKey();
 
+  final ValueNotifier<bool> isHovering = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    super.dispose();
+    isHovering.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
-    Widget child = IntrinsicWidth(
-      child: IntrinsicHeight(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _buildRows(),
-        ),
-      ),
-    );
+    Widget child = _buildTable();
 
     child = Padding(
       padding: padding,
@@ -178,14 +178,81 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     return child;
   }
 
+  Widget _buildTable() {
+    const bottomPadding = SimpleTableConstants.addRowButtonHeight +
+        2 * SimpleTableConstants.addRowButtonPadding;
+    const rightPadding = SimpleTableConstants.addColumnButtonWidth +
+        2 * SimpleTableConstants.addColumnButtonPadding;
+    // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
+    return MouseRegion(
+      onEnter: (event) => isHovering.value = true,
+      onExit: (event) => isHovering.value = false,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              bottom: bottomPadding,
+              right: rightPadding,
+            ),
+            child: IntrinsicWidth(
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _buildRows(),
+                ),
+              ),
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: isHovering,
+            builder: (context, value, child) {
+              return value
+                  ? Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: rightPadding,
+                      child: SimpleTableAddRowButton(
+                        onTap: () {
+                          debugPrint('add row');
+                        },
+                      ),
+                    )
+                  : const SizedBox.shrink();
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: isHovering,
+            builder: (context, value, child) {
+              return value
+                  ? Positioned(
+                      top: 0,
+                      bottom: bottomPadding,
+                      right: 0,
+                      child: SimpleTableAddColumnButton(
+                        onTap: () {
+                          debugPrint('add column');
+                        },
+                      ),
+                    )
+                  : const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   List<Widget> _buildRows() {
     final List<Widget> rows = [];
+
     rows.add(
       const Divider(
         color: SimpleTableConstants.borderColor,
         height: 1,
       ),
     );
+
     for (final child in node.children) {
       rows.add(editorState.renderer.build(context, child));
       rows.add(
@@ -195,6 +262,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
         ),
       );
     }
+
     return rows;
   }
 

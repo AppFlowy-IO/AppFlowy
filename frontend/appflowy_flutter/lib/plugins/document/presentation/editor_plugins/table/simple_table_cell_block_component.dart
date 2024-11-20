@@ -78,12 +78,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       children: node.children
           .map(
             (e) => Container(
-              decoration: const BoxDecoration(
-                  // border: Border.all(
-                  //   color: SimpleTableConstants.borderColor,
-                  //   strokeAlign: BorderSide.strokeAlignCenter,
-                  // ),
-                  ),
+              padding: SimpleTableConstants.cellEdgePadding,
               constraints: const BoxConstraints(
                 minWidth: SimpleTableConstants.minimumColumnWidth,
               ),
