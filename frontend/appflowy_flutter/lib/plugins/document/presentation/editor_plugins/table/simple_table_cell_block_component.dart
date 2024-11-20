@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,12 +85,25 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           context.read<SimpleTableContext>().hoveringTableNode.value = node,
       onExit: (event) =>
           context.read<SimpleTableContext>().hoveringTableNode.value = null,
-      child: DecoratedBox(
-        decoration: _buildDecoration(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: node.children.map(_buildCell).toList(),
-        ),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          DecoratedBox(
+            decoration: _buildDecoration(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: node.children.map(_buildCell).toList(),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            child: _buildRowMoreActionButton(),
+          ),
+          // Positioned(
+          //   top: 0,
+          //   child: _buildColumnMoreActionButton(),
+          // ),
+        ],
       ),
     );
   }
@@ -106,6 +120,62 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           child: editorState.renderer.build(context, node),
         ),
       ),
+    );
+  }
+
+  Widget _buildRowMoreActionButton() {
+    final cellPosition = node.cellPosition;
+    final columnIndex = cellPosition.$1;
+    final rowIndex = cellPosition.$2;
+
+    if (columnIndex != 0) {
+      return const SizedBox.shrink();
+    }
+
+    return ValueListenableBuilder(
+      valueListenable: context.read<SimpleTableContext>().hoveringTableNode,
+      builder: (context, hoveringTableNode, child) {
+        final hoveringRowIndex = hoveringTableNode?.cellPosition.$2;
+
+        if (hoveringRowIndex != rowIndex) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          color: Colors.red,
+          width: 20,
+          height: 20,
+        );
+      },
+    );
+  }
+
+  Widget _buildColumnMoreActionButton() {
+    final cellPosition = node.cellPosition;
+    final columnIndex = cellPosition.$1;
+
+    return ValueListenableBuilder(
+      valueListenable: context.read<SimpleTableContext>().hoveringTableNode,
+      builder: (context, hoveringTableNode, child) {
+        final hoveringColumnIndex = hoveringTableNode?.cellPosition.$1;
+        debugPrint(
+          'hoveringColumnIndex: $hoveringColumnIndex, columnIndex: $columnIndex',
+        );
+
+        if (columnIndex != 0) {
+          return const SizedBox.shrink();
+        }
+
+        if (hoveringColumnIndex != columnIndex) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          color: Colors.red,
+          width: 20,
+          height: 20,
+        );
+      },
     );
   }
 

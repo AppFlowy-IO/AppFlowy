@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,12 @@ class SimpleTableContext {
   }
 
   void _onHoveringTableNodeChanged() {
-    debugPrint('hoveringTableNode: ${hoveringTableNode.value}');
+    final node = hoveringTableNode.value;
+    if (node == null) {
+      return;
+    }
+
+    debugPrint('hoveringTableNode: $node, ${node.cellPosition}');
   }
 
   void dispose() {

@@ -78,4 +78,19 @@ extension TableNodeExtension on Node {
 
     return children.firstOrNull?.children.length ?? 0;
   }
+
+  (int, int) get cellPosition {
+    assert(type == SimpleTableCellBlockKeys.type);
+
+    final path = this.path;
+
+    if (path.length < 2) {
+      return (-1, -1);
+    }
+
+    return (
+      path.parent.last,
+      path.last,
+    );
+  }
 }

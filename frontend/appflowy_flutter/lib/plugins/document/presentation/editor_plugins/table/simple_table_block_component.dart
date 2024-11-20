@@ -142,8 +142,9 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   @override
   void dispose() {
-    super.dispose();
     simpleTableContext.dispose();
+
+    super.dispose();
   }
 
   @override
