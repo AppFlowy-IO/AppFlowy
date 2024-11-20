@@ -1,4 +1,5 @@
 import { TextCount } from '@/utils/word';
+import { Op } from 'quill-delta';
 import * as Y from 'yjs';
 
 export type BlockId = string;
@@ -57,6 +58,7 @@ export interface BlockData {
   bgColor?: string;
   font_color?: string;
   align?: AlignType;
+  delta?: Op[];
 }
 
 export interface HeadingBlockData extends BlockData {

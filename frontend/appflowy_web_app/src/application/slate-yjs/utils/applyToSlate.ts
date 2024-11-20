@@ -1,6 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { BlockJson } from '@/application/slate-yjs/types';
 import { blockToSlateNode, deltaInsertToSlateNode } from '@/application/slate-yjs/utils/convert';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import {
   dataStringTOJson,
   getBlock,
@@ -45,10 +46,7 @@ function applyUpdateBlockYEvent (editor: YjsEditor, blockId: string, event: YMap
   const { target } = event;
   const block = target as YBlock;
   const newData = dataStringTOJson(block.get(YjsEditorKey.block_data));
-  const [entry] = editor.nodes({
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
-    mode: 'all',
-  });
+  const entry = findSlateEntryByBlockId(editor, blockId);
 
   if (!entry) {
     console.error('Block node not found', blockId);
@@ -79,8 +77,10 @@ function applyTextYEvent (editor: YjsEditor, textId: string, event: YTextEvent) 
   const [entry] = editor.nodes({
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId === textId,
     mode: 'all',
+    at: [],
   });
 
+  console.log('=== Applying text Yjs event ===', entry);
   if (!entry) {
     console.error('Text node not found', textId);
     return [];

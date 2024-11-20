@@ -35,6 +35,7 @@ import { ReactComponent as ToggleListIcon } from '@/assets/slash_menu_icon_toggl
 import { ReactComponent as ToggleHeading1Icon } from '@/assets/slash_menu_icon_toggle_heading1.svg';
 import { ReactComponent as ToggleHeading2Icon } from '@/assets/slash_menu_icon_toggle_heading2.svg';
 import { ReactComponent as ToggleHeading3Icon } from '@/assets/slash_menu_icon_toggle_heading3.svg';
+import { ReactComponent as MathIcon } from '@/assets/slash_menu_icon_math_equation.svg';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
 import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
@@ -90,7 +91,7 @@ export function SlashPanel ({
       newBlockId = CustomEditor.addBelowBlock(editor, blockId, type, data);
     }
 
-    if (![BlockType.FileBlock, BlockType.ImageBlock].includes(type)) return;
+    if (![BlockType.FileBlock, BlockType.ImageBlock, BlockType.EquationBlock].includes(type)) return;
 
     setTimeout(() => {
       if (!newBlockId) return;
@@ -272,6 +273,14 @@ export function SlashPanel ({
       keywords: ['outline', 'table', 'contents'],
       onClick: () => {
         turnInto(BlockType.OutlineBlock, {});
+      },
+    }, {
+      label: t('document.slashMenu.name.mathEquation'),
+      key: 'math',
+      icon: <MathIcon />,
+      keywords: ['math', 'equation', 'formula'],
+      onClick: () => {
+        turnInto(BlockType.EquationBlock, {});
       },
     }, {
       label: t('document.slashMenu.name.code'),

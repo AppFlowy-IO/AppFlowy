@@ -18,20 +18,20 @@ const Table = memo(
 
     const columnGroup = useMemo(() => {
       return Array.from({ length: colsLen }, (_, index) => {
-        return cells.filter((cell) => cell.data.colPosition === index);
+        return cells.filter((cell) => cell?.data.colPosition === index);
       });
     }, [cells, colsLen]);
 
     const rowGroup = useMemo(() => {
       return Array.from({ length: rowsLen }, (_, index) => {
-        return cells.filter((cell) => cell.data.rowPosition === index);
+        return cells.filter((cell) => cell?.data.rowPosition === index);
       });
     }, [cells, rowsLen]);
 
     const templateColumns = useMemo(() => {
       return columnGroup
         .map((group) => {
-          return `${group[0].data.width || colsHeight}px`;
+          return `${group[0]?.data.width || colsHeight}px`;
         })
         .join(' ');
     }, [colsHeight, columnGroup]);
@@ -39,7 +39,7 @@ const Table = memo(
     const templateRows = useMemo(() => {
       return rowGroup
         .map((group) => {
-          return `${group[0].data.height || rowDefaultHeight}px`;
+          return `${group[0]?.data.height || rowDefaultHeight}px`;
         })
         .join(' ');
     }, [rowGroup, rowDefaultHeight]);
@@ -76,6 +76,7 @@ const Table = memo(
       <div
         ref={ref}
         {...attributes}
+        draggable={false}
         className={`table-block relative my-2 w-full overflow-hidden px-1 ${className || ''}`}
         style={{
           ...attributes.style,
@@ -86,6 +87,7 @@ const Table = memo(
         }}
       >
         <div
+          draggable={false}
           contentEditable={false}
           className={'h-full w-full overflow-x-auto overflow-y-hidden'}
           style={{

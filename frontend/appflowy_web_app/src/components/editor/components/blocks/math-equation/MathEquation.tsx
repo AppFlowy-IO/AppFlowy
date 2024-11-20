@@ -1,9 +1,9 @@
-import { KatexMath } from '@/components/_shared/katex-math';
-import { notify } from '@/components/_shared/notify';
-import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
-import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
-import { copyTextToClipboard } from '@/utils/copy';
+import { BlockType } from '@/application/types';
 import { ReactComponent as MathSvg } from '@/assets/math.svg';
+import { KatexMath } from '@/components/_shared/katex-math';
+import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
+import MathEquationToolbar from '@/components/editor/components/blocks/math-equation/MathEquationToolbar';
+import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, Suspense, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useReadOnly } from 'slate-react';
@@ -22,8 +22,15 @@ export const MathEquation = memo(
           'w-full bg-bg-body py-2 math-equation-block',
         ];
 
+        if (!readOnly) {
+          classList.push('cursor-pointer');
+        }
+
         return classList.join(' ');
-      }, [className]);
+      }, [className, readOnly]);
+      const {
+        openPopover,
+      } = usePopoverContext();
 
       return (
         <>
@@ -37,6 +44,13 @@ export const MathEquation = memo(
             }}
             onMouseLeave={() => setShowToolbar(false)}
             className={newClassName}
+            onClick={e => {
+              if (!readOnly) {
+                e.preventDefault();
+                e.stopPropagation();
+                openPopover(node.blockId, BlockType.EquationBlock, e.currentTarget);
+              }
+            }}
           >
             <div
               contentEditable={false}
@@ -64,17 +78,7 @@ export const MathEquation = memo(
               {children}
             </div>
             {showToolbar && (
-              <RightTopActionsToolbar
-                onCopy={async () => {
-                  if (!formula) return;
-                  try {
-                    await copyTextToClipboard(formula);
-                    notify.success(t('publish.copy.mathBlock'));
-                  } catch (_) {
-                    // do nothing
-                  }
-                }}
-              />
+              <MathEquationToolbar node={node} />
             )}
           </div>
         </>
