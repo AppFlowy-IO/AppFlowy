@@ -78,24 +78,35 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: node.children
-          .map(
-            (e) => Container(
-              padding: SimpleTableConstants.cellEdgePadding,
-              constraints: const BoxConstraints(
-                minWidth: SimpleTableConstants.minimumColumnWidth,
-              ),
-              width: getColumnWidth(),
-              child: IntrinsicWidth(
-                child: IntrinsicHeight(
-                  child: editorState.renderer.build(context, e),
+    return DecoratedBox(
+      decoration:
+          SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
+              ? BoxDecoration(
+                  border: Border.all(
+                    color: SimpleTableConstants.borderColor,
+                    strokeAlign: BorderSide.strokeAlignCenter,
+                  ),
+                )
+              : const BoxDecoration(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: node.children
+            .map(
+              (e) => Container(
+                padding: SimpleTableConstants.cellEdgePadding,
+                constraints: const BoxConstraints(
+                  minWidth: SimpleTableConstants.minimumColumnWidth,
+                ),
+                width: getColumnWidth(),
+                child: IntrinsicWidth(
+                  child: IntrinsicHeight(
+                    child: editorState.renderer.build(context, e),
+                  ),
                 ),
               ),
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+      ),
     );
   }
 

@@ -230,21 +230,17 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   List<Widget> _buildRows() {
     final List<Widget> rows = [];
 
-    rows.add(
-      const Divider(
-        color: SimpleTableConstants.borderColor,
-        height: 1,
-      ),
-    );
+    if (SimpleTableConstants.borderType == SimpleTableBorderRenderType.table) {
+      rows.add(const SimpleTableColumnDivider());
+    }
 
     for (final child in node.children) {
       rows.add(editorState.renderer.build(context, child));
-      rows.add(
-        const Divider(
-          color: SimpleTableConstants.borderColor,
-          height: 1,
-        ),
-      );
+
+      if (SimpleTableConstants.borderType ==
+          SimpleTableBorderRenderType.table) {
+        rows.add(const SimpleTableColumnDivider());
+      }
     }
 
     return rows;

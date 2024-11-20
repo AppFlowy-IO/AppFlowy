@@ -29,4 +29,11 @@ class SimpleTableConstants {
     horizontal: 8.0,
     vertical: 2.0,
   );
+
+  static const borderType = SimpleTableBorderRenderType.table;
+}
+
+enum SimpleTableBorderRenderType {
+  cell,
+  table,
 }

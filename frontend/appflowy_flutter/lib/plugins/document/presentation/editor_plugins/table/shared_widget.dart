@@ -234,3 +234,29 @@ class SimpleTableAddColumnAndRowButton extends StatelessWidget {
     );
   }
 }
+
+class SimpleTableRowDivider extends StatelessWidget {
+  const SimpleTableRowDivider({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const VerticalDivider(
+      color: SimpleTableConstants.borderColor,
+      width: 1.0,
+    );
+  }
+}
+
+class SimpleTableColumnDivider extends StatelessWidget {
+  const SimpleTableColumnDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(
+      color: SimpleTableConstants.borderColor,
+      height: 1.0,
+    );
+  }
+}

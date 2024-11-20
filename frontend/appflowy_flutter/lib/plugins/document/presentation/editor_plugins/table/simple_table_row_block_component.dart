@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -83,20 +84,18 @@ class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
 
   List<Widget> _buildCells() {
     final List<Widget> cells = [];
-    cells.add(
-      const VerticalDivider(
-        color: SimpleTableConstants.borderColor,
-        width: 1.0,
-      ),
-    );
+
+    if (SimpleTableConstants.borderType == SimpleTableBorderRenderType.table) {
+      cells.add(const SimpleTableRowDivider());
+    }
+
     for (final child in node.children) {
       cells.add(editorState.renderer.build(context, child));
-      cells.add(
-        const VerticalDivider(
-          color: SimpleTableConstants.borderColor,
-          width: 1.0,
-        ),
-      );
+
+      if (SimpleTableConstants.borderType ==
+          SimpleTableBorderRenderType.table) {
+        cells.add(const SimpleTableRowDivider());
+      }
     }
     return cells;
   }
