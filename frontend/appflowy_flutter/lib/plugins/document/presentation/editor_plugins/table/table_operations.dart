@@ -601,6 +601,21 @@ extension TableOperations on EditorState {
         ? node.children.last.path.next
         : node.children[index].path;
     transaction.insertNode(path, newRow);
+    final columnColors = node.attributes[SimpleTableBlockKeys.columnColors] ??
+        SimpleTableColorMap();
+    try {
+      final columnColor = columnColors[index.toString()];
+      if (columnColor != null) {
+        columnColors[(index + 1).toString()] = columnColor;
+      }
+    } catch (e) {
+      Log.warn('update column colors: $e');
+    }
+    final attributes = {
+      ...node.attributes,
+      SimpleTableBlockKeys.columnColors: columnColors,
+    };
+    transaction.updateNode(node, attributes);
     await apply(transaction);
   }
 
