@@ -167,7 +167,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
   }
 }
 
-class SimpleTableMoreActionPopup extends StatelessWidget {
+class SimpleTableMoreActionPopup extends StatefulWidget {
   const SimpleTableMoreActionPopup({
     super.key,
     required this.index,
@@ -180,14 +180,21 @@ class SimpleTableMoreActionPopup extends StatelessWidget {
   final SimpleTableMoreActionType type;
 
   @override
+  State<SimpleTableMoreActionPopup> createState() =>
+      _SimpleTableMoreActionPopupState();
+}
+
+class _SimpleTableMoreActionPopupState
+    extends State<SimpleTableMoreActionPopup> {
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      onOpen: () => isShowingMenu.value = true,
-      onClose: () => isShowingMenu.value = false,
-      direction: type == SimpleTableMoreActionType.row
+      onOpen: () => widget.isShowingMenu.value = true,
+      onClose: () => widget.isShowingMenu.value = false,
+      direction: widget.type == SimpleTableMoreActionType.row
           ? PopoverDirection.bottomWithLeftAligned
           : PopoverDirection.bottomWithCenterAligned,
-      offset: type == SimpleTableMoreActionType.row
+      offset: widget.type == SimpleTableMoreActionType.row
           ? const Offset(-14, 8)
           : const Offset(24, 14),
       popupBuilder: (_) {
@@ -206,15 +213,15 @@ class SimpleTableMoreActionPopup extends StatelessWidget {
             ),
           ],
           child: SimpleTableMoreActionList(
-            type: type,
-            index: index,
+            type: widget.type,
+            index: widget.index,
             tableCellNode: tableCellNode,
           ),
         );
       },
       child: SimpleTableReorderButton(
-        isShowingMenu: isShowingMenu,
-        type: type,
+        isShowingMenu: widget.isShowingMenu,
+        type: widget.type,
       ),
     );
   }
@@ -231,6 +238,7 @@ class SimpleTableMoreActionList extends StatelessWidget {
   final SimpleTableMoreActionType type;
   final int index;
   final Node tableCellNode;
+
   @override
   Widget build(BuildContext context) {
     final actions = type.actions;

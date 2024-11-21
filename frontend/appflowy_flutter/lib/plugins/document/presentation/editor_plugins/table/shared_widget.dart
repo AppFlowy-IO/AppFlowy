@@ -301,26 +301,37 @@ class SimpleTableAlignMenu extends StatelessWidget {
   const SimpleTableAlignMenu({
     super.key,
     required this.type,
+    this.popoverMutex,
   });
 
   final SimpleTableMoreActionType type;
+  final PopoverMutex? popoverMutex;
 
   @override
   Widget build(BuildContext context) {
+    final controller = PopoverController();
     return AppFlowyPopover(
+      asBarrier: true,
+      controller: controller,
       child: SimpleTableBasicButton(
         leftIconSvg: TableAlign.left.leftIconSvg,
         text: 'Align',
-        onTap: () {},
+        onTap: () {
+          controller.show();
+        },
       ),
       popupBuilder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildAlignButton(context, TableAlign.left),
-            _buildAlignButton(context, TableAlign.center),
-            _buildAlignButton(context, TableAlign.right),
-          ],
+        return Container(
+          width: 100,
+          color: Colors.red,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildAlignButton(context, TableAlign.left),
+              _buildAlignButton(context, TableAlign.center),
+              _buildAlignButton(context, TableAlign.right),
+            ],
+          ),
         );
       },
     );
