@@ -124,7 +124,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       constraints: const BoxConstraints(
         minWidth: SimpleTableConstants.minimumColumnWidth,
       ),
-      width: node.columnWidth,
+      width: this.node.columnWidth,
       child: IntrinsicWidth(
         child: IntrinsicHeight(
           child: editorState.renderer.build(context, node),
