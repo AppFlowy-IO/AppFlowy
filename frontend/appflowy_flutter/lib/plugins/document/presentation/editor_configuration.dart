@@ -340,7 +340,17 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   String Function(Node)? placeholderText,
 ) {
   return ParagraphBlockComponentBuilder(
-    configuration: configuration.copyWith(placeholderText: placeholderText),
+    configuration: configuration.copyWith(
+      placeholderText: placeholderText,
+      // textStyle: (node) {
+      //   if (node.isInHeaderColumn || node.isInHeaderRow) {
+      //     return configuration.textStyle(node).copyWith(
+      //           fontWeight: FontWeight.bold,
+      //         );
+      //   }
+      //   return configuration.textStyle(node);
+      // },
+    ),
     showPlaceholder: showParagraphPlaceholder,
   );
 }

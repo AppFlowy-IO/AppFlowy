@@ -736,4 +736,22 @@ extension TableNodeExtension on Node {
       return null;
     }
   }
+
+  bool get isInHeaderColumn {
+    final parentTableNode = parent?.parentTableNode;
+    if (parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+    return parentTableNode.isHeaderColumnEnabled && parent?.columnIndex == 0;
+  }
+
+  bool get isInHeaderRow {
+    final parentTableNode = parent?.parentTableNode;
+    if (parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+    return parentTableNode.isHeaderRowEnabled && parent?.rowIndex == 0;
+  }
 }

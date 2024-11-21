@@ -533,13 +533,13 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value != null) {
       final (table, _, _) = value;
       if (widget.type == SimpleTableMoreActionType.column) {
-        isEnableHeader.value = table
-                .attributes[SimpleTableBlockKeys.enableHeaderColumn] as bool? ??
-            false;
-      } else if (widget.type == SimpleTableMoreActionType.row) {
         isEnableHeader.value =
             table.attributes[SimpleTableBlockKeys.enableHeaderRow] as bool? ??
                 false;
+      } else if (widget.type == SimpleTableMoreActionType.row) {
+        isEnableHeader.value = table
+                .attributes[SimpleTableBlockKeys.enableHeaderColumn] as bool? ??
+            false;
       }
     }
   }
