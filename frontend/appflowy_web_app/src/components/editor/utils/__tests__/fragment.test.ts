@@ -52,9 +52,7 @@ describe('deserializeHTML', () => {
       blockId,
       type: BlockType.ImageBlock,
       children: [{
-        type: 'text',
-        textId: blockId,
-        children: [{ text: '' }],
+        text: '',
       }],
       data: { url: 'https://example.com/image.jpg', image_type: ImageType.External },
     }));

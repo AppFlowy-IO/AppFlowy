@@ -258,7 +258,7 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
-  registerDocUpdate (): void {
+  registerDocUpdate () {
     throw new Error('Method not implemented.');
   }
 
@@ -288,5 +288,13 @@ export class AFClientService implements AFService {
 
   updateAppPage (): Promise<void> {
     return Promise.reject('Method not implemented');
+  }
+
+  createSpace (): Promise<string> {
+    return Promise.reject('');
+  }
+
+  updateSpace (): Promise<void> {
+    return Promise.reject(undefined);
   }
 }

@@ -5,7 +5,6 @@ import { FieldURLType, FileBlockData } from '@/application/types';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
 import { notify } from '@/components/_shared/notify';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
-import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
@@ -21,12 +20,12 @@ export function getFileName (url: string) {
 
 function FileBlockPopoverContent ({
   blockId,
+  onClose,
 }: {
-  blockId: string
+  blockId: string;
+  onClose: () => void;
 }) {
-  const {
-    close,
-  } = usePopoverContext();
+
   const editor = useSlateStatic() as YjsEditor;
 
   const entry = useMemo(() => {
@@ -52,8 +51,8 @@ function FileBlockPopoverContent ({
       uploaded_at: Date.now(),
       url_type: FieldURLType.Link,
     } as FileBlockData);
-    close();
-  }, [blockId, editor, close]);
+    onClose();
+  }, [blockId, editor, onClose]);
 
   const handleChangeUploadFile = useCallback((files: File[]) => {
     const file = files[0];
@@ -74,8 +73,8 @@ function FileBlockPopoverContent ({
       uploaded_at: Date.now(),
       url_type: FieldURLType.Upload,
     } as FileBlockData);
-    close();
-  }, [blockId, close, editor]);
+    onClose();
+  }, [blockId, onClose, editor]);
 
   const tabOptions = useMemo(() => {
     return [

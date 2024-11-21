@@ -15,7 +15,7 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
   const meta = useRowMetaSelector(rowId);
   const cover = meta?.cover;
 
-  const renderCoverImage = useCallback((cover: RowMeta["cover"]) => {
+  const renderCoverImage = useCallback((cover: RowMeta['cover']) => {
     if (!cover) return null;
 
     if (cover.cover_type === RowCoverType.GradientCover || cover.cover_type === RowCoverType.ColorCover) {
@@ -24,7 +24,7 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
           background: renderColor(cover.data),
         }}
         className={`h-full w-full`}
-      />  ;
+      />;
     }
 
     let url: string | undefined = cover.data;
@@ -37,14 +37,19 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
         4: '/covers/m_cover_image_4.png',
         5: '/covers/m_cover_image_5.png',
         6: '/covers/m_cover_image_6.png',
-      }[Number(cover.data)]
+      }[Number(cover.data)];
     }
 
     if (!url) return null;
 
     return (
       <>
-        <ImageRender draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />
+        <ImageRender
+          draggable={false}
+          src={url}
+          alt={''}
+          className={'h-full w-full object-cover'}
+        />
       </>
     );
   }, []);
@@ -97,8 +102,14 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
     };
   }, []);
 
-  return <div ref={ref} className={'flex flex-col relative'}>
-    <div className={'row-header-cover relative'} style={{ left: offsetLeft, width }}>
+  return <div
+    ref={ref}
+    className={'flex flex-col relative'}
+  >
+    <div
+      className={'row-header-cover relative'}
+      style={{ left: offsetLeft, width }}
+    >
       {cover && <div
         style={{
           height: '40vh',
@@ -108,7 +119,10 @@ function DatabaseRowHeader ({ rowId, appendBreadcrumb }: { rowId: string; append
         {renderCoverImage(cover)}
       </div>}
     </div>
-    <Title icon={meta?.icon} name={cell?.data as string}/>
+    <Title
+      icon={meta?.icon}
+      name={cell?.data as string}
+    />
   </div>;
 }
 

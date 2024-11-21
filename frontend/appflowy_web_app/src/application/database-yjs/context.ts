@@ -69,7 +69,7 @@ export const useViewId = () => {
 export const useReadOnly = () => {
   const context = useContext(DatabaseContext);
 
-  return context?.readOnly;
+  return context?.readOnly || true;
 };
 
 export const useDatabaseView = () => {

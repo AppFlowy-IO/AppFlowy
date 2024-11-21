@@ -10,7 +10,7 @@ function ImageEmpty (_: { containerRef: React.RefObject<HTMLDivElement>; onEscap
     <>
       <div
         className={
-          'flex w-full cursor-pointer select-none items-center gap-4 text-text-caption'
+          'flex w-full select-none items-center gap-4 text-text-caption'
         }
       >
         <ImageIcon className={'w-6 h-6'} />

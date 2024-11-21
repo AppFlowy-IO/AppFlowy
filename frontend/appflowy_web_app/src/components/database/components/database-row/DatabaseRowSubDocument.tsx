@@ -1,11 +1,12 @@
 import { YDoc } from '@/application/types';
-import { DatabaseContext, useRowMetaSelector } from '@/application/database-yjs';
+import { DatabaseContext, useReadOnly, useRowMetaSelector } from '@/application/database-yjs';
 import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 export function DatabaseRowSubDocument ({ rowId }: { rowId: string }) {
   const meta = useRowMetaSelector(rowId);
+  const readOnly = useReadOnly();
   const documentId = meta?.documentId;
   const loadView = useContext(DatabaseContext)?.loadView;
   const createRowDoc = useContext(DatabaseContext)?.createRowDoc;
@@ -47,7 +48,7 @@ export function DatabaseRowSubDocument ({ rowId }: { rowId: string }) {
       loadViewMeta={loadViewMeta}
       navigateToView={navigateToView}
       createRowDoc={createRowDoc}
-      readOnly={true}
+      readOnly={readOnly}
       loadView={loadView}
     />
   );

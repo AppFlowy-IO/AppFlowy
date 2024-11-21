@@ -6,19 +6,18 @@ import { Unsplash } from '@/components/_shared/image-upload';
 import EmbedLink from '@/components/_shared/image-upload/EmbedLink';
 import UploadImage from '@/components/_shared/image-upload/UploadImage';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
-import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 
 function ImageBlockPopoverContent ({
   blockId,
+  onClose,
 }: {
-  blockId: string
+  blockId: string;
+  onClose: () => void;
 }) {
-  const {
-    close,
-  } = usePopoverContext();
+
   const editor = useSlateStatic() as YjsEditor;
 
   const entry = useMemo(() => {
@@ -42,8 +41,8 @@ function ImageBlockPopoverContent ({
       url,
       image_type: type || ImageType.External,
     } as ImageBlockData);
-    close();
-  }, [blockId, editor, close]);
+    onClose();
+  }, [blockId, editor, onClose]);
 
   const tabOptions = useMemo(() => {
     return [
@@ -76,7 +75,7 @@ function ImageBlockPopoverContent ({
   const selectedIndex = tabOptions.findIndex((tab) => tab.key === tabValue);
 
   return (
-    <div className={'flex flex-col p-2 gap-2'}>
+    <div className={'flex flex-col p-2'}>
       <ViewTabs
         value={tabValue}
         onChange={handleTabChange}
@@ -94,20 +93,23 @@ function ImageBlockPopoverContent ({
           />;
         })}
       </ViewTabs>
-      {tabOptions.map((tab, index) => {
-        const { key, panel } = tab;
+      <div className={'pt-4'}>
+        {tabOptions.map((tab, index) => {
+          const { key, panel } = tab;
 
-        return (
-          <TabPanel
-            className={'flex h-full w-full flex-col'}
-            key={key}
-            index={index}
-            value={selectedIndex}
-          >
-            {panel}
-          </TabPanel>
-        );
-      })}
+          return (
+            <TabPanel
+              className={'flex h-full w-full flex-col'}
+              key={key}
+              index={index}
+              value={selectedIndex}
+            >
+              {panel}
+            </TabPanel>
+          );
+        })}
+      </div>
+
     </div>
   );
 }

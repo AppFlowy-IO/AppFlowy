@@ -1,5 +1,6 @@
 import { BlockType } from '@/application/types';
 import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted-list';
+import CalloutIcon from '@/components/editor/components/blocks/callout/CalloutIcon';
 import { NumberListIcon } from '@/components/editor/components/blocks/numbered-list';
 import ToggleIcon from '@/components/editor/components/blocks/toggle-list/ToggleIcon';
 import { TextNode } from '@/components/editor/editor.type';
@@ -27,6 +28,8 @@ export function useStartIcon (node: TextNode) {
         return NumberListIcon;
       case BlockType.BulletedListBlock:
         return BulletedListIcon;
+      case BlockType.CalloutBlock:
+        return CalloutIcon;
       default:
         return null;
     }
@@ -37,11 +40,12 @@ export function useStartIcon (node: TextNode) {
       return null;
     }
 
-    const classList = ['text-block-icon relative w-[24px]'];
+    const classList = ['text-block-icon relative w-6 h-6'];
 
-    classList.push('h-6');
-
-    return <Component className={classList.join(' ')} block={block} />;
+    return <Component
+      className={classList.join(' ')}
+      block={block}
+    />;
   }, [Component, block]);
 
   return {

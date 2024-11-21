@@ -89,7 +89,7 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
     <div
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className={'flex min-h-[600px] flex-col gap-4 px-4 pb-4'}
+      className={'flex h-[460px] flex-col gap-4 px-4 pb-4'}
     >
       <TextField
         autoFocus

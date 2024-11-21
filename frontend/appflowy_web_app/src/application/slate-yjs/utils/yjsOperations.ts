@@ -1,4 +1,9 @@
-import { CONTAINER_BLOCK_TYPES, isEmbedBlockTypes, ListBlockTypes } from '@/application/slate-yjs/command/const';
+import {
+  CONTAINER_BLOCK_TYPES,
+  isEmbedBlockTypes,
+  ListBlockTypes,
+  TOGGLE_BLOCK_TYPES,
+} from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import {
   BlockData,
@@ -433,6 +438,7 @@ export function getPreviousSiblingBlock (sharedRoot: YSharedRoot, block: YBlock)
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
   const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
 
+  if (index === 0) return null;
   return parentChildren.get(index - 1);
 }
 
@@ -803,7 +809,7 @@ export function splitBlock (sharedRoot: YSharedRoot, block: YBlock, offset: numb
 
   const blockType = block.get(YjsEditorKey.block_type);
 
-  if (blockType === BlockType.ToggleListBlock || blockType === BlockType.QuoteBlock) {
+  if (TOGGLE_BLOCK_TYPES.includes(blockType)) {
     const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as ToggleListBlockData;
 
     if (!data.collapsed) {
@@ -992,7 +998,6 @@ export function handleNonParagraphBlockBackspaceAndEnterWithTxn (editor: YjsEdit
   const operations: (() => void)[] = [];
 
   operations.push(() => {
-
     turnToBlock(sharedRoot, block, BlockType.Paragraph, {});
   });
   executeOperations(sharedRoot, operations, 'turnToBlock');
