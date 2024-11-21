@@ -297,19 +297,23 @@ class SimpleTableColumnDivider extends StatelessWidget {
   }
 }
 
-class SimpleTableAlignMenu extends StatelessWidget {
+class SimpleTableAlignMenu extends StatefulWidget {
   const SimpleTableAlignMenu({
     super.key,
     required this.type,
-    this.popoverMutex,
   });
 
   final SimpleTableMoreActionType type;
-  final PopoverMutex? popoverMutex;
+
+  @override
+  State<SimpleTableAlignMenu> createState() => _SimpleTableAlignMenuState();
+}
+
+class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
+  final PopoverController controller = PopoverController();
 
   @override
   Widget build(BuildContext context) {
-    final controller = PopoverController();
     return AppFlowyPopover(
       asBarrier: true,
       controller: controller,
@@ -323,15 +327,16 @@ class SimpleTableAlignMenu extends StatelessWidget {
       popupBuilder: (context) {
         return Container(
           width: 100,
+          height: 100,
           color: Colors.red,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildAlignButton(context, TableAlign.left),
-              _buildAlignButton(context, TableAlign.center),
-              _buildAlignButton(context, TableAlign.right),
-            ],
-          ),
+          // child: Column(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: [
+          //     _buildAlignButton(context, TableAlign.left),
+          //     _buildAlignButton(context, TableAlign.center),
+          //     _buildAlignButton(context, TableAlign.right),
+          //   ],
+          // ),
         );
       },
     );

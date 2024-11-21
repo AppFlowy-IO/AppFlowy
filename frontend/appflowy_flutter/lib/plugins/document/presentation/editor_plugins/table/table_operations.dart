@@ -140,10 +140,11 @@ extension TableOperations on EditorState {
       return;
     }
 
+    final rowLength = node.rowLength;
     final columnLength = node.columnLength;
-    if (index < 0 || index >= columnLength) {
+    if (index < 0 || index >= rowLength) {
       Log.warn(
-        'delete column: index out of range: $index, column length: $columnLength',
+        'delete column: index out of range: $index, row length: $rowLength',
       );
       return;
     }

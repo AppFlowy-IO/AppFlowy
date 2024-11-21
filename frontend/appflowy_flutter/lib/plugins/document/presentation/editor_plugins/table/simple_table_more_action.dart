@@ -145,9 +145,6 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
                   widget.type == SimpleTableMoreActionType.column
                       ? hoveringTableNode?.cellPosition.$1
                       : hoveringTableNode?.cellPosition.$2;
-              debugPrint(
-                'hoveringIndex: $hoveringIndex, index: ${widget.index}',
-              );
 
               if (hoveringIndex != widget.index && !isShowingMenu) {
                 return const SizedBox.shrink();
