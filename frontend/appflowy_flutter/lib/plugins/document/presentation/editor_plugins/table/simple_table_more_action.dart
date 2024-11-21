@@ -139,7 +139,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
         builder: (context, isShowingMenu, child) {
           return ValueListenableBuilder(
             valueListenable:
-                context.read<SimpleTableContext>().hoveringTableNode,
+                context.read<SimpleTableContext>().hoveringTableCell,
             builder: (context, hoveringTableNode, child) {
               final hoveringIndex =
                   widget.type == SimpleTableMoreActionType.column
@@ -196,7 +196,7 @@ class _SimpleTableMoreActionPopupState
           : const Offset(24, 14),
       popupBuilder: (_) {
         final tableCellNode =
-            context.read<SimpleTableContext>().hoveringTableNode.value;
+            context.read<SimpleTableContext>().hoveringTableCell.value;
         if (tableCellNode == null) {
           return const SizedBox.shrink();
         }

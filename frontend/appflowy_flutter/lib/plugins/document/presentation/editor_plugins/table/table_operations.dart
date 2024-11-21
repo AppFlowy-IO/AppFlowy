@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -356,6 +357,44 @@ extension TableOperations on EditorState {
     });
     await apply(transaction);
   }
+
+  /// Update the column width of the table in memory.
+  Future<void> updateColumnWidthInMemory({
+    required Node tableCellNode,
+    required double deltaX,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    if (tableCellNode.type != SimpleTableCellBlockKeys.type) {
+      return;
+    }
+
+    // when dragging the table column, we need to update the column width in memory.
+    // so that the table can render the column with the new width.
+    // but don't need to persist to the database immediately.
+    // only persist to the database when the drag is completed.
+    final cellPosition = tableCellNode.cellPosition;
+    final rowIndex = cellPosition.$2;
+    final parentTableNode = tableCellNode.parentTableNode;
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final width = tableCellNode.columnWidth + deltaX;
+    final newAttributes = {
+      ...parentTableNode.attributes,
+      SimpleTableBlockKeys.columnWidths: {
+        ...parentTableNode.attributes[SimpleTableBlockKeys.columnWidths],
+        rowIndex.toString(): width.clamp(
+          SimpleTableConstants.minimumColumnWidth,
+          double.infinity,
+        ),
+      },
+    };
+
+    parentTableNode.updateAttributes(newAttributes);
+  }
 }
 
 extension TableNodeExtension on Node {
@@ -460,5 +499,24 @@ extension TableNodeExtension on Node {
     }
 
     return tableNode;
+  }
+
+  double get columnWidth {
+    final rawColumnWidths =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnWidths];
+    if (rawColumnWidths == null) {
+      return SimpleTableConstants.defaultColumnWidth;
+    }
+    final index = path.last.toString();
+    final width = rawColumnWidths[index] as double?;
+    return width ?? SimpleTableConstants.defaultColumnWidth;
+  }
+
+  int get rowIndex {
+    return path.last;
+  }
+
+  int get columnIndex {
+    return path.parent.last;
   }
 }

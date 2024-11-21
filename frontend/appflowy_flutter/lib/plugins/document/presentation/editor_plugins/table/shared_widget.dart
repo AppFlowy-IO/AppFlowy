@@ -278,8 +278,8 @@ class SimpleTableRowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const VerticalDivider(
-      color: SimpleTableConstants.borderColor,
+    return VerticalDivider(
+      color: context.simpleTableBorderColor,
       width: 1.0,
     );
   }
@@ -290,8 +290,8 @@ class SimpleTableColumnDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
-      color: SimpleTableConstants.borderColor,
+    return Divider(
+      color: context.simpleTableBorderColor,
       height: 1.0,
     );
   }
@@ -342,13 +342,13 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
     );
   }
 
-  Widget _buildAlignButton(BuildContext context, TableAlign align) {
-    return SimpleTableBasicButton(
-      leftIconSvg: align.leftIconSvg,
-      text: align.name,
-      onTap: () {},
-    );
-  }
+  // Widget _buildAlignButton(BuildContext context, TableAlign align) {
+  //   return SimpleTableBasicButton(
+  //     leftIconSvg: align.leftIconSvg,
+  //     text: align.name,
+  //     onTap: () {},
+  //   );
+  // }
 }
 
 class SimpleTableBasicButton extends StatelessWidget {
@@ -394,5 +394,82 @@ class SimpleTableBasicButton extends StatelessWidget {
     return leftIconSvg != null
         ? FlowySvg(leftIconSvg!)
         : const SizedBox.shrink();
+  }
+}
+
+class SimpleTableColumnResizeHandle extends StatefulWidget {
+  const SimpleTableColumnResizeHandle({
+    super.key,
+    required this.node,
+  });
+
+  final Node node;
+
+  @override
+  State<SimpleTableColumnResizeHandle> createState() =>
+      _SimpleTableColumnResizeHandleState();
+}
+
+class _SimpleTableColumnResizeHandleState
+    extends State<SimpleTableColumnResizeHandle> {
+  bool isStartDragging = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeColumn,
+      onEnter: (event) => context
+          .read<SimpleTableContext>()
+          .hoveringOnResizeHandle
+          .value = widget.node,
+      onExit: (event) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          // the onExit event will be triggered before dragging started.
+          // delay the hiding of the resize handle to avoid flickering.
+          if (!isStartDragging) {
+            context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
+                null;
+          }
+        });
+      },
+      child: GestureDetector(
+        onHorizontalDragStart: (details) {
+          isStartDragging = true;
+        },
+        onHorizontalDragEnd: (details) {
+          context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
+              null;
+          isStartDragging = false;
+        },
+        onHorizontalDragUpdate: (details) {
+          context.read<EditorState>().updateColumnWidthInMemory(
+                tableCellNode: widget.node,
+                deltaX: details.delta.dx,
+              );
+        },
+        child: ValueListenableBuilder<Node?>(
+          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+          builder: (context, hoveringCell, child) {
+            return ValueListenableBuilder(
+              valueListenable:
+                  context.read<SimpleTableContext>().hoveringOnResizeHandle,
+              builder: (context, hoveringOnResizeHandle, child) {
+                final isSameRowIndex =
+                    hoveringOnResizeHandle?.cellPosition.$2 ==
+                        widget.node.cellPosition.$2;
+                return Opacity(
+                  opacity: isSameRowIndex ? 1.0 : 0.0,
+                  child: Container(
+                    height: double.infinity,
+                    width: 3,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
   }
 }

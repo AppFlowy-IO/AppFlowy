@@ -1,8 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +83,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     return MouseRegion(
       hitTestBehavior: HitTestBehavior.opaque,
       onEnter: (event) =>
-          context.read<SimpleTableContext>().hoveringTableNode.value = node,
+          context.read<SimpleTableContext>().hoveringTableCell.value = node,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -106,6 +105,14 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
             bottom: 0,
             child: _buildColumnMoreActionButton(),
           ),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: SimpleTableColumnResizeHandle(
+              node: node,
+            ),
+          ),
         ],
       ),
     );
@@ -117,7 +124,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       constraints: const BoxConstraints(
         minWidth: SimpleTableConstants.minimumColumnWidth,
       ),
-      width: _calculateColumnWidth(),
+      width: node.columnWidth,
       child: IntrinsicWidth(
         child: IntrinsicHeight(
           child: editorState.renderer.build(context, node),
@@ -161,7 +168,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     return SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
         ? BoxDecoration(
             border: Border.all(
-              color: SimpleTableConstants.borderColor,
+              color: context.simpleTableBorderColor,
               strokeAlign: BorderSide.strokeAlignCenter,
             ),
             color: backgroundColor,
@@ -169,29 +176,6 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         : BoxDecoration(
             color: backgroundColor,
           );
-  }
-
-  double _calculateColumnWidth() {
-    final table = node.parent?.parent;
-    if (table == null || table.type != SimpleTableBlockKeys.type) {
-      return SimpleTableConstants.defaultColumnWidth;
-    }
-
-    try {
-      final rawColumnWidths =
-          table.attributes[SimpleTableBlockKeys.columnWidths];
-      if (rawColumnWidths == null) {
-        return SimpleTableConstants.defaultColumnWidth;
-      }
-
-      final columnWidths = Map<String, double>.from(rawColumnWidths);
-      final index = node.path.last;
-      return columnWidths[index.toString()] ??
-          SimpleTableConstants.defaultColumnWidth;
-    } catch (e) {
-      Log.warn('Error when calculating column width: $e');
-      return SimpleTableConstants.defaultColumnWidth;
-    }
   }
 
   Color? _getBackgroundColor() {

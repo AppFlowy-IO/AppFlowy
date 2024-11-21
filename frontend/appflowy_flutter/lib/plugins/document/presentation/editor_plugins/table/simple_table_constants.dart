@@ -6,18 +6,19 @@ import 'package:flutter/material.dart';
 class SimpleTableContext {
   SimpleTableContext() {
     isHoveringOnTable.addListener(_onHoveringOnTableChanged);
-    hoveringTableNode.addListener(_onHoveringTableNodeChanged);
+    hoveringTableCell.addListener(_onHoveringTableNodeChanged);
   }
 
   final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
-  final ValueNotifier<Node?> hoveringTableNode = ValueNotifier(null);
+  final ValueNotifier<Node?> hoveringTableCell = ValueNotifier(null);
+  final ValueNotifier<Node?> hoveringOnResizeHandle = ValueNotifier(null);
 
   void _onHoveringOnTableChanged() {
     debugPrint('isHoveringOnTable: ${isHoveringOnTable.value}');
   }
 
   void _onHoveringTableNodeChanged() {
-    final node = hoveringTableNode.value;
+    final node = hoveringTableCell.value;
     if (node == null) {
       return;
     }
@@ -27,15 +28,15 @@ class SimpleTableContext {
 
   void dispose() {
     isHoveringOnTable.dispose();
-    hoveringTableNode.dispose();
+    hoveringTableCell.dispose();
+    hoveringOnResizeHandle.dispose();
   }
 }
 
 class SimpleTableConstants {
   // Table
   static const defaultColumnWidth = 120.0;
-  static const minimumColumnWidth = 50.0;
-  static const borderColor = Color(0xFFE4E5E5);
+  static const minimumColumnWidth = 36.0;
 
   static const tableTopPadding = 8.0;
   static const tableLeftPadding = 8.0;
@@ -81,6 +82,10 @@ enum SimpleTableBorderRenderType {
 }
 
 extension SimpleTableColors on BuildContext {
+  Color get simpleTableBorderColor => Theme.of(this).isLightMode
+      ? const Color(0xFFE4E5E5)
+      : const Color(0xFF3A3F49);
+
   Color get simpleTableDividerColor => Theme.of(this).isLightMode
       ? const Color(0x141F2329)
       : const Color(0xFF23262B).withOpacity(0.5);
@@ -99,5 +104,5 @@ extension SimpleTableColors on BuildContext {
 
   Color get simpleTableDefaultHeaderColor => Theme.of(this).isLightMode
       ? const Color(0xFFF2F2F2)
-      : const Color(0xFF3A3F49);
+      : const Color(0x08FFFFFF);
 }
