@@ -67,8 +67,8 @@ enum SimpleTableMoreAction {
     return switch (this) {
       SimpleTableMoreAction.align => 'Align',
       SimpleTableMoreAction.backgroundColor => 'Color',
-      SimpleTableMoreAction.enableHeaderColumn => 'Enable header column',
-      SimpleTableMoreAction.enableHeaderRow => 'Enable header row',
+      SimpleTableMoreAction.enableHeaderColumn => 'Header Column',
+      SimpleTableMoreAction.enableHeaderRow => 'Header Row',
       SimpleTableMoreAction.addLeft => 'Insert left',
       SimpleTableMoreAction.addRight => 'Insert right',
       SimpleTableMoreAction.addBelow => 'Insert below',
@@ -135,17 +135,17 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
             valueListenable:
                 context.read<SimpleTableContext>().hoveringTableNode,
             builder: (context, hoveringTableNode, child) {
-              // final hoveringIndex =
-              //     widget.type == SimpleTableMoreActionType.column
-              //         ? hoveringTableNode?.cellPosition.$1
-              //         : hoveringTableNode?.cellPosition.$2;
-              // debugPrint(
-              //   'hoveringIndex: $hoveringIndex, index: ${widget.index}',
-              // );
+              final hoveringIndex =
+                  widget.type == SimpleTableMoreActionType.column
+                      ? hoveringTableNode?.cellPosition.$1
+                      : hoveringTableNode?.cellPosition.$2;
+              debugPrint(
+                'hoveringIndex: $hoveringIndex, index: ${widget.index}',
+              );
 
-              // if (hoveringIndex != widget.index && !isShowingMenu) {
-              //   return const SizedBox.shrink();
-              // }
+              if (hoveringIndex != widget.index && !isShowingMenu) {
+                return const SizedBox.shrink();
+              }
 
               return child!;
             },
@@ -406,11 +406,28 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
       case SimpleTableMoreAction.addBelow:
         _insertRowBelow();
         break;
+      case SimpleTableMoreAction.clearContent:
+        _clearContent();
+        break;
       default:
         break;
     }
 
     PopoverContainer.of(context).close();
+  }
+
+  void _clearContent() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final editorState = context.read<EditorState>();
+    if (widget.type == SimpleTableMoreActionType.column) {
+      editorState.clearContentAtColumnIndex(table, cellPosition.$1);
+    } else if (widget.type == SimpleTableMoreActionType.row) {
+      editorState.clearContentAtRowIndex(table, cellPosition.$2);
+    }
   }
 
   void _insertColumnLeft() {
