@@ -421,7 +421,7 @@ extension TableOperations on EditorState {
     final attributes = parentTableNode.attributes;
     try {
       final columnAligns = attributes[SimpleTableBlockKeys.columnAligns] ??
-          SimpleTableColumnAligns();
+          SimpleTableColumnAlignMap();
       final newAttributes = {
         ...attributes,
         SimpleTableBlockKeys.columnAligns: {
@@ -453,8 +453,8 @@ extension TableOperations on EditorState {
     final rowIndex = tableCellNode.rowIndex;
     final attributes = parentTableNode.attributes;
     try {
-      final rowAligns =
-          attributes[SimpleTableBlockKeys.rowAligns] ?? SimpleTableRowAligns();
+      final rowAligns = attributes[SimpleTableBlockKeys.rowAligns] ??
+          SimpleTableRowAlignMap();
       final newAttributes = {
         ...attributes,
         SimpleTableBlockKeys.rowAligns: {
@@ -489,28 +489,39 @@ extension TableNodeExtension on Node {
 
   TableCellPosition get cellPosition {
     assert(type == SimpleTableCellBlockKeys.type);
+    return (rowIndex, columnIndex);
+  }
 
-    final path = this.path;
+  int get rowIndex {
+    assert(type == SimpleTableCellBlockKeys.type);
+    return path.last;
+  }
 
-    if (path.length < 2) {
-      return (-1, -1);
-    }
-
-    return (
-      path.parent.last,
-      path.last,
-    );
+  int get columnIndex {
+    assert(type == SimpleTableCellBlockKeys.type);
+    return path.parent.last;
   }
 
   bool get isHeaderColumnEnabled {
-    return parentTableNode
-            ?.attributes[SimpleTableBlockKeys.enableHeaderColumn] ??
-        false;
+    try {
+      return parentTableNode
+              ?.attributes[SimpleTableBlockKeys.enableHeaderColumn] ??
+          false;
+    } catch (e) {
+      Log.warn('get is header column enabled: $e');
+      return false;
+    }
   }
 
   bool get isHeaderRowEnabled {
-    return parentTableNode?.attributes[SimpleTableBlockKeys.enableHeaderRow] ??
-        false;
+    try {
+      return parentTableNode
+              ?.attributes[SimpleTableBlockKeys.enableHeaderRow] ??
+          false;
+    } catch (e) {
+      Log.warn('get is header row enabled: $e');
+      return false;
+    }
   }
 
   TableAlign get rowAlign {
@@ -582,13 +593,5 @@ extension TableNodeExtension on Node {
     final index = path.last.toString();
     final width = rawColumnWidths[index] as double?;
     return width ?? SimpleTableConstants.defaultColumnWidth;
-  }
-
-  int get rowIndex {
-    return path.last;
-  }
-
-  int get columnIndex {
-    return path.parent.last;
   }
 }

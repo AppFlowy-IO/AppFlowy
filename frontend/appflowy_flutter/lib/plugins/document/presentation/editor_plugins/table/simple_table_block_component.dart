@@ -5,9 +5,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-typedef SimpleTableColumnWidths = Map<String, double>;
-typedef SimpleTableRowAligns = Map<String, String>;
-typedef SimpleTableColumnAligns = Map<String, String>;
+typedef SimpleTableColumnWidthMap = Map<String, double>;
+typedef SimpleTableRowAlignMap = Map<String, String>;
+typedef SimpleTableColumnAlignMap = Map<String, String>;
+typedef SimpleTableColorMap = Map<String, String>;
 
 class SimpleTableBlockKeys {
   const SimpleTableBlockKeys._();
@@ -23,38 +24,38 @@ class SimpleTableBlockKeys {
   static const String enableHeaderColumn = 'enable_header_column';
 
   // column colors
-  // it's a list of color strings
+  // it's a `SimpleTableColorMap` value, {column_index: color, ...}
   // the number of colors should be the same as the number of columns
   static const String columnColors = 'column_colors';
 
   // row colors
-  // it's a list of color strings
+  // it's a `SimpleTableColorMap` value, {row_index: color, ...}
   // the number of colors should be the same as the number of rows
   static const String rowColors = 'row_colors';
 
   // column alignments
-  // it's a `SimpleTableColumnAligns` value, {column_index: align, ...}
+  // it's a `SimpleTableColumnAlignMap` value, {column_index: align, ...}
   // the value should be one of the following: 'left', 'center', 'right'
   static const String columnAligns = 'column_aligns';
 
   // row alignments
-  // it's a `SimpleTableRowAligns` value, {row_index: align, ...}
+  // it's a `SimpleTableRowAlignMap` value, {row_index: align, ...}
   // the value should be one of the following: 'top', 'center', 'bottom'
   static const String rowAligns = 'row_aligns';
 
   // column widths
-  // it's a `SimpleTableColumnWidths` value, {column_index: width, ...}
+  // it's a `SimpleTableColumnWidthMap` value, {column_index: width, ...}
   static const String columnWidths = 'column_widths';
 }
 
 Node simpleTableBlockNode({
   bool enableHeaderRow = false,
   bool enableHeaderColumn = false,
-  Map<int, String>? columnColors,
-  Map<int, String>? rowColors,
-  Map<int, String>? columnAligns,
-  Map<int, String>? rowAligns,
-  SimpleTableColumnWidths? columnWidths,
+  SimpleTableColorMap? columnColors,
+  SimpleTableColorMap? rowColors,
+  SimpleTableColumnAlignMap? columnAligns,
+  SimpleTableRowAlignMap? rowAligns,
+  SimpleTableColumnWidthMap? columnWidths,
   required List<Node> children,
 }) {
   assert(children.every((e) => e.type == SimpleTableRowBlockKeys.type));

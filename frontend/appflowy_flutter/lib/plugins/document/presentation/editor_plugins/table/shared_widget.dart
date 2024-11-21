@@ -321,7 +321,6 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
       SimpleTableMoreActionType.row => widget.tableCellNode.rowAlign,
     };
     return AppFlowyPopover(
-      asBarrier: true,
       controller: controller,
       child: SimpleTableBasicButton(
         leftIconSvg: align.leftIconSvg,
@@ -360,6 +359,8 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
                   align: align,
                 );
         }
+
+        PopoverContainer.of(context).close();
       },
     );
   }
