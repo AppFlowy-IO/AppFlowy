@@ -167,7 +167,7 @@ export function ViewMetaPreview ({
                   if (readOnly) return;
                   setIconAnchorEl(e.currentTarget);
                 }}
-                className={`view-icon ${readOnly ? '' : 'cursor-pointer hover:bg-fill-list-hover pb-1'} ${isFlag ? 'icon' : ''}`}
+                className={`view-icon flex h-[1.25em] items-center justify-center ${readOnly ? '' : 'cursor-pointer hover:bg-fill-list-hover '} ${isFlag ? 'icon' : ''}`}
               >{icon?.value}</div> : null}
             {!readOnly ? <TitleEditable
                 name={name || ''}

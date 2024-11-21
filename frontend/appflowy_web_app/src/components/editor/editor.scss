@@ -17,11 +17,33 @@
 
 }
 
+.block-element[data-block-type="table/cell"] {
+  .block-element .text-placeholder {
+    @apply hidden;
+  }
+
+}
+
+[role="textbox"][contenteditable="false"] {
+  .block-element {
+    .embed-block {
+      @apply hover:bg-fill-list-active;
+    }
+  }
+}
+
 
 .block-element.selected {
-  @apply bg-content-blue-100;
-  .embed-block {
+  &:not([data-block-type="table"]) {
+    @apply bg-content-blue-100;
+    .embed-block {
+      @apply bg-content-blue-50;
+    }
+  }
+
+  .block-element[data-block-type="table/cell"] {
     @apply bg-content-blue-50;
+    border-radius: 0 !important;
   }
 }
 

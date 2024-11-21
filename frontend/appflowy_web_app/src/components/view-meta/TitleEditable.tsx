@@ -67,6 +67,7 @@ function TitleEditable ({
     <div
       ref={contentRef}
       suppressContentEditableWarning={true}
+      id={'editor-title'}
       className={'relative flex-1 cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
       data-placeholder={t('menuAppHeader.defaultNewPageName')}
       contentEditable={true}

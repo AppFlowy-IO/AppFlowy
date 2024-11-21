@@ -78,12 +78,6 @@ describe('Divider', () => {
         text: [],
         children: [],
       },
-      {
-        type: 'paragraph',
-        data: {},
-        text: [],
-        children: [],
-      },
     ]);
   });
 });

@@ -114,7 +114,7 @@ export class DocumentTest {
       blockText.applyDelta(child.text);
 
       this.textMap.set(blockId, blockText);
-      
+
       const blockChildren = new Y.Array<BlockId>();
 
       this.childrenMap.set(blockId, blockChildren);
@@ -137,7 +137,7 @@ export class DocumentTest {
       children.push({
         type: child.get(YjsEditorKey.block_type),
         data: JSON.parse(child.get(YjsEditorKey.block_data)),
-        text: this.textMap.get(childId).toDelta(),
+        text: this.textMap.get(childId)?.toDelta() || [],
         children: this.toJSONChildren(childId),
       });
     }

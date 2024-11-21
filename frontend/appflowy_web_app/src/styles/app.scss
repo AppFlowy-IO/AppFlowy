@@ -73,8 +73,9 @@ body {
 }
 
 .view-icon {
-  @apply flex w-fit cursor-pointer rounded-lg text-[1.5em];
+  @apply flex w-fit cursor-pointer rounded-lg;
   line-height: 1em;
+  font-size: 1.25em;
   white-space: nowrap;
 }
 

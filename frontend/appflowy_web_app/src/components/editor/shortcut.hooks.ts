@@ -7,13 +7,29 @@ import { AlignType, BlockType } from '@/application/types';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { openUrl } from '@/utils/url';
 import { KeyboardEvent, useCallback } from 'react';
-import { Editor, Text, Range, Transforms, BasePoint } from 'slate';
+import { Editor, Text, Range, Transforms, BasePoint, Path } from 'slate';
 import { ReactEditor, useReadOnly } from 'slate-react';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 export function useShortcuts (editor: ReactEditor) {
   const yjsEditor = editor as YjsEditor;
   const readOnly = useReadOnly();
+
+  const focusedFocusableElement = useCallback((toStart?: boolean) => {
+    if (readOnly) return;
+    const title = document.getElementById('editor-title');
+
+    if (!title) return;
+    
+    const selection = window.getSelection();
+    const range = document.createRange();
+
+    range.selectNodeContents(title);
+    range.collapse(toStart);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }, [readOnly]);
+
   const onKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
     const e = event.nativeEvent;
     const { selection } = editor;
@@ -37,11 +53,28 @@ export function useShortcuts (editor: ReactEditor) {
         case createHotkey(HOT_KEY_NAME.UP)(e): {
           const before = Editor.before(editor, selection, { unit: 'offset' });
           const beforeText = findInlineTextNode(editor, before);
+          const path = editor.start(selection).path;
+
+          if (!Path.hasPrevious(path)) {
+            focusedFocusableElement(false);
+            break;
+          }
 
           if (before && beforeText) {
             e.preventDefault();
             Transforms.move(editor, { unit: 'line', reverse: true, distance: 2 });
             return;
+          }
+
+          break;
+        }
+
+        case createHotkey(HOT_KEY_NAME.BACKSPACE)(e):
+        case createHotkey(HOT_KEY_NAME.LEFT)(e): {
+          const before = Editor.before(editor, selection, { unit: 'offset' });
+
+          if (!before) {
+            focusedFocusableElement(true);
           }
 
           break;
@@ -472,7 +505,7 @@ export function useShortcuts (editor: ReactEditor) {
       default:
         break;
     }
-  }, [editor, yjsEditor, readOnly]);
+  }, [focusedFocusableElement, editor, yjsEditor, readOnly]);
 
   return {
     onKeyDown,

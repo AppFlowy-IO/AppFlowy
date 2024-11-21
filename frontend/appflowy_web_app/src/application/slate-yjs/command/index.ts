@@ -524,16 +524,21 @@ export const CustomEditor = {
       let point: BasePoint | undefined;
 
       if (!prevBlockId) {
-        const [, path] = findSlateEntryByBlockId(editor, parent.get(YjsEditorKey.block_id));
+        if (parent.get(YjsEditorKey.block_type) !== BlockType.Page) {
+          const [, path] = findSlateEntryByBlockId(editor, parent.get(YjsEditorKey.block_id));
 
-        point = editor.start(path);
+          point = editor.start(path);
+        }
       } else {
         const [, path] = findSlateEntryByBlockId(editor, prevBlockId);
 
         point = editor.end(path);
       }
 
-      if (point) {
+      if (point && ReactEditor.hasRange(editor, {
+        anchor: point,
+        focus: point,
+      })) {
         Transforms.select(editor, point);
       } else {
         Transforms.deselect(editor);
@@ -558,11 +563,12 @@ export const CustomEditor = {
     ReactEditor.focus(editor);
   },
 
-  duplicateBlock (editor: YjsEditor, blockId: string) {
+  duplicateBlock (editor: YjsEditor, blockId: string, prevId?: string) {
     const sharedRoot = getSharedRoot(editor);
     const block = getBlock(blockId, sharedRoot);
-    const blockIndex = getBlockIndex(blockId, sharedRoot);
+
     const parent = getParent(blockId, sharedRoot);
+    const prevIndex = getBlockIndex(prevId || blockId, sharedRoot);
 
     if (!parent) {
       console.warn('Parent block not found');
@@ -581,7 +587,7 @@ export const CustomEditor = {
 
       const copiedBlock = getBlock(newBlockId, sharedRoot);
 
-      updateBlockParent(sharedRoot, copiedBlock, parent, blockIndex + 1);
+      updateBlockParent(sharedRoot, copiedBlock, parent, prevIndex + 1);
     }], 'duplicateBlock');
 
     return newBlockId;

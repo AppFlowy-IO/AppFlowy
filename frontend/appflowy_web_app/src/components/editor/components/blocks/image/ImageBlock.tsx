@@ -29,22 +29,16 @@ export const ImageBlock = memo(
     const className = useMemo(() => {
       const classList = ['w-full bg-bg-body py-2'];
 
-      if (url) {
+      if (!readOnly) {
         classList.push('cursor-pointer');
-      } else {
-        classList.push('text-text-caption');
       }
 
       if (attributes.className) {
         classList.push(attributes.className);
       }
 
-      if (!readOnly) {
-        classList.push('cursor-pointer');
-      }
-
       return classList.join(' ');
-    }, [attributes.className, readOnly, url]);
+    }, [attributes.className, readOnly]);
 
     const alignCss = useMemo(() => {
       if (!align) return '';

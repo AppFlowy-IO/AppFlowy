@@ -19,7 +19,7 @@ export const MathEquation = memo(
       const newClassName = useMemo(() => {
         const classList = [
           className,
-          'w-full bg-bg-body py-2 math-equation-block',
+          'w-full bg-bg-body py-2',
         ];
 
         if (!readOnly) {
@@ -73,7 +73,7 @@ export const MathEquation = memo(
 
             <div
               ref={ref}
-              className={'absolute left-0 top-0 h-full w-full caret-transparent'}
+              className={'absolute h-full w-full caret-transparent'}
             >
               {children}
             </div>
