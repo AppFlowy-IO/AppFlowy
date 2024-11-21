@@ -425,11 +425,43 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
       case SimpleTableMoreAction.clearContent:
         _clearContent();
         break;
+      case SimpleTableMoreAction.duplicate:
+        switch (widget.type) {
+          case SimpleTableMoreActionType.column:
+            _duplicateRow();
+            break;
+          case SimpleTableMoreActionType.row:
+            _duplicateColumn();
+            break;
+        }
+        break;
       default:
         break;
     }
 
     PopoverContainer.of(context).close();
+  }
+
+  void _duplicateRow() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final columnIndex = cellPosition.$1;
+    final editorState = context.read<EditorState>();
+    editorState.duplicateRowInTable(table, columnIndex);
+  }
+
+  void _duplicateColumn() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, cellPosition) = value;
+    final rowIndex = cellPosition.$2;
+    final editorState = context.read<EditorState>();
+    editorState.duplicateColumnInTable(table, rowIndex);
   }
 
   void _toggleEnableHeader() {
