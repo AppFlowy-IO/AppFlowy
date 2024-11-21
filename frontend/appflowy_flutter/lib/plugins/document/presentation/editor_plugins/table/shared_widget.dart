@@ -1,9 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -313,6 +317,7 @@ class SimpleTableAlignMenu extends StatefulWidget {
 
 class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
   final PopoverController controller = PopoverController();
+  bool isOpen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -326,10 +331,14 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
         leftIconSvg: align.leftIconSvg,
         text: 'Align',
         onTap: () {
-          controller.show();
+          if (!isOpen) {
+            controller.show();
+          }
         },
       ),
+      onClose: () => isOpen = false,
       popupBuilder: (_) {
+        isOpen = true;
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -353,11 +362,13 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
                   tableCellNode: widget.tableCellNode,
                   align: align,
                 );
+            break;
           case SimpleTableMoreActionType.row:
             context.read<EditorState>().updateRowAlign(
                   tableCellNode: widget.tableCellNode,
                   align: align,
                 );
+            break;
         }
 
         PopoverContainer.of(context).close();
@@ -485,6 +496,102 @@ class _SimpleTableColumnResizeHandleState
           },
         ),
       ),
+    );
+  }
+}
+
+class SimpleTableBackgroundColorMenu extends StatefulWidget {
+  const SimpleTableBackgroundColorMenu({
+    super.key,
+    required this.type,
+    required this.tableCellNode,
+  });
+
+  final SimpleTableMoreActionType type;
+  final Node tableCellNode;
+
+  @override
+  State<SimpleTableBackgroundColorMenu> createState() =>
+      _SimpleTableBackgroundColorMenuState();
+}
+
+class _SimpleTableBackgroundColorMenuState
+    extends State<SimpleTableBackgroundColorMenu> {
+  final PopoverController controller = PopoverController();
+  bool isOpen = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      asBarrier: true,
+      controller: controller,
+      popupBuilder: (_) {
+        isOpen = true;
+        return _buildColorOptionMenu(
+          context,
+          controller,
+        );
+      },
+      onClose: () => isOpen = false,
+      direction: PopoverDirection.rightWithCenterAligned,
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      child: SimpleTableBasicButton(
+        leftIconSvg: FlowySvgs.color_format_m,
+        text: 'Color',
+        onTap: () {
+          if (!isOpen) {
+            controller.show();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildColorOptionMenu(
+    BuildContext context,
+    PopoverController controller,
+  ) {
+    final colors = [
+      // reset to default background color
+      FlowyColorOption(
+        color: Colors.transparent,
+        i18n: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+        id: optionActionColorDefaultColor,
+      ),
+      ...FlowyTint.values.map(
+        (e) => FlowyColorOption(
+          color: e.color(context),
+          i18n: e.tintName(AppFlowyEditorL10n.current),
+          id: e.id,
+        ),
+      ),
+    ];
+
+    return FlowyColorPicker(
+      colors: colors,
+      border: Border.all(
+        color: AFThemeExtension.of(context).onBackground,
+      ),
+      onTap: (option, index) {
+        switch (widget.type) {
+          case SimpleTableMoreActionType.column:
+            context.read<EditorState>().updateColumnBackgroundColor(
+                  tableCellNode: widget.tableCellNode,
+                  color: option.id,
+                );
+            break;
+          case SimpleTableMoreActionType.row:
+            context.read<EditorState>().updateRowBackgroundColor(
+                  tableCellNode: widget.tableCellNode,
+                  color: option.id,
+                );
+            break;
+        }
+
+        controller.close();
+      },
     );
   }
 }

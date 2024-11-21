@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
@@ -403,6 +404,18 @@ extension TableOperations on EditorState {
     parentTableNode.updateAttributes(newAttributes);
   }
 
+  /// Update the align of the column at the index where the table cell node is located.
+  ///
+  /// Before:
+  /// Given table cell node:
+  /// Row 1: | 0 | 1 |
+  /// Row 2: |2  |3  | ← This column will be updated
+  ///
+  /// Call this function will update the align of the column where the table cell node is located.
+  ///
+  /// After:
+  /// Row 1: | 0 | 1 |
+  /// Row 2: | 2 | 3 | ← This column is updated, texts are aligned to the center
   Future<void> updateColumnAlign({
     required Node tableCellNode,
     required TableAlign align,
@@ -436,6 +449,20 @@ extension TableOperations on EditorState {
     await apply(transaction);
   }
 
+  /// Update the align of the row at the index where the table cell node is located.
+  ///
+  /// Before:
+  /// Given table cell node:
+  ///              ↓ This row will be updated
+  /// Row 1: | 0 |1  |
+  /// Row 2: | 2 |3  |
+  ///
+  /// Call this function will update the align of the row where the table cell node is located.
+  ///
+  /// After:
+  ///              ↓ This row is updated, texts are aligned to the center
+  /// Row 1: | 0 | 1 |
+  /// Row 2: | 2 | 3 |
   Future<void> updateRowAlign({
     required Node tableCellNode,
     required TableAlign align,
@@ -468,6 +495,85 @@ extension TableOperations on EditorState {
     }
     await apply(transaction);
   }
+
+  /// Update the background color of the column at the index where the table cell node is located.
+  Future<void> updateColumnBackgroundColor({
+    required Node tableCellNode,
+    required String color,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    final parentTableNode = tableCellNode.parentTableNode;
+
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final columnIndex = tableCellNode.columnIndex;
+
+    Log.info(
+      'update column background color: $color at column $columnIndex in table ${parentTableNode.id}',
+    );
+
+    final transaction = this.transaction;
+    final attributes = parentTableNode.attributes;
+    try {
+      final columnColors = attributes[SimpleTableBlockKeys.columnColors] ??
+          SimpleTableColorMap();
+      final newAttributes = {
+        ...attributes,
+        SimpleTableBlockKeys.columnColors: {
+          ...columnColors,
+          columnIndex.toString(): color,
+        },
+      };
+      transaction.updateNode(parentTableNode, newAttributes);
+    } catch (e) {
+      Log.warn('update column background color: $e');
+    }
+    await apply(transaction);
+  }
+
+  /// Update the background color of the row at the index where the table cell node is located.
+  Future<void> updateRowBackgroundColor({
+    required Node tableCellNode,
+    required String color,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    final parentTableNode = tableCellNode.parentTableNode;
+
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final rowIndex = tableCellNode.rowIndex;
+
+    Log.info(
+      'update row background color: $color at row $rowIndex in table ${parentTableNode.id}',
+    );
+
+    final transaction = this.transaction;
+
+    final attributes = parentTableNode.attributes;
+    try {
+      final rowColors =
+          attributes[SimpleTableBlockKeys.rowColors] ?? SimpleTableColorMap();
+      final newAttributes = {
+        ...attributes,
+        SimpleTableBlockKeys.rowColors: {
+          ...rowColors,
+          rowIndex.toString(): color,
+        },
+      };
+      transaction.updateNode(parentTableNode, newAttributes);
+    } catch (e) {
+      Log.warn('update row background color: $e');
+    }
+    await apply(transaction);
+  }
 }
 
 extension TableNodeExtension on Node {
@@ -489,7 +595,7 @@ extension TableNodeExtension on Node {
 
   TableCellPosition get cellPosition {
     assert(type == SimpleTableCellBlockKeys.type);
-    return (rowIndex, columnIndex);
+    return (columnIndex, rowIndex);
   }
 
   int get rowIndex {
@@ -593,5 +699,41 @@ extension TableNodeExtension on Node {
     final index = path.last.toString();
     final width = rawColumnWidths[index] as double?;
     return width ?? SimpleTableConstants.defaultColumnWidth;
+  }
+
+  Color? buildRowColor(BuildContext context) {
+    try {
+      final rawRowColors =
+          parentTableNode?.attributes[SimpleTableBlockKeys.rowColors];
+      if (rawRowColors == null) {
+        return null;
+      }
+      final color = rawRowColors[rowIndex.toString()];
+      if (color == null) {
+        return null;
+      }
+      return buildEditorCustomizedColor(context, this, color);
+    } catch (e) {
+      Log.warn('get row color: $e');
+      return null;
+    }
+  }
+
+  Color? buildColumnColor(BuildContext context) {
+    try {
+      final columnColors =
+          parentTableNode?.attributes[SimpleTableBlockKeys.columnColors];
+      if (columnColors == null) {
+        return null;
+      }
+      final color = columnColors[columnIndex.toString()];
+      if (color == null) {
+        return null;
+      }
+      return buildEditorCustomizedColor(context, this, color);
+    } catch (e) {
+      Log.warn('get column color: $e');
+      return null;
+    }
   }
 }

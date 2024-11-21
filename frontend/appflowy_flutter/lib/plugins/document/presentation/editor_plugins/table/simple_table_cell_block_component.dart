@@ -187,6 +187,16 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Color? _getBackgroundColor() {
+    final rowColor = node.buildRowColor(context);
+    if (rowColor != null && rowColor != Colors.transparent) {
+      return rowColor;
+    }
+
+    final columnColor = node.buildColumnColor(context);
+    if (columnColor != null && columnColor != Colors.transparent) {
+      return columnColor;
+    }
+
     // Check if the cell is in the header.
     // If the cell is in the header, set the background color to the default header color.
     // Otherwise, set the background color to null.

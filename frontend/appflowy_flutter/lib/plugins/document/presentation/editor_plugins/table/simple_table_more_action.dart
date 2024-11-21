@@ -332,9 +332,9 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
   }
 
   Widget _buildBackgroundColorMenu(BuildContext context) {
-    return SimpleTableBasicButton(
-      text: widget.action.name,
-      onTap: () {},
+    return SimpleTableBackgroundColorMenu(
+      type: widget.type,
+      tableCellNode: widget.tableCellNode,
     );
   }
 

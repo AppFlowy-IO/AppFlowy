@@ -64,6 +64,9 @@ class FlowyColorPicker extends StatelessWidget {
         decoration: BoxDecoration(
           color: option.color,
           shape: BoxShape.circle,
+          border: option.color == Colors.transparent
+              ? Border.all(color: const Color(0xFFCFD3D9))
+              : null,
         ),
       ),
     );
@@ -71,9 +74,10 @@ class FlowyColorPicker extends StatelessWidget {
     return SizedBox(
       height: itemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(option.i18n),
+        text: FlowyText(option.i18n),
         leftIcon: colorIcon,
         rightIcon: checkmark,
+        iconPadding: 10,
         onTap: () {
           onTap?.call(option, i);
         },
