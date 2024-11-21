@@ -1,11 +1,52 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+class SimpleTableReorderButton extends StatelessWidget {
+  const SimpleTableReorderButton({
+    super.key,
+    required this.isShowingMenu,
+    required this.type,
+  });
+
+  final ValueNotifier<bool> isShowingMenu;
+  final SimpleTableMoreActionType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: isShowingMenu,
+      builder: (context, isShowingMenu, child) {
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isShowingMenu
+                  ? context.simpleTableMoreActionHoverColor
+                  : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(
+                color: context.simpleTableMoreActionBorderColor,
+              ),
+            ),
+            width: 16,
+            height: 16,
+            child: FlowySvg(
+              type.reorderIconSvg,
+              color: isShowingMenu ? Colors.white : null,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
 class SimpleTableAddRowHoverButton extends StatelessWidget {
   const SimpleTableAddRowHoverButton({

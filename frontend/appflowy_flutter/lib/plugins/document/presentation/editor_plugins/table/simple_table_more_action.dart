@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
@@ -121,6 +122,13 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
   ValueNotifier<bool> isShowingMenu = ValueNotifier(false);
 
   @override
+  void dispose() {
+    isShowingMenu.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Align(
       alignment: widget.type == SimpleTableMoreActionType.row
@@ -147,70 +155,67 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
               return child!;
             },
-            child: AppFlowyPopover(
-              onOpen: () => this.isShowingMenu.value = true,
-              onClose: () => this.isShowingMenu.value = false,
-              direction: widget.type == SimpleTableMoreActionType.row
-                  ? PopoverDirection.bottomWithLeftAligned
-                  : PopoverDirection.bottomWithCenterAligned,
-              offset: widget.type == SimpleTableMoreActionType.row
-                  ? const Offset(-14, 8)
-                  : const Offset(24, 14),
-              popupBuilder: (_) {
-                final tableCellNode =
-                    context.read<SimpleTableContext>().hoveringTableNode.value;
-                if (tableCellNode == null) {
-                  return const SizedBox.shrink();
-                }
-                return MultiProvider(
-                  providers: [
-                    Provider.value(
-                      value: context.read<SimpleTableContext>(),
-                    ),
-                    Provider.value(
-                      value: context.read<EditorState>(),
-                    ),
-                  ],
-                  child: SimpleTableMoreActionList(
-                    type: widget.type,
-                    index: widget.index,
-                    tableCellNode: tableCellNode,
-                  ),
-                );
-              },
-              child: _buildReorderButton(context),
+            child: SimpleTableMoreActionPopup(
+              index: widget.index,
+              isShowingMenu: this.isShowingMenu,
+              type: widget.type,
             ),
           );
         },
       ),
     );
   }
+}
 
-  Widget _buildReorderButton(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: isShowingMenu,
-      builder: (context, isShowingMenu, child) {
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Container(
-            decoration: BoxDecoration(
-              color: isShowingMenu
-                  ? context.simpleTableMoreActionHoverColor
-                  : Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(
-                color: context.simpleTableMoreActionBorderColor,
-              ),
+class SimpleTableMoreActionPopup extends StatelessWidget {
+  const SimpleTableMoreActionPopup({
+    super.key,
+    required this.index,
+    required this.isShowingMenu,
+    required this.type,
+  });
+
+  final int index;
+  final ValueNotifier<bool> isShowingMenu;
+  final SimpleTableMoreActionType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      onOpen: () => isShowingMenu.value = true,
+      onClose: () => isShowingMenu.value = false,
+      direction: type == SimpleTableMoreActionType.row
+          ? PopoverDirection.bottomWithLeftAligned
+          : PopoverDirection.bottomWithCenterAligned,
+      offset: type == SimpleTableMoreActionType.row
+          ? const Offset(-14, 8)
+          : const Offset(24, 14),
+      popupBuilder: (_) {
+        final tableCellNode =
+            context.read<SimpleTableContext>().hoveringTableNode.value;
+        if (tableCellNode == null) {
+          return const SizedBox.shrink();
+        }
+        return MultiProvider(
+          providers: [
+            Provider.value(
+              value: context.read<SimpleTableContext>(),
             ),
-            width: 16,
-            height: 16,
-            child: FlowySvg(
-              widget.type.reorderIconSvg,
-              color: isShowingMenu ? Colors.white : null,
+            Provider.value(
+              value: context.read<EditorState>(),
             ),
+          ],
+          child: SimpleTableMoreActionList(
+            type: type,
+            index: index,
+            tableCellNode: tableCellNode,
           ),
         );
       },
+      child: SimpleTableReorderButton(
+        isShowingMenu: isShowingMenu,
+        type: type,
+      ),
     );
   }
 }
