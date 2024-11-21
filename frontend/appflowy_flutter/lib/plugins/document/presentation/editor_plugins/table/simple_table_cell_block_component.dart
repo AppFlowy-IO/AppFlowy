@@ -119,12 +119,20 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildCell(Node node) {
+    Alignment alignment = Alignment.topLeft;
+    if (this.node.columnAlign != TableAlign.left) {
+      alignment = this.node.columnAlign.alignment;
+    } else if (this.node.rowAlign != TableAlign.left) {
+      alignment = this.node.rowAlign.alignment;
+    }
+
     return Container(
       padding: SimpleTableConstants.cellEdgePadding,
       constraints: const BoxConstraints(
         minWidth: SimpleTableConstants.minimumColumnWidth,
       ),
       width: this.node.columnWidth,
+      alignment: alignment,
       child: IntrinsicWidth(
         child: IntrinsicHeight(
           child: editorState.renderer.build(context, node),

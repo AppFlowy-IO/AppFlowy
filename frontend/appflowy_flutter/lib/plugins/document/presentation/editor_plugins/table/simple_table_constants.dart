@@ -66,6 +66,7 @@ class SimpleTableConstants {
     vertical: 2.0,
   );
   static const cellBorderWidth = 1.0;
+  static const resizeHandleWidth = 3.0;
 
   static const borderType = SimpleTableBorderRenderType.cell;
 

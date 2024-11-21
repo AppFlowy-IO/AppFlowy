@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 
 typedef TableCellPosition = (int, int);
 
@@ -23,6 +24,12 @@ enum TableAlign {
         TableAlign.left => FlowySvgs.table_align_left_s,
         TableAlign.center => FlowySvgs.table_align_center_s,
         TableAlign.right => FlowySvgs.table_align_right_s,
+      };
+
+  Alignment get alignment => switch (this) {
+        TableAlign.left => Alignment.topLeft,
+        TableAlign.center => Alignment.topCenter,
+        TableAlign.right => Alignment.topRight,
       };
 }
 
@@ -395,6 +402,72 @@ extension TableOperations on EditorState {
 
     parentTableNode.updateAttributes(newAttributes);
   }
+
+  Future<void> updateColumnAlign({
+    required Node tableCellNode,
+    required TableAlign align,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    final parentTableNode = tableCellNode.parentTableNode;
+
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final transaction = this.transaction;
+    final columnIndex = tableCellNode.columnIndex;
+    final attributes = parentTableNode.attributes;
+    try {
+      final columnAligns = attributes[SimpleTableBlockKeys.columnAligns] ??
+          SimpleTableColumnAligns();
+      final newAttributes = {
+        ...attributes,
+        SimpleTableBlockKeys.columnAligns: {
+          ...columnAligns,
+          columnIndex.toString(): align.name,
+        },
+      };
+      transaction.updateNode(parentTableNode, newAttributes);
+    } catch (e) {
+      Log.warn('update column align: $e');
+    }
+    await apply(transaction);
+  }
+
+  Future<void> updateRowAlign({
+    required Node tableCellNode,
+    required TableAlign align,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    final parentTableNode = tableCellNode.parentTableNode;
+
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final transaction = this.transaction;
+    final rowIndex = tableCellNode.rowIndex;
+    final attributes = parentTableNode.attributes;
+    try {
+      final rowAligns =
+          attributes[SimpleTableBlockKeys.rowAligns] ?? SimpleTableRowAligns();
+      final newAttributes = {
+        ...attributes,
+        SimpleTableBlockKeys.rowAligns: {
+          ...rowAligns,
+          rowIndex.toString(): align.name,
+        },
+      };
+      transaction.updateNode(parentTableNode, newAttributes);
+    } catch (e) {
+      Log.warn('update row align: $e');
+    }
+    await apply(transaction);
+  }
 }
 
 extension TableNodeExtension on Node {
@@ -440,7 +513,7 @@ extension TableNodeExtension on Node {
         false;
   }
 
-  TableAlign getRowAlignAtIndex(int index) {
+  TableAlign get rowAlign {
     final parentTableNode = this.parentTableNode;
 
     if (parentTableNode == null) {
@@ -448,9 +521,9 @@ extension TableNodeExtension on Node {
     }
 
     try {
-      final rowAligns = parentTableNode
-          .attributes[SimpleTableBlockKeys.rowAligns] as SimpleTableRowAligns?;
-      final align = rowAligns?[index.toString()];
+      final rowAligns =
+          parentTableNode.attributes[SimpleTableBlockKeys.rowAligns];
+      final align = rowAligns?[rowIndex.toString()];
       return TableAlign.values.firstWhere(
         (e) => e.name == align,
         orElse: () => TableAlign.left,
@@ -461,7 +534,7 @@ extension TableNodeExtension on Node {
     }
   }
 
-  TableAlign getColumnAlignAtIndex(int index) {
+  TableAlign get columnAlign {
     final parentTableNode = this.parentTableNode;
 
     if (parentTableNode == null) {
@@ -470,9 +543,8 @@ extension TableNodeExtension on Node {
 
     try {
       final columnAligns =
-          parentTableNode.attributes[SimpleTableBlockKeys.columnAligns]
-              as SimpleTableColumnAligns?;
-      final align = columnAligns?[index.toString()];
+          parentTableNode.attributes[SimpleTableBlockKeys.columnAligns];
+      final align = columnAligns?[columnIndex.toString()];
       return TableAlign.values.firstWhere(
         (e) => e.name == align,
         orElse: () => TableAlign.left,

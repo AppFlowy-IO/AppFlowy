@@ -301,9 +301,11 @@ class SimpleTableAlignMenu extends StatefulWidget {
   const SimpleTableAlignMenu({
     super.key,
     required this.type,
+    required this.tableCellNode,
   });
 
   final SimpleTableMoreActionType type;
+  final Node tableCellNode;
 
   @override
   State<SimpleTableAlignMenu> createState() => _SimpleTableAlignMenuState();
@@ -314,41 +316,53 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final align = switch (widget.type) {
+      SimpleTableMoreActionType.column => widget.tableCellNode.columnAlign,
+      SimpleTableMoreActionType.row => widget.tableCellNode.rowAlign,
+    };
     return AppFlowyPopover(
       asBarrier: true,
       controller: controller,
       child: SimpleTableBasicButton(
-        leftIconSvg: TableAlign.left.leftIconSvg,
+        leftIconSvg: align.leftIconSvg,
         text: 'Align',
         onTap: () {
           controller.show();
         },
       ),
-      popupBuilder: (context) {
-        return Container(
-          width: 100,
-          height: 100,
-          color: Colors.red,
-          // child: Column(
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-          //     _buildAlignButton(context, TableAlign.left),
-          //     _buildAlignButton(context, TableAlign.center),
-          //     _buildAlignButton(context, TableAlign.right),
-          //   ],
-          // ),
+      popupBuilder: (_) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildAlignButton(context, TableAlign.left),
+            _buildAlignButton(context, TableAlign.center),
+            _buildAlignButton(context, TableAlign.right),
+          ],
         );
       },
     );
   }
 
-  // Widget _buildAlignButton(BuildContext context, TableAlign align) {
-  //   return SimpleTableBasicButton(
-  //     leftIconSvg: align.leftIconSvg,
-  //     text: align.name,
-  //     onTap: () {},
-  //   );
-  // }
+  Widget _buildAlignButton(BuildContext context, TableAlign align) {
+    return SimpleTableBasicButton(
+      leftIconSvg: align.leftIconSvg,
+      text: align.name,
+      onTap: () {
+        switch (widget.type) {
+          case SimpleTableMoreActionType.column:
+            context.read<EditorState>().updateColumnAlign(
+                  tableCellNode: widget.tableCellNode,
+                  align: align,
+                );
+          case SimpleTableMoreActionType.row:
+            context.read<EditorState>().updateRowAlign(
+                  tableCellNode: widget.tableCellNode,
+                  align: align,
+                );
+        }
+      },
+    );
+  }
 }
 
 class SimpleTableBasicButton extends StatelessWidget {
@@ -461,7 +475,7 @@ class _SimpleTableColumnResizeHandleState
                   opacity: isSameRowIndex ? 1.0 : 0.0,
                   child: Container(
                     height: double.infinity,
-                    width: 3,
+                    width: SimpleTableConstants.resizeHandleWidth,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 );

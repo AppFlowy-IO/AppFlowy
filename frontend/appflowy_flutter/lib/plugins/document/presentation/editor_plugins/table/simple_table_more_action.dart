@@ -185,6 +185,8 @@ class _SimpleTableMoreActionPopupState
     extends State<SimpleTableMoreActionPopup> {
   @override
   Widget build(BuildContext context) {
+    final tableCellNode =
+        context.read<SimpleTableContext>().hoveringTableCell.value;
     return AppFlowyPopover(
       onOpen: () => widget.isShowingMenu.value = true,
       onClose: () => widget.isShowingMenu.value = false,
@@ -195,8 +197,6 @@ class _SimpleTableMoreActionPopupState
           ? const Offset(-14, 8)
           : const Offset(24, 14),
       popupBuilder: (_) {
-        final tableCellNode =
-            context.read<SimpleTableContext>().hoveringTableCell.value;
         if (tableCellNode == null) {
           return const SizedBox.shrink();
         }
@@ -327,6 +327,7 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
   Widget _buildAlignMenu(BuildContext context) {
     return SimpleTableAlignMenu(
       type: widget.type,
+      tableCellNode: widget.tableCellNode,
     );
   }
 
