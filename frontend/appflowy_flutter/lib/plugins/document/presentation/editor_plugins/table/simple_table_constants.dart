@@ -87,4 +87,12 @@ extension SimpleTableColors on BuildContext {
   Color get simpleTableMoreActionBackgroundColor => Theme.of(this).isLightMode
       ? const Color(0xFFF2F3F5)
       : const Color(0xFF2D3036);
+
+  Color get simpleTableMoreActionBorderColor => Theme.of(this).isLightMode
+      ? const Color(0xFFCFD3D9)
+      : const Color(0xFF44484E);
+
+  Color get simpleTableMoreActionHoverColor => Theme.of(this).isLightMode
+      ? const Color(0xFF00C8FF)
+      : const Color(0xFF00C8FF);
 }

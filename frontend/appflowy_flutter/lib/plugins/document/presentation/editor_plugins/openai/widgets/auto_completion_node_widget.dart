@@ -231,6 +231,7 @@ class _AutoCompletionBlockComponentState
       onProcess: (text) async {
         await textRobot.autoInsertText(
           text,
+          inputType: TextRobotInputType.sentence,
           delay: Duration.zero,
         );
       },

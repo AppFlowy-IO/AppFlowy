@@ -7,14 +7,52 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 typedef TableCellPosition = (int, int);
 
 extension TableOperations on EditorState {
+  /// Add a row at the end of the table.
+  ///
+  /// Before:
+  /// Row 1: |   |   |   |
+  /// Row 2: |   |   |   |
+  ///
+  /// Call this function will add a row at the end of the table.
+  ///
+  /// After:
+  /// Row 1: |   |   |   |
+  /// Row 2: |   |   |   |
+  /// Row 3: |   |   |   | ← New row
+  ///
   Future<void> addRowInTable(Node node) async {
     await insertRowInTable(node, node.columnLength);
   }
 
+  /// Add a column at the end of the table.
+  ///
+  /// Before:
+  /// Row 1: |   |   |   |
+  /// Row 2: |   |   |   |
+  ///
+  /// Call this function will add a column at the end of the table.
+  ///
+  /// After:
+  ///                      ↓ New column
+  /// Row 1: |   |   |   |   |
+  /// Row 2: |   |   |   |   |
   Future<void> addColumnInTable(Node node) async {
     await insertColumnInTable(node, node.rowLength);
   }
 
+  /// Add a column and a row at the end of the table.
+  ///
+  /// Before:
+  /// Row 1: |   |   |   |
+  /// Row 2: |   |   |   |
+  ///
+  /// Call this function will add a column and a row at the end of the table.
+  ///
+  /// After:
+  ///                      ↓ New column
+  /// Row 1: |   |   |   |   |
+  /// Row 2: |   |   |   |   |
+  /// Row 3: |   |   |   |   | ← New row
   Future<void> addColumnAndRowInTable(Node node) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
@@ -26,6 +64,17 @@ extension TableOperations on EditorState {
     await addRowInTable(node);
   }
 
+  /// Delete a row at the given index.
+  ///
+  /// Before:
+  /// Given index: 0
+  /// Row 1: |   |   |   | ← This row will be deleted
+  /// Row 2: |   |   |   |
+  ///
+  /// Call this function with index 0 will delete the first row of the table.
+  ///
+  /// After:
+  /// Row 1: |   |   |   |
   Future<void> deleteRowInTable(
     Node node,
     int index,
@@ -52,6 +101,19 @@ extension TableOperations on EditorState {
     await apply(transaction);
   }
 
+  /// Delete a column at the given index.
+  ///
+  /// Before:
+  /// Given index: 2
+  ///                  ↓ This column will be deleted
+  /// Row 1: | 0 | 1 | 2 |
+  /// Row 2: |   |   |   |
+  ///
+  /// Call this function with index 2 will delete the third column of the table.
+  ///
+  /// After:
+  /// Row 1: | 0 | 1 |
+  /// Row 2: |   |   |
   Future<void> deleteColumnInTable(Node node, int index) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
@@ -77,6 +139,18 @@ extension TableOperations on EditorState {
     await apply(transaction);
   }
 
+  /// Add a column at the given index.
+  ///
+  /// Before:
+  /// Given index: 1
+  /// Row 1: | 0 | 1 |
+  /// Row 2: |   |   |
+  ///
+  /// Call this function with index 1 will add a column at the second position of the table.
+  ///
+  /// After:       ↓ New column
+  /// Row 1: | 0 |   | 1 |
+  /// Row 2: |   |   |   |
   Future<void> insertColumnInTable(Node node, int index) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
@@ -106,6 +180,19 @@ extension TableOperations on EditorState {
     await apply(transaction);
   }
 
+  /// Add a row at the given index.
+  ///
+  /// Before:
+  /// Given index: 1
+  /// Row 1: |   |   |
+  /// Row 2: |   |   |
+  ///
+  /// Call this function with index 1 will add a row at the second position of the table.
+  ///
+  /// After:
+  /// Row 1: |   |   |
+  /// Row 2: |   |   |
+  /// Row 3: |   |   | ← New row
   Future<void> insertRowInTable(Node node, int index) async {
     assert(node.type == SimpleTableBlockKeys.type);
 

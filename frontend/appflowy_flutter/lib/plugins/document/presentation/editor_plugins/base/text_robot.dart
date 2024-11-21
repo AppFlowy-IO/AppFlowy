@@ -3,6 +3,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 enum TextRobotInputType {
   character,
   word,
+  sentence,
 }
 
 class TextRobot {
@@ -35,6 +36,10 @@ class TextRobot {
             );
             await Future.delayed(delay);
           }
+          break;
+        case TextRobotInputType.sentence:
+          await editorState.insertTextAtCurrentSelection(line);
+          await Future.delayed(delay);
           break;
         case TextRobotInputType.word:
           final words = line.split(' ');

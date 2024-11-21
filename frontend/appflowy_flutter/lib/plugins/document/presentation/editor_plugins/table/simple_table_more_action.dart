@@ -38,6 +38,15 @@ enum SimpleTableMoreActionType {
         ];
     }
   }
+
+  FlowySvgData get reorderIconSvg {
+    switch (this) {
+      case SimpleTableMoreActionType.column:
+        return FlowySvgs.table_reorder_row_s;
+      case SimpleTableMoreActionType.row:
+        return FlowySvgs.table_reorder_column_s;
+    }
+  }
 }
 
 enum SimpleTableMoreAction {
@@ -126,17 +135,17 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
             valueListenable:
                 context.read<SimpleTableContext>().hoveringTableNode,
             builder: (context, hoveringTableNode, child) {
-              final hoveringIndex =
-                  widget.type == SimpleTableMoreActionType.column
-                      ? hoveringTableNode?.cellPosition.$1
-                      : hoveringTableNode?.cellPosition.$2;
-              debugPrint(
-                'hoveringIndex: $hoveringIndex, index: ${widget.index}',
-              );
+              // final hoveringIndex =
+              //     widget.type == SimpleTableMoreActionType.column
+              //         ? hoveringTableNode?.cellPosition.$1
+              //         : hoveringTableNode?.cellPosition.$2;
+              // debugPrint(
+              //   'hoveringIndex: $hoveringIndex, index: ${widget.index}',
+              // );
 
-              if (hoveringIndex != widget.index && !isShowingMenu) {
-                return const SizedBox.shrink();
-              }
+              // if (hoveringIndex != widget.index && !isShowingMenu) {
+              //   return const SizedBox.shrink();
+              // }
 
               return child!;
             },
@@ -144,8 +153,11 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
               onOpen: () => this.isShowingMenu.value = true,
               onClose: () => this.isShowingMenu.value = false,
               direction: widget.type == SimpleTableMoreActionType.row
-                  ? PopoverDirection.bottomWithCenterAligned
-                  : PopoverDirection.rightWithCenterAligned,
+                  ? PopoverDirection.bottomWithLeftAligned
+                  : PopoverDirection.bottomWithCenterAligned,
+              offset: widget.type == SimpleTableMoreActionType.row
+                  ? const Offset(-14, 8)
+                  : const Offset(24, 14),
               popupBuilder: (_) {
                 final tableCellNode =
                     context.read<SimpleTableContext>().hoveringTableNode.value;
@@ -168,18 +180,39 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
                   ),
                 );
               },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Container(
-                  color: Colors.red,
-                  width: 16,
-                  height: 16,
-                ),
-              ),
+              child: _buildReorderButton(context),
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildReorderButton(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: isShowingMenu,
+      builder: (context, isShowingMenu, child) {
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isShowingMenu
+                  ? context.simpleTableMoreActionHoverColor
+                  : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(
+                color: context.simpleTableMoreActionBorderColor,
+              ),
+            ),
+            width: 16,
+            height: 16,
+            child: FlowySvg(
+              widget.type.reorderIconSvg,
+              color: isShowingMenu ? Colors.white : null,
+            ),
+          ),
+        );
+      },
     );
   }
 }
