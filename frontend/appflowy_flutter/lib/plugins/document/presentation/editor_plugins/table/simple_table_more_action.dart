@@ -89,17 +89,15 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.duplicate => FlowySvgs.duplicate_s,
       SimpleTableMoreAction.clearContent => FlowySvgs.table_clear_content_s,
       SimpleTableMoreAction.delete => FlowySvgs.delete_s,
+      SimpleTableMoreAction.enableHeaderColumn =>
+        FlowySvgs.table_header_column_s,
+      SimpleTableMoreAction.enableHeaderRow => FlowySvgs.table_header_row_s,
       SimpleTableMoreAction.divider =>
         throw UnsupportedError('divider icon is not supported'),
       SimpleTableMoreAction.align =>
         throw UnsupportedError('align icon is not supported'),
       SimpleTableMoreAction.backgroundColor =>
         throw UnsupportedError('background color icon is not supported'),
-      SimpleTableMoreAction.enableHeaderColumn => throw UnsupportedError(
-          'the enable header column icon is not supported',
-        ),
-      SimpleTableMoreAction.enableHeaderRow =>
-        throw UnsupportedError('the enable header row icon is not supported'),
     };
   }
 }
@@ -278,8 +276,16 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
   ValueNotifier<bool> isEnableHeader = ValueNotifier(false);
 
   @override
+  void initState() {
+    super.initState();
+
+    _initEnableHeader();
+  }
+
+  @override
   void dispose() {
     isEnableHeader.dispose();
+
     super.dispose();
   }
 
@@ -335,7 +341,16 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
       height: SimpleTableConstants.moreActionHeight,
       padding: SimpleTableConstants.moreActionPadding,
       child: FlowyButton(
-        text: FlowyText.regular(widget.action.name, fontSize: 14.0),
+        margin: SimpleTableConstants.moreActionHorizontalMargin,
+        text: FlowyText.regular(
+          widget.action.name,
+          fontSize: 14.0,
+          figmaLineHeight: 18.0,
+        ),
+        iconPadding: 10.0,
+        leftIcon: FlowySvg(
+          widget.action.leftIconSvg,
+        ),
         rightIcon: ValueListenableBuilder(
           valueListenable: isEnableHeader,
           builder: (context, isEnableHeader, child) {
@@ -367,7 +382,6 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
         textBuilder: (onHover) => FlowyText.regular(
           widget.action.name,
           fontSize: 14.0,
-          lineHeight: 1.0,
           figmaLineHeight: 18.0,
           color: widget.action == SimpleTableMoreAction.delete && onHover
               ? Theme.of(context).colorScheme.error
@@ -376,10 +390,6 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
         onTap: _onAction,
       ),
     );
-  }
-
-  void _toggleEnableHeader() {
-    isEnableHeader.value = !isEnableHeader.value;
   }
 
   void _onAction() {
@@ -414,6 +424,29 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     }
 
     PopoverContainer.of(context).close();
+  }
+
+  void _toggleEnableHeader() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+
+    isEnableHeader.value = !isEnableHeader.value;
+
+    final (table, _, _) = value;
+    final editorState = context.read<EditorState>();
+    if (widget.type == SimpleTableMoreActionType.column) {
+      editorState.toggleEnableHeaderColumn(
+        table,
+        isEnableHeader.value,
+      );
+    } else if (widget.type == SimpleTableMoreActionType.row) {
+      editorState.toggleEnableHeaderRow(
+        table,
+        isEnableHeader.value,
+      );
+    }
   }
 
   void _clearContent() {
@@ -503,5 +536,21 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
       return null;
     }
     return (table, cell, cell.cellPosition);
+  }
+
+  void _initEnableHeader() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value != null) {
+      final (table, _, _) = value;
+      if (widget.type == SimpleTableMoreActionType.column) {
+        isEnableHeader.value = table
+                .attributes[SimpleTableBlockKeys.enableHeaderColumn] as bool? ??
+            false;
+      } else if (widget.type == SimpleTableMoreActionType.row) {
+        isEnableHeader.value =
+            table.attributes[SimpleTableBlockKeys.enableHeaderRow] as bool? ??
+                false;
+      }
+    }
   }
 }

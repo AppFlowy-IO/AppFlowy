@@ -18,7 +18,7 @@ class SimpleTableBlockKeys {
 
   // enable column header
   // it's a bool value, default is false
-  static const String enableColumnHeader = 'enable_column_header';
+  static const String enableHeaderColumn = 'enable_header_column';
 
   // column colors
   // it's a list of color strings
@@ -50,7 +50,7 @@ class SimpleTableBlockKeys {
 
 Node simpleTableBlockNode({
   bool enableHeaderRow = false,
-  bool enableColumnHeader = false,
+  bool enableHeaderColumn = false,
   Map<int, String>? columnColors,
   Map<int, String>? rowColors,
   Map<int, String>? columnAligns,
@@ -73,7 +73,7 @@ Node simpleTableBlockNode({
     type: SimpleTableBlockKeys.type,
     attributes: {
       SimpleTableBlockKeys.enableHeaderRow: enableHeaderRow,
-      SimpleTableBlockKeys.enableColumnHeader: enableColumnHeader,
+      SimpleTableBlockKeys.enableHeaderColumn: enableHeaderColumn,
       SimpleTableBlockKeys.columnColors: columnColors,
       SimpleTableBlockKeys.rowColors: rowColors,
       SimpleTableBlockKeys.columnAligns: columnAligns,
