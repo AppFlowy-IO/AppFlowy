@@ -89,7 +89,7 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.addBelow => FlowySvgs.table_insert_below_s,
       SimpleTableMoreAction.duplicate => FlowySvgs.duplicate_s,
       SimpleTableMoreAction.clearContent => FlowySvgs.table_clear_content_s,
-      SimpleTableMoreAction.delete => FlowySvgs.delete_s,
+      SimpleTableMoreAction.delete => FlowySvgs.trash_s,
       SimpleTableMoreAction.enableHeaderColumn =>
         FlowySvgs.table_header_column_s,
       SimpleTableMoreAction.enableHeaderRow => FlowySvgs.table_header_row_s,
@@ -188,8 +188,24 @@ class _SimpleTableMoreActionPopupState
     final tableCellNode =
         context.read<SimpleTableContext>().hoveringTableCell.value;
     return AppFlowyPopover(
-      onOpen: () => widget.isShowingMenu.value = true,
-      onClose: () => widget.isShowingMenu.value = false,
+      onOpen: () {
+        widget.isShowingMenu.value = true;
+        switch (widget.type) {
+          case SimpleTableMoreActionType.column:
+            context.read<SimpleTableContext>().selectingColumn.value =
+                tableCellNode?.cellPosition.$1;
+          case SimpleTableMoreActionType.row:
+            context.read<SimpleTableContext>().selectingRow.value =
+                tableCellNode?.cellPosition.$2;
+        }
+      },
+      onClose: () {
+        widget.isShowingMenu.value = false;
+
+        // clear the selecting index
+        context.read<SimpleTableContext>().selectingColumn.value = null;
+        context.read<SimpleTableContext>().selectingRow.value = null;
+      },
       direction: widget.type == SimpleTableMoreActionType.row
           ? PopoverDirection.bottomWithLeftAligned
           : PopoverDirection.bottomWithCenterAligned,

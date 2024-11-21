@@ -522,8 +522,13 @@ class _SimpleTableBackgroundColorMenuState
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = switch (widget.type) {
+      SimpleTableMoreActionType.row =>
+        widget.tableCellNode.buildRowColor(context),
+      SimpleTableMoreActionType.column =>
+        widget.tableCellNode.buildColumnColor(context),
+    };
     return AppFlowyPopover(
-      asBarrier: true,
       controller: controller,
       popupBuilder: (_) {
         isOpen = true;
@@ -538,7 +543,9 @@ class _SimpleTableBackgroundColorMenuState
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
       child: SimpleTableBasicButton(
-        leftIconSvg: FlowySvgs.color_format_m,
+        leftIconBuilder: (onHover) => ColorOptionIcon(
+          color: backgroundColor ?? Colors.transparent,
+        ),
         text: 'Color',
         onTap: () {
           if (!isOpen) {
@@ -591,6 +598,7 @@ class _SimpleTableBackgroundColorMenuState
         }
 
         controller.close();
+        PopoverContainer.of(context).close();
       },
     );
   }

@@ -7,11 +7,15 @@ class SimpleTableContext {
   SimpleTableContext() {
     isHoveringOnTable.addListener(_onHoveringOnTableChanged);
     hoveringTableCell.addListener(_onHoveringTableNodeChanged);
+    selectingColumn.addListener(_onSelectingColumnChanged);
+    selectingRow.addListener(_onSelectingRowChanged);
   }
 
   final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
   final ValueNotifier<Node?> hoveringTableCell = ValueNotifier(null);
   final ValueNotifier<Node?> hoveringOnResizeHandle = ValueNotifier(null);
+  final ValueNotifier<int?> selectingColumn = ValueNotifier(null);
+  final ValueNotifier<int?> selectingRow = ValueNotifier(null);
 
   void _onHoveringOnTableChanged() {
     debugPrint('isHoveringOnTable: ${isHoveringOnTable.value}');
@@ -26,10 +30,20 @@ class SimpleTableContext {
     debugPrint('hoveringTableNode: $node, ${node.cellPosition}');
   }
 
+  void _onSelectingColumnChanged() {
+    debugPrint('selectingColumn: ${selectingColumn.value}');
+  }
+
+  void _onSelectingRowChanged() {
+    debugPrint('selectingRow: ${selectingRow.value}');
+  }
+
   void dispose() {
     isHoveringOnTable.dispose();
     hoveringTableCell.dispose();
     hoveringOnResizeHandle.dispose();
+    selectingColumn.dispose();
+    selectingRow.dispose();
   }
 }
 

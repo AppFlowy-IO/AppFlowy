@@ -87,12 +87,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          DecoratedBox(
-            decoration: _buildDecoration(),
-            child: Column(
-              children: node.children.map(_buildCell).toList(),
-            ),
-          ),
+          _buildCell(),
           Positioned(
             top: -SimpleTableConstants.tableTopPadding,
             left: 0,
@@ -118,24 +113,38 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     );
   }
 
-  Widget _buildCell(Node node) {
-    Alignment alignment = Alignment.topLeft;
-    if (this.node.columnAlign != TableAlign.left) {
-      alignment = this.node.columnAlign.alignment;
-    } else if (this.node.rowAlign != TableAlign.left) {
-      alignment = this.node.rowAlign.alignment;
-    }
+  Widget _buildCell() {
+    return ValueListenableBuilder(
+      valueListenable: context.read<SimpleTableContext>().selectingColumn,
+      builder: (context, selectingColumn, child) {
+        return ValueListenableBuilder(
+          valueListenable: context.read<SimpleTableContext>().selectingRow,
+          builder: (context, selectingRow, _) {
+            return DecoratedBox(
+              decoration: _buildDecoration(),
+              child: child!,
+            );
+          },
+        );
+      },
+      child: Column(
+        children: node.children.map(_buildCellContent).toList(),
+      ),
+    );
+  }
 
+  Widget _buildCellContent(Node childNode) {
+    final alignment = _buildAlignment();
     return Container(
       padding: SimpleTableConstants.cellEdgePadding,
       constraints: const BoxConstraints(
         minWidth: SimpleTableConstants.minimumColumnWidth,
       ),
-      width: this.node.columnWidth,
+      width: node.columnWidth,
       alignment: alignment,
       child: IntrinsicWidth(
         child: IntrinsicHeight(
-          child: editorState.renderer.build(context, node),
+          child: editorState.renderer.build(context, childNode),
         ),
       ),
     );
@@ -171,22 +180,27 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     );
   }
 
-  Decoration _buildDecoration() {
-    final backgroundColor = _getBackgroundColor();
-    return SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
-        ? BoxDecoration(
-            border: Border.all(
-              color: context.simpleTableBorderColor,
-              strokeAlign: BorderSide.strokeAlignCenter,
-            ),
-            color: backgroundColor,
-          )
-        : BoxDecoration(
-            color: backgroundColor,
-          );
+  Alignment _buildAlignment() {
+    Alignment alignment = Alignment.topLeft;
+    if (node.columnAlign != TableAlign.left) {
+      alignment = node.columnAlign.alignment;
+    } else if (node.rowAlign != TableAlign.left) {
+      alignment = node.rowAlign.alignment;
+    }
+    return alignment;
   }
 
-  Color? _getBackgroundColor() {
+  Decoration _buildDecoration() {
+    final backgroundColor = _buildBackgroundColor();
+    final border = _buildBorder();
+
+    return BoxDecoration(
+      border: border,
+      color: backgroundColor,
+    );
+  }
+
+  Color? _buildBackgroundColor() {
     final rowColor = node.buildRowColor(context);
     if (rowColor != null && rowColor != Colors.transparent) {
       return rowColor;
@@ -205,6 +219,75 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     }
 
     return Theme.of(context).colorScheme.surface;
+  }
+
+  Border? _buildBorder() {
+    if (SimpleTableConstants.borderType != SimpleTableBorderRenderType.cell) {
+      return null;
+    }
+
+    final columnIndex = node.columnIndex;
+    final rowIndex = node.rowIndex;
+    final isSelectingColumn =
+        columnIndex == context.read<SimpleTableContext>().selectingColumn.value;
+    final isSelectingRow =
+        rowIndex == context.read<SimpleTableContext>().selectingRow.value;
+    if (isSelectingColumn) {
+      return Border(
+        top: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 2,
+        ),
+        bottom: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 2.5,
+        ),
+        left: rowIndex == 0
+            ? BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              )
+            : BorderSide(
+                color: context.simpleTableBorderColor,
+              ),
+        right: rowIndex + 1 == node.parentTableNode?.rowLength
+            ? BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              )
+            : BorderSide.none,
+      );
+    } else if (isSelectingRow) {
+      return Border(
+        left: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 2,
+        ),
+        right: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 2.5,
+        ),
+        top: columnIndex == 0
+            ? BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              )
+            : BorderSide(
+                color: context.simpleTableBorderColor,
+              ),
+        bottom: columnIndex + 1 == node.parentTableNode?.columnLength
+            ? BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              )
+            : BorderSide.none,
+      );
+    } else {
+      return Border.all(
+        color: context.simpleTableBorderColor,
+        strokeAlign: BorderSide.strokeAlignCenter,
+      );
+    }
   }
 
   bool _isInHeader() {

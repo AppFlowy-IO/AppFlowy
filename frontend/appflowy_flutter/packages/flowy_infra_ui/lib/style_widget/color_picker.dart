@@ -58,17 +58,9 @@ class FlowyColorPicker extends StatelessWidget {
       checkmark = const FlowySvg(FlowySvgData("grid/checkmark"));
     }
 
-    final colorIcon = SizedBox.square(
-      dimension: iconSize,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: option.color,
-          shape: BoxShape.circle,
-          border: option.color == Colors.transparent
-              ? Border.all(color: const Color(0xFFCFD3D9))
-              : null,
-        ),
-      ),
+    final colorIcon = ColorOptionIcon(
+      color: option.color,
+      iconSize: iconSize,
     );
 
     return SizedBox(
@@ -81,6 +73,33 @@ class FlowyColorPicker extends StatelessWidget {
         onTap: () {
           onTap?.call(option, i);
         },
+      ),
+    );
+  }
+}
+
+class ColorOptionIcon extends StatelessWidget {
+  const ColorOptionIcon({
+    super.key,
+    required this.color,
+    this.iconSize = 16.0,
+  });
+
+  final Color color;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: iconSize,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: color == Colors.transparent
+              ? Border.all(color: const Color(0xFFCFD3D9))
+              : null,
+        ),
       ),
     );
   }
