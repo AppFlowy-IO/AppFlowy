@@ -6,7 +6,7 @@ import { usePopoverContext } from '@/components/editor/components/block-popover/
 import FileBlockPopoverContent from '@/components/editor/components/block-popover/FileBlockPopoverContent';
 import ImageBlockPopoverContent from '@/components/editor/components/block-popover/ImageBlockPopoverContent';
 import { useEditorContext } from '@/components/editor/EditorContext';
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import MathEquationPopoverContent from './MathEquationPopoverContent';
 
@@ -18,39 +18,54 @@ function BlockPopover () {
     type,
     blockId,
   } = usePopoverContext();
-  const { setSelectedBlockId } = useEditorContext();
+  const { setSelectedBlockIds } = useEditorContext();
   const editor = useSlateStatic() as YjsEditor;
+
+  const handleClose = useCallback(() => {
+    window.getSelection()?.removeAllRanges();
+    if (!blockId) return;
+
+    const [, path] = findSlateEntryByBlockId(editor, blockId);
+
+    editor.select(editor.start(path));
+    ReactEditor.focus(editor);
+    close();
+  }, [blockId, close, editor]);
 
   const content = useMemo(() => {
     if (!blockId) return;
     switch (type) {
       case BlockType.FileBlock:
-        return <FileBlockPopoverContent blockId={blockId} />;
+        return <FileBlockPopoverContent
+          blockId={blockId}
+          onClose={handleClose}
+        />;
       case BlockType.ImageBlock:
-        return <ImageBlockPopoverContent blockId={blockId} />;
+        return <ImageBlockPopoverContent
+          blockId={blockId}
+          onClose={handleClose}
+        />;
       case BlockType.EquationBlock:
-        return <MathEquationPopoverContent blockId={blockId} />;
+        return <MathEquationPopoverContent
+          blockId={blockId}
+          onClose={handleClose}
+        />;
       default:
         return null;
     }
-  }, [type, blockId]);
+  }, [type, blockId, handleClose]);
 
   useEffect(() => {
-    setSelectedBlockId?.(blockId);
-  }, [blockId, setSelectedBlockId]);
+    if (blockId) {
+      setSelectedBlockIds?.([blockId]);
+    } else {
+      setSelectedBlockIds?.([]);
+    }
+  }, [blockId, setSelectedBlockIds]);
 
   return <Popover
     open={open}
-    onClose={() => {
-      window.getSelection()?.removeAllRanges();
-      if (!blockId) return;
-
-      const [, path] = findSlateEntryByBlockId(editor, blockId);
-
-      editor.select(editor.start(path));
-      ReactEditor.focus(editor);
-      close();
-    }}
+    onClose={handleClose}
     anchorEl={anchorEl}
     transformOrigin={{
       vertical: 'top',

@@ -37,6 +37,12 @@ export function useVisible () {
   useEffect(() => {
 
     const handleMouseDown = () => {
+      const { selection } = editor;
+
+      if (selection && Range.isExpanded(selection)) {
+        window.getSelection()?.removeAllRanges();
+      }
+
       setDragging(true);
     };
 
@@ -56,7 +62,7 @@ export function useVisible () {
       document.removeEventListener('mouseup', handleMouseUp);
     };
 
-  }, [removeDecorate]);
+  }, [editor, removeDecorate]);
 
   const handleForceShow = useCallback((show: boolean) => {
     if (show && editor.selection) {
@@ -89,16 +95,17 @@ export function useToolbarPosition () {
     const left = position.left + slateEditorDom.offsetLeft;
 
     // If toolbar is out of editor, move it to the left edge of the editor
-    if (left < 0) {
-      toolbarEl.style.left = '0';
+    if (left <= 0) {
+      toolbarEl.style.left = '0px';
       return;
     }
 
     const right = left + toolbarEl.offsetWidth;
+    const rightBound = slateEditorDom.offsetWidth + slateEditorDom.offsetLeft;
 
     // If toolbar is out of editor, move the right edge to the right edge of the editor
-    if (right > slateEditorDom.offsetWidth) {
-      toolbarEl.style.left = `${slateEditorDom.offsetWidth - toolbarEl.offsetWidth}px`;
+    if (right > rightBound) {
+      toolbarEl.style.left = `${rightBound - toolbarEl.offsetWidth}px`;
       return;
     }
 

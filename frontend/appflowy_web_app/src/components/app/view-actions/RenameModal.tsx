@@ -70,6 +70,7 @@ function RenameModal ({ open, onClose, viewId }: {
       classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
     >
       <OutlinedInput
+        size={'small'}
         placeholder={'Enter new name'}
         value={newValue}
         onChange={e => setNewValue(e.target.value)}

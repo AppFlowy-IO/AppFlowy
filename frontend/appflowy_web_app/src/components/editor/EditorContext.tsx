@@ -44,8 +44,8 @@ export interface EditorContextState {
   decorateState?: Record<string, Decorate>;
   addDecorate?: (range: BaseRange, class_name: string, type: string) => void;
   removeDecorate?: (type: string) => void;
-  selectedBlockId?: string;
-  setSelectedBlockId?: (blockId?: string) => void;
+  selectedBlockIds?: string[];
+  setSelectedBlockIds?: React.Dispatch<React.SetStateAction<string[]>>;
   addPage?: (parentId: string, payload: CreatePagePayload) => Promise<string>;
   deletePage?: (viewId: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
@@ -62,7 +62,7 @@ export const EditorContext = createContext<EditorContextState>({
 
 export const EditorContextProvider = ({ children, ...props }: EditorContextState & { children: React.ReactNode }) => {
   const [decorateState, setDecorateState] = useState<Record<string, Decorate>>({});
-  const [selectedBlockId, setSelectedBlockId] = useState<string | undefined>(undefined);
+  const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
 
   const addDecorate = useCallback((range: BaseRange, class_name: string, type: string) => {
     setDecorateState((prev) => ({
@@ -87,22 +87,24 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
     });
   }, []);
 
-  const handleSetSelectedBlockId = useCallback((blockId?: string) => {
-    setSelectedBlockId(blockId);
-  }, []);
-
   return <EditorContext.Provider
     value={{
       ...props,
       decorateState,
       addDecorate,
       removeDecorate,
-      selectedBlockId,
-      setSelectedBlockId: handleSetSelectedBlockId,
+      setSelectedBlockIds,
+      selectedBlockIds,
     }}
   >{children}</EditorContext.Provider>;
 };
 
 export function useEditorContext () {
   return useContext(EditorContext);
+}
+
+export function useBlockSelected (blockId: string) {
+  const { selectedBlockIds } = useEditorContext();
+
+  return selectedBlockIds?.includes(blockId);
 }

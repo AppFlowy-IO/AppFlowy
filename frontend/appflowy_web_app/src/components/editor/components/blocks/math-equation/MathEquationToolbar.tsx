@@ -20,7 +20,11 @@ function MathEquationToolbar ({
   };
 
   return (
-    <div className={'absolute z-10 top-2 right-1'}>
+    <div
+      contentEditable={false}
+      onClick={e => e.stopPropagation()}
+      className={'absolute z-10 top-2 right-1'}
+    >
       <div className={'flex space-x-1 rounded-[8px] p-1 bg-fill-toolbar shadow border border-line-divider '}>
         <ActionButton
           onClick={onCopy}

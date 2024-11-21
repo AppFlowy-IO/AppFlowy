@@ -2,7 +2,6 @@ import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { MathEquationBlockData } from '@/application/types';
-import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import { MathEquationNode } from '@/components/editor/editor.type';
 import { Button, TextField } from '@mui/material';
 import React, { useCallback, useEffect } from 'react';
@@ -12,22 +11,25 @@ import { useSlateStatic } from 'slate-react';
 
 function MathEquationPopoverContent ({
   blockId,
+  onClose,
 }: {
-  blockId: string
+  blockId: string;
+  onClose: () => void;
 }) {
-  const {
-    close,
-  } = usePopoverContext();
-
   const editor = useSlateStatic() as YjsEditor;
   const [formula, setFormula] = React.useState('');
   const { t } = useTranslation();
+
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
   const handleSave = useCallback((formula: string) => {
     CustomEditor.setBlockData(editor, blockId, {
       formula,
     } as MathEquationBlockData);
-    close();
-  }, [blockId, close, editor]);
+    handleClose();
+  }, [blockId, handleClose, editor]);
 
   useEffect(() => {
     const entry = findSlateEntryByBlockId(editor, blockId) as NodeEntry<MathEquationNode>;
@@ -43,7 +45,7 @@ function MathEquationPopoverContent ({
   }, [blockId, editor]);
 
   return (
-    <div className={'flex flex-col p-2 gap-2  w-[560px] max-w-[964px]'}>
+    <div className={'flex flex-col p-4 gap-3 w-[560px] max-w-[964px]'}>
       <TextField
         rows={4}
         multiline
@@ -65,7 +67,7 @@ function MathEquationPopoverContent ({
           size={'small'}
           variant={'outlined'}
           color={'inherit'}
-          onClick={() => close()}
+          onClick={handleClose}
         >{t('button.cancel')}</Button>
         <Button
           size={'small'}

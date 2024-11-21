@@ -27,12 +27,11 @@ export function getBlockCssProperty (node: Element) {
     case BlockType.OutlineBlock:
       return 'my-2';
     case BlockType.GridBlock:
+    case BlockType.CalloutBlock:
     case BlockType.TableBlock:
       return 'my-3';
     case BlockType.GalleryBlock:
       return 'my-4';
-    case BlockType.CalloutBlock:
-      return 'my-5';
     case BlockType.EquationBlock:
     case BlockType.FileBlock:
       return 'my-6';

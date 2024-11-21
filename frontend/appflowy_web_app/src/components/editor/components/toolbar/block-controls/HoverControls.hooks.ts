@@ -157,6 +157,7 @@ export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; on
   }, [close, editor, hoveredBlockId]);
 
   const onClickAdd = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     if (!hoveredBlockId) return;
     const [node, path] = findSlateEntryByBlockId(editor, hoveredBlockId);
     const start = editor.start(path);

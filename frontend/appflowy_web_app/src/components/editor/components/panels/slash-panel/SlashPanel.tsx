@@ -91,19 +91,19 @@ export function SlashPanel ({
       newBlockId = CustomEditor.addBelowBlock(editor, blockId, type, data);
     }
 
-    if (![BlockType.FileBlock, BlockType.ImageBlock, BlockType.EquationBlock].includes(type)) return;
+    if ([BlockType.FileBlock, BlockType.ImageBlock, BlockType.EquationBlock].includes(type)) {
+      setTimeout(() => {
+        if (!newBlockId) return;
+        const entry = findSlateEntryByBlockId(editor, newBlockId);
 
-    setTimeout(() => {
-      if (!newBlockId) return;
-      const entry = findSlateEntryByBlockId(editor, newBlockId);
+        if (!entry) return;
+        const [node] = entry;
+        const dom = ReactEditor.toDOMNode(editor, node);
 
-      if (!entry) return;
-      const [node] = entry;
-      const dom = ReactEditor.toDOMNode(editor, node);
+        openPopover(newBlockId, type, dom);
 
-      openPopover(newBlockId, type, dom);
-
-    }, 50);
+      }, 50);
+    }
 
   }, [editor, openPopover]);
 
@@ -410,6 +410,7 @@ export function SlashPanel ({
 
       switch (key) {
         case 'Enter':
+          e.stopPropagation();
           e.preventDefault();
           if (selectedOptionRef.current) {
             handleSelectOption(selectedOptionRef.current);

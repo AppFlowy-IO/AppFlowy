@@ -41,12 +41,13 @@ export const Element = ({
   const {
     jumpBlockId,
     onJumpedBlockId,
-    selectedBlockId,
+    selectedBlockIds,
   } = useEditorContext();
+
   const { blockId, type } = node;
   const isSelected = useSelected();
   const selected = useMemo(() => {
-    if (selectedBlockId === blockId) return true;
+    if (blockId && selectedBlockIds?.includes(blockId)) return true;
     if ([
       ...CONTAINER_BLOCK_TYPES,
       ...SOFT_BREAK_TYPES,
@@ -54,8 +55,8 @@ export const Element = ({
       BlockType.TableBlock,
       BlockType.TableCell,
     ].includes(type as BlockType)) return false;
-    return selectedBlockId === blockId || isSelected;
-  }, [selectedBlockId, blockId, type, isSelected]);
+    return isSelected;
+  }, [blockId, selectedBlockIds, type, isSelected]);
 
   const editor = useSlateStatic();
   const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
@@ -162,10 +163,10 @@ export const Element = ({
     const data = (node.data as BlockData) || {};
 
     return {
-      backgroundColor: data.bgColor ? renderColor(data.bgColor) : undefined,
+      backgroundColor: !selected && data.bgColor ? renderColor(data.bgColor) : undefined,
       color: data.font_color ? renderColor(data.font_color) : undefined,
     };
-  }, [node.data]);
+  }, [node.data, selected]);
 
   if (type === YjsEditorKey.text) {
     return (

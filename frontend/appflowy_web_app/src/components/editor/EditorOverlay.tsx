@@ -30,6 +30,7 @@ function EditorOverlay () {
       <Toolbars onAdded={handleBlockAdded} />
       <Panels />
       <BlockPopover />
+
     </ErrorBoundary>
   );
 }

@@ -24,11 +24,14 @@ export function UploadImage ({ onDone }: { onDone?: (url: string) => void }) {
   }, [onDone]);
 
   return (
-    <FileDropzone
-      placeholder={t('fileDropzone.dropFile')}
-      onChange={handleFileChange}
-      accept={ALLOWED_IMAGE_EXTENSIONS.join(',')}
-    />
+    <div className={'px-4 pb-4'}>
+      <FileDropzone
+        placeholder={t('fileDropzone.dropFile')}
+        onChange={handleFileChange}
+        accept={ALLOWED_IMAGE_EXTENSIONS.join(',')}
+      />
+    </div>
+
   );
 }
 

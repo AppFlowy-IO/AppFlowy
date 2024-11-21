@@ -15,7 +15,7 @@ import { Button } from '@mui/material';
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlateStatic } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 
 const popoverProps: Partial<PopoverProps> = {
   transformOrigin: {
@@ -29,24 +29,24 @@ const popoverProps: Partial<PopoverProps> = {
   },
   keepMounted: false,
   disableRestoreFocus: true,
-  disableEnforceFocus: false,
-  disableAutoFocus: false,
+  disableEnforceFocus: true,
 };
 
-function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
-  blockId: string;
+function ControlsMenu ({ open, onClose, anchorEl }: {
   open: boolean;
   onClose: () => void;
   anchorEl: HTMLElement | null;
 }) {
-
-  const { setSelectedBlockId } = useEditorContext();
+  const { selectedBlockIds } = useEditorContext();
   const editor = useSlateStatic() as YjsEditor;
+  const onlySingleBlockSelected = selectedBlockIds?.length === 1;
   const node = useMemo(() => {
-    return findSlateEntryByBlockId(editor, blockId)[0];
-  }, [blockId, editor]);
+    const blockId = selectedBlockIds?.[0];
 
-  const nodeType = node.type as BlockType;
+    if (!blockId) return null;
+
+    return findSlateEntryByBlockId(editor, blockId);
+  }, [selectedBlockIds, editor]);
 
   const { t } = useTranslation();
   const options = useMemo(() => {
@@ -55,23 +55,36 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
       content: t('button.delete'),
       icon: <DeleteIcon />,
       onClick: () => {
-        CustomEditor.deleteBlock(editor, blockId);
-        setSelectedBlockId?.(undefined);
+        selectedBlockIds?.forEach((blockId) => {
+          CustomEditor.deleteBlock(editor, blockId);
+        });
       },
     }, {
       key: 'duplicate',
       content: t('button.duplicate'),
       icon: <DuplicateIcon />,
       onClick: () => {
-        const newBlockId = CustomEditor.duplicateBlock(editor, blockId);
+        const newBlockIds: string[] = [];
+        const prevId = selectedBlockIds?.[selectedBlockIds.length - 1];
 
-        setSelectedBlockId?.(newBlockId || undefined);
+        selectedBlockIds?.forEach((blockId, index) => {
+          const newBlockId = CustomEditor.duplicateBlock(editor, blockId, index === 0 ? prevId : newBlockIds[index - 1]);
+
+          newBlockId && newBlockIds.push(newBlockId);
+        });
+
+        ReactEditor.focus(editor);
+        const [, path] = findSlateEntryByBlockId(editor, newBlockIds[0]);
+
+        editor.select(editor.start(path));
+
       },
-    }, {
+    }, onlySingleBlockSelected && {
       key: 'copyLinkToBlock',
       content: t('document.plugins.optionAction.copyLinkToBlock'),
       icon: <CopyLinkIcon />,
       onClick: async () => {
+        const blockId = selectedBlockIds?.[0];
         const url = new URL(window.location.href);
 
         url.searchParams.set('blockId', blockId);
@@ -79,14 +92,30 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
         await copyTextToClipboard(url.toString());
         notify.success(t('shareAction.copyLinkToBlockSuccess'));
       },
-    }];
-  }, [blockId, editor, t, setSelectedBlockId]);
+    }].filter(Boolean) as {
+      key: string;
+      content: string;
+      icon: JSX.Element;
+      onClick: () => void;
+    }[];
+  }, [t, selectedBlockIds, editor, onlySingleBlockSelected]);
 
   return (
     <Popover
       anchorEl={anchorEl}
-      onClose={onClose}
+      onClose={() => {
+        const path = node?.[1];
+
+        if (path) {
+          window.getSelection()?.removeAllRanges();
+          ReactEditor.focus(editor);
+          editor.select(editor.start(path));
+        }
+
+        onClose();
+      }}
       open={open}
+
       {...popoverProps}
     >
       <div
@@ -102,7 +131,9 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
               size={'small'}
               color={'inherit'}
               className={'justify-start'}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 option.onClick();
                 onClose();
               }}
@@ -112,8 +143,8 @@ function ControlsMenu ({ blockId, open, onClose, anchorEl }: {
           );
         })}
 
-        {nodeType === BlockType.OutlineBlock && (
-          <Depth node={node as OutlineNode} />
+        {node?.[0]?.type === BlockType.OutlineBlock && onlySingleBlockSelected && (
+          <Depth node={node[0] as OutlineNode} />
         )}
       </div>
     </Popover>

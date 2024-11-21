@@ -473,7 +473,6 @@ export class AFClientService implements AFService {
     const sync = new SyncManager(doc, { userId, ...context });
 
     sync.initialize();
-    return sync;
   }
 
   async importFile (file: File, onProgress: (progress: number) => void) {

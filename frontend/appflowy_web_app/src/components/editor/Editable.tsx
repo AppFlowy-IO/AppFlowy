@@ -17,7 +17,7 @@ import { PanelProvider } from '@/components/editor/components/panels/PanelsConte
 const EditorOverlay = lazy(() => import('@/components/editor/EditorOverlay'));
 
 const EditorEditable = () => {
-  const { readOnly, decorateState, setSelectedBlockId, onWordCountChange, viewId } = useEditorContext();
+  const { readOnly, decorateState, onWordCountChange, viewId } = useEditorContext();
   const editor = useSlate();
 
   const codeDecorate = useDecorate(editor);
@@ -84,14 +84,8 @@ const EditorEditable = () => {
     const { onChange } = editor;
 
     editor.onChange = () => {
-      const operations = editor.operations;
 
-      const isSelectionChange = operations.some((operation) => operation.type === 'set_selection');
-
-      if (isSelectionChange) {
-        setSelectedBlockId?.(undefined);
-        ensureBlockText(editor as YjsEditor);
-      }
+      ensureBlockText(editor as YjsEditor);
 
       onChange();
       debounceCalculateWordCount();
@@ -100,7 +94,7 @@ const EditorEditable = () => {
     return () => {
       editor.onChange = onChange;
     };
-  }, [editor, debounceCalculateWordCount, setSelectedBlockId, readOnly]);
+  }, [editor, debounceCalculateWordCount, readOnly]);
 
   return (
     <PanelProvider editor={editor}>
@@ -113,7 +107,7 @@ const EditorEditable = () => {
 
             return [...codeDecoration, ...decoration];
           }}
-          className={'outline-none scroll-mb-[100px] scroll-mt-[300px] mb-36 w-[988px] min-w-0 max-w-full max-sm:px-6 px-24 focus:outline-none'}
+          className={'outline-none scroll-mb-[100px] scroll-mt-[300px] mb-36 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
           renderLeaf={Leaf}
           renderElement={renderElement}
           readOnly={readOnly}
