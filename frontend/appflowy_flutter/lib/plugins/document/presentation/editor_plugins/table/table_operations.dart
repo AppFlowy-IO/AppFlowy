@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
@@ -5,6 +6,24 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 typedef TableCellPosition = (int, int);
+
+enum TableAlign {
+  left,
+  center,
+  right;
+
+  String get name => switch (this) {
+        TableAlign.left => 'Left',
+        TableAlign.center => 'Center',
+        TableAlign.right => 'Right',
+      };
+
+  FlowySvgData get leftIconSvg => switch (this) {
+        TableAlign.left => FlowySvgs.table_align_left_s,
+        TableAlign.center => FlowySvgs.table_align_center_s,
+        TableAlign.right => FlowySvgs.table_align_right_s,
+      };
+}
 
 extension TableOperations on EditorState {
   /// Add a row at the end of the table.
@@ -371,25 +390,60 @@ extension TableNodeExtension on Node {
   }
 
   bool get isHeaderColumnEnabled {
-    Node? tableNode;
-
-    if (type == SimpleTableBlockKeys.type) {
-      tableNode = this;
-    } else if (type == SimpleTableRowBlockKeys.type) {
-      tableNode = parent;
-    } else if (type == SimpleTableCellBlockKeys.type) {
-      tableNode = parent?.parent;
-    }
-
-    if (tableNode == null || tableNode.type != SimpleTableBlockKeys.type) {
-      return false;
-    }
-
-    return tableNode.attributes[SimpleTableBlockKeys.enableHeaderColumn] ??
+    return parentTableNode
+            ?.attributes[SimpleTableBlockKeys.enableHeaderColumn] ??
         false;
   }
 
   bool get isHeaderRowEnabled {
+    return parentTableNode?.attributes[SimpleTableBlockKeys.enableHeaderRow] ??
+        false;
+  }
+
+  TableAlign getRowAlignAtIndex(int index) {
+    final parentTableNode = this.parentTableNode;
+
+    if (parentTableNode == null) {
+      return TableAlign.left;
+    }
+
+    try {
+      final rowAligns = parentTableNode
+          .attributes[SimpleTableBlockKeys.rowAligns] as SimpleTableRowAligns?;
+      final align = rowAligns?[index.toString()];
+      return TableAlign.values.firstWhere(
+        (e) => e.name == align,
+        orElse: () => TableAlign.left,
+      );
+    } catch (e) {
+      Log.warn('get row align: $e');
+      return TableAlign.left;
+    }
+  }
+
+  TableAlign getColumnAlignAtIndex(int index) {
+    final parentTableNode = this.parentTableNode;
+
+    if (parentTableNode == null) {
+      return TableAlign.left;
+    }
+
+    try {
+      final columnAligns =
+          parentTableNode.attributes[SimpleTableBlockKeys.columnAligns]
+              as SimpleTableColumnAligns?;
+      final align = columnAligns?[index.toString()];
+      return TableAlign.values.firstWhere(
+        (e) => e.name == align,
+        orElse: () => TableAlign.left,
+      );
+    } catch (e) {
+      Log.warn('get column align: $e');
+      return TableAlign.left;
+    }
+  }
+
+  Node? get parentTableNode {
     Node? tableNode;
 
     if (type == SimpleTableBlockKeys.type) {
@@ -401,9 +455,9 @@ extension TableNodeExtension on Node {
     }
 
     if (tableNode == null || tableNode.type != SimpleTableBlockKeys.type) {
-      return false;
+      return null;
     }
 
-    return tableNode.attributes[SimpleTableBlockKeys.enableHeaderRow] ?? false;
+    return tableNode;
   }
 }

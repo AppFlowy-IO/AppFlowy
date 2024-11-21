@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 typedef SimpleTableColumnWidths = Map<String, double>;
+typedef SimpleTableRowAligns = Map<String, String>;
+typedef SimpleTableColumnAligns = Map<String, String>;
 
 class SimpleTableBlockKeys {
   const SimpleTableBlockKeys._();
@@ -31,20 +33,17 @@ class SimpleTableBlockKeys {
   static const String rowColors = 'row_colors';
 
   // column alignments
-  // it's a list of align strings
+  // it's a `SimpleTableColumnAligns` value, {column_index: align, ...}
   // the value should be one of the following: 'left', 'center', 'right'
-  // the number of aligns should be the same as the number of columns
   static const String columnAligns = 'column_aligns';
 
   // row alignments
-  // it's a list of align strings
+  // it's a `SimpleTableRowAligns` value, {row_index: align, ...}
   // the value should be one of the following: 'top', 'center', 'bottom'
-  // the number of aligns should be the same as the number of rows
   static const String rowAligns = 'row_aligns';
 
   // column widths
   // it's a `SimpleTableColumnWidths` value, {column_index: width, ...}
-
   static const String columnWidths = 'column_widths';
 }
 

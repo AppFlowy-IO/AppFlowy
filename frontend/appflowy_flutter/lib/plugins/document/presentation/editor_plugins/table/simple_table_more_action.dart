@@ -320,54 +320,33 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
   }
 
   Widget _buildAlignMenu(BuildContext context) {
-    return Container(
-      height: SimpleTableConstants.moreActionHeight,
-      padding: SimpleTableConstants.moreActionPadding,
-      child: FlowyButton(
-        text: FlowyText.regular(widget.action.name, fontSize: 14.0),
-        onTap: () {},
-      ),
+    return SimpleTableAlignMenu(
+      type: widget.type,
     );
   }
 
   Widget _buildBackgroundColorMenu(BuildContext context) {
-    return Container(
-      height: SimpleTableConstants.moreActionHeight,
-      padding: SimpleTableConstants.moreActionPadding,
-      child: FlowyButton(
-        text: FlowyText.regular(widget.action.name, fontSize: 14.0),
-        onTap: () {},
-      ),
+    return SimpleTableBasicButton(
+      text: widget.action.name,
+      onTap: () {},
     );
   }
 
   Widget _buildEnableHeaderButton(BuildContext context) {
-    return Container(
-      height: SimpleTableConstants.moreActionHeight,
-      padding: SimpleTableConstants.moreActionPadding,
-      child: FlowyButton(
-        margin: SimpleTableConstants.moreActionHorizontalMargin,
-        text: FlowyText.regular(
-          widget.action.name,
-          fontSize: 14.0,
-          figmaLineHeight: 18.0,
-        ),
-        iconPadding: 10.0,
-        leftIcon: FlowySvg(
-          widget.action.leftIconSvg,
-        ),
-        rightIcon: ValueListenableBuilder(
-          valueListenable: isEnableHeader,
-          builder: (context, isEnableHeader, child) {
-            return Toggle(
-              value: isEnableHeader,
-              onChanged: (value) => _toggleEnableHeader(),
-              padding: EdgeInsets.zero,
-            );
-          },
-        ),
-        onTap: _toggleEnableHeader,
+    return SimpleTableBasicButton(
+      text: widget.action.name,
+      leftIconSvg: widget.action.leftIconSvg,
+      rightIcon: ValueListenableBuilder(
+        valueListenable: isEnableHeader,
+        builder: (context, isEnableHeader, child) {
+          return Toggle(
+            value: isEnableHeader,
+            onChanged: (value) => _toggleEnableHeader(),
+            padding: EdgeInsets.zero,
+          );
+        },
       ),
+      onTap: _toggleEnableHeader,
     );
   }
 

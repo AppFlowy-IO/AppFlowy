@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -294,5 +294,89 @@ class SimpleTableColumnDivider extends StatelessWidget {
       color: SimpleTableConstants.borderColor,
       height: 1.0,
     );
+  }
+}
+
+class SimpleTableAlignMenu extends StatelessWidget {
+  const SimpleTableAlignMenu({
+    super.key,
+    required this.type,
+  });
+
+  final SimpleTableMoreActionType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      child: SimpleTableBasicButton(
+        leftIconSvg: TableAlign.left.leftIconSvg,
+        text: 'Align',
+        onTap: () {},
+      ),
+      popupBuilder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildAlignButton(context, TableAlign.left),
+            _buildAlignButton(context, TableAlign.center),
+            _buildAlignButton(context, TableAlign.right),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildAlignButton(BuildContext context, TableAlign align) {
+    return SimpleTableBasicButton(
+      leftIconSvg: align.leftIconSvg,
+      text: align.name,
+      onTap: () {},
+    );
+  }
+}
+
+class SimpleTableBasicButton extends StatelessWidget {
+  const SimpleTableBasicButton({
+    super.key,
+    required this.text,
+    required this.onTap,
+    this.leftIconSvg,
+    this.leftIconBuilder,
+    this.rightIcon,
+  });
+
+  final FlowySvgData? leftIconSvg;
+  final String text;
+  final VoidCallback onTap;
+  final Widget Function(bool onHover)? leftIconBuilder;
+  final Widget? rightIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: SimpleTableConstants.moreActionHeight,
+      padding: SimpleTableConstants.moreActionPadding,
+      child: FlowyIconTextButton(
+        margin: SimpleTableConstants.moreActionHorizontalMargin,
+        leftIconBuilder: _buildLeftIcon,
+        iconPadding: 10.0,
+        textBuilder: (onHover) => FlowyText.regular(
+          text,
+          fontSize: 14.0,
+          figmaLineHeight: 18.0,
+        ),
+        onTap: onTap,
+        rightIconBuilder: (onHover) => rightIcon ?? const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Widget _buildLeftIcon(bool onHover) {
+    if (leftIconBuilder != null) {
+      return leftIconBuilder!(onHover);
+    }
+    return leftIconSvg != null
+        ? FlowySvg(leftIconSvg!)
+        : const SizedBox.shrink();
   }
 }
