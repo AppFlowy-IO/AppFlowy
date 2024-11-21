@@ -369,4 +369,41 @@ extension TableNodeExtension on Node {
       path.last,
     );
   }
+
+  bool get isHeaderColumnEnabled {
+    Node? tableNode;
+
+    if (type == SimpleTableBlockKeys.type) {
+      tableNode = this;
+    } else if (type == SimpleTableRowBlockKeys.type) {
+      tableNode = parent;
+    } else if (type == SimpleTableCellBlockKeys.type) {
+      tableNode = parent?.parent;
+    }
+
+    if (tableNode == null || tableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    return tableNode.attributes[SimpleTableBlockKeys.enableHeaderColumn] ??
+        false;
+  }
+
+  bool get isHeaderRowEnabled {
+    Node? tableNode;
+
+    if (type == SimpleTableBlockKeys.type) {
+      tableNode = this;
+    } else if (type == SimpleTableRowBlockKeys.type) {
+      tableNode = parent;
+    } else if (type == SimpleTableCellBlockKeys.type) {
+      tableNode = parent?.parent;
+    }
+
+    if (tableNode == null || tableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    return tableNode.attributes[SimpleTableBlockKeys.enableHeaderRow] ?? false;
+  }
 }

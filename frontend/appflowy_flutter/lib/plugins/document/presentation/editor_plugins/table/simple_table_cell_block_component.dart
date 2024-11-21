@@ -90,7 +90,6 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           DecoratedBox(
             decoration: _buildDecoration(),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: node.children.map(_buildCell).toList(),
             ),
           ),
@@ -157,14 +156,18 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Decoration _buildDecoration() {
+    final backgroundColor = _getBackgroundColor();
     return SimpleTableConstants.borderType == SimpleTableBorderRenderType.cell
         ? BoxDecoration(
             border: Border.all(
               color: SimpleTableConstants.borderColor,
               strokeAlign: BorderSide.strokeAlignCenter,
             ),
+            color: backgroundColor,
           )
-        : const BoxDecoration();
+        : BoxDecoration(
+            color: backgroundColor,
+          );
   }
 
   double _calculateColumnWidth() {
@@ -182,5 +185,27 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     } catch (e) {
       return SimpleTableConstants.defaultColumnWidth;
     }
+  }
+
+  Color? _getBackgroundColor() {
+    // Check if the cell is in the header.
+    // If the cell is in the header, set the background color to the default header color.
+    // Otherwise, set the background color to null.
+    if (_isInHeader()) {
+      return context.simpleTableDefaultHeaderColor;
+    }
+
+    return Theme.of(context).colorScheme.surface;
+  }
+
+  bool _isInHeader() {
+    final isHeaderColumnEnabled = node.isHeaderColumnEnabled;
+    final isHeaderRowEnabled = node.isHeaderRowEnabled;
+    final cellPosition = node.cellPosition;
+    final isFirstColumn = cellPosition.$1 == 0;
+    final isFirstRow = cellPosition.$2 == 0;
+
+    return isHeaderColumnEnabled && isFirstRow ||
+        isHeaderRowEnabled && isFirstColumn;
   }
 }

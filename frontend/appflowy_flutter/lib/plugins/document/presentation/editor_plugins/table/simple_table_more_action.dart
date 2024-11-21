@@ -239,9 +239,9 @@ class SimpleTableMoreActionList extends StatelessWidget {
       actions.addAll([
         SimpleTableMoreAction.divider,
         if (type == SimpleTableMoreActionType.column)
-          SimpleTableMoreAction.enableHeaderColumn,
-        if (type == SimpleTableMoreActionType.row)
           SimpleTableMoreAction.enableHeaderRow,
+        if (type == SimpleTableMoreActionType.row)
+          SimpleTableMoreAction.enableHeaderColumn,
       ]);
     }
 
@@ -441,12 +441,12 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
 
     final (table, _, _) = value;
     final editorState = context.read<EditorState>();
-    if (widget.type == SimpleTableMoreActionType.column) {
+    if (widget.type == SimpleTableMoreActionType.row) {
       editorState.toggleEnableHeaderColumn(
         table,
         isEnableHeader.value,
       );
-    } else if (widget.type == SimpleTableMoreActionType.row) {
+    } else if (widget.type == SimpleTableMoreActionType.column) {
       editorState.toggleEnableHeaderRow(
         table,
         isEnableHeader.value,

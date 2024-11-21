@@ -64,8 +64,9 @@ class SimpleTableConstants {
     horizontal: 8.0,
     vertical: 2.0,
   );
+  static const cellBorderWidth = 1.0;
 
-  static const borderType = SimpleTableBorderRenderType.table;
+  static const borderType = SimpleTableBorderRenderType.cell;
 
   // Table more action
   static const moreActionHeight = 34.0;
@@ -95,4 +96,8 @@ extension SimpleTableColors on BuildContext {
   Color get simpleTableMoreActionHoverColor => Theme.of(this).isLightMode
       ? const Color(0xFF00C8FF)
       : const Color(0xFF00C8FF);
+
+  Color get simpleTableDefaultHeaderColor => Theme.of(this).isLightMode
+      ? const Color(0xFFF2F2F2)
+      : const Color(0xFF3A3F49);
 }

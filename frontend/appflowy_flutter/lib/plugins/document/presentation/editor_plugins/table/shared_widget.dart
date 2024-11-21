@@ -72,7 +72,8 @@ class SimpleTableAddRowHoverButton extends StatelessWidget {
         return value
             ? Positioned(
                 bottom: 0,
-                left: SimpleTableConstants.tableLeftPadding,
+                left: SimpleTableConstants.tableLeftPadding -
+                    SimpleTableConstants.cellBorderWidth,
                 right: SimpleTableConstants.addRowButtonRightPadding,
                 child: SimpleTableAddRowButton(
                   onTap: () => editorState.addRowInTable(node),
@@ -145,7 +146,8 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
       builder: (context, value, child) {
         return value
             ? Positioned(
-                top: SimpleTableConstants.tableTopPadding,
+                top: SimpleTableConstants.tableTopPadding -
+                    SimpleTableConstants.cellBorderWidth,
                 bottom: SimpleTableConstants.addColumnButtonBottomPadding,
                 right: 0,
                 child: SimpleTableAddColumnButton(
