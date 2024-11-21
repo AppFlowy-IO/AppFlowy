@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -177,12 +178,18 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     }
 
     try {
-      final columnWidths = table.attributes[SimpleTableBlockKeys.columnWidths]
-          as SimpleTableColumnWidths?;
-      final index = node.parent?.path.last;
-      return columnWidths?[index.toString()] ??
+      final rawColumnWidths =
+          table.attributes[SimpleTableBlockKeys.columnWidths];
+      if (rawColumnWidths == null) {
+        return SimpleTableConstants.defaultColumnWidth;
+      }
+
+      final columnWidths = Map<String, double>.from(rawColumnWidths);
+      final index = node.path.last;
+      return columnWidths[index.toString()] ??
           SimpleTableConstants.defaultColumnWidth;
     } catch (e) {
+      Log.warn('Error when calculating column width: $e');
       return SimpleTableConstants.defaultColumnWidth;
     }
   }
