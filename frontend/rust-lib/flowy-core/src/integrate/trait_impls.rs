@@ -106,11 +106,12 @@ impl StorageCloudService for ServerProvider {
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
+    file_size: u64,
   ) -> Result<CreateUploadResponse, FlowyError> {
-    let server = self.get_server();
-    let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+    let server = self.get_server()?;
+    let storage = server.file_storage().ok_or(FlowyError::internal())?;
     storage
-      .create_upload(workspace_id, parent_dir, file_id, content_type)
+      .create_upload(workspace_id, parent_dir, file_id, content_type, file_size)
       .await
   }
 

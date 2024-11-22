@@ -9,7 +9,7 @@ use tokio::sync::broadcast;
 
 #[async_trait]
 pub trait StorageService: Send + Sync {
-  fn delete_object(&self, url: String, local_file_path: String) -> FlowyResult<()>;
+  async fn delete_object(&self, url: String) -> FlowyResult<()>;
 
   fn download_object(&self, url: String, local_file_path: String) -> FlowyResult<()>;
 
@@ -18,7 +18,6 @@ pub trait StorageService: Send + Sync {
     workspace_id: &str,
     parent_dir: &str,
     local_file_path: &str,
-    upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), FlowyError>;
 
   async fn start_upload(&self, record: &BoxAny) -> Result<(), FlowyError>;
@@ -127,6 +126,7 @@ impl ProgressNotifier {
   }
 }
 
+#[derive(Clone)]
 pub struct CreatedUpload {
   pub url: String,
   pub file_id: String,
