@@ -151,7 +151,6 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildRowMoreActionButton() {
-    return const SizedBox.shrink();
     final cellPosition = node.cellPosition;
     final columnIndex = cellPosition.$1;
     final rowIndex = cellPosition.$2;
