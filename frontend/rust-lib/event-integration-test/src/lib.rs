@@ -94,11 +94,9 @@ impl EventIntegrationTest {
       ],
     );
 
-    config
-      .cloud_config
-      .as_mut()
-      .unwrap()
-      .maximum_upload_file_size_in_bytes = Some(SINGLE_FILE_UPLOAD_SIZE as u64);
+    if let Some(cloud_config) = config.cloud_config.as_mut() {
+      cloud_config.maximum_upload_file_size_in_bytes = Some(SINGLE_FILE_UPLOAD_SIZE as u64);
+    }
     Self::new_with_config(config).await
   }
 
