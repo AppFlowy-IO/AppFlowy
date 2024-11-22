@@ -35,7 +35,7 @@ enum TableAlign {
 }
 
 extension TableNodeExtension on Node {
-  /// The number of columns in the table.
+  /// The number of rows in the table.
   ///
   /// The acceptable node is a table node, table row node or table cell node.
   ///
@@ -44,8 +44,8 @@ extension TableNodeExtension on Node {
   /// Row 1: |   |   |   |
   /// Row 2: |   |   |   |
   ///
-  /// The column length is 2.
-  int get columnLength {
+  /// The row length is 2.
+  int get rowLength {
     final parentTableNode = this.parentTableNode;
 
     if (parentTableNode == null ||
@@ -65,8 +65,8 @@ extension TableNodeExtension on Node {
   /// Row 1: |   |   |   |
   /// Row 2: |   |   |   |
   ///
-  /// The row length is 3.
-  int get rowLength {
+  /// The column length is 3.
+  int get columnLength {
     final parentTableNode = this.parentTableNode;
 
     if (parentTableNode == null ||
@@ -79,17 +79,17 @@ extension TableNodeExtension on Node {
 
   TableCellPosition get cellPosition {
     assert(type == SimpleTableCellBlockKeys.type);
-    return (columnIndex, rowIndex);
+    return (rowIndex, columnIndex);
   }
 
   int get rowIndex {
     assert(type == SimpleTableCellBlockKeys.type);
-    return path.last;
+    return path.parent.last;
   }
 
   int get columnIndex {
     assert(type == SimpleTableCellBlockKeys.type);
-    return path.parent.last;
+    return path.last;
   }
 
   bool get isHeaderColumnEnabled {
@@ -175,16 +175,26 @@ extension TableNodeExtension on Node {
   }
 
   double get columnWidth {
-    final rawColumnWidths =
-        parentTableNode?.attributes[SimpleTableBlockKeys.columnWidths];
-    if (rawColumnWidths == null) {
+    final parentTableNode = this.parentTableNode;
+
+    if (parentTableNode == null) {
       return SimpleTableConstants.defaultColumnWidth;
     }
-    final index = path.last.toString();
-    final width = rawColumnWidths[index] as double?;
-    return width ?? SimpleTableConstants.defaultColumnWidth;
+
+    try {
+      final columnWidths =
+          parentTableNode.attributes[SimpleTableBlockKeys.columnWidths];
+      final width = columnWidths?[columnIndex.toString()];
+      return width ?? SimpleTableConstants.defaultColumnWidth;
+    } catch (e) {
+      Log.warn('get column width: $e');
+      return SimpleTableConstants.defaultColumnWidth;
+    }
   }
 
+  /// Build the row color.
+  ///
+  /// Default is null.
   Color? buildRowColor(BuildContext context) {
     try {
       final rawRowColors =
@@ -203,6 +213,9 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Build the column color.
+  ///
+  /// Default is null.
   Color? buildColumnColor(BuildContext context) {
     try {
       final columnColors =
@@ -221,6 +234,9 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Whether the current node is in the header column.
+  ///
+  /// Default is false.
   bool get isInHeaderColumn {
     final parentTableNode = parent?.parentTableNode;
     if (parentTableNode == null ||
@@ -230,6 +246,9 @@ extension TableNodeExtension on Node {
     return parentTableNode.isHeaderColumnEnabled && parent?.columnIndex == 0;
   }
 
+  /// Whether the current node is in the header row.
+  ///
+  /// Default is false.
   bool get isInHeaderRow {
     final parentTableNode = parent?.parentTableNode;
     if (parentTableNode == null ||

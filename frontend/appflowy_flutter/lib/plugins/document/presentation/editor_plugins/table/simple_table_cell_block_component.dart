@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -151,6 +151,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildRowMoreActionButton() {
+    return const SizedBox.shrink();
     final cellPosition = node.cellPosition;
     final columnIndex = cellPosition.$1;
     final rowIndex = cellPosition.$2;
@@ -166,16 +167,15 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildColumnMoreActionButton() {
-    final cellPosition = node.cellPosition;
-    final columnIndex = cellPosition.$1;
-    final rowIndex = cellPosition.$2;
+    final columnIndex = node.columnIndex;
+    final rowIndex = node.rowIndex;
 
-    if (rowIndex != 0) {
+    if (columnIndex != 0) {
       return const SizedBox.shrink();
     }
 
     return SimpleTableMoreActionMenu(
-      index: columnIndex,
+      index: rowIndex,
       type: SimpleTableMoreActionType.column,
     );
   }

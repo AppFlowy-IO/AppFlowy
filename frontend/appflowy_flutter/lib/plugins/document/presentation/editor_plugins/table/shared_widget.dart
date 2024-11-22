@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_insertion.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -484,9 +486,8 @@ class _SimpleTableColumnResizeHandleState
               valueListenable:
                   context.read<SimpleTableContext>().hoveringOnResizeHandle,
               builder: (context, hoveringOnResizeHandle, child) {
-                final isSameRowIndex =
-                    hoveringOnResizeHandle?.cellPosition.$2 ==
-                        widget.node.cellPosition.$2;
+                final isSameRowIndex = hoveringOnResizeHandle?.columnIndex ==
+                    widget.node.columnIndex;
                 return Opacity(
                   opacity: isSameRowIndex ? 1.0 : 0.0,
                   child: Container(

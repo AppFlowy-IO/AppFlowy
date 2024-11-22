@@ -3,6 +3,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shar
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_insertion.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -143,8 +145,8 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
             builder: (context, hoveringTableNode, child) {
               final hoveringIndex =
                   widget.type == SimpleTableMoreActionType.column
-                      ? hoveringTableNode?.cellPosition.$1
-                      : hoveringTableNode?.cellPosition.$2;
+                      ? hoveringTableNode?.rowIndex
+                      : hoveringTableNode?.columnIndex;
 
               if (hoveringIndex != widget.index && !isShowingMenu) {
                 return const SizedBox.shrink();
@@ -193,10 +195,10 @@ class _SimpleTableMoreActionPopupState
         switch (widget.type) {
           case SimpleTableMoreActionType.column:
             context.read<SimpleTableContext>().selectingColumn.value =
-                tableCellNode?.cellPosition.$1;
+                tableCellNode?.columnIndex;
           case SimpleTableMoreActionType.row:
             context.read<SimpleTableContext>().selectingRow.value =
-                tableCellNode?.cellPosition.$2;
+                tableCellNode?.rowIndex;
         }
       },
       onClose: () {
