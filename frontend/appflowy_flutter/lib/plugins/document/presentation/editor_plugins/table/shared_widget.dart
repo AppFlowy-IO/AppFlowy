@@ -462,15 +462,19 @@ class _SimpleTableColumnResizeHandleState
         onHorizontalDragStart: (details) {
           isStartDragging = true;
         },
-        onHorizontalDragEnd: (details) {
-          context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
-              null;
-          isStartDragging = false;
-        },
         onHorizontalDragUpdate: (details) {
           context.read<EditorState>().updateColumnWidthInMemory(
                 tableCellNode: widget.node,
                 deltaX: details.delta.dx,
+              );
+        },
+        onHorizontalDragEnd: (details) {
+          context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
+              null;
+          isStartDragging = false;
+          context.read<EditorState>().updateColumnWidth(
+                tableCellNode: widget.node,
+                width: widget.node.columnWidth,
               );
         },
         child: ValueListenableBuilder<Node?>(

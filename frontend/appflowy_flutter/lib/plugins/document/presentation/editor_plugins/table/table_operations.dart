@@ -367,6 +367,8 @@ extension TableOperations on EditorState {
   }
 
   /// Update the column width of the table in memory.
+  ///
+  /// The deltaX is the change of the column width.
   Future<void> updateColumnWidthInMemory({
     required Node tableCellNode,
     required double deltaX,
@@ -402,6 +404,39 @@ extension TableOperations on EditorState {
     };
 
     parentTableNode.updateAttributes(newAttributes);
+  }
+
+  /// Update the column width of the table.
+  Future<void> updateColumnWidth({
+    required Node tableCellNode,
+    required double width,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    if (tableCellNode.type != SimpleTableCellBlockKeys.type) {
+      return;
+    }
+
+    final cellPosition = tableCellNode.cellPosition;
+    final rowIndex = cellPosition.$2;
+    final parentTableNode = tableCellNode.parentTableNode;
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final width = tableCellNode.columnWidth;
+    final transaction = this.transaction;
+    transaction.updateNode(parentTableNode, {
+      SimpleTableBlockKeys.columnWidths: {
+        ...parentTableNode.attributes[SimpleTableBlockKeys.columnWidths],
+        rowIndex.toString(): width.clamp(
+          SimpleTableConstants.minimumColumnWidth,
+          double.infinity,
+        ),
+      },
+    });
+    await apply(transaction);
   }
 
   /// Update the align of the column at the index where the table cell node is located.
