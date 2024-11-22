@@ -13,6 +13,8 @@ pub struct AFCloudConfiguration {
   pub base_url: String,
   pub ws_base_url: String,
   pub gotrue_url: String,
+  #[serde(default)]
+  pub maximum_upload_file_size_in_bytes: Option<u64>,
 }
 
 impl Display for AFCloudConfiguration {
@@ -57,6 +59,7 @@ impl AFCloudConfiguration {
       base_url,
       ws_base_url,
       gotrue_url,
+      maximum_upload_file_size_in_bytes: None,
     })
   }
 
