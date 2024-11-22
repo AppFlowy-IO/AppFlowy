@@ -186,7 +186,7 @@ pub struct DocumentTestFileStorageService;
 
 #[async_trait]
 impl StorageService for DocumentTestFileStorageService {
-  fn delete_object(&self, _url: String) -> FlowyResult<()> {
+  async fn delete_object(&self, _url: String) -> FlowyResult<()> {
     todo!()
   }
 

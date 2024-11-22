@@ -4,6 +4,13 @@ use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::CollabType;
+use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::AppFlowyCore;
+use flowy_notification::register_notification_sender;
+use flowy_server::AppFlowyServer;
+use flowy_user::entities::AuthenticatorPB;
+use flowy_user::errors::FlowyError;
+use lib_dispatch::runtime::AFPluginRuntime;
 use nanoid::nanoid;
 use semver::Version;
 use std::env::temp_dir;
@@ -14,14 +21,6 @@ use std::time::Duration;
 use tokio::select;
 use tokio::task::LocalSet;
 use tokio::time::sleep;
-
-use flowy_core::config::AppFlowyCoreConfig;
-use flowy_core::AppFlowyCore;
-use flowy_notification::register_notification_sender;
-use flowy_server::AppFlowyServer;
-use flowy_user::entities::AuthenticatorPB;
-use flowy_user::errors::FlowyError;
-use lib_dispatch::runtime::AFPluginRuntime;
 
 use crate::user_event::TestNotificationSender;
 
@@ -42,6 +41,8 @@ pub struct EventIntegrationTest {
   pub notification_sender: TestNotificationSender,
   local_set: Arc<LocalSet>,
 }
+
+pub const SINGLE_FILE_UPLOAD_SIZE: usize = 15 * 1024 * 1024;
 
 impl EventIntegrationTest {
   pub async fn new() -> Self {
@@ -76,7 +77,7 @@ impl EventIntegrationTest {
   pub async fn new_with_user_data_path(path_buf: PathBuf, name: String) -> Self {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
-    let config = AppFlowyCoreConfig::new(
+    let mut config = AppFlowyCoreConfig::new(
       Version::new(0, 7, 0),
       path.clone(),
       path,
@@ -92,6 +93,12 @@ impl EventIntegrationTest {
         // "lib_dispatch".to_string(),
       ],
     );
+
+    config
+      .cloud_config
+      .as_mut()
+      .unwrap()
+      .maximum_upload_file_size_in_bytes = Some(SINGLE_FILE_UPLOAD_SIZE as u64);
     Self::new_with_config(config).await
   }
 

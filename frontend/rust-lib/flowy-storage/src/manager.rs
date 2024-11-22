@@ -439,14 +439,7 @@ impl StorageService for StorageServiceImpl {
       return Ok(());
     }
 
-    start_upload(
-      self,
-      &self.user_service,
-      &self.temp_storage,
-      file_record,
-      self.global_notifier.clone(),
-    )
-    .await?;
+    start_upload(self, file_record).await?;
 
     Ok(())
   }
@@ -463,14 +456,7 @@ impl StorageService for StorageServiceImpl {
       .sqlite_connection(self.user_service.user_id()?)?;
 
     if let Some(upload_file) = select_upload_file(&mut conn, workspace_id, parent_dir, file_id)? {
-      resume_upload(
-        &self.cloud_service,
-        &self.user_service,
-        &self.temp_storage,
-        upload_file,
-        self.global_notifier.clone(),
-      )
-      .await?;
+      resume_upload(self, upload_file).await?;
     } else {
       error!(
         "[File] resume upload failed: can not found {}:{}",
@@ -541,12 +527,14 @@ async fn create_upload_record(
 
 #[instrument(level = "debug", skip_all, err)]
 async fn start_upload(
-  cloud_service: & StorageServiceImpl,
-  user_service: &Arc<dyn StorageUserService>,
-  temp_storage: &Arc<FileTempStorage>,
+  storage_service: &StorageServiceImpl,
   upload_file: &UploadFileTable,
-  global_notifier: GlobalNotifier,
 ) -> FlowyResult<()> {
+  let temp_storage = &storage_service.temp_storage;
+  let user_service = &storage_service.user_service;
+  let global_notifier = storage_service.global_notifier.clone();
+  let cloud_service = &storage_service.cloud_service;
+
   // 4. gather existing completed parts
   let mut conn = user_service.sqlite_connection(user_service.user_id()?)?;
   let mut completed_parts = select_upload_parts(&mut conn, &upload_file.upload_id)
@@ -568,6 +556,10 @@ async fn start_upload(
       }
     }
   }
+  let file_size = file_path
+    .metadata()
+    .map(|metadata| metadata.len())
+    .unwrap_or(0);
 
   let mut chunked_bytes =
     ChunkedBytes::from_file(&upload_file.local_file_path, MIN_CHUNK_SIZE).await?;
@@ -604,10 +596,20 @@ async fn start_upload(
       &upload_file.parent_dir,
       &upload_file.file_id,
       &upload_file.content_type,
+      file_size,
     )
     .await;
+
+  let file_url = cloud_service
+    .get_object_url_v1(
+      &upload_file.workspace_id,
+      &upload_file.parent_dir,
+      &upload_file.file_id,
+    )
+    .await?;
+
   if let Err(err) = create_upload_resp_result.as_ref() {
-    handle_upload_error(user_service, err, &upload_file.upload_id);
+    handle_upload_error(storage_service, err, &file_url).await;
   }
   let create_upload_resp = create_upload_resp_result?;
 
@@ -647,13 +649,6 @@ async fn start_upload(
           chunk_bytes.len() / 1000,
         );
 
-        let file_url = cloud_service
-          .get_object_url_v1(
-            &upload_file.workspace_id,
-            &upload_file.parent_dir,
-            &upload_file.file_id,
-          )
-          .await?;
         // start uploading parts
         match upload_part(
           cloud_service,
@@ -678,8 +673,11 @@ async fn start_upload(
             if progress_value >= 0.9 {
               progress_value = 0.9;
             }
-            let progress =
-              FileProgress::new_progress(file_url, upload_file.file_id.clone(), progress_value);
+            let progress = FileProgress::new_progress(
+              file_url.clone(),
+              upload_file.file_id.clone(),
+              progress_value,
+            );
             trace!("[File] upload progress: {}", progress);
 
             if let Err(err) = global_notifier.send(progress) {
@@ -697,9 +695,9 @@ async fn start_upload(
               "[File] {} failed to upload part: {}",
               upload_file.file_id, err
             );
-            handle_upload_error(user_service, &err, &upload_file.upload_id);
+            handle_upload_error(storage_service, &err, &file_url).await;
             if let Err(err) = global_notifier.send(FileProgress::new_error(
-              file_url,
+              file_url.clone(),
               upload_file.file_id.clone(),
               err.msg.clone(),
             )) {
@@ -731,17 +729,17 @@ async fn start_upload(
   )
   .await;
   if let Err(err) = complete_upload_result {
-    handle_upload_error(user_service, &err, &upload_file.upload_id);
+    handle_upload_error(storage_service, &err, &file_url).await;
     return Err(err);
   }
 
   Ok(())
 }
 
-fn handle_upload_error(
-  user_service: &Arc<dyn StorageUserService>,
+async fn handle_upload_error(
+  storage_service: &StorageServiceImpl,
   err: &FlowyError,
-  upload_id: &str,
+  file_url: &str,
 ) {
   if err.is_file_limit_exceeded() {
     make_notification(StorageNotification::FileStorageLimitExceeded)
@@ -750,29 +748,21 @@ fn handle_upload_error(
   }
 
   if err.is_single_file_limit_exceeded() {
-    info!("[File] file exceed limit:{}", upload_id);
-    if let Ok(user_id) = user_service.user_id() {
-      if let Ok(db_conn) = user_service.sqlite_connection(user_id) {
-        if let Err(err) = delete_upload_file(db_conn, upload_id) {
-          error!("[File] delete upload file:{} error:{}", upload_id, err);
-        }
-      }
+    info!("[File] file exceed limit:{}", file_url);
+    if let Err(err) = storage_service.delete_object(file_url.to_string()).await {
+      error!("[File] delete upload file:{} error:{}", file_url, err);
     }
 
     make_notification(StorageNotification::SingleFileLimitExceeded)
       .payload(err.clone())
       .send();
-
   }
 }
 
 #[instrument(level = "debug", skip_all, err)]
 async fn resume_upload(
-  cloud_service: &Arc<dyn StorageCloudService>,
-  user_service: &Arc<dyn StorageUserService>,
-  temp_storage: &Arc<FileTempStorage>,
+  storage_service: &StorageServiceImpl,
   upload_file: UploadFileTable,
-  global_notifier: GlobalNotifier,
 ) -> FlowyResult<()> {
   trace!(
     "[File] resume upload for workspace: {}, parent_dir: {}, file_id: {}, local_file_path:{}",
@@ -782,14 +772,7 @@ async fn resume_upload(
     upload_file.local_file_path
   );
 
-  start_upload(
-    cloud_service,
-    user_service,
-    temp_storage,
-    &upload_file,
-    global_notifier,
-  )
-  .await?;
+  start_upload(storage_service, &upload_file).await?;
 
   Ok(())
 }

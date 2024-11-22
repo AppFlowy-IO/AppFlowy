@@ -1,6 +1,6 @@
 use crate::document::generate_random_bytes;
 use event_integration_test::user_event::use_localhost_af_cloud;
-use event_integration_test::EventIntegrationTest;
+use event_integration_test::{EventIntegrationTest, SINGLE_FILE_UPLOAD_SIZE};
 use flowy_storage_pub::storage::FileUploadState;
 use lib_infra::util::md5;
 use std::env::temp_dir;
@@ -85,7 +85,7 @@ async fn af_cloud_upload_6_files_test() {
 
   let mut created_uploads = vec![];
   let mut receivers = vec![];
-  for file_size in [1, 2, 5, 8, 12, 20] {
+  for file_size in [1, 2, 5, 8, 10, 12] {
     let file_path = generate_file_with_bytes_len(file_size * 1024 * 1024)
       .await
       .0;
@@ -143,10 +143,11 @@ async fn af_cloud_delete_upload_file_test() {
   test.storage_manager.update_network_reachable(false);
   let mut created_uploads = vec![];
   let mut receivers = vec![];
-  for file_size in [8, 12, 20] {
-    let file_path = generate_file_with_bytes_len(file_size * 1024 * 1024)
-      .await
-      .0;
+
+  // file that exceeds limit will be deleted automatically
+  let exceed_file_limit_size = SINGLE_FILE_UPLOAD_SIZE + 1;
+  for file_size in [8 * 1024 * 1024, exceed_file_limit_size, 10 * 1024 * 1024] {
+    let file_path = generate_file_with_bytes_len(file_size).await.0;
     let (created_upload, rx) = test
       .storage_manager
       .storage_service
@@ -158,18 +159,12 @@ async fn af_cloud_delete_upload_file_test() {
     let _ = fs::remove_file(file_path).await;
   }
 
-  let mut expected_deleted_file_urls = vec![];
-  expected_deleted_file_urls.push(created_uploads[0].clone());
-  expected_deleted_file_urls.push(created_uploads[1].clone());
-
-  for deleted_file in &expected_deleted_file_urls {
-    test
-      .storage_manager
-      .storage_service
-      .delete_object(deleted_file.url.clone())
-      .await
-      .unwrap();
-  }
+  test
+    .storage_manager
+    .storage_service
+    .delete_object(created_uploads[0].clone().url)
+    .await
+    .unwrap();
 
   let mut handles = vec![];
   // start sync

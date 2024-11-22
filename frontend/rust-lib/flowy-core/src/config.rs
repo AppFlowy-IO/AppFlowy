@@ -27,7 +27,7 @@ pub struct AppFlowyCoreConfig {
   /// the origin_application_path.
   pub application_path: String,
   pub(crate) log_filter: String,
-  cloud_config: Option<AFCloudConfiguration>,
+  pub cloud_config: Option<AFCloudConfiguration>,
 }
 
 impl fmt::Debug for AppFlowyCoreConfig {

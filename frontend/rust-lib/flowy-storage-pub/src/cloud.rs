@@ -61,6 +61,7 @@ pub trait StorageCloudService: Send + Sync {
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
+    file_size: u64,
   ) -> Result<CreateUploadResponse, FlowyError>;
 
   async fn upload_part(
