@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shar
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_duplication.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_insertion.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';

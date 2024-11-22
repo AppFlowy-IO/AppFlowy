@@ -31,6 +31,8 @@ extension TableMapOperation on Node {
         return _mapColumnInsertionAttributes(index);
       case TableMapOperationType.duplicateRow:
         return _mapRowDuplicationAttributes(index);
+      case TableMapOperationType.duplicateColumn:
+        return _mapColumnDuplicationAttributes(index);
       default:
         return null;
     }
@@ -217,19 +219,123 @@ extension TableMapOperation on Node {
         return MapEntry(key, value);
       });
 
-      return {
-        ...attributes,
-        SimpleTableBlockKeys.rowColors: {
+      final result = {...attributes};
+
+      if (rowColors.isNotEmpty && duplicatedRowColor != null) {
+        result[SimpleTableBlockKeys.rowColors] = {
           ...rowColors,
-          duplicatedRowColor?.key: duplicatedRowColor?.value,
-        },
-        SimpleTableBlockKeys.rowAligns: {
+          duplicatedRowColor!.key: duplicatedRowColor!.value,
+        };
+      }
+
+      if (rowAligns.isNotEmpty && duplicatedRowAlign != null) {
+        result[SimpleTableBlockKeys.rowAligns] = {
           ...rowAligns,
-          duplicatedRowAlign?.key: duplicatedRowAlign?.value,
-        },
-      };
+          duplicatedRowAlign!.key: duplicatedRowAlign!.value,
+        };
+      }
+
+      return result;
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a column duplication operation.
+  ///
+  /// When duplicating a column, the attributes of the table after the index should be updated
+  /// For example:
+  /// Before:
+  /// |  0  |  1  |
+  /// |  2  |  3  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///   }
+  /// }
+  ///
+  /// Duplicate the column at index 1:
+  /// |  0  |  1  |  1  | ← duplicated column
+  /// |  2  |  3  |  2  | ← duplicated column
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///     2: "#00FF00", ← The attributes of the original second column
+  ///   }
+  /// }
+  Attributes? _mapColumnDuplicationAttributes(int index) {
+    final attributes = this.attributes;
+    try {
+      MapEntry? duplicatedColumnColor;
+      MapEntry? duplicatedColumnAlign;
+      MapEntry? duplicatedColumnWidth;
+
+      final columnColors = this.columnColors.map((key, value) {
+        final iKey = int.parse(key);
+        if (iKey == index) {
+          duplicatedColumnColor = MapEntry(key, value);
+        }
+        if (iKey >= index) {
+          return MapEntry((iKey + 1).toString(), value);
+        }
+        return MapEntry(key, value);
+      });
+
+      final columnAligns = this.columnAligns.map((key, value) {
+        final iKey = int.parse(key);
+        if (iKey == index) {
+          duplicatedColumnAlign = MapEntry(key, value);
+        }
+        if (iKey >= index) {
+          return MapEntry((iKey + 1).toString(), value);
+        }
+        return MapEntry(key, value);
+      });
+
+      final columnWidths = this.columnWidths.map((key, value) {
+        final iKey = int.parse(key);
+        if (iKey == index) {
+          duplicatedColumnWidth = MapEntry(key, value);
+        }
+        if (iKey >= index) {
+          return MapEntry((iKey + 1).toString(), value);
+        }
+        return MapEntry(key, value);
+      });
+
+      final result = {...attributes};
+
+      if (columnColors.isNotEmpty && duplicatedColumnColor != null) {
+        result[SimpleTableBlockKeys.columnColors] = {
+          ...columnColors,
+          duplicatedColumnColor!.key: duplicatedColumnColor!.value,
+        };
+      }
+
+      if (columnAligns.isNotEmpty && duplicatedColumnAlign != null) {
+        result[SimpleTableBlockKeys.columnAligns] = {
+          ...columnAligns,
+          duplicatedColumnAlign!.key: duplicatedColumnAlign!.value,
+        };
+      }
+
+      if (columnWidths.isNotEmpty && duplicatedColumnWidth != null) {
+        result[SimpleTableBlockKeys.columnWidths] = {
+          ...columnWidths,
+          duplicatedColumnWidth!.key: duplicatedColumnWidth!.value,
+        };
+      }
+
+      return result;
+    } catch (e) {
+      Log.warn('Failed to map column duplication attributes: $e');
       return attributes;
     }
   }

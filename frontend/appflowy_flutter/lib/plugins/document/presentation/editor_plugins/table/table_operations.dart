@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_map_operation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -210,8 +209,7 @@ extension TableOperations on EditorState {
     // so that the table can render the column with the new width.
     // but don't need to persist to the database immediately.
     // only persist to the database when the drag is completed.
-    final cellPosition = tableCellNode.cellPosition;
-    final rowIndex = cellPosition.$2;
+    final columnIndex = tableCellNode.columnIndex;
     final parentTableNode = tableCellNode.parentTableNode;
     if (parentTableNode == null) {
       Log.warn('parent table node is null');
@@ -219,18 +217,26 @@ extension TableOperations on EditorState {
     }
 
     final width = tableCellNode.columnWidth + deltaX;
-    final newAttributes = {
-      ...parentTableNode.attributes,
-      SimpleTableBlockKeys.columnWidths: {
-        ...parentTableNode.attributes[SimpleTableBlockKeys.columnWidths],
-        rowIndex.toString(): width.clamp(
-          SimpleTableConstants.minimumColumnWidth,
-          double.infinity,
-        ),
-      },
-    };
 
-    parentTableNode.updateAttributes(newAttributes);
+    try {
+      final columnWidths =
+          parentTableNode.attributes[SimpleTableBlockKeys.columnWidths] ??
+              SimpleTableColumnWidthMap();
+      final newAttributes = {
+        ...parentTableNode.attributes,
+        SimpleTableBlockKeys.columnWidths: {
+          ...columnWidths,
+          columnIndex.toString(): width.clamp(
+            SimpleTableConstants.minimumColumnWidth,
+            double.infinity,
+          ),
+        },
+      };
+
+      parentTableNode.updateAttributes(newAttributes);
+    } catch (e) {
+      Log.warn('update column width in memory: $e');
+    }
   }
 
   /// Update the column width of the table.
@@ -433,79 +439,6 @@ extension TableOperations on EditorState {
       transaction.updateNode(parentTableNode, newAttributes);
     } catch (e) {
       Log.warn('update row background color: $e');
-    }
-    await apply(transaction);
-  }
-
-  Future<void> duplicateRowInTable(Node node, int index) async {
-    assert(node.type == SimpleTableBlockKeys.type);
-
-    if (node.type != SimpleTableBlockKeys.type) {
-      return;
-    }
-
-    final columnLength = node.columnLength;
-    final rowLength = node.rowLength;
-
-    Log.info('add row in table ${node.id} at index: $index');
-    Log.info('current column length: $columnLength, row length: $rowLength');
-
-    if (index < 0) {
-      Log.warn(
-        'insert column: index out of range: $index, column length: $columnLength',
-      );
-      return;
-    }
-
-    final newRow = node.children[index].copyWith();
-    final transaction = this.transaction;
-    final path = index >= columnLength
-        ? node.children.last.path.next
-        : node.children[index].path;
-    transaction.insertNode(path, newRow);
-    final attributes = node.mapTableAttributes(
-      node,
-      type: TableMapOperationType.duplicateRow,
-      index: index,
-    );
-    if (attributes != null) {
-      transaction.updateNode(node, attributes);
-    }
-    await apply(transaction);
-  }
-
-  Future<void> duplicateColumnInTable(Node node, int index) async {
-    assert(node.type == SimpleTableBlockKeys.type);
-
-    if (node.type != SimpleTableBlockKeys.type) {
-      return;
-    }
-
-    final columnLength = node.columnLength;
-    final rowLength = node.rowLength;
-
-    if (index < 0 || index >= columnLength) {
-      Log.warn(
-        'insert column: index out of range: $index, column length: $columnLength',
-      );
-      return;
-    }
-
-    Log.info(
-      'duplicate column in table ${node.id} at index: $index, column length: $columnLength, row length: $rowLength',
-    );
-
-    final transaction = this.transaction;
-    for (var i = 0; i < rowLength; i++) {
-      final row = node.children[i];
-      final path = index >= rowLength
-          ? row.children.last.path.next
-          : row.children[index].path;
-      final newCell = row.children[index].copyWith();
-      transaction.insertNode(
-        path,
-        newCell,
-      );
     }
     await apply(transaction);
   }
