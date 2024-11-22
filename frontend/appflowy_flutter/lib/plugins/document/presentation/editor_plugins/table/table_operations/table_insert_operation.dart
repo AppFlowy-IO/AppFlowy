@@ -112,6 +112,12 @@ extension TableInsertionOperations on EditorState {
       return;
     }
 
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.insertColumn,
+      index: index,
+    );
+
     final transaction = this.transaction;
     for (var i = 0; i < columnLength; i++) {
       final row = node.children[i];
@@ -124,11 +130,6 @@ extension TableInsertionOperations on EditorState {
         simpleTableCellBlockNode(),
       );
     }
-    final attributes = node.mapTableAttributes(
-      node,
-      type: TableMapOperationType.insertColumn,
-      index: index,
-    );
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
@@ -175,16 +176,17 @@ extension TableInsertionOperations on EditorState {
       ],
     );
 
-    final transaction = this.transaction;
-    final path = index >= columnLength
-        ? node.children.last.path.next
-        : node.children[index].path;
-    transaction.insertNode(path, newRow);
     final attributes = node.mapTableAttributes(
       node,
       type: TableMapOperationType.insertRow,
       index: index,
     );
+
+    final transaction = this.transaction;
+    final path = index >= columnLength
+        ? node.children.last.path.next
+        : node.children[index].path;
+    transaction.insertNode(path, newRow);
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }

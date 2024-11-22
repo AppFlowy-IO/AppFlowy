@@ -38,17 +38,18 @@ extension TableDuplicationOperations on EditorState {
       'duplicate row in table ${node.id} at index: $index, column length: $columnLength, row length: $rowLength',
     );
 
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.duplicateRow,
+      index: index,
+    );
+
     final newRow = node.children[index].copyWith();
     final transaction = this.transaction;
     final path = index >= columnLength
         ? node.children.last.path.next
         : node.children[index].path;
     transaction.insertNode(path, newRow);
-    final attributes = node.mapTableAttributes(
-      node,
-      type: TableMapOperationType.duplicateRow,
-      index: index,
-    );
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
@@ -76,6 +77,12 @@ extension TableDuplicationOperations on EditorState {
       'duplicate column in table ${node.id} at index: $index, column length: $columnLength, row length: $rowLength',
     );
 
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.duplicateColumn,
+      index: index,
+    );
+
     final transaction = this.transaction;
     for (var i = 0; i < rowLength; i++) {
       final row = node.children[i];
@@ -88,11 +95,6 @@ extension TableDuplicationOperations on EditorState {
         newCell,
       );
     }
-    final attributes = node.mapTableAttributes(
-      node,
-      type: TableMapOperationType.duplicateColumn,
-      index: index,
-    );
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }

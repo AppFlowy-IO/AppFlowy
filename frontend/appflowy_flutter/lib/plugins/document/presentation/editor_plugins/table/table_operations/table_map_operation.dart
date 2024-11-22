@@ -34,9 +34,9 @@ extension TableMapOperation on Node {
       case TableMapOperationType.duplicateColumn:
         return _mapColumnDuplicationAttributes(index);
       case TableMapOperationType.deleteRow:
-      // return _mapRowDeletionAttributes(index);
+        return _mapRowDeletionAttributes(index);
       case TableMapOperationType.deleteColumn:
-      // return _mapColumnDeletionAttributes(index);
+        return _mapColumnDeletionAttributes(index);
       default:
         return null;
     }
@@ -291,6 +291,127 @@ extension TableMapOperation on Node {
       return attributes;
     }
   }
+
+  /// Map the attributes of a column deletion operation.
+  ///
+  /// When deleting a column, the attributes of the table after the index should be updated
+  ///
+  /// For example:
+  /// Before:
+  /// |  0  |  1  |  2  |
+  /// |  3  |  4  |  5  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     2: "#00FF00",
+  ///   }
+  /// }
+  ///
+  /// Delete the column at index 1:
+  /// |  0  |  2  |
+  /// |  3  |  5  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00", ← The attributes of the original second column
+  ///   }
+  /// }
+  Attributes? _mapColumnDeletionAttributes(int index) {
+    final attributes = this.attributes;
+    try {
+      final columnColors = _remapSource(
+        this.columnColors,
+        index,
+        increment: false,
+      );
+      final columnAligns = _remapSource(
+        this.columnAligns,
+        index,
+        increment: false,
+      );
+      final columnWidths = _remapSource(
+        this.columnWidths,
+        index,
+        increment: false,
+      );
+
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.columnColors,
+            columnColors,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnAligns,
+            columnAligns,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnWidths,
+            columnWidths,
+          );
+    } catch (e) {
+      Log.warn('Failed to map column deletion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a row deletion operation.
+  ///
+  /// When deleting a row, the attributes of the table after the index should be updated
+  ///
+  /// For example:
+  /// Before:
+  /// |  0  |  1  |  2  | ← delete this row
+  /// |  3  |  4  |  5  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "rowColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///   }
+  /// }
+  ///
+  /// Delete the row at index 0:
+  /// |  3  |  4  |  5  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "rowColors": {
+  ///     0: "#00FF00",
+  ///   }
+  /// }
+  Attributes? _mapRowDeletionAttributes(int index) {
+    final attributes = this.attributes;
+    try {
+      final rowColors = _remapSource(
+        this.rowColors,
+        index,
+        increment: false,
+      );
+      final rowAligns = _remapSource(
+        this.rowAligns,
+        index,
+        increment: false,
+      );
+
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.rowColors,
+            rowColors,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowAligns,
+            rowAligns,
+          );
+    } catch (e) {
+      Log.warn('Failed to map row deletion attributes: $e');
+      return attributes;
+    }
+  }
 }
 
 /// Find the duplicated entry and remap the source.
@@ -299,8 +420,9 @@ extension TableMapOperation on Node {
 (Map<String, dynamic> newSource, MapEntry? duplicatedEntry)
     _findDuplicatedEntryAndRemap(
   Map<String, dynamic> source,
-  int index,
-) {
+  int index, {
+  bool increment = true,
+}) {
   MapEntry? duplicatedEntry;
   final newSource = source.map((key, value) {
     final iKey = int.parse(key);
@@ -308,7 +430,7 @@ extension TableMapOperation on Node {
       duplicatedEntry = MapEntry(key, value);
     }
     if (iKey >= index) {
-      return MapEntry((iKey + 1).toString(), value);
+      return MapEntry((iKey + (increment ? 1 : -1)).toString(), value);
     }
     return MapEntry(key, value);
   });
@@ -318,17 +440,21 @@ extension TableMapOperation on Node {
 /// Remap the source to the new index.
 ///
 /// All the entries after the index will be remapped to the new index.
-Map<String, dynamic> _remapSource(Map<String, dynamic> source, int index) {
+Map<String, dynamic> _remapSource(
+  Map<String, dynamic> source,
+  int index, {
+  bool increment = true,
+}) {
   return source.map((key, value) {
     final iKey = int.parse(key);
     if (iKey >= index) {
-      return MapEntry((iKey + 1).toString(), value);
+      return MapEntry((iKey + (increment ? 1 : -1)).toString(), value);
     }
     return MapEntry(key, value);
   });
 }
 
-extension on Attributes {
+extension TableMapOperationAttributes on Attributes {
   Attributes mergeValues(
     String key,
     Map<String, dynamic> newSource, {
@@ -336,11 +462,12 @@ extension on Attributes {
   }) {
     final result = {...this};
 
+    if (duplicatedEntry != null) {
+      newSource[duplicatedEntry.key] = duplicatedEntry.value;
+    }
+
     if (newSource.isNotEmpty) {
-      result[key] = {
-        ...newSource,
-        if (duplicatedEntry != null) duplicatedEntry.key: duplicatedEntry.value,
-      };
+      result[key] = newSource;
     }
 
     return result;

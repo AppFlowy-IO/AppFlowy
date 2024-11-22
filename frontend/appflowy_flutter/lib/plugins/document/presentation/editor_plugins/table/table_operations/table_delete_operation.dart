@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_map_operation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -35,9 +36,18 @@ extension TableDeletionOperations on EditorState {
 
     Log.info('delete row: $index in table ${node.id}');
 
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.deleteRow,
+      index: index,
+    );
+
     final row = node.children[index];
     final transaction = this.transaction;
     transaction.deleteNode(row);
+    if (attributes != null) {
+      transaction.updateNode(node, attributes);
+    }
     await apply(transaction);
   }
 
@@ -72,10 +82,19 @@ extension TableDeletionOperations on EditorState {
 
     Log.info('delete column: $index in table ${node.id}');
 
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.deleteColumn,
+      index: index,
+    );
+
     final transaction = this.transaction;
     for (var i = 0; i < columnLength; i++) {
       final row = node.children[i];
       transaction.deleteNode(row.children[index]);
+    }
+    if (attributes != null) {
+      transaction.updateNode(node, attributes);
     }
     await apply(transaction);
   }

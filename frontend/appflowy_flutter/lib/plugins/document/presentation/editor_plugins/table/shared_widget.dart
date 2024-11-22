@@ -4,9 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_insertion.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
