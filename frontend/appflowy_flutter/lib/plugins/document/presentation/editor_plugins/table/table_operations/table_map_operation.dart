@@ -33,6 +33,10 @@ extension TableMapOperation on Node {
         return _mapRowDuplicationAttributes(index);
       case TableMapOperationType.duplicateColumn:
         return _mapColumnDuplicationAttributes(index);
+      case TableMapOperationType.deleteRow:
+      // return _mapRowDeletionAttributes(index);
+      case TableMapOperationType.deleteColumn:
+      // return _mapColumnDeletionAttributes(index);
       default:
         return null;
     }
@@ -69,27 +73,25 @@ extension TableMapOperation on Node {
   Attributes? _mapRowInsertionAttributes(int index) {
     final attributes = this.attributes;
     try {
-      final rowColors = this.rowColors.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final rowColors = _remapSource(
+        this.rowColors,
+        index,
+      );
 
-      final rowAligns = this.rowAligns.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final rowAligns = _remapSource(
+        this.rowAligns,
+        index,
+      );
 
-      return {
-        ...attributes,
-        SimpleTableBlockKeys.rowColors: rowColors,
-        SimpleTableBlockKeys.rowAligns: rowAligns,
-      };
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.rowColors,
+            rowColors,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowAligns,
+            rowAligns,
+          );
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
       return attributes;
@@ -126,36 +128,34 @@ extension TableMapOperation on Node {
   Attributes? _mapColumnInsertionAttributes(int index) {
     final attributes = this.attributes;
     try {
-      final columnColors = this.columnColors.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final columnColors = _remapSource(
+        this.columnColors,
+        index,
+      );
 
-      final columnAligns = this.columnAligns.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final columnAligns = _remapSource(
+        this.columnAligns,
+        index,
+      );
 
-      final columnWidths = this.columnWidths.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final columnWidths = _remapSource(
+        this.columnWidths,
+        index,
+      );
 
-      return {
-        ...attributes,
-        SimpleTableBlockKeys.columnColors: columnColors,
-        SimpleTableBlockKeys.columnAligns: columnAligns,
-        SimpleTableBlockKeys.columnWidths: columnWidths,
-      };
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.columnColors,
+            columnColors,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnAligns,
+            columnAligns,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnWidths,
+            columnWidths,
+          );
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
       return attributes;
@@ -194,48 +194,27 @@ extension TableMapOperation on Node {
   Attributes? _mapRowDuplicationAttributes(int index) {
     final attributes = this.attributes;
     try {
-      MapEntry? duplicatedRowColor;
-      MapEntry? duplicatedRowAlign;
+      final (rowColors, duplicatedRowColor) = _findDuplicatedEntryAndRemap(
+        this.rowColors,
+        index,
+      );
 
-      final rowColors = this.rowColors.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey == index) {
-          duplicatedRowColor = MapEntry(key, value);
-        }
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final (rowAligns, duplicatedRowAlign) = _findDuplicatedEntryAndRemap(
+        this.rowAligns,
+        index,
+      );
 
-      final rowAligns = this.rowAligns.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey == index) {
-          duplicatedRowAlign = MapEntry(key, value);
-        }
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
-
-      final result = {...attributes};
-
-      if (rowColors.isNotEmpty && duplicatedRowColor != null) {
-        result[SimpleTableBlockKeys.rowColors] = {
-          ...rowColors,
-          duplicatedRowColor!.key: duplicatedRowColor!.value,
-        };
-      }
-
-      if (rowAligns.isNotEmpty && duplicatedRowAlign != null) {
-        result[SimpleTableBlockKeys.rowAligns] = {
-          ...rowAligns,
-          duplicatedRowAlign!.key: duplicatedRowAlign!.value,
-        };
-      }
-
-      return result;
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.rowColors,
+            rowColors,
+            duplicatedEntry: duplicatedRowColor,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowAligns,
+            rowAligns,
+            duplicatedEntry: duplicatedRowAlign,
+          );
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
       return attributes;
@@ -273,70 +252,97 @@ extension TableMapOperation on Node {
   Attributes? _mapColumnDuplicationAttributes(int index) {
     final attributes = this.attributes;
     try {
-      MapEntry? duplicatedColumnColor;
-      MapEntry? duplicatedColumnAlign;
-      MapEntry? duplicatedColumnWidth;
+      final (columnColors, duplicatedColumnColor) =
+          _findDuplicatedEntryAndRemap(
+        this.columnColors,
+        index,
+      );
 
-      final columnColors = this.columnColors.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey == index) {
-          duplicatedColumnColor = MapEntry(key, value);
-        }
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final (columnAligns, duplicatedColumnAlign) =
+          _findDuplicatedEntryAndRemap(
+        this.columnAligns,
+        index,
+      );
 
-      final columnAligns = this.columnAligns.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey == index) {
-          duplicatedColumnAlign = MapEntry(key, value);
-        }
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
+      final (columnWidths, duplicatedColumnWidth) =
+          _findDuplicatedEntryAndRemap(
+        this.columnWidths,
+        index,
+      );
 
-      final columnWidths = this.columnWidths.map((key, value) {
-        final iKey = int.parse(key);
-        if (iKey == index) {
-          duplicatedColumnWidth = MapEntry(key, value);
-        }
-        if (iKey >= index) {
-          return MapEntry((iKey + 1).toString(), value);
-        }
-        return MapEntry(key, value);
-      });
-
-      final result = {...attributes};
-
-      if (columnColors.isNotEmpty && duplicatedColumnColor != null) {
-        result[SimpleTableBlockKeys.columnColors] = {
-          ...columnColors,
-          duplicatedColumnColor!.key: duplicatedColumnColor!.value,
-        };
-      }
-
-      if (columnAligns.isNotEmpty && duplicatedColumnAlign != null) {
-        result[SimpleTableBlockKeys.columnAligns] = {
-          ...columnAligns,
-          duplicatedColumnAlign!.key: duplicatedColumnAlign!.value,
-        };
-      }
-
-      if (columnWidths.isNotEmpty && duplicatedColumnWidth != null) {
-        result[SimpleTableBlockKeys.columnWidths] = {
-          ...columnWidths,
-          duplicatedColumnWidth!.key: duplicatedColumnWidth!.value,
-        };
-      }
-
-      return result;
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.columnColors,
+            columnColors,
+            duplicatedEntry: duplicatedColumnColor,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnAligns,
+            columnAligns,
+            duplicatedEntry: duplicatedColumnAlign,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnWidths,
+            columnWidths,
+            duplicatedEntry: duplicatedColumnWidth,
+          );
     } catch (e) {
       Log.warn('Failed to map column duplication attributes: $e');
       return attributes;
     }
+  }
+}
+
+/// Find the duplicated entry and remap the source.
+///
+/// All the entries after the index will be remapped to the new index.
+(Map<String, dynamic> newSource, MapEntry? duplicatedEntry)
+    _findDuplicatedEntryAndRemap(
+  Map<String, dynamic> source,
+  int index,
+) {
+  MapEntry? duplicatedEntry;
+  final newSource = source.map((key, value) {
+    final iKey = int.parse(key);
+    if (iKey == index) {
+      duplicatedEntry = MapEntry(key, value);
+    }
+    if (iKey >= index) {
+      return MapEntry((iKey + 1).toString(), value);
+    }
+    return MapEntry(key, value);
+  });
+  return (newSource, duplicatedEntry);
+}
+
+/// Remap the source to the new index.
+///
+/// All the entries after the index will be remapped to the new index.
+Map<String, dynamic> _remapSource(Map<String, dynamic> source, int index) {
+  return source.map((key, value) {
+    final iKey = int.parse(key);
+    if (iKey >= index) {
+      return MapEntry((iKey + 1).toString(), value);
+    }
+    return MapEntry(key, value);
+  });
+}
+
+extension on Attributes {
+  Attributes mergeValues(
+    String key,
+    Map<String, dynamic> newSource, {
+    MapEntry? duplicatedEntry,
+  }) {
+    final result = {...this};
+
+    if (newSource.isNotEmpty) {
+      result[key] = {
+        ...newSource,
+        if (duplicatedEntry != null) duplicatedEntry.key: duplicatedEntry.value,
+      };
+    }
+
+    return result;
   }
 }
