@@ -262,9 +262,9 @@ class SimpleTableMoreActionList extends StatelessWidget {
       actions.addAll([
         SimpleTableMoreAction.divider,
         if (type == SimpleTableMoreActionType.column)
-          SimpleTableMoreAction.enableHeaderRow,
-        if (type == SimpleTableMoreActionType.row)
           SimpleTableMoreAction.enableHeaderColumn,
+        if (type == SimpleTableMoreActionType.row)
+          SimpleTableMoreAction.enableHeaderRow,
       ]);
     }
 

@@ -224,67 +224,17 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return null;
     }
 
-    final columnIndex = node.columnIndex;
-    final rowIndex = node.rowIndex;
-    final isSelectingColumn =
-        columnIndex == context.read<SimpleTableContext>().selectingColumn.value;
-    final isSelectingRow =
-        rowIndex == context.read<SimpleTableContext>().selectingRow.value;
-    if (isSelectingColumn) {
-      return Border(
-        top: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 2,
-        ),
-        bottom: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 2.5,
-        ),
-        left: rowIndex == 0
-            ? BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
-            : BorderSide(
-                color: context.simpleTableBorderColor,
-              ),
-        right: rowIndex + 1 == node.parentTableNode?.rowLength
-            ? BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
-            : BorderSide.none,
-      );
-    } else if (isSelectingRow) {
-      return Border(
-        left: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 2,
-        ),
-        right: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 2.5,
-        ),
-        top: columnIndex == 0
-            ? BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
-            : BorderSide(
-                color: context.simpleTableBorderColor,
-              ),
-        bottom: columnIndex + 1 == node.parentTableNode?.columnLength
-            ? BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
-            : BorderSide.none,
-      );
+    final isCellInSelectedColumn = node.columnIndex ==
+        context.read<SimpleTableContext>().selectingColumn.value;
+    final isCellInSelectedRow =
+        node.rowIndex == context.read<SimpleTableContext>().selectingRow.value;
+
+    if (isCellInSelectedColumn) {
+      return _buildColumnBorder();
+    } else if (isCellInSelectedRow) {
+      return _buildRowBorder();
     } else {
-      return Border.all(
-        color: context.simpleTableBorderColor,
-        strokeAlign: BorderSide.strokeAlignCenter,
-      );
+      return _buildCellBorder();
     }
   }
 
@@ -297,5 +247,82 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
     return isHeaderColumnEnabled && isFirstRow ||
         isHeaderRowEnabled && isFirstColumn;
+  }
+
+  /// the column border means the `VERTICAL` border of the cell
+  ///
+  ///      ____
+  /// | 1 | 2 |
+  /// | 3 | 4 |
+  ///     |___|
+  ///
+  /// the border wrapping the cell 2 and cell 4 is the column border
+  Border _buildColumnBorder() {
+    return Border(
+      left: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 2,
+      ),
+      right: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 2.5,
+      ),
+      top: node.rowIndex == 0
+          ? BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2,
+            )
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+            ),
+      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
+          ? BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2,
+            )
+          : BorderSide.none,
+    );
+  }
+
+  /// the row border means the `HORIZONTAL` border of the cell
+  ///
+  ///  ________
+  /// | 1 | 2 |
+  /// |_______|
+  /// | 3 | 4 |
+  ///
+  /// the border wrapping the cell 1 and cell 2 is the row border
+  Border _buildRowBorder() {
+    return Border(
+      top: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 2,
+      ),
+      bottom: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 2.5,
+      ),
+      left: node.columnIndex == 0
+          ? BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2,
+            )
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+            ),
+      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
+          ? BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2,
+            )
+          : BorderSide.none,
+    );
+  }
+
+  Border _buildCellBorder() {
+    return Border.all(
+      color: context.simpleTableBorderColor,
+      strokeAlign: BorderSide.strokeAlignCenter,
+    );
   }
 }
