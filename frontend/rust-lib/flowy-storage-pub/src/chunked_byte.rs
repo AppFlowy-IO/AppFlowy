@@ -137,7 +137,7 @@ mod tests {
     file_path.push("test_small_file");
 
     let mut file = File::create(&file_path).await.unwrap();
-    file.write_all(&vec![0; 1 * 1024 * 1024]).await.unwrap(); // 1 MB
+    file.write_all(&vec![0; 1024 * 1024]).await.unwrap(); // 1 MB
     file.flush().await.unwrap();
 
     // Create ChunkedBytes instance
@@ -148,7 +148,7 @@ mod tests {
     // Validate total chunks and read the data
     assert_eq!(chunked_bytes.total_chunks(), 1); // Only 1 chunk due to file size
     let chunk = chunked_bytes.next_chunk().await.unwrap().unwrap();
-    assert_eq!(chunk.len(), 1 * 1024 * 1024); // The full 1 MB
+    assert_eq!(chunk.len(), 1024 * 1024); // The full 1 MB
 
     // Ensure no more chunks are available
     assert!(chunked_bytes.next_chunk().await.is_none());
@@ -237,7 +237,7 @@ mod tests {
 
     // Read the second chunk
     let chunk2 = chunked_bytes.next_chunk().await.unwrap().unwrap();
-    assert_eq!(chunk2.len(), 1 * 1024 * 1024); // Partial chunk
+    assert_eq!(chunk2.len(), 1024 * 1024); // Partial chunk
 
     // Ensure no more chunks are available
     assert!(chunked_bytes.next_chunk().await.is_none());

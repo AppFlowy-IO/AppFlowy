@@ -490,10 +490,10 @@ pub(crate) async fn delete_file_handler(
 ) -> FlowyResult<()> {
   let DownloadFilePB {
     url,
-    local_file_path,
+    local_file_path: _,
   } = params.try_into_inner()?;
   let manager = upgrade_document(manager)?;
-  manager.delete_file(local_file_path, url).await
+  manager.delete_file(url).await
 }
 
 pub(crate) async fn set_awareness_local_state_handler(

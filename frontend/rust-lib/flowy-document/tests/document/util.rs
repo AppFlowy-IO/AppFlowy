@@ -186,7 +186,7 @@ pub struct DocumentTestFileStorageService;
 
 #[async_trait]
 impl StorageService for DocumentTestFileStorageService {
-  fn delete_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
+  fn delete_object(&self, _url: String) -> FlowyResult<()> {
     todo!()
   }
 
@@ -199,7 +199,6 @@ impl StorageService for DocumentTestFileStorageService {
     _workspace_id: &str,
     _parent_dir: &str,
     _local_file_path: &str,
-    _upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), flowy_error::FlowyError> {
     todo!()
   }

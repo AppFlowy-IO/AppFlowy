@@ -2,9 +2,10 @@ use crate::entities::FileStatePB;
 use crate::file_cache::FileTempStorage;
 use crate::notification::{make_notification, StorageNotification};
 use crate::sqlite_sql::{
-  batch_select_upload_file, delete_all_upload_parts, delete_upload_file, insert_upload_file,
-  insert_upload_part, is_upload_completed, select_upload_file, select_upload_parts,
-  update_upload_file_completed, update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
+  batch_select_upload_file, delete_all_upload_parts, delete_upload_file,
+  delete_upload_file_by_file_id, insert_upload_file, insert_upload_part, is_upload_completed,
+  is_upload_exist, select_upload_file, select_upload_parts, update_upload_file_completed,
+  update_upload_file_upload_id, UploadFilePartTable, UploadFileTable,
 };
 use crate::uploader::{FileUploader, FileUploaderRunner, Signal, UploadTask, UploadTaskQueue};
 use allo_isolate::Isolate;
@@ -25,7 +26,6 @@ use lib_infra::util::timestamp;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::{broadcast, watch};
 use tracing::{debug, error, info, instrument, trace};
@@ -91,8 +91,6 @@ impl StorageManager {
     let weak_uploader = Arc::downgrade(&uploader);
     let cloned_user_service = user_service.clone();
     tokio::spawn(async move {
-      // Start uploading after 20 seconds
-      tokio::time::sleep(Duration::from_secs(20)).await;
       if let Some(uploader) = weak_uploader.upgrade() {
         if let Err(err) = prepare_upload_task(uploader, cloned_user_service).await {
           error!("prepare upload task failed: {}", err);
@@ -172,8 +170,12 @@ impl StorageManager {
     Some(FileStatePB { file_id, is_finish })
   }
 
-  pub async fn initialize(&self, _workspace_id: &str) {
+  pub async fn initialize(&self, workspace_id: &str) {
     self.enable_storage_write_access();
+
+    if let Err(err) = prepare_upload_task(self.uploader.clone(), self.user_service.clone()).await {
+      error!("prepare {} upload task failed: {}", workspace_id, err);
+    }
   }
 
   pub fn update_network_reachable(&self, reachable: bool) {
@@ -205,11 +207,18 @@ impl StorageManager {
       .await
   }
 
+  /// Returns None if the file with given file_id is not exist
+  /// When delete a file, the progress notifier for given file_id will be deleted too
   pub async fn get_file_state(&self, file_id: &str) -> Option<FileUploadState> {
     self
       .progress_notifiers
       .get(file_id)
       .and_then(|notifier| notifier.value().current_value.clone())
+  }
+
+  pub async fn get_all_tasks(&self) -> FlowyResult<Vec<UploadTask>> {
+    let tasks = self.uploader.all_tasks().await;
+    Ok(tasks)
   }
 }
 
@@ -217,21 +226,23 @@ async fn prepare_upload_task(
   uploader: Arc<FileUploader>,
   user_service: Arc<dyn StorageUserService>,
 ) -> FlowyResult<()> {
-  let uid = user_service.user_id()?;
-  let conn = user_service.sqlite_connection(uid)?;
-  let upload_files = batch_select_upload_file(conn, 100, false)?;
-  let tasks = upload_files
-    .into_iter()
-    .map(|upload_file| UploadTask::BackgroundTask {
-      workspace_id: upload_file.workspace_id,
-      file_id: upload_file.file_id,
-      parent_dir: upload_file.parent_dir,
-      created_at: upload_file.created_at,
-      retry_count: 0,
-    })
-    .collect::<Vec<_>>();
-  info!("[File] prepare upload task: {}", tasks.len());
-  uploader.queue_tasks(tasks).await;
+  if let Ok(uid) = user_service.user_id() {
+    let workspace_id = user_service.workspace_id()?;
+    let conn = user_service.sqlite_connection(uid)?;
+    let upload_files = batch_select_upload_file(conn, &workspace_id, 100, false)?;
+    let tasks = upload_files
+      .into_iter()
+      .map(|upload_file| UploadTask::BackgroundTask {
+        workspace_id: upload_file.workspace_id,
+        file_id: upload_file.file_id,
+        parent_dir: upload_file.parent_dir,
+        created_at: upload_file.created_at,
+        retry_count: 0,
+      })
+      .collect::<Vec<_>>();
+    info!("[File] prepare upload task: {}", tasks.len());
+    uploader.queue_tasks(tasks).await;
+  }
   Ok(())
 }
 
@@ -247,24 +258,52 @@ pub struct StorageServiceImpl {
 
 #[async_trait]
 impl StorageService for StorageServiceImpl {
-  fn delete_object(&self, url: String, local_file_path: String) -> FlowyResult<()> {
-    let cloud_service = self.cloud_service.clone();
-    tokio::spawn(async move {
-      match tokio::fs::remove_file(&local_file_path).await {
-        Ok(_) => {
-          debug!("[File] deleted file from local disk: {}", local_file_path)
+  async fn delete_object(&self, url: String) -> FlowyResult<()> {
+    if let Some((workspace_id, parent_dir, file_id)) =
+      self.cloud_service.parse_object_url_v1(&url).await
+    {
+      info!(
+        "[File] delete object: workspace: {}, parent_dir: {}, file_id: {}",
+        workspace_id, parent_dir, file_id
+      );
+
+      self
+        .task_queue
+        .remove_task(&workspace_id, &parent_dir, &file_id)
+        .await;
+
+      trace!("[File] delete progress notifier: {}", file_id);
+      self.progress_notifiers.remove(&file_id);
+      match delete_upload_file_by_file_id(
+        self
+          .user_service
+          .sqlite_connection(self.user_service.user_id()?)?,
+        &workspace_id,
+        &parent_dir,
+        &file_id,
+      ) {
+        Ok(Some(file)) => {
+          let file_path = file.local_file_path;
+          match tokio::fs::remove_file(&file_path).await {
+            Ok(_) => debug!("[File] deleted file from local disk: {}", file_path),
+            Err(err) => {
+              error!("[File] delete file at {} failed: {}", file_path, err);
+            },
+          }
+        },
+        Ok(None) => {
+          info!(
+            "[File]: can not find file record for url: {} when delete",
+            url
+          );
         },
         Err(err) => {
-          error!("[File] delete file at {} failed: {}", local_file_path, err);
+          error!("[File] delete upload file failed: {}", err);
         },
       }
-      if let Err(e) = cloud_service.delete_object(&url).await {
-        // TODO: add WAL to log the delete operation.
-        // keep a list of files to be deleted, and retry later
-        error!("[File] delete file failed: {}", e);
-      }
-      debug!("[File] deleted file from cloud: {}", url);
-    });
+    }
+
+    let _ = self.cloud_service.delete_object(&url).await;
     Ok(())
   }
 
@@ -301,7 +340,6 @@ impl StorageService for StorageServiceImpl {
     workspace_id: &str,
     parent_dir: &str,
     file_path: &str,
-    upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), FlowyError> {
     if workspace_id.is_empty() {
       return Err(FlowyError::internal().with_context("workspace id is empty"));
@@ -354,28 +392,18 @@ impl StorageService for StorageServiceImpl {
     match insert_upload_file(conn, &record) {
       Ok(_) => {
         // 3. generate url for given file
-        if upload_immediately {
-          self
-            .task_queue
-            .queue_task(UploadTask::ImmediateTask {
-              local_file_path,
-              record,
-              retry_count: 3,
-            })
-            .await;
-        } else {
-          self
-            .task_queue
-            .queue_task(UploadTask::Task {
-              local_file_path,
-              record,
-              retry_count: 0,
-            })
-            .await;
-        }
+        self
+          .task_queue
+          .queue_task(UploadTask::Task {
+            local_file_path,
+            record,
+            retry_count: 3,
+          })
+          .await;
 
         let notifier = ProgressNotifier::new(file_id.to_string());
         let receiver = notifier.subscribe();
+        trace!("[File] create upload progress notifier: {}", file_id);
         self
           .progress_notifiers
           .insert(file_id.to_string(), notifier);
@@ -397,8 +425,22 @@ impl StorageService for StorageServiceImpl {
       FlowyError::internal().with_context("failed to downcast record to UploadFileTable")
     })?;
 
+    // If the file is already uploaded, skip the upload process
+    if !is_upload_exist(
+      self
+        .user_service
+        .sqlite_connection(self.user_service.user_id()?)?,
+      &file_record.upload_id,
+    )? {
+      info!(
+        "[File] skip upload, {} was deleted",
+        file_record.local_file_path
+      );
+      return Ok(());
+    }
+
     start_upload(
-      &self.cloud_service,
+      self,
       &self.user_service,
       &self.temp_storage,
       file_record,
@@ -430,7 +472,10 @@ impl StorageService for StorageServiceImpl {
       )
       .await?;
     } else {
-      error!("[File] resume upload failed: record not found");
+      error!(
+        "[File] resume upload failed: can not found {}:{}",
+        parent_dir, file_id
+      );
     }
     Ok(())
   }
@@ -474,7 +519,7 @@ async fn create_upload_record(
 
   // Calculate the total number of chunks
   let num_chunk = calculate_offsets(file_size, MIN_CHUNK_SIZE).len();
-  let content_type = mime_guess::from_path(&file_path)
+  let content_type = mime_guess::from_path(file_path)
     .first_or_octet_stream()
     .to_string();
   let file_id = FileId::from_path(&file_path.to_path_buf()).await?;
@@ -496,7 +541,7 @@ async fn create_upload_record(
 
 #[instrument(level = "debug", skip_all, err)]
 async fn start_upload(
-  cloud_service: &Arc<dyn StorageCloudService>,
+  cloud_service: & StorageServiceImpl,
   user_service: &Arc<dyn StorageUserService>,
   temp_storage: &Arc<FileTempStorage>,
   upload_file: &UploadFileTable,
@@ -562,7 +607,7 @@ async fn start_upload(
     )
     .await;
   if let Err(err) = create_upload_resp_result.as_ref() {
-    handle_upload_error(user_service, &err, &upload_file.upload_id);
+    handle_upload_error(user_service, err, &upload_file.upload_id);
   }
   let create_upload_resp = create_upload_resp_result?;
 
@@ -717,6 +762,7 @@ fn handle_upload_error(
     make_notification(StorageNotification::SingleFileLimitExceeded)
       .payload(err.clone())
       .send();
+
   }
 }
 
@@ -848,8 +894,8 @@ async fn complete_upload(
         error!("[File] send global notifier failed: {}", send_err);
       }
 
-      let conn = user_service.sqlite_connection(user_service.user_id()?)?;
-      if let Err(err) = delete_all_upload_parts(conn, &upload_file.upload_id) {
+      let mut conn = user_service.sqlite_connection(user_service.user_id()?)?;
+      if let Err(err) = delete_all_upload_parts(&mut conn, &upload_file.upload_id) {
         error!("[File] delete all upload parts failed: {}", err);
       }
       return Err(err);
