@@ -338,35 +338,35 @@ extension TableMapOperation on Node {
         index,
         increment: false,
         comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
       );
       final columnAligns = _remapSource(
         this.columnAligns,
         index,
         increment: false,
         comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
       );
       final columnWidths = _remapSource(
         this.columnWidths,
         index,
         increment: false,
         comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
       );
 
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.columnColors,
             columnColors,
-            duplicatedEntry: MapEntry(index.toString(), null),
           )
           .mergeValues(
             SimpleTableBlockKeys.columnAligns,
             columnAligns,
-            duplicatedEntry: MapEntry(index.toString(), null),
           )
           .mergeValues(
             SimpleTableBlockKeys.columnWidths,
             columnWidths,
-            duplicatedEntry: MapEntry(index.toString(), null),
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');
