@@ -199,14 +199,16 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Color? _buildBackgroundColor() {
-    final rowColor = node.buildRowColor(context);
-    if (rowColor != null && rowColor != Colors.transparent) {
-      return rowColor;
-    }
+    // Priority: column color > row color > header color > default color
 
     final columnColor = node.buildColumnColor(context);
     if (columnColor != null && columnColor != Colors.transparent) {
       return columnColor;
+    }
+
+    final rowColor = node.buildRowColor(context);
+    if (rowColor != null && rowColor != Colors.transparent) {
+      return rowColor;
     }
 
     // Check if the cell is in the header.
