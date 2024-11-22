@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_map_operation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -462,21 +463,14 @@ extension TableOperations on EditorState {
         ? node.children.last.path.next
         : node.children[index].path;
     transaction.insertNode(path, newRow);
-    final columnColors = node.attributes[SimpleTableBlockKeys.columnColors] ??
-        SimpleTableColorMap();
-    try {
-      final columnColor = columnColors[index.toString()];
-      if (columnColor != null) {
-        columnColors[(index + 1).toString()] = columnColor;
-      }
-    } catch (e) {
-      Log.warn('update column colors: $e');
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.duplicateRow,
+      index: index,
+    );
+    if (attributes != null) {
+      transaction.updateNode(node, attributes);
     }
-    final attributes = {
-      ...node.attributes,
-      SimpleTableBlockKeys.columnColors: columnColors,
-    };
-    transaction.updateNode(node, attributes);
     await apply(transaction);
   }
 

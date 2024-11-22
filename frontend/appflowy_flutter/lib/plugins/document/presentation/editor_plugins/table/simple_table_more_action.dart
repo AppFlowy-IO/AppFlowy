@@ -430,10 +430,11 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
       case SimpleTableMoreAction.duplicate:
         switch (widget.type) {
           case SimpleTableMoreActionType.column:
-            _duplicateRow();
+            _duplicateColumn();
             break;
           case SimpleTableMoreActionType.row:
-            _duplicateColumn();
+            _duplicateRow();
+
             break;
         }
         break;
@@ -449,10 +450,9 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final columnIndex = cellPosition.$1;
+    final (table, node, _) = value;
     final editorState = context.read<EditorState>();
-    editorState.duplicateRowInTable(table, columnIndex);
+    editorState.duplicateRowInTable(table, node.rowIndex);
   }
 
   void _duplicateColumn() {
@@ -460,10 +460,9 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final rowIndex = cellPosition.$2;
+    final (table, node, _) = value;
     final editorState = context.read<EditorState>();
-    editorState.duplicateColumnInTable(table, rowIndex);
+    editorState.duplicateColumnInTable(table, node.columnIndex);
   }
 
   void _toggleEnableHeader() {
