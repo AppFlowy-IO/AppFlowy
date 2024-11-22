@@ -17,7 +17,7 @@ extension TableContentOperation on EditorState {
   /// After:
   /// Row 1: |   |   |
   /// Row 2: | 2 | 3 |
-  Future<void> clearContentAtColumnIndex(Node node, int index) async {
+  Future<void> clearContentAtRowIndex(Node node, int index) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
     if (node.type != SimpleTableBlockKeys.type) {
@@ -55,7 +55,7 @@ extension TableContentOperation on EditorState {
   /// After:
   /// Row 1: | 0 |   |
   /// Row 2: | 2 |   |
-  Future<void> clearContentAtRowIndex(Node node, int index) async {
+  Future<void> clearContentAtColumnIndex(Node node, int index) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
     if (node.type != SimpleTableBlockKeys.type) {
