@@ -434,7 +434,6 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             break;
           case SimpleTableMoreActionType.row:
             _duplicateRow();
-
             break;
         }
         break;
@@ -551,10 +550,10 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final rowIndex = cellPosition.$2;
+    final (table, node, _) = value;
+    final rowIndex = node.rowIndex;
     final editorState = context.read<EditorState>();
-    editorState.deleteColumnInTable(table, rowIndex);
+    editorState.deleteRowInTable(table, rowIndex);
   }
 
   void _deleteColumn() {
@@ -562,10 +561,10 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final columnIndex = cellPosition.$1;
+    final (table, node, _) = value;
+    final columnIndex = node.columnIndex;
     final editorState = context.read<EditorState>();
-    editorState.deleteRowInTable(table, columnIndex);
+    editorState.deleteColumnInTable(table, columnIndex);
   }
 
   (Node, Node, TableCellPosition)? _getTableAndTableCellAndCellPosition() {

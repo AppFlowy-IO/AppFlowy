@@ -66,9 +66,9 @@ extension TableOperations on EditorState {
 
     final rowLength = node.rowLength;
     final columnLength = node.columnLength;
-    if (index < 0 || index >= rowLength) {
+    if (index < 0 || index >= columnLength) {
       Log.warn(
-        'delete column: index out of range: $index, row length: $rowLength',
+        'delete column: index out of range: $index, column length: $columnLength',
       );
       return;
     }
@@ -76,7 +76,7 @@ extension TableOperations on EditorState {
     Log.info('delete column: $index in table ${node.id}');
 
     final transaction = this.transaction;
-    for (var i = 0; i < columnLength; i++) {
+    for (var i = 0; i < rowLength; i++) {
       final row = node.children[i];
       transaction.deleteNode(row.children[index]);
     }
@@ -484,13 +484,19 @@ extension TableOperations on EditorState {
     final columnLength = node.columnLength;
     final rowLength = node.rowLength;
 
-    Log.info('add column in table ${node.id} at index: $index');
+    if (index < 0 || index >= columnLength) {
+      Log.warn(
+        'insert column: index out of range: $index, column length: $columnLength',
+      );
+      return;
+    }
+
     Log.info(
-      'current column length: $columnLength, row length: $rowLength',
+      'duplicate column in table ${node.id} at index: $index, column length: $columnLength, row length: $rowLength',
     );
 
     final transaction = this.transaction;
-    for (var i = 0; i < columnLength; i++) {
+    for (var i = 0; i < rowLength; i++) {
       final row = node.children[i];
       final path = index >= rowLength
           ? row.children.last.path.next
