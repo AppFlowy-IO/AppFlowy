@@ -17,7 +17,7 @@ enum SimpleTableMoreActionType {
 
   List<SimpleTableMoreAction> get actions {
     switch (this) {
-      case SimpleTableMoreActionType.column:
+      case SimpleTableMoreActionType.row:
         return [
           SimpleTableMoreAction.addAbove,
           SimpleTableMoreAction.addBelow,
@@ -28,7 +28,7 @@ enum SimpleTableMoreActionType {
           SimpleTableMoreAction.align,
           SimpleTableMoreAction.backgroundColor,
         ];
-      case SimpleTableMoreActionType.row:
+      case SimpleTableMoreActionType.column:
         return [
           SimpleTableMoreAction.addLeft,
           SimpleTableMoreAction.addRight,
@@ -45,9 +45,9 @@ enum SimpleTableMoreActionType {
   FlowySvgData get reorderIconSvg {
     switch (this) {
       case SimpleTableMoreActionType.column:
-        return FlowySvgs.table_reorder_row_s;
-      case SimpleTableMoreActionType.row:
         return FlowySvgs.table_reorder_column_s;
+      case SimpleTableMoreActionType.row:
+        return FlowySvgs.table_reorder_row_s;
     }
   }
 }
@@ -134,8 +134,8 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
   Widget build(BuildContext context) {
     return Align(
       alignment: widget.type == SimpleTableMoreActionType.row
-          ? Alignment.topCenter
-          : Alignment.centerLeft,
+          ? Alignment.centerLeft
+          : Alignment.topCenter,
       child: ValueListenableBuilder<bool>(
         valueListenable: isShowingMenu,
         builder: (context, isShowingMenu, child) {
@@ -145,8 +145,8 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
             builder: (context, hoveringTableNode, child) {
               final hoveringIndex =
                   widget.type == SimpleTableMoreActionType.column
-                      ? hoveringTableNode?.rowIndex
-                      : hoveringTableNode?.columnIndex;
+                      ? hoveringTableNode?.columnIndex
+                      : hoveringTableNode?.rowIndex;
 
               if (hoveringIndex != widget.index && !isShowingMenu) {
                 return const SizedBox.shrink();
@@ -209,11 +209,11 @@ class _SimpleTableMoreActionPopupState
         context.read<SimpleTableContext>().selectingRow.value = null;
       },
       direction: widget.type == SimpleTableMoreActionType.row
-          ? PopoverDirection.bottomWithLeftAligned
-          : PopoverDirection.bottomWithCenterAligned,
+          ? PopoverDirection.bottomWithCenterAligned
+          : PopoverDirection.bottomWithLeftAligned,
       offset: widget.type == SimpleTableMoreActionType.row
-          ? const Offset(-14, 8)
-          : const Offset(24, 14),
+          ? const Offset(24, 14)
+          : const Offset(-14, 8),
       popupBuilder: (_) {
         if (tableCellNode == null) {
           return const SizedBox.shrink();

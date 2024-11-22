@@ -89,15 +89,15 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         children: [
           _buildCell(),
           Positioned(
-            top: -SimpleTableConstants.tableTopPadding,
-            left: 0,
-            right: 0,
+            top: 0,
+            bottom: 0,
+            left: -SimpleTableConstants.tableLeftPadding,
             child: _buildRowMoreActionButton(),
           ),
           Positioned(
-            left: -SimpleTableConstants.tableLeftPadding,
-            top: 0,
-            bottom: 0,
+            left: 0,
+            right: 0,
+            top: -SimpleTableConstants.tableTopPadding,
             child: _buildColumnMoreActionButton(),
           ),
           Positioned(
@@ -151,9 +151,8 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildRowMoreActionButton() {
-    final cellPosition = node.cellPosition;
-    final columnIndex = cellPosition.$1;
-    final rowIndex = cellPosition.$2;
+    final columnIndex = node.columnIndex;
+    final rowIndex = node.rowIndex;
 
     if (columnIndex != 0) {
       return const SizedBox.shrink();
@@ -169,12 +168,12 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final columnIndex = node.columnIndex;
     final rowIndex = node.rowIndex;
 
-    if (columnIndex != 0) {
+    if (rowIndex != 0) {
       return const SizedBox.shrink();
     }
 
     return SimpleTableMoreActionMenu(
-      index: rowIndex,
+      index: columnIndex,
       type: SimpleTableMoreActionType.column,
     );
   }
