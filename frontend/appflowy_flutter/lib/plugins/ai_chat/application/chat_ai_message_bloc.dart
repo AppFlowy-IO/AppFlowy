@@ -22,7 +22,7 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
   }) : super(
           ChatAIMessageState.initial(
             message,
-            messageReferenceSource(refSourceJsonString),
+            parseMetadata(refSourceJsonString),
           ),
         ) {
     if (state.stream != null) {
@@ -42,9 +42,9 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             add(const ChatAIMessageEvent.onAIResponseLimit());
           }
         },
-        onMetadata: (sources) {
+        onMetadata: (metadata) {
           if (!isClosed) {
-            add(ChatAIMessageEvent.receiveSources(sources));
+            add(ChatAIMessageEvent.receiveMetadata(metadata));
           }
         },
       );
@@ -116,10 +116,12 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
-          receiveSources: (List<ChatMessageRefSource> sources) {
+          receiveMetadata: (metadata) {
+            Log.debug("AI Steps: ${metadata.progress?.step}");
             emit(
               state.copyWith(
-                sources: sources,
+                sources: metadata.sources,
+                progress: metadata.progress,
               ),
             );
           },
@@ -139,8 +141,8 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
-  const factory ChatAIMessageEvent.receiveSources(
-    List<ChatMessageRefSource> sources,
+  const factory ChatAIMessageEvent.receiveMetadata(
+    MetadataCollection metadata,
   ) = _ReceiveMetadata;
 }
 
@@ -151,17 +153,19 @@ class ChatAIMessageState with _$ChatAIMessageState {
     required String text,
     required MessageState messageState,
     required List<ChatMessageRefSource> sources,
+    required AIChatProgress? progress,
   }) = _ChatAIMessageState;
 
   factory ChatAIMessageState.initial(
     dynamic text,
-    List<ChatMessageRefSource> sources,
+    MetadataCollection metadata,
   ) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
       messageState: const MessageState.ready(),
-      sources: sources,
+      sources: metadata.sources,
+      progress: metadata.progress,
     );
   }
 }
