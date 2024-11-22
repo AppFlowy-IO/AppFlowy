@@ -504,10 +504,10 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final rowIndex = cellPosition.$2;
+    final (table, node, _) = value;
+    final columnIndex = node.columnIndex;
     final editorState = context.read<EditorState>();
-    editorState.insertColumnInTable(table, rowIndex);
+    editorState.insertColumnInTable(table, columnIndex);
   }
 
   void _insertColumnRight() {
@@ -515,10 +515,10 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final rowIndex = cellPosition.$2;
+    final (table, node, _) = value;
+    final columnIndex = node.columnIndex;
     final editorState = context.read<EditorState>();
-    editorState.insertColumnInTable(table, rowIndex + 1);
+    editorState.insertColumnInTable(table, columnIndex + 1);
   }
 
   void _insertRowAbove() {
@@ -526,10 +526,10 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final columnIndex = cellPosition.$1;
+    final (table, node, _) = value;
+    final rowIndex = node.rowIndex;
     final editorState = context.read<EditorState>();
-    editorState.insertRowInTable(table, columnIndex);
+    editorState.insertRowInTable(table, rowIndex);
   }
 
   void _insertRowBelow() {
@@ -537,10 +537,10 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    final (table, _, cellPosition) = value;
-    final columnIndex = cellPosition.$1;
+    final (table, node, _) = value;
+    final rowIndex = node.rowIndex;
     final editorState = context.read<EditorState>();
-    editorState.insertRowInTable(table, columnIndex + 1);
+    editorState.insertRowInTable(table, rowIndex + 1);
   }
 
   void _deleteRow() {

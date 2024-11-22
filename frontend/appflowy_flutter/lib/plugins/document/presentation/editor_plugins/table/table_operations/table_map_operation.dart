@@ -24,22 +24,27 @@ extension TableMapOperation on Node {
       return null;
     }
 
+    Attributes? attributes;
+
     switch (type) {
       case TableMapOperationType.insertRow:
-        return _mapRowInsertionAttributes(index);
+        attributes = _mapRowInsertionAttributes(index);
       case TableMapOperationType.insertColumn:
-        return _mapColumnInsertionAttributes(index);
+        attributes = _mapColumnInsertionAttributes(index);
       case TableMapOperationType.duplicateRow:
-        return _mapRowDuplicationAttributes(index);
+        attributes = _mapRowDuplicationAttributes(index);
       case TableMapOperationType.duplicateColumn:
-        return _mapColumnDuplicationAttributes(index);
+        attributes = _mapColumnDuplicationAttributes(index);
       case TableMapOperationType.deleteRow:
-        return _mapRowDeletionAttributes(index);
+        attributes = _mapRowDeletionAttributes(index);
       case TableMapOperationType.deleteColumn:
-        return _mapColumnDeletionAttributes(index);
-      default:
-        return null;
+        attributes = _mapColumnDeletionAttributes(index);
     }
+
+    // clear the attributes that are null
+    attributes?.removeWhere((key, value) => value == null);
+
+    return attributes;
   }
 
   /// Map the attributes of a row insertion operation.
