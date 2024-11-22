@@ -257,4 +257,32 @@ extension TableNodeExtension on Node {
     }
     return parentTableNode.isHeaderRowEnabled && parent?.rowIndex == 0;
   }
+
+  SimpleTableRowAlignMap get rowAligns {
+    final rawRowAligns =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowAligns];
+    if (rawRowAligns == null) {
+      return SimpleTableRowAlignMap();
+    }
+    try {
+      return SimpleTableRowAlignMap.from(rawRowAligns);
+    } catch (e) {
+      Log.warn('get row aligns: $e');
+      return SimpleTableRowAlignMap();
+    }
+  }
+
+  SimpleTableColorMap get rowColors {
+    final rawRowColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowColors];
+    if (rawRowColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawRowColors);
+    } catch (e) {
+      Log.warn('get row colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
 }
