@@ -81,11 +81,13 @@ extension TableMapOperation on Node {
       final rowColors = _remapSource(
         this.rowColors,
         index,
+        comparator: (iKey, index) => iKey >= index,
       );
 
       final rowAligns = _remapSource(
         this.rowAligns,
         index,
+        comparator: (iKey, index) => iKey >= index,
       );
 
       return attributes
@@ -136,16 +138,19 @@ extension TableMapOperation on Node {
       final columnColors = _remapSource(
         this.columnColors,
         index,
+        comparator: (iKey, index) => iKey >= index,
       );
 
       final columnAligns = _remapSource(
         this.columnAligns,
         index,
+        comparator: (iKey, index) => iKey >= index,
       );
 
       final columnWidths = _remapSource(
         this.columnWidths,
         index,
+        comparator: (iKey, index) => iKey >= index,
       );
 
       return attributes
@@ -332,30 +337,36 @@ extension TableMapOperation on Node {
         this.columnColors,
         index,
         increment: false,
+        comparator: (iKey, index) => iKey > index,
       );
       final columnAligns = _remapSource(
         this.columnAligns,
         index,
         increment: false,
+        comparator: (iKey, index) => iKey > index,
       );
       final columnWidths = _remapSource(
         this.columnWidths,
         index,
         increment: false,
+        comparator: (iKey, index) => iKey > index,
       );
 
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.columnColors,
             columnColors,
+            duplicatedEntry: MapEntry(index.toString(), null),
           )
           .mergeValues(
             SimpleTableBlockKeys.columnAligns,
             columnAligns,
+            duplicatedEntry: MapEntry(index.toString(), null),
           )
           .mergeValues(
             SimpleTableBlockKeys.columnWidths,
             columnWidths,
+            duplicatedEntry: MapEntry(index.toString(), null),
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');
@@ -396,11 +407,15 @@ extension TableMapOperation on Node {
         this.rowColors,
         index,
         increment: false,
+        comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
       );
       final rowAligns = _remapSource(
         this.rowAligns,
         index,
         increment: false,
+        comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
       );
 
       return attributes
@@ -449,14 +464,21 @@ Map<String, dynamic> _remapSource(
   Map<String, dynamic> source,
   int index, {
   bool increment = true,
+  required bool Function(int iKey, int index) comparator,
+  int? filterIndex,
 }) {
-  return source.map((key, value) {
+  var newSource = {...source};
+  if (filterIndex != null) {
+    newSource.remove(filterIndex.toString());
+  }
+  newSource = newSource.map((key, value) {
     final iKey = int.parse(key);
-    if (iKey >= index) {
+    if (comparator(iKey, index)) {
       return MapEntry((iKey + (increment ? 1 : -1)).toString(), value);
     }
     return MapEntry(key, value);
   });
+  return newSource;
 }
 
 extension TableMapOperationAttributes on Attributes {
@@ -471,9 +493,7 @@ extension TableMapOperationAttributes on Attributes {
       newSource[duplicatedEntry.key] = duplicatedEntry.value;
     }
 
-    if (newSource.isNotEmpty) {
-      result[key] = newSource;
-    }
+    result[key] = newSource;
 
     return result;
   }

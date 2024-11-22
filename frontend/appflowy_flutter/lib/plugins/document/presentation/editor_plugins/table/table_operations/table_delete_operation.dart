@@ -26,7 +26,7 @@ extension TableDeletionOperations on EditorState {
       return;
     }
 
-    final rowLength = node.columnLength;
+    final rowLength = node.rowLength;
     if (index < 0 || index >= rowLength) {
       Log.warn(
         'delete row: index out of range: $index, row length: $rowLength',
@@ -73,9 +73,9 @@ extension TableDeletionOperations on EditorState {
 
     final rowLength = node.rowLength;
     final columnLength = node.columnLength;
-    if (index < 0 || index >= rowLength) {
+    if (index < 0 || index >= columnLength) {
       Log.warn(
-        'delete column: index out of range: $index, row length: $rowLength',
+        'delete column: index out of range: $index, column length: $columnLength',
       );
       return;
     }
@@ -89,7 +89,7 @@ extension TableDeletionOperations on EditorState {
     );
 
     final transaction = this.transaction;
-    for (var i = 0; i < columnLength; i++) {
+    for (var i = 0; i < rowLength; i++) {
       final row = node.children[i];
       transaction.deleteNode(row.children[index]);
     }
