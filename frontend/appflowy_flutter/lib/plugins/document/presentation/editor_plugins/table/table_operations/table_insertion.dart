@@ -124,6 +124,14 @@ extension TableInsertionOperations on EditorState {
         simpleTableCellBlockNode(),
       );
     }
+    final attributes = node.mapTableAttributes(
+      node,
+      type: TableMapOperationType.insertColumn,
+      index: index,
+    );
+    if (attributes != null) {
+      transaction.updateNode(node, attributes);
+    }
     await apply(transaction);
   }
 

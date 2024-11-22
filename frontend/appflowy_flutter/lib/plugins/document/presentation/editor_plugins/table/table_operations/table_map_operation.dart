@@ -27,6 +27,8 @@ extension TableMapOperation on Node {
     switch (type) {
       case TableMapOperationType.insertRow:
         return _mapRowInsertionAttributes(index);
+      case TableMapOperationType.insertColumn:
+        return _mapColumnInsertionAttributes(index);
       case TableMapOperationType.duplicateRow:
         return _mapRowDuplicationAttributes(index);
       default:
@@ -72,6 +74,7 @@ extension TableMapOperation on Node {
         }
         return MapEntry(key, value);
       });
+
       final rowAligns = this.rowAligns.map((key, value) {
         final iKey = int.parse(key);
         if (iKey >= index) {
@@ -79,10 +82,77 @@ extension TableMapOperation on Node {
         }
         return MapEntry(key, value);
       });
+
       return {
         ...attributes,
         SimpleTableBlockKeys.rowColors: rowColors,
         SimpleTableBlockKeys.rowAligns: rowAligns,
+      };
+    } catch (e) {
+      Log.warn('Failed to map row insertion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a column insertion operation.
+  ///
+  /// When inserting a column, the attributes of the table after the index should be updated
+  /// For example:
+  /// Before:
+  /// |  0  |  1  |
+  /// |  2  |  3  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///   }
+  /// }
+  ///
+  /// Insert a column at index 1:
+  /// |  0  |     |  1  |
+  /// |  2  |     |  3  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     2: "#00FF00", ← The attributes of the original second column
+  ///   }
+  /// }
+  Attributes? _mapColumnInsertionAttributes(int index) {
+    final attributes = this.attributes;
+    try {
+      final columnColors = this.columnColors.map((key, value) {
+        final iKey = int.parse(key);
+        if (iKey >= index) {
+          return MapEntry((iKey + 1).toString(), value);
+        }
+        return MapEntry(key, value);
+      });
+
+      final columnAligns = this.columnAligns.map((key, value) {
+        final iKey = int.parse(key);
+        if (iKey >= index) {
+          return MapEntry((iKey + 1).toString(), value);
+        }
+        return MapEntry(key, value);
+      });
+
+      final columnWidths = this.columnWidths.map((key, value) {
+        final iKey = int.parse(key);
+        if (iKey >= index) {
+          return MapEntry((iKey + 1).toString(), value);
+        }
+        return MapEntry(key, value);
+      });
+
+      return {
+        ...attributes,
+        SimpleTableBlockKeys.columnColors: columnColors,
+        SimpleTableBlockKeys.columnAligns: columnAligns,
+        SimpleTableBlockKeys.columnWidths: columnWidths,
       };
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');

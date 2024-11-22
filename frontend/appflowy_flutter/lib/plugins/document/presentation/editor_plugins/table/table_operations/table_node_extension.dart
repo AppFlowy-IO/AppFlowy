@@ -285,4 +285,46 @@ extension TableNodeExtension on Node {
       return SimpleTableColorMap();
     }
   }
+
+  SimpleTableColorMap get columnColors {
+    final rawColumnColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnColors];
+    if (rawColumnColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawColumnColors);
+    } catch (e) {
+      Log.warn('get column colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  SimpleTableRowAlignMap get columnAligns {
+    final rawColumnAligns =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnAligns];
+    if (rawColumnAligns == null) {
+      return SimpleTableRowAlignMap();
+    }
+    try {
+      return SimpleTableRowAlignMap.from(rawColumnAligns);
+    } catch (e) {
+      Log.warn('get column aligns: $e');
+      return SimpleTableRowAlignMap();
+    }
+  }
+
+  SimpleTableColumnWidthMap get columnWidths {
+    final rawColumnWidths =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnWidths];
+    if (rawColumnWidths == null) {
+      return SimpleTableColumnWidthMap();
+    }
+    try {
+      return SimpleTableColumnWidthMap.from(rawColumnWidths);
+    } catch (e) {
+      Log.warn('get column widths: $e');
+      return SimpleTableColumnWidthMap();
+    }
+  }
 }
