@@ -77,7 +77,11 @@ class ChatAIMessageWidget extends StatelessWidget {
               },
               ready: () {
                 return state.text.isEmpty
-                    ? const SizedBox.shrink()
+                    ? ChatAIMessageBubble(
+                        message: message,
+                        showActions: false,
+                        child: const ChatAILoading(),
+                      )
                     : ChatAIMessageBubble(
                         message: message,
                         isLastMessage: isLastMessage,

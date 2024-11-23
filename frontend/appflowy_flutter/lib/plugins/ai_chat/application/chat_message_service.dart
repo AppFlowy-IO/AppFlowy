@@ -66,38 +66,58 @@ ChatFile? chatFileFromMap(Map<String, dynamic>? map) {
   return ChatFile.fromFilePath(filePath);
 }
 
-List<ChatMessageRefSource> messageReferenceSource(String? s) {
-  if (s == null || s.isEmpty || s == "null") {
-    return [];
+class MetadataCollection {
+  MetadataCollection({
+    required this.sources,
+    this.progress,
+  });
+  final List<ChatMessageRefSource> sources;
+  final AIChatProgress? progress;
+}
+
+MetadataCollection parseMetadata(String? s) {
+  if (s == null || s.trim().isEmpty || s.toLowerCase() == "null") {
+    return MetadataCollection(sources: []);
   }
 
   final List<ChatMessageRefSource> metadata = [];
-  try {
-    final metadataJson = jsonDecode(s);
-    if (metadataJson == null) {
-      Log.warn("metadata is null");
-      return [];
-    }
-    // [{"id":null,"name":"The Five Dysfunctions of a Team.pdf","source":"/Users/weidongfu/Desktop/The Five Dysfunctions of a Team.pdf"}]
+  AIChatProgress? progress;
 
-    if (metadataJson is Map<String, dynamic>) {
-      if (metadataJson.isNotEmpty) {
-        metadata.add(ChatMessageRefSource.fromJson(metadataJson));
-      }
-    } else if (metadataJson is List) {
-      metadata.addAll(
-        metadataJson.map(
-          (e) => ChatMessageRefSource.fromJson(e as Map<String, dynamic>),
-        ),
-      );
-    } else {
-      Log.error("Invalid metadata: $metadataJson");
+  try {
+    final dynamic decodedJson = jsonDecode(s);
+    if (decodedJson == null) {
+      return MetadataCollection(sources: []);
     }
-  } catch (e) {
-    Log.error("Failed to parse metadata: $e");
+
+    void processMap(Map<String, dynamic> map) {
+      if (map.containsKey("step") && map["step"] != null) {
+        progress = AIChatProgress.fromJson(map);
+      } else if (map.containsKey("id") && map["id"] != null) {
+        metadata.add(ChatMessageRefSource.fromJson(map));
+      } else {
+        Log.info("Unsupported metadata format: $map");
+      }
+    }
+
+    if (decodedJson is Map<String, dynamic>) {
+      processMap(decodedJson);
+    } else if (decodedJson is List) {
+      for (final element in decodedJson) {
+        if (element is Map<String, dynamic>) {
+          processMap(element);
+        } else {
+          Log.error("Invalid metadata element: $element");
+        }
+      }
+    } else {
+      Log.error("Invalid metadata format: $decodedJson");
+    }
+  } catch (e, stacktrace) {
+    Log.error("Failed to parse metadata: $e, input: $s");
+    Log.debug(stacktrace.toString());
   }
 
-  return metadata;
+  return MetadataCollection(sources: metadata, progress: progress);
 }
 
 Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(

@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// An animated generating indicator for an AI response
 class ChatAILoading extends StatelessWidget {
@@ -23,9 +25,14 @@ class ChatAILoading extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 4.0),
-            child: FlowyText(
-              LocaleKeys.chat_generatingResponse.tr(),
-              color: Theme.of(context).hintColor,
+            child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
+              builder: (context, state) {
+                return FlowyText(
+                  state.progress?.step ??
+                      LocaleKeys.chat_generatingResponse.tr(),
+                  color: Theme.of(context).hintColor,
+                );
+              },
             ),
           ),
           buildDot(const Color(0xFF9327FF))

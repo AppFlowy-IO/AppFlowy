@@ -57,6 +57,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   bool isLoadingPreviousMessages = false;
   bool hasMorePreviousMessages = true;
   AnswerStream? answerStream;
+  int numSendMessage = 0;
 
   @override
   Future<void> close() async {
@@ -144,6 +145,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             String message,
             Map<String, dynamic>? metadata,
           ) {
+            numSendMessage += 1;
+
             final relatedQuestionMessages = chatController.messages.where(
               (message) {
                 return onetimeMessageTypeFromMeta(message.metadata) ==
@@ -290,9 +293,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           chatId: chatId,
           messageId: lastSentMessage!.messageId,
         );
+
+        // when previous numSendMessage is not equal to current numSendMessage, it means that the user
+        // has sent a new message. So we don't need to get related questions.
+        final preNumSendMessage = numSendMessage;
         await AIEventGetRelatedQuestion(payload).send().fold(
           (list) {
-            if (!isClosed) {
+            if (!isClosed && preNumSendMessage == numSendMessage) {
               add(
                 ChatEvent.didReceiveRelatedQuestions(
                   list.items.map((e) => e.content).toList(),

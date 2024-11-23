@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
 
 class AnswerStream {
@@ -25,7 +24,7 @@ class AnswerStream {
         } else if (event.startsWith("metadata:")) {
           if (_onMetadata != null) {
             final s = event.substring(9);
-            _onMetadata!(messageReferenceSource(s));
+            _onMetadata!(parseMetadata(s));
           }
         } else if (event == "AI_RESPONSE_LIMIT") {
           if (_onAIResponseLimit != null) {
@@ -59,7 +58,7 @@ class AnswerStream {
   void Function()? _onEnd;
   void Function(String error)? _onError;
   void Function()? _onAIResponseLimit;
-  void Function(List<ChatMessageRefSource> metadata)? _onMetadata;
+  void Function(MetadataCollection metadataCollection)? _onMetadata;
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
@@ -78,7 +77,7 @@ class AnswerStream {
     void Function()? onEnd,
     void Function(String error)? onError,
     void Function()? onAIResponseLimit,
-    void Function(List<ChatMessageRefSource> metadata)? onMetadata,
+    void Function(MetadataCollection metadata)? onMetadata,
   }) {
     _onData = onData;
     _onStart = onStart;

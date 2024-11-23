@@ -40,6 +40,20 @@ class ChatMessageRefSource {
   Map<String, dynamic> toJson() => _$ChatMessageRefSourceToJson(this);
 }
 
+@JsonSerializable()
+class AIChatProgress {
+  AIChatProgress({
+    required this.step,
+  });
+
+  factory AIChatProgress.fromJson(Map<String, dynamic> json) =>
+      _$AIChatProgressFromJson(json);
+
+  final String step;
+
+  Map<String, dynamic> toJson() => _$AIChatProgressToJson(this);
+}
+
 enum PromptResponseState {
   ready,
   sendingQuestion,
