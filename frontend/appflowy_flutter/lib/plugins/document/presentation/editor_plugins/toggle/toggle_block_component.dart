@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -251,13 +251,16 @@ class _ToggleListBlockComponentWidgetState
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
+    final crossAxisAlignment = textDirection == TextDirection.ltr
+        ? CrossAxisAlignment.start
+        : CrossAxisAlignment.end;
 
     return Container(
       width: double.infinity,
       alignment: alignment,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: crossAxisAlignment,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -335,6 +338,9 @@ class _ToggleListBlockComponentWidgetState
 
   Widget _buildExpandIcon() {
     double buttonHeight = UniversalPlatform.isDesktop ? 22.0 : 26.0;
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
 
     if (level != null) {
       // top padding * 2 + button height = height of the heading text
@@ -347,23 +353,27 @@ class _ToggleListBlockComponentWidgetState
       }
     }
 
+    final turns = switch (textDirection) {
+      TextDirection.ltr => collapsed ? 0.0 : 0.25,
+      TextDirection.rtl => collapsed ? -0.5 : -0.75,
+    };
+
     return Container(
       constraints: BoxConstraints(
         minWidth: 26,
         minHeight: buttonHeight,
       ),
-      child: FlowyIconButton(
-        width: 20.0,
-        onPressed: onCollapsed,
-        icon: Container(
-          padding: const EdgeInsets.only(right: 4.0),
-          child: AnimatedRotation(
-            turns: collapsed ? 0.0 : 0.25,
-            duration: const Duration(milliseconds: 200),
-            child: const Icon(
-              Icons.arrow_right,
-              size: 18.0,
-            ),
+      alignment: Alignment.center,
+      child: FlowyButton(
+        margin: const EdgeInsets.all(2.0),
+        useIntrinsicWidth: true,
+        onTap: onCollapsed,
+        text: AnimatedRotation(
+          turns: turns,
+          duration: const Duration(milliseconds: 200),
+          child: const Icon(
+            Icons.arrow_right,
+            size: 18.0,
           ),
         ),
       ),
