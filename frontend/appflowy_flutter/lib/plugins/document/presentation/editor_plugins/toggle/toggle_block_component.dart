@@ -211,25 +211,7 @@ class _ToggleListBlockComponentWidgetState
     BuildContext context, {
     bool withBackgroundColor = false,
   }) {
-    final textDirection = calculateTextDirection(
-      layoutDirection: Directionality.maybeOf(context),
-    );
-
-    Widget child = Container(
-      width: double.infinity,
-      alignment: alignment,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        textDirection: textDirection,
-        children: [
-          _buildExpandIcon(),
-          Flexible(
-            child: _buildRichText(),
-          ),
-        ],
-      ),
-    );
+    Widget child = _buildToggleBlock();
 
     child = BlockSelectionContainer(
       node: node,
@@ -263,6 +245,55 @@ class _ToggleListBlockComponentWidgetState
     }
 
     return child;
+  }
+
+  Widget _buildToggleBlock() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
+    return Container(
+      width: double.infinity,
+      alignment: alignment,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: textDirection,
+            children: [
+              _buildExpandIcon(),
+              Flexible(
+                child: _buildRichText(),
+              ),
+            ],
+          ),
+          _buildPlaceholder(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    // if the toggle block is collapsed or it contains children, don't show the
+    // placeholder.
+    if (collapsed || node.children.isNotEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: indentPadding,
+      child: FlowyButton(
+        text: FlowyText(
+          buildPlaceholderText(),
+          color: Theme.of(context).hintColor,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 8),
+        onTap: onAddContent,
+      ),
+    );
   }
 
   Widget _buildRichText() {
@@ -346,5 +377,25 @@ class _ToggleListBlockComponentWidgetState
       });
     transaction.afterSelection = editorState.selection;
     await editorState.apply(transaction);
+  }
+
+  Future<void> onAddContent() async {
+    final transaction = editorState.transaction;
+    final path = node.path.child(0);
+    transaction.insertNode(
+      path,
+      paragraphNode(),
+    );
+    transaction.afterSelection = Selection.collapsed(Position(path: path));
+    await editorState.apply(transaction);
+  }
+
+  String buildPlaceholderText() {
+    if (level != null) {
+      return LocaleKeys.document_plugins_emptyToggleHeading.tr(
+        args: [level.toString()],
+      );
+    }
+    return LocaleKeys.document_plugins_emptyToggleList.tr();
   }
 }
