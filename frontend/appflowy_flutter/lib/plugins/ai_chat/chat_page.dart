@@ -120,7 +120,7 @@ class _ChatContentPage extends StatelessWidget {
                         .constrained(
                           maxWidth: 784,
                         )
-                        .padding(horizontal: 32)
+                        .padding(horizontal: 60)
                         .animate(
                           const Duration(milliseconds: 200),
                           Curves.easeOut,
