@@ -292,7 +292,11 @@ class AIResponseActionBar extends StatelessWidget {
             padding: const EdgeInsets.all(2.0),
             decoration: BoxDecoration(
               borderRadius: DesktopAIConvoSizes.actionBarIconRadius,
-              border: Border.all(color: Theme.of(context).dividerColor),
+              border: Border.all(
+                color: isLightMode
+                    ? const Color(0x1F1F2329)
+                    : Theme.of(context).dividerColor,
+              ),
               color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(

@@ -10,7 +10,6 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_chat_ui/src/scroll_to_bottom.dart';
-import 'package:flutter_chat_ui/src/utils/chat_input_height_notifier.dart';
 import 'package:flutter_chat_ui/src/utils/message_list_diff.dart';
 
 class ChatAnimatedListReversed extends StatefulWidget {
@@ -47,8 +46,8 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
   late List<Message> _oldList;
   late StreamSubscription<ChatOperation> _operationsSubscription;
 
-  late AnimationController _scrollToBottomController;
-  late Animation<double> _scrollToBottomAnimation;
+  late final AnimationController _scrollToBottomController;
+  late final Animation<double> _scrollToBottomAnimation;
   Timer? _scrollToBottomShowTimer;
 
   bool _userHasScrolled = false;
@@ -72,7 +71,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
             event.message != null,
             'Message must be provided when inserting a message.',
           );
-          _onInserted(event.index!, event.message!);
+          _onInserted(0, event.message!);
           _oldList = List.from(_chatController.messages);
           break;
         case ChatOperationType.remove:
@@ -139,12 +138,12 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
       onNotification: (notification) {
         if (notification is UserScrollNotification) {
           // When user scrolls up, save it to `_userHasScrolled`
-          if (notification.direction == ScrollDirection.forward) {
+          if (notification.direction == ScrollDirection.reverse) {
             _userHasScrolled = true;
           } else {
             // When user overscolls to the bottom or stays idle at the bottom, set `_userHasScrolled` to false
             if (notification.metrics.pixels ==
-                notification.metrics.maxScrollExtent) {
+                notification.metrics.minScrollExtent) {
               _userHasScrolled = false;
             }
           }
@@ -163,14 +162,10 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
             reverse: true,
             controller: widget.scrollController,
             slivers: <Widget>[
-              Consumer<ChatInputHeightNotifier>(
-                builder: (context, heightNotifier, child) {
-                  return SliverPadding(
-                    padding: EdgeInsets.only(
-                      top: heightNotifier.height + (widget.bottomPadding ?? 0),
-                    ),
-                  );
-                },
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  top: widget.bottomPadding ?? 0,
+                ),
               ),
               SliverAnimatedList(
                 key: _listKey,
@@ -205,32 +200,10 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     );
   }
 
-  void _initialScrollToEnd() async {
-    // Delay the scroll to the end animation so new message is painted, otherwise
-    // maxScrollExtent is not yet updated and the animation might not work.
-    await Future.delayed(widget.insertAnimationDuration);
-
-    if (!widget.scrollController.hasClients || !mounted) return;
-
-    if (widget.scrollController.offset >
-        widget.scrollController.position.minScrollExtent) {
-      if (widget.scrollToEndAnimationDuration == Duration.zero) {
-        widget.scrollController
-            .jumpTo(widget.scrollController.position.minScrollExtent);
-      } else {
-        await widget.scrollController.animateTo(
-          widget.scrollController.position.minScrollExtent,
-          duration: widget.scrollToEndAnimationDuration,
-          curve: Curves.linearToEaseOut,
-        );
-      }
-    }
-  }
-
   void _subsequentScrollToEnd(Message data) async {
     final user = Provider.of<User>(context, listen: false);
 
-    // In this case we only want to scroll to the bottom if user has not scrolled up
+    // We only want to scroll to the bottom if user has not scrolled up
     // or if the message is sent by the current user.
     if (data.id == _lastInsertedMessageId &&
         widget.scrollController.offset >
@@ -273,15 +246,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
       (_) {
         if (!widget.scrollController.hasClients || !mounted) return;
 
-        // We need this condition because if scroll view is not yet scrollable,
-        // we want to wait for the insert animation to finish before scrolling to the end.
-        if (widget.scrollController.position.maxScrollExtent == 0) {
-          // Scroll view is not yet scrollable, scroll to the end if
-          // new message makes it scrollable.
-          _initialScrollToEnd();
-        } else {
-          _subsequentScrollToEnd(data);
-        }
+        _subsequentScrollToEnd(data);
       },
     );
   }
@@ -337,18 +302,15 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
   }
 
   void _onInserted(final int position, final Message data) {
-    final user = Provider.of<User>(context, listen: false);
-
-    // There is a scroll notification listener the controls the `_userHasScrolled` variable.
-    // However, when a new message is sent by the current user we want to
-    // set `_userHasScrolled` to false so that the scroll animation is triggered.
+    // There is a scroll notification listener the controls the
+    // `_userHasScrolled` variable.
     //
-    // Also, if for some reason `_userHasScrolled` is true and the user is not at the bottom of the list,
-    // set `_userHasScrolled` to false so that the scroll animation is triggered.
-    if (user.id == data.author.id ||
-        (_userHasScrolled == true &&
-            widget.scrollController.offset >=
-                widget.scrollController.position.maxScrollExtent)) {
+    // If for some reason `_userHasScrolled` is true and the user is not at the
+    // bottom of the list, set `_userHasScrolled` to false so that the scroll
+    // animation is triggered.
+    if (_userHasScrolled &&
+        widget.scrollController.offset >=
+            widget.scrollController.position.minScrollExtent) {
       _userHasScrolled = false;
     }
 
@@ -360,7 +322,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     // Used later to trigger scroll to end only for the last inserted message.
     _lastInsertedMessageId = data.id;
 
-    if (user.id == data.author.id && position == _oldList.length) {
+    if (position == _oldList.length) {
       _scrollToEnd(data);
     }
   }
