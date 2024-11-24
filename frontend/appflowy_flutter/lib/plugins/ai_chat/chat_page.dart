@@ -299,7 +299,7 @@ class _ChatContentPage extends StatelessWidget {
     return ChatMessage(
       message: message,
       animation: animation,
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: child,
     );
   }
