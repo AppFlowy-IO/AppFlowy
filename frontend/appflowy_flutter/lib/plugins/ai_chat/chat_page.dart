@@ -68,20 +68,24 @@ class AIChatPage extends StatelessWidget {
         BlocProvider(create: (_) => ChatSidePanelBloc(chatId: view.id)),
         BlocProvider(create: (_) => ChatMemberBloc()),
       ],
-      child: DropTarget(
-        onDragDone: (DropDoneDetails detail) async {
-          if (context.read<AIPromptInputBloc>().state.supportChatWithFile) {
-            for (final file in detail.files) {
-              context
-                  .read<AIPromptInputBloc>()
-                  .add(AIPromptInputEvent.newFile(file.path, file.name));
-            }
-          }
+      child: Builder(
+        builder: (context) {
+          return DropTarget(
+            onDragDone: (DropDoneDetails detail) async {
+              if (context.read<AIPromptInputBloc>().state.supportChatWithFile) {
+                for (final file in detail.files) {
+                  context
+                      .read<AIPromptInputBloc>()
+                      .add(AIPromptInputEvent.newFile(file.path, file.name));
+                }
+              }
+            },
+            child: _ChatContentPage(
+              view: view,
+              userProfile: userProfile,
+            ),
+          );
         },
-        child: _ChatContentPage(
-          view: view,
-          userProfile: userProfile,
-        ),
       ),
     );
   }
@@ -116,7 +120,7 @@ class _ChatContentPage extends StatelessWidget {
                         .constrained(
                           maxWidth: 784,
                         )
-                        .padding(horizontal: 32)
+                        .padding(horizontal: 60)
                         .animate(
                           const Duration(milliseconds: 200),
                           Curves.easeOut,
@@ -300,6 +304,7 @@ class _ChatContentPage extends StatelessWidget {
       message: message,
       animation: animation,
       padding: const EdgeInsets.symmetric(vertical: 12.0),
+      receivedMessageScaleAnimationAlignment: Alignment.center,
       child: child,
     );
   }

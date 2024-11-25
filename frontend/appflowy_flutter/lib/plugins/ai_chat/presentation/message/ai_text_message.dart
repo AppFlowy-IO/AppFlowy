@@ -69,10 +69,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                 return ChatAIMessageBubble(
                   message: message,
                   showActions: false,
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: ChatAILoading(),
-                  ),
+                  child: const ChatAILoading(),
                 );
               },
               ready: () {
