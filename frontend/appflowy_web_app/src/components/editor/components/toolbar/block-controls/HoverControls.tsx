@@ -8,6 +8,7 @@ import {
 import ControlsMenu from '@/components/editor/components/toolbar/block-controls/ControlsMenu';
 import { useHoverControls } from '@/components/editor/components/toolbar/block-controls/HoverControls.hooks';
 import { useEditorContext } from '@/components/editor/EditorContext';
+import { isMac } from '@/utils/hotkeys';
 import { IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -79,7 +80,7 @@ export function HoverControls ({ onAdded }: {
         <Tooltip
           title={<div className={'flex flex-col'}>
             <div>{t('blockActions.addBelowTooltip')}</div>
-            <div>{`${t('blockActions.addAboveCmd')} ${t('blockActions.addAboveTooltip')}`}</div>
+            <div>{`${isMac() ? t('blockActions.addAboveMacCmd') : t('blockActions.addAboveCmd')} ${t('blockActions.addAboveTooltip')}`}</div>
           </div>}
           disableInteractive={true}
         >
