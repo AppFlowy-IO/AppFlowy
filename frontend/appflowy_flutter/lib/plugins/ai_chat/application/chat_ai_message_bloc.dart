@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -25,39 +23,24 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             parseMetadata(refSourceJsonString),
           ),
         ) {
+    _dispatch();
+
     if (state.stream != null) {
-      state.stream!.listen(
-        onData: (text) {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.updateText(text));
-          }
-        },
-        onError: (error) {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.receiveError(error.toString()));
-          }
-        },
-        onAIResponseLimit: () {
-          if (!isClosed) {
-            add(const ChatAIMessageEvent.onAIResponseLimit());
-          }
-        },
-        onMetadata: (metadata) {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.receiveMetadata(metadata));
-          }
-        },
-      );
+      _startListening();
 
       if (state.stream!.error != null) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.receiveError(state.stream!.error!));
-          }
-        });
+        add(ChatAIMessageEvent.receiveError(state.stream!.error!));
+      }
+      if (state.stream!.aiLimitReached) {
+        add(const ChatAIMessageEvent.onAIResponseLimit());
       }
     }
+  }
 
+  final String chatId;
+  final Int64? questionId;
+
+  void _dispatch() {
     on<ChatAIMessageEvent>(
       (event, emit) {
         event.when(
@@ -130,8 +113,30 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     );
   }
 
-  final String chatId;
-  final Int64? questionId;
+  void _startListening() {
+    state.stream!.listen(
+      onData: (text) {
+        if (!isClosed) {
+          add(ChatAIMessageEvent.updateText(text));
+        }
+      },
+      onError: (error) {
+        if (!isClosed) {
+          add(ChatAIMessageEvent.receiveError(error.toString()));
+        }
+      },
+      onAIResponseLimit: () {
+        if (!isClosed) {
+          add(const ChatAIMessageEvent.onAIResponseLimit());
+        }
+      },
+      onMetadata: (metadata) {
+        if (!isClosed) {
+          add(ChatAIMessageEvent.receiveMetadata(metadata));
+        }
+      },
+    );
+  }
 }
 
 @freezed

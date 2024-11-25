@@ -27,6 +27,7 @@ class AnswerStream {
             _onMetadata!(parseMetadata(s));
           }
         } else if (event == "AI_RESPONSE_LIMIT") {
+          _aiLimitReached = true;
           if (_onAIResponseLimit != null) {
             _onAIResponseLimit!();
           }
@@ -49,6 +50,7 @@ class AnswerStream {
   final StreamController<String> _controller = StreamController.broadcast();
   late StreamSubscription<String> _subscription;
   bool _hasStarted = false;
+  bool _aiLimitReached = false;
   String? _error;
   String _text = "";
 
@@ -63,6 +65,7 @@ class AnswerStream {
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
   String? get error => _error;
+  bool get aiLimitReached => _aiLimitReached;
   String get text => _text;
 
   Future<void> dispose() async {
