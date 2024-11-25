@@ -21,7 +21,7 @@ void main() {
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
-      const pageName = 'AI Writer';
+      const pageName = 'Document';
       await tester.createNewPageInSpace(
         spaceName: Constants.generalSpaceName,
         layout: ViewLayoutPB.Document,
