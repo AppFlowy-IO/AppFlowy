@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 enum TextRobotInputType {
@@ -17,25 +18,23 @@ class TextRobot {
     String text, {
     TextRobotInputType inputType = TextRobotInputType.word,
     Duration delay = const Duration(milliseconds: 10),
+    String separator = '\n',
   }) async {
-    if (text == '\n') {
+    if (text == separator) {
       return editorState.insertNewLine();
     }
-    final lines = text.split('\n');
+    final lines = text.split(separator);
     for (final line in lines) {
+      if (line.isEmpty) {
+        await editorState.insertNewLine();
+        Log.info('insertNewLine');
+        continue;
+      }
       switch (inputType) {
         case TextRobotInputType.character:
-          if (line.isEmpty) {
-            await editorState.insertNewLine();
-            continue;
-          }
           await insertCharacter(line, delay);
           break;
         case TextRobotInputType.word:
-          if (line.isEmpty) {
-            await editorState.insertNewLine();
-            continue;
-          }
           await insertWord(line, delay);
           break;
         case TextRobotInputType.sentence:

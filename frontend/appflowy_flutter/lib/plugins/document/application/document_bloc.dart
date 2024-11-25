@@ -30,8 +30,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         TransactionTime,
         Selection,
         Position,
-        paragraphNode
-        ;
+        paragraphNode;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
