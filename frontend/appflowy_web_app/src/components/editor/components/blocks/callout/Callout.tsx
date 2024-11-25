@@ -9,7 +9,7 @@ export const Callout = memo(
         <div
           ref={ref}
           {...attributes}
-          className={`${attributes.className ?? ''} flex w-full flex-col rounded border border-line-divider bg-fill-list-active py-2`}
+          className={`${attributes.className ?? ''} flex pr-2 w-full flex-col rounded border border-line-divider bg-fill-list-active py-2`}
         >
           {children}
         </div>
