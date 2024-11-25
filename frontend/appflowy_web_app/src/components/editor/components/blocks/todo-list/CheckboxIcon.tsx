@@ -27,7 +27,7 @@ function CheckboxIcon ({ block, className }: { block: TodoListNode; className: s
       data-playwright-selected={false}
       contentEditable={false}
       draggable={false}
-      onMouseDown={(e) => {
+      onMouseDown={e => {
         e.preventDefault();
       }}
       className={`${className} ${readOnly ? '' : 'cursor-pointer hover:text-fill-default'} pr-1 text-xl`}

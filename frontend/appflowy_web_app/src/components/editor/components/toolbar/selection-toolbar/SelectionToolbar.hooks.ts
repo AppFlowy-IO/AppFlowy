@@ -1,7 +1,10 @@
 import { YjsEditor } from '@/application/slate-yjs';
+import { CustomEditor } from '@/application/slate-yjs/command';
+import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { getOffsetPointFromSlateRange } from '@/application/slate-yjs/utils/yjsOperations';
 import { getRangeRect, getSelectionPosition } from '@/components/editor/components/toolbar/selection-toolbar/utils';
 import { useEditorContext } from '@/components/editor/EditorContext';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { PopoverPosition } from '@mui/material';
 import { debounce } from 'lodash-es';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,12 +22,16 @@ export function useVisible () {
 
   const isExpanded = selection ? Range.isExpanded(selection) : false;
 
+  const selectedText = selection ? editor.string(selection, {
+    voids: true,
+  }) : '';
+
   const visible = useMemo(() => {
     if (forceShow) return true;
     if (!focus) return false;
 
-    return isExpanded && !isDragging;
-  }, [focus, forceShow, isExpanded, isDragging]);
+    return Boolean(selectedText && isExpanded && !isDragging);
+  }, [focus, selectedText, forceShow, isExpanded, isDragging]);
 
   useEffect(() => {
     if (!visible) {
@@ -72,6 +79,92 @@ export function useVisible () {
       setForceShow(false);
     }
   }, [addDecorate, editor.selection]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+
+      switch (true) {
+        case createHotkey(HOT_KEY_NAME.ESCAPE)(event): {
+          if (!editor.selection) break;
+          event.preventDefault();
+          event.stopPropagation();
+          const start = editor.start(editor.selection);
+
+          editor.select(start);
+          ReactEditor.focus(editor);
+
+          break;
+        }
+
+        /**
+         * Bold: Mod + B
+         */
+        case createHotkey(HOT_KEY_NAME.BOLD)(event):
+          event.preventDefault();
+          CustomEditor.toggleMark(editor, {
+            key: EditorMarkFormat.Bold,
+            value: true,
+          });
+          break;
+        /**
+         * Italic: Mod + I
+         */
+        case createHotkey(HOT_KEY_NAME.ITALIC)(event):
+          event.preventDefault();
+          CustomEditor.toggleMark(editor, {
+            key: EditorMarkFormat.Italic,
+            value: true,
+          });
+          break;
+        /**
+         * Underline: Mod + U
+         */
+        case createHotkey(HOT_KEY_NAME.UNDERLINE)(event):
+          event.preventDefault();
+          CustomEditor.toggleMark(editor, {
+            key: EditorMarkFormat.Underline,
+            value: true,
+          });
+          break;
+        /**
+         * Strikethrough: Mod + Shift + S / Mod + Shift + X
+         */
+        case createHotkey(HOT_KEY_NAME.STRIKETHROUGH)(event):
+          event.preventDefault();
+          CustomEditor.toggleMark(editor, {
+            key: EditorMarkFormat.StrikeThrough,
+            value: true,
+          });
+          break;
+        /**
+         * Code: Mod + E
+         */
+        case createHotkey(HOT_KEY_NAME.CODE)(event):
+          event.preventDefault();
+          CustomEditor.toggleMark(editor, {
+            key: EditorMarkFormat.Code,
+            value: true,
+          });
+          break;
+        /**
+         * Highlight: Mod + Shift + H
+         */
+        case createHotkey(HOT_KEY_NAME.HIGH_LIGHT)(event):
+          event.preventDefault();
+          CustomEditor.highlight(editor);
+          break;
+      }
+    };
+
+    const slateEditorDom = ReactEditor.toDOMNode(editor, editor);
+
+    slateEditorDom.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      slateEditorDom.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor, visible]);
 
   return {
     visible,

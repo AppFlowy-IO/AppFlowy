@@ -73,7 +73,12 @@ export function ViewActions ({ view, hovered }: {
     if (!popoverType) return null;
 
     if (popoverType.type === 'add') {
-      return <AddPageActions view={view} />;
+      return <AddPageActions
+        onClose={() => {
+          handleClosePopover();
+        }}
+        view={view}
+      />;
     }
 
     if (popoverType.category === 'space') {

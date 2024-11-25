@@ -3,7 +3,6 @@ import {
   filterValidNodes,
   findSlateEntryByBlockId,
   getSelectedPaths,
-  isSameDepth,
 } from '@/application/slate-yjs/utils/slateUtils';
 import ControlsMenu from '@/components/editor/components/toolbar/block-controls/ControlsMenu';
 import { useHoverControls } from '@/components/editor/components/toolbar/block-controls/HoverControls.hooks';
@@ -37,13 +36,14 @@ export function HoverControls ({ onAdded }: {
     if (!hoveredBlockId) return;
     setMenuAnchorEl(e.currentTarget as HTMLElement);
     const { selection } = editor;
+    const [, nodePath] = findSlateEntryByBlockId(editor, hoveredBlockId);
 
     if (!selection) {
       setSelectedBlockIds?.([hoveredBlockId]);
     } else {
       const selectedPaths = getSelectedPaths(editor);
 
-      if (!selectedPaths || selectedPaths.length === 0 || !isSameDepth(selectedPaths)) {
+      if (!selectedPaths || selectedPaths.length === 0) {
         setSelectedBlockIds?.([hoveredBlockId]);
       } else {
         const nodes = filterValidNodes(editor, selectedPaths);
@@ -57,9 +57,7 @@ export function HoverControls ({ onAdded }: {
       }
     }
 
-    const [, path] = findSlateEntryByBlockId(editor, hoveredBlockId);
-
-    editor.select(editor.start(path));
+    editor.select(editor.start(nodePath));
 
   }, [editor, hoveredBlockId, setSelectedBlockIds]);
 

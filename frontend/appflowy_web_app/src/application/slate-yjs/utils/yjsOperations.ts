@@ -276,14 +276,15 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
   if (yText.length === 0) {
     const point = Editor.start(editor, at);
 
+    if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
+      return;
+    }
+
     if (blockType !== BlockType.Paragraph) {
       handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
       return;
     }
 
-    if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
-      return;
-    }
   }
 
   const { operations, select } = getSplitBlockOperations(sharedRoot, block, startOffset);

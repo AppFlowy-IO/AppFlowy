@@ -400,7 +400,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('App trash not found');
       }
 
-      setTrashList(sortBy(res, 'last_edited_time').reverse());
+      setTrashList(sortBy(uniqBy(res, 'view_id'), 'last_edited_time').reverse());
     } catch (e) {
       return Promise.reject('App trash not found');
     }

@@ -24,8 +24,9 @@ export const Text = forwardRef<HTMLSpanElement, EditorElementProps<TextNode>>(
 
     const content = useMemo(() => {
       return <>
-        {placeholder}
-        <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
+
+        <span className={`relative text-content ${isEmpty ? 'empty-text' : ''}`}>
+          {placeholder}{children}</span>
       </>;
     }, [placeholder, isEmpty, children]);
 

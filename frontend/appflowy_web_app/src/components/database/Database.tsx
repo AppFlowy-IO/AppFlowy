@@ -108,6 +108,7 @@ function Database ({
   useEffect(() => {
     onRendered?.();
   }, [onRendered]);
+
   if (!rowDocMap || !viewId) {
     return null;
   }
