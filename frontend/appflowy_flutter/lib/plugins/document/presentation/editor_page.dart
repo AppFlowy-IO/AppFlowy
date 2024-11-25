@@ -404,8 +404,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
+    final isLocalMode = context.read<DocumentBloc>().isLocalMode;
     return [
-      aiWriterSlashMenuItem,
+      if (!isLocalMode) aiWriterSlashMenuItem,
       textSlashMenuItem,
       heading1SlashMenuItem,
       heading2SlashMenuItem,

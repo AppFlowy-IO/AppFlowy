@@ -465,6 +465,7 @@ SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem(
     editorState.apply(transaction);
   },
 );
+
 // math equation
 SelectionMenuItem mathEquationSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_mathEquation.tr(),
