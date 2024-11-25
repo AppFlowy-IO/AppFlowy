@@ -105,16 +105,20 @@ function TrashPage () {
         </Tooltip>
       </div>;
     } else if (column.id === 'created_at' || column.id === 'last_edited_time') {
-      content = dayjs(value).format('MMM D, YYYY h:mm A');
+      content = <div className={'truncate min-w-[170px]'}>{dayjs(value).format('MMM D, YYYY h:mm A')}</div>;
     } else {
-      content = value || t('menuAppHeader.defaultNewPageName');
+      content = <div className={'flex-1 truncate max-w-[250px]'}>
+        <Tooltip title={value}>
+          <span>{value || t('menuAppHeader.defaultNewPageName')}</span>
+        </Tooltip>
+      </div>;
     }
 
     return (
       <TableCell
         key={column.id}
         align={'left'}
-        className={'font-medium'}
+        className={'font-medium overflow-hidden'}
       >
         {content}
       </TableCell>
@@ -133,7 +137,7 @@ function TrashPage () {
           className={'flex items-center justify-between px-4'}
         >
           <span className={'text-text-title text-xl font-medium'}>{t('trash.text')}</span>
-          <div className={'flex gap-2'}>
+          {trashList?.length && <div className={'flex gap-2'}>
             <Button
               size={'small'}
               onClick={() => handleRestore()}
@@ -147,7 +151,8 @@ function TrashPage () {
               startIcon={<TrashIcon />}
               color={'inherit'}
             >{t('trash.deleteAll')}</Button>
-          </div>
+          </div>}
+
         </div>
         <div className={'flex flex-col gap-2 w-full flex-1 overflow-hidden'}>
           {!trashList ? <TableSkeleton
@@ -185,6 +190,7 @@ function TrashPage () {
                           role="checkbox"
                           tabIndex={-1}
                           key={row.view_id}
+                          className={'overflow-hidden max-h-[54px]'}
                         >
                           {columns.map((column) => {
                             return renderCell(column, row);

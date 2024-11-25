@@ -20,12 +20,13 @@ export function useShortcuts (editor: ReactEditor) {
     const title = document.getElementById('editor-title');
 
     if (!title) return;
-    
+
     const selection = window.getSelection();
     const range = document.createRange();
 
-    range.selectNodeContents(title);
-    range.collapse(toStart);
+    const textNode = title.childNodes[0] as Node;
+
+    range.setStart(textNode, toStart ? 0 : (textNode?.textContent?.length || 0));
     selection?.removeAllRanges();
     selection?.addRange(range);
   }, [readOnly]);
@@ -51,14 +52,16 @@ export function useShortcuts (editor: ReactEditor) {
     if (selection && Range.isCollapsed(selection)) {
       switch (true) {
         case createHotkey(HOT_KEY_NAME.UP)(e): {
-          const before = Editor.before(editor, selection, { unit: 'offset' });
-          const beforeText = findInlineTextNode(editor, before);
           const path = editor.start(selection).path;
 
-          if (!Path.hasPrevious(path)) {
+          if (Path.isAncestor([0, 0], path)) {
+            e.preventDefault();
             focusedFocusableElement(false);
             break;
           }
+
+          const before = Editor.before(editor, selection, { unit: 'offset' });
+          const beforeText = findInlineTextNode(editor, before);
 
           if (before && beforeText) {
             e.preventDefault();
@@ -69,12 +72,31 @@ export function useShortcuts (editor: ReactEditor) {
           break;
         }
 
-        case createHotkey(HOT_KEY_NAME.BACKSPACE)(e):
-        case createHotkey(HOT_KEY_NAME.LEFT)(e): {
+        case createHotkey(HOT_KEY_NAME.BACKSPACE)(e): {
+          const [node] = getBlockEntry(yjsEditor);
+          const type = node.type as BlockType;
+
+          if (type !== BlockType.Paragraph) {
+            break;
+          }
+
+          const path = editor.start(selection).path;
+
           const before = Editor.before(editor, selection, { unit: 'offset' });
 
-          if (!before) {
+          if (!before && Path.isAncestor([0, 0], path)) {
             focusedFocusableElement(true);
+          }
+
+          break;
+        }
+
+        case createHotkey(HOT_KEY_NAME.LEFT)(e): {
+          const path = editor.start(selection).path;
+          const before = Editor.before(editor, selection, { unit: 'offset' });
+
+          if (!before && Path.isAncestor([0, 0], path)) {
+            focusedFocusableElement(false);
           }
 
           break;
@@ -84,7 +106,7 @@ export function useShortcuts (editor: ReactEditor) {
           const after = Editor.after(editor, selection, { unit: 'offset' });
           const afterText = findInlineTextNode(editor, after);
 
-          if (after && afterText) {
+          if (afterText) {
             e.preventDefault();
             Transforms.move(editor, { unit: 'line', distance: 2 });
             return;
@@ -253,56 +275,7 @@ export function useShortcuts (editor: ReactEditor) {
         }
 
         break;
-      /**
-       * Bold: Mod + B
-       */
-      case createHotkey(HOT_KEY_NAME.BOLD)(e):
-        event.preventDefault();
-        CustomEditor.toggleMark(editor, {
-          key: EditorMarkFormat.Bold,
-          value: true,
-        });
-        break;
-      /**
-       * Italic: Mod + I
-       */
-      case createHotkey(HOT_KEY_NAME.ITALIC)(e):
-        event.preventDefault();
-        CustomEditor.toggleMark(editor, {
-          key: EditorMarkFormat.Italic,
-          value: true,
-        });
-        break;
-      /**
-       * Underline: Mod + U
-       */
-      case createHotkey(HOT_KEY_NAME.UNDERLINE)(e):
-        event.preventDefault();
-        CustomEditor.toggleMark(editor, {
-          key: EditorMarkFormat.Underline,
-          value: true,
-        });
-        break;
-      /**
-       * Strikethrough: Mod + Shift + S / Mod + Shift + X
-       */
-      case createHotkey(HOT_KEY_NAME.STRIKETHROUGH)(e):
-        event.preventDefault();
-        CustomEditor.toggleMark(editor, {
-          key: EditorMarkFormat.StrikeThrough,
-          value: true,
-        });
-        break;
-      /**
-       * Code: Mod + E
-       */
-      case createHotkey(HOT_KEY_NAME.CODE)(e):
-        event.preventDefault();
-        CustomEditor.toggleMark(editor, {
-          key: EditorMarkFormat.Code,
-          value: true,
-        });
-        break;
+
       /**
        * Open link: Opt + SHIFT + Enter
        */
@@ -382,14 +355,6 @@ export function useShortcuts (editor: ReactEditor) {
           CustomEditor.pastedText(yjsEditor, text);
         });
         break;
-      /**
-       * Highlight: Mod + Shift + H
-       */
-      case createHotkey(HOT_KEY_NAME.HIGH_LIGHT)(e):
-        event.preventDefault();
-        CustomEditor.highlight(editor);
-        break;
-
       /**
        * Scroll to top: Home
        */

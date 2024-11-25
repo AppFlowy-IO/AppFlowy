@@ -49,12 +49,12 @@ function MorePageActions ({ view, onClose }: {
         extra: view.extra || {},
       });
       setIconPopoverAnchorEl(null);
-
+      onClose?.();
       // eslint-disable-next-line
     } catch (e: any) {
       notify.error(e);
     }
-  }, [updatePage, view.extra, view.name, view.view_id]);
+  }, [onClose, updatePage, view.extra, view.name, view.view_id]);
 
   const handleRemoveIcon = useCallback(() => {
     void handleChangeIcon({ ty: 0, value: '' });
@@ -103,7 +103,9 @@ function MorePageActions ({ view, onClose }: {
         color={'inherit'}
         onClick={() => {
           if (!currentWorkspaceId) return;
+          onClose?.();
           window.open(`/app/${currentWorkspaceId}/${view.view_id}`, '_blank');
+
         }}
         startIcon={<OpenInBrowserIcon className={'w-4 h-4'} />}
       >
@@ -116,6 +118,7 @@ function MorePageActions ({ view, onClose }: {
           open={openIconPopover}
           anchorEl={iconPopoverAnchorEl}
           onClose={() => {
+            onClose?.();
             setIconPopoverAnchorEl(null);
           }}
           popoverProps={popoverProps}
@@ -125,7 +128,10 @@ function MorePageActions ({ view, onClose }: {
       </Suspense>
       <RenameModal
         open={renameModalOpen}
-        onClose={() => setRenameModalOpen(false)}
+        onClose={() => {
+          onClose?.();
+          setRenameModalOpen(false);
+        }}
         viewId={view.view_id}
       />
     </div>

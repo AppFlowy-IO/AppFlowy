@@ -135,9 +135,9 @@ export function ViewMetaPreview ({
       <div
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        className={'flex mt-2 flex-col relative'}
+        className={'flex mt-2 flex-col relative w-full overflow-hidden'}
       >
-        <div className={'relative max-sm:h-[38px] h-[52px] w-full'}>
+        <div className={'relative flex justify-center max-sm:h-[38px] h-[52px] w-full'}>
           {isHover && !readOnly && <Suspense><AddIconCover
             hasIcon={!!icon?.value}
             hasCover={!!cover?.value}
@@ -151,14 +151,14 @@ export function ViewMetaPreview ({
             iconAnchorEl={iconAnchorEl}
             setIconAnchorEl={setIconAnchorEl}
           /></Suspense>}
+
         </div>
         <div
-
-          className={`relative mb-6 max-sm:px-6 px-24 w-[988px] min-w-0 max-w-full overflow-visible`}
+          className={`relative mb-6 flex items-center overflow-visible w-full justify-center`}
         >
           <h1
             className={
-              'flex w-full gap-4 overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
+              'flex gap-4 max-sm:px-6 px-24 w-[988px] min-w-0 max-w-full overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
             }
           >
             {icon?.value ?

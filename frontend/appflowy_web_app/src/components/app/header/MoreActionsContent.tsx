@@ -8,8 +8,9 @@ import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import { ReactComponent as DuplicateIcon } from '@/assets/duplicate.svg';
 import { ReactComponent as MoveToIcon } from '@/assets/move_to.svg';
 
-function MoreActionsContent ({ itemClicked, viewId, movePopoverOrigins }: {
+function MoreActionsContent ({ itemClicked, viewId, movePopoverOrigins, onDeleted }: {
   itemClicked?: () => void;
+  onDeleted?: () => void;
   viewId: string;
   movePopoverOrigins: Origins
 }) {
@@ -24,7 +25,7 @@ function MoreActionsContent ({ itemClicked, viewId, movePopoverOrigins }: {
         className={'px-3 py-1 justify-start '}
         color={'inherit'}
         onClick={() => {
-          //
+          itemClicked?.();
         }}
 
         startIcon={<DuplicateIcon />}
@@ -51,16 +52,25 @@ function MoreActionsContent ({ itemClicked, viewId, movePopoverOrigins }: {
       >{t('button.delete')}</Button>
       <DeletePageConfirm
         open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          itemClicked?.();
+        }}
         viewId={viewId}
-        onDeleted={itemClicked}
+        onDeleted={() => {
+          onDeleted?.();
+          itemClicked?.();
+        }}
       />
       <MovePagePopover
         {...movePopoverOrigins}
         viewId={viewId}
         open={Boolean(movePopoverAnchorEl)}
         anchorEl={movePopoverAnchorEl}
-        onClose={() => setMovePopoverAnchorEl(null)}
+        onClose={() => {
+          setMovePopoverAnchorEl(null);
+          itemClicked?.();
+        }}
         onMoved={itemClicked}
       />
     </div>

@@ -16,21 +16,40 @@ export function mountEditor (props: EditorProps) {
   cy.mount(<AppWrapper />);
 }
 
+export const moveToEnd = () => {
+  const selector = '[role="textbox"]';
+
+  cy.get(selector).as('editor');
+  cy.get('@editor').focus();
+  cy.get('@editor').realMouseWheel({
+    deltaX: 0,
+    deltaY: 1000,
+  }).wait(200);
+  cy.get('@editor').invoke('on', 'click', (e: MouseEvent) => {
+    e.stopPropagation();
+  }).type('{movetoend}').wait(50);
+};
+
 export const moveToLineStart = (lineIndex: number) => {
   const selector = '[role="textbox"]';
 
   cy.get(selector).as('targetBlock');
 
   if (lineIndex === 0) {
-    cy.get('@targetBlock').type('{movetostart}').wait(50);
+    cy.get('@targetBlock').invoke('on', 'click', (e: MouseEvent) => {
+      e.stopPropagation();
+    }).type('{movetostart}').wait(50);
   } else {
-    cy.get('@targetBlock').type('{movetostart}').type('{downarrow}'.repeat(lineIndex))
+    cy.get('@targetBlock').invoke('on', 'click', (e: MouseEvent) => {
+      e.stopPropagation();
+    }).type('{movetostart}').type('{downarrow}'.repeat(lineIndex))
       .wait(50);
   }
 };
 
 export const moveCursor = (lineIndex: number, charIndex: number) => {
   moveToLineStart(lineIndex);
+
   // Move the cursor with right arrow key and batch the movement
   const batchSize = 1;
   const batches = Math.ceil(charIndex / batchSize);
@@ -38,7 +57,9 @@ export const moveCursor = (lineIndex: number, charIndex: number) => {
   for (let i = 0; i < batches; i++) {
     const remainingMoves = Math.min(batchSize, charIndex - i * batchSize);
 
-    cy.get('@targetBlock')
+    cy.get('@targetBlock').invoke('on', 'click', (e: MouseEvent) => {
+      e.stopPropagation();
+    })
       .type('{rightarrow}'.repeat(remainingMoves))
       .wait(20);
   }

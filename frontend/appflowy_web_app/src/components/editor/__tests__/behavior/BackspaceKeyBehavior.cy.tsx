@@ -327,7 +327,7 @@ describe('Backspace key behavior', () => {
 
       // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-merge-nested-toggle-list');
     });
-
+    //
     it('should handle backspace at start of document', () => {
       moveToLineStart(0);
       cy.get('@editor').type('{backspace}');

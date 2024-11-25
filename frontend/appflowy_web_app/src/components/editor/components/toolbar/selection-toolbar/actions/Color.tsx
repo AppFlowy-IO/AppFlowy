@@ -6,6 +6,7 @@ import {
   useSelectionToolbarContext,
 } from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { ColorEnum, renderColor } from '@/utils/color';
+import { Tooltip } from '@mui/material';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import ActionButton from './ActionButton';
 import { useTranslation } from 'react-i18next';
@@ -124,23 +125,29 @@ function Color () {
         <div className={'text-text-caption text-xs'}>{t('editor.textColor')}</div>
         <div className={'flex flex-wrap gap-1.5'}>
           {editorTextColors.map((color, index) => {
-            return <div
+            return <Tooltip
+              disableInteractive={true}
               key={index}
-              className={'h-6 relative w-6 flex items-center justify-center'}
-              onClick={() => handlePickedColor(EditorMarkFormat.FontColor, color.color)}
-              style={{
-                color: color.color || 'var(--text-title)',
-              }}
+              title={color.label}
+              placement={'top'}
             >
               <div
-                className={`w-full h-full absolute top-0 left-0 rounded-[6px] border-2 cursor-pointer opacity-50 hover:opacity-100`}
+                className={'h-6 relative w-6 flex items-center justify-center'}
+                onClick={() => handlePickedColor(EditorMarkFormat.FontColor, color.color)}
                 style={{
-                  borderColor: color.color || 'var(--text-title)',
-                  opacity: color.color ? undefined : 1,
+                  color: color.color || 'var(--text-title)',
                 }}
-              />
-              <TextSvg />
-            </div>;
+              >
+                <div
+                  className={`w-full h-full absolute top-0 left-0 rounded-[6px] border-2 cursor-pointer opacity-50 hover:opacity-100`}
+                  style={{
+                    borderColor: color.color || 'var(--text-title)',
+                    opacity: color.color ? undefined : 1,
+                  }}
+                />
+                <TextSvg />
+              </div>
+            </Tooltip>;
           })}
         </div>
       </div>
@@ -148,24 +155,31 @@ function Color () {
         <div className={'text-text-caption text-xs'}>{t('editor.backgroundColor')}</div>
         <div className={'flex flex-wrap gap-1.5'}>
           {editorBgColors.map((color, index) => {
-            return <div
+            return <Tooltip
+              disableInteractive={true}
               key={index}
-              className={'h-6 relative w-6 overflow-hidden flex items-center rounded-[6px] cursor-pointer justify-center'}
-              onClick={() => handlePickedColor(EditorMarkFormat.BgColor, color.color)}
+              title={color.label}
+              placement={'top'}
             >
               <div
-                className={`w-full h-full absolute top-0 left-0 rounded-[6px] border-2`}
-                style={{
-                  borderColor: renderColor(color.color),
-                }}
-              />
-              <div
-                className={'w-full h-full opacity-50 hover:opacity-100 z-[1]'}
-                style={{
-                  backgroundColor: renderColor(color.color),
-                }}
-              />
-            </div>;
+                key={index}
+                className={'h-6 relative w-6 overflow-hidden flex items-center rounded-[6px] cursor-pointer justify-center'}
+                onClick={() => handlePickedColor(EditorMarkFormat.BgColor, color.color)}
+              >
+                <div
+                  className={`w-full h-full absolute top-0 left-0 rounded-[6px] border-2`}
+                  style={{
+                    borderColor: renderColor(color.color),
+                  }}
+                />
+                <div
+                  className={'w-full h-full opacity-50 hover:opacity-100 z-[1]'}
+                  style={{
+                    backgroundColor: renderColor(color.color),
+                  }}
+                />
+              </div>
+            </Tooltip>;
           })}
         </div>
       </div>

@@ -21,7 +21,7 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
   const [photos, setPhotos] = useState<
     {
       thumb: string;
-      regular: string;
+      full: string;
       alt: string | null;
       id: string;
       user: {
@@ -63,7 +63,7 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
             result.response.results.map((photo) => ({
               id: photo.id,
               thumb: photo.urls.thumb,
-              regular: photo.urls.regular,
+              full: photo.urls.full,
               alt: photo.alt_description,
               user: {
                 name: photo.user.name,
@@ -89,7 +89,7 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
     <div
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className={'flex h-[460px] flex-col gap-4 px-4 pb-4'}
+      className={'flex h-fit flex-col gap-4 px-4 pb-4'}
     >
       <TextField
         autoFocus
@@ -135,7 +135,7 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
                     <div className={'relative pt-[56.25%]'}>
                       <img
                         onClick={() => {
-                          onDone?.(photo.regular);
+                          onDone?.(photo.full);
                         }}
                         src={photo.thumb}
                         alt={photo.alt ?? ''}

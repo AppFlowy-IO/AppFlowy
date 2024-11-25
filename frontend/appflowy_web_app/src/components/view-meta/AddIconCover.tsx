@@ -25,7 +25,7 @@ function AddIconCover ({
   const { t } = useTranslation();
 
   return (
-    <div className={'gap-2 flex w-full justify-start items-center px-24 max-sm:hidden'}>
+    <div className={'max-sm:px-6 px-24 w-[988px] flex items-start min-w-0 max-w-full gap-2 justify-start max-sm:hidden'}>
       {!hasIcon && <Button
         color={'inherit'}
         size={'small'}

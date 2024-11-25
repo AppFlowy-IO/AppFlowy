@@ -51,6 +51,7 @@ function MovePagePopover ({
       size={'small'}
       className={'move-to-icon mx-2'}
       onClick={async (e) => {
+        e.stopPropagation();
         try {
           await movePage?.(viewId, view.view_id);
           props.onClose?.(e, 'backdropClick');
