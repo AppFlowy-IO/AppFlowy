@@ -246,7 +246,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       (event) async {
         final time = event.$1;
         final transaction = event.$2;
+        final options = event.$3;
         if (time != TransactionTime.before) {
+          return;
+        }
+
+        if (options.inMemoryUpdate) {
+          Log.info('skip transaction for in-memory update');
           return;
         }
 

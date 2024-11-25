@@ -88,8 +88,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
 
   @override
   late EditorState editorState = context.read<EditorState>();
-  late Stream<(TransactionTime, Transaction)> stream =
-      editorState.transactionStream;
+  late Stream<EditorTransactionValue> stream = editorState.transactionStream;
 
   @override
   Widget build(BuildContext context) {
