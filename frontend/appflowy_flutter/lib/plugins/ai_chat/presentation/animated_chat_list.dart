@@ -283,21 +283,24 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
   }
 
   void _handleToggleScrollToBottom() {
-    if (!_isScrollingToBottom) {
-      _scrollToBottomShowTimer?.cancel();
-      if (widget.scrollController.offset >
-          widget.scrollController.position.minScrollExtent) {
-        _scrollToBottomShowTimer =
-            Timer(widget.scrollToBottomAppearanceDelay, () {
-          if (mounted) {
-            _scrollToBottomController.forward();
-          }
-        });
-      } else {
-        if (_scrollToBottomController.status == AnimationStatus.completed) {
-          _scrollToBottomController.reverse();
+    if (_isScrollingToBottom) {
+      return;
+    }
+
+    _scrollToBottomShowTimer?.cancel();
+    if (widget.scrollController.offset >
+        widget.scrollController.position.minScrollExtent) {
+      _scrollToBottomShowTimer =
+          Timer(widget.scrollToBottomAppearanceDelay, () {
+        if (mounted) {
+          _scrollToBottomController.forward();
         }
+      });
+    } else {
+      if (_scrollToBottomController.status != AnimationStatus.completed) {
+        _scrollToBottomController.stop();
       }
+      _scrollToBottomController.reverse();
     }
   }
 
