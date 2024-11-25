@@ -229,7 +229,7 @@ class _AutoCompletionBlockComponentState
         }
       },
       onProcess: (text) async {
-        await textRobot.autoInsertText(
+        await textRobot.autoInsertTextSync(
           text,
           separator: r'\n\n',
           inputType: TextRobotInputType.sentence,
@@ -269,10 +269,7 @@ class _AutoCompletionBlockComponentState
           start,
           end.last - start.last + 1,
         );
-        await editorState.apply(
-          transaction,
-          options: const ApplyOptions(inMemoryUpdate: true),
-        );
+        await editorState.apply(transaction);
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       }
     }
@@ -321,7 +318,7 @@ class _AutoCompletionBlockComponentState
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       },
       onProcess: (text) async {
-        await textRobot.autoInsertText(
+        await textRobot.autoInsertTextSync(
           text,
           inputType: TextRobotInputType.sentence,
           separator: r'\n\n',

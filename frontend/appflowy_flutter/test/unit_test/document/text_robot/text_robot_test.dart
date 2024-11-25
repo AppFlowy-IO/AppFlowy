@@ -20,7 +20,7 @@ void main() {
         editorState: editorState,
       );
       for (final text in _sample1) {
-        await textRobot.autoInsertText(
+        await textRobot.autoInsertTextSync(
           text,
           separator: r'\n\n',
           inputType: TextRobotInputType.sentence,
@@ -58,7 +58,7 @@ void main() {
         if (text.contains('\n\n')) {
           breakCount++;
         }
-        await textRobot.autoInsertText(
+        await textRobot.autoInsertTextSync(
           text,
           separator: r'\n\n',
           inputType: TextRobotInputType.sentence,
