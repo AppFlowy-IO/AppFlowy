@@ -300,6 +300,7 @@ class _ChatContentPage extends StatelessWidget {
       message: message,
       animation: animation,
       padding: const EdgeInsets.symmetric(vertical: 12.0),
+      receivedMessageScaleAnimationAlignment: Alignment.center,
       child: child,
     );
   }
