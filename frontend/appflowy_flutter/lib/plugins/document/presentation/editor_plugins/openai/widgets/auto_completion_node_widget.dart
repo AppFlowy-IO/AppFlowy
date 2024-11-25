@@ -194,7 +194,7 @@ class _AutoCompletionBlockComponentState
     final transaction = editorState.transaction..deleteNode(widget.node);
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(recordUndo: false),
+      options: const ApplyOptions(recordUndo: false, inMemoryUpdate: true),
       withUpdateSelection: false,
     );
   }
@@ -267,7 +267,10 @@ class _AutoCompletionBlockComponentState
           start,
           end.last - start.last + 1,
         );
-        await editorState.apply(transaction);
+        await editorState.apply(
+          transaction,
+          options: const ApplyOptions(inMemoryUpdate: true),
+        );
         await _makeSurePreviousNodeIsEmptyParagraphNode();
       }
     }
@@ -318,6 +321,7 @@ class _AutoCompletionBlockComponentState
       onProcess: (text) async {
         await textRobot.autoInsertText(
           text,
+          inputType: TextRobotInputType.sentence,
           delay: Duration.zero,
         );
       },
