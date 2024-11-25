@@ -30,23 +30,27 @@ function TrashPage () {
   } = useAppHandlers();
 
   const handleRestore = useCallback(async (viewId?: string) => {
+    if (!currentWorkspaceId) return;
     try {
       await restorePage?.(viewId);
+      void loadTrash?.(currentWorkspaceId);
       // eslint-disable-next-line
     } catch (e: any) {
       notify.error(`Failed to restore page: ${e.message}`);
     }
-  }, [restorePage]);
+  }, [restorePage, loadTrash, currentWorkspaceId]);
 
   const handleDelete = useCallback(async (viewId?: string) => {
+    if (!currentWorkspaceId) return;
     try {
       await deleteTrash?.(viewId);
       setDeleteViewId(undefined);
+      void loadTrash?.(currentWorkspaceId);
       // eslint-disable-next-line
     } catch (e: any) {
       notify.error(`Failed to delete page: ${e.message}`);
     }
-  }, [deleteTrash]);
+  }, [deleteTrash, loadTrash, currentWorkspaceId]);
 
   useEffect(() => {
     void (async () => {
