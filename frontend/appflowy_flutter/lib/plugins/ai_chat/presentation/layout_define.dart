@@ -13,6 +13,10 @@ class AIChatUILayout {
           )
         : const EdgeInsets.only(bottom: 16);
   }
+
+  static EdgeInsets get messageMargin => UniversalPlatform.isMobile
+      ? const EdgeInsets.symmetric(horizontal: 16)
+      : EdgeInsets.zero;
 }
 
 class DesktopAIPromptSizes {

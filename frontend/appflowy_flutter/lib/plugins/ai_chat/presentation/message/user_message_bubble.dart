@@ -6,7 +6,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 import '../chat_avatar.dart';
 import '../layout_define.dart';
@@ -32,9 +31,7 @@ class ChatUserMessageBubble extends StatelessWidget {
         .add(ChatMemberEvent.getMemberInfo(message.author.id));
 
     return Padding(
-      padding: UniversalPlatform.isMobile
-          ? const EdgeInsets.symmetric(horizontal: 16)
-          : EdgeInsets.zero,
+      padding: AIChatUILayout.messageMargin,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,

@@ -14,8 +14,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:universal_platform/universal_platform.dart';
 
+import '../layout_define.dart';
 import 'ai_message_bubble.dart';
 import 'ai_metadata.dart';
 
@@ -61,9 +61,7 @@ class ChatAIMessageWidget extends StatelessWidget {
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
           return Padding(
-            padding: UniversalPlatform.isMobile
-                ? const EdgeInsets.symmetric(horizontal: 16)
-                : EdgeInsets.zero,
+            padding: AIChatUILayout.messageMargin,
             child: state.messageState.when(
               loading: () {
                 return ChatAIMessageBubble(
