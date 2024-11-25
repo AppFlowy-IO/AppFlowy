@@ -39,9 +39,12 @@ class RelatedQuestionList extends StatelessWidget {
             ),
           );
         } else {
-          return RelatedQuestionItem(
-            question: relatedQuestions[index - 1],
-            onQuestionSelected: onQuestionSelected,
+          return Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: RelatedQuestionItem(
+              question: relatedQuestions[index - 1],
+              onQuestionSelected: onQuestionSelected,
+            ),
           );
         }
       },
@@ -62,10 +65,13 @@ class RelatedQuestionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText(
-        question,
-        lineHeight: 1.4,
-        overflow: TextOverflow.ellipsis,
+      mainAxisAlignment: MainAxisAlignment.start,
+      text: Flexible(
+        child: FlowyText(
+          question,
+          lineHeight: 1.4,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
       margin: UniversalPlatform.isMobile
           ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
