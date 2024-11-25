@@ -60,6 +60,12 @@
   }
 }
 
+.block-element[data-block-type="callout"] {
+  > div > .block-element {
+    margin-left: 38px !important;
+  }
+}
+
 .block-element[data-block-type="table/cell"] {
   margin-left: 0 !important;
 
