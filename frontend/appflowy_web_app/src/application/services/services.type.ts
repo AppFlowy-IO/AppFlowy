@@ -1,4 +1,3 @@
-import { SyncManager } from '@/application/services/js-services/sync';
 import {
   Invitation,
   DuplicatePublishView,
