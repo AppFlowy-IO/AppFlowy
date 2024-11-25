@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 enum TextRobotInputType {
@@ -21,13 +20,15 @@ class TextRobot {
     String separator = '\n',
   }) async {
     if (text == separator) {
-      return editorState.insertNewLine();
+      await editorState.insertNewLine();
+      await Future.delayed(delay);
+      return;
     }
-    final lines = text.split(separator);
+    final lines = _splitText(text, separator);
     for (final line in lines) {
       if (line.isEmpty) {
         await editorState.insertNewLine();
-        Log.info('insertNewLine');
+        await Future.delayed(delay);
         continue;
       }
       switch (inputType) {
@@ -75,4 +76,19 @@ class TextRobot {
     await editorState.insertTextAtCurrentSelection(line);
     await Future.delayed(delay);
   }
+}
+
+List<String> _splitText(String text, String separator) {
+  final parts = text.split(RegExp(separator));
+  final result = <String>[];
+
+  for (int i = 0; i < parts.length; i++) {
+    result.add(parts[i]);
+    // Only add empty string if it's not the last part and the next part is not empty
+    if (i < parts.length - 1 && parts[i + 1].isNotEmpty) {
+      result.add('');
+    }
+  }
+
+  return result;
 }

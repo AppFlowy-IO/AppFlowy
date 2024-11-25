@@ -234,7 +234,7 @@ class _AutoCompletionBlockComponentState
         texts.add("\"$text\"");
         await textRobot.autoInsertText(
           text,
-          separator: '\n\n',
+          separator: r'\n\n',
           inputType: TextRobotInputType.sentence,
           delay: Duration.zero,
         );
@@ -328,7 +328,7 @@ class _AutoCompletionBlockComponentState
         await textRobot.autoInsertText(
           text,
           inputType: TextRobotInputType.sentence,
-          separator: '\n\n',
+          separator: r'\n\n',
           delay: Duration.zero,
         );
       },
