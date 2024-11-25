@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/wid
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -218,7 +217,6 @@ class _AutoCompletionBlockComponentState
 
     final textRobot = TextRobot(editorState: editorState);
     BarrierDialog? barrierDialog;
-    final texts = [];
     final aiRepository = AppFlowyAIService();
     await aiRepository.streamCompletion(
       text: controller.text,
@@ -231,7 +229,6 @@ class _AutoCompletionBlockComponentState
         }
       },
       onProcess: (text) async {
-        texts.add("\"$text\"");
         await textRobot.autoInsertText(
           text,
           separator: r'\n\n',
@@ -241,7 +238,6 @@ class _AutoCompletionBlockComponentState
       },
       onEnd: () async {
         barrierDialog?.dismiss();
-        Log.info('texts: $texts');
       },
       onError: (error) async {
         barrierDialog?.dismiss();
