@@ -7,8 +7,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function AddPageActions ({ view }: {
-  view: View
+function AddPageActions ({ view, onClose }: {
+  view: View;
+  onClose: () => void;
 }) {
   const { t } = useTranslation();
   const {
@@ -36,7 +37,11 @@ function AddPageActions ({ view }: {
     }
   }, [addPage, openPageModal, t, view.view_id]);
 
-  const actions = useMemo(() => [
+  const actions: {
+    label: string;
+    icon: React.ReactNode;
+    onClick: (e: React.MouseEvent) => void;
+  }[] = useMemo(() => [
     {
       label: t('document.menuName'),
       icon: <ViewIcon
@@ -55,7 +60,10 @@ function AddPageActions ({ view }: {
         <Button
           key={action.label}
           size={'small'}
-          onClick={action.onClick}
+          onClick={(e) => {
+            action.onClick(e);
+            onClose();
+          }}
           className={'px-3 py-1 justify-start'}
           color={'inherit'}
           startIcon={action.icon}

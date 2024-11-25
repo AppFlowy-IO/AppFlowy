@@ -7,8 +7,10 @@ import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 
 function MoreActions ({
   viewId,
+  onDeleted,
 }: {
   viewId: string;
+  onDeleted?: () => void;
 }) {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -56,6 +58,7 @@ function MoreActions ({
             itemClicked={() => {
               handleClose();
             }}
+            onDeleted={onDeleted}
             viewId={viewId}
             movePopoverOrigins={{
               transformOrigin: {

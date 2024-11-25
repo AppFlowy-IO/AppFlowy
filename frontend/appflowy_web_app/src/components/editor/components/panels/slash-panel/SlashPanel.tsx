@@ -1,5 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import {
@@ -89,6 +90,12 @@ export function SlashPanel ({
       newBlockId = CustomEditor.turnToBlock(editor, blockId, type, data);
     } else {
       newBlockId = CustomEditor.addBelowBlock(editor, blockId, type, data);
+    }
+
+    if (newBlockId && isEmbedBlockTypes(type)) {
+      const [, path] = findSlateEntryByBlockId(editor, newBlockId);
+
+      editor.select(editor.start(path));
     }
 
     if ([BlockType.FileBlock, BlockType.ImageBlock, BlockType.EquationBlock].includes(type)) {
@@ -422,6 +429,7 @@ export function SlashPanel ({
           break;
         case 'ArrowUp':
         case 'ArrowDown': {
+          e.stopPropagation();
           e.preventDefault();
           const index = options.findIndex((option) => option.key === selectedOptionRef.current);
           const nextIndex = key === 'ArrowDown' ? (index + 1) % options.length : (index - 1 + options.length) % options.length;

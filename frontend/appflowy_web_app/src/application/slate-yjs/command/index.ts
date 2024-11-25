@@ -2,8 +2,6 @@ import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import {
   beforePasted,
-  findIndentPath,
-  findLiftPath,
   findSlateEntryByBlockId,
 } from '@/application/slate-yjs/utils/slateUtils';
 
@@ -166,12 +164,12 @@ export const CustomEditor = {
       const block = getBlock(node.blockId as string, sharedRoot);
       const blockType = block.get(YjsEditorKey.block_type) as BlockType;
 
-      if (blockType !== BlockType.Paragraph) {
-        handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
+      if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
         return;
       }
 
-      if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
+      if (blockType !== BlockType.Paragraph) {
+        handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
         return;
       }
 
@@ -232,6 +230,9 @@ export const CustomEditor = {
     const endBlockPath = endNode[1];
     const startAtPath = point.path.slice(startBlockPath.length);
     const startAtOffset = point.offset;
+    const isAncestor = Path.isAncestor(startBlockPath, endBlockPath);
+    const endRelativeToStart = endBlockPath.slice(startBlockPath.length);
+
     const endAtPath = endPoint.path.slice(endBlockPath.length);
     const endAtOffset = endPoint.offset;
     let newStartBlockPath: Path = [];
@@ -239,6 +240,7 @@ export const CustomEditor = {
 
     const isSameBlock = node[0].blockId === endNode[0].blockId;
 
+    editor.deselect();
     if (isSameBlock) {
       const block = getBlock(node[0].blockId as string, sharedRoot);
       let newBlockId: string | undefined;
@@ -272,9 +274,10 @@ export const CustomEditor = {
       });
       if (newBlockIds.length === 0) return;
       const newStartBlockEntry = findSlateEntryByBlockId(editor, newBlockIds[0]);
+      const newEndBlockEntry = findSlateEntryByBlockId(editor, newBlockIds[newBlockIds.length - 1]);
 
       newStartBlockPath = newStartBlockEntry[1];
-      newEndBlockPath = type === 'tabForward' ? findIndentPath(startBlockPath, endBlockPath, newStartBlockPath) : findLiftPath(startBlockPath, endBlockPath, newStartBlockPath);
+      newEndBlockPath = isAncestor ? [...newStartBlockPath, ...endRelativeToStart] : newEndBlockEntry[1];
     }
 
     const newStartPath = [...newStartBlockPath, ...startAtPath];
@@ -297,19 +300,23 @@ export const CustomEditor = {
     const data = dataStringTOJson(getBlock(blockId, sharedRoot).get(YjsEditorKey.block_data)) as ToggleListBlockData;
     const { selection } = editor;
 
-    if (!selection) return;
-
-    if (Range.isExpanded(selection)) {
+    if (selection && Range.isExpanded(selection)) {
       Transforms.collapse(editor, { edge: 'start' });
     }
 
-    const point = Editor.start(editor, selection);
+    let selected = false;
 
-    const [node] = getBlockEntry(editor, point);
+    if (selection) {
+      const point = Editor.start(editor, selection);
+
+      const [node] = getBlockEntry(editor, point);
+
+      selected = node.blockId !== blockId;
+    }
 
     CustomEditor.setBlockData(editor, blockId, {
       collapsed: !data.collapsed,
-    }, node.blockId !== blockId);
+    }, selected);
   },
 
   toggleTodoList (editor: YjsEditor, blockId: string, shiftKey: boolean) {

@@ -28,7 +28,11 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `text-placeholder select-none ${attributes.className ?? ''}`;
+    const classList = attributes.className?.split(' ') ?? [];
+
+    classList.push('text-placeholder select-none');
+
+    return classList.join(' ');
   }, [attributes.className]);
 
   const unSelectedPlaceholder = useMemo(() => {
@@ -79,7 +83,6 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
         }
       }
 
-      case BlockType.CalloutBlock:
       case BlockType.CodeBlock:
         return t('editor.typeSomething');
       default:

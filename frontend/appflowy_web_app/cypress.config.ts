@@ -26,7 +26,7 @@ export default defineConfig({
   retries: {
     // Configure retry attempts for `cypress run`
     // Default is 0
-    runMode: 10,
+    runMode: 16,
     // Configure retry attempts for `cypress open`
     // Default is 0
     openMode: 0,

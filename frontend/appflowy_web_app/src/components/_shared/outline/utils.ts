@@ -58,6 +58,28 @@ export function filterOutViewsByLayout (views: View[], layout: ViewLayout): View
   return filterOut(views);
 }
 
+export function filterViewsByCondition (views: View[], condition: (view: View) => boolean): View[] {
+  const filter = (views: View[]): View[] => {
+    let result: View[] = [];
+
+    for (const view of views) {
+      if (condition(view)) {
+        result.push(view);
+      }
+
+      if (view.children) {
+        const filteredChildren = filter(view.children);
+
+        result = result.concat(filteredChildren);
+      }
+    }
+
+    return result;
+  };
+
+  return filter(views);
+}
+
 export function filterOutByCondition (views: View[], condition: (view: View) => {
   remove: boolean;
 }): View[] {

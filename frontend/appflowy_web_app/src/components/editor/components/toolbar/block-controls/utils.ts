@@ -8,9 +8,14 @@ export function getBlockActionsPosition (editor: ReactEditor, blockElement: HTML
   const editorDom = ReactEditor.toDOMNode(editor, editor);
   const editorDomRect = editorDom.getBoundingClientRect();
   const blockDomRect = blockElement.getBoundingClientRect();
+  const parentBlockDom = blockElement.parentElement?.closest('[data-block-type]');
 
   const relativeTop = blockDomRect.top - editorDomRect.top;
-  const relativeLeft = blockDomRect.left - editorDomRect.left;
+  let relativeLeft = blockDomRect.left - editorDomRect.left;
+
+  if (parentBlockDom?.getAttribute('data-block-type') === BlockType.QuoteBlock) {
+    relativeLeft -= 16;
+  }
 
   return {
     top: relativeTop,

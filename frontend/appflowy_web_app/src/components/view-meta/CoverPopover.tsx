@@ -90,6 +90,11 @@ function CoverPopover ({
         onClose,
         ...initialOrigin,
         anchorReference: 'anchorPosition',
+        sx: {
+          '& .MuiPaper-root': {
+            margin: '10px 0',
+          },
+        },
       }}
       containerStyle={{ width: 433, maxHeight: 500 }}
       tabOptions={tabOptions}

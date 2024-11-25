@@ -133,7 +133,12 @@ function ViewModal ({
 
         <div className={'flex items-center gap-4'}>
           <ShareButton viewId={viewId} />
-          <MoreActions viewId={viewId} />
+          <MoreActions
+            onDeleted={() => {
+              onClose();
+            }}
+            viewId={viewId}
+          />
 
           <Divider
             orientation={'vertical'}

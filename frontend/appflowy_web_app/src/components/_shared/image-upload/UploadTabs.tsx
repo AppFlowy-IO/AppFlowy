@@ -1,6 +1,6 @@
 import { Popover } from '@/components/_shared/popover';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
-import React, { SyntheticEvent, useCallback, useState } from 'react';
+import React, { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { PopoverProps } from '@mui/material/Popover';
 import SwipeableViews from 'react-swipeable-views';
 
@@ -70,6 +70,26 @@ export function UploadTabs ({
     [popoverProps, tabOptions],
   );
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    const handleResize = () => {
+      const top = el.getBoundingClientRect().top;
+      const height = window.innerHeight - top - 20;
+
+      el.style.maxHeight = `${height}px`;
+    };
+
+    if (tabValue === 'unsplash') {
+      handleResize();
+    }
+
+  }, [tabValue]);
+
   return (
     <Popover
       {...popoverProps}
@@ -105,7 +125,10 @@ export function UploadTabs ({
           {extra}
         </div>
 
-        <div className={'h-full w-full appflowy-scroller flex-1 overflow-y-auto overflow-x-hidden'}>
+        <div
+          ref={ref}
+          className={'h-full w-full appflowy-scroller flex-1 overflow-y-auto overflow-x-hidden'}
+        >
           <SwipeableViews
             slideStyle={{
               overflow: 'hidden',

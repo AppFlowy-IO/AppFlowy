@@ -1,7 +1,8 @@
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
+import { filterViewsByCondition } from '@/components/_shared/outline/utils';
 import { useAppHandlers, useAppView } from '@/components/app/app.hooks';
-import React from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 function DeletePageConfirm ({ open, onClose, viewId, onDeleted }: {
@@ -17,7 +18,7 @@ function DeletePageConfirm ({ open, onClose, viewId, onDeleted }: {
   } = useAppHandlers();
   const { t } = useTranslation();
 
-  const handleOk = async () => {
+  const handleOk = useCallback(async () => {
     if (!view) return;
     setLoading(true);
     try {
@@ -30,12 +31,27 @@ function DeletePageConfirm ({ open, onClose, viewId, onDeleted }: {
     } finally {
       setLoading(false);
     }
-  };
+  }, [deletePage, onClose, onDeleted, view, viewId]);
+
+  const hasPublished = useMemo(() => {
+    const publishedView = filterViewsByCondition(view?.children || [], v => v.is_published);
+
+    return view?.is_published || !!publishedView.length;
+  }, [view]);
+
+  useEffect(() => {
+    if (!hasPublished && open) {
+      void handleOk();
+    }
+  }, [handleOk, hasPublished, open]);
+
+  if (!hasPublished) return null;
 
   return (
     <NormalModal
       okLoading={loading}
       keepMounted={false}
+      disableRestoreFocus={true}
       okText={t('button.delete')}
       cancelText={t('button.cancel')}
       open={open}

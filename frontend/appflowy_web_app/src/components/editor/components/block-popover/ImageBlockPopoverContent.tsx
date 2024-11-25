@@ -6,7 +6,7 @@ import { Unsplash } from '@/components/_shared/image-upload';
 import EmbedLink from '@/components/_shared/image-upload/EmbedLink';
 import UploadImage from '@/components/_shared/image-upload/UploadImage';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 
@@ -73,6 +73,25 @@ function ImageBlockPopoverContent ({
   }, [entry, handleUpdateLink, t]);
 
   const selectedIndex = tabOptions.findIndex((tab) => tab.key === tabValue);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    const handleResize = () => {
+      const top = el.getBoundingClientRect().top;
+      const height = window.innerHeight - top - 30;
+
+      el.style.maxHeight = `${height}px`;
+    };
+
+    if (tabValue === 'unsplash') {
+      handleResize();
+    }
+
+  }, [tabValue]);
 
   return (
     <div className={'flex flex-col p-2'}>
@@ -93,7 +112,10 @@ function ImageBlockPopoverContent ({
           />;
         })}
       </ViewTabs>
-      <div className={'pt-4'}>
+      <div
+        ref={ref}
+        className={'pt-4 appflowy-scroller max-h-[400px] overflow-y-auto'}
+      >
         {tabOptions.map((tab, index) => {
           const { key, panel } = tab;
 
