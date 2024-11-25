@@ -13,34 +13,25 @@ class AnswerStream {
           _hasStarted = true;
           final newText = event.substring(5);
           _text += newText;
-          if (_onData != null) {
-            _onData!(_text);
-          }
+          _onData?.call(_text);
         } else if (event.startsWith("error:")) {
           _error = event.substring(5);
-          if (_onError != null) {
-            _onError!(_error!);
-          }
+          _onError?.call(_error!);
         } else if (event.startsWith("metadata:")) {
           if (_onMetadata != null) {
             final s = event.substring(9);
             _onMetadata!(parseMetadata(s));
           }
         } else if (event == "AI_RESPONSE_LIMIT") {
-          if (_onAIResponseLimit != null) {
-            _onAIResponseLimit!();
-          }
+          _aiLimitReached = true;
+          _onAIResponseLimit?.call();
         }
       },
       onDone: () {
-        if (_onEnd != null) {
-          _onEnd!();
-        }
+        _onEnd?.call();
       },
       onError: (error) {
-        if (_onError != null) {
-          _onError!(error.toString());
-        }
+        _onError?.call(error.toString());
       },
     );
   }
@@ -49,6 +40,7 @@ class AnswerStream {
   final StreamController<String> _controller = StreamController.broadcast();
   late StreamSubscription<String> _subscription;
   bool _hasStarted = false;
+  bool _aiLimitReached = false;
   String? _error;
   String _text = "";
 
@@ -62,6 +54,7 @@ class AnswerStream {
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
+  bool get aiLimitReached => _aiLimitReached;
   String? get error => _error;
   String get text => _text;
 
@@ -86,9 +79,7 @@ class AnswerStream {
     _onAIResponseLimit = onAIResponseLimit;
     _onMetadata = onMetadata;
 
-    if (_onStart != null) {
-      _onStart!();
-    }
+    _onStart?.call();
   }
 }
 

@@ -17,7 +17,7 @@ class AIMessageMetadata extends StatefulWidget {
   });
 
   final List<ChatMessageRefSource> sources;
-  final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
+  final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
 
   @override
   State<AIMessageMetadata> createState() => _AIMessageMetadataState();
@@ -92,7 +92,7 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
                         if (m.source != appflowySource) {
                           return;
                         }
-                        widget.onSelectedMetadata(m);
+                        widget.onSelectedMetadata?.call(m);
                       },
                     ),
                   );

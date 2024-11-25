@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:equatable/equatable.dart';
@@ -10,7 +9,7 @@ import 'package:path/path.dart' as path;
 part 'chat_entity.g.dart';
 part 'chat_entity.freezed.dart';
 
-const sendMessageErrorKey = "sendMessageError";
+const errorMessageTextKey = "errorMessageText";
 const systemUserId = "system";
 const aiResponseUserId = "0";
 
@@ -121,45 +120,13 @@ extension ChatLoadingStateExtension on ChatLoadingState {
 }
 
 enum OnetimeShotType {
-  unknown,
   sendingMessage,
   relatedQuestion,
-  invalidSendMesssage,
+  error,
 }
 
 const onetimeShotType = "OnetimeShotType";
 
-extension OnetimeMessageTypeExtension on OnetimeShotType {
-  static OnetimeShotType fromString(String value) {
-    switch (value) {
-      case 'OnetimeShotType.sendingMessage':
-        return OnetimeShotType.sendingMessage;
-      case 'OnetimeShotType.relatedQuestion':
-        return OnetimeShotType.relatedQuestion;
-      case 'OnetimeShotType.invalidSendMesssage':
-        return OnetimeShotType.invalidSendMesssage;
-      default:
-        Log.error('Unknown OnetimeShotType: $value');
-        return OnetimeShotType.unknown;
-    }
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      onetimeShotType: toString(),
-    };
-  }
-}
-
 OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
-  if (metadata == null) {
-    return null;
-  }
-
-  for (final entry in metadata.entries) {
-    if (entry.key == onetimeShotType) {
-      return OnetimeMessageTypeExtension.fromString(entry.value as String);
-    }
-  }
-  return null;
+  return metadata?[onetimeShotType];
 }

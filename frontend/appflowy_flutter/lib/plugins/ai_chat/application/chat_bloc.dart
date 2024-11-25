@@ -119,15 +119,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               return;
             }
 
-            final metatdata = OnetimeShotType.relatedQuestion.toMap();
-            metatdata['questions'] = questions;
+            final metadata = {
+              onetimeShotType: OnetimeShotType.relatedQuestion,
+              'questions': questions,
+            };
+
+            final createdAt = DateTime.now();
 
             final message = TextMessage(
+              id: "related_question_$createdAt",
               text: '',
-              metadata: metatdata,
+              metadata: metadata,
               author: const User(id: systemUserId),
-              id: systemUserId,
-              createdAt: DateTime.now(),
+              createdAt: createdAt,
             );
 
             chatController.insert(message);
@@ -147,12 +151,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ) {
             numSendMessage += 1;
 
-            final relatedQuestionMessages = chatController.messages.where(
-              (message) {
-                return onetimeMessageTypeFromMeta(message.metadata) ==
-                    OnetimeShotType.relatedQuestion;
-              },
-            ).toList();
+            final relatedQuestionMessages = chatController.messages
+                .where(
+                  (message) =>
+                      onetimeMessageTypeFromMeta(message.metadata) ==
+                      OnetimeShotType.relatedQuestion,
+                )
+                .toList();
 
             for (final message in relatedQuestionMessages) {
               chatController.remove(message);
@@ -378,20 +383,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await AIEventStreamMessage(payload).send().fold(
       (question) {
         if (!isClosed) {
-          add(ChatEvent.finishSending(question));
+          final streamAnswer = _createAnswerStreamMessage(
+            answerStream!,
+            question.messageId,
+          );
 
-          final streamAnswer =
-              _createAnswerStreamMessage(answerStream!, question.messageId);
+          add(ChatEvent.finishSending(question));
           add(ChatEvent.startAnswerStreaming(streamAnswer));
         }
       },
       (err) {
         if (!isClosed) {
           Log.error("Failed to send message: ${err.msg}");
-          final metadata = OnetimeShotType.invalidSendMesssage.toMap();
-          if (err.code != ErrorCode.Internal) {
-            metadata[sendMessageErrorKey] = err.msg;
-          }
+
+          final metadata = {
+            onetimeShotType: OnetimeShotType.error,
+            if (err.code != ErrorCode.Internal) errorMessageTextKey: err.msg,
+          };
 
           final error = TextMessage(
             text: '',
@@ -412,19 +420,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     AnswerStream stream,
     Int64 questionMessageId,
   ) {
-    final streamMessageId = (questionMessageId + 1).toString();
-    answerStreamMessageId = streamMessageId;
+    answerStreamMessageId = (questionMessageId + 1).toString();
 
     return TextMessage(
+      id: answerStreamMessageId,
+      text: '',
       author: User(id: "streamId:${nanoid()}"),
       metadata: {
         "$AnswerStream": stream,
         messageQuestionIdKey: questionMessageId,
         "chatId": chatId,
       },
-      id: streamMessageId,
       createdAt: DateTime.now(),
-      text: '',
     );
   }
 
@@ -433,17 +440,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Map<String, dynamic>? sentMetadata,
   ) {
     final now = DateTime.now();
-    questionStreamMessageId = (now.millisecondsSinceEpoch ~/ 1000).toString();
 
-    final Map<String, dynamic> metadata = {
-      "$QuestionStream": stream,
-      "chatId": chatId,
-      messageChatFileListKey: chatFilesFromMessageMetadata(sentMetadata),
-    };
+    questionStreamMessageId = (now.millisecondsSinceEpoch ~/ 1000).toString();
 
     return TextMessage(
       author: User(id: userId),
-      metadata: metadata,
+      metadata: {
+        "$QuestionStream": stream,
+        "chatId": chatId,
+        messageChatFileListKey: chatFilesFromMessageMetadata(sentMetadata),
+      },
       id: questionStreamMessageId,
       createdAt: now,
       text: '',
@@ -481,27 +487,28 @@ class ChatEvent with _$ChatEvent {
       _FinishSendMessage;
   const factory ChatEvent.failedSending() = _FailSendMessage;
 
-  // receive message
+  // streaming answer
   const factory ChatEvent.startAnswerStreaming(Message message) =
       _StartAnswerStreaming;
-  const factory ChatEvent.receiveMessage(Message message) = _ReceiveMessage;
+  const factory ChatEvent.stopStream() = _StopStream;
   const factory ChatEvent.didFinishAnswerStream() = _DidFinishAnswerStream;
 
+  // receive message
+  const factory ChatEvent.receiveMessage(Message message) = _ReceiveMessage;
+
   // loading messages
+  const factory ChatEvent.didLoadLatestMessages(List<Message> messages) =
+      _DidLoadMessages;
   const factory ChatEvent.loadPreviousMessages() = _LoadPreviousMessages;
   const factory ChatEvent.didLoadPreviousMessages(
     List<Message> messages,
     bool hasMore,
   ) = _DidLoadPreviousMessages;
-  const factory ChatEvent.didLoadLatestMessages(List<Message> messages) =
-      _DidLoadMessages;
 
   // related questions
   const factory ChatEvent.didReceiveRelatedQuestions(
     List<String> questions,
   ) = _DidReceiveRelatedQueston;
-
-  const factory ChatEvent.stopStream() = _StopStream;
 }
 
 @freezed

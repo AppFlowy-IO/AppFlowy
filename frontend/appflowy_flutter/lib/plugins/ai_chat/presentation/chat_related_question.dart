@@ -7,6 +7,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'layout_define.dart';
+
 class RelatedQuestionList extends StatelessWidget {
   const RelatedQuestionList({
     super.key,
@@ -23,10 +25,8 @@ class RelatedQuestionList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: relatedQuestions.length + 1,
-      padding: const EdgeInsets.only(bottom: 8.0) +
-          (UniversalPlatform.isMobile
-              ? const EdgeInsets.symmetric(horizontal: 16)
-              : EdgeInsets.zero),
+      padding:
+          const EdgeInsets.only(bottom: 8.0) + AIChatUILayout.messageMargin,
       separatorBuilder: (context, index) => const VSpace(4.0),
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -39,9 +39,12 @@ class RelatedQuestionList extends StatelessWidget {
             ),
           );
         } else {
-          return RelatedQuestionItem(
-            question: relatedQuestions[index - 1],
-            onQuestionSelected: onQuestionSelected,
+          return Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: RelatedQuestionItem(
+              question: relatedQuestions[index - 1],
+              onQuestionSelected: onQuestionSelected,
+            ),
           );
         }
       },
@@ -62,11 +65,15 @@ class RelatedQuestionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText(
-        question,
-        lineHeight: 1.4,
-        overflow: TextOverflow.ellipsis,
+      mainAxisAlignment: MainAxisAlignment.start,
+      text: Flexible(
+        child: FlowyText(
+          question,
+          lineHeight: 1.4,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
+      expandText: false,
       margin: UniversalPlatform.isMobile
           ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
           : const EdgeInsets.all(8.0),
