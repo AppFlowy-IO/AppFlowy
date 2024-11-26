@@ -27,7 +27,7 @@ pub async fn new_group_controller(
 
   let controller_delegate = GroupControllerDelegateImpl {
     delegate: delegate.clone(),
-    filter_controller: filter_controller.clone(),
+    filter_controller,
   };
 
   let grouping_field = match grouping_field {
