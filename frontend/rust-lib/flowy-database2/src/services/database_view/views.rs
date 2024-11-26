@@ -61,7 +61,6 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
-    let mut editor_map = self.view_editors.write().await;
     let database_id = self.database.read().await.get_database_id();
     let editor = Arc::new(
       DatabaseViewEditor::new(
@@ -72,7 +71,10 @@ impl DatabaseViews {
       )
       .await?,
     );
+    let mut editor_map = self.view_editors.write().await;
     editor_map.insert(view_id.to_owned(), editor.clone());
+    drop(editor_map);
+    editor.post_init().await?;
     Ok(editor)
   }
 

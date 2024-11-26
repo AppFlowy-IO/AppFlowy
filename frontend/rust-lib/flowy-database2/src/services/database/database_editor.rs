@@ -1981,12 +1981,11 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
-    self
-      .database
-      .read()
-      .await
-      .get_cells_for_field(view_id, field_id)
-      .await
+    let editor = self.editor_by_view_id.read().await.get(view_id).cloned();
+    match editor {
+      None => vec![],
+      Some(editor) => editor.v_get_cells_for_field(field_id).await,
+    }
   }
 
   async fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Arc<RowCell> {

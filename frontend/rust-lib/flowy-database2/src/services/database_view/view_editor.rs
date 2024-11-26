@@ -99,15 +99,7 @@ impl DatabaseViewEditor {
     .await;
 
     // Group
-    let group_controller = Arc::new(RwLock::new(
-      new_group_controller(
-        view_id.clone(),
-        delegate.clone(),
-        filter_controller.clone(),
-        None,
-      )
-      .await?,
-    ));
+    let group_controller = Arc::new(RwLock::new(None));
 
     // Calculations
     let calculations_controller =
@@ -125,6 +117,20 @@ impl DatabaseViewEditor {
       row_by_row_id: Default::default(),
       notifier,
     })
+  }
+
+  pub async fn post_init(&self) -> FlowyResult<()> {
+    let group_controller = new_group_controller(
+      self.view_id.clone(),
+      self.delegate.clone(),
+      self.filter_controller.clone(),
+      None,
+    )
+    .await?;
+
+    *self.group_controller.write().await = group_controller;
+
+    Ok(())
   }
 
   pub async fn insert_row(&self, row: Option<Arc<Row>>, index: u32, row_order: &RowOrder) {
