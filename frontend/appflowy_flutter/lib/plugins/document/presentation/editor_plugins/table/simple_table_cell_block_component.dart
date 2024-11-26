@@ -86,6 +86,8 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         .read<SimpleTableContext>()
         .isSelectingTable
         .addListener(_onSelectingTableChanged);
+
+    node.parentTableNode?.addListener(_onSelectingTableChanged);
   }
 
   @override
@@ -94,6 +96,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         .read<SimpleTableContext>()
         .isSelectingTable
         .removeListener(_onSelectingTableChanged);
+    node.parentTableNode?.removeListener(_onSelectingTableChanged);
 
     super.dispose();
   }

@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -342,14 +343,14 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   return ParagraphBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: placeholderText,
-      // textStyle: (node) {
-      //   if (node.isInHeaderColumn || node.isInHeaderRow) {
-      //     return configuration.textStyle(node).copyWith(
-      //           fontWeight: FontWeight.bold,
-      //         );
-      //   }
-      //   return configuration.textStyle(node);
-      // },
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     showPlaceholder: showParagraphPlaceholder,
   );
@@ -362,6 +363,14 @@ TodoListBlockComponentBuilder _buildTodoListBlockComponentBuilder(
   return TodoListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node, onCheck) => TodoListIcon(
       node: node,
@@ -382,6 +391,14 @@ BulletedListBlockComponentBuilder _buildBulletedListBlockComponentBuilder(
   return BulletedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node) => BulletedListIcon(node: node),
   );
@@ -394,6 +411,14 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
   return NumberedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node, textDirection) => NumberedListIcon(
       node: node,
@@ -409,6 +434,14 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
   return QuoteBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
   );
 }

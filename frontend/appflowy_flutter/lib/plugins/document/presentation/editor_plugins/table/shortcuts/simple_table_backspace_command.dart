@@ -20,9 +20,12 @@ KeyEventResult _backspaceInTableCellHandler(EditorState editorState) {
   }
 
   final onlyContainsOneChild = tableCellNode.children.length == 1;
+  final isParagraphNode =
+      tableCellNode.children.first.type == ParagraphBlockKeys.type;
   if (onlyContainsOneChild &&
       selection.isCollapsed &&
-      selection.end.offset == 0) {
+      selection.end.offset == 0 &&
+      isParagraphNode) {
     return KeyEventResult.skipRemainingHandlers;
   }
 

@@ -157,7 +157,13 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = _buildTable();
+    Widget child = Transform.translate(
+      offset: const Offset(
+        -SimpleTableConstants.tableLeftPadding,
+        0,
+      ),
+      child: _buildTable(),
+    );
 
     child = Container(
       alignment: Alignment.topLeft,
@@ -193,20 +199,22 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
         child: Stack(
           children: [
             SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: SimpleTableConstants.tableTopPadding,
-                  left: SimpleTableConstants.tableLeftPadding,
-                  bottom: bottomPadding,
-                  right: rightPadding,
-                ),
-                child: IntrinsicWidth(
-                  child: IntrinsicHeight(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: _buildRows(),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: SimpleTableConstants.tableTopPadding,
+                    left: SimpleTableConstants.tableLeftPadding,
+                    bottom: bottomPadding,
+                    right: rightPadding,
+                  ),
+                  child: IntrinsicWidth(
+                    child: IntrinsicHeight(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _buildRows(),
+                      ),
                     ),
                   ),
                 ),
