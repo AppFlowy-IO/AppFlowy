@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -22,42 +20,26 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
   }) : super(
           ChatAIMessageState.initial(
             message,
-            messageReferenceSource(refSourceJsonString),
+            parseMetadata(refSourceJsonString),
           ),
         ) {
-    if (state.stream != null) {
-      state.stream!.listen(
-        onData: (text) {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.updateText(text));
-          }
-        },
-        onError: (error) {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.receiveError(error.toString()));
-          }
-        },
-        onAIResponseLimit: () {
-          if (!isClosed) {
-            add(const ChatAIMessageEvent.onAIResponseLimit());
-          }
-        },
-        onMetadata: (sources) {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.receiveSources(sources));
-          }
-        },
-      );
+    _dispatch();
 
-      if (state.stream!.error != null) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (!isClosed) {
-            add(ChatAIMessageEvent.receiveError(state.stream!.error!));
-          }
-        });
+    if (state.stream != null) {
+      _startListening();
+
+      if (state.stream!.aiLimitReached) {
+        add(const ChatAIMessageEvent.onAIResponseLimit());
+      } else if (state.stream!.error != null) {
+        add(ChatAIMessageEvent.receiveError(state.stream!.error!));
       }
     }
+  }
 
+  final String chatId;
+  final Int64? questionId;
+
+  void _dispatch() {
     on<ChatAIMessageEvent>(
       (event, emit) {
         event.when(
@@ -116,10 +98,12 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
-          receiveSources: (List<ChatMessageRefSource> sources) {
+          receiveMetadata: (metadata) {
+            Log.debug("AI Steps: ${metadata.progress?.step}");
             emit(
               state.copyWith(
-                sources: sources,
+                sources: metadata.sources,
+                progress: metadata.progress,
               ),
             );
           },
@@ -128,8 +112,30 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     );
   }
 
-  final String chatId;
-  final Int64? questionId;
+  void _startListening() {
+    state.stream!.listen(
+      onData: (text) {
+        if (!isClosed) {
+          add(ChatAIMessageEvent.updateText(text));
+        }
+      },
+      onError: (error) {
+        if (!isClosed) {
+          add(ChatAIMessageEvent.receiveError(error.toString()));
+        }
+      },
+      onAIResponseLimit: () {
+        if (!isClosed) {
+          add(const ChatAIMessageEvent.onAIResponseLimit());
+        }
+      },
+      onMetadata: (metadata) {
+        if (!isClosed) {
+          add(ChatAIMessageEvent.receiveMetadata(metadata));
+        }
+      },
+    );
+  }
 }
 
 @freezed
@@ -139,8 +145,8 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
-  const factory ChatAIMessageEvent.receiveSources(
-    List<ChatMessageRefSource> sources,
+  const factory ChatAIMessageEvent.receiveMetadata(
+    MetadataCollection metadata,
   ) = _ReceiveMetadata;
 }
 
@@ -151,17 +157,19 @@ class ChatAIMessageState with _$ChatAIMessageState {
     required String text,
     required MessageState messageState,
     required List<ChatMessageRefSource> sources,
+    required AIChatProgress? progress,
   }) = _ChatAIMessageState;
 
   factory ChatAIMessageState.initial(
     dynamic text,
-    List<ChatMessageRefSource> sources,
+    MetadataCollection metadata,
   ) {
     return ChatAIMessageState(
       text: text is String ? text : "",
       stream: text is AnswerStream ? text : null,
       messageState: const MessageState.ready(),
-      sources: sources,
+      sources: metadata.sources,
+      progress: metadata.progress,
     );
   }
 }

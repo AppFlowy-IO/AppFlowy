@@ -163,6 +163,10 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   bool _shouldFocus(ViewPB view, ViewState? state) {
     final name = state?.view.name ?? view.name;
 
+    if (editorState.document.root.children.isNotEmpty) {
+      return false;
+    }
+
     // if the view's name is empty, focus on the title
     if (name.isEmpty) {
       return true;
@@ -180,6 +184,15 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
   void _onFocusChanged() {
     if (titleFocusNode.hasFocus) {
+      // if the document is empty, disable the keyboard service
+      final children = editorState.document.root.children;
+      final firstDelta = children.firstOrNull?.delta;
+      final isEmptyDocument =
+          children.length == 1 && (firstDelta == null || firstDelta.isEmpty);
+      if (!isEmptyDocument) {
+        return;
+      }
+
       if (editorState.selection != null) {
         Log.info('cover title got focus, clear the editor selection');
         editorState.selection = null;

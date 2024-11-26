@@ -12,8 +12,6 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 import 'ai_prompt_buttons.dart';
 import 'chat_input_span.dart';
@@ -23,17 +21,15 @@ class MobileAIPromptInput extends StatefulWidget {
   const MobileAIPromptInput({
     super.key,
     required this.chatId,
-    this.options = const InputOptions(),
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
   });
 
   final String chatId;
-  final InputOptions options;
   final bool isStreaming;
   final void Function() onStopStreaming;
-  final void Function(types.PartialText) onSubmitted;
+  final void Function(String, Map<String, dynamic>) onSubmitted;
 
   @override
   State<MobileAIPromptInput> createState() => _MobileAIPromptInputState();
@@ -50,7 +46,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   void initState() {
     super.initState();
 
-    _textController = InputTextFieldController()
+    _textController = TextEditingController()
       ..addListener(_handleTextControllerChange);
 
     _inputFocusNode = FocusNode();
@@ -166,11 +162,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
       ..addAll(mentionPageMetadata)
       ..addAll(fileMetadata);
 
-    final partialText = types.PartialText(
-      text: trimmedText,
-      metadata: metadata,
-    );
-    widget.onSubmitted(partialText);
+    widget.onSubmitted(trimmedText, metadata);
   }
 
   void _handleTextControllerChange() {

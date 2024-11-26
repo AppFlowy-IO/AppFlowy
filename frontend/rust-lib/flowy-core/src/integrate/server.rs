@@ -11,7 +11,6 @@ use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
-use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_user_pub::entities::*;
@@ -123,7 +122,9 @@ impl ServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       Server::AppFlowyCloud => {
-        let config = AFCloudConfiguration::from_env()?;
+        let config = self.config.cloud_config.clone().ok_or_else(|| {
+          FlowyError::internal().with_context("AppFlowyCloud configuration is missing")
+        })?;
         let server = Arc::new(AppFlowyCloudServer::new(
           config,
           self.user_enable_sync.load(Ordering::Acquire),

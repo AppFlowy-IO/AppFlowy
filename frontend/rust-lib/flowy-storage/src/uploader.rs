@@ -35,6 +35,24 @@ impl UploadTaskQueue {
     self.tasks.write().await.push(task);
     let _ = self.notifier.send_replace(Signal::Proceed);
   }
+
+  pub async fn remove_task(&self, workspace_id: &str, parent_dir: &str, file_id: &str) {
+    let mut tasks = self.tasks.write().await;
+
+    tasks.retain(|task| match task {
+      UploadTask::BackgroundTask {
+        workspace_id: w_id,
+        parent_dir: p_dir,
+        file_id: f_id,
+        ..
+      } => !(w_id == workspace_id && p_dir == parent_dir && f_id == file_id),
+      UploadTask::Task { record, .. } => {
+        !(record.workspace_id == workspace_id
+          && record.parent_dir == parent_dir
+          && record.file_id == file_id)
+      },
+    });
+  }
 }
 
 pub struct FileUploader {
@@ -43,7 +61,7 @@ pub struct FileUploader {
   max_uploads: u8,
   current_uploads: AtomicU8,
   pause_sync: AtomicBool,
-  has_exceeded_limit: Arc<AtomicBool>,
+  disable_upload: Arc<AtomicBool>,
 }
 
 impl Drop for FileUploader {
@@ -64,8 +82,13 @@ impl FileUploader {
       max_uploads: 3,
       current_uploads: Default::default(),
       pause_sync: Default::default(),
-      has_exceeded_limit: is_exceed_limit,
+      disable_upload: is_exceed_limit,
     }
+  }
+
+  pub async fn all_tasks(&self) -> Vec<UploadTask> {
+    let tasks = self.queue.tasks.read().await;
+    tasks.iter().cloned().collect()
   }
 
   pub async fn queue_tasks(&self, tasks: Vec<UploadTask>) {
@@ -84,14 +107,14 @@ impl FileUploader {
 
   pub fn disable_storage_write(&self) {
     self
-      .has_exceeded_limit
+      .disable_upload
       .store(true, std::sync::atomic::Ordering::SeqCst);
     self.pause();
   }
 
   pub fn enable_storage_write(&self) {
     self
-      .has_exceeded_limit
+      .disable_upload
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.resume();
   }
@@ -100,6 +123,7 @@ impl FileUploader {
     self
       .pause_sync
       .store(false, std::sync::atomic::Ordering::SeqCst);
+    trace!("[File] Uploader resumed");
     let _ = self.queue.notifier.send(Signal::ProceedAfterSecs(3));
   }
 
@@ -130,7 +154,7 @@ impl FileUploader {
     }
 
     if self
-      .has_exceeded_limit
+      .disable_upload
       .load(std::sync::atomic::Ordering::SeqCst)
     {
       // If the storage limitation is enabled, do not proceed.
@@ -152,12 +176,7 @@ impl FileUploader {
       .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
     match task {
-      UploadTask::ImmediateTask {
-        local_file_path,
-        record,
-        mut retry_count,
-      }
-      | UploadTask::Task {
+      UploadTask::Task {
         local_file_path,
         record,
         mut retry_count,
@@ -234,6 +253,9 @@ pub struct FileUploaderRunner;
 
 impl FileUploaderRunner {
   pub async fn run(weak_uploader: Weak<FileUploader>, mut notifier: watch::Receiver<Signal>) {
+    // Start uploading after 20 seconds
+    tokio::time::sleep(Duration::from_secs(20)).await;
+
     loop {
       // stops the runner if the notifier was closed.
       if notifier.changed().await.is_err() {
@@ -272,12 +294,8 @@ impl FileUploaderRunner {
   }
 }
 
+#[derive(Clone)]
 pub enum UploadTask {
-  ImmediateTask {
-    local_file_path: String,
-    record: UploadFileTable,
-    retry_count: u8,
-  },
   Task {
     local_file_path: String,
     record: UploadFileTable,
@@ -295,7 +313,6 @@ pub enum UploadTask {
 impl UploadTask {
   pub fn retry_count(&self) -> u8 {
     match self {
-      UploadTask::ImmediateTask { retry_count, .. } => *retry_count,
       UploadTask::Task { retry_count, .. } => *retry_count,
       UploadTask::BackgroundTask { retry_count, .. } => *retry_count,
     }
@@ -307,7 +324,6 @@ impl Display for UploadTask {
     match self {
       UploadTask::Task { record, .. } => write!(f, "Task: {}", record.file_id),
       UploadTask::BackgroundTask { file_id, .. } => write!(f, "BackgroundTask: {}", file_id),
-      UploadTask::ImmediateTask { record, .. } => write!(f, "Immediate Task: {}", record.file_id),
     }
   }
 }
@@ -317,9 +333,6 @@ impl Eq for UploadTask {}
 impl PartialEq for UploadTask {
   fn eq(&self, other: &Self) -> bool {
     match (self, other) {
-      (Self::ImmediateTask { record: lhs, .. }, Self::ImmediateTask { record: rhs, .. }) => {
-        lhs.local_file_path == rhs.local_file_path
-      },
       (Self::Task { record: lhs, .. }, Self::Task { record: rhs, .. }) => {
         lhs.local_file_path == rhs.local_file_path
       },
@@ -349,11 +362,6 @@ impl PartialOrd for UploadTask {
 impl Ord for UploadTask {
   fn cmp(&self, other: &Self) -> Ordering {
     match (self, other) {
-      (Self::ImmediateTask { record: lhs, .. }, Self::ImmediateTask { record: rhs, .. }) => {
-        lhs.created_at.cmp(&rhs.created_at)
-      },
-      (_, Self::ImmediateTask { .. }) => Ordering::Less,
-      (Self::ImmediateTask { .. }, _) => Ordering::Greater,
       (Self::Task { record: lhs, .. }, Self::Task { record: rhs, .. }) => {
         lhs.created_at.cmp(&rhs.created_at)
       },

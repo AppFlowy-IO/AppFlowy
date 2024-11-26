@@ -1,12 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+import 'layout_define.dart';
 
 class RelatedQuestionList extends StatelessWidget {
   const RelatedQuestionList({
@@ -16,7 +17,7 @@ class RelatedQuestionList extends StatelessWidget {
   });
 
   final Function(String) onQuestionSelected;
-  final List<RelatedQuestionPB> relatedQuestions;
+  final List<String> relatedQuestions;
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +25,8 @@ class RelatedQuestionList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: relatedQuestions.length + 1,
-      padding: const EdgeInsets.only(bottom: 8.0) +
-          (UniversalPlatform.isMobile
-              ? const EdgeInsets.symmetric(horizontal: 16)
-              : EdgeInsets.zero),
+      padding:
+          const EdgeInsets.only(bottom: 8.0) + AIChatUILayout.messageMargin,
       separatorBuilder: (context, index) => const VSpace(4.0),
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -40,9 +39,12 @@ class RelatedQuestionList extends StatelessWidget {
             ),
           );
         } else {
-          return RelatedQuestionItem(
-            question: relatedQuestions[index - 1],
-            onQuestionSelected: onQuestionSelected,
+          return Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: RelatedQuestionItem(
+              question: relatedQuestions[index - 1],
+              onQuestionSelected: onQuestionSelected,
+            ),
           );
         }
       },
@@ -57,17 +59,21 @@ class RelatedQuestionItem extends StatelessWidget {
     super.key,
   });
 
-  final RelatedQuestionPB question;
+  final String question;
   final Function(String) onQuestionSelected;
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText(
-        question.content,
-        lineHeight: 1.4,
-        overflow: TextOverflow.ellipsis,
+      mainAxisAlignment: MainAxisAlignment.start,
+      text: Flexible(
+        child: FlowyText(
+          question,
+          lineHeight: 1.4,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
+      expandText: false,
       margin: UniversalPlatform.isMobile
           ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
           : const EdgeInsets.all(8.0),
@@ -76,7 +82,7 @@ class RelatedQuestionItem extends StatelessWidget {
         color: Theme.of(context).colorScheme.primary,
         size: const Size.square(16.0),
       ),
-      onTap: () => onQuestionSelected(question.content),
+      onTap: () => onQuestionSelected(question),
     );
   }
 }

@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,16 +13,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../chat_avatar.dart';
 import '../layout_define.dart';
 
 /// Wraps an AI response message with the avatar and actions. On desktop,
 /// the actions will be displayed below the response if the response is the
-/// last message in the chat. For other AI responses, the actions will be shown
-/// on hover. On mobile, the actions will be displayed in a bottom sheet on
-/// long press.
+/// last message in the chat. For the others, the actions will be shown on hover
+/// On mobile, the actions will be displayed in a bottom sheet on long press.
 class ChatAIMessageBubble extends StatelessWidget {
   const ChatAIMessageBubble({
     super.key,
@@ -293,7 +292,11 @@ class AIResponseActionBar extends StatelessWidget {
             padding: const EdgeInsets.all(2.0),
             decoration: BoxDecoration(
               borderRadius: DesktopAIConvoSizes.actionBarIconRadius,
-              border: Border.all(color: Theme.of(context).dividerColor),
+              border: Border.all(
+                color: isLightMode
+                    ? const Color(0x1F1F2329)
+                    : Theme.of(context).dividerColor,
+              ),
               color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
@@ -341,7 +344,6 @@ class CopyButton extends StatelessWidget {
       child: FlowyIconButton(
         width: DesktopAIConvoSizes.actionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        fillColor: Theme.of(context).cardColor,
         radius: DesktopAIConvoSizes.actionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.copy_s,

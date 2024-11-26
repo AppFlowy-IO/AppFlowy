@@ -26,7 +26,6 @@ import '../../shared/util.dart';
 
 const _testImageUrls = [
   'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640',
-  'https://mathiasbynens.be/demo/animated-webp-supported.webp',
   'https://www.easygifanimator.net/images/samples/eglite.gif',
   'https://people.math.sc.edu/Burkardt/data/bmp/snail.bmp',
   'https://file-examples.com/storage/fe9566cb7d67345489a5a97/2017/10/file_example_JPG_100kB.jpg',

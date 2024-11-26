@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class AIChatUILayout {
-  static double get messageWidthRatio => 0.94; // Chat adds extra 0.06
-
   static EdgeInsets safeAreaInsets(BuildContext context) {
     final query = MediaQuery.of(context);
     return UniversalPlatform.isMobile
@@ -15,6 +13,10 @@ class AIChatUILayout {
           )
         : const EdgeInsets.only(bottom: 16);
   }
+
+  static EdgeInsets get messageMargin => UniversalPlatform.isMobile
+      ? const EdgeInsets.symmetric(horizontal: 16)
+      : EdgeInsets.zero;
 }
 
 class DesktopAIPromptSizes {

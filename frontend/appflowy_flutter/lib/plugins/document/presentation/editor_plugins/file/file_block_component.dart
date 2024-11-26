@@ -323,8 +323,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     FileUrlType urlType,
     String url,
   ) async {
-    if ([FileUrlType.cloud, FileUrlType.network].contains(urlType) ||
-        UniversalPlatform.isDesktopOrWeb) {
+    if ([FileUrlType.cloud, FileUrlType.network].contains(urlType)) {
       await afLaunchUrlString(url);
     } else {
       final result = await OpenFilex.open(url);

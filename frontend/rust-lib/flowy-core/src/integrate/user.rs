@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use client_api::entity::billing_dto::SubscriptionPlan;
-use tracing::{event, trace};
+use tracing::{event, info};
 
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -204,7 +204,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 
   fn did_update_network(&self, reachable: bool) {
-    trace!("Notify did update network: reachable: {}", reachable);
+    info!("Notify did update network: reachable: {}", reachable);
     self.collab_builder.update_network(reachable);
     self.storage_manager.update_network_reachable(reachable);
   }

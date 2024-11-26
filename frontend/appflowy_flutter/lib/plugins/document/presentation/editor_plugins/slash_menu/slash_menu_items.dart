@@ -468,6 +468,7 @@ SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem(
     editorState.apply(transaction);
   },
 );
+
 // math equation
 SelectionMenuItem mathEquationSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_mathEquation.tr(),
@@ -544,20 +545,37 @@ SelectionMenuItem emojiSlashMenuItem = SelectionMenuItem(
 );
 
 // auto generate menu item
-SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_slashMenu_name_aiWriter.tr(),
-  nameBuilder: _slashMenuItemNameBuilder,
-  iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
+SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem(
+  getName: LocaleKeys.document_slashMenu_name_aiWriter.tr,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_ai_writer_s,
     isSelected: isSelected,
     style: style,
   ),
   keywords: ['ai', 'openai', 'writer', 'ai writer', 'autogenerator'],
-  nodeBuilder: (editorState, _) {
-    final node = autoCompletionNode(start: editorState.selection!);
-    return node;
+  handler: (editorState, menuService, context) {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+    final newNode = autoCompletionNode(start: selection);
+
+    final transaction = editorState.transaction;
+    //default insert after
+    final path = node.path.next;
+    transaction
+      ..insertNode(path, newNode)
+      ..afterSelection = null;
+    editorState.apply(
+      transaction,
+      options: const ApplyOptions(inMemoryUpdate: true),
+    );
   },
-  replace: (_, node) => false,
 );
 
 // table menu item
