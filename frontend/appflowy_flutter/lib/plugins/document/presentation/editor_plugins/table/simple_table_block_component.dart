@@ -141,8 +141,16 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   final simpleTableContext = SimpleTableContext();
 
   @override
+  void initState() {
+    super.initState();
+
+    editorState.selectionNotifier.addListener(_onSelectionChanged);
+  }
+
+  @override
   void dispose() {
     simpleTableContext.dispose();
+    editorState.selectionNotifier.removeListener(_onSelectionChanged);
 
     super.dispose();
   }
@@ -151,20 +159,9 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   Widget build(BuildContext context) {
     Widget child = _buildTable();
 
-    child = Padding(
+    child = Container(
+      alignment: Alignment.topLeft,
       padding: padding,
-      child: child,
-    );
-
-    child = BlockSelectionContainer(
-      node: node,
-      delegate: this,
-      listenable: editorState.selectionNotifier,
-      remoteSelection: editorState.remoteSelections,
-      blockColor: editorState.editorStyle.selectionColor,
-      supportTypes: const [
-        BlockSelectionType.block,
-      ],
       child: child,
     );
 
@@ -250,6 +247,17 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     }
 
     return rows;
+  }
+
+  void _onSelectionChanged() {
+    final selection = editorState.selectionNotifier.value;
+    final selectionType = editorState.selectionType;
+    if (selectionType == SelectionType.block &&
+        widget.node.path.inSelection(selection)) {
+      simpleTableContext.isSelectingTable.value = true;
+    } else {
+      simpleTableContext.isSelectingTable.value = false;
+    }
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;

@@ -79,6 +79,26 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   late EditorState editorState = context.read<EditorState>();
 
   @override
+  void initState() {
+    super.initState();
+
+    context
+        .read<SimpleTableContext>()
+        .isSelectingTable
+        .addListener(_onSelectingTableChanged);
+  }
+
+  @override
+  void dispose() {
+    context
+        .read<SimpleTableContext>()
+        .isSelectingTable
+        .removeListener(_onSelectingTableChanged);
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MouseRegion(
       hitTestBehavior: HitTestBehavior.opaque,
@@ -226,12 +246,14 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return null;
     }
 
-    final isCellInSelectedColumn = node.columnIndex ==
-        context.read<SimpleTableContext>().selectingColumn.value;
+    final tableContext = context.watch<SimpleTableContext>();
+    final isCellInSelectedColumn =
+        node.columnIndex == tableContext.selectingColumn.value;
     final isCellInSelectedRow =
-        node.rowIndex == context.read<SimpleTableContext>().selectingRow.value;
-
-    if (isCellInSelectedColumn) {
+        node.rowIndex == tableContext.selectingRow.value;
+    if (tableContext.isSelectingTable.value) {
+      return _buildSelectingTableBorder();
+    } else if (isCellInSelectedColumn) {
       return _buildColumnBorder();
     } else if (isCellInSelectedRow) {
       return _buildRowBorder();
@@ -326,5 +348,48 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       color: context.simpleTableBorderColor,
       strokeAlign: BorderSide.strokeAlignCenter,
     );
+  }
+
+  Border _buildSelectingTableBorder() {
+    final rowIndex = node.rowIndex;
+    final columnIndex = node.columnIndex;
+
+    return Border(
+      top: rowIndex == 0
+          ? _buildDefaultBorderSide()
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+      bottom: rowIndex + 1 == node.parentTableNode?.rowLength
+          ? _buildDefaultBorderSide()
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+      left: columnIndex == 0
+          ? _buildDefaultBorderSide()
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+      right: columnIndex + 1 == node.parentTableNode?.columnLength
+          ? _buildDefaultBorderSide()
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+    );
+  }
+
+  BorderSide _buildDefaultBorderSide() {
+    return BorderSide(
+      color: Theme.of(context).colorScheme.primary,
+      width: 2,
+    );
+  }
+
+  void _onSelectingTableChanged() {
+    setState(() {});
   }
 }
