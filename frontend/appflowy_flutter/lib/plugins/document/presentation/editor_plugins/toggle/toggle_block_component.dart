@@ -292,6 +292,8 @@ class _ToggleListBlockComponentWidgetState
         text: FlowyText(
           buildPlaceholderText(),
           color: Theme.of(context).hintColor,
+          fontSize: UniversalPlatform.isDesktopOrWeb ? 16.0 : 14.0,
+          overflow: TextOverflow.ellipsis,
         ),
         margin: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 8),
         onTap: onAddContent,
@@ -358,26 +360,50 @@ class _ToggleListBlockComponentWidgetState
       TextDirection.rtl => collapsed ? -0.5 : -0.75,
     };
 
-    return Container(
-      constraints: BoxConstraints(
-        minWidth: 26,
-        minHeight: buttonHeight,
-      ),
-      alignment: Alignment.center,
-      child: FlowyButton(
-        margin: const EdgeInsets.all(2.0),
-        useIntrinsicWidth: true,
-        onTap: onCollapsed,
-        text: AnimatedRotation(
-          turns: turns,
-          duration: const Duration(milliseconds: 200),
-          child: const Icon(
-            Icons.arrow_right,
-            size: 18.0,
+    if (UniversalPlatform.isMobile) {
+      return Container(
+        constraints: BoxConstraints(
+          minWidth: 26,
+          minHeight: buttonHeight,
+        ),
+        child: FlowyIconButton(
+          width: 20.0,
+          onPressed: onCollapsed,
+          icon: Container(
+            padding: const EdgeInsets.only(right: 4.0),
+            child: AnimatedRotation(
+              turns: collapsed ? 0.0 : 0.25,
+              duration: const Duration(milliseconds: 200),
+              child: const Icon(
+                Icons.arrow_right,
+                size: 18.0,
+              ),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Container(
+        constraints: BoxConstraints(
+          minWidth: 26,
+          minHeight: buttonHeight,
+        ),
+        alignment: Alignment.center,
+        child: FlowyButton(
+          margin: const EdgeInsets.all(2.0),
+          useIntrinsicWidth: true,
+          onTap: onCollapsed,
+          text: AnimatedRotation(
+            turns: turns,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(
+              Icons.arrow_right,
+              size: 18.0,
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> onCollapsed() async {
