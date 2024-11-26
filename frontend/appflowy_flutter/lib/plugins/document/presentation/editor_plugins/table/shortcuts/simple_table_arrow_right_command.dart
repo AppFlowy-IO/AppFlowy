@@ -9,60 +9,14 @@ final CommandShortcutEvent arrowRightInTableCell = CommandShortcutEvent(
   getDescription: () => AppFlowyEditorL10n
       .current.cmdTableMoveToRightCellIfItsAtTheEndOfCurrentCell,
   command: 'arrow right',
-  handler: _arrowRightInTableCellHandler,
+  handler: (editorState) => editorState.moveToNextCell(
+    editorState,
+    (result) {
+      // only handle the case when the selection is at the end of the cell
+      final node = result.$4;
+      final length = node?.delta?.length ?? 0;
+      final selection = result.$2;
+      return selection?.end.offset == length;
+    },
+  ),
 );
-
-/// Move the selection to the next cell in the same column.
-KeyEventResult _arrowRightInTableCellHandler(EditorState editorState) {
-  final (isInTableCell, selection, tableCellNode, node) =
-      editorState.isCurrentSelectionInTableCell();
-  if (!isInTableCell ||
-      selection == null ||
-      tableCellNode == null ||
-      node == null) {
-    return KeyEventResult.ignored;
-  }
-
-  // only handle the case when the selection is at the end of the cell
-  final length = node.delta?.length ?? 0;
-  if (length != selection.end.offset) {
-    return KeyEventResult.ignored;
-  }
-
-  Selection? newSelection;
-
-  final nextCell = tableCellNode.getNextCellInSameRow();
-  if (nextCell != null && !nextCell.path.equals(tableCellNode.path)) {
-    // get the first children of the next cell
-    final firstChild = nextCell.children.firstWhereOrNull(
-      (c) => c.delta != null,
-    );
-    if (firstChild != null) {
-      newSelection = Selection.collapsed(
-        Position(
-          path: firstChild.path,
-        ),
-      );
-    }
-  } else {
-    // focus on the previous block
-    final nextNode = tableCellNode.parentTableNode;
-    if (nextNode != null) {
-      final nextFocusableSibling = nextNode.getNextFocusableSibling();
-      nextNode.getNextFocusableSibling();
-      if (nextFocusableSibling != null) {
-        newSelection = Selection.collapsed(
-          Position(
-            path: nextFocusableSibling.path,
-          ),
-        );
-      }
-    }
-  }
-
-  if (newSelection != null) {
-    editorState.updateSelectionWithReason(newSelection);
-  }
-
-  return KeyEventResult.handled;
-}

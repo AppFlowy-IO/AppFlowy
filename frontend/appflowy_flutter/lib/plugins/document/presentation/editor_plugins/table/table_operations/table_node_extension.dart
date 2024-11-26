@@ -407,7 +407,7 @@ extension TableNodeExtension on Node {
     final columnIndex = this.columnIndex;
     final rowIndex = this.rowIndex;
 
-    if (columnIndex == 0 || rowIndex == 0) {
+    if (columnIndex == 0 && rowIndex == 0) {
       return this;
     }
 
@@ -460,5 +460,16 @@ extension TableNodeExtension on Node {
       return null;
     }
     return next;
+  }
+
+  /// Is the last cell in the table.
+  bool get isLastCellInTable {
+    return columnIndex + 1 == parentTableNode?.columnLength &&
+        rowIndex + 1 == parentTableNode?.rowLength;
+  }
+
+  /// Is the first cell in the table.
+  bool get isFirstCellInTable {
+    return columnIndex == 0 && rowIndex == 0;
   }
 }
