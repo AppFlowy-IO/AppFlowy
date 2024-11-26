@@ -327,4 +327,138 @@ extension TableNodeExtension on Node {
       return SimpleTableColumnWidthMap();
     }
   }
+
+  /// Get the previous cell in the same column. If the row index is 0, it will return the same cell.
+  Node? getPreviousCellInSameColumn() {
+    assert(type == SimpleTableCellBlockKeys.type);
+    final parentTableNode = this.parentTableNode;
+    if (parentTableNode == null) {
+      return null;
+    }
+
+    final columnIndex = this.columnIndex;
+    final rowIndex = this.rowIndex;
+
+    if (rowIndex == 0) {
+      return this;
+    }
+
+    final previousColumn = parentTableNode.children[rowIndex - 1];
+    final previousCell = previousColumn.children[columnIndex];
+    return previousCell;
+  }
+
+  /// Get the next cell in the same column. If the row index is the last row, it will return the same cell.
+  Node? getNextCellInSameColumn() {
+    assert(type == SimpleTableCellBlockKeys.type);
+    final parentTableNode = this.parentTableNode;
+    if (parentTableNode == null) {
+      return null;
+    }
+
+    final columnIndex = this.columnIndex;
+    final rowIndex = this.rowIndex;
+
+    if (rowIndex == parentTableNode.rowLength - 1) {
+      return this;
+    }
+
+    final nextColumn = parentTableNode.children[rowIndex + 1];
+    final nextCell = nextColumn.children[columnIndex];
+    return nextCell;
+  }
+
+  /// Get the right cell in the same row. If the column index is the last column, it will return the same cell.
+  Node? getNextCellInSameRow() {
+    assert(type == SimpleTableCellBlockKeys.type);
+    final parentTableNode = this.parentTableNode;
+    if (parentTableNode == null) {
+      return null;
+    }
+
+    final columnIndex = this.columnIndex;
+    final rowIndex = this.rowIndex;
+
+    // the last cell
+    if (columnIndex == parentTableNode.columnLength - 1 &&
+        rowIndex == parentTableNode.rowLength - 1) {
+      return this;
+    }
+
+    if (columnIndex == parentTableNode.columnLength - 1) {
+      final nextRow = parentTableNode.children[rowIndex + 1];
+      final nextCell = nextRow.children.first;
+      return nextCell;
+    }
+
+    final nextColumn = parentTableNode.children[rowIndex];
+    final nextCell = nextColumn.children[columnIndex + 1];
+    return nextCell;
+  }
+
+  /// Get the previous cell in the same row. If the column index is 0, it will return the same cell.
+  Node? getPreviousCellInSameRow() {
+    assert(type == SimpleTableCellBlockKeys.type);
+    final parentTableNode = this.parentTableNode;
+    if (parentTableNode == null) {
+      return null;
+    }
+
+    final columnIndex = this.columnIndex;
+    final rowIndex = this.rowIndex;
+
+    if (columnIndex == 0 || rowIndex == 0) {
+      return this;
+    }
+
+    if (columnIndex == 0) {
+      final previousRow = parentTableNode.children[rowIndex - 1];
+      final previousCell = previousRow.children.last;
+      return previousCell;
+    }
+
+    final previousColumn = parentTableNode.children[rowIndex];
+    final previousCell = previousColumn.children[columnIndex - 1];
+    return previousCell;
+  }
+
+  /// Get the previous focusable sibling.
+  ///
+  /// If the current node is the first child of its parent, it will return itself.
+  Node? getPreviousFocusableSibling() {
+    final parent = this.parent;
+    if (parent == null) {
+      return null;
+    }
+    final parentTableNode = this.parentTableNode;
+    if (parentTableNode == null) {
+      return null;
+    }
+    if (parentTableNode.path == [0]) {
+      return this;
+    }
+    final previous = parentTableNode.previous;
+    if (previous == null) {
+      return null;
+    }
+    var children = previous.children;
+    if (children.isEmpty) {
+      return previous;
+    }
+    while (children.isNotEmpty) {
+      children = children.last.children;
+    }
+    return children.lastWhere((c) => c.delta != null);
+  }
+
+  /// Get the next focusable sibling.
+  ///
+  /// If the current node is the last child of its parent, it will return itself.
+  Node? getNextFocusableSibling() {
+    final next = this.next;
+    if (next == null) {
+      return null;
+    }
+    return next;
+  }
 }
