@@ -24,7 +24,7 @@ abstract class ChatAnchor {
   LayerLink get layerLink;
 }
 
-const int _itemHeight = 34;
+const int _itemHeight = 44;
 const int _itemVerticalPadding = 4;
 const int _noPageHeight = 20;
 
@@ -63,7 +63,7 @@ class ChatActionsMenu {
     }
 
     handler.onEnter();
-    const double maxHeight = 300;
+    const maxHeight = 600.0;
 
     _overlayEntry = OverlayEntry(
       builder: (context) => BlocProvider.value(
@@ -86,33 +86,41 @@ class ChatActionsMenu {
                   link: anchor.layerLink,
                   showWhenUnlinked: false,
                   offset: Offset(handler.actionMenuOffsetX(), -height - 4),
-                  child: Material(
-                    elevation: 4.0,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: 200,
-                        maxWidth: 200,
-                        maxHeight: maxHeight,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 360,
+                      maxWidth: 360,
+                      maxHeight: maxHeight,
+                    ),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(6.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x0A1F2329),
+                            blurRadius: 24,
+                            offset: Offset(0, 8),
+                            spreadRadius: 8,
+                          ),
+                          BoxShadow(
+                            color: Color(0x0A1F2329),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                          BoxShadow(
+                            color: Color(0x0F1F2329),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            spreadRadius: -8,
+                          ),
+                        ],
                       ),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(6.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 2,
-                            vertical: 2,
-                          ),
-                          child: ActionList(
-                            isLoading: isLoading,
-                            handler: handler,
-                            onDismiss: () => dismiss(),
-                            pages: state.pages,
-                          ),
-                        ),
+                      child: ActionList(
+                        isLoading: isLoading,
+                        handler: handler,
+                        onDismiss: () => dismiss(),
+                        pages: state.pages,
                       ),
                     ),
                   ),
@@ -141,29 +149,34 @@ class _ActionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: _itemHeight.toDouble(),
-      padding: const EdgeInsets.symmetric(vertical: _itemVerticalPadding / 2.0),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(4.0),
-      ),
-      child: FlowyTooltip(
-        message: item.title,
-        child: FlowyButton(
-          leftIcon: item.icon,
-          margin: const EdgeInsets.symmetric(horizontal: 6),
-          iconPadding: 10.0,
-          text: FlowyText(
-            item.title.isEmpty
-                ? LocaleKeys.document_title_placeholder.tr()
-                : item.title,
-            lineHeight: 1.0,
-            overflow: TextOverflow.ellipsis,
-          ),
+    return FlowyTooltip(
+      message: item.title,
+      child: Container(
+        height: _itemHeight.toDouble(),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        padding: const EdgeInsets.all(4.0),
+        child: GestureDetector(
           onTap: onTap,
+          child: Row(
+            children: [
+              item.icon,
+              const HSpace(8.0),
+              Expanded(
+                child: FlowyText(
+                  item.title.isEmpty
+                      ? LocaleKeys.document_title_placeholder.tr()
+                      : item.title,
+                  lineHeight: 1.0,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -235,7 +248,7 @@ class _ActionListState extends State<ActionList> {
       child: ListView(
         shrinkWrap: true,
         controller: _scrollController,
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(8.0),
         children: _buildPages(),
       ),
     );
