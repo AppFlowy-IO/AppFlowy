@@ -13,7 +13,7 @@ function AddIconCover ({
   onAddCover,
   iconAnchorEl,
   setIconAnchorEl,
-
+  maxWidth,
 }: {
   hasIcon: boolean;
   hasCover: boolean;
@@ -21,11 +21,17 @@ function AddIconCover ({
   onAddCover?: () => void;
   iconAnchorEl: HTMLElement | null;
   setIconAnchorEl: (el: HTMLElement | null) => void;
+  maxWidth?: number;
 }) {
   const { t } = useTranslation();
 
   return (
-    <div className={'max-sm:px-6 px-24 w-[988px] flex items-start min-w-0 max-w-full gap-2 justify-start max-sm:hidden'}>
+    <div
+      style={{
+        width: maxWidth ? `${maxWidth}px` : '100%',
+      }}
+      className={'max-sm:px-6 px-24 flex items-start min-w-0 max-w-full gap-2 justify-start max-sm:hidden'}
+    >
       {!hasIcon && <Button
         color={'inherit'}
         size={'small'}

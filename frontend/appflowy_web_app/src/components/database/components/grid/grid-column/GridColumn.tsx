@@ -41,7 +41,7 @@ export function GridColumn ({ column, index }: { column: Column; index: number }
     >
       <div
         style={{
-          borderLeftWidth: index === 0 ? 0 : 1,
+          borderLeftWidth: index === 1 ? 0 : 1,
         }}
         className={
           'flex h-full w-full items-center gap-1 overflow-hidden whitespace-nowrap border-t border-b border-l border-line-divider px-2 text-sm font-medium hover:bg-fill-list-active'

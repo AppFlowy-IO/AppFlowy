@@ -51,6 +51,7 @@ export const Document = (props: DocumentProps) => {
         readOnly={readOnly}
         updatePage={updatePage}
         onEnter={readOnly ? undefined : handleEnter}
+        maxWidth={988}
       />
       <Suspense fallback={<EditorSkeleton />}>
         <div className={'flex justify-center w-full'}>

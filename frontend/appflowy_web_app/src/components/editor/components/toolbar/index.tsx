@@ -2,13 +2,11 @@ import React from 'react';
 import { HoverControls } from 'src/components/editor/components/toolbar/block-controls';
 import { SelectionToolbar } from './selection-toolbar/SelectionToolbar';
 
-function Toolbars ({ onAdded }: {
-  onAdded: (blockId: string) => void;
-}) {
+function Toolbars () {
   return (
     <>
       <SelectionToolbar />
-      <HoverControls onAdded={onAdded} />
+      <HoverControls />
     </>
   );
 }

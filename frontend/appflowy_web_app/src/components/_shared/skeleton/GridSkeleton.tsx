@@ -17,7 +17,7 @@ function GridSkeleton ({ includeTitle = true, includeTabs = true }: { includeTit
   }, []);
 
   return (
-    <div className={`w-full overflow-x-auto ${includeTitle ? 'py-2 px-6' : ''}`}>
+    <div className={`w-full overflow-x-auto  max-sm:px-6 px-24 min-w-0 max-w-full ${includeTitle ? 'py-2' : ''}`}>
       {includeTitle && (
         <>
           <div className="w-full my-6 flex items-center h-20 mb-2">
@@ -36,7 +36,10 @@ function GridSkeleton ({ includeTitle = true, includeTabs = true }: { includeTit
             <thead>
             <tr>
               {[...Array(columns)].map((_, index) => (
-                <th key={index} className="px-6 py-3 border-b border-line-divider bg-bg-base">
+                <th
+                  key={index}
+                  className="px-6 py-3 border-b border-line-divider bg-bg-base"
+                >
                   <div className="h-6 bg-fill-list-hover rounded animate-pulse"></div>
                 </th>
               ))}
@@ -46,7 +49,10 @@ function GridSkeleton ({ includeTitle = true, includeTabs = true }: { includeTit
             {[...Array(rows)].map((_, rowIndex) => (
               <tr key={rowIndex}>
                 {[...Array(columns)].map((_, colIndex) => (
-                  <td key={colIndex} className="px-6 py-4 border-b border-line-divider">
+                  <td
+                    key={colIndex}
+                    className="px-6 py-4 border-b border-line-divider"
+                  >
                     <div className="h-5 bg-fill-list-hover rounded animate-pulse"></div>
                   </td>
                 ))}

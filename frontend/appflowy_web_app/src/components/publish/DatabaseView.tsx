@@ -16,9 +16,9 @@ import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
 import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
 import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { Database } from '@/components/database';
-import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ViewMetaPreview from 'src/components/view-meta/ViewMetaPreview';
 
 export interface DatabaseProps {
   doc: YDoc;
@@ -90,9 +90,12 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
         minHeight: 'calc(100vh - 48px)',
         maxWidth: isTemplateThumb ? '964px' : undefined,
       }}
-      className={'relative flex h-full w-full flex-col px-6'}
+      className={'relative flex h-full w-full flex-col'}
     >
-      {rowId ? null : <DatabaseHeader {...viewMeta} />}
+      {rowId ? null : <ViewMetaPreview
+        {...viewMeta}
+        readOnly={true}
+      />}
 
       <Suspense fallback={skeleton}>
         <Database

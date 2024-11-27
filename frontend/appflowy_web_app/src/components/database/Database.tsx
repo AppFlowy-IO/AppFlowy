@@ -3,7 +3,7 @@ import {
   AppendBreadcrumb,
   CreateRowDoc,
   LoadView,
-  LoadViewMeta, RowId,
+  LoadViewMeta, RowId, UIVariant,
   YDatabase,
   YDoc,
   YjsDatabaseKey,
@@ -18,6 +18,7 @@ import { DatabaseContextProvider } from './DatabaseContext';
 
 export interface Database2Props {
   doc: YDoc;
+  readOnly?: boolean;
   createRowDoc?: CreateRowDoc;
   loadView?: LoadView;
   navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
@@ -31,8 +32,10 @@ export interface Database2Props {
   visibleViewIds: string[];
   iidIndex: string;
   hideConditions?: boolean;
-  variant?: 'publish' | 'app';
+  variant?: UIVariant;
   onRendered?: () => void;
+  isDocumentBlock?: boolean;
+  scrollLeft?: number;
 }
 
 function Database ({
@@ -51,10 +54,12 @@ function Database ({
   hideConditions,
   appendBreadcrumb,
   onRendered,
-  variant = 'app',
+  readOnly = true,
+  variant = UIVariant.App,
+  scrollLeft,
+  isDocumentBlock,
 }: Database2Props) {
   const database = doc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
-
   const view = database.get(YjsDatabaseKey.views).get(iidIndex);
 
   const rowOrders = view?.get(YjsDatabaseKey.row_orders);
@@ -105,13 +110,11 @@ function Database ({
     };
   }, [handleUpdateRowDocMap, rowOrders]);
 
-  useEffect(() => {
-    onRendered?.();
-  }, [onRendered]);
-
   if (!rowDocMap || !viewId) {
     return null;
   }
+
+  console.log('Database', database.toJSON());
 
   return (
     <div className={'flex w-full flex-1 justify-center'}>
@@ -122,11 +125,13 @@ function Database ({
         viewId={viewId}
         databaseDoc={doc}
         rowDocMap={rowDocMap}
-        readOnly={true}
+        readOnly={readOnly}
         loadView={loadView}
         navigateToView={navigateToView}
         loadViewMeta={loadViewMeta}
         createRowDoc={createRowDoc}
+        scrollLeft={scrollLeft}
+        isDocumentBlock={isDocumentBlock}
       >
         {rowId ? (
           <DatabaseRow
@@ -142,6 +147,7 @@ function Database ({
               onChangeView={onChangeView}
               viewId={viewId}
               hideConditions={hideConditions}
+              onRendered={onRendered}
             />
           </div>
         )}

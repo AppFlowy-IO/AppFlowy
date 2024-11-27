@@ -20,12 +20,14 @@ function DatabaseViews ({
   viewName,
   visibleViewIds,
   hideConditions = false,
+  onRendered,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
   viewName?: string;
   visibleViewIds?: string[];
+  onRendered?: () => void;
   hideConditions?: boolean;
 }) {
   const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex, visibleViewIds);
@@ -54,13 +56,19 @@ function DatabaseViews ({
   const view = useMemo(() => {
     switch (layout) {
       case DatabaseViewLayout.Grid:
-        return <Grid />;
+        return <Grid
+          onRendered={onRendered}
+        />;
       case DatabaseViewLayout.Board:
-        return <Board />;
+        return <Board
+          onRendered={onRendered}
+        />;
       case DatabaseViewLayout.Calendar:
-        return <Calendar />;
+        return <Calendar
+          onRendered={onRendered}
+        />;
     }
-  }, [layout]);
+  }, [layout, onRendered]);
 
   const skeleton = useMemo(() => {
     switch (layout) {
