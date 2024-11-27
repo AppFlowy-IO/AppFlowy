@@ -11,6 +11,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
+const int _itemHeight = 44;
+const int _itemVerticalPadding = 4;
+const int _noPageHeight = 20;
+
 abstract class ChatActionHandler {
   void onEnter();
   void onSelected(ViewPB page);
@@ -19,10 +23,6 @@ abstract class ChatActionHandler {
   void onFilter(String filter);
   double actionMenuOffsetX();
 }
-
-const int _itemHeight = 44;
-const int _itemVerticalPadding = 4;
-const int _noPageHeight = 20;
 
 class ChatInputAnchor {
   ChatInputAnchor({

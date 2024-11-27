@@ -22,14 +22,12 @@ class DesktopAIPromptInput extends StatefulWidget {
   const DesktopAIPromptInput({
     super.key,
     required this.chatId,
-    required this.indicateFocus,
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
   });
 
   final String chatId;
-  final bool indicateFocus;
   final bool isStreaming;
   final void Function() onStopStreaming;
   final void Function(String, Map<String, dynamic>) onSubmitted;
@@ -39,8 +37,8 @@ class DesktopAIPromptInput extends StatefulWidget {
 }
 
 class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
-  final GlobalKey _textFieldKey = GlobalKey();
-  final LayerLink _layerLink = LayerLink();
+  final _textFieldKey = GlobalKey();
+  final _layerLink = LayerLink();
 
   late final ChatInputActionControl _inputActionControl;
   late final FocusNode _inputFocusNode;
@@ -71,13 +69,8 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
       },
     )..addListener(() {
         // refresh border color on focus change
-        if (widget.indicateFocus) {
-          setState(() {});
-        }
+        setState(() {});
       });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _inputFocusNode.requestFocus();
-    });
 
     _inputActionControl = ChatInputActionControl(
       chatId: widget.chatId,
@@ -85,6 +78,9 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
       textFieldFocusNode: _inputFocusNode,
     );
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _inputFocusNode.requestFocus();
+    });
     updateSendButtonState();
   }
 
@@ -107,7 +103,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
-          color: _inputFocusNode.hasFocus && widget.indicateFocus
+          color: _inputFocusNode.hasFocus
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.outline,
         ),
@@ -138,7 +134,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                       DesktopAIPromptSizes.actionBarHeight,
                   maxHeight: 300,
                 ),
-                child: _inputTextField(context),
+                child: _inputTextField(),
               ),
               Positioned.fill(
                 top: null,
@@ -216,7 +212,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     setState(() => updateSendButtonState());
   }
 
-  Widget _inputTextField(BuildContext context) {
+  Widget _inputTextField() {
     return CompositedTransformTarget(
       link: _layerLink,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(

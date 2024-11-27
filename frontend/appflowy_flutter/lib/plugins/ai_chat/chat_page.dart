@@ -345,7 +345,6 @@ class _ChatContentPage extends StatelessWidget {
           return UniversalPlatform.isDesktop
               ? DesktopAIPromptInput(
                   chatId: view.id,
-                  indicateFocus: true,
                   onSubmitted: (text, metadata) {
                     context.read<ChatBloc>().add(
                           ChatEvent.sendMessage(
