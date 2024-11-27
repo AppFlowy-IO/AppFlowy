@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.da
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -20,18 +21,6 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     _init();
   }
 
-  ChatInputFileMetadata consumeMetadata() {
-    final metadata = {
-      for (final file in state.uploadFiles) file.filePath: file,
-    };
-
-    if (metadata.isNotEmpty) {
-      add(const AIPromptInputEvent.clear());
-    }
-
-    return metadata;
-  }
-
   final LocalLLMListener _listener;
 
   @override
@@ -44,15 +33,6 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     on<AIPromptInputEvent>(
       (event, emit) {
         event.when(
-          newFile: (String filePath, String fileName) {
-            final files = [...state.uploadFiles];
-
-            final newFile = ChatFile.fromFilePath(filePath);
-            if (newFile != null) {
-              files.add(newFile);
-              emit(state.copyWith(uploadFiles: files));
-            }
-          },
           updateChatState: (LocalAIChatPB chatState) {
             // Only user enable chat with file and the plugin is already running
             final supportChatWithFile = chatState.fileEnabled &&
@@ -80,19 +60,37 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
               ),
             );
           },
-          deleteFile: (file) {
-            final files = List<ChatFile>.from(state.uploadFiles);
+          attachFile: (filePath, fileName) {
+            final newFile = ChatFile.fromFilePath(filePath);
+            if (newFile != null) {
+              emit(
+                state.copyWith(
+                  attachedFiles: [...state.attachedFiles, newFile],
+                ),
+              );
+            }
+          },
+          removeFile: (file) {
+            final files = [...state.attachedFiles];
             files.remove(file);
             emit(
               state.copyWith(
-                uploadFiles: files,
+                attachedFiles: files,
               ),
             );
           },
-          clear: () {
+          updateMentionedViews: (views) {
             emit(
               state.copyWith(
-                uploadFiles: [],
+                mentionedPages: views,
+              ),
+            );
+          },
+          clearMetadata: () {
+            emit(
+              state.copyWith(
+                attachedFiles: [],
+                mentionedPages: [],
               ),
             );
           },
@@ -126,35 +124,55 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
       Log.error,
     );
   }
+
+  Map<String, dynamic> consumeMetadata() {
+    final metadata = {
+      for (final file in state.attachedFiles) file.filePath: file,
+      for (final page in state.mentionedPages) page.id: page,
+    };
+
+    if (metadata.isNotEmpty && !isClosed) {
+      add(const AIPromptInputEvent.clearMetadata());
+    }
+
+    return metadata;
+  }
 }
 
 @freezed
 class AIPromptInputEvent with _$AIPromptInputEvent {
-  const factory AIPromptInputEvent.newFile(String filePath, String fileName) =
-      _NewFile;
-  const factory AIPromptInputEvent.deleteFile(ChatFile file) = _DeleteFile;
-  const factory AIPromptInputEvent.clear() = _ClearFile;
   const factory AIPromptInputEvent.updateChatState(
     LocalAIChatPB chatState,
   ) = _UpdateChatState;
   const factory AIPromptInputEvent.updatePluginState(
     LocalAIPluginStatePB chatState,
   ) = _UpdatePluginState;
+  const factory AIPromptInputEvent.attachFile(
+    String filePath,
+    String fileName,
+  ) = _AttachFile;
+  const factory AIPromptInputEvent.removeFile(ChatFile file) = _RemoveFile;
+  const factory AIPromptInputEvent.updateMentionedViews(List<ViewPB> views) =
+      _UpdateMentionedViews;
+  const factory AIPromptInputEvent.clearMetadata() = _ClearMetadata;
 }
 
 @freezed
 class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
-    required bool supportChatWithFile,
-    LocalAIChatPB? chatState,
-    required List<ChatFile> uploadFiles,
     required AIType aiType,
+    required bool supportChatWithFile,
+    required LocalAIChatPB? chatState,
+    required List<ChatFile> attachedFiles,
+    required List<ViewPB> mentionedPages,
   }) = _AIPromptInputState;
 
   factory AIPromptInputState.initial() => const AIPromptInputState(
-        supportChatWithFile: false,
-        uploadFiles: [],
         aiType: AIType.appflowyAI,
+        supportChatWithFile: false,
+        chatState: null,
+        attachedFiles: [],
+        mentionedPages: [],
       );
 }
 

@@ -76,7 +76,7 @@ class AIChatPage extends StatelessWidget {
                 for (final file in detail.files) {
                   context
                       .read<AIPromptInputBloc>()
-                      .add(AIPromptInputEvent.newFile(file.path, file.name));
+                      .add(AIPromptInputEvent.attachFile(file.path, file.name));
                 }
               }
             },
