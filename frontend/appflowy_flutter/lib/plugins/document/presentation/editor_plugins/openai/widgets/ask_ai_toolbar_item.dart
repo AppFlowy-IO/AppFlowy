@@ -1,8 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/util/ask_ai_node_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_block_component.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -11,20 +12,20 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-const _kSmartEditToolbarItemId = 'appflowy.editor.smart_edit';
+const _kAskAIToolbarItemId = 'appflowy.editor.ask_ai';
 
-final ToolbarItem smartEditItem = ToolbarItem(
-  id: _kSmartEditToolbarItemId,
+final ToolbarItem askAIItem = ToolbarItem(
+  id: _kAskAIToolbarItemId,
   group: 0,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState, _, __, tooltipBuilder) => SmartEditActionList(
+  builder: (context, editorState, _, __, tooltipBuilder) => AskAIActionList(
     editorState: editorState,
     tooltipBuilder: tooltipBuilder,
   ),
 );
 
-class SmartEditActionList extends StatefulWidget {
-  const SmartEditActionList({
+class AskAIActionList extends StatefulWidget {
+  const AskAIActionList({
     super.key,
     required this.editorState,
     this.tooltipBuilder,
@@ -34,25 +35,28 @@ class SmartEditActionList extends StatefulWidget {
   final ToolbarTooltipBuilder? tooltipBuilder;
 
   @override
-  State<SmartEditActionList> createState() => _SmartEditActionListState();
+  State<AskAIActionList> createState() => _AskAIActionListState();
 }
 
-class _SmartEditActionListState extends State<SmartEditActionList> {
+class _AskAIActionListState extends State<AskAIActionList> {
   bool isAIEnabled = true;
+
+  EditorState get editorState => widget.editorState;
 
   @override
   void initState() {
     super.initState();
+
     isAIEnabled = _isAIEnabled();
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopoverActionList<SmartEditActionWrapper>(
+    return PopoverActionList<AskAIActionWrapper>(
       offset: const Offset(-5, 5),
       direction: PopoverDirection.bottomWithLeftAligned,
-      actions: SmartEditAction.values
-          .map((action) => SmartEditActionWrapper(action))
+      actions: AskAIAction.values
+          .map((action) => AskAIActionWrapper(action))
           .toList(),
       onClosed: () => keepEditorFocusNotifier.decrease(),
       buildChild: (controller) {
@@ -88,7 +92,7 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
         if (widget.tooltipBuilder != null) {
           return widget.tooltipBuilder!(
             context,
-            _kSmartEditToolbarItemId,
+            _kAskAIToolbarItemId,
             isAIEnabled
                 ? LocaleKeys.document_plugins_smartEdit.tr()
                 : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
@@ -100,57 +104,37 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       },
       onSelected: (action, controller) {
         controller.close();
-        _insertSmartEditNode(action);
+        _insertAskAINode(action);
       },
     );
   }
 
-  Future<void> _insertSmartEditNode(
-    SmartEditActionWrapper actionWrapper,
+  Future<void> _insertAskAINode(
+    AskAIActionWrapper actionWrapper,
   ) async {
-    final selection = widget.editorState.selection?.normalized;
+    final selection = editorState.selection?.normalized;
     if (selection == null) {
       return;
     }
 
-    // support multiple paragraphs
-    final input = _getTextInSelection(selection);
+    final markdown = editorState.getMarkdownInSelection(selection);
 
-    final transaction = widget.editorState.transaction;
+    final transaction = editorState.transaction;
     transaction.insertNode(
       selection.normalized.end.path.next,
-      smartEditNode(
+      askAINode(
         action: actionWrapper.inner,
-        content: input.join('\n\n'),
+        content: markdown,
       ),
     );
-    await widget.editorState.apply(
+    await editorState.apply(
       transaction,
       options: const ApplyOptions(
         recordUndo: false,
+        inMemoryUpdate: true,
       ),
       withUpdateSelection: false,
     );
-  }
-
-  List<String> _getTextInSelection(
-    Selection selection,
-  ) {
-    final res = <String>[];
-    if (selection.isCollapsed) {
-      return res;
-    }
-    final nodes = widget.editorState.getNodesInSelection(selection);
-    for (final node in nodes) {
-      final delta = node.delta;
-      if (delta == null) {
-        continue;
-      }
-      final startIndex = node == nodes.first ? selection.startIndex : 0;
-      final endIndex = node == nodes.last ? selection.endIndex : delta.length;
-      res.add(delta.slice(startIndex, endIndex).toPlainText());
-    }
-    return res;
   }
 
   bool _isAIEnabled() {

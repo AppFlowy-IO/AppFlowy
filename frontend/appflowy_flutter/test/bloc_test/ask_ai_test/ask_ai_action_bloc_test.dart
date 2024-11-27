@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -89,13 +89,13 @@ class _MockErrorRepository extends Mock implements AIRepository {
 }
 
 void main() {
-  group('SmartEditorBloc: ', () {
+  group('AskAIActionBloc: ', () {
     const text1 = '1. Select text to style using the toolbar menu.';
     const text2 = '2. Discover more styling options in Aa.';
     const text3 =
         '3. AppFlowy empowers you to beautifully and effortlessly style your content.';
 
-    blocTest<SmartEditBloc, SmartEditState>(
+    blocTest<AskAIActionBloc, AskAIState>(
       'send request before the bloc is initialized',
       build: () {
         final document = Document(
@@ -113,34 +113,34 @@ void main() {
           end: Position(path: [2], offset: text3.length),
         );
 
-        final node = smartEditNode(
-          action: SmartEditAction.makeItLonger,
+        final node = askAINode(
+          action: AskAIAction.makeItLonger,
           content: [text1, text2, text3].join('\n'),
         );
-        return SmartEditBloc(
+        return AskAIActionBloc(
           node: node,
           editorState: editorState,
-          action: SmartEditAction.makeItLonger,
+          action: AskAIAction.makeItLonger,
           enableLogging: false,
         );
       },
       act: (bloc) {
-        bloc.add(SmartEditEvent.initial(Future.value(_MockAIRepository())));
-        bloc.add(const SmartEditEvent.rewrite());
+        bloc.add(AskAIEvent.initial(Future.value(_MockAIRepository())));
+        bloc.add(const AskAIEvent.rewrite());
       },
       expect: () => [
-        isA<SmartEditState>()
+        isA<AskAIState>()
             .having((s) => s.loading, 'loading', true)
             .having((s) => s.result, 'result', isEmpty),
-        isA<SmartEditState>()
+        isA<AskAIState>()
             .having((s) => s.loading, 'loading', false)
             .having((s) => s.result, 'result', isNotEmpty)
             .having((s) => s.result, 'result', contains('UPDATED:')),
-        isA<SmartEditState>().having((s) => s.loading, 'loading', false),
+        isA<AskAIState>().having((s) => s.loading, 'loading', false),
       ],
     );
 
-    blocTest<SmartEditBloc, SmartEditState>(
+    blocTest<AskAIActionBloc, AskAIState>(
       'exceed the ai response limit',
       build: () {
         const text1 = '1. Select text to style using the toolbar menu.';
@@ -162,26 +162,26 @@ void main() {
           end: Position(path: [2], offset: text3.length),
         );
 
-        final node = smartEditNode(
-          action: SmartEditAction.makeItLonger,
+        final node = askAINode(
+          action: AskAIAction.makeItLonger,
           content: [text1, text2, text3].join('\n'),
         );
-        return SmartEditBloc(
+        return AskAIActionBloc(
           node: node,
           editorState: editorState,
-          action: SmartEditAction.makeItLonger,
+          action: AskAIAction.makeItLonger,
           enableLogging: false,
         );
       },
       act: (bloc) {
-        bloc.add(SmartEditEvent.initial(Future.value(_MockErrorRepository())));
-        bloc.add(const SmartEditEvent.rewrite());
+        bloc.add(AskAIEvent.initial(Future.value(_MockErrorRepository())));
+        bloc.add(const AskAIEvent.rewrite());
       },
       expect: () => [
-        isA<SmartEditState>()
+        isA<AskAIState>()
             .having((s) => s.loading, 'loading', true)
             .having((s) => s.result, 'result', isEmpty),
-        isA<SmartEditState>()
+        isA<AskAIState>()
             .having((s) => s.requestError, 'requestError', isNotNull)
             .having(
               (s) => s.requestError?.code,
@@ -208,21 +208,21 @@ void main() {
         end: Position(path: [2], offset: text3.length),
       );
 
-      final node = smartEditNode(
-        action: SmartEditAction.makeItLonger,
+      final node = askAINode(
+        action: AskAIAction.makeItLonger,
         content: [text1, text2, text3].join('\n\n'),
       );
-      final bloc = SmartEditBloc(
+      final bloc = AskAIActionBloc(
         node: node,
         editorState: editorState,
-        action: SmartEditAction.summarize,
+        action: AskAIAction.summarize,
         enableLogging: false,
       );
-      bloc.add(SmartEditEvent.initial(Future.value(_MockAIRepository())));
+      bloc.add(AskAIEvent.initial(Future.value(_MockAIRepository())));
       await blocResponseFuture();
-      bloc.add(const SmartEditEvent.started());
+      bloc.add(const AskAIEvent.started());
       await blocResponseFuture();
-      bloc.add(const SmartEditEvent.replace());
+      bloc.add(const AskAIEvent.replace());
       await blocResponseFuture();
       expect(editorState.document.root.children.length, 3);
       expect(
@@ -255,21 +255,21 @@ void main() {
         end: Position(path: [2], offset: text3.length),
       );
 
-      final node = smartEditNode(
-        action: SmartEditAction.makeItLonger,
+      final node = askAINode(
+        action: AskAIAction.makeItLonger,
         content: [text1, text2, text3].join('\n'),
       );
-      final bloc = SmartEditBloc(
+      final bloc = AskAIActionBloc(
         node: node,
         editorState: editorState,
-        action: SmartEditAction.summarize,
+        action: AskAIAction.summarize,
         enableLogging: false,
       );
-      bloc.add(SmartEditEvent.initial(Future.value(_MockAIRepositoryLess())));
+      bloc.add(AskAIEvent.initial(Future.value(_MockAIRepositoryLess())));
       await blocResponseFuture();
-      bloc.add(const SmartEditEvent.started());
+      bloc.add(const AskAIEvent.started());
       await blocResponseFuture();
-      bloc.add(const SmartEditEvent.replace());
+      bloc.add(const AskAIEvent.replace());
       await blocResponseFuture();
       expect(editorState.document.root.children.length, 1);
       expect(
@@ -294,21 +294,21 @@ void main() {
         end: Position(path: [2], offset: text3.length),
       );
 
-      final node = smartEditNode(
-        action: SmartEditAction.makeItLonger,
+      final node = askAINode(
+        action: AskAIAction.makeItLonger,
         content: [text1, text2, text3].join('\n'),
       );
-      final bloc = SmartEditBloc(
+      final bloc = AskAIActionBloc(
         node: node,
         editorState: editorState,
-        action: SmartEditAction.summarize,
+        action: AskAIAction.summarize,
         enableLogging: false,
       );
-      bloc.add(SmartEditEvent.initial(Future.value(_MockAIRepositoryMore())));
+      bloc.add(AskAIEvent.initial(Future.value(_MockAIRepositoryMore())));
       await blocResponseFuture();
-      bloc.add(const SmartEditEvent.started());
+      bloc.add(const AskAIEvent.started());
       await blocResponseFuture();
-      bloc.add(const SmartEditEvent.replace());
+      bloc.add(const AskAIEvent.replace());
       await blocResponseFuture();
       expect(editorState.document.root.children.length, 10);
       for (var i = 0; i < 10; i++) {
