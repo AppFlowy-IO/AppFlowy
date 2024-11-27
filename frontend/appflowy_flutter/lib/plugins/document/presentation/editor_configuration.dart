@@ -256,7 +256,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
     ),
-    SmartEditBlockKeys.type: _buildSmartEditBlockComponentBuilder(
+    AskAIBlockKeys.type: _buildAskAIBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -560,11 +560,11 @@ AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   return AIWriterBlockComponentBuilder();
 }
 
-SmartEditBlockComponentBuilder _buildSmartEditBlockComponentBuilder(
+AskAIBlockComponentBuilder _buildAskAIBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return SmartEditBlockComponentBuilder();
+  return AskAIBlockComponentBuilder();
 }
 
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(

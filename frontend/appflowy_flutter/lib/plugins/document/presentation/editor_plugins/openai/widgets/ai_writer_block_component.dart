@@ -23,7 +23,7 @@ import 'ai_limit_dialog.dart';
 class AIWriterBlockKeys {
   const AIWriterBlockKeys._();
 
-  static const String type = 'auto_completion';
+  static const String type = 'ai_writer';
   static const String prompt = 'prompt';
   static const String startSelection = 'start_selection';
   static const String generationCount = 'generation_count';

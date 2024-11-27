@@ -1,9 +1,9 @@
-import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
-enum SmartEditAction {
+enum AskAIAction {
   summarize,
   fixSpelling,
   improveWriting,
@@ -11,62 +11,62 @@ enum SmartEditAction {
 
   String get toInstruction {
     switch (this) {
-      case SmartEditAction.summarize:
+      case AskAIAction.summarize:
         return 'Tl;dr';
-      case SmartEditAction.fixSpelling:
+      case AskAIAction.fixSpelling:
         return 'Correct this to standard English:';
-      case SmartEditAction.improveWriting:
+      case AskAIAction.improveWriting:
         return 'Rewrite this in your own words:';
-      case SmartEditAction.makeItLonger:
+      case AskAIAction.makeItLonger:
         return 'Make this text longer:';
     }
   }
 
   String prompt(String input) {
     switch (this) {
-      case SmartEditAction.summarize:
+      case AskAIAction.summarize:
         return '$input\n\nTl;dr';
-      case SmartEditAction.fixSpelling:
+      case AskAIAction.fixSpelling:
         return 'Correct this to standard English:\n\n$input';
-      case SmartEditAction.improveWriting:
+      case AskAIAction.improveWriting:
         return 'Rewrite this:\n\n$input';
-      case SmartEditAction.makeItLonger:
+      case AskAIAction.makeItLonger:
         return 'Make this text longer:\n\n$input';
     }
   }
 
-  static SmartEditAction from(int index) {
+  static AskAIAction from(int index) {
     switch (index) {
       case 0:
-        return SmartEditAction.summarize;
+        return AskAIAction.summarize;
       case 1:
-        return SmartEditAction.fixSpelling;
+        return AskAIAction.fixSpelling;
       case 2:
-        return SmartEditAction.improveWriting;
+        return AskAIAction.improveWriting;
       case 3:
-        return SmartEditAction.makeItLonger;
+        return AskAIAction.makeItLonger;
     }
-    return SmartEditAction.fixSpelling;
+    return AskAIAction.fixSpelling;
   }
 
   String get name {
     switch (this) {
-      case SmartEditAction.summarize:
+      case AskAIAction.summarize:
         return LocaleKeys.document_plugins_smartEditSummarize.tr();
-      case SmartEditAction.fixSpelling:
+      case AskAIAction.fixSpelling:
         return LocaleKeys.document_plugins_smartEditFixSpelling.tr();
-      case SmartEditAction.improveWriting:
+      case AskAIAction.improveWriting:
         return LocaleKeys.document_plugins_smartEditImproveWriting.tr();
-      case SmartEditAction.makeItLonger:
+      case AskAIAction.makeItLonger:
         return LocaleKeys.document_plugins_smartEditMakeLonger.tr();
     }
   }
 }
 
-class SmartEditActionWrapper extends ActionCell {
-  SmartEditActionWrapper(this.inner);
+class AskAIActionWrapper extends ActionCell {
+  AskAIActionWrapper(this.inner);
 
-  final SmartEditAction inner;
+  final AskAIAction inner;
 
   Widget? icon(Color iconColor) => null;
 
