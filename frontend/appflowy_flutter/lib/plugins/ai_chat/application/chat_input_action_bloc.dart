@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
@@ -16,12 +17,9 @@ part 'chat_input_action_bloc.freezed.dart';
 
 class ChatInputActionBloc
     extends Bloc<ChatInputActionEvent, ChatInputActionState> {
-  ChatInputActionBloc({required this.chatId})
-      : super(const ChatInputActionState()) {
+  ChatInputActionBloc() : super(const ChatInputActionState()) {
     on<ChatInputActionEvent>(_handleEvent);
   }
-
-  final String chatId;
 
   Future<void> _handleEvent(
     ChatInputActionEvent event,
@@ -29,25 +27,21 @@ class ChatInputActionBloc
   ) async {
     await event.when(
       started: () async {
-        unawaited(
-          ViewBackendService.getAllViews().then(
-            (result) {
-              final views = result
-                      .toNullable()
-                      ?.items
-                      .where(
-                        (v) =>
-                            v.layout.isDocumentView &&
-                            !v.isSpace &&
-                            v.parentViewId.isNotEmpty,
-                      )
-                      .toList() ??
-                  [];
-              if (!isClosed) {
-                add(ChatInputActionEvent.refreshViews(views));
-              }
-            },
-          ),
+        await ViewBackendService.getAllViews().fold(
+          (result) {
+            final views = result.items
+                .where(
+                  (v) =>
+                      v.layout.isDocumentView &&
+                      !v.isSpace &&
+                      v.parentViewId.isNotEmpty,
+                )
+                .toList();
+            if (!isClosed) {
+              add(ChatInputActionEvent.refreshViews(views));
+            }
+          },
+          Log.error,
         );
       },
       refreshViews: (List<ViewPB> views) {
@@ -132,24 +126,17 @@ List<ViewActionPage> _filterPages(
   String filter,
 ) {
   final pages = views
-      .map(
-        (v) => ViewActionPage(view: v),
-      )
+      .map((v) => ViewActionPage(view: v))
+      .where((page) => !selectedPages.contains(page))
       .toList();
 
-  pages.retainWhere((page) {
-    return !selectedPages.contains(page);
-  });
-
-  if (filter.isEmpty) {
-    return pages;
+  if (filter.isNotEmpty) {
+    pages.retainWhere(
+      (v) => v.title.toLowerCase().contains(filter.toLowerCase()),
+    );
   }
 
-  return pages
-      .where(
-        (v) => v.title.toLowerCase().contains(filter.toLowerCase()),
-      )
-      .toList();
+  return pages;
 }
 
 class ViewActionPage extends ChatInputMention {

@@ -20,7 +20,7 @@ class ChatInputActionControl extends ChatActionHandler {
     required this.textController,
     required this.textFieldFocusNode,
     required this.chatId,
-  }) : _commandBloc = ChatInputActionBloc(chatId: chatId);
+  }) : _commandBloc = ChatInputActionBloc();
 
   final TextEditingController textController;
   final ChatInputActionBloc _commandBloc;

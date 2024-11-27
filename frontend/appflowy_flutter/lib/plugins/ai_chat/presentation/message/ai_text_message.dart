@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-import '../chat_loading.dart';
 import '../layout_define.dart';
 import 'ai_markdown_text.dart';
 import 'ai_message_bubble.dart';
 import 'ai_metadata.dart';
+import 'loading_indicator.dart';
 import 'error_text_message.dart';
 
 /// [ChatAIMessageWidget] includes both the text of the AI response as well as
@@ -57,20 +57,23 @@ class ChatAIMessageWidget extends StatelessWidget {
       ),
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
+          final loadingText =
+              state.progress?.step ?? LocaleKeys.chat_generatingResponse.tr();
+
           return Padding(
             padding: AIChatUILayout.messageMargin,
             child: state.messageState.when(
               loading: () => ChatAIMessageBubble(
                 message: message,
                 showActions: false,
-                child: const ChatAILoading(),
+                child: ChatAILoading(text: loadingText),
               ),
               ready: () {
                 return state.text.isEmpty
                     ? ChatAIMessageBubble(
                         message: message,
                         showActions: false,
-                        child: const ChatAILoading(),
+                        child: ChatAILoading(text: loadingText),
                       )
                     : ChatAIMessageBubble(
                         message: message,

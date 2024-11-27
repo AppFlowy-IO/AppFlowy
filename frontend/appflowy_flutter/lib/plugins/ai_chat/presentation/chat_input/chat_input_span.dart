@@ -42,7 +42,9 @@ class AtText extends SpecialText {
     SpecialTextGestureTapCallback? onTap, {
     this.start,
   }) : super(flag, '', textStyle, onTap: onTap);
+
   static const String flag = '@';
+
   final int? start;
   final ChatInputActionControl inputActionControl;
 
