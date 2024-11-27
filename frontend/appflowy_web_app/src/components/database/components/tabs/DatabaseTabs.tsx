@@ -1,6 +1,7 @@
 import { DatabaseViewLayout, View, YDatabaseView, YjsDatabaseKey } from '@/application/types';
 import { DatabaseContext, useDatabase, useDatabaseView } from '@/application/database-yjs';
 import { DatabaseActions } from '@/components/database/components/conditions';
+import DatabaseBlockActions from '@/components/database/components/conditions/DatabaseBlockActions';
 import { Tooltip } from '@mui/material';
 import {
   forwardRef,
@@ -44,7 +45,8 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
     const [meta, setMeta] = useState<View | null>(null);
     const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
-
+    const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
+    const isDocumentBlock = useContext(DatabaseContext)?.isDocumentBlock;
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
@@ -64,14 +66,10 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     }, [loadViewMeta, iidIndex]);
 
     const className = useMemo(() => {
-      const classList = ['-mb-[0.5px] flex items-center overflow-hidden border-line-divider text-text-title'];
-
-      if (layout === DatabaseViewLayout.Calendar) {
-        classList.push('border-b');
-      }
+      const classList = ['-mb-[0.5px] gap-2 flex items-center overflow-hidden border-line-divider text-text-title  max-sm:!px-6 min-w-0 overflow-hidden'];
 
       return classList.join(' ');
-    }, [layout]);
+    }, []);
 
     const showActions = !hideConditions && layout !== DatabaseViewLayout.Calendar;
 
@@ -90,12 +88,19 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
 
     if (viewIds.length === 0) return null;
     return (
-      <div ref={ref} className={className}>
+      <div
+        ref={ref}
+        className={className}
+        style={{
+          paddingLeft: scrollLeft === undefined ? 96 : scrollLeft,
+          paddingRight: scrollLeft === undefined ? 96 : scrollLeft,
+        }}
+      >
         <div
           style={{
-            width: showActions ? 'calc(100% - 120px)' : '100%',
+            width: showActions ? `auto` : '100%',
           }}
-          className="flex items-center "
+          className="flex flex-1 items-center"
         >
           <ViewTabs
             scrollButtons={false}
@@ -122,7 +127,12 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
                   iconPosition="start"
                   color="inherit"
                   label={
-                    <Tooltip title={name} enterDelay={1000} enterNextDelay={1000} placement={'right'}>
+                    <Tooltip
+                      title={name}
+                      enterDelay={1000}
+                      enterNextDelay={1000}
+                      placement={'right'}
+                    >
                       <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
                     </Tooltip>
                   }
@@ -133,6 +143,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
           </ViewTabs>
         </div>
         {showActions ? <DatabaseActions /> : null}
+        {isDocumentBlock && <DatabaseBlockActions />}
       </div>
     );
   },

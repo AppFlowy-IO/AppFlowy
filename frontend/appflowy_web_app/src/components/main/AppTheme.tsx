@@ -55,6 +55,9 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
                 '&.MuiIconButton-colorInherit': {
                   color: 'var(--icon-primary)',
                 },
+                '&.MuiIconButton-colorPrimary': {
+                  color: 'var(--fill-default)',
+                },
               },
             },
           },

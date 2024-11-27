@@ -938,6 +938,7 @@ export interface ViewMetaProps {
   readOnly?: boolean;
   updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
   onEnter?: (text: string) => void;
+  maxWidth?: number;
 }
 
 export interface ViewComponentProps {

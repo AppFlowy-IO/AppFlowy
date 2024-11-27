@@ -1,8 +1,9 @@
+import ControlActions from '@/components/editor/components/toolbar/block-controls/ControlActions';
 import { getScrollParent } from '@/components/global-comment/utils';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 
-function TableContainer ({ readSummary, children, paddingLeft = 0 }: {
+function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
   blockId: string;
   readSummary?: boolean;
   children?: React.ReactNode;
@@ -18,9 +19,7 @@ function TableContainer ({ readSummary, children, paddingLeft = 0 }: {
     const scrollRect = scrollContainer.getBoundingClientRect();
 
     setWidth(scrollRect.width - 196 + paddingLeft);
-    const offsetLeft = editorDom.getBoundingClientRect().left - scrollRect.left;
-
-    offsetLeftRef.current = offsetLeft + paddingLeft;
+    offsetLeftRef.current = editorDom.getBoundingClientRect().left - scrollRect.left + paddingLeft;
   }, [paddingLeft]);
 
   useEffect(() => {
@@ -51,7 +50,7 @@ function TableContainer ({ readSummary, children, paddingLeft = 0 }: {
       onMouseLeave={() => {
         setShowControl(false);
       }}
-      className={`relative w-full `}
+      className={`relative w-full`}
       style={{
         width,
         maxWidth: width,
@@ -68,7 +67,7 @@ function TableContainer ({ readSummary, children, paddingLeft = 0 }: {
         contentEditable={false}
         className={'absolute z-[10] w-[64px] top-2'}
       >
-        {/*<ControlActions blockId={blockId} />*/}
+        <ControlActions blockId={blockId} />
       </div>
       <div
         draggable={false}

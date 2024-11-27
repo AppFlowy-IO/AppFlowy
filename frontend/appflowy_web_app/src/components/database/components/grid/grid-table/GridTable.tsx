@@ -1,10 +1,10 @@
 import { AFScroller } from '@/components/_shared/scroller';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
-import { GridColumnType, RenderColumn } from '../grid-column';
-import { GridCalculateRowCell, GridRowCell, RenderRowType, useRenderRows } from '../grid-row';
 import React, { useCallback, useEffect, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
+import { GridColumnType, RenderColumn } from '../grid-column';
+import { GridCalculateRowCell, GridRowCell, RenderRowType, useRenderRows } from '../grid-row';
 
 export interface GridTableProps {
   onScrollLeft: (left: number) => void;
@@ -13,9 +13,10 @@ export interface GridTableProps {
   columns: RenderColumn[];
   scrollLeft?: number;
   viewId: string;
+  onRendered?: () => void;
 }
 
-export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: GridTableProps) => {
+export const GridTable = ({ onRendered, scrollLeft, columnWidth, columns, onScrollLeft }: GridTableProps) => {
   const ref = useRef<VariableSizeGrid | null>(null);
   const { rows } = useRenderRows();
 
@@ -32,8 +33,9 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
   }, [scrollLeft]);
 
   const resetGrid = useCallback(() => {
+    onRendered?.();
     ref.current?.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
-  }, []);
+  }, [onRendered]);
 
   useEffect(() => {
     resetGrid();
@@ -75,7 +77,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       }
 
       if (column.type === GridColumnType.Field) {
-        classList.push('border-b', 'border-l', 'border-line-divider', 'px-2');
+        classList.push('border-b', 'border-line-divider', 'px-2');
       }
 
       if (column.type === GridColumnType.NewProperty) {
@@ -87,7 +89,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           <div
             data-row-id={row.rowId}
             className={classList.join(' ')}
-            style={{ ...style, borderLeftWidth: columnIndex === 0 || column.type === GridColumnType.Action ? 0 : 1 }}
+            style={{ ...style, borderLeftWidth: columnIndex === 1 || column.type === GridColumnType.Action ? 0 : 1 }}
           >
             <GridRowCell
               onResize={onResize}
@@ -103,7 +105,10 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       if (row.type === RenderRowType.CalculateRow && column.fieldId) {
         return (
-          <div style={style} className={'pb-36'}>
+          <div
+            style={style}
+            className={'pb-36'}
+          >
             <GridCalculateRowCell fieldId={column.fieldId} />
           </div>
         );

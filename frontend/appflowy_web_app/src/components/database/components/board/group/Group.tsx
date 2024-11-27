@@ -1,6 +1,6 @@
-import { useRowsByGroup } from '@/application/database-yjs';
+import { DatabaseContext, useRowsByGroup } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from '../column';
 
@@ -10,8 +10,8 @@ export interface GroupProps {
 
 export const Group = ({ groupId }: GroupProps) => {
   const { columns, groupResult, fieldId, notFound } = useRowsByGroup(groupId);
-
   const { t } = useTranslation();
+  const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
 
   if (notFound) {
     return (
@@ -24,10 +24,21 @@ export const Group = ({ groupId }: GroupProps) => {
 
   if (columns.length === 0 || !fieldId) return null;
   return (
-    <AFScroller overflowYHidden className={'relative'}>
-      <div className='columns flex h-full w-fit min-w-full gap-4 border-t border-line-divider py-4'>
+    <AFScroller
+      overflowYHidden
+      style={{
+        paddingInline: scrollLeft === undefined ? undefined : scrollLeft,
+      }}
+      className={`relative max-sm:!px-6 px-24`}
+    >
+      <div className="columns flex h-full w-fit min-w-full gap-4 border-t border-line-divider py-4">
         {columns.map((data) => (
-          <Column key={data.id} id={data.id} fieldId={fieldId} rows={groupResult.get(data.id)} />
+          <Column
+            key={data.id}
+            id={data.id}
+            fieldId={fieldId}
+            rows={groupResult.get(data.id)}
+          />
         ))}
       </div>
     </AFScroller>

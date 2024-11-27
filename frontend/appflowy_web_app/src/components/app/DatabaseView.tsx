@@ -1,12 +1,8 @@
 import {
-  AppendBreadcrumb,
-  CreateRowDoc,
-  LoadView,
-  LoadViewMeta, ViewLayout,
+  ViewLayout,
   YDatabase,
-  YDoc,
   YjsEditorKey,
-  ViewMetaProps,
+  ViewComponentProps,
 } from '@/application/types';
 import { findView } from '@/components/_shared/outline/utils';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
@@ -16,20 +12,11 @@ import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
 import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { useAppOutline } from '@/components/app/app.hooks';
 import { Database } from '@/components/database';
-import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ViewMetaPreview from 'src/components/view-meta/ViewMetaPreview';
 
-function DatabaseView ({ viewMeta, ...props }: {
-  doc: YDoc;
-  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-  loadViewMeta?: LoadViewMeta;
-  createRowDoc?: CreateRowDoc;
-  loadView?: LoadView;
-  viewMeta: ViewMetaProps;
-  appendBreadcrumb?: AppendBreadcrumb;
-  onRendered?: () => void;
-}) {
+function DatabaseView ({ viewMeta, ...props }: ViewComponentProps) {
   const [search, setSearch] = useSearchParams();
   const outline = useAppOutline();
   const iidIndex = viewMeta.viewId;
@@ -94,9 +81,13 @@ function DatabaseView ({ viewMeta, ...props }: {
       style={{
         minHeight: 'calc(100vh - 48px)',
       }}
-      className={'relative flex h-full w-full flex-col px-6'}
+      className={'relative flex h-full w-full flex-col'}
     >
-      {rowId ? null : <DatabaseHeader {...viewMeta} />}
+      {rowId ? null : <ViewMetaPreview
+        {...viewMeta}
+        readOnly={props.readOnly}
+        updatePage={props.updatePage}
+      />}
 
       <Suspense fallback={skeleton}>
         <Database

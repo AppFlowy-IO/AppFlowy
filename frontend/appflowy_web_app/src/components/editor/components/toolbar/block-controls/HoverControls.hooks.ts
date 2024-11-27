@@ -1,15 +1,13 @@
 import { YjsEditor } from '@/application/slate-yjs';
-import { CustomEditor } from '@/application/slate-yjs/command';
-import { CONTAINER_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
 import { getScrollParent } from '@/components/global-comment/utils';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Editor, Element, Range, Transforms } from 'slate';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Editor, Element, Range } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { findEventNode, getBlockActionsPosition, getBlockCssProperty } from './utils';
 
-export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; onAdded: (blockId: string) => void; }) {
+export function useHoverControls ({ disabled }: { disabled: boolean; }) {
   const editor = useSlateStatic() as YjsEditor;
   const ref = useRef<HTMLDivElement>(null);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
@@ -99,16 +97,12 @@ export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; on
       const blockElement = ReactEditor.toDOMNode(editor, node);
 
       if (!blockElement) return;
-      const tableElement = blockElement.closest('[data-block-type="table"]') as HTMLElement;
+      const shouldSkipTypes = [BlockType.TableBlock, BlockType.GridBlock, BlockType.CalendarBlock, BlockType.BoardBlock];
 
-      if (tableElement) {
-        recalculatePosition(tableElement);
-        el.style.opacity = '1';
-        el.style.pointerEvents = 'auto';
-        const tableNode = ReactEditor.toSlateNode(editor, tableElement) as Element;
+      if (shouldSkipTypes.some((type) => blockElement.closest(`[data-block-type="${type}"]`))) {
+        close();
+        return;
 
-        setCssProperty(getBlockCssProperty(tableNode));
-        setHoveredBlockId(tableNode.blockId as string);
       } else {
         recalculatePosition(blockElement);
         el.style.opacity = '1';
@@ -156,37 +150,9 @@ export function useHoverControls ({ disabled, onAdded }: { disabled: boolean; on
     };
   }, [close, editor, hoveredBlockId]);
 
-  const onClickAdd = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!hoveredBlockId) return;
-    const [node, path] = findSlateEntryByBlockId(editor, hoveredBlockId);
-    const start = editor.start(path);
-
-    ReactEditor.focus(editor);
-    Transforms.select(editor, start);
-
-    const type = node.type as BlockType;
-
-    if (CustomEditor.getBlockTextContent(node, 2) === '' && [...CONTAINER_BLOCK_TYPES, BlockType.HeadingBlock].includes(type)) {
-      onAdded(hoveredBlockId);
-      return;
-    }
-
-    let newBlockId: string | undefined = '';
-
-    if (e.altKey) {
-      newBlockId = CustomEditor.addAboveBlock(editor, hoveredBlockId, BlockType.Paragraph, {});
-    } else {
-      newBlockId = CustomEditor.addBelowBlock(editor, hoveredBlockId, BlockType.Paragraph, {});
-    }
-
-    onAdded(newBlockId || '');
-  }, [editor, hoveredBlockId, onAdded]);
-
   return {
     hoveredBlockId,
     ref,
     cssProperty,
-    onClickAdd,
   };
 }
