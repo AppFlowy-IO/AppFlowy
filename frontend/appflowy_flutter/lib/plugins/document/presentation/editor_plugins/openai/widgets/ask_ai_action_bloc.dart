@@ -153,14 +153,12 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
       nodes,
     );
     final lastDeltaLength = nodes.lastOrNull?.delta?.length ?? 0;
-    final start = Position(path: insertedPath);
-    final end = Position(
-      path: insertedPath.nextNPath(nodes.length - 1),
-      offset: lastDeltaLength,
-    );
     transaction.afterSelection = Selection(
-      start: start,
-      end: end,
+      start: Position(path: insertedPath),
+      end: Position(
+        path: insertedPath.nextNPath(nodes.length - 1),
+        offset: lastDeltaLength,
+      ),
     );
     await editorState.apply(transaction);
   }
