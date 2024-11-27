@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
@@ -74,25 +75,18 @@ class DatabaseTabBarView extends StatefulWidget {
 }
 
 class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
-  final PageController _pageController = PageController();
   late String? _initialRowId = widget.initialRowId;
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<DatabaseTabBarBloc>(
-          create: (context) => DatabaseTabBarBloc(view: widget.view)
+          create: (_) => DatabaseTabBarBloc(view: widget.view)
             ..add(const DatabaseTabBarEvent.initial()),
         ),
         BlocProvider<ViewBloc>(
-          create: (context) =>
+          create: (_) =>
               ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
         ),
       ],
@@ -100,10 +94,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         listeners: [
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
-            listener: (context, state) {
-              _initialRowId = null;
-              _pageController.jumpToPage(state.selectedIndex);
-            },
+            listener: (_, __) => _initialRowId = null,
           ),
         ],
         child: Column(
@@ -132,15 +123,17 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               builder: (context, state) =>
                   pageSettingBarExtensionFromState(state),
             ),
-            Expanded(
-              child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-                builder: (context, state) => PageView(
-                  pageSnapping: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: _pageController,
-                  children: pageContentFromState(state),
-                ),
-              ),
+            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+              builder: (context, state) {
+                final layout = state.tabBars[state.selectedIndex].layout;
+                return SizedBox(
+                  height: layout.pluginHeight,
+                  child: IndexedStack(
+                    index: state.selectedIndex,
+                    children: pageContentFromState(state),
+                  ),
+                );
+              },
             ),
           ],
         ),
