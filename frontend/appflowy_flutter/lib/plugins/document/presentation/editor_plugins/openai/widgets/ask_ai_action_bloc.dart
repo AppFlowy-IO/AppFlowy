@@ -12,6 +12,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ask_ai_action_bloc.freezed.dart';
 
+enum AskAIReplacementType {
+  markdown,
+  plainText,
+}
+
+const _defaultReplacementType = AskAIReplacementType.markdown;
+
 class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
   AskAIActionBloc({
     required this.node,
@@ -134,26 +141,22 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
     if (selection == null) {
       return;
     }
-    // return if the result is empty
-    final result = state.result.trim();
-    if (result.isEmpty) {
-      return;
-    }
-    final insertedText = result.split('\n')
-      ..removeWhere((element) => element.isEmpty);
+    final nodes = markdownToDocument(state.result)
+        .root
+        .children
+        .map((e) => e.copyWith())
+        .toList();
+    final insertedPath = selection.end.path.next;
     final transaction = editorState.transaction;
-    // todo: keep the style of the current node
     transaction.insertNodes(
-      selection.end.path.next,
-      insertedText.map(
-        (e) => paragraphNode(
-          text: e,
-        ),
-      ),
+      insertedPath,
+      nodes,
     );
-    final start = Position(path: selection.end.path.next);
+    final lastDeltaLength = nodes.lastOrNull?.delta?.length ?? 0;
+    final start = Position(path: insertedPath);
     final end = Position(
-      path: [selection.end.path.next.first + insertedText.length],
+      path: insertedPath.nextNPath(nodes.length - 1),
+      offset: lastDeltaLength,
     );
     transaction.afterSelection = Selection(
       start: start,
@@ -163,6 +166,22 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
   }
 
   Future<void> _replace() async {
+    switch (_defaultReplacementType) {
+      case AskAIReplacementType.markdown:
+        await _replaceWithMarkdown();
+      case AskAIReplacementType.plainText:
+        await _replaceWithPlainText();
+    }
+  }
+
+  Future<void> _replaceWithMarkdown() async {
+    final nodes = markdownToDocument(state.result);
+    if (nodes.isEmpty) {
+      return;
+    }
+  }
+
+  Future<void> _replaceWithPlainText() async {
     final result = state.result.trim();
     if (result.isEmpty) {
       return;

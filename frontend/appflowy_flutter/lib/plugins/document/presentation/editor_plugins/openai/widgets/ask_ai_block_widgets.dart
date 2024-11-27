@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -44,11 +45,9 @@ class AskAiInputContent extends StatelessWidget {
   }
 
   Widget _buildResultWidget(BuildContext context, AskAIState state) {
-    // todo: replace it with appflowy_editor
     return Flexible(
-      child: FlowyText.regular(
-        state.result,
-        maxLines: null,
+      child: AIMarkdownText(
+        markdown: state.result,
       ),
     );
   }
