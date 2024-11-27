@@ -17,7 +17,7 @@ function AddPageActions ({ view, onClose }: {
     openPageModal,
   } = useAppHandlers();
 
-  const handleAddPage = useCallback(async (layout: ViewLayout) => {
+  const handleAddPage = useCallback(async (layout: ViewLayout, name?: string) => {
     if (!addPage || !openPageModal) return;
     notify.default(
       <span>
@@ -26,7 +26,7 @@ function AddPageActions ({ view, onClose }: {
       </span>,
     );
     try {
-      const viewId = await addPage(view.view_id, { layout });
+      const viewId = await addPage(view.view_id, { layout, name });
 
       openPageModal(viewId);
       notify.clear();
@@ -50,6 +50,36 @@ function AddPageActions ({ view, onClose }: {
       />,
       onClick: () => {
         void handleAddPage(ViewLayout.Document);
+      },
+    },
+    {
+      label: t('grid.menuName'),
+      icon: <ViewIcon
+        layout={ViewLayout.Grid}
+        size={'medium'}
+      />,
+      onClick: () => {
+        void handleAddPage(ViewLayout.Grid, 'Table');
+      },
+    },
+    {
+      label: t('board.menuName'),
+      icon: <ViewIcon
+        layout={ViewLayout.Board}
+        size={'medium'}
+      />,
+      onClick: () => {
+        void handleAddPage(ViewLayout.Board, 'Board');
+      },
+    },
+    {
+      label: t('calendar.menuName'),
+      icon: <ViewIcon
+        layout={ViewLayout.Calendar}
+        size={'medium'}
+      />,
+      onClick: () => {
+        void handleAddPage(ViewLayout.Calendar, 'Calendar');
       },
     },
   ], [handleAddPage, t]);
