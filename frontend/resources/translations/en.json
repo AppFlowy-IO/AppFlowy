@@ -2865,6 +2865,8 @@
     "closeOthers": "Close other tabs",
     "favorite": "Favorite",
     "unfavorite": "Unfavorite",
-    "favoriteDisabledHint": "Cannot favorite this view"
+    "favoriteDisabledHint": "Cannot favorite this view",
+    "pinTab": "Pin",
+    "unpinTab": "Unpin"
   }
 }

@@ -50,7 +50,11 @@ class _FlowyTabState extends State<FlowyTab> {
         showAtCursor: true,
         popupBuilder: (_) => BlocProvider.value(
           value: context.read<TabsBloc>(),
-          child: TabMenu(pageId: widget.pageManager.plugin.id),
+          child: TabMenu(
+            controller: controller,
+            pageId: widget.pageManager.plugin.id,
+            isPinned: widget.pageManager.isPinned,
+          ),
         ),
         child: ChangeNotifierProvider.value(
           value: widget.pageManager.notifier,
@@ -81,20 +85,27 @@ class _FlowyTabState extends State<FlowyTab> {
                           child: widget.pageManager.notifier
                               .tabBarWidget(widget.pageManager.plugin.id),
                         ),
-                        Visibility(
-                          visible: isHovering,
-                          child: SizedBox(
-                            width: 26,
-                            height: 26,
-                            child: FlowyIconButton(
-                              onPressed: () => _closeTab(context),
-                              icon: const FlowySvg(
-                                FlowySvgs.close_s,
-                                size: Size.square(22),
+                        if (widget.pageManager.isPinned) ...[
+                          const FlowySvg(
+                            FlowySvgs.pinned_s,
+                            size: Size.square(16),
+                          ),
+                        ] else ...[
+                          Visibility(
+                            visible: isHovering,
+                            child: SizedBox(
+                              width: 26,
+                              height: 26,
+                              child: FlowyIconButton(
+                                onPressed: () => _closeTab(context),
+                                icon: const FlowySvg(
+                                  FlowySvgs.close_s,
+                                  size: Size.square(22),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
@@ -114,9 +125,16 @@ class _FlowyTabState extends State<FlowyTab> {
 
 @visibleForTesting
 class TabMenu extends StatelessWidget {
-  const TabMenu({super.key, required this.pageId});
+  const TabMenu({
+    super.key,
+    required this.controller,
+    required this.pageId,
+    required this.isPinned,
+  });
 
+  final PopoverController controller;
   final String pageId;
+  final bool isPinned;
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +152,15 @@ class TabMenu extends StatelessWidget {
           ),
           onTap: () => _closeOtherTabs(context),
         ),
+        const Divider(height: 0.5),
+        FlowyButton(
+          text: FlowyText.regular(
+            isPinned
+                ? LocaleKeys.tabMenu_unpinTab.tr()
+                : LocaleKeys.tabMenu_pinTab.tr(),
+          ),
+          onTap: () => _togglePin(context),
+        ),
       ],
     );
   }
@@ -143,4 +170,9 @@ class TabMenu extends StatelessWidget {
 
   void _closeOtherTabs(BuildContext context) =>
       context.read<TabsBloc>().add(TabsEvent.closeOtherTabs(pageId));
+
+  void _togglePin(BuildContext context) {
+    context.read<TabsBloc>().add(TabsEvent.togglePin(pageId));
+    controller.close();
+  }
 }
