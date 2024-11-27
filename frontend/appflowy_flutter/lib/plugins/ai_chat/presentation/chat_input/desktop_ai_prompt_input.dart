@@ -274,9 +274,6 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
       ),
       handler: _inputActionControl,
       context: context,
-      style: Theme.of(context).brightness == Brightness.dark
-          ? const ChatActionsMenuStyle.dark()
-          : const ChatActionsMenuStyle.light(),
     ).show();
   }
 
@@ -329,19 +326,6 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
       onStopStreaming: widget.onStopStreaming,
     );
   }
-}
-
-class ChatInputAnchor extends ChatAnchor {
-  ChatInputAnchor({
-    required this.anchorKey,
-    required this.layerLink,
-  });
-
-  @override
-  final GlobalKey<State<StatefulWidget>> anchorKey;
-
-  @override
-  final LayerLink layerLink;
 }
 
 /// Handles the key press event for the Enter key without Shift.

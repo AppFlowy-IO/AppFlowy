@@ -20,26 +20,29 @@ abstract class ChatActionHandler {
   double actionMenuOffsetX();
 }
 
-abstract class ChatAnchor {
-  GlobalKey get anchorKey;
-  LayerLink get layerLink;
-}
-
 const int _itemHeight = 44;
 const int _itemVerticalPadding = 4;
 const int _noPageHeight = 20;
+
+class ChatInputAnchor {
+  ChatInputAnchor({
+    required this.anchorKey,
+    required this.layerLink,
+  });
+
+  final GlobalKey<State<StatefulWidget>> anchorKey;
+  final LayerLink layerLink;
+}
 
 class ChatActionsMenu {
   ChatActionsMenu({
     required this.anchor,
     required this.context,
     required this.handler,
-    required this.style,
   });
 
   final BuildContext context;
-  final ChatAnchor anchor;
-  final ChatActionsMenuStyle style;
+  final ChatInputAnchor anchor;
   final ChatActionHandler handler;
 
   OverlayEntry? _overlayEntry;
@@ -301,34 +304,4 @@ class _ActionListState extends State<ActionList> {
       preferPosition: AutoScrollPosition.begin,
     );
   }
-}
-
-class ChatActionsMenuStyle {
-  ChatActionsMenuStyle({
-    required this.backgroundColor,
-    required this.groupTextColor,
-    required this.menuItemTextColor,
-    required this.menuItemSelectedColor,
-    required this.menuItemSelectedTextColor,
-  });
-
-  const ChatActionsMenuStyle.light()
-      : backgroundColor = Colors.white,
-        groupTextColor = const Color(0xFF555555),
-        menuItemTextColor = const Color(0xFF333333),
-        menuItemSelectedColor = const Color(0xFFE0F8FF),
-        menuItemSelectedTextColor = const Color.fromARGB(255, 56, 91, 247);
-
-  const ChatActionsMenuStyle.dark()
-      : backgroundColor = const Color(0xFF282E3A),
-        groupTextColor = const Color(0xFFBBC3CD),
-        menuItemTextColor = const Color(0xFFBBC3CD),
-        menuItemSelectedColor = const Color(0xFF00BCF0),
-        menuItemSelectedTextColor = const Color(0xFF131720);
-
-  final Color backgroundColor;
-  final Color groupTextColor;
-  final Color menuItemTextColor;
-  final Color menuItemSelectedColor;
-  final Color menuItemSelectedTextColor;
 }
