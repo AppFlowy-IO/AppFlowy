@@ -8,7 +8,7 @@ import 'package:synchronized/synchronized.dart';
 class MarkdownTextRobot {
   MarkdownTextRobot({
     required this.editorState,
-    this.enableDebug = false,
+    this.enableDebug = true,
   });
 
   final EditorState editorState;
