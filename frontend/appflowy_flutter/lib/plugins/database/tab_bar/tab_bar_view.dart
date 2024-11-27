@@ -75,7 +75,14 @@ class DatabaseTabBarView extends StatefulWidget {
 }
 
 class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
+  final PageController _pageController = PageController();
   late String? _initialRowId = widget.initialRowId;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +101,10 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         listeners: [
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
-            listener: (_, __) => _initialRowId = null,
+            listener: (_, state) {
+              _initialRowId = null;
+              _pageController.jumpToPage(state.selectedIndex);
+            },
           ),
         ],
         child: Column(
@@ -125,23 +135,19 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
             ),
             BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
+                final content = PageView(
+                  controller: _pageController,
+                  pageSnapping: false,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: pageContentFromState(state),
+                );
+
                 if (widget.shrinkWrap) {
                   final layout = state.tabBars[state.selectedIndex].layout;
-                  return SizedBox(
-                    height: layout.pluginHeight,
-                    child: IndexedStack(
-                      index: state.selectedIndex,
-                      children: pageContentFromState(state),
-                    ),
-                  );
+                  return SizedBox(height: layout.pluginHeight, child: content);
                 }
 
-                return Expanded(
-                  child: IndexedStack(
-                    index: state.selectedIndex,
-                    children: pageContentFromState(state),
-                  ),
-                );
+                return Expanded(child: content);
               },
             ),
           ],
