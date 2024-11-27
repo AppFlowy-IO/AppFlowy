@@ -125,9 +125,18 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
             ),
             BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
               builder: (context, state) {
-                final layout = state.tabBars[state.selectedIndex].layout;
-                return SizedBox(
-                  height: layout.pluginHeight,
+                if (widget.shrinkWrap) {
+                  final layout = state.tabBars[state.selectedIndex].layout;
+                  return SizedBox(
+                    height: layout.pluginHeight,
+                    child: IndexedStack(
+                      index: state.selectedIndex,
+                      children: pageContentFromState(state),
+                    ),
+                  );
+                }
+
+                return Expanded(
                   child: IndexedStack(
                     index: state.selectedIndex,
                     children: pageContentFromState(state),
