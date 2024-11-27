@@ -175,10 +175,35 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
   }
 
   Future<void> _replaceWithMarkdown() async {
-    final nodes = markdownToDocument(state.result);
+    final selection = editorState.selection?.normalized;
+    if (selection == null) {
+      return;
+    }
+
+    final nodes = markdownToDocument(state.result)
+        .root
+        .children
+        .map((e) => e.copyWith())
+        .toList();
     if (nodes.isEmpty) {
       return;
     }
+
+    final nodesInSelection = editorState.getNodesInSelection(selection);
+    final transaction = editorState.transaction;
+    transaction.insertNodes(
+      selection.start.path,
+      nodes,
+    );
+    transaction.deleteNodes(nodesInSelection);
+    transaction.afterSelection = Selection(
+      start: selection.start,
+      end: Position(
+        path: selection.start.path.nextNPath(nodes.length - 1),
+        offset: nodes.lastOrNull?.delta?.length ?? 0,
+      ),
+    );
+    await editorState.apply(transaction);
   }
 
   Future<void> _replaceWithPlainText() async {
