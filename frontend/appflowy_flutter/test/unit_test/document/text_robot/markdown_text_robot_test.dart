@@ -13,6 +13,25 @@ void main() {
       Log.shared.disableLog = false;
     });
 
+    test('live refresh', () async {
+      final editorState = EditorState.blank();
+      editorState.selection = Selection.collapsed(Position(path: [0]));
+      final markdownTextRobot = MarkdownTextRobot(
+        editorState: editorState,
+      );
+
+      markdownTextRobot.start();
+      for (final text in _liveRefreshSample1) {
+        await markdownTextRobot.appendMarkdownText(text);
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+      await Future.delayed(const Duration(milliseconds: 200));
+      await markdownTextRobot.stop();
+
+      final nodes = editorState.document.root.children;
+      expect(nodes.length, 4);
+    });
+
     test('parse markdown text (1)', () async {
       final editorState = EditorState.blank();
       editorState.selection = Selection.collapsed(Position(path: [0]));
@@ -86,6 +105,105 @@ void main() {
     });
   });
 }
+
+const _liveRefreshSample1 = [
+  "#",
+  " The En",
+  "ch",
+  "anted",
+  " Garden",
+  "\n\n",
+  "Once",
+  " upon",
+  " a",
+  " time",
+  ",",
+  " in",
+  " a quiet village",
+  ",",
+  " there",
+  " was",
+  " a mysterious garden",
+  ".",
+  " Vill",
+  "agers",
+  " whispered",
+  " about",
+  " its",
+  " **ench",
+  "anted",
+  "**",
+  " nature",
+  ".",
+  " The",
+  " garden",
+  " was hidden",
+  " behind",
+  " a",
+  " gate of",
+  " *",
+  "twisting",
+  " vines",
+  "*. One",
+  " day,",
+  " a curious",
+  " child",
+  " named",
+  " Lily discovered",
+  " the gate",
+  " slightly",
+  " aj",
+  "ar.",
+  " \n\nInside",
+  ",",
+  " the",
+  " garden was",
+  " alive",
+  " with",
+  " vibrant colors",
+  " and the",
+  " gentle",
+  " hum",
+  " of bees",
+  ".",
+  " In",
+  " the center",
+  " stood a",
+  " **magn",
+  "ificent**",
+  " tree,",
+  " its branches",
+  " *",
+  "sparkling",
+  "*",
+  " with",
+  " tiny",
+  " lights",
+  ".",
+  " As Lily",
+  " approached",
+  ",",
+  " the tree",
+  " spoke,",
+  " offering",
+  " wisdom",
+  " and granting",
+  " wishes to",
+  " those pure of",
+  " heart.",
+  " Lily",
+  " wished",
+  " for happiness",
+  " for",
+  " her",
+  " village,",
+  " and from",
+  " that",
+  " day",
+  ", joy",
+  " blossomed",
+  " everywhere.",
+];
 
 const _sample1 = '''# The Curious Cat
 
