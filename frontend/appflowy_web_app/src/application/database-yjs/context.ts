@@ -17,6 +17,8 @@ export interface DatabaseContextState {
   viewId: string;
   rowDocMap: Record<RowId, YDoc> | null;
   isDatabaseRowPage?: boolean;
+  scrollLeft?: number;
+  isDocumentBlock?: boolean;
   navigateToRow?: (rowId: string) => void;
   loadView?: LoadView;
   createRowDoc?: CreateRowDoc;

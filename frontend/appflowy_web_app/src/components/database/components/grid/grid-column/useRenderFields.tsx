@@ -1,7 +1,8 @@
+import { DatabaseContext } from '@/application/database-yjs';
 import { FieldId } from '@/application/types';
 import { FieldVisibility } from '@/application/database-yjs/database.type';
 import { useFieldsSelector } from '@/application/database-yjs/selector';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
 export enum GridColumnType {
   Action,
@@ -17,9 +18,9 @@ export type RenderColumn = {
   wrap?: boolean;
 };
 
-export function useRenderFields() {
+export function useRenderFields () {
   const fields = useFieldsSelector();
-
+  const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
   const renderColumns = useMemo(() => {
     const data = fields.map((column) => ({
       ...column,
@@ -27,10 +28,10 @@ export function useRenderFields() {
     }));
 
     return [
-      // {
-      //   type: GridColumnType.Action,
-      //   width: 64,
-      // },
+      {
+        type: GridColumnType.Action,
+        width: scrollLeft === undefined ? 96 : scrollLeft,
+      },
       ...data,
       {
         type: GridColumnType.NewProperty,
@@ -41,7 +42,7 @@ export function useRenderFields() {
       //   width: 64,
       // },
     ].filter(Boolean) as RenderColumn[];
-  }, [fields]);
+  }, [fields, scrollLeft]);
 
   const columnWidth = useCallback(
     (index: number, containerWidth: number) => {
@@ -60,7 +61,7 @@ export function useRenderFields() {
 
       return width;
     },
-    [renderColumns]
+    [renderColumns],
   );
 
   return {

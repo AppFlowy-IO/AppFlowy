@@ -17,6 +17,7 @@ export function ViewMetaPreview ({
   viewId,
   updatePage,
   onEnter,
+  maxWidth,
 }: ViewMetaProps) {
   const [iconAnchorEl, setIconAnchorEl] = React.useState<null | HTMLElement>(null);
   const [cover, setCover] = React.useState<ViewMetaCover | null>(coverProp || null);
@@ -148,6 +149,7 @@ export function ViewMetaPreview ({
                 value: '1',
               });
             }}
+            maxWidth={maxWidth}
             iconAnchorEl={iconAnchorEl}
             setIconAnchorEl={setIconAnchorEl}
           /></Suspense>}
@@ -157,8 +159,11 @@ export function ViewMetaPreview ({
           className={`relative mb-6 flex items-center overflow-visible w-full justify-center`}
         >
           <h1
+            style={{
+              width: maxWidth || '100%',
+            }}
             className={
-              'flex gap-4 max-sm:px-6 px-24 w-[988px] min-w-0 max-w-full overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
+              'flex gap-4 max-sm:px-6 px-24 min-w-0 max-w-full overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
             }
           >
             {icon?.value ?
@@ -167,7 +172,7 @@ export function ViewMetaPreview ({
                   if (readOnly) return;
                   setIconAnchorEl(e.currentTarget);
                 }}
-                className={`view-icon flex h-[1.25em] px-1.5 items-center justify-center ${readOnly ? '' : 'cursor-pointer hover:bg-fill-list-hover '} ${isFlag ? 'icon' : ''}`}
+                className={`view-icon flex h-[1.25em] px-1.5 items-center justify-center ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-fill-list-hover '} ${isFlag ? 'icon' : ''}`}
               >{icon?.value}</div> : null}
             {!readOnly ? <TitleEditable
                 name={name || ''}

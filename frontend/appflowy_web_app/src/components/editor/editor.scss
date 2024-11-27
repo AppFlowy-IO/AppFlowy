@@ -34,7 +34,7 @@
 
 
 .block-element.selected {
-  &:not([data-block-type="table"]) {
+  &:not([data-block-type="table"]):not([data-block-type="grid"]):not([data-block-type="board"]):not([data-block-type="calendar"]) {
     @apply bg-content-blue-100;
     .embed-block {
       @apply bg-content-blue-50;
