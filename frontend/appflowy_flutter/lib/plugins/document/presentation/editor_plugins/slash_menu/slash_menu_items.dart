@@ -560,7 +560,7 @@ SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem(
     if (node == null || delta == null) {
       return;
     }
-    final newNode = autoCompletionNode(start: selection);
+    final newNode = aiWriterNode(start: selection);
 
     final transaction = editorState.transaction;
     //default insert after

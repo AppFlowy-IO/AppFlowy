@@ -252,7 +252,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       styleCustomizer,
     ),
-    AutoCompletionBlockKeys.type: _buildAutoCompletionBlockComponentBuilder(
+    AIWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -553,11 +553,11 @@ CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
   );
 }
 
-AutoCompletionBlockComponentBuilder _buildAutoCompletionBlockComponentBuilder(
+AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return AutoCompletionBlockComponentBuilder();
+  return AIWriterBlockComponentBuilder();
 }
 
 SmartEditBlockComponentBuilder _buildSmartEditBlockComponentBuilder(
