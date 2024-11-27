@@ -8,7 +8,7 @@ import 'package:synchronized/synchronized.dart';
 class MarkdownTextRobot {
   MarkdownTextRobot({
     required this.editorState,
-    this.enableDebug = true,
+    this.enableDebug = false,
   });
 
   final EditorState editorState;
@@ -43,6 +43,9 @@ class MarkdownTextRobot {
   }
 
   /// Append the markdown text to the text robot.
+  ///
+  /// The text will be inserted into document but not persisted until the text
+  /// robot is stopped.
   Future<void> appendMarkdownText(String text) async {
     _markdownText += text;
 
@@ -57,7 +60,14 @@ class MarkdownTextRobot {
   }
 
   /// Stop the text robot.
+  ///
+  /// The text will be persisted into document.
   Future<void> stop() async {
+    // persist the markdown text
+    await lock.synchronized(() async {
+      await _refresh(inMemoryUpdate: false);
+    });
+
     _markdownText = '';
 
     if (enableDebug) {
@@ -66,8 +76,6 @@ class MarkdownTextRobot {
       );
       debugMarkdownTexts.clear();
     }
-
-    // persist the markdown text
   }
 
   /// Refreshes the editor state with the current markdown text by:
@@ -75,7 +83,7 @@ class MarkdownTextRobot {
   /// 1. Converting markdown to document nodes
   /// 2. Replacing previously inserted nodes with new nodes
   /// 3. Updating selection position
-  Future<void> _refresh() async {
+  Future<void> _refresh({bool inMemoryUpdate = true}) async {
     final start = _startSelection?.start;
     if (start == null) {
       return;
@@ -110,15 +118,15 @@ class MarkdownTextRobot {
       transaction.afterSelection = Selection.collapsed(
         Position(
           path: start.path.nextNPath(nodes.length - 1),
-          offset: nodes.last.delta!.length,
+          offset: lastDelta.length,
         ),
       );
     }
 
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(
-        inMemoryUpdate: true,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
         recordUndo: false,
       ),
     );

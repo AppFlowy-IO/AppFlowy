@@ -105,7 +105,8 @@ class AIWriterBlockOperations {
     transaction.deleteNode(aiWriterNode);
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(inMemoryUpdate: true),
+      options: const ApplyOptions(inMemoryUpdate: true, recordUndo: false),
+      withUpdateSelection: false,
     );
   }
 }
