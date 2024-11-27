@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 
 abstract class ChatActionHandler {
   void onEnter();
-  void onSelected(ChatInputMention page);
+  void onSelected(ViewPB page);
   void onExit();
   ChatInputActionBloc get commandBloc;
   void onFilter(String filter);
@@ -143,14 +144,14 @@ class _ActionItem extends StatelessWidget {
     required this.isSelected,
   });
 
-  final ChatInputMention item;
+  final ViewPB item;
   final VoidCallback? onTap;
   final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: item.title,
+      message: item.name,
       child: Container(
         height: _itemHeight.toDouble(),
         decoration: BoxDecoration(
@@ -164,13 +165,13 @@ class _ActionItem extends StatelessWidget {
           onTap: onTap,
           child: Row(
             children: [
-              item.icon,
+              item.defaultIcon(),
               const HSpace(8.0),
               Expanded(
                 child: FlowyText(
-                  item.title.isEmpty
+                  item.name.isEmpty
                       ? LocaleKeys.document_title_placeholder.tr()
-                      : item.title,
+                      : item.name,
                   lineHeight: 1.0,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -194,7 +195,7 @@ class ActionList extends StatefulWidget {
 
   final ChatActionHandler handler;
   final VoidCallback? onDismiss;
-  final List<ChatInputMention> pages;
+  final List<ViewPB> pages;
   final bool isLoading;
 
   @override
@@ -276,9 +277,9 @@ class _ActionListState extends State<ActionList> {
 
     return widget.pages.asMap().entries.map((entry) {
       final index = entry.key;
-      final ChatInputMention item = entry.value;
+      final ViewPB item = entry.value;
       return AutoScrollTag(
-        key: ValueKey(item.pageId),
+        key: ValueKey(item.id),
         index: index,
         controller: _scrollController,
         child: _ActionItem(

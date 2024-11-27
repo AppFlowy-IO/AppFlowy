@@ -8,10 +8,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'chat_input_action_control.dart';
 
 part 'chat_input_action_bloc.freezed.dart';
 
@@ -45,7 +42,7 @@ class ChatInputActionBloc
         );
       },
       refreshViews: (List<ViewPB> views) {
-        final List<ViewActionPage> pages = _filterPages(
+        final List<ViewPB> pages = _filterPages(
           views,
           state.selectedPages,
           state.filter,
@@ -60,7 +57,7 @@ class ChatInputActionBloc
       },
       filter: (String filter) {
         Log.debug("Filter chat input pages: $filter");
-        final List<ViewActionPage> pages = _filterPages(
+        final List<ViewPB> pages = _filterPages(
           state.views,
           state.selectedPages,
           filter,
@@ -75,27 +72,28 @@ class ChatInputActionBloc
           ),
         );
       },
-      addPage: (ChatInputMention page) {
-        if (!state.selectedPages.any((p) => p.pageId == page.pageId)) {
-          final List<ViewActionPage> pages = _filterPages(
-            state.views,
-            state.selectedPages,
-            state.filter,
-          );
-          emit(
-            state.copyWith(
-              pages: pages,
-              selectedPages: [...state.selectedPages, page],
-            ),
-          );
+      addPage: (page) {
+        if (state.selectedPages.any((p) => p.id == page.id)) {
+          return;
         }
+        final List<ViewPB> pages = _filterPages(
+          state.views,
+          state.selectedPages,
+          state.filter,
+        );
+        emit(
+          state.copyWith(
+            pages: pages,
+            selectedPages: [...state.selectedPages, page],
+          ),
+        );
       },
       removePage: (String text) {
-        final List<ChatInputMention> selectedPages =
-            List.from(state.selectedPages);
-        selectedPages.retainWhere((t) => !text.contains(t.title));
+        final selectedPages = [
+          ...state.selectedPages.where((t) => !text.contains(t.name)),
+        ];
 
-        final List<ViewActionPage> allPages = _filterPages(
+        final List<ViewPB> allPages = _filterPages(
           state.views,
           state.selectedPages,
           state.filter,
@@ -120,44 +118,20 @@ class ChatInputActionBloc
   }
 }
 
-List<ViewActionPage> _filterPages(
+List<ViewPB> _filterPages(
   List<ViewPB> views,
-  List<ChatInputMention> selectedPages,
+  List<ViewPB> selectedPages,
   String filter,
 ) {
-  final pages = views
-      .map((v) => ViewActionPage(view: v))
-      .where((page) => !selectedPages.contains(page))
-      .toList();
+  final pages = views.where((page) => !selectedPages.contains(page)).toList();
 
   if (filter.isNotEmpty) {
     pages.retainWhere(
-      (v) => v.title.toLowerCase().contains(filter.toLowerCase()),
+      (v) => v.name.toLowerCase().contains(filter.toLowerCase()),
     );
   }
 
   return pages;
-}
-
-class ViewActionPage extends ChatInputMention {
-  ViewActionPage({required this.view});
-
-  final ViewPB view;
-
-  @override
-  String get pageId => view.id;
-
-  @override
-  String get title => view.name;
-
-  @override
-  List<Object?> get props => [pageId];
-
-  @override
-  dynamic get page => view;
-
-  @override
-  Widget get icon => view.defaultIcon();
 }
 
 @freezed
@@ -169,7 +143,7 @@ class ChatInputActionEvent with _$ChatInputActionEvent {
   const factory ChatInputActionEvent.handleKeyEvent(
     PhysicalKeyboardKey keyboardKey,
   ) = _HandleKeyEvent;
-  const factory ChatInputActionEvent.addPage(ChatInputMention page) = _AddPage;
+  const factory ChatInputActionEvent.addPage(ViewPB page) = _AddPage;
   const factory ChatInputActionEvent.removePage(String text) = _RemovePage;
   const factory ChatInputActionEvent.clear() = _Clear;
 }
@@ -178,8 +152,8 @@ class ChatInputActionEvent with _$ChatInputActionEvent {
 class ChatInputActionState with _$ChatInputActionState {
   const factory ChatInputActionState({
     @Default([]) List<ViewPB> views,
-    @Default([]) List<ChatInputMention> pages,
-    @Default([]) List<ChatInputMention> selectedPages,
+    @Default([]) List<ViewPB> pages,
+    @Default([]) List<ViewPB> selectedPages,
     @Default("") String filter,
     ChatInputKeyboardEvent? keyboardKey,
     @Default(ChatActionMenuIndicator.loading())

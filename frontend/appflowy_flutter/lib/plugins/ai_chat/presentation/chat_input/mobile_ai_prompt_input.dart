@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_input_file.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
@@ -267,7 +266,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
           view.parentViewId.isNotEmpty,
     );
     if (selectedView != null) {
-      handler.onSelected(ViewActionPage(view: selectedView));
+      handler.onSelected(selectedView);
     }
     handler.onExit();
     _inputFocusNode.requestFocus();

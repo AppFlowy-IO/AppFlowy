@@ -1,19 +1,11 @@
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_input_action_menu.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:equatable/equatable.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-abstract class ChatInputMention extends Equatable {
-  String get title;
-  String get pageId;
-  dynamic get page;
-  Widget get icon;
-}
-
-/// Key: the key is the pageId
-typedef ChatInputMentionMetadata = Map<String, ChatInputMention>;
+typedef ChatInputMentionMetadata = Map<String, ViewPB>;
 
 class ChatInputActionControl extends ChatActionHandler {
   ChatInputActionControl({
@@ -34,12 +26,12 @@ class ChatInputActionControl extends ChatActionHandler {
 
   // Getter
   List<String> get tags =>
-      _commandBloc.state.selectedPages.map((e) => e.title).toList();
+      _commandBloc.state.selectedPages.map((e) => e.name).toList();
 
   ChatInputMentionMetadata consumeMetaData() {
     final metadata = _commandBloc.state.selectedPages.fold(
-      <String, ChatInputMention>{},
-      (map, page) => map..putIfAbsent(page.pageId, () => page),
+      <String, ViewPB>{},
+      (map, page) => map..putIfAbsent(page.id, () => page),
     );
 
     if (metadata.isNotEmpty) {
@@ -71,9 +63,9 @@ class ChatInputActionControl extends ChatActionHandler {
   }
 
   @override
-  void onSelected(ChatInputMention page) {
+  void onSelected(ViewPB page) {
     _commandBloc.add(ChatInputActionEvent.addPage(page));
-    textController.text = "$_showMenuText${page.title}";
+    textController.text = "$_showMenuText${page.name}";
 
     onExit();
   }
