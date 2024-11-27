@@ -1,8 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shortcuts/table_command_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 
 final CommandShortcutEvent arrowRightInTableCell = CommandShortcutEvent(
   key: 'Press arrow right in table cell',

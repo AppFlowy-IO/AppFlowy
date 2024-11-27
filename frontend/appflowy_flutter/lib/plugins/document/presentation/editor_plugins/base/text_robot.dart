@@ -35,10 +35,6 @@ class TextRobot {
         case TextRobotInputType.character:
           await insertCharacter(line, delay);
           break;
-        case TextRobotInputType.sentence:
-          await editorState.insertTextAtCurrentSelection(line);
-          await Future.delayed(delay);
-          break;
         case TextRobotInputType.word:
           await insertWord(line, delay);
           break;
