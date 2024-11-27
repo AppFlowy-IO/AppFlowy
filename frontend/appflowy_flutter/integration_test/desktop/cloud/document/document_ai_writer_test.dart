@@ -33,7 +33,7 @@ void main() {
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_aiWriter.tr(),
       );
-      expect(find.byType(AutoCompletionBlockComponent), findsOneWidget);
+      expect(find.byType(AIWriterBlockComponent), findsOneWidget);
 
       // switch to another page
       await tester.openPage(Constants.gettingStartedPageName);
@@ -41,7 +41,7 @@ void main() {
       await tester.openPage(pageName);
 
       // expect the ai writer block is not in the document
-      expect(find.byType(AutoCompletionBlockComponent), findsNothing);
+      expect(find.byType(AIWriterBlockComponent), findsNothing);
     });
   });
 }
