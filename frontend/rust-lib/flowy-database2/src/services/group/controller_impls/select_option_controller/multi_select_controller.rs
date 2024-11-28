@@ -114,6 +114,7 @@ impl GroupCustomize for MultiSelectGroupController {
     {
       // Remove the option if the group is found
       new_type_option.options.remove(option_index);
+      self.context.delete_group(group_id)?;
       Ok(Some(new_type_option.into()))
     } else {
       Ok(None)
