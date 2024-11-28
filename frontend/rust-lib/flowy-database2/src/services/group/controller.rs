@@ -169,6 +169,13 @@ where
 
     let generated_groups = G::build(&grouping_field, &self.context, &type_option).await;
     let _ = self.context.init_groups(generated_groups)?;
+
+    let row_details = self.delegate.get_all_rows(&self.context.view_id).await;
+    let rows = row_details
+      .iter()
+      .map(|row| row.as_ref())
+      .collect::<Vec<_>>();
+    self.fill_groups(rows.as_slice(), &grouping_field)?;
     Ok(())
   }
 
