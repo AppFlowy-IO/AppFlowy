@@ -62,15 +62,15 @@ extension TableContentOperation on EditorState {
       return;
     }
 
-    if (index < 0 || index >= node.rowLength) {
-      Log.warn('clear content in row: index out of range: $index');
+    if (index < 0 || index >= node.columnLength) {
+      Log.warn('clear content in column: index out of range: $index');
       return;
     }
 
-    Log.info('clear content in row: $index in table ${node.id}');
+    Log.info('clear content in column: $index in table ${node.id}');
 
     final transaction = this.transaction;
-    for (var i = 0; i < node.columnLength; i++) {
+    for (var i = 0; i < node.rowLength; i++) {
       final row = node.children[i];
       final cell = index >= row.children.length
           ? row.children.last

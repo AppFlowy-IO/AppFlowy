@@ -4,6 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 (EditorState editorState, Node tableNode) createEditorStateAndTable({
   required int rowCount,
   required int columnCount,
+  String? defaultContent,
 }) {
   final document = Document.blank()
     ..insert(
@@ -12,6 +13,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
         createSimpleTableBlockNode(
           columnCount: columnCount,
           rowCount: rowCount,
+          defaultContent: defaultContent,
         ),
       ],
     );

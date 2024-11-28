@@ -91,11 +91,14 @@ Node simpleTableBlockNode({
 Node createSimpleTableBlockNode({
   required int columnCount,
   required int rowCount,
+  String? defaultContent,
 }) {
   final rows = List.generate(rowCount, (_) {
     final cells = List.generate(
       columnCount,
-      (_) => simpleTableCellBlockNode(children: [paragraphNode()]),
+      (_) => simpleTableCellBlockNode(
+        children: [paragraphNode(text: defaultContent)],
+      ),
     );
     return simpleTableRowBlockNode(children: cells);
   });
