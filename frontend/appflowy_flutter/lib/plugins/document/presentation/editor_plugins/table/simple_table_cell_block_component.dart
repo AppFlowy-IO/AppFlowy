@@ -78,20 +78,20 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   @override
   late EditorState editorState = context.read<EditorState>();
 
-  late SimpleTableContext simpleTableContext =
-      context.read<SimpleTableContext>();
+  late SimpleTableContext? simpleTableContext =
+      context.read<SimpleTableContext?>();
 
   @override
   void initState() {
     super.initState();
 
-    simpleTableContext.isSelectingTable.addListener(_onSelectingTableChanged);
+    simpleTableContext?.isSelectingTable.addListener(_onSelectingTableChanged);
     node.parentTableNode?.addListener(_onSelectingTableChanged);
   }
 
   @override
   void dispose() {
-    simpleTableContext.isSelectingTable.removeListener(
+    simpleTableContext?.isSelectingTable.removeListener(
       _onSelectingTableChanged,
     );
     node.parentTableNode?.removeListener(_onSelectingTableChanged);
@@ -101,9 +101,13 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (simpleTableContext == null) {
+      return const SizedBox.shrink();
+    }
+
     return MouseRegion(
       hitTestBehavior: HitTestBehavior.opaque,
-      onEnter: (event) => simpleTableContext.hoveringTableCell.value = node,
+      onEnter: (event) => simpleTableContext!.hoveringTableCell.value = node,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -134,11 +138,15 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildCell() {
+    if (simpleTableContext == null) {
+      return const SizedBox.shrink();
+    }
+
     return ValueListenableBuilder(
-      valueListenable: simpleTableContext.selectingColumn,
+      valueListenable: simpleTableContext!.selectingColumn,
       builder: (context, selectingColumn, child) {
         return ValueListenableBuilder(
-          valueListenable: simpleTableContext.selectingRow,
+          valueListenable: simpleTableContext!.selectingRow,
           builder: (context, selectingRow, _) {
             return DecoratedBox(
               decoration: _buildDecoration(),
