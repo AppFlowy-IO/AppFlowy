@@ -1,5 +1,13 @@
 # Release Notes
-# Release Notes
+## Version 0.7.5 - 25/11/2024
+### Bug Fixes
+- Improved chat response parsing
+- Fixed toggle list icon direction for RTL mode
+- Fixed cross blocks formatting not reflecting in float toolbar
+- Fixed unable to click inside the toggle list to create a new paragraph
+- Fixed open file error 50 on macOS
+- Fixed upload file exceed limit error
+
 ## Version 0.7.4 - 19/11/2024
 ### New Features
 - Support uploading WebP and BMP images
