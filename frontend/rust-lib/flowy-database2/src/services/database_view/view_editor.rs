@@ -993,7 +993,7 @@ impl DatabaseViewEditor {
     if let Some(field) = self.delegate.get_field(field_id).await {
       tracing::trace!("create new group controller");
 
-      let new_group_controller = new_group_controller(
+      let mut new_group_controller = new_group_controller(
         self.view_id.clone(),
         self.delegate.clone(),
         self.filter_controller.clone(),
@@ -1001,7 +1001,9 @@ impl DatabaseViewEditor {
       )
       .await?;
 
-      if let Some(controller) = &new_group_controller {
+      if let Some(controller) = &mut new_group_controller {
+        (*controller).load_group_data().await?;
+
         let new_groups = controller
           .get_all_groups()
           .into_iter()
@@ -1131,13 +1133,22 @@ impl DatabaseViewEditor {
     }
 
     // initialize the group controller if the current layout support grouping
-    *self.group_controller.write().await = new_group_controller(
+    let new_group_controller = match new_group_controller(
       self.view_id.clone(),
       self.delegate.clone(),
       self.filter_controller.clone(),
       None,
     )
-    .await?;
+    .await?
+    {
+      Some(mut controller) => {
+        controller.load_group_data().await?;
+        Some(controller)
+      },
+      None => None,
+    };
+
+    *self.group_controller.write().await = new_group_controller;
 
     let payload = DatabaseLayoutMetaPB {
       view_id: self.view_id.clone(),
