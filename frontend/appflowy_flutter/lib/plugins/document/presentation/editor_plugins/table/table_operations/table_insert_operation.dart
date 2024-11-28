@@ -20,15 +20,15 @@ extension TableInsertionOperations on EditorState {
   /// Row 2: |   |   |   |
   /// Row 3: |   |   |   | ← New row
   ///
-  Future<void> addRowInTable(Node node) async {
-    assert(node.type == SimpleTableBlockKeys.type);
+  Future<void> addRowInTable(Node tableNode) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
-      Log.warn('node is not a table node: ${node.type}');
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      Log.warn('node is not a table node: ${tableNode.type}');
       return;
     }
 
-    await insertRowInTable(node, node.rowLength);
+    await insertRowInTable(tableNode, tableNode.rowLength);
   }
 
   /// Add a column at the end of the table.

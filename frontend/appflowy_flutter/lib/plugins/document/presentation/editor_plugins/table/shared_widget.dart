@@ -53,21 +53,54 @@ class SimpleTableReorderButton extends StatelessWidget {
   }
 }
 
-class SimpleTableAddRowHoverButton extends StatelessWidget {
+class SimpleTableAddRowHoverButton extends StatefulWidget {
   const SimpleTableAddRowHoverButton({
     super.key,
     required this.editorState,
-    required this.node,
+    required this.tableNode,
   });
 
   final EditorState editorState;
-  final Node node;
+  final Node tableNode;
+
+  @override
+  State<SimpleTableAddRowHoverButton> createState() =>
+      _SimpleTableAddRowHoverButtonState();
+}
+
+class _SimpleTableAddRowHoverButtonState
+    extends State<SimpleTableAddRowHoverButton> {
+  late final interceptorKey =
+      'simple_table_add_row_hover_button_${widget.tableNode.id}';
+
+  SelectionGestureInterceptor? interceptor;
+
+  @override
+  void initState() {
+    super.initState();
+
+    interceptor = SelectionGestureInterceptor(
+      key: interceptorKey,
+      canTap: (details) => !_isTapInBounds(details.globalPosition),
+    );
+    widget.editorState.service.selectionService
+        .registerGestureInterceptor(interceptor!);
+  }
+
+  @override
+  void dispose() {
+    widget.editorState.service.selectionService.unregisterGestureInterceptor(
+      interceptorKey,
+    );
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    assert(node.type == SimpleTableBlockKeys.type);
+    assert(widget.tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (widget.tableNode.type != SimpleTableBlockKeys.type) {
       return const SizedBox.shrink();
     }
 
@@ -85,12 +118,26 @@ class SimpleTableAddRowHoverButton extends StatelessWidget {
                     SimpleTableConstants.cellBorderWidth,
                 right: SimpleTableConstants.addRowButtonRightPadding,
                 child: SimpleTableAddRowButton(
-                  onTap: () => editorState.addRowInTable(node),
+                  onTap: () => widget.editorState.addRowInTable(
+                    widget.tableNode,
+                  ),
                 ),
               )
             : const SizedBox.shrink();
       },
     );
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return false;
+    }
+
+    final localPosition = renderBox.globalToLocal(offset);
+    final result = renderBox.paintBounds.contains(localPosition);
+
+    return result;
   }
 }
 
@@ -107,7 +154,7 @@ class SimpleTableAddRowButton extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
       child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -132,7 +179,7 @@ class SimpleTableAddRowButton extends StatelessWidget {
   }
 }
 
-class SimpleTableAddColumnHoverButton extends StatelessWidget {
+class SimpleTableAddColumnHoverButton extends StatefulWidget {
   const SimpleTableAddColumnHoverButton({
     super.key,
     required this.editorState,
@@ -143,10 +190,43 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
   final Node node;
 
   @override
-  Widget build(BuildContext context) {
-    assert(node.type == SimpleTableBlockKeys.type);
+  State<SimpleTableAddColumnHoverButton> createState() =>
+      _SimpleTableAddColumnHoverButtonState();
+}
 
-    if (node.type != SimpleTableBlockKeys.type) {
+class _SimpleTableAddColumnHoverButtonState
+    extends State<SimpleTableAddColumnHoverButton> {
+  late final interceptorKey =
+      'simple_table_add_column_hover_button_${widget.node.id}';
+
+  SelectionGestureInterceptor? interceptor;
+
+  @override
+  void initState() {
+    super.initState();
+
+    interceptor = SelectionGestureInterceptor(
+      key: interceptorKey,
+      canTap: (details) => !_isTapInBounds(details.globalPosition),
+    );
+    widget.editorState.service.selectionService
+        .registerGestureInterceptor(interceptor!);
+  }
+
+  @override
+  void dispose() {
+    widget.editorState.service.selectionService.unregisterGestureInterceptor(
+      interceptorKey,
+    );
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(widget.node.type == SimpleTableBlockKeys.type);
+
+    if (widget.node.type != SimpleTableBlockKeys.type) {
       return const SizedBox.shrink();
     }
 
@@ -166,13 +246,25 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
                 right: 0,
                 child: SimpleTableAddColumnButton(
                   onTap: () {
-                    editorState.addColumnInTable(node);
+                    widget.editorState.addColumnInTable(widget.node);
                   },
                 ),
               )
             : const SizedBox.shrink();
       },
     );
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return false;
+    }
+
+    final localPosition = renderBox.globalToLocal(offset);
+    final result = renderBox.paintBounds.contains(localPosition);
+
+    return result;
   }
 }
 

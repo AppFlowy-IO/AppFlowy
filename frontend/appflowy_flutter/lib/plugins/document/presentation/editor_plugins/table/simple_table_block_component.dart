@@ -252,7 +252,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
             ),
             SimpleTableAddRowHoverButton(
               editorState: editorState,
-              node: node,
+              tableNode: node,
             ),
             SimpleTableAddColumnAndRowHoverButton(
               editorState: editorState,
