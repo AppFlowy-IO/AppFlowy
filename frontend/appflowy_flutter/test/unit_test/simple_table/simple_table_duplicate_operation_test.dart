@@ -34,7 +34,7 @@ void main() {
       expect(tableNode.columnLength, 5);
     });
 
-    test('duplicate a row with background', () async {
+    test('duplicate a row with background and align (1)', () async {
       final (editorState, tableNode) = createEditorStateAndTable(
         rowCount: 3,
         columnCount: 4,
@@ -49,10 +49,116 @@ void main() {
       expect(tableCellNode.rowColors, {
         '1': '0xFF0000FF',
       });
+      await editorState.updateRowAlign(
+        tableCellNode: tableCellNode,
+        align: TableAlign.center,
+      );
+      expect(tableNode.rowAligns, {
+        '1': TableAlign.center.name,
+      });
       await editorState.duplicateRowInTable(tableNode, 1);
       expect(tableCellNode.rowColors, {
         '1': '0xFF0000FF',
         '2': '0xFF0000FF',
+      });
+      expect(tableNode.rowAligns, {
+        '1': TableAlign.center.name,
+        '2': TableAlign.center.name,
+      });
+    });
+
+    test('duplicate a row with background and align (2)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 3,
+        columnCount: 4,
+      );
+      // duplicate the row 1
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 1, columnIndex: 0);
+      await editorState.updateRowBackgroundColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      expect(tableCellNode.rowColors, {
+        '1': '0xFF0000FF',
+      });
+      await editorState.updateRowAlign(
+        tableCellNode: tableCellNode,
+        align: TableAlign.center,
+      );
+      expect(tableNode.rowAligns, {
+        '1': TableAlign.center.name,
+      });
+      await editorState.duplicateRowInTable(tableNode, 2);
+      expect(tableCellNode.rowColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.rowAligns, {
+        '1': TableAlign.center.name,
+      });
+    });
+
+    test('duplicate a column with background and align (1)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 3,
+        columnCount: 4,
+      );
+      // duplicate the column 1
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 0, columnIndex: 1);
+      await editorState.updateColumnBackgroundColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      await editorState.updateColumnAlign(
+        tableCellNode: tableCellNode,
+        align: TableAlign.center,
+      );
+      expect(tableNode.columnColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.columnAligns, {
+        '1': TableAlign.center.name,
+      });
+      await editorState.duplicateColumnInTable(tableNode, 1);
+      expect(tableCellNode.columnColors, {
+        '1': '0xFF0000FF',
+        '2': '0xFF0000FF',
+      });
+      expect(tableNode.columnAligns, {
+        '1': TableAlign.center.name,
+        '2': TableAlign.center.name,
+      });
+    });
+
+    test('duplicate a column with background and align (2)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 3,
+        columnCount: 4,
+      );
+      // duplicate the column 1
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 0, columnIndex: 1);
+      await editorState.updateColumnBackgroundColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      await editorState.updateColumnAlign(
+        tableCellNode: tableCellNode,
+        align: TableAlign.center,
+      );
+      expect(tableNode.columnColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.columnAligns, {
+        '1': TableAlign.center.name,
+      });
+      await editorState.duplicateColumnInTable(tableNode, 2);
+      expect(tableCellNode.columnColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.columnAligns, {
+        '1': TableAlign.center.name,
       });
     });
   });
