@@ -10,7 +10,7 @@ import { getRangeRect } from '@/components/editor/components/toolbar/selection-t
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { isMac } from '@/utils/hotkeys';
 import { IconButton, Tooltip } from '@mui/material';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as AddSvg } from '@/assets/add.svg';
 import { ReactComponent as DragSvg } from '@/assets/drag_element.svg';
@@ -27,10 +27,6 @@ function ControlActions ({ setOpenMenu, blockId }: {
 
   const editor = useSlateStatic() as YjsEditor;
   const { t } = useTranslation();
-
-  useEffect(() => {
-    setOpenMenu?.(openMenu);
-  }, [openMenu, setOpenMenu]);
 
   const {
     openPanel,
@@ -53,6 +49,7 @@ function ControlActions ({ setOpenMenu, blockId }: {
     e.stopPropagation();
 
     if (!blockId) return;
+    setOpenMenu?.(true);
     setMenuAnchorEl(e.currentTarget as HTMLElement);
     const { selection } = editor;
     const [, nodePath] = findSlateEntryByBlockId(editor, blockId);
@@ -78,7 +75,7 @@ function ControlActions ({ setOpenMenu, blockId }: {
 
     editor.select(editor.start(nodePath));
 
-  }, [editor, blockId, setSelectedBlockIds]);
+  }, [setOpenMenu, editor, blockId, setSelectedBlockIds]);
 
   const onClickAdd = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -140,8 +137,9 @@ function ControlActions ({ setOpenMenu, blockId }: {
         open={openMenu}
         anchorEl={menuAnchorEl}
         onClose={() => {
-          setMenuAnchorEl(null);
           setSelectedBlockIds?.([]);
+          setMenuAnchorEl(null);
+          setOpenMenu?.(false);
         }}
       />}
     </div>

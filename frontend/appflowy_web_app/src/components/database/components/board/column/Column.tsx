@@ -3,7 +3,7 @@ import { AFScroller } from '@/components/_shared/scroller';
 import ListItem from '@/components/database/components/board/column/ListItem';
 import { useRenderColumn } from '@/components/database/components/board/column/useRenderColumn';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
 
@@ -11,12 +11,14 @@ export interface ColumnProps {
   id: string;
   rows?: Row[];
   fieldId: string;
+  onRendered?: (height: number) => void;
 }
 
 export const Column = memo(
-  ({ id, rows, fieldId }: ColumnProps) => {
+  ({ id, rows, fieldId, onRendered }: ColumnProps) => {
     const { header } = useRenderColumn(id, fieldId);
     const ref = React.useRef<VariableSizeList | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const forceUpdate = useCallback((index: number) => {
       ref.current?.resetAfterIndex(index, true);
     }, []);
@@ -36,6 +38,34 @@ export const Column = memo(
     );
     const { rowHeight, onResize } = useMeasureHeight({ forceUpdate, rows: measureRows });
 
+    useEffect(() => {
+      const el = containerRef.current;
+
+      if (!el) return;
+
+      const calculateHeight = () => {
+        const rows = el.querySelectorAll('.list-item');
+
+        if (!rows || rows.length === 0) {
+          onRendered?.(150);
+          return;
+        }
+
+        const maxBottom = Math.max(...Array.from(rows).map((row) => row.getBoundingClientRect().bottom));
+        const height = maxBottom - el.getBoundingClientRect().top;
+
+        onRendered?.(height + 150);
+      };
+
+      const timeout = setTimeout(() => {
+        calculateHeight();
+      }, 500);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }, [onRendered]);
+
     const Row = useCallback(
       ({ index, style, data }: { index: number; style: React.CSSProperties; data: Row[] }) => {
         const item = data[index];
@@ -52,7 +82,12 @@ export const Column = memo(
           });
         };
 
-        return <ListItem fieldId={fieldId} onResize={onResizeCallback} item={item} style={style} />;
+        return <ListItem
+          fieldId={fieldId}
+          onResize={onResizeCallback}
+          item={item}
+          style={style}
+        />;
       },
       [fieldId, onResize],
     );
@@ -70,7 +105,11 @@ export const Column = memo(
     const rowCount = rows?.length || 0;
 
     return (
-      <div key={id} className="column flex w-[230px] flex-col gap-4">
+      <div
+        ref={containerRef}
+        key={id}
+        className="column flex w-[230px] flex-col gap-4"
+      >
         <div
           className="column-header flex overflow-hidden items-center gap-2 text-sm font-medium whitespace-nowrap"
         >
@@ -81,6 +120,7 @@ export const Column = memo(
         <div className={'w-full flex-1 overflow-hidden'}>
           <AutoSizer>
             {({ height, width }: { height: number; width: number }) => {
+
               return (
                 <VariableSizeList
                   ref={ref}

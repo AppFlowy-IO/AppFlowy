@@ -88,14 +88,16 @@ export const DatabaseBlock = memo(
     const readOnly = useReadOnly();
 
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const handleRendered = useCallback(async () => {
+    const handleRendered = useCallback(async (height: number) => {
       const container = containerRef.current;
 
       if (!container) return;
-      const databaseEl = container.querySelector('.appflowy-database');
+      if (height > 0) {
+        container.style.height = `${height}px`;
+      }
 
-      container.style.height = `${databaseEl?.scrollHeight}px`;
-      container.style.maxHeight = `550px`;
+      container.style.maxHeight = Math.max(550, height || 0) + 'px';
+
     }, []);
 
     const [scrollLeft, setScrollLeft] = useState(0);

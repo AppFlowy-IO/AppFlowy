@@ -33,7 +33,7 @@ export interface Database2Props {
   iidIndex: string;
   hideConditions?: boolean;
   variant?: UIVariant;
-  onRendered?: () => void;
+  onRendered?: (height: number) => void;
   isDocumentBlock?: boolean;
   scrollLeft?: number;
 }
@@ -132,6 +132,7 @@ function Database ({
         createRowDoc={createRowDoc}
         scrollLeft={scrollLeft}
         isDocumentBlock={isDocumentBlock}
+        onRendered={onRendered}
       >
         {rowId ? (
           <DatabaseRow
@@ -147,7 +148,6 @@ function Database ({
               onChangeView={onChangeView}
               viewId={viewId}
               hideConditions={hideConditions}
-              onRendered={onRendered}
             />
           </div>
         )}

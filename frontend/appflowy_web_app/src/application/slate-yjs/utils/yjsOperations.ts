@@ -353,11 +353,15 @@ export function copyBlockText (sharedRoot: YSharedRoot, sourceBlock: YBlock, tar
   const targetTextId = targetBlock.get(YjsEditorKey.block_external_id);
 
   if (!sourceTextId || !targetTextId) {
-    throw new Error('Text id not found');
+    return;
   }
 
   const sourceText = getText(sourceTextId, sharedRoot);
   const targetText = getText(targetTextId, sharedRoot);
+
+  if (!sourceText || !targetText) {
+    return;
+  }
 
   targetText.applyDelta(sourceText.toDelta());
 }
