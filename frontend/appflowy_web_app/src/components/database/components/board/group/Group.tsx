@@ -26,20 +26,27 @@ export const Group = ({ groupId }: GroupProps) => {
   return (
     <AFScroller
       overflowYHidden
-      style={{
-        paddingInline: scrollLeft === undefined ? undefined : scrollLeft,
-      }}
-      className={`relative max-sm:!px-6 px-24`}
+      className={`relative`}
     >
-      <div className="columns flex h-full w-fit min-w-full gap-4 border-t border-line-divider py-4">
-        {columns.map((data) => (
-          <Column
-            key={data.id}
-            id={data.id}
-            fieldId={fieldId}
-            rows={groupResult.get(data.id)}
-          />
-        ))}
+      <div
+        className={'max-sm:!px-6 px-24'}
+        style={{
+          paddingInline: scrollLeft === undefined ? undefined : scrollLeft,
+        }}
+      >
+        <div
+
+          className="columns flex h-full w-fit min-w-full gap-4 border-t border-line-divider py-4"
+        >
+          {columns.map((data) => (
+            <Column
+              key={data.id}
+              id={data.id}
+              fieldId={fieldId}
+              rows={groupResult.get(data.id)}
+            />
+          ))}
+        </div>
       </div>
     </AFScroller>
   );
