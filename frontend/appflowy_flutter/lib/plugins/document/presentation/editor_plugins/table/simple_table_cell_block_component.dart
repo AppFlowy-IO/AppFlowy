@@ -81,12 +81,15 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   late SimpleTableContext? simpleTableContext =
       context.read<SimpleTableContext?>();
 
+  bool isEditing = false;
+
   @override
   void initState() {
     super.initState();
 
     simpleTableContext?.isSelectingTable.addListener(_onSelectingTableChanged);
     node.parentTableNode?.addListener(_onSelectingTableChanged);
+    editorState.selectionNotifier.addListener(_onSelectionChanged);
   }
 
   @override
@@ -95,6 +98,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       _onSelectingTableChanged,
     );
     node.parentTableNode?.removeListener(_onSelectingTableChanged);
+    editorState.selectionNotifier.removeListener(_onSelectionChanged);
 
     super.dispose();
   }
@@ -265,6 +269,8 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return _buildColumnBorder();
     } else if (isCellInSelectedRow) {
       return _buildRowBorder();
+    } else if (isEditing) {
+      return _buildEditingBorder();
     } else {
       return _buildCellBorder();
     }
@@ -352,9 +358,46 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Border _buildCellBorder() {
+    return Border(
+      top: node.rowIndex == 0
+          ? BorderSide(
+              color: context.simpleTableBorderColor,
+            )
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
+          ? BorderSide(
+              color: context.simpleTableBorderColor,
+            )
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+      left: node.columnIndex == 0
+          ? BorderSide(
+              color: context.simpleTableBorderColor,
+            )
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
+          ? BorderSide(
+              color: context.simpleTableBorderColor,
+            )
+          : BorderSide(
+              color: context.simpleTableBorderColor,
+              width: 0.5,
+            ),
+    );
+  }
+
+  Border _buildEditingBorder() {
     return Border.all(
-      color: context.simpleTableBorderColor,
-      strokeAlign: BorderSide.strokeAlignCenter,
+      color: Theme.of(context).colorScheme.primary,
+      width: 2,
     );
   }
 
@@ -400,6 +443,23 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   void _onSelectingTableChanged() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  void _onSelectionChanged() {
+    if (mounted) {
+      setState(() {
+        final selection = editorState.selection;
+
+        // check if the selection is in the cell
+        if (selection != null &&
+            node.path.isAncestorOf(selection.start.path) &&
+            node.path.isAncestorOf(selection.end.path)) {
+          isEditing = true;
+        } else {
+          isEditing = false;
+        }
+      });
     }
   }
 }
